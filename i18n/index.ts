@@ -1,39 +1,46 @@
-import { de } from "./locales/de"
-import { en } from "./locales/en"
+import { de } from './locales/de';
+import { en } from './locales/en';
 
 // Define available locales
 export const locales = {
-  de,
-  en,
-}
+	de,
+	en,
+};
 
 // Define locale type
-export type Locale = keyof typeof locales
+export type Locale = keyof typeof locales;
 
 // Define translation key type
-export type TranslationKey = keyof typeof de
+export type TranslationKey = keyof typeof de;
 
 // Helper function to get translation
-export function getTranslation(locale: Locale, key: TranslationKey, params?: Record<string, string | number>): string {
-  let text = locales[locale][key] || key
+export function getTranslation(
+	locale: Locale,
+	key: TranslationKey,
+	params?: Record<string, string | number>,
+): string {
+	let text = locales[locale][key] || key;
 
-  if (params) {
-    Object.entries(params).forEach(([param, value]) => {
-      text = text.replace(`{${param}}`, String(value))
-    })
-  }
+	if (params) {
+		Object.entries(params).forEach(([param, value]) => {
+			text = text.replace(`{${param}}`, String(value));
+		});
+	}
 
-  return text
+	return text;
 }
 
 // Format time expressions according to locale
-export function formatTimeAgo(locale: Locale, value: number, unit: "minute" | "hour" | "day"): string {
-  const unitKey = value === 1 ? unit : (`${unit}s` as TranslationKey)
+export function formatTimeAgo(
+	locale: Locale,
+	value: number,
+	unit: 'minute' | 'hour' | 'day',
+): string {
+	const unitKey = value === 1 ? unit : (`${unit}s` as TranslationKey);
 
-  if (locale === "de") {
-    return `vor ${value} ${locales[locale][unitKey]}`
-  } else {
-    return `${value} ${locales[locale][unitKey]} ${locales[locale]["ago"]}`
-  }
+	if (locale === 'de') {
+		return `vor ${value} ${locales[locale][unitKey]}`;
+	} else {
+		return `${value} ${locales[locale][unitKey]} ${locales[locale]['ago']}`;
+	}
 }
-
