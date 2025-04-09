@@ -8,9 +8,9 @@ import { LanguageProvider } from '@/contexts/language-context';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-	title: 'Baby Tracker',
 	description: 'An app for tracking baby activities',
 	generator: 'v0.dev',
+	title: 'Baby Tracker',
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
 	return (
 		<html lang="de">
 			<head>
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<meta content="width=device-width, initial-scale=1" name="viewport" />
 			</head>
 			<body className={inter.className}>
 				<LanguageProvider>
@@ -33,4 +33,3 @@ export default function RootLayout({
 	);
 }
 
-import './globals.css';

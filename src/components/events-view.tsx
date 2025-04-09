@@ -8,15 +8,15 @@ import { useTranslate } from '@/utils/translate';
 interface EventsViewProps {
 	events: Event[];
 	onEventAdd: (event: Event) => void;
-	onEventUpdate: (event: Event) => void;
 	onEventDelete: (eventId: string) => void;
+	onEventUpdate: (event: Event) => void;
 }
 
 export default function EventsView({
 	events = [],
 	onEventAdd,
-	onEventUpdate,
 	onEventDelete,
+	onEventUpdate,
 }: EventsViewProps) {
 	// Ensure events is an array
 	const eventsArray = Array.isArray(events) ? events : [];
@@ -36,8 +36,8 @@ export default function EventsView({
 				<CardContent className="p-4 pt-0">
 					<EventsList
 						events={eventsArray}
-						onEventUpdate={onEventUpdate}
 						onEventDelete={onEventDelete}
+						onEventUpdate={onEventUpdate}
 					/>
 				</CardContent>
 			</Card>

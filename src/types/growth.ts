@@ -1,7 +1,10 @@
 export interface GrowthMeasurement {
-	id: string;
-	date: string; // ISO string
-	weight?: number; // in grams
-	height?: number; // in centimeters
-	notes?: string;
+	date: string;
+	// in grams
+	height?: number; 
+	id: string; 
+	// in centimeters
+	notes?: string; 
+	// ISO string
+	weight?: number;
 }

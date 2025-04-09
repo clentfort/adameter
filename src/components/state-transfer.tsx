@@ -25,24 +25,24 @@ import { useLanguage } from '@/contexts/language-context';
 import { downloadAllAsZip } from '@/utils/csv-export';
 
 interface StateTransferProps {
-	sessions: FeedingSession[];
+	diaperChanges?: DiaperChange[];
 	events?: Event[];
 	measurements?: GrowthMeasurement[];
-	diaperChanges?: DiaperChange[];
 	onImport: (
 		sessions: FeedingSession[],
 		events?: Event[],
 		measurements?: GrowthMeasurement[],
 		diaperChanges?: DiaperChange[],
 	) => void;
+	sessions: FeedingSession[];
 }
 
 export default function StateTransfer({
-	sessions = [],
+	diaperChanges = [],
 	events = [],
 	measurements = [],
-	diaperChanges = [],
 	onImport,
+	sessions = [],
 }: StateTransferProps) {
 	const t = useTranslate();
 	const { language } = useLanguage();
@@ -51,10 +51,10 @@ export default function StateTransfer({
 	const [exportUrl, setExportUrl] = useState('');
 	const [confirmText, setConfirmText] = useState('');
 	const [importedData, setImportedData] = useState<{
-		sessions: FeedingSession[];
+		diaperChanges: DiaperChange[];
 		events: Event[];
 		measurements: GrowthMeasurement[];
-		diaperChanges: DiaperChange[];
+		sessions: FeedingSession[];
 	} | null>(null);
 	const { toast } = useToast();
 	const [exportTab, setExportTab] = useState<'url' | 'csv'>('url');
@@ -76,7 +76,7 @@ export default function StateTransfer({
 			const hash = window.location.hash;
 			if (hash && hash.startsWith('#data=')) {
 				try {
-					const encodedData = hash.substring(6); // Remove "#data="
+					const encodedData = hash.slice(6); // Remove "#data="
 					const jsonData = decodeURIComponent(atob(encodedData));
 					const parsedData = JSON.parse(jsonData);
 
@@ -112,10 +112,10 @@ export default function StateTransfer({
 
 					if (sessions.length > 0) {
 						setImportedData({
-							sessions,
+							diaperChanges,
 							events,
 							measurements,
-							diaperChanges,
+							sessions,
 						});
 						setIsImportDialogOpen(true);
 
@@ -126,10 +126,10 @@ export default function StateTransfer({
 							window.location.pathname + window.location.search,
 						);
 					}
-				} catch (error) {
+				} catch {
 					toast({
-						title: t('importTitle'),
 						description: t('importDescription'),
+						title: t('importTitle'),
 						variant: 'destructive',
 					});
 				}
@@ -140,8 +140,8 @@ export default function StateTransfer({
 	const handleExport = () => {
 		if (sessionsArray.length === 0) {
 			toast({
-				title: t('exportTitle'),
 				description: t('noFeedingDataAvailable'),
+				title: t('exportTitle'),
 				variant: 'destructive',
 			});
 			return;
@@ -149,10 +149,10 @@ export default function StateTransfer({
 
 		try {
 			const exportData = {
-				sessions: sessionsArray,
+				diaperChanges: diaperChangesArray,
 				events: eventsArray,
 				measurements: measurementsArray,
-				diaperChanges: diaperChangesArray,
+				sessions: sessionsArray,
 			};
 
 			const jsonData = JSON.stringify(exportData);
@@ -163,8 +163,8 @@ export default function StateTransfer({
 		} catch (error) {
 			console.error('Export error:', error);
 			toast({
-				title: t('exportTitle'),
 				description: t('noDataAvailable'),
+				title: t('exportTitle'),
 				variant: 'destructive',
 			});
 		}
@@ -174,13 +174,13 @@ export default function StateTransfer({
 		try {
 			await navigator.clipboard.writeText(exportUrl);
 			toast({
+				description: t('urlExportDescription'),
 				title: t('copy'),
-				description: t('urlExportDescription'),
 			});
-		} catch (error) {
+		} catch {
 			toast({
-				title: t('exportTitle'),
 				description: t('urlExportDescription'),
+				title: t('exportTitle'),
 			});
 		}
 	};
@@ -204,13 +204,13 @@ export default function StateTransfer({
 		setImportedData(null);
 
 		toast({
-			title: t('importTitle'),
 			description: t('importConfirmation', {
-				sessions: importedData.sessions.length,
+				diaperChanges: importedData.diaperChanges.length,
 				events: importedData.events.length,
 				measurements: importedData.measurements.length,
-				diaperChanges: importedData.diaperChanges.length,
+				sessions: importedData.sessions.length,
 			}),
+			title: t('importTitle'),
 		});
 	};
 
@@ -279,10 +279,10 @@ export default function StateTransfer({
 
 				if (sessions.length > 0) {
 					setImportedData({
-						sessions,
+						diaperChanges,
 						events,
 						measurements,
-						diaperChanges,
+						sessions,
 					});
 					setIsImportDialogOpen(true);
 					setIsImportUrlDialogOpen(false);
@@ -297,8 +297,8 @@ export default function StateTransfer({
 		} catch (error) {
 			console.error('Import error:', error);
 			toast({
-				title: t('importTitle'),
 				description: t('importDescription'),
+				title: t('importTitle'),
 				variant: 'destructive',
 			});
 		}
@@ -316,8 +316,8 @@ export default function StateTransfer({
 				diaperChangesArray.length === 0
 			) {
 				toast({
-					title: t('exportTitle'),
 					description: t('noDataAvailable'),
+					title: t('exportTitle'),
 					variant: 'destructive',
 				});
 				return;
@@ -332,14 +332,14 @@ export default function StateTransfer({
 			);
 
 			toast({
-				title: t('exportTitle'),
 				description: t('zipExportDescription'),
+				title: t('exportTitle'),
 			});
 		} catch (error) {
 			console.error('Error exporting data as ZIP:', error);
 			toast({
-				title: t('exportTitle'),
 				description: t('zipExportDescription'),
+				title: t('exportTitle'),
 				variant: 'destructive',
 			});
 		} finally {
@@ -351,8 +351,8 @@ export default function StateTransfer({
 		<>
 			{/* Import URL Dialog */}
 			<Dialog
-				open={isImportUrlDialogOpen}
 				onOpenChange={setIsImportUrlDialogOpen}
+				open={isImportUrlDialogOpen}
 			>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
@@ -363,11 +363,11 @@ export default function StateTransfer({
 						<div className="space-y-2">
 							<Label htmlFor="import-url">{t('exportUrl')}</Label>
 							<Input
+								className="font-mono text-xs"
 								id="import-url"
-								value={importUrl}
 								onChange={(e) => setImportUrl(e.target.value)}
 								placeholder={t('urlPlaceholder')}
-								className="font-mono text-xs"
+								value={importUrl}
 							/>
 							<p className="text-xs text-muted-foreground">
 								{t('importUrlDescription')}
@@ -376,8 +376,8 @@ export default function StateTransfer({
 					</div>
 					<DialogFooter>
 						<Button
-							variant="outline"
 							onClick={() => setIsImportUrlDialogOpen(false)}
+							variant="outline"
 						>
 							{t('cancel')}
 						</Button>
@@ -387,7 +387,7 @@ export default function StateTransfer({
 			</Dialog>
 
 			{/* Export Dialog */}
-			<Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
+			<Dialog onOpenChange={setIsExportDialogOpen} open={isExportDialogOpen}>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
 						<DialogTitle>{t('exportTitle')}</DialogTitle>
@@ -395,24 +395,24 @@ export default function StateTransfer({
 					</DialogHeader>
 
 					<Tabs
-						value={exportTab}
-						onValueChange={(value) => setExportTab(value as 'url' | 'csv')}
 						className="mt-4"
+						onValueChange={(value) => setExportTab(value as 'url' | 'csv')}
+						value={exportTab}
 					>
 						<TabsList className="grid grid-cols-2 mb-4">
 							<TabsTrigger value="url">{t('urlExport')}</TabsTrigger>
 							<TabsTrigger value="csv">{t('csvExport')}</TabsTrigger>
 						</TabsList>
 
-						<TabsContent value="url" className="space-y-4">
+						<TabsContent className="space-y-4" value="url">
 							<div className="space-y-2">
 								<Label htmlFor="export-url">{t('exportUrl')}</Label>
 								<div className="flex gap-2">
 									<Input
-										id="export-url"
-										value={exportUrl}
-										readOnly
 										className="font-mono text-xs"
+										id="export-url"
+										readOnly
+										value={exportUrl}
 									/>
 									<Button onClick={handleCopyUrl} variant="secondary">
 										{t('copy')}
@@ -424,13 +424,13 @@ export default function StateTransfer({
 							</div>
 						</TabsContent>
 
-						<TabsContent value="csv" className="space-y-4">
+						<TabsContent className="space-y-4" value="csv">
 							<div className="space-y-4">
 								<div>
 									<Button
-										onClick={handleExportZip}
-										disabled={isExporting}
 										className="w-full"
+										disabled={isExporting}
+										onClick={handleExportZip}
 									>
 										<FileZip className="h-4 w-4 mr-2" />
 										{t('exportAllAsZip')}
@@ -453,18 +453,18 @@ export default function StateTransfer({
 
 			{/* Import Dialog */}
 			<Dialog
-				open={isImportDialogOpen}
 				onOpenChange={(open) => !open && cancelImport()}
+				open={isImportDialogOpen}
 			>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
 						<DialogTitle>{t('importTitle')}</DialogTitle>
 						<DialogDescription>
 							{t('importConfirmation', {
-								sessions: importedData?.sessions.length || 0,
+								diaperChanges: importedData?.diaperChanges.length || 0,
 								events: importedData?.events.length || 0,
 								measurements: importedData?.measurements.length || 0,
-								diaperChanges: importedData?.diaperChanges.length || 0,
+								sessions: importedData?.sessions.length || 0,
 							})}
 						</DialogDescription>
 					</DialogHeader>
@@ -476,27 +476,27 @@ export default function StateTransfer({
 							<Label htmlFor="confirm-text">{t('confirmOverwrite')}</Label>
 							<Input
 								id="confirm-text"
-								value={confirmText}
 								onChange={(e) => setConfirmText(e.target.value)}
 								placeholder={language === 'de' ? 'überschreiben' : 'overwrite'}
+								value={confirmText}
 							/>
 						</div>
 					</div>
 					<DialogFooter className="flex flex-col sm:flex-row gap-2">
 						<Button
-							variant="outline"
-							onClick={cancelImport}
 							className="sm:order-1"
+							onClick={cancelImport}
+							variant="outline"
 						>
 							{t('cancel')}
 						</Button>
 						<Button
-							onClick={handleImport}
+							className="sm:order-2"
 							disabled={
 								confirmText !==
 								(language === 'de' ? 'überschreiben' : 'overwrite')
 							}
-							className="sm:order-2"
+							onClick={handleImport}
 						>
 							<Download className="h-4 w-4 mr-1" />
 							{t('importButton')}
@@ -507,19 +507,19 @@ export default function StateTransfer({
 
 			<div className="flex gap-2">
 				<Button
-					variant="outline"
-					size="sm"
 					onClick={() => setIsImportUrlDialogOpen(true)}
+					size="sm"
 					title={t('importData')}
+					variant="outline"
 				>
 					<Download className="h-4 w-4 mr-1" />
 					{t('importData')}
 				</Button>
 				<Button
-					variant="outline"
-					size="sm"
 					onClick={handleExport}
+					size="sm"
 					title={t('exportData')}
+					variant="outline"
 				>
 					<Share2 className="h-4 w-4 mr-1" />
 					{t('exportData')}

@@ -20,15 +20,15 @@ import type { GrowthMeasurement } from '@/types/growth';
 // Simple database icon
 const DatabaseIcon = () => (
 	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		width="16"
-		height="16"
-		viewBox="0 0 24 24"
 		fill="none"
+		height="16"
 		stroke="currentColor"
-		strokeWidth="2"
 		strokeLinecap="round"
 		strokeLinejoin="round"
+		strokeWidth="2"
+		viewBox="0 0 24 24"
+		width="16"
+		xmlns="http://www.w3.org/2000/svg"
 	>
 		<ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
 		<path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
@@ -38,9 +38,9 @@ const DatabaseIcon = () => (
 
 interface GenerateFakeDataProps {
 	onGenerate: (data: {
-		sessions: FeedingSession[];
 		events: Event[];
 		measurements: GrowthMeasurement[];
+		sessions: FeedingSession[];
 	}) => void;
 }
 
@@ -63,8 +63,8 @@ export default function GenerateFakeData({
 		// Validate inputs
 		if (daysNum <= 0 || daysNum > 90) {
 			toast({
-				title: 'Ungültige Eingabe',
 				description: 'Die Anzahl der Tage muss zwischen 1 und 90 liegen.',
+				title: 'Ungültige Eingabe',
 				variant: 'destructive',
 			});
 			return;
@@ -72,9 +72,9 @@ export default function GenerateFakeData({
 
 		if (feedingsNum <= 0 || feedingsNum > 24) {
 			toast({
-				title: 'Ungültige Eingabe',
 				description:
 					'Die Anzahl der Mahlzeiten pro Tag muss zwischen 1 und 24 liegen.',
+				title: 'Ungültige Eingabe',
 				variant: 'destructive',
 			});
 			return;
@@ -105,8 +105,8 @@ export default function GenerateFakeData({
 			onGenerate(fakeData);
 
 			toast({
-				title: 'Testdaten generiert',
 				description: `${fakeData.sessions.length} Stillzeiten, ${fakeData.events.length} Ereignisse und ${fakeData.measurements.length} Messungen wurden generiert.`,
+				title: 'Testdaten generiert',
 			});
 
 			setIsOpen(false);
@@ -114,8 +114,8 @@ export default function GenerateFakeData({
 		} catch (error) {
 			console.error('Error generating fake data:', error);
 			toast({
-				title: 'Fehler',
 				description: 'Die Testdaten konnten nicht generiert werden.',
+				title: 'Fehler',
 				variant: 'destructive',
 			});
 		} finally {
@@ -126,17 +126,16 @@ export default function GenerateFakeData({
 	return (
 		<>
 			<Button
-				variant="outline"
-				size="sm"
-				onClick={() => setIsOpen(true)}
 				className="flex items-center gap-1"
+				onClick={() => setIsOpen(true)}
+				size="sm"
+				variant="outline"
 			>
 				<DatabaseIcon />
 				<span>Testdaten</span>
 			</Button>
 
 			<Dialog
-				open={isOpen}
 				onOpenChange={(open) => {
 					if (!isGenerating) {
 						setIsOpen(open);
@@ -145,6 +144,7 @@ export default function GenerateFakeData({
 						}
 					}
 				}}
+				open={isOpen}
 			>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
@@ -164,22 +164,22 @@ export default function GenerateFakeData({
 								<Label htmlFor="days">Anzahl Tage</Label>
 								<Input
 									id="days"
+									max="90"
+									min="1"
+									onChange={(e) => setDays(e.target.value)}
 									type="number"
 									value={days}
-									onChange={(e) => setDays(e.target.value)}
-									min="1"
-									max="90"
 								/>
 							</div>
 							<div className="space-y-2">
 								<Label htmlFor="feedings">Mahlzeiten pro Tag</Label>
 								<Input
 									id="feedings"
+									max="24"
+									min="1"
+									onChange={(e) => setFeedingsPerDay(e.target.value)}
 									type="number"
 									value={feedingsPerDay}
-									onChange={(e) => setFeedingsPerDay(e.target.value)}
-									min="1"
-									max="24"
 								/>
 							</div>
 						</div>
@@ -190,23 +190,23 @@ export default function GenerateFakeData({
 							</Label>
 							<Input
 								id="confirm-text"
-								value={confirmText}
 								onChange={(e) => setConfirmText(e.target.value)}
 								placeholder="generieren"
+								value={confirmText}
 							/>
 						</div>
 					</div>
 					<DialogFooter>
 						<Button
-							variant="outline"
-							onClick={() => setIsOpen(false)}
 							disabled={isGenerating}
+							onClick={() => setIsOpen(false)}
+							variant="outline"
 						>
 							Abbrechen
 						</Button>
 						<Button
-							onClick={handleGenerate}
 							disabled={confirmText !== 'generieren' || isGenerating}
+							onClick={handleGenerate}
 						>
 							{isGenerating ? 'Generiere...' : 'Testdaten generieren'}
 						</Button>

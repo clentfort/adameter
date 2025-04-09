@@ -59,11 +59,11 @@ export default function AddHistoricSession({
 		);
 
 		const session: FeedingSession = {
-			id: Date.now().toString(),
 			breast,
-			startTime: startTime.toISOString(),
-			endTime: endTime.toISOString(),
 			durationInSeconds: durationInMinutes * 60,
+			endTime: endTime.toISOString(),
+			id: Date.now().toString(),
+			startTime: startTime.toISOString(),
 		};
 
 		onSessionAdd(session);
@@ -72,16 +72,16 @@ export default function AddHistoricSession({
 
 	return (
 		<Dialog
-			open={open}
 			onOpenChange={(newOpen) => {
 				setOpen(newOpen);
 				if (newOpen) {
 					setDefaultValues();
 				}
 			}}
+			open={open}
 		>
 			<DialogTrigger asChild>
-				<Button variant="outline" size="sm">
+				<Button size="sm" variant="outline">
 					<PlusCircle className="h-4 w-4 mr-1" />
 					{t('addEntry')}
 				</Button>
@@ -94,27 +94,27 @@ export default function AddHistoricSession({
 					<div className="space-y-2">
 						<Label>{t('breast')}</Label>
 						<RadioGroup
-							value={breast}
-							onValueChange={(value) => setBreast(value as 'left' | 'right')}
 							className="flex gap-4"
+							onValueChange={(value) => setBreast(value as 'left' | 'right')}
+							value={breast}
 						>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
-									value="left"
-									id="left"
 									className="text-left-breast border-left-breast"
+									id="left"
+									value="left"
 								/>
-								<Label htmlFor="left" className="text-left-breast-dark">
+								<Label className="text-left-breast-dark" htmlFor="left">
 									{t('leftBreast')}
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
-									value="right"
-									id="right"
 									className="text-right-breast border-right-breast"
+									id="right"
+									value="right"
 								/>
-								<Label htmlFor="right" className="text-right-breast-dark">
+								<Label className="text-right-breast-dark" htmlFor="right">
 									{t('rightBreast')}
 								</Label>
 							</div>
@@ -126,18 +126,18 @@ export default function AddHistoricSession({
 							<Label htmlFor="date">{t('date')}</Label>
 							<Input
 								id="date"
+								onChange={(e) => setDate(e.target.value)}
 								type="date"
 								value={date}
-								onChange={(e) => setDate(e.target.value)}
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="time">{t('startTime')}</Label>
 							<Input
 								id="time"
+								onChange={(e) => setTime(e.target.value)}
 								type="time"
 								value={time}
-								onChange={(e) => setTime(e.target.value)}
 							/>
 						</div>
 					</div>
@@ -146,22 +146,22 @@ export default function AddHistoricSession({
 						<Label htmlFor="duration">{t('minutes')}</Label>
 						<Input
 							id="duration"
+							min="1"
+							onChange={(e) => setDuration(e.target.value)}
 							type="number"
 							value={duration}
-							onChange={(e) => setDuration(e.target.value)}
-							min="1"
 						/>
 					</div>
 				</div>
 				<DialogFooter>
 					<Button
-						type="submit"
-						onClick={handleSubmit}
 						className={
 							breast === 'left'
 								? 'bg-left-breast hover:bg-left-breast-dark'
 								: 'bg-right-breast hover:bg-right-breast-dark'
 						}
+						onClick={handleSubmit}
+						type="submit"
 					>
 						{t('save')}
 					</Button>

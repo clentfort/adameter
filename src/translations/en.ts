@@ -1,176 +1,1063 @@
 export const en = {
-	// App
-	appTitle: 'Baby Tracker',
-	loading: 'Loading data...',
-
-	// Tabs
-	feedingTab: 'Feeding',
-	diaperTab: 'Diaper',
-	growthTab: 'Growth',
-	eventsTab: 'Events',
-	statisticsTab: 'Statistics',
-
-	// Breastfeeding
-	leftBreast: 'Left Breast',
-	rightBreast: 'Right Breast',
-	next: 'Next',
-	endFeeding: 'End Feeding',
-	enterTimeManually: 'Enter Time Manually',
-	start: 'Start',
-
-	// Manual time entry
-	enterFeedingTimeManually: 'Enter Feeding Time Manually',
-	minutes: 'Minutes',
-	save: 'Save',
-
-	// History
-	history: 'History',
-	addEntry: 'Add Entry',
-	noFeedingRecorded: 'No feeding sessions recorded yet.',
-	note: 'Note',
-	sessionCrossesMidnight: 'This session crosses midnight',
-	duration: 'Duration',
-	edit: 'Edit',
-	delete: 'Delete',
-
-	// Edit session
-	editFeedingTime: 'Edit Feeding Time',
-	breast: 'Breast',
-	date: 'Date',
-	startTime: 'Start Time',
-
-	// Add historic session
-	addHistoricFeeding: 'Add Historic Feeding',
-
-	// Delete confirmation
-	deleteEntry: 'Delete Entry',
-	deleteConfirmation:
-		'Do you really want to delete this entry? This action cannot be undone.',
-	cancel: 'Cancel',
-
-	// Diaper
-	urineOnly: 'Urine Only',
-	stool: 'Stool',
-	urineDetails: 'Urine Diaper - Details',
-	stoolDetails: 'Stool Diaper - Details',
-	diaperBrand: 'Diaper Brand',
-	selectDiaperBrand: 'Select Diaper Brand',
-	temperature: 'Temperature (°C)',
-	temperatureExample: 'e.g. 37.2',
-	temperatureWarning:
-		'Warning: Temperature outside normal range (36.5°C - 37.5°C)',
-	leakage: 'Diaper leaked',
+	
 	abnormalities: 'Abnormalities',
-	abnormalitiesExample: 'e.g. redness, rash, etc.',
+	
 
-	// Edit diaper
-	editDiaperEntry: 'Edit Diaper Entry',
-	diaperType: 'Diaper Type',
-	time: 'Time',
 
-	// Add historic diaper
-	addHistoricDiaper: 'Add Historic Diaper Change',
-	noDiapersRecorded: 'No diaper changes recorded yet.',
+abnormalitiesExample: 'e.g. redness, rash, etc.',
 
-	// Growth
-	addMeasurement: 'Add Measurement',
-	editMeasurement: 'Edit Measurement',
-	newMeasurement: 'Add New Measurement',
-	weight: 'Weight (g)',
-	weightExample: 'e.g. 3500',
-	height: 'Height (cm)',
-	heightExample: 'e.g. 50',
-	notes: 'Notes (optional)',
-	notesPlaceholder: 'Additional information',
-	validationError: 'Please enter at least a weight or height.',
-	noMeasurementsRecorded: 'No measurements recorded yet.',
-	deleteMeasurement: 'Delete Measurement',
-	deleteMeasurementConfirmation:
+	
+	
+
+
+
+addEntry: 'Add Entry',
+	
+
+
+
+
+
+addEvent: 'Add Event',
+	
+
+
+
+
+
+
+// Add historic diaper
+addHistoricDiaper: 'Add Historic Diaper Change',
+	
+
+
+
+
+
+
+
+// Add historic session
+addHistoricFeeding: 'Add Historic Feeding',
+	
+
+
+
+
+
+
+
+
+// Growth
+addMeasurement: 'Add Measurement',
+
+	
+	
+
+
+
+
+
+
+
+ago: 'ago',
+	
+
+
+
+
+
+
+
+
+
+allData: 'All Data',
+	
+
+
+
+
+
+
+
+
+
+
+
+allEvents: 'All Events',
+	
+
+
+
+
+
+
+
+
+
+
+// App
+appTitle: 'Baby Tracker',
+	
+
+
+
+
+
+
+
+
+
+
+breast: 'Breast',
+	
+
+
+
+
+
+
+
+
+
+
+cancel: 'Cancel',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+close: 'Close',
+	
+
+
+
+
+
+
+
+
+
+
+
+color: 'Color',
+	
+
+
+
+
+
+
+
+
+
+
+
+confirmOverwrite: 'Type "overwrite" to confirm the import:',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+copy: 'Copy',
+	
+
+
+
+
+
+
+
+
+
+
+csvExport: 'CSV Export',
+	
+
+
+
+
+
+
+
+
+
+
+
+date: 'Date',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+day: 'day',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+days: 'days',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+delete: 'Delete',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+deleteConfirmation:
+		'Do you really want to delete this entry? This action cannot be undone.',
+	
+
+
+
+
+
+
+
+
+
+
+
+// Delete confirmation
+deleteEntry: 'Delete Entry',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+deleteEvent: 'Delete Event',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+deleteEventConfirmation:
+		'Do you really want to delete this event? This action cannot be undone.',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+deleteMeasurement: 'Delete Measurement',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+deleteMeasurementConfirmation:
 		'Do you really want to delete this measurement? This action cannot be undone.',
 
-	// Events
-	events: 'Events',
-	addEvent: 'Add Event',
-	allEvents: 'All Events',
-	noEventsRecorded: 'No events recorded yet.',
-	deleteEvent: 'Delete Event',
-	deleteEventConfirmation:
-		'Do you really want to delete this event? This action cannot be undone.',
-	editEvent: 'Edit Event',
-	newEvent: 'Add New Event',
-	title: 'Title',
-	titleExample: 'e.g. Birth, Vaccination, Illness',
-	description: 'Description (optional)',
-	descriptionPlaceholder: 'Additional details about the event',
-	eventType: 'Event Type',
-	pointEvent: 'Point in time (e.g. Vaccination)',
-	periodEvent: 'Period (e.g. Illness)',
-	setEndDate: 'Set End Date',
-	endDate: 'End Date',
-	endTime: 'End Time',
-	color: 'Color',
-	ongoing: 'ongoing',
+	
+	
 
-	// Statistics
-	statistics: 'Statistics',
-	timeRange: 'Time Range',
-	last7Days: 'Last 7 Days',
-	last14Days: 'Last 14 Days',
-	last30Days: 'Last 30 Days',
-	allData: 'All Data',
-	noDataAvailable: 'No data available for the selected time range.',
-	noFeedingDataAvailable:
-		'No feeding data available for the selected time range.',
-	noDiaperDataAvailable:
-		'No diaper data available for the selected time range.',
-	noGrowthDataAvailable: 'No growth data available.',
 
-	// Time since last
-	timeSinceLastFeeding: 'Last Feeding',
-	timeSinceLastDiaper: 'Last Diaper Change',
-	ago: 'ago',
-	justNow: 'just now',
-	minute: 'minute',
-	minutes: 'minutes',
-	hour: 'hour',
-	hours: 'hours',
-	day: 'day',
-	days: 'days',
-	noFeedingYet: 'No feeding recorded yet',
-	noDiaperChangeYet: 'No diaper change recorded yet',
 
-	// Import/Export
-	importData: 'Import',
-	exportData: 'Export',
-	importTitle: 'Import Data',
-	importDescription: 'Paste an export URL to import data.',
-	exportUrl: 'Export URL',
-	urlPlaceholder: 'https://example.com/#data=...',
-	importUrlDescription: 'Paste the complete URL you received when exporting.',
-	next: 'Next',
-	importConfirmation:
+
+
+
+
+
+
+
+
+description: 'Description (optional)',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+descriptionPlaceholder: 'Additional details about the event',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+diaperBrand: 'Diaper Brand',
+	
+
+
+
+
+
+
+
+
+
+
+diaperTab: 'Diaper',
+
+	
+	
+
+
+
+
+
+
+
+
+diaperType: 'Diaper Type',
+	
+
+
+
+
+
+
+
+
+
+duration: 'Duration',
+	
+
+
+
+
+
+
+
+
+
+edit: 'Edit',
+	
+
+
+
+
+
+
+
+
+// Edit diaper
+editDiaperEntry: 'Edit Diaper Entry',
+	
+
+
+
+
+
+
+
+
+editEvent: 'Edit Event',
+	
+
+
+
+
+
+
+
+
+// Edit session
+editFeedingTime: 'Edit Feeding Time',
+	
+
+
+
+
+
+
+
+
+
+editMeasurement: 'Edit Measurement',
+	
+
+
+
+
+
+
+
+
+
+endDate: 'End Date',
+	
+
+
+
+
+
+
+
+
+
+endFeeding: 'End Feeding',
+	
+
+
+
+
+
+
+
+
+
+endTime: 'End Time',
+	
+
+
+
+
+
+
+
+
+
+english: 'English',
+	
+
+
+
+
+
+
+
+
+// Manual time entry
+enterFeedingTimeManually: 'Enter Feeding Time Manually',
+
+	
+	
+
+
+
+
+
+
+
+
+enterTimeManually: 'Enter Time Manually',
+	
+
+
+
+
+
+
+
+
+
+eventType: 'Event Type',
+	
+
+
+
+
+
+
+
+
+// Events
+events: 'Events',
+
+	
+	
+
+
+
+
+
+
+eventsTab: 'Events',
+	
+
+
+
+
+
+exportAllAsZip: 'Export All Data as ZIP',
+
+	
+	
+
+
+
+
+exportData: 'Export',
+	
+
+
+
+
+exportDescription: 'Choose an export method for your data.',
+	
+
+
+
+
+
+exportEvents: 'Export Events as CSV',
+	
+
+
+
+
+
+
+exportMeasurements: 'Export Growth Measurements as CSV',
+	
+
+
+
+
+
+
+exportSessions: 'Export Feedings as CSV',
+	
+
+
+
+
+
+
+exportTitle: 'Export Data',
+	
+
+
+
+
+
+
+exportUrl: 'Export URL',
+	
+
+
+
+
+
+// Tabs
+feedingTab: 'Feeding',
+	
+
+
+
+
+
+german: 'German',
+	
+
+
+
+
+
+growthTab: 'Growth',
+	
+
+
+
+
+
+height: 'Height (cm)',
+	
+
+
+
+
+
+heightExample: 'e.g. 50',
+	
+
+
+
+
+// History
+history: 'History',
+
+	
+	
+
+
+
+
+hour: 'hour',
+	
+
+
+
+
+
+hours: 'hours',
+	
+
+
+
+
+
+importButton: 'Import',
+	
+
+
+
+
+
+importConfirmation:
 		'Found {sessions} feeding sessions, {events} events, {measurements} measurements, and {diaperChanges} diaper changes to import.',
-	importWarning:
-		'Warning: Importing will overwrite your existing data. This action cannot be undone.',
-	confirmOverwrite: 'Type "overwrite" to confirm the import:',
-	overwritePlaceholder: 'overwrite',
-	importButton: 'Import',
-	exportTitle: 'Export Data',
-	exportDescription: 'Choose an export method for your data.',
-	urlExport: 'URL Export',
-	csvExport: 'CSV Export',
-	copy: 'Copy',
-	urlExportDescription: 'Open this URL on another device to import the data.',
-	exportAllAsZip: 'Export All Data as ZIP',
-	zipExportDescription:
-		'Exports all data in a ZIP file with CSV and JSON files.',
-	exportSessions: 'Export Feedings as CSV',
-	exportEvents: 'Export Events as CSV',
-	exportMeasurements: 'Export Growth Measurements as CSV',
-	close: 'Close',
+	
 
-	// Language
-	language: 'Language',
-	german: 'German',
-	english: 'English',
+
+
+
+// Import/Export
+importData: 'Import',
+	
+
+
+
+
+importDescription: 'Paste an export URL to import data.',
+	
+
+
+
+
+importTitle: 'Import Data',
+	
+
+
+
+
+importUrlDescription: 'Paste the complete URL you received when exporting.',
+	
+
+
+
+
+importWarning:
+		'Warning: Importing will overwrite your existing data. This action cannot be undone.',
+	
+
+
+
+
+justNow: 'just now',
+	
+
+
+
+
+// Language
+language: 'Language',
+	
+
+
+
+
+last14Days: 'Last 14 Days',
+	
+
+
+
+last30Days: 'Last 30 Days',
+	
+
+
+
+last7Days: 'Last 7 Days',
+	
+
+
+
+leakage: 'Diaper leaked',
+	
+
+
+// Breastfeeding
+leftBreast: 'Left Breast',
+	
+
+
+loading: 'Loading data...',
+	
+
+
+minute: 'minute',
+	
+
+
+minutes: 'Minutes',
+	
+
+
+minutes: 'minutes',
+
+	
+	
+
+
+newEvent: 'Add New Event',
+	
+
+
+
+newMeasurement: 'Add New Measurement',
+	
+
+
+
+next: 'Next',
+	
+
+
+
+next: 'Next',
+	
+
+
+
+noDataAvailable: 'No data available for the selected time range.',
+	
+
+
+
+noDiaperChangeYet: 'No diaper change recorded yet',
+	
+
+
+
+noDiaperDataAvailable:
+		'No diaper data available for the selected time range.',
+	
+
+
+
+noDiapersRecorded: 'No diaper changes recorded yet.',
+	
+
+
+
+noEventsRecorded: 'No events recorded yet.',
+	
+
+
+
+noFeedingDataAvailable:
+		'No feeding data available for the selected time range.',
+
+	
+	
+
+
+
+noFeedingRecorded: 'No feeding sessions recorded yet.',
+	
+
+
+
+
+noFeedingYet: 'No feeding recorded yet',
+	
+
+
+
+
+noGrowthDataAvailable: 'No growth data available.',
+	
+
+
+
+
+noMeasurementsRecorded: 'No measurements recorded yet.',
+	
+
+
+
+
+note: 'Note',
+	
+
+
+
+
+notes: 'Notes (optional)',
+	
+
+
+
+
+notesPlaceholder: 'Additional information',
+	
+
+
+
+
+ongoing: 'ongoing',
+	
+
+
+
+
+overwritePlaceholder: 'overwrite',
+	
+
+
+
+
+periodEvent: 'Period (e.g. Illness)',
+	
+
+
+
+
+pointEvent: 'Point in time (e.g. Vaccination)',
+	
+
+
+
+
+rightBreast: 'Right Breast',
+
+	
+	
+
+
+
+
+save: 'Save',
+	
+
+
+
+
+selectDiaperBrand: 'Select Diaper Brand',
+	
+
+
+
+sessionCrossesMidnight: 'This session crosses midnight',
+	
+
+
+
+setEndDate: 'Set End Date',
+	
+
+
+
+start: 'Start',
+	
+
+
+
+startTime: 'Start Time',
+	
+
+
+
+// Statistics
+statistics: 'Statistics',
+	
+
+
+
+
+statisticsTab: 'Statistics',
+	
+
+
+
+
+stool: 'Stool',
+	
+
+
+
+
+stoolDetails: 'Stool Diaper - Details',
+	
+
+
+
+
+temperature: 'Temperature (°C)',
+	
+
+
+
+
+temperatureExample: 'e.g. 37.2',
+	
+
+
+
+
+temperatureWarning:
+		'Warning: Temperature outside normal range (36.5°C - 37.5°C)',
+	
+
+
+
+
+time: 'Time',
+	
+
+
+
+
+timeRange: 'Time Range',
+	
+
+
+
+
+timeSinceLastDiaper: 'Last Diaper Change',
+	
+
+
+
+
+// Time since last
+timeSinceLastFeeding: 'Last Feeding',
+	
+
+
+
+
+
+title: 'Title',
+	
+
+
+
+
+
+titleExample: 'e.g. Birth, Vaccination, Illness',
+	
+
+
+
+
+
+urineDetails: 'Urine Diaper - Details',
+	
+
+
+
+// Diaper
+urineOnly: 'Urine Only',
+	
+
+
+urlExport: 'URL Export',
+	
+
+
+urlExportDescription: 'Open this URL on another device to import the data.',
+	
+
+urlPlaceholder: 'https://example.com/#data=...',
+	
+validationError: 'Please enter at least a weight or height.',
+
+	
+	
+weight: 'Weight (g)',
+	
+
+weightExample: 'e.g. 3500',
+	
+zipExportDescription:
+		'Exports all data in a ZIP file with CSV and JSON files.',
 };

@@ -19,28 +19,28 @@ import {
 } from '@/components/ui/popover';
 
 export type AutocompleteOption = {
-	value: string;
 	label: string;
+	value: string;
 };
 
 interface AutocompleteProps {
-	options: AutocompleteOption[];
-	value: string;
-	onValueChange: (value: string) => void;
-	placeholder?: string;
-	emptyMessage?: string;
 	className?: string;
 	createOption?: (inputValue: string) => AutocompleteOption;
+	emptyMessage?: string;
+	onValueChange: (value: string) => void;
+	options: AutocompleteOption[];
+	placeholder?: string;
+	value: string;
 }
 
 export function Autocomplete({
-	options,
-	value,
-	onValueChange,
-	placeholder = 'Select an option',
-	emptyMessage = 'No options found.',
 	className,
 	createOption,
+	emptyMessage = 'No options found.',
+	onValueChange,
+	options,
+	placeholder = 'Select an option',
+	value,
 }: AutocompleteProps) {
 	const [open, setOpen] = React.useState(false);
 	const [inputValue, setInputValue] = React.useState('');
@@ -61,14 +61,14 @@ export function Autocomplete({
 	};
 
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
+		<Popover onOpenChange={setOpen} open={open}>
 			<PopoverTrigger asChild>
 				<Button
-					variant="outline"
-					role="combobox"
 					aria-expanded={open}
 					className={cn('w-full justify-between', className)}
 					onClick={() => setOpen(!open)}
+					role="combobox"
+					variant="outline"
 				>
 					{value ? selectedLabel : placeholder}
 					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -77,18 +77,18 @@ export function Autocomplete({
 			<PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
 				<Command>
 					<CommandInput
+						onValueChange={setInputValue}
 						placeholder={placeholder}
 						value={inputValue}
-						onValueChange={setInputValue}
 					/>
 					<CommandList>
 						<CommandEmpty>
 							{emptyMessage}
 							{createOption && inputValue && (
 								<Button
-									variant="outline"
 									className="mt-2 w-full"
 									onClick={handleCreateOption}
+									variant="outline"
 								>
 									"{inputValue}" hinzufügen
 								</Button>
@@ -98,11 +98,11 @@ export function Autocomplete({
 							{options.map((option) => (
 								<CommandItem
 									key={option.value}
-									value={option.value}
 									onSelect={(currentValue) => {
 										onValueChange(currentValue);
 										setOpen(false);
 									}}
+									value={option.value}
 								>
 									<Check
 										className={cn(

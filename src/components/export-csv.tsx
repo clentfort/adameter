@@ -14,11 +14,11 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 interface ExportCsvProps {
-	sessions: FeedingSession[];
 	events: Event[];
+	sessions: FeedingSession[];
 }
 
-export default function ExportCsv({ sessions, events }: ExportCsvProps) {
+export default function ExportCsv({ events, sessions }: ExportCsvProps) {
 	const [isExporting, setIsExporting] = useState(false);
 	const { toast } = useToast();
 
@@ -31,9 +31,9 @@ export default function ExportCsv({ sessions, events }: ExportCsvProps) {
 
 			if (sessionsArray.length === 0) {
 				toast({
-					title: 'Keine Daten zum Exportieren',
 					description:
 						'Es sind keine Stillzeiten vorhanden, die exportiert werden können.',
+					title: 'Keine Daten zum Exportieren',
 					variant: 'destructive',
 				});
 				return;
@@ -50,14 +50,14 @@ export default function ExportCsv({ sessions, events }: ExportCsvProps) {
 			downloadCsv(csvContent, filename);
 
 			toast({
-				title: 'Export erfolgreich',
 				description: `${sessionsArray.length} Stillzeiten wurden als CSV exportiert.`,
+				title: 'Export erfolgreich',
 			});
 		} catch (error) {
 			console.error('Error exporting sessions:', error);
 			toast({
-				title: 'Fehler beim Exportieren',
 				description: 'Die Stillzeiten konnten nicht exportiert werden.',
+				title: 'Fehler beim Exportieren',
 				variant: 'destructive',
 			});
 		} finally {
@@ -74,9 +74,9 @@ export default function ExportCsv({ sessions, events }: ExportCsvProps) {
 
 			if (eventsArray.length === 0) {
 				toast({
-					title: 'Keine Daten zum Exportieren',
 					description:
 						'Es sind keine Ereignisse vorhanden, die exportiert werden können.',
+					title: 'Keine Daten zum Exportieren',
 					variant: 'destructive',
 				});
 				return;
@@ -93,14 +93,14 @@ export default function ExportCsv({ sessions, events }: ExportCsvProps) {
 			downloadCsv(csvContent, filename);
 
 			toast({
-				title: 'Export erfolgreich',
 				description: `${eventsArray.length} Ereignisse wurden als CSV exportiert.`,
+				title: 'Export erfolgreich',
 			});
 		} catch (error) {
 			console.error('Error exporting events:', error);
 			toast({
-				title: 'Fehler beim Exportieren',
 				description: 'Die Ereignisse konnten nicht exportiert werden.',
+				title: 'Fehler beim Exportieren',
 				variant: 'destructive',
 			});
 		} finally {
@@ -111,22 +111,22 @@ export default function ExportCsv({ sessions, events }: ExportCsvProps) {
 	return (
 		<div className="flex gap-2">
 			<Button
-				variant="outline"
-				size="sm"
-				onClick={handleExportSessions}
 				disabled={isExporting}
+				onClick={handleExportSessions}
+				size="sm"
 				title="Stillzeiten als CSV exportieren"
+				variant="outline"
 			>
 				<Download className="h-4 w-4 mr-1" />
 				<span>Stillzeiten CSV</span>
 			</Button>
 
 			<Button
-				variant="outline"
-				size="sm"
-				onClick={handleExportEvents}
 				disabled={isExporting}
+				onClick={handleExportEvents}
+				size="sm"
 				title="Ereignisse als CSV exportieren"
+				variant="outline"
 			>
 				<Download className="h-4 w-4 mr-1" />
 				<span>Ereignisse CSV</span>

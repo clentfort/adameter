@@ -1,10 +1,13 @@
 export interface DiaperChange {
-	id: string;
-	timestamp: string; // ISO string
+	// Optional leakage indicator
+	abnormalities?: string;
+	containsStool: boolean; // ISO string
 	containsUrine: boolean;
-	containsStool: boolean;
-	temperature?: number; // Optional temperature in Celsius
-	diaperBrand?: string; // Optional diaper brand
-	leakage?: boolean; // Optional leakage indicator
-	abnormalities?: string; // Optional notes about abnormalities
+	// Optional temperature in Celsius
+	diaperBrand?: string;
+	id: string; 
+	// Optional diaper brand
+	leakage?: boolean; 
+	temperature?: number; 
+	timestamp: string; // Optional notes about abnormalities
 }

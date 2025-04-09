@@ -16,8 +16,8 @@ import type { FeedingSession } from '@/types/feeding';
 import { useTranslate } from '@/utils/translate';
 
 interface BreastfeedingTrackerProps {
-	onSessionComplete: (session: FeedingSession) => void;
 	nextBreast: 'left' | 'right' | null;
+	onSessionComplete: (session: FeedingSession) => void;
 }
 
 // Keys for localStorage
@@ -25,8 +25,8 @@ const ACTIVE_BREAST_KEY = 'activeBreast';
 const START_TIME_KEY = 'startTime';
 
 export default function BreastfeedingTracker({
-	onSessionComplete,
 	nextBreast,
+	onSessionComplete,
 }: BreastfeedingTrackerProps) {
 	const [activeBreast, setActiveBreast] = useState<'left' | 'right' | null>(
 		null,
@@ -99,11 +99,11 @@ export default function BreastfeedingTracker({
 			);
 
 			const session: FeedingSession = {
-				id: Date.now().toString(),
 				breast: activeBreast,
-				startTime: startTime.toISOString(),
-				endTime: endTime.toISOString(),
 				durationInSeconds,
+				endTime: endTime.toISOString(),
+				id: Date.now().toString(),
+				startTime: startTime.toISOString(),
 			};
 
 			onSessionComplete(session);
@@ -118,11 +118,11 @@ export default function BreastfeedingTracker({
 			const calculatedStartTime = new Date(now.getTime() - minutes * 60 * 1000);
 
 			const session: FeedingSession = {
-				id: Date.now().toString(),
 				breast: activeBreast,
-				startTime: calculatedStartTime.toISOString(),
-				endTime: now.toISOString(),
 				durationInSeconds: minutes * 60,
+				endTime: now.toISOString(),
+				id: Date.now().toString(),
+				startTime: calculatedStartTime.toISOString(),
 			};
 
 			onSessionComplete(session);
@@ -158,9 +158,9 @@ export default function BreastfeedingTracker({
 				<div className="grid grid-cols-2 gap-4">
 					<div className="relative">
 						<Button
-							size="lg"
 							className="h-24 text-lg w-full bg-left-breast hover:bg-left-breast-dark text-white"
 							onClick={() => startFeeding('left')}
+							size="lg"
 						>
 							{t('leftBreast')}
 						</Button>
@@ -172,9 +172,9 @@ export default function BreastfeedingTracker({
 					</div>
 					<div className="relative">
 						<Button
-							size="lg"
 							className="h-24 text-lg w-full bg-right-breast hover:bg-right-breast-dark text-white"
 							onClick={() => startFeeding('right')}
+							size="lg"
 						>
 							{t('rightBreast')}
 						</Button>
@@ -220,21 +220,21 @@ export default function BreastfeedingTracker({
 
 					<div className="grid grid-cols-2 gap-4 w-full">
 						<Button
-							size="lg"
 							className={`h-16 ${
 								activeBreast === 'left'
 									? 'bg-left-breast hover:bg-left-breast-dark'
 									: 'bg-right-breast hover:bg-right-breast-dark'
 							}`}
 							onClick={endFeeding}
+							size="lg"
 						>
 							{t('endFeeding')}
 						</Button>
 						<Button
-							size="lg"
 							className="h-16"
-							variant="outline"
 							onClick={() => setIsDialogOpen(true)}
+							size="lg"
+							variant="outline"
 						>
 							{t('enterTimeManually')}
 						</Button>
@@ -242,35 +242,35 @@ export default function BreastfeedingTracker({
 				</div>
 			)}
 
-			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+			<Dialog onOpenChange={setIsDialogOpen} open={isDialogOpen}>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
 						<DialogTitle>{t('enterFeedingTimeManually')}</DialogTitle>
 					</DialogHeader>
 					<div className="grid gap-4 py-4">
 						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="minutes" className="text-right col-span-1">
+							<Label className="text-right col-span-1" htmlFor="minutes">
 								{t('minutes')}
 							</Label>
 							<Input
+								className="col-span-3"
 								id="minutes"
+								min="1"
+								onChange={(e) => setManualMinutes(e.target.value)}
 								type="number"
 								value={manualMinutes}
-								onChange={(e) => setManualMinutes(e.target.value)}
-								className="col-span-3"
-								min="1"
 							/>
 						</div>
 					</div>
 					<DialogFooter>
 						<Button
-							type="submit"
-							onClick={handleManualEntry}
 							className={
 								activeBreast === 'left'
 									? 'bg-left-breast hover:bg-left-breast-dark'
 									: 'bg-right-breast hover:bg-right-breast-dark'
 							}
+							onClick={handleManualEntry}
+							type="submit"
 						>
 							{t('save')}
 						</Button>

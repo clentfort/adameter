@@ -27,27 +27,27 @@ import { useTranslate } from '@/utils/translate';
 
 // Simplified diaper brands
 const DIAPER_BRANDS = [
-	{ value: 'pampers', label: 'Pampers' },
-	{ value: 'huggies', label: 'Huggies' },
-	{ value: 'lillydoo', label: 'Lillydoo' },
-	{ value: 'dm', label: 'dm' },
-	{ value: 'rossmann', label: 'Rossmann' },
-	{ value: 'stoffwindel', label: 'Stoffwindel' },
-	{ value: 'lidl', label: 'Lidl' },
-	{ value: 'aldi', label: 'Aldi' },
-	{ value: 'andere', label: 'Andere' },
+	{ label: 'Pampers', value: 'pampers' },
+	{ label: 'Huggies', value: 'huggies' },
+	{ label: 'Lillydoo', value: 'lillydoo' },
+	{ label: 'dm', value: 'dm' },
+	{ label: 'Rossmann', value: 'rossmann' },
+	{ label: 'Stoffwindel', value: 'stoffwindel' },
+	{ label: 'Lidl', value: 'lidl' },
+	{ label: 'Aldi', value: 'aldi' },
+	{ label: 'Andere', value: 'andere' },
 ];
 
 interface EditDiaperDialogProps {
 	change: DiaperChange;
-	onUpdate: (change: DiaperChange) => void;
 	onClose: () => void;
+	onUpdate: (change: DiaperChange) => void;
 }
 
 export default function EditDiaperDialog({
 	change,
-	onUpdate,
 	onClose,
+	onUpdate,
 }: EditDiaperDialogProps) {
 	const [date, setDate] = useState('');
 	const [time, setTime] = useState('');
@@ -89,13 +89,16 @@ export default function EditDiaperDialog({
 
 		const updatedChange: DiaperChange = {
 			...change,
-			timestamp: timestamp.toISOString(),
-			containsUrine: true, // Always true, as stool usually comes with urine
-			containsStool: diaperType === 'stool',
+			
+abnormalities: abnormalities || undefined,
+			
+// Always true, as stool usually comes with urine
+containsStool: diaperType === 'stool', 
+			containsUrine: true,
 			diaperBrand: diaperBrand || undefined,
-			temperature: temperature ? Number.parseFloat(temperature) : undefined,
 			leakage: hasLeakage || undefined,
-			abnormalities: abnormalities || undefined,
+			temperature: temperature ? Number.parseFloat(temperature) : undefined,
+			timestamp: timestamp.toISOString(),
 		};
 
 		onUpdate(updatedChange);
@@ -107,7 +110,7 @@ export default function EditDiaperDialog({
 	};
 
 	return (
-		<Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>{t('editDiaperEntry')}</DialogTitle>
@@ -116,29 +119,29 @@ export default function EditDiaperDialog({
 					<div className="space-y-2">
 						<Label>{t('diaperType')}</Label>
 						<RadioGroup
-							value={diaperType}
+							className="flex gap-4"
 							onValueChange={(value) =>
 								setDiaperType(value as 'urine' | 'stool')
 							}
-							className="flex gap-4"
+							value={diaperType}
 						>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
-									value="urine"
-									id="edit-urine"
 									className="text-yellow-500 border-yellow-500"
+									id="edit-urine"
+									value="urine"
 								/>
-								<Label htmlFor="edit-urine" className="text-yellow-700">
+								<Label className="text-yellow-700" htmlFor="edit-urine">
 									<span className="text-lg mr-1">💧</span> {t('urineOnly')}
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
-									value="stool"
-									id="edit-stool"
 									className="text-amber-700 border-amber-700"
+									id="edit-stool"
+									value="stool"
 								/>
-								<Label htmlFor="edit-stool" className="text-amber-800">
+								<Label className="text-amber-800" htmlFor="edit-stool">
 									<span className="text-lg mr-1">💩</span> {t('stool')}
 								</Label>
 							</div>
@@ -150,18 +153,18 @@ export default function EditDiaperDialog({
 							<Label htmlFor="edit-date">{t('date')}</Label>
 							<Input
 								id="edit-date"
+								onChange={(e) => setDate(e.target.value)}
 								type="date"
 								value={date}
-								onChange={(e) => setDate(e.target.value)}
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="edit-time">{t('time')}</Label>
 							<Input
 								id="edit-time"
+								onChange={(e) => setTime(e.target.value)}
 								type="time"
 								value={time}
-								onChange={(e) => setTime(e.target.value)}
 							/>
 						</div>
 					</div>
@@ -169,7 +172,7 @@ export default function EditDiaperDialog({
 					{/* Diaper brand first */}
 					<div className="space-y-2">
 						<Label htmlFor="edit-diaper-brand">{t('diaperBrand')}</Label>
-						<Select value={diaperBrand} onValueChange={setDiaperBrand}>
+						<Select onValueChange={setDiaperBrand} value={diaperBrand}>
 							<SelectTrigger>
 								<SelectValue placeholder={t('selectDiaperBrand')} />
 							</SelectTrigger>
@@ -187,18 +190,18 @@ export default function EditDiaperDialog({
 					<div className="space-y-2">
 						<Label htmlFor="edit-temperature">{t('temperature')}</Label>
 						<Input
-							id="edit-temperature"
-							type="number"
-							step="0.1"
-							placeholder={t('temperatureExample')}
-							value={temperature}
-							onChange={(e) => setTemperature(e.target.value)}
 							className={
 								temperature &&
 								isAbnormalTemperature(Number.parseFloat(temperature))
 									? 'border-red-500'
 									: ''
 							}
+							id="edit-temperature"
+							onChange={(e) => setTemperature(e.target.value)}
+							placeholder={t('temperatureExample')}
+							step="0.1"
+							type="number"
+							value={temperature}
 						/>
 						{temperature &&
 							isAbnormalTemperature(Number.parseFloat(temperature)) && (
@@ -211,8 +214,8 @@ export default function EditDiaperDialog({
 					{/* Leakage and abnormalities last */}
 					<div className="flex items-center space-x-2">
 						<Switch
-							id="edit-leakage"
 							checked={hasLeakage}
+							id="edit-leakage"
 							onCheckedChange={setHasLeakage}
 						/>
 						<Label htmlFor="edit-leakage">{t('leakage')}</Label>
@@ -222,14 +225,14 @@ export default function EditDiaperDialog({
 						<Label htmlFor="edit-abnormalities">{t('abnormalities')}</Label>
 						<Textarea
 							id="edit-abnormalities"
+							onChange={(e) => setAbnormalities(e.target.value)}
 							placeholder={t('abnormalitiesExample')}
 							value={abnormalities}
-							onChange={(e) => setAbnormalities(e.target.value)}
 						/>
 					</div>
 				</div>
 				<DialogFooter>
-					<Button variant="outline" onClick={onClose}>
+					<Button onClick={onClose} variant="outline">
 						{t('cancel')}
 					</Button>
 					<Button onClick={handleSubmit}>{t('save')}</Button>

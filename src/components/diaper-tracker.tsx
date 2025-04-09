@@ -25,25 +25,25 @@ import { useTranslate } from '@/utils/translate';
 
 // Simplified diaper brands
 const DIAPER_BRANDS = [
-	{ value: 'pampers', label: 'Pampers' },
-	{ value: 'huggies', label: 'Huggies' },
-	{ value: 'lillydoo', label: 'Lillydoo' },
-	{ value: 'dm', label: 'dm' },
-	{ value: 'rossmann', label: 'Rossmann' },
-	{ value: 'stoffwindel', label: 'Stoffwindel' },
-	{ value: 'lidl', label: 'Lidl' },
-	{ value: 'aldi', label: 'Aldi' },
-	{ value: 'andere', label: 'Andere' },
+	{ label: 'Pampers', value: 'pampers' },
+	{ label: 'Huggies', value: 'huggies' },
+	{ label: 'Lillydoo', value: 'lillydoo' },
+	{ label: 'dm', value: 'dm' },
+	{ label: 'Rossmann', value: 'rossmann' },
+	{ label: 'Stoffwindel', value: 'stoffwindel' },
+	{ label: 'Lidl', value: 'lidl' },
+	{ label: 'Aldi', value: 'aldi' },
+	{ label: 'Andere', value: 'andere' },
 ];
 
 interface DiaperTrackerProps {
-	onDiaperChange: (change: DiaperChange) => void;
 	diaperChanges: DiaperChange[];
+	onDiaperChange: (change: DiaperChange) => void;
 }
 
 export default function DiaperTracker({
-	onDiaperChange,
 	diaperChanges = [],
+	onDiaperChange,
 }: DiaperTrackerProps) {
 	const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 	const [selectedType, setSelectedType] = useState<'urine' | 'stool' | null>(
@@ -74,14 +74,18 @@ export default function DiaperTracker({
 
 		const now = new Date();
 		const change: DiaperChange = {
-			id: Date.now().toString(),
-			timestamp: now.toISOString(),
-			containsUrine: selectedType === 'urine' || selectedType === 'stool', // Stool usually also contains urine
-			containsStool: selectedType === 'stool',
-			temperature: temperature ? Number.parseFloat(temperature) : undefined,
+			
+abnormalities: abnormalities || undefined,
+			
+// Stool usually also contains urine
+containsStool: selectedType === 'stool',
+			
+containsUrine: selectedType === 'urine' || selectedType === 'stool', 
 			diaperBrand: diaperBrand || undefined,
+			id: Date.now().toString(),
 			leakage: hasLeakage || undefined,
-			abnormalities: abnormalities || undefined,
+			temperature: temperature ? Number.parseFloat(temperature) : undefined,
+			timestamp: now.toISOString(),
 		};
 
 		onDiaperChange(change);
@@ -105,22 +109,22 @@ export default function DiaperTracker({
 		<div className="w-full">
 			<div className="grid grid-cols-2 gap-4">
 				<Button
-					size="lg"
 					className="h-24 text-lg w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900"
 					onClick={() => handleQuickChange('urine')}
+					size="lg"
 				>
 					<span className="text-2xl mr-2">💧</span> {t('urineOnly')}
 				</Button>
 				<Button
-					size="lg"
 					className="h-24 text-lg w-full bg-amber-700 hover:bg-amber-800 text-white"
 					onClick={() => handleQuickChange('stool')}
+					size="lg"
 				>
 					<span className="text-2xl mr-2">💩</span> {t('stool')}
 				</Button>
 			</div>
 
-			<Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+			<Dialog onOpenChange={setIsDetailsDialogOpen} open={isDetailsDialogOpen}>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
 						<DialogTitle>
@@ -132,7 +136,7 @@ export default function DiaperTracker({
 						{/* Diaper brand first */}
 						<div className="space-y-2">
 							<Label htmlFor="diaper-brand">{t('diaperBrand')}</Label>
-							<Select value={diaperBrand} onValueChange={setDiaperBrand}>
+							<Select onValueChange={setDiaperBrand} value={diaperBrand}>
 								<SelectTrigger>
 									<SelectValue placeholder={t('selectDiaperBrand')} />
 								</SelectTrigger>
@@ -150,18 +154,18 @@ export default function DiaperTracker({
 						<div className="space-y-2">
 							<Label htmlFor="temperature">{t('temperature')}</Label>
 							<Input
-								id="temperature"
-								type="number"
-								step="0.1"
-								placeholder={t('temperatureExample')}
-								value={temperature}
-								onChange={(e) => setTemperature(e.target.value)}
 								className={
 									temperature &&
 									isAbnormalTemperature(Number.parseFloat(temperature))
 										? 'border-red-500'
 										: ''
 								}
+								id="temperature"
+								onChange={(e) => setTemperature(e.target.value)}
+								placeholder={t('temperatureExample')}
+								step="0.1"
+								type="number"
+								value={temperature}
 							/>
 							{temperature &&
 								isAbnormalTemperature(Number.parseFloat(temperature)) && (
@@ -174,8 +178,8 @@ export default function DiaperTracker({
 						{/* Leakage and abnormalities last */}
 						<div className="flex items-center space-x-2">
 							<Switch
-								id="leakage"
 								checked={hasLeakage}
+								id="leakage"
 								onCheckedChange={setHasLeakage}
 							/>
 							<Label htmlFor="leakage">{t('leakage')}</Label>
@@ -185,14 +189,14 @@ export default function DiaperTracker({
 							<Label htmlFor="abnormalities">{t('abnormalities')}</Label>
 							<Textarea
 								id="abnormalities"
+								onChange={(e) => setAbnormalities(e.target.value)}
 								placeholder={t('abnormalitiesExample')}
 								value={abnormalities}
-								onChange={(e) => setAbnormalities(e.target.value)}
 							/>
 						</div>
 					</div>
 					<DialogFooter>
-						<Button variant="outline" onClick={resetForm}>
+						<Button onClick={resetForm} variant="outline">
 							{t('cancel')}
 						</Button>
 						<Button onClick={handleSave}>{t('save')}</Button>

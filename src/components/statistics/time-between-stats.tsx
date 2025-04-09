@@ -47,11 +47,7 @@ export default function TimeBetweenStats({
 		const hours = Math.floor(seconds / 3600);
 		const minutes = Math.floor((seconds % 3600) / 60);
 
-		if (hours === 0) {
-			return `${minutes} Min.`;
-		} else {
-			return `${hours} Std. ${minutes} Min.`;
-		}
+		return hours === 0 ? `${minutes} Min.` : `${hours} Std. ${minutes} Min.`;
 	};
 
 	return (

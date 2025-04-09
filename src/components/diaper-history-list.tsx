@@ -21,14 +21,14 @@ import { useTranslate } from '@/utils/translate';
 
 interface DiaperHistoryListProps {
 	changes: DiaperChange[];
-	onDiaperUpdate: (change: DiaperChange) => void;
 	onDiaperDelete: (changeId: string) => void;
+	onDiaperUpdate: (change: DiaperChange) => void;
 }
 
 export default function DiaperHistoryList({
 	changes = [],
-	onDiaperUpdate,
 	onDiaperDelete,
+	onDiaperUpdate,
 }: DiaperHistoryListProps) {
 	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
 	const [changeToEdit, setChangeToEdit] = useState<DiaperChange | null>(null);
@@ -72,7 +72,7 @@ export default function DiaperHistoryList({
 		<>
 			<div className="space-y-4">
 				{Object.entries(groupedChanges).map(([date, dateChanges]) => (
-					<div key={date} className="space-y-2">
+					<div className="space-y-2" key={date}>
 						<div className="bg-muted/50 px-4 py-2 rounded-md text-sm font-medium">
 							{format(new Date(date), 'EEEE, d. MMMM yyyy', { locale: de })}
 						</div>
@@ -87,8 +87,8 @@ export default function DiaperHistoryList({
 
 							return (
 								<div
-									key={change.id}
 									className={`border rounded-lg p-4 shadow-sm ${borderColor} ${bgColor}`}
+									key={change.id}
 								>
 									<div className="flex justify-between items-start">
 										<div>
@@ -166,19 +166,19 @@ export default function DiaperHistoryList({
 										</div>
 										<div className="flex gap-1 mt-2">
 											<Button
-												variant="ghost"
-												size="icon"
 												className="h-7 w-7"
 												onClick={() => setChangeToEdit(change)}
+												size="icon"
+												variant="ghost"
 											>
 												<Pencil className="h-4 w-4" />
 												<span className="sr-only">{t('edit')}</span>
 											</Button>
 											<Button
-												variant="ghost"
-												size="icon"
 												className="h-7 w-7 text-destructive"
 												onClick={() => setChangeToDelete(change.id)}
+												size="icon"
+												variant="ghost"
 											>
 												<Trash2 className="h-4 w-4" />
 												<span className="sr-only">{t('delete')}</span>
@@ -193,8 +193,8 @@ export default function DiaperHistoryList({
 			</div>
 
 			<AlertDialog
-				open={!!changeToDelete}
 				onOpenChange={(open) => !open && setChangeToDelete(null)}
+				open={!!changeToDelete}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
@@ -214,10 +214,10 @@ export default function DiaperHistoryList({
 
 			{changeToEdit && (
 				<EditDiaperDialog
-					change={changeToEdit}
-					onUpdate={onDiaperUpdate}
-					onClose={() => setChangeToEdit(null)}
 					allChanges={changesArray}
+					change={changeToEdit}
+					onClose={() => setChangeToEdit(null)}
+					onUpdate={onDiaperUpdate}
 				/>
 			)}
 		</>

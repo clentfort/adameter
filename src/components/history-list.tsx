@@ -20,15 +20,15 @@ import EditSessionDialog from './edit-session-dialog';
 import { useTranslate } from '@/utils/translate';
 
 interface HistoryListProps {
-	sessions: FeedingSession[];
-	onSessionUpdate: (session: FeedingSession) => void;
 	onSessionDelete: (sessionId: string) => void;
+	onSessionUpdate: (session: FeedingSession) => void;
+	sessions: FeedingSession[];
 }
 
 export default function HistoryList({
-	sessions = [],
-	onSessionUpdate,
 	onSessionDelete,
+	onSessionUpdate,
+	sessions = [],
 }: HistoryListProps) {
 	const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 	const [sessionToEdit, setSessionToEdit] = useState<FeedingSession | null>(
@@ -82,7 +82,7 @@ export default function HistoryList({
 		<>
 			<div className="space-y-4">
 				{Object.entries(groupedSessions).map(([date, dateSessions]) => (
-					<div key={date} className="space-y-2">
+					<div className="space-y-2" key={date}>
 						<div className="bg-muted/50 px-4 py-2 rounded-md text-sm font-medium">
 							{format(new Date(date), 'EEEE, d. MMMM yyyy', { locale: de })}
 						</div>
@@ -106,8 +106,8 @@ export default function HistoryList({
 
 							return (
 								<div
-									key={session.id}
 									className={`border rounded-lg p-4 shadow-sm ${borderColor} ${bgColor}`}
+									key={session.id}
 								>
 									<div className="flex justify-between items-start">
 										<div>
@@ -134,19 +134,19 @@ export default function HistoryList({
 											</p>
 											<div className="flex gap-1 mt-2">
 												<Button
-													variant="ghost"
-													size="icon"
 													className="h-7 w-7"
 													onClick={() => setSessionToEdit(session)}
+													size="icon"
+													variant="ghost"
 												>
 													<Pencil className="h-4 w-4" />
 													<span className="sr-only">{t('edit')}</span>
 												</Button>
 												<Button
-													variant="ghost"
-													size="icon"
 													className="h-7 w-7 text-destructive"
 													onClick={() => setSessionToDelete(session.id)}
+													size="icon"
+													variant="ghost"
 												>
 													<Trash2 className="h-4 w-4" />
 													<span className="sr-only">{t('delete')}</span>
@@ -162,8 +162,8 @@ export default function HistoryList({
 			</div>
 
 			<AlertDialog
-				open={!!sessionToDelete}
 				onOpenChange={(open) => !open && setSessionToDelete(null)}
+				open={!!sessionToDelete}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
@@ -183,9 +183,9 @@ export default function HistoryList({
 
 			{sessionToEdit && (
 				<EditSessionDialog
-					session={sessionToEdit}
-					onUpdate={onSessionUpdate}
 					onClose={() => setSessionToEdit(null)}
+					onUpdate={onSessionUpdate}
+					session={sessionToEdit}
 				/>
 			)}
 		</>

@@ -21,14 +21,14 @@ import { useTranslate } from '@/utils/translate';
 
 interface GrowthMeasurementsListProps {
 	measurements: GrowthMeasurement[];
-	onMeasurementUpdate: (measurement: GrowthMeasurement) => void;
 	onMeasurementDelete: (measurementId: string) => void;
+	onMeasurementUpdate: (measurement: GrowthMeasurement) => void;
 }
 
 export default function GrowthMeasurementsList({
 	measurements = [],
-	onMeasurementUpdate,
 	onMeasurementDelete,
+	onMeasurementUpdate,
 }: GrowthMeasurementsListProps) {
 	const [measurementToDelete, setMeasurementToDelete] = useState<string | null>(
 		null,
@@ -68,8 +68,8 @@ export default function GrowthMeasurementsList({
 
 					return (
 						<div
-							key={measurement.id}
 							className="border rounded-lg p-4 shadow-sm"
+							key={measurement.id}
 						>
 							<div className="flex justify-between items-start">
 								<div>
@@ -98,19 +98,19 @@ export default function GrowthMeasurementsList({
 								</div>
 								<div className="flex gap-1">
 									<Button
-										variant="ghost"
-										size="icon"
 										className="h-7 w-7"
 										onClick={() => setMeasurementToEdit(measurement)}
+										size="icon"
+										variant="ghost"
 									>
 										<Pencil className="h-4 w-4" />
 										<span className="sr-only">{t('edit')}</span>
 									</Button>
 									<Button
-										variant="ghost"
-										size="icon"
 										className="h-7 w-7 text-destructive"
 										onClick={() => setMeasurementToDelete(measurement.id)}
+										size="icon"
+										variant="ghost"
 									>
 										<Trash2 className="h-4 w-4" />
 										<span className="sr-only">{t('delete')}</span>
@@ -123,8 +123,8 @@ export default function GrowthMeasurementsList({
 			</div>
 
 			<AlertDialog
-				open={!!measurementToDelete}
 				onOpenChange={(open) => !open && setMeasurementToDelete(null)}
+				open={!!measurementToDelete}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
@@ -145,8 +145,8 @@ export default function GrowthMeasurementsList({
 			{measurementToEdit && (
 				<AddGrowthMeasurement
 					measurement={measurementToEdit}
-					onSave={onMeasurementUpdate}
 					onClose={() => setMeasurementToEdit(null)}
+					onSave={onMeasurementUpdate}
 				/>
 			)}
 		</>

@@ -18,15 +18,16 @@ import type { GrowthMeasurement } from '@/types/growth';
 import { useTranslate } from '@/utils/translate';
 
 interface AddGrowthMeasurementProps {
-	measurement?: GrowthMeasurement; // Optional for editing existing measurement
-	onSave: (measurement: GrowthMeasurement) => void;
+	measurement?: GrowthMeasurement; 
 	onClose?: () => void;
+	// Optional for editing existing measurement
+	onSave: (measurement: GrowthMeasurement) => void;
 }
 
 export default function AddGrowthMeasurement({
 	measurement,
-	onSave,
 	onClose,
+	onSave,
 }: AddGrowthMeasurementProps) {
 	const [open, setOpen] = useState(!!measurement);
 	const [date, setDate] = useState(
@@ -51,11 +52,13 @@ export default function AddGrowthMeasurement({
 		setError('');
 
 		const newMeasurement: GrowthMeasurement = {
+			date: new Date(`${date}T12:00:00`).toISOString(),
+			height: height ? Number.parseFloat(height) : undefined, 
 			id: measurement?.id || Date.now().toString(),
-			date: new Date(`${date}T12:00:00`).toISOString(), // Use noon to avoid timezone issues
-			weight: weight ? Number.parseFloat(weight) : undefined,
-			height: height ? Number.parseFloat(height) : undefined,
-			notes: notes || undefined,
+			
+notes: notes || undefined,
+			// Use noon to avoid timezone issues
+weight: weight ? Number.parseFloat(weight) : undefined,
 		};
 
 		onSave(newMeasurement);
@@ -69,10 +72,10 @@ export default function AddGrowthMeasurement({
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
+		<Dialog onOpenChange={handleOpenChange} open={open}>
 			{!measurement && (
 				<DialogTrigger asChild>
-					<Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+					<Button onClick={() => setOpen(true)} size="sm" variant="outline">
 						<PlusCircle className="h-4 w-4 mr-1" />
 						{t('addMeasurement')}
 					</Button>
@@ -89,9 +92,9 @@ export default function AddGrowthMeasurement({
 						<Label htmlFor="date">{t('date')}</Label>
 						<Input
 							id="date"
+							onChange={(e) => setDate(e.target.value)}
 							type="date"
 							value={date}
-							onChange={(e) => setDate(e.target.value)}
 						/>
 					</div>
 
@@ -100,21 +103,21 @@ export default function AddGrowthMeasurement({
 							<Label htmlFor="weight">{t('weight')} (g)</Label>
 							<Input
 								id="weight"
-								type="number"
-								value={weight}
 								onChange={(e) => setWeight(e.target.value)}
 								placeholder={t('weightExample')}
+								type="number"
+								value={weight}
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="height">{t('height')} (cm)</Label>
 							<Input
 								id="height"
-								type="number"
-								value={height}
 								onChange={(e) => setHeight(e.target.value)}
 								placeholder={t('heightExample')}
 								step="0.1"
+								type="number"
+								value={height}
 							/>
 						</div>
 					</div>
@@ -125,15 +128,15 @@ export default function AddGrowthMeasurement({
 						<Label htmlFor="notes">{t('notes')} (optional)</Label>
 						<Textarea
 							id="notes"
-							value={notes}
 							onChange={(e) => setNotes(e.target.value)}
 							placeholder={t('notesPlaceholder')}
 							rows={3}
+							value={notes}
 						/>
 					</div>
 				</div>
 				<DialogFooter>
-					<Button type="submit" onClick={handleSave}>
+					<Button onClick={handleSave} type="submit">
 						{t('save')}
 					</Button>
 				</DialogFooter>

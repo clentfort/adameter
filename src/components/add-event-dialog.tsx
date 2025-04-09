@@ -20,15 +20,16 @@ import type { Event } from '@/types/event';
 import { useTranslate } from '@/utils/translate';
 
 interface AddEventDialogProps {
-	event?: Event; // Optional for editing existing event
-	onSave: (event: Event) => void;
+	event?: Event; 
 	onClose?: () => void;
+	// Optional for editing existing event
+	onSave: (event: Event) => void;
 }
 
 export default function AddEventDialog({
 	event,
-	onSave,
 	onClose,
+	onSave,
 }: AddEventDialogProps) {
 	const [open, setOpen] = useState(!!event);
 	const [title, setTitle] = useState(event?.title || '');
@@ -71,17 +72,17 @@ export default function AddEventDialog({
 
 		// Ensure end date is after start date
 		if (endDateTime && endDateTime <= startDateTime) {
-			endDateTime = new Date(startDateTime.getTime() + 3600000); // Add 1 hour
+			endDateTime = new Date(startDateTime.getTime() + 3_600_000); // Add 1 hour
 		}
 
 		const newEvent: Event = {
-			id: event?.id || Date.now().toString(),
-			title,
-			description: description || undefined,
-			startDate: startDateTime.toISOString(),
-			endDate: endDateTime?.toISOString(),
-			type: eventType,
 			color,
+			description: description || undefined,
+			endDate: endDateTime?.toISOString(),
+			id: event?.id || Date.now().toString(),
+			startDate: startDateTime.toISOString(),
+			title,
+			type: eventType,
 		};
 
 		onSave(newEvent);
@@ -95,10 +96,10 @@ export default function AddEventDialog({
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
+		<Dialog onOpenChange={handleOpenChange} open={open}>
 			{!event && (
 				<DialogTrigger asChild>
-					<Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+					<Button onClick={() => setOpen(true)} size="sm" variant="outline">
 						<PlusCircle className="h-4 w-4 mr-1" />
 						{t('addEvent')}
 					</Button>
@@ -113,9 +114,9 @@ export default function AddEventDialog({
 						<Label htmlFor="title">{t('title')}</Label>
 						<Input
 							id="title"
-							value={title}
 							onChange={(e) => setTitle(e.target.value)}
 							placeholder={t('titleExample')}
+							value={title}
 						/>
 					</div>
 
@@ -123,28 +124,28 @@ export default function AddEventDialog({
 						<Label htmlFor="description">{t('description')}</Label>
 						<Textarea
 							id="description"
-							value={description}
 							onChange={(e) => setDescription(e.target.value)}
 							placeholder={t('descriptionPlaceholder')}
 							rows={3}
+							value={description}
 						/>
 					</div>
 
 					<div className="space-y-2">
 						<Label>{t('eventType')}</Label>
 						<RadioGroup
-							value={eventType}
+							className="flex gap-4"
 							onValueChange={(value) =>
 								setEventType(value as 'point' | 'period')
 							}
-							className="flex gap-4"
+							value={eventType}
 						>
 							<div className="flex items-center space-x-2">
-								<RadioGroupItem value="point" id="point" />
+								<RadioGroupItem id="point" value="point" />
 								<Label htmlFor="point">{t('pointEvent')}</Label>
 							</div>
 							<div className="flex items-center space-x-2">
-								<RadioGroupItem value="period" id="period" />
+								<RadioGroupItem id="period" value="period" />
 								<Label htmlFor="period">{t('periodEvent')}</Label>
 							</div>
 						</RadioGroup>
@@ -155,18 +156,18 @@ export default function AddEventDialog({
 							<Label htmlFor="start-date">{t('date')}</Label>
 							<Input
 								id="start-date"
+								onChange={(e) => setStartDate(e.target.value)}
 								type="date"
 								value={startDate}
-								onChange={(e) => setStartDate(e.target.value)}
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="start-time">{t('time')}</Label>
 							<Input
 								id="start-time"
+								onChange={(e) => setStartTime(e.target.value)}
 								type="time"
 								value={startTime}
-								onChange={(e) => setStartTime(e.target.value)}
 							/>
 						</div>
 					</div>
@@ -175,8 +176,8 @@ export default function AddEventDialog({
 						<>
 							<div className="flex items-center space-x-2">
 								<Switch
-									id="has-end-date"
 									checked={hasEndDate}
+									id="has-end-date"
 									onCheckedChange={setHasEndDate}
 								/>
 								<Label htmlFor="has-end-date">{t('setEndDate')}</Label>
@@ -188,18 +189,18 @@ export default function AddEventDialog({
 										<Label htmlFor="end-date">{t('endDate')}</Label>
 										<Input
 											id="end-date"
+											onChange={(e) => setEndDate(e.target.value)}
 											type="date"
 											value={endDate}
-											onChange={(e) => setEndDate(e.target.value)}
 										/>
 									</div>
 									<div className="space-y-2">
 										<Label htmlFor="end-time">{t('endTime')}</Label>
 										<Input
 											id="end-time"
+											onChange={(e) => setEndTime(e.target.value)}
 											type="time"
 											value={endTime}
-											onChange={(e) => setEndTime(e.target.value)}
 										/>
 									</div>
 								</div>
@@ -219,19 +220,19 @@ export default function AddEventDialog({
 								'#8b5cf6',
 							].map((colorOption) => (
 								<button
-									key={colorOption}
-									type="button"
-									className={`w-8 h-8 rounded-full ${color === colorOption ? 'ring-2 ring-offset-2 ring-black' : ''}`}
-									style={{ backgroundColor: colorOption }}
-									onClick={() => setColor(colorOption)}
 									aria-label={`Farbe ${colorOption}`}
+									className={`w-8 h-8 rounded-full ${color === colorOption ? 'ring-2 ring-offset-2 ring-black' : ''}`}
+									key={colorOption}
+									onClick={() => setColor(colorOption)}
+									style={{ backgroundColor: colorOption }}
+									type="button"
 								/>
 							))}
 						</div>
 					</div>
 				</div>
 				<DialogFooter>
-					<Button type="submit" onClick={handleSave}>
+					<Button onClick={handleSave} type="submit">
 						{t('save')}
 					</Button>
 				</DialogFooter>

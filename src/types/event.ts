@@ -1,9 +1,12 @@
 export interface Event {
-	id: string;
-	title: string;
+	// point = single date, period = start to end date
+	color?: string;
 	description?: string;
-	startDate: string; // ISO string
-	endDate?: string; // ISO string, optional for ongoing events
-	type: 'point' | 'period'; // point = single date, period = start to end date
-	color?: string; // Optional color for the event
+	// ISO string
+	endDate?: string;
+	id: string; 
+	startDate: string; 
+	title: string; 
+	// ISO string, optional for ongoing events
+	type: 'point' | 'period'; // Optional color for the event
 }

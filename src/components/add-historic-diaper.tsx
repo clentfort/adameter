@@ -28,25 +28,25 @@ import { useTranslate } from '@/utils/translate';
 
 // Simplified diaper brands
 const DIAPER_BRANDS = [
-	{ value: 'pampers', label: 'Pampers' },
-	{ value: 'huggies', label: 'Huggies' },
-	{ value: 'lillydoo', label: 'Lillydoo' },
-	{ value: 'dm', label: 'dm' },
-	{ value: 'rossmann', label: 'Rossmann' },
-	{ value: 'stoffwindel', label: 'Stoffwindel' },
-	{ value: 'lidl', label: 'Lidl' },
-	{ value: 'aldi', label: 'Aldi' },
-	{ value: 'andere', label: 'Andere' },
+	{ label: 'Pampers', value: 'pampers' },
+	{ label: 'Huggies', value: 'huggies' },
+	{ label: 'Lillydoo', value: 'lillydoo' },
+	{ label: 'dm', value: 'dm' },
+	{ label: 'Rossmann', value: 'rossmann' },
+	{ label: 'Stoffwindel', value: 'stoffwindel' },
+	{ label: 'Lidl', value: 'lidl' },
+	{ label: 'Aldi', value: 'aldi' },
+	{ label: 'Andere', value: 'andere' },
 ];
 
 interface AddHistoricDiaperProps {
-	onDiaperAdd: (change: DiaperChange) => void;
 	diaperChanges: DiaperChange[];
+	onDiaperAdd: (change: DiaperChange) => void;
 }
 
 export default function AddHistoricDiaper({
-	onDiaperAdd,
 	diaperChanges = [],
+	onDiaperAdd,
 }: AddHistoricDiaperProps) {
 	const [open, setOpen] = useState(false);
 	const [date, setDate] = useState('');
@@ -98,14 +98,18 @@ export default function AddHistoricDiaper({
 		const timestamp = new Date(year, month - 1, day, hours, minutes);
 
 		const change: DiaperChange = {
-			id: Date.now().toString(),
-			timestamp: timestamp.toISOString(),
-			containsUrine: true, // Always true, as stool usually comes with urine
-			containsStool: diaperType === 'stool',
+			
+abnormalities: abnormalities || undefined,
+			
+// Always true, as stool usually comes with urine
+containsStool: diaperType === 'stool',
+			
+containsUrine: true, 
 			diaperBrand: diaperBrand || undefined,
-			temperature: temperature ? Number.parseFloat(temperature) : undefined,
+			id: Date.now().toString(),
 			leakage: hasLeakage || undefined,
-			abnormalities: abnormalities || undefined,
+			temperature: temperature ? Number.parseFloat(temperature) : undefined,
+			timestamp: timestamp.toISOString(),
 		};
 
 		onDiaperAdd(change);
@@ -118,16 +122,16 @@ export default function AddHistoricDiaper({
 
 	return (
 		<Dialog
-			open={open}
 			onOpenChange={(newOpen) => {
 				setOpen(newOpen);
 				if (newOpen) {
 					setDefaultValues();
 				}
 			}}
+			open={open}
 		>
 			<DialogTrigger asChild>
-				<Button variant="outline" size="sm">
+				<Button size="sm" variant="outline">
 					<PlusCircle className="h-4 w-4 mr-1" />
 					{t('addEntry')}
 				</Button>
@@ -140,29 +144,29 @@ export default function AddHistoricDiaper({
 					<div className="space-y-2">
 						<Label>{t('diaperType')}</Label>
 						<RadioGroup
-							value={diaperType}
+							className="flex gap-4"
 							onValueChange={(value) =>
 								setDiaperType(value as 'urine' | 'stool')
 							}
-							className="flex gap-4"
+							value={diaperType}
 						>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
-									value="urine"
-									id="urine"
 									className="text-yellow-500 border-yellow-500"
+									id="urine"
+									value="urine"
 								/>
-								<Label htmlFor="urine" className="text-yellow-700">
+								<Label className="text-yellow-700" htmlFor="urine">
 									<span className="text-lg mr-1">💧</span> {t('urineOnly')}
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
-									value="stool"
-									id="stool"
 									className="text-amber-700 border-amber-700"
+									id="stool"
+									value="stool"
 								/>
-								<Label htmlFor="stool" className="text-amber-800">
+								<Label className="text-amber-800" htmlFor="stool">
 									<span className="text-lg mr-1">💩</span> {t('stool')}
 								</Label>
 							</div>
@@ -174,18 +178,18 @@ export default function AddHistoricDiaper({
 							<Label htmlFor="date">{t('date')}</Label>
 							<Input
 								id="date"
+								onChange={(e) => setDate(e.target.value)}
 								type="date"
 								value={date}
-								onChange={(e) => setDate(e.target.value)}
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="time">{t('time')}</Label>
 							<Input
 								id="time"
+								onChange={(e) => setTime(e.target.value)}
 								type="time"
 								value={time}
-								onChange={(e) => setTime(e.target.value)}
 							/>
 						</div>
 					</div>
@@ -193,7 +197,7 @@ export default function AddHistoricDiaper({
 					{/* Diaper brand first */}
 					<div className="space-y-2">
 						<Label htmlFor="diaper-brand">{t('diaperBrand')}</Label>
-						<Select value={diaperBrand} onValueChange={setDiaperBrand}>
+						<Select onValueChange={setDiaperBrand} value={diaperBrand}>
 							<SelectTrigger>
 								<SelectValue placeholder={t('selectDiaperBrand')} />
 							</SelectTrigger>
@@ -211,18 +215,18 @@ export default function AddHistoricDiaper({
 					<div className="space-y-2">
 						<Label htmlFor="temperature">{t('temperature')} (°C)</Label>
 						<Input
-							id="temperature"
-							type="number"
-							step="0.1"
-							placeholder={t('temperatureExample')}
-							value={temperature}
-							onChange={(e) => setTemperature(e.target.value)}
 							className={
 								temperature &&
 								isAbnormalTemperature(Number.parseFloat(temperature))
 									? 'border-red-500'
 									: ''
 							}
+							id="temperature"
+							onChange={(e) => setTemperature(e.target.value)}
+							placeholder={t('temperatureExample')}
+							step="0.1"
+							type="number"
+							value={temperature}
 						/>
 						{temperature &&
 							isAbnormalTemperature(Number.parseFloat(temperature)) && (
@@ -235,8 +239,8 @@ export default function AddHistoricDiaper({
 					{/* Leakage and abnormalities last */}
 					<div className="flex items-center space-x-2">
 						<Switch
-							id="leakage"
 							checked={hasLeakage}
+							id="leakage"
 							onCheckedChange={setHasLeakage}
 						/>
 						<Label htmlFor="leakage">{t('leakage')}</Label>
@@ -246,14 +250,14 @@ export default function AddHistoricDiaper({
 						<Label htmlFor="abnormalities">{t('abnormalities')}</Label>
 						<Textarea
 							id="abnormalities"
+							onChange={(e) => setAbnormalities(e.target.value)}
 							placeholder={t('abnormalitiesExample')}
 							value={abnormalities}
-							onChange={(e) => setAbnormalities(e.target.value)}
 						/>
 					</div>
 				</div>
 				<DialogFooter>
-					<Button variant="outline" onClick={() => setOpen(false)}>
+					<Button onClick={() => setOpen(false)} variant="outline">
 						{t('cancel')}
 					</Button>
 					<Button onClick={handleSubmit}>{t('save')}</Button>

@@ -127,10 +127,10 @@ export const generateFakeData = (
 	days = 7,
 	feedingsPerDay = 12,
 ): {
-	sessions: FeedingSession[];
+	diaperChanges: DiaperChange[];
 	events: Event[];
 	measurements: GrowthMeasurement[];
-	diaperChanges: DiaperChange[];
+	sessions: FeedingSession[];
 } => {
 	console.log(
 		`Generating fake data for ${days} days with ${feedingsPerDay} feedings per day`,
@@ -151,12 +151,12 @@ export const generateFakeData = (
 	birthDate.setHours(randomInt(8, 20), randomInt(0, 59), 0, 0);
 
 	events.push({
-		id: `birth-${Date.now()}`,
-		title: 'Geburt',
+		color: '#10b981',
 		description: generateDescription('event'),
+		id: `birth-${Date.now()}`,
 		startDate: birthDate.toISOString(),
-		type: 'point',
-		color: '#10b981', // Green
+		title: 'Geburt',
+		type: 'point', // Green
 	});
 
 	// Generate initial weight and height measurement at birth
@@ -164,11 +164,11 @@ export const generateFakeData = (
 	const birthHeight = randomInt(48, 54); // in cm
 
 	measurements.push({
-		id: `birth-measurement-${Date.now()}`,
 		date: birthDate.toISOString(),
-		weight: birthWeight,
 		height: birthHeight,
+		id: `birth-measurement-${Date.now()}`,
 		notes: generateDescription('measurement'),
+		weight: birthWeight,
 	});
 
 	// Generate a random illness event with start and end date
@@ -185,13 +185,13 @@ export const generateFakeData = (
 		: undefined;
 
 	events.push({
-		id: `illness-${Date.now()}`,
-		title: 'Neugeborenengelbsucht',
+		color: '#f59e0b',
 		description: generateDescription('event'),
-		startDate: illnessStartDate.toISOString(),
 		endDate: illnessEndDate?.toISOString(),
-		type: 'period',
-		color: '#f59e0b', // Amber
+		id: `illness-${Date.now()}`,
+		startDate: illnessStartDate.toISOString(),
+		title: 'Neugeborenengelbsucht',
+		type: 'period', // Amber
 	});
 
 	// Generate a vaccination event
@@ -201,12 +201,12 @@ export const generateFakeData = (
 	);
 
 	events.push({
-		id: `vaccination-${Date.now()}`,
-		title: 'Impfung',
+		color: '#8b5cf6',
 		description: generateDescription('event'),
+		id: `vaccination-${Date.now()}`,
 		startDate: vaccinationDate.toISOString(),
-		type: 'point',
-		color: '#8b5cf6', // Purple
+		title: 'Impfung',
+		type: 'point', // Purple
 	});
 
 	// Generate a doctor's appointment with start and end time on the same day
@@ -219,13 +219,13 @@ export const generateFakeData = (
 	appointmentEndDate.setHours(appointmentDate.getHours() + 1); // 1 hour appointment
 
 	events.push({
-		id: `appointment-${Date.now()}`,
-		title: 'Kinderarzttermin',
+		color: '#0ea5e9',
 		description: generateDescription('event'),
-		startDate: appointmentDate.toISOString(),
 		endDate: appointmentEndDate.toISOString(),
-		type: 'period',
-		color: '#0ea5e9', // Sky blue
+		id: `appointment-${Date.now()}`,
+		startDate: appointmentDate.toISOString(),
+		title: 'Kinderarzttermin',
+		type: 'period', // Sky blue
 	});
 
 	// Generate additional measurements (one per week plus some random ones)
@@ -248,16 +248,17 @@ export const generateFakeData = (
 		currentHeight += randomInt(5, 15) / 10;
 
 		measurements.push({
-			id: `measurement-week-${Date.now()}-${i}`,
 			date: measurementDate.toISOString(),
-			weight: currentWeight,
-			height: Math.round(currentHeight * 10) / 10, // Round to 1 decimal place
-			notes:
+			height: Math.round(currentHeight * 10) / 10,
+			id: `measurement-week-${Date.now()}-${i}`,
+			// Round to 1 decimal place
+notes:
 				i === 1
 					? generateDescription('measurement')
 					: Math.random() > 0.5
 						? generateDescription('measurement')
-						: undefined,
+						: undefined, 
+			weight: currentWeight,
 		});
 	}
 
@@ -283,18 +284,18 @@ export const generateFakeData = (
 		const heightVariation = estimatedHeight * (randomInt(-2, 2) / 100); // ±2%
 
 		measurements.push({
-			id: `measurement-random-${Date.now()}-${i}`,
 			date: measurementDate.toISOString(),
-			weight:
-				measurementType < 0.7
-					? Math.round(estimatedWeight + weightVariation)
-					: undefined,
 			height:
 				measurementType > 0.3
 					? Math.round((estimatedHeight + heightVariation) * 10) / 10
 					: undefined,
+			id: `measurement-random-${Date.now()}-${i}`,
 			notes:
 				Math.random() > 0.5 ? generateDescription('measurement') : undefined,
+			weight:
+				measurementType < 0.7
+					? Math.round(estimatedWeight + weightVariation)
+					: undefined,
 		});
 	}
 
@@ -350,14 +351,18 @@ export const generateFakeData = (
 
 			// Create diaper change
 			const change: DiaperChange = {
-				id: `${currentDate.getTime()}`,
-				timestamp: currentDate.toISOString(),
-				containsUrine: true, // Always true
-				containsStool,
-				temperature,
+				
+abnormalities,
+				
+// Always true
+containsStool,
+				
+containsUrine: true, 
 				diaperBrand,
+				id: `${currentDate.getTime()}`,
 				leakage: hasLeakage,
-				abnormalities,
+				temperature,
+				timestamp: currentDate.toISOString(),
 			};
 
 			diaperChanges.push(change);
@@ -433,11 +438,11 @@ export const generateFakeData = (
 
 			// Create session
 			const session: FeedingSession = {
-				id: `${startTime.getTime()}`,
 				breast: lastBreast,
-				startTime: startTime.toISOString(),
-				endTime: endTime.toISOString(),
 				durationInSeconds,
+				endTime: endTime.toISOString(),
+				id: `${startTime.getTime()}`,
+				startTime: startTime.toISOString(),
 			};
 
 			sessions.push(session);
@@ -474,5 +479,5 @@ export const generateFakeData = (
 		(a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
 	);
 
-	return { sessions, events, measurements, diaperChanges };
+	return { diaperChanges, events, measurements, sessions };
 };

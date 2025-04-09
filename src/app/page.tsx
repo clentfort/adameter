@@ -256,10 +256,10 @@ export default function Home() {
 		importedDiaperChanges: DiaperChange[] = [],
 	) => {
 		console.log('Importing data:', {
-			sessions: importedSessions,
+			diaperChanges: importedDiaperChanges,
 			events: importedEvents,
 			measurements: importedMeasurements,
-			diaperChanges: importedDiaperChanges,
+			sessions: importedSessions,
 		});
 
 		// Ensure imported data is arrays
@@ -339,49 +339,49 @@ export default function Home() {
 				<TimeSinceLastDiaper lastChange={diaperChanges[0] || null} />
 			</div>
 
-			<Tabs defaultValue="feeding" className="w-full">
+			<Tabs className="w-full" defaultValue="feeding">
 				<TabsList className="grid grid-cols-5 mb-6">
 					<TabsTrigger
-						value="feeding"
 						className="flex flex-col xs:flex-row items-center xs:gap-1 px-1 sm:px-2 py-2 text-xs sm:text-sm"
+						value="feeding"
 					>
 						<span className="h-4 w-4">🍼</span>
 						<span className="hidden xs:inline">{t('feedingTab')}</span>
 					</TabsTrigger>
 					<TabsTrigger
-						value="diaper"
 						className="flex flex-col xs:flex-row items-center xs:gap-1 px-1 sm:px-2 py-2 text-xs sm:text-sm"
+						value="diaper"
 					>
 						<span className="h-4 w-4">👶</span>
 						<span className="hidden xs:inline">{t('diaperTab')}</span>
 					</TabsTrigger>
 					<TabsTrigger
-						value="growth"
 						className="flex flex-col xs:flex-row items-center xs:gap-1 px-1 sm:px-2 py-2 text-xs sm:text-sm"
+						value="growth"
 					>
 						<span className="h-4 w-4">📏</span>
 						<span className="hidden xs:inline">{t('growthTab')}</span>
 					</TabsTrigger>
 					<TabsTrigger
-						value="events"
 						className="flex flex-col xs:flex-row items-center xs:gap-1 px-1 sm:px-2 py-2 text-xs sm:text-sm"
+						value="events"
 					>
 						<span className="h-4 w-4">📅</span>
 						<span className="hidden xs:inline">{t('eventsTab')}</span>
 					</TabsTrigger>
 					<TabsTrigger
-						value="statistics"
 						className="flex flex-col xs:flex-row items-center xs:gap-1 px-1 sm:px-2 py-2 text-xs sm:text-sm"
+						value="statistics"
 					>
 						<span className="h-4 w-4">📊</span>
 						<span className="hidden xs:inline">{t('statisticsTab')}</span>
 					</TabsTrigger>
 				</TabsList>
 
-				<TabsContent value="feeding" className="w-full">
+				<TabsContent className="w-full" value="feeding">
 					<BreastfeedingTracker
-						onSessionComplete={saveSession}
 						nextBreast={nextBreast}
+						onSessionComplete={saveSession}
 					/>
 
 					<div className="w-full mt-8">
@@ -390,47 +390,47 @@ export default function Home() {
 							<AddHistoricSession onSessionAdd={saveSession} />
 						</div>
 						<HistoryList
-							sessions={sessions}
-							onSessionUpdate={updateSession}
 							onSessionDelete={deleteSession}
+							onSessionUpdate={updateSession}
+							sessions={sessions}
 						/>
 					</div>
 				</TabsContent>
 
-				<TabsContent value="diaper" className="w-full">
+				<TabsContent className="w-full" value="diaper">
 					<DiaperView
 						diaperChanges={diaperChanges}
 						onDiaperAdd={addDiaperChange}
-						onDiaperUpdate={updateDiaperChange}
 						onDiaperDelete={deleteDiaperChange}
+						onDiaperUpdate={updateDiaperChange}
 					/>
 				</TabsContent>
 
-				<TabsContent value="growth" className="w-full">
+				<TabsContent className="w-full" value="growth">
 					<GrowthView
-						measurements={measurements}
 						events={events}
+						measurements={measurements}
 						onMeasurementAdd={addMeasurement}
-						onMeasurementUpdate={updateMeasurement}
 						onMeasurementDelete={deleteMeasurement}
+						onMeasurementUpdate={updateMeasurement}
 					/>
 				</TabsContent>
 
-				<TabsContent value="events" className="w-full">
+				<TabsContent className="w-full" value="events">
 					<EventsView
 						events={events}
 						onEventAdd={addEvent}
-						onEventUpdate={updateEvent}
 						onEventDelete={deleteEvent}
+						onEventUpdate={updateEvent}
 					/>
 				</TabsContent>
 
-				<TabsContent value="statistics" className="w-full">
+				<TabsContent className="w-full" value="statistics">
 					<StatisticsView
-						sessions={sessions}
 						diaperChanges={diaperChanges}
-						measurements={measurements}
 						events={events}
+						measurements={measurements}
+						sessions={sessions}
 					/>
 				</TabsContent>
 			</Tabs>

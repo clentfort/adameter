@@ -38,9 +38,5 @@ export function formatTimeAgo(
 ): string {
 	const unitKey = value === 1 ? unit : (`${unit}s` as TranslationKey);
 
-	if (locale === 'de') {
-		return `vor ${value} ${locales[locale][unitKey]}`;
-	} else {
-		return `${value} ${locales[locale][unitKey]} ${locales[locale]['ago']}`;
-	}
+	return locale === 'de' ? `vor ${value} ${locales[locale][unitKey]}` : `${value} ${locales[locale][unitKey]} ${locales[locale]['ago']}`;
 }

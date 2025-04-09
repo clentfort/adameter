@@ -17,15 +17,15 @@ import { format } from 'date-fns';
 import { useTranslate } from '@/utils/translate';
 
 interface EditSessionDialogProps {
-	session: FeedingSession;
-	onUpdate: (session: FeedingSession) => void;
 	onClose: () => void;
+	onUpdate: (session: FeedingSession) => void;
+	session: FeedingSession;
 }
 
 export default function EditSessionDialog({
-	session,
-	onUpdate,
 	onClose,
+	onUpdate,
+	session,
 }: EditSessionDialogProps) {
 	const [breast, setBreast] = useState<'left' | 'right'>(session.breast);
 	const [date, setDate] = useState('');
@@ -62,9 +62,9 @@ export default function EditSessionDialog({
 		const updatedSession: FeedingSession = {
 			...session,
 			breast,
-			startTime: startTime.toISOString(),
-			endTime: endTime.toISOString(),
 			durationInSeconds: durationInMinutes * 60,
+			endTime: endTime.toISOString(),
+			startTime: startTime.toISOString(),
 		};
 
 		onUpdate(updatedSession);
@@ -72,7 +72,7 @@ export default function EditSessionDialog({
 	};
 
 	return (
-		<Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>{t('editFeedingTime')}</DialogTitle>
@@ -81,27 +81,27 @@ export default function EditSessionDialog({
 					<div className="space-y-2">
 						<Label>{t('breast')}</Label>
 						<RadioGroup
-							value={breast}
-							onValueChange={(value) => setBreast(value as 'left' | 'right')}
 							className="flex gap-4"
+							onValueChange={(value) => setBreast(value as 'left' | 'right')}
+							value={breast}
 						>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
-									value="left"
-									id="edit-left"
 									className="text-left-breast border-left-breast"
+									id="edit-left"
+									value="left"
 								/>
-								<Label htmlFor="edit-left" className="text-left-breast-dark">
+								<Label className="text-left-breast-dark" htmlFor="edit-left">
 									{t('leftBreast')}
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
-									value="right"
-									id="edit-right"
 									className="text-right-breast border-right-breast"
+									id="edit-right"
+									value="right"
 								/>
-								<Label htmlFor="edit-right" className="text-right-breast-dark">
+								<Label className="text-right-breast-dark" htmlFor="edit-right">
 									{t('rightBreast')}
 								</Label>
 							</div>
@@ -113,18 +113,18 @@ export default function EditSessionDialog({
 							<Label htmlFor="edit-date">{t('date')}</Label>
 							<Input
 								id="edit-date"
+								onChange={(e) => setDate(e.target.value)}
 								type="date"
 								value={date}
-								onChange={(e) => setDate(e.target.value)}
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="edit-time">{t('startTime')}</Label>
 							<Input
 								id="edit-time"
+								onChange={(e) => setTime(e.target.value)}
 								type="time"
 								value={time}
-								onChange={(e) => setTime(e.target.value)}
 							/>
 						</div>
 					</div>
@@ -133,22 +133,22 @@ export default function EditSessionDialog({
 						<Label htmlFor="edit-duration">{t('minutes')}</Label>
 						<Input
 							id="edit-duration"
+							min="1"
+							onChange={(e) => setDuration(e.target.value)}
 							type="number"
 							value={duration}
-							onChange={(e) => setDuration(e.target.value)}
-							min="1"
 						/>
 					</div>
 				</div>
 				<DialogFooter>
 					<Button
-						type="submit"
-						onClick={handleSubmit}
 						className={
 							breast === 'left'
 								? 'bg-left-breast hover:bg-left-breast-dark'
 								: 'bg-right-breast hover:bg-right-breast-dark'
 						}
+						onClick={handleSubmit}
+						type="submit"
 					>
 						{t('save')}
 					</Button>

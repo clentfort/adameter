@@ -17,8 +17,8 @@ export function useTranslate() {
 
 	// Add language and formatTimeAgo to the returned object
 	return Object.assign(t, {
-		language,
 		formatTimeAgo: (value: number, unit: 'minute' | 'hour' | 'day') =>
 			formatTimeAgo(language as Locale, value, unit),
+		language,
 	});
 }

@@ -1,8 +1,8 @@
 // This is a Node.js script that would generate icons from the SVG
 // For the purpose of this example, we'll just create placeholder files
 
-const fs = require("fs")
-const path = require("path")
+const fs = require("node:fs")
+const path = require("node:path")
 const { createCanvas } = require("canvas")
 
 // Create icons directory if it doesn't exist

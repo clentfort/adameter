@@ -5,27 +5,27 @@ import { useState } from 'react';
 type ToastVariant = 'default' | 'destructive';
 
 interface Toast {
+	description?: string;
 	id: string;
 	title: string;
-	description?: string;
 	variant?: ToastVariant;
 }
 
 interface ToastOptions {
-	title: string;
 	description?: string;
+	title: string;
 	variant?: ToastVariant;
 }
 
 export function useToast() {
 	const [toasts, setToasts] = useState<Toast[]>([]);
 
-	const toast = ({ title, description, variant = 'default' }: ToastOptions) => {
-		const id = Math.random().toString(36).substring(2, 9);
+	const toast = ({ description, title, variant = 'default' }: ToastOptions) => {
+		const id = Math.random().toString(36).slice(2, 9);
 		const newToast: Toast = {
+			description,
 			id,
 			title,
-			description,
 			variant,
 		};
 
@@ -44,8 +44,8 @@ export function useToast() {
 	};
 
 	return {
-		toast,
 		dismiss,
+		toast,
 		toasts,
 	};
 }

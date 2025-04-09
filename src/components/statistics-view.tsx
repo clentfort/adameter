@@ -23,17 +23,17 @@ import { addDays } from 'date-fns';
 import { useTranslate } from '@/utils/translate';
 
 interface StatisticsViewProps {
-	sessions: FeedingSession[];
 	diaperChanges: DiaperChange[];
-	measurements: GrowthMeasurement[];
 	events: Event[];
+	measurements: GrowthMeasurement[];
+	sessions: FeedingSession[];
 }
 
 export default function StatisticsView({
-	sessions = [],
 	diaperChanges = [],
-	measurements = [],
 	events = [],
+	measurements = [],
+	sessions = [],
 }: StatisticsViewProps) {
 	const [timeRange, setTimeRange] = useState<'7' | '14' | '30' | 'all'>('7');
 	const t = useTranslate();
@@ -73,10 +73,10 @@ export default function StatisticsView({
 			<div className="flex justify-between items-center">
 				<h2 className="text-xl font-semibold">{t('statistics')}</h2>
 				<Select
-					value={timeRange}
 					onValueChange={(value) =>
 						setTimeRange(value as '7' | '14' | '30' | 'all')
 					}
+					value={timeRange}
 				>
 					<SelectTrigger className="w-[140px]">
 						<SelectValue placeholder={t('timeRange')} />
@@ -128,8 +128,8 @@ export default function StatisticsView({
 					<h3 className="text-lg font-medium mt-8 mb-4">{t('growthTab')}</h3>
 					{measurementsArray.length > 0 ? (
 						<GrowthChart
-							measurements={measurementsArray}
 							events={eventsArray}
+							measurements={measurementsArray}
 						/>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">

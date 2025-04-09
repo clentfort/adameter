@@ -67,11 +67,11 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 	const changesPerDay = (totalChanges / daysDiff).toFixed(1);
 
 	// Calculate diaper brand statistics
-	const brandCounts: Record<string, { total: number; leakage: number }> = {};
+	const brandCounts: Record<string, { leakage: number, total: number; }> = {};
 	filteredChanges.forEach((change) => {
 		if (change.diaperBrand) {
 			if (!brandCounts[change.diaperBrand]) {
-				brandCounts[change.diaperBrand] = { total: 0, leakage: 0 };
+				brandCounts[change.diaperBrand] = { leakage: 0, total: 0 };
 			}
 			brandCounts[change.diaperBrand].total++;
 			if (change.leakage) {
@@ -100,14 +100,14 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 				<CardTitle className="text-base">{t('diaperStatistics')}</CardTitle>
 			</CardHeader>
 			<CardContent className="p-4 pt-0">
-				<Tabs defaultValue="overview" className="w-full">
+				<Tabs className="w-full" defaultValue="overview">
 					<TabsList className="grid grid-cols-3 mb-4">
 						<TabsTrigger value="overview">{t('overview')}</TabsTrigger>
 						<TabsTrigger value="brands">{t('diaperBrands')}</TabsTrigger>
 						<TabsTrigger value="leakage">{t('leakage')}</TabsTrigger>
 					</TabsList>
 
-					<TabsContent value="overview" className="space-y-4">
+					<TabsContent className="space-y-4" value="overview">
 						<div className="grid grid-cols-2 gap-4">
 							<div className="border rounded-md p-3">
 								<p className="text-sm text-muted-foreground">{t('total')}</p>
@@ -148,7 +148,7 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 						{sortedBrands.length > 0 ? (
 							<div className="space-y-3">
 								{sortedBrands.map(([brand, stats]) => (
-									<div key={brand} className="flex items-center">
+									<div className="flex items-center" key={brand}>
 										<div className="w-full bg-gray-200 rounded-full h-4">
 											<div
 												className="bg-blue-600 h-4 rounded-full"
@@ -187,7 +187,7 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 											(stats.leakage / stats.total) * 100,
 										);
 										return (
-											<div key={brand} className="border rounded-md p-3">
+											<div className="border rounded-md p-3" key={brand}>
 												<div className="flex justify-between items-center mb-1">
 													<span className="font-medium">{brand}</span>
 													<span

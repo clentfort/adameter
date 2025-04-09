@@ -1,213 +1,1569 @@
 export const de = {
-	// App
-	appTitle: 'Baby-Tracker',
-	loading: 'Lade Daten...',
-
-	// Tabs
-	feedingTab: 'Stillen',
-	diaperTab: 'Wickeln',
-	growthTab: 'Wachstum',
-	eventsTab: 'Ereignisse',
-	statisticsTab: 'Statistik',
-
-	// Breastfeeding
-	leftBreast: 'Linke Brust',
-	rightBreast: 'Rechte Brust',
-	next: 'Nächste',
-	endFeeding: 'Stillen beenden',
-	enterTimeManually: 'Zeit manuell eingeben',
-	start: 'Beginn',
-
-	// Manual time entry
-	enterFeedingTimeManually: 'Stillzeit manuell eingeben',
-	minutes: 'Minuten',
-	save: 'Speichern',
-
-	// History
-	history: 'Verlauf',
-	addEntry: 'Eintrag hinzufügen',
-	noFeedingRecorded: 'Noch keine Stillzeiten erfasst.',
-	note: 'Hinweis',
-	sessionCrossesMidnight: 'Diese Sitzung geht über Mitternacht',
-	duration: 'Dauer',
-	edit: 'Bearbeiten',
-	delete: 'Löschen',
-
-	// Edit session
-	editFeedingTime: 'Stillzeit bearbeiten',
-	breast: 'Brust',
-	date: 'Datum',
-	startTime: 'Startzeit',
-
-	// Add historic session
-	addHistoricFeeding: 'Stillzeit nachtragen',
-
-	// Delete confirmation
-	deleteEntry: 'Eintrag löschen',
-	deleteConfirmation:
-		'Möchtest du diesen Eintrag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
-	cancel: 'Abbrechen',
-
-	// Diaper
-	urineOnly: 'Nur Urin',
-	stool: 'Stuhl',
-	urineDetails: 'Urin-Windel - Details',
-	stoolDetails: 'Stuhl-Windel - Details',
-	diaperBrand: 'Windelmarke',
-	selectDiaperBrand: 'Windelmarke auswählen',
-	temperature: 'Temperatur (°C)',
-	temperatureExample: 'z.B. 37.2',
-	temperatureWarning:
-		'Achtung: Temperatur außerhalb des normalen Bereichs (36.5°C - 37.5°C)',
-	leakage: 'Windel ist ausgelaufen',
+	
 	abnormalities: 'Auffälligkeiten',
-	abnormalitiesExample: 'z.B. Rötung, Ausschlag, etc.',
+	
 
-	// Edit diaper
-	editDiaperEntry: 'Wickeleintrag bearbeiten',
-	diaperType: 'Windel-Typ',
-	time: 'Uhrzeit',
 
-	// Add historic diaper
-	addHistoricDiaper: 'Wickeleintrag nachtragen',
-	noDiapersRecorded: 'Noch keine Wickeleinträge erfasst.',
+abnormalitiesExample: 'z.B. Rötung, Ausschlag, etc.',
 
-	// Growth
-	addMeasurement: 'Messung hinzufügen',
-	editMeasurement: 'Messung bearbeiten',
-	newMeasurement: 'Neue Messung hinzufügen',
-	weight: 'Gewicht (g)',
-	weightExample: 'z.B. 3500',
-	height: 'Größe (cm)',
-	heightExample: 'z.B. 50',
-	notes: 'Notizen (optional)',
-	notesPlaceholder: 'Zusätzliche Informationen',
-	validationError: 'Bitte gib mindestens ein Gewicht oder eine Größe ein.',
-	noMeasurementsRecorded: 'Noch keine Messungen erfasst.',
-	deleteMeasurement: 'Messung löschen',
-	deleteMeasurementConfirmation:
-		'Möchtest du diese Messung wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
-	allMeasurements: 'Alle Messungen',
+	
+	
 
-	// Events
-	events: 'Ereignisse',
-	addEvent: 'Ereignis hinzufügen',
-	allEvents: 'Alle Ereignisse',
-	noEventsRecorded: 'Noch keine Ereignisse erfasst.',
-	deleteEvent: 'Ereignis löschen',
-	deleteEventConfirmation:
+
+
+addEntry: 'Eintrag hinzufügen',
+	
+
+
+
+
+
+addEvent: 'Ereignis hinzufügen',
+	
+
+
+
+
+
+
+// Add historic diaper
+addHistoricDiaper: 'Wickeleintrag nachtragen',
+	
+
+
+
+
+
+
+
+// Add historic session
+addHistoricFeeding: 'Stillzeit nachtragen',
+	
+
+
+
+
+
+
+
+
+// Growth
+addMeasurement: 'Messung hinzufügen',
+
+	
+	
+
+
+
+
+
+
+
+ago: 'vor',
+	
+
+
+
+
+
+
+
+
+
+allData: 'Alle Daten',
+	
+
+
+
+
+
+
+
+
+
+
+
+allEvents: 'Alle Ereignisse',
+	
+
+
+
+
+
+
+
+
+
+
+
+allMeasurements: 'Alle Messungen',
+	
+
+
+
+
+
+
+
+
+
+
+
+// App
+appTitle: 'Baby-Tracker',
+	
+
+
+
+
+
+
+
+
+
+
+
+// Statistics - Feeding
+averageFeedingDuration: 'Durchschnittliche Stilldauer',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+breast: 'Brust',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+cancel: 'Abbrechen',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+close: 'Schließen',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+color: 'Farbe',
+	
+
+
+
+
+
+
+
+
+
+
+
+confirmOverwrite: 'Gib "überschreiben" ein, um den Import zu bestätigen:',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+copy: 'Kopieren',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+csvExport: 'CSV Export',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+date: 'Datum',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+day: 'Tag',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+days: 'Tage',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+delete: 'Löschen',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+deleteConfirmation:
+		'Möchtest du diesen Eintrag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Delete confirmation
+deleteEntry: 'Eintrag löschen',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+deleteEvent: 'Ereignis löschen',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+deleteEventConfirmation:
 		'Möchtest du dieses Ereignis wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
-	editEvent: 'Ereignis bearbeiten',
-	newEvent: 'Neues Ereignis hinzufügen',
-	title: 'Titel',
-	titleExample: 'z.B. Geburt, Impfung, Krankheit',
-	description: 'Beschreibung (optional)',
-	descriptionPlaceholder: 'Weitere Details zum Ereignis',
-	eventType: 'Art des Ereignisses',
-	pointEvent: 'Zeitpunkt (z.B. Impfung)',
-	periodEvent: 'Zeitraum (z.B. Krankheit)',
-	setEndDate: 'Enddatum festlegen',
-	endDate: 'Enddatum',
-	endTime: 'Endzeit',
-	color: 'Farbe',
-	ongoing: 'laufend',
 
-	// Statistics
-	statistics: 'Statistik',
-	timeRange: 'Zeitraum',
-	last7Days: 'Letzte 7 Tage',
-	last14Days: 'Letzte 14 Tage',
-	last30Days: 'Letzte 30 Tage',
-	allData: 'Alle Daten',
-	noDataAvailable: 'Keine Daten für den ausgewählten Zeitraum verfügbar.',
-	noFeedingDataAvailable:
-		'Keine Stilldaten für den ausgewählten Zeitraum verfügbar.',
-	noDiaperDataAvailable:
-		'Keine Wickeldaten für den ausgewählten Zeitraum verfügbar.',
-	noGrowthDataAvailable: 'Keine Wachstumsdaten verfügbar.',
+	
+	
 
-	// Statistics - Feeding
-	averageFeedingDuration: 'Durchschnittliche Stilldauer',
-	timeBetweenFeedings: 'Zeit zwischen Mahlzeiten',
-	feedingsPerDay: 'Mahlzeiten pro Tag',
-	totalFeedings: 'Gesamtzahl Mahlzeiten',
-	feedingDistribution: 'Tagesverteilung der Mahlzeiten',
-	feedingDistributionDescription: 'Verteilung der Stillzeiten über den Tag',
-	veryHighActivity: 'Sehr hohe Aktivität',
-	highActivity: 'Hohe Aktivität',
-	mediumActivity: 'Mittlere Aktivität',
-	lowActivity: 'Geringe Aktivität',
-	veryLowActivity: 'Sehr geringe Aktivität',
 
-	// Statistics - Diaper
-	diaperStatistics: 'Windel-Statistik',
-	overview: 'Übersicht',
-	diaperBrands: 'Windelmarken',
-	total: 'Gesamtzahl',
-	perDay: 'Pro Tag',
-	withStool: 'Mit Stuhl',
-	withLeakage: 'Ausgelaufen',
-	diaperBrandsByLeakage:
+
+
+
+
+
+
+
+
+
+
+
+
+deleteMeasurement: 'Messung löschen',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+deleteMeasurementConfirmation:
+		'Möchtest du diese Messung wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+description: 'Beschreibung (optional)',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+descriptionPlaceholder: 'Weitere Details zum Ereignis',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+diaperBrand: 'Windelmarke',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+diaperBrands: 'Windelmarken',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+diaperBrandsByLeakage:
 		'Windelmarken nach Auslaufhäufigkeit (mind. 3 Verwendungen)',
-	noDiaperBrandsRecorded: 'Keine Windelmarken erfasst.',
-	noLeakageDataAvailable: 'Keine ausreichenden Daten für Auslaufstatistik.',
+	
 
-	// Growth Chart
-	growthChart: 'Wachstumskurve',
-	noMeasurementsForGrowthChart:
-		'Noch keine Messungen vorhanden. Füge Messungen hinzu, um die Wachstumskurve zu sehen.',
-	noWeightData: 'Keine Gewichtsdaten vorhanden.',
-	noHeightData: 'Keine Größendaten vorhanden.',
-	eventsNote: '* Vertikale Linien zeigen wichtige Ereignisse an.',
 
-	// Time since last
-	timeSinceLastFeeding: 'Letzte Stillzeit',
-	timeSinceLastDiaper: 'Letzte Wickelzeit',
-	ago: 'vor',
-	justNow: 'gerade eben',
-	minute: 'Minute',
-	minutes: 'Minuten',
-	hour: 'Stunde',
-	hours: 'Stunden',
-	day: 'Tag',
-	days: 'Tage',
-	noFeedingYet: 'Noch keine Stillzeit erfasst',
-	noDiaperChangeYet: 'Noch keine Wickelzeit erfasst',
 
-	// Import/Export
-	importData: 'Importieren',
-	exportData: 'Exportieren',
-	importTitle: 'Daten importieren',
-	importDescription: 'Füge eine Export-URL ein, um Daten zu importieren.',
-	exportUrl: 'Export-URL',
-	urlPlaceholder: 'https://example.com/#data=...',
-	importUrlDescription:
-		'Füge die vollständige URL ein, die du beim Exportieren erhalten hast.',
-	// next: "Weiter",
-	importConfirmation:
+
+
+
+
+
+
+
+
+// Statistics - Diaper
+diaperStatistics: 'Windel-Statistik',
+	
+
+
+
+
+
+
+
+
+
+
+
+diaperTab: 'Wickeln',
+	
+
+
+
+
+
+
+
+
+
+
+
+diaperType: 'Windel-Typ',
+	
+
+
+
+
+
+
+
+
+
+
+
+duration: 'Dauer',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+edit: 'Bearbeiten',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+// Edit diaper
+editDiaperEntry: 'Wickeleintrag bearbeiten',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+editEvent: 'Ereignis bearbeiten',
+	
+
+
+
+
+
+
+
+
+
+
+
+// Edit session
+editFeedingTime: 'Stillzeit bearbeiten',
+	
+
+
+
+
+
+
+
+
+
+
+
+editMeasurement: 'Messung bearbeiten',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+endDate: 'Enddatum',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+endFeeding: 'Stillen beenden',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+endTime: 'Endzeit',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+english: 'Englisch',
+	
+
+
+
+
+
+
+
+
+// Manual time entry
+enterFeedingTimeManually: 'Stillzeit manuell eingeben',
+
+	
+	
+
+
+
+
+
+
+
+
+enterTimeManually: 'Zeit manuell eingeben',
+	
+
+
+
+
+
+
+
+
+
+eventType: 'Art des Ereignisses',
+	
+
+
+
+
+
+
+
+
+// Events
+events: 'Ereignisse',
+	
+
+
+
+
+
+
+
+
+eventsNote: '* Vertikale Linien zeigen wichtige Ereignisse an.',
+	
+
+
+
+
+
+
+
+
+eventsTab: 'Ereignisse',
+	
+
+
+
+
+
+
+
+
+exportAllAsZip: 'Alle Daten als ZIP exportieren',
+	
+
+
+
+
+
+
+
+
+exportData: 'Exportieren',
+	
+
+
+
+
+
+
+
+
+exportDescription: 'Wähle eine Exportmethode für deine Daten.',
+	
+
+
+
+
+
+
+
+
+exportEvents: 'Ereignisse als CSV',
+	
+
+
+
+
+
+
+
+
+exportMeasurements: 'Wachstumsmessungen als CSV',
+	
+
+
+
+
+
+
+
+
+exportSessions: 'Stillzeiten als CSV',
+	
+
+
+
+
+
+
+
+
+exportTitle: 'Daten exportieren',
+	
+
+
+
+
+
+
+
+
+exportUrl: 'Export-URL',
+	
+
+
+
+
+
+
+
+
+
+feedingDistribution: 'Tagesverteilung der Mahlzeiten',
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+feedingDistributionDescription: 'Verteilung der Stillzeiten über den Tag',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+// Tabs
+feedingTab: 'Stillen',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+feedingsPerDay: 'Mahlzeiten pro Tag',
+	
+
+
+
+
+
+
+
+
+
+
+
+
+german: 'Deutsch',
+	
+
+
+
+
+
+
+
+
+
+
+
+// Growth Chart
+growthChart: 'Wachstumskurve',
+	
+
+
+
+
+
+
+
+
+
+
+
+growthTab: 'Wachstum',
+	
+
+
+
+
+
+
+
+
+
+
+
+height: 'Größe (cm)',
+	
+
+
+
+
+
+
+
+
+
+
+
+heightExample: 'z.B. 50',
+	
+
+
+
+
+
+
+
+
+
+
+
+highActivity: 'Hohe Aktivität',
+	
+
+
+
+
+
+
+
+
+
+
+// History
+history: 'Verlauf',
+	
+
+
+
+
+
+
+
+
+
+
+hour: 'Stunde',
+	
+
+
+
+
+
+
+
+
+
+
+hours: 'Stunden',
+	
+
+
+
+
+
+
+
+
+
+importButton: 'Importieren',
+	
+
+
+
+
+
+
+
+// next: "Weiter",
+importConfirmation:
 		'Es wurden {sessions} Stillzeiten, {events} Ereignisse, {measurements} Messungen und {diaperChanges} Wickeleinträge zum Import gefunden.',
-	importWarning:
-		'Achtung: Beim Import werden deine vorhandenen Daten überschrieben. Dieser Vorgang kann nicht rückgängig gemacht werden.',
-	confirmOverwrite: 'Gib "überschreiben" ein, um den Import zu bestätigen:',
-	overwritePlaceholder: 'überschreiben',
-	importButton: 'Importieren',
-	exportTitle: 'Daten exportieren',
-	exportDescription: 'Wähle eine Exportmethode für deine Daten.',
-	urlExport: 'URL Export',
-	csvExport: 'CSV Export',
-	copy: 'Kopieren',
-	urlExportDescription:
-		'Öffne diese URL auf dem anderen Gerät, um die Daten zu importieren.',
-	exportAllAsZip: 'Alle Daten als ZIP exportieren',
-	zipExportDescription:
-		'Exportiert alle Daten in einer ZIP-Datei mit CSV- und JSON-Dateien.',
-	exportSessions: 'Stillzeiten als CSV',
-	exportEvents: 'Ereignisse als CSV',
-	exportMeasurements: 'Wachstumsmessungen als CSV',
-	close: 'Schließen',
+	
 
-	// Language
-	language: 'Sprache',
-	german: 'Deutsch',
-	english: 'Englisch',
+
+
+
+
+
+// Import/Export
+importData: 'Importieren',
+	
+
+
+
+
+
+
+importDescription: 'Füge eine Export-URL ein, um Daten zu importieren.',
+	
+
+
+
+
+
+
+importTitle: 'Daten importieren',
+	
+
+
+
+
+
+
+importUrlDescription:
+		'Füge die vollständige URL ein, die du beim Exportieren erhalten hast.',
+	
+
+
+
+
+
+
+importWarning:
+		'Achtung: Beim Import werden deine vorhandenen Daten überschrieben. Dieser Vorgang kann nicht rückgängig gemacht werden.',
+	
+
+
+
+
+
+
+justNow: 'gerade eben',
+
+	
+	
+
+
+
+
+
+
+// Language
+language: 'Sprache',
+	
+
+
+
+
+
+
+
+
+last14Days: 'Letzte 14 Tage',
+	
+
+
+
+
+
+
+
+
+last30Days: 'Letzte 30 Tage',
+	
+
+
+
+
+
+
+
+
+last7Days: 'Letzte 7 Tage',
+	
+
+
+
+
+
+
+
+
+leakage: 'Windel ist ausgelaufen',
+	
+
+
+
+
+
+
+
+// Breastfeeding
+leftBreast: 'Linke Brust',
+	
+
+
+
+
+
+
+
+loading: 'Lade Daten...',
+	
+
+
+
+
+
+
+
+lowActivity: 'Geringe Aktivität',
+	
+
+
+
+
+
+
+
+mediumActivity: 'Mittlere Aktivität',
+	
+
+
+
+
+
+
+
+minute: 'Minute',
+
+	
+	
+
+
+
+
+
+
+minutes: 'Minuten',
+	
+
+
+
+
+
+
+minutes: 'Minuten',
+	
+
+
+
+
+
+
+newEvent: 'Neues Ereignis hinzufügen',
+	
+
+
+
+
+
+
+newMeasurement: 'Neue Messung hinzufügen',
+	
+
+
+
+
+
+
+next: 'Nächste',
+	
+
+
+
+
+
+
+noDataAvailable: 'Keine Daten für den ausgewählten Zeitraum verfügbar.',
+	
+
+
+
+
+
+
+noDiaperBrandsRecorded: 'Keine Windelmarken erfasst.',
+	
+
+
+
+
+
+
+noDiaperChangeYet: 'Noch keine Wickelzeit erfasst',
+	
+
+
+
+
+
+
+noDiaperDataAvailable:
+		'Keine Wickeldaten für den ausgewählten Zeitraum verfügbar.',
+	
+
+
+
+
+
+
+noDiapersRecorded: 'Noch keine Wickeleinträge erfasst.',
+	
+
+
+
+
+
+
+noEventsRecorded: 'Noch keine Ereignisse erfasst.',
+
+	
+	
+
+
+
+
+
+noFeedingDataAvailable:
+		'Keine Stilldaten für den ausgewählten Zeitraum verfügbar.',
+	
+
+
+
+
+
+noFeedingRecorded: 'Noch keine Stillzeiten erfasst.',
+	
+
+
+
+
+
+noFeedingYet: 'Noch keine Stillzeit erfasst',
+	
+
+
+
+
+
+noGrowthDataAvailable: 'Keine Wachstumsdaten verfügbar.',
+	
+
+
+
+
+
+noHeightData: 'Keine Größendaten vorhanden.',
+	
+
+
+
+
+
+noLeakageDataAvailable: 'Keine ausreichenden Daten für Auslaufstatistik.',
+	
+
+
+
+
+
+noMeasurementsForGrowthChart:
+		'Noch keine Messungen vorhanden. Füge Messungen hinzu, um die Wachstumskurve zu sehen.',
+	
+
+
+
+
+
+noMeasurementsRecorded: 'Noch keine Messungen erfasst.',
+	
+
+
+
+
+
+noWeightData: 'Keine Gewichtsdaten vorhanden.',
+	
+
+
+
+
+
+note: 'Hinweis',
+
+	
+	
+
+
+
+
+notes: 'Notizen (optional)',
+	
+
+
+
+
+notesPlaceholder: 'Zusätzliche Informationen',
+	
+
+
+
+
+ongoing: 'laufend',
+	
+
+
+
+
+overview: 'Übersicht',
+	
+
+
+
+
+overwritePlaceholder: 'überschreiben',
+
+	
+	
+
+
+
+
+perDay: 'Pro Tag',
+	
+
+
+
+
+
+periodEvent: 'Zeitraum (z.B. Krankheit)',
+	
+
+
+
+
+
+pointEvent: 'Zeitpunkt (z.B. Impfung)',
+	
+
+
+
+
+
+rightBreast: 'Rechte Brust',
+	
+
+
+
+
+
+save: 'Speichern',
+	
+
+
+
+
+
+selectDiaperBrand: 'Windelmarke auswählen',
+	
+
+
+
+
+
+sessionCrossesMidnight: 'Diese Sitzung geht über Mitternacht',
+	
+
+
+
+
+
+setEndDate: 'Enddatum festlegen',
+	
+
+
+
+
+
+start: 'Beginn',
+	
+
+
+
+
+
+startTime: 'Startzeit',
+	
+
+
+
+
+
+// Statistics
+statistics: 'Statistik',
+	
+
+
+
+
+
+
+statisticsTab: 'Statistik',
+
+	
+	
+
+
+
+
+
+
+stool: 'Stuhl',
+	
+
+
+
+
+
+
+stoolDetails: 'Stuhl-Windel - Details',
+	
+
+
+
+
+
+temperature: 'Temperatur (°C)',
+	
+
+
+
+
+
+temperatureExample: 'z.B. 37.2',
+	
+
+
+
+
+
+temperatureWarning:
+		'Achtung: Temperatur außerhalb des normalen Bereichs (36.5°C - 37.5°C)',
+	
+
+
+
+
+
+time: 'Uhrzeit',
+	
+
+
+
+
+
+timeBetweenFeedings: 'Zeit zwischen Mahlzeiten',
+	
+	
+
+
+
+
+timeRange: 'Zeitraum',
+	
+
+
+
+
+timeSinceLastDiaper: 'Letzte Wickelzeit',
+	
+
+
+
+
+// Time since last
+timeSinceLastFeeding: 'Letzte Stillzeit',
+	
+
+
+
+
+
+title: 'Titel',
+	
+
+
+
+
+
+titleExample: 'z.B. Geburt, Impfung, Krankheit',
+	
+
+
+
+
+total: 'Gesamtzahl',
+	
+
+
+
+totalFeedings: 'Gesamtzahl Mahlzeiten',
+	
+
+
+
+urineDetails: 'Urin-Windel - Details',
+	
+
+
+// Diaper
+urineOnly: 'Nur Urin',
+	
+
+
+urlExport: 'URL Export',
+	
+
+
+urlExportDescription:
+		'Öffne diese URL auf dem anderen Gerät, um die Daten zu importieren.',
+	
+
+
+urlPlaceholder: 'https://example.com/#data=...',
+	
+
+
+validationError: 'Bitte gib mindestens ein Gewicht oder eine Größe ein.',
+	
+
+
+veryHighActivity: 'Sehr hohe Aktivität',
+	
+
+
+veryLowActivity: 'Sehr geringe Aktivität',
+	
+
+weight: 'Gewicht (g)',
+	
+weightExample: 'z.B. 3500',
+
+	
+	
+withLeakage: 'Ausgelaufen',
+	
+
+withStool: 'Mit Stuhl',
+	
+zipExportDescription:
+		'Exportiert alle Daten in einer ZIP-Datei mit CSV- und JSON-Dateien.',
 };

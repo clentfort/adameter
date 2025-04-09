@@ -8,19 +8,19 @@ import type { Event } from '@/types/event';
 import { useTranslate } from '@/utils/translate';
 
 interface GrowthViewProps {
-	measurements: GrowthMeasurement[];
 	events: Event[];
+	measurements: GrowthMeasurement[];
 	onMeasurementAdd: (measurement: GrowthMeasurement) => void;
-	onMeasurementUpdate: (measurement: GrowthMeasurement) => void;
 	onMeasurementDelete: (measurementId: string) => void;
+	onMeasurementUpdate: (measurement: GrowthMeasurement) => void;
 }
 
 export default function GrowthView({
-	measurements = [],
 	events = [],
+	measurements = [],
 	onMeasurementAdd,
-	onMeasurementUpdate,
 	onMeasurementDelete,
+	onMeasurementUpdate,
 }: GrowthViewProps) {
 	// Ensure measurements is an array
 	const measurementsArray = Array.isArray(measurements) ? measurements : [];
@@ -41,8 +41,8 @@ export default function GrowthView({
 				<CardContent className="p-4 pt-0">
 					<GrowthMeasurementsList
 						measurements={measurementsArray}
-						onMeasurementUpdate={onMeasurementUpdate}
 						onMeasurementDelete={onMeasurementDelete}
+						onMeasurementUpdate={onMeasurementUpdate}
 					/>
 				</CardContent>
 			</Card>

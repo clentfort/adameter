@@ -11,7 +11,7 @@ const escapeCSV = (field: string): string => {
 	// If the field contains commas, quotes, or newlines, wrap it in quotes
 	if (field.includes(',') || field.includes('"') || field.includes('\n')) {
 		// Double up any quotes
-		return `"${field.replace(/"/g, '""')}"`;
+		return `"${field.replaceAll('"', '""')}"`;
 	}
 	return field;
 };
@@ -148,10 +148,10 @@ export const createJsonExport = (
 	diaperChanges: DiaperChange[],
 ): string => {
 	const exportData = {
-		sessions: Array.isArray(sessions) ? sessions : [],
+		diaperChanges: Array.isArray(diaperChanges) ? diaperChanges : [],
 		events: Array.isArray(events) ? events : [],
 		measurements: Array.isArray(measurements) ? measurements : [],
-		diaperChanges: Array.isArray(diaperChanges) ? diaperChanges : [],
+		sessions: Array.isArray(sessions) ? sessions : [],
 	};
 
 	return JSON.stringify(exportData, null, 2);
@@ -210,7 +210,7 @@ Die JSON-Datei kann für den Import in die Baby-Tracker App verwendet werden.`;
 		link.style.display = 'none';
 
 		// Add link to document, click it, and remove it
-		document.body.appendChild(link);
+		document.body.append(link);
 		link.click();
 		document.body.removeChild(link);
 
@@ -219,7 +219,7 @@ Die JSON-Datei kann für den Import in die Baby-Tracker App verwendet werden.`;
 			URL.revokeObjectURL(link.href);
 		}, 100);
 
-		return Promise.resolve();
+		return;
 	} catch (error) {
 		console.error('Error creating ZIP file:', error);
 		return Promise.reject(error);
@@ -243,7 +243,7 @@ export const downloadCsv = (csvContent: string, filename: string): void => {
 	link.style.visibility = 'hidden';
 
 	// Add link to document, click it, and remove it
-	document.body.appendChild(link);
+	document.body.append(link);
 	link.click();
 	document.body.removeChild(link);
 

@@ -11,13 +11,13 @@ import 'chartjs-adapter-date-fns'; // Import the date-fns adapter
 import { useTranslate } from '@/utils/translate';
 
 interface GrowthChartProps {
-	measurements: GrowthMeasurement[];
 	events?: Event[];
+	measurements: GrowthMeasurement[];
 }
 
 export default function GrowthChart({
-	measurements = [],
 	events = [],
+	measurements = [],
 }: GrowthChartProps) {
 	const weightChartRef = useRef<HTMLCanvasElement | null>(null);
 	const heightChartRef = useRef<HTMLCanvasElement | null>(null);
@@ -60,50 +60,21 @@ export default function GrowthChart({
 
 		// Create new chart
 		weightChartInstance.current = new Chart(ctx, {
-			type: 'line',
 			data: {
 				datasets: [
 					{
-						label: 'Gewicht (g)',
-						data: weightData,
-						borderColor: '#6366f1',
 						backgroundColor: 'rgba(99, 102, 241, 0.1)',
-						tension: 0.3,
-						pointRadius: 5,
+						borderColor: '#6366f1',
+						data: weightData,
+						label: 'Gewicht (g)',
 						pointHoverRadius: 7,
+						pointRadius: 5,
+						tension: 0.3,
 					},
 				],
 			},
 			options: {
-				responsive: true,
 				maintainAspectRatio: false,
-				scales: {
-					x: {
-						type: 'time',
-						time: {
-							unit: 'day',
-							displayFormats: {
-								day: 'dd.MM',
-							},
-						},
-						title: {
-							display: true,
-							text: 'Datum',
-						},
-						adapters: {
-							date: {
-								locale: de,
-							},
-						},
-					},
-					y: {
-						title: {
-							display: true,
-							text: 'Gewicht (g)',
-						},
-						beginAtZero: false,
-					},
-				},
 				plugins: {
 					tooltip: {
 						callbacks: {
@@ -114,10 +85,37 @@ export default function GrowthChart({
 						},
 					},
 				},
+				responsive: true,
+				scales: {
+					x: {
+						adapters: {
+							date: {
+								locale: de,
+							},
+						},
+						time: {
+							displayFormats: {
+								day: 'dd.MM',
+							},
+							unit: 'day',
+						},
+						title: {
+							display: true,
+							text: 'Datum',
+						},
+						type: 'time',
+					},
+					y: {
+						beginAtZero: false,
+						title: {
+							display: true,
+							text: 'Gewicht (g)',
+						},
+					},
+				},
 			},
 			plugins: [
 				{
-					id: 'eventLines',
 					afterDraw: (chart) => {
 						const ctx = chart.ctx;
 						const xAxis = chart.scales.x;
@@ -148,8 +146,10 @@ export default function GrowthChart({
 							}
 						});
 					},
+					id: 'eventLines',
 				},
 			],
+			type: 'line',
 		});
 	};
 
@@ -182,50 +182,21 @@ export default function GrowthChart({
 
 		// Create new chart
 		heightChartInstance.current = new Chart(ctx, {
-			type: 'line',
 			data: {
 				datasets: [
 					{
-						label: 'Größe (cm)',
-						data: heightData,
-						borderColor: '#ec4899',
 						backgroundColor: 'rgba(236, 72, 153, 0.1)',
-						tension: 0.3,
-						pointRadius: 5,
+						borderColor: '#ec4899',
+						data: heightData,
+						label: 'Größe (cm)',
 						pointHoverRadius: 7,
+						pointRadius: 5,
+						tension: 0.3,
 					},
 				],
 			},
 			options: {
-				responsive: true,
 				maintainAspectRatio: false,
-				scales: {
-					x: {
-						type: 'time',
-						time: {
-							unit: 'day',
-							displayFormats: {
-								day: 'dd.MM',
-							},
-						},
-						title: {
-							display: true,
-							text: 'Datum',
-						},
-						adapters: {
-							date: {
-								locale: de,
-							},
-						},
-					},
-					y: {
-						title: {
-							display: true,
-							text: 'Größe (cm)',
-						},
-						beginAtZero: false,
-					},
-				},
 				plugins: {
 					tooltip: {
 						callbacks: {
@@ -236,10 +207,37 @@ export default function GrowthChart({
 						},
 					},
 				},
+				responsive: true,
+				scales: {
+					x: {
+						adapters: {
+							date: {
+								locale: de,
+							},
+						},
+						time: {
+							displayFormats: {
+								day: 'dd.MM',
+							},
+							unit: 'day',
+						},
+						title: {
+							display: true,
+							text: 'Datum',
+						},
+						type: 'time',
+					},
+					y: {
+						beginAtZero: false,
+						title: {
+							display: true,
+							text: 'Größe (cm)',
+						},
+					},
+				},
 			},
 			plugins: [
 				{
-					id: 'eventLines',
 					afterDraw: (chart) => {
 						const ctx = chart.ctx;
 						const xAxis = chart.scales.x;
@@ -270,8 +268,10 @@ export default function GrowthChart({
 							}
 						});
 					},
+					id: 'eventLines',
 				},
 			],
+			type: 'line',
 		});
 	};
 
@@ -323,7 +323,7 @@ export default function GrowthChart({
 					<h3 className="font-medium mb-2">{t('weight')}</h3>
 					<div className="h-[250px]">
 						{hasWeightData ? (
-							<canvas ref={weightChartRef} key="weightChart" />
+							<canvas key="weightChart" ref={weightChartRef} />
 						) : (
 							<p className="text-muted-foreground text-center py-8">
 								{t('noWeightData')}
@@ -337,7 +337,7 @@ export default function GrowthChart({
 					<h3 className="font-medium mb-2">{t('height')}</h3>
 					<div className="h-[250px]">
 						{hasHeightData ? (
-							<canvas ref={heightChartRef} key="heightChart" />
+							<canvas key="heightChart" ref={heightChartRef} />
 						) : (
 							<p className="text-muted-foreground text-center py-8">
 								{t('noHeightData')}

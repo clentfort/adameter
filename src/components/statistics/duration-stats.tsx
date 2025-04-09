@@ -33,9 +33,9 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 	});
 
 	const avgDuration = {
-		total: Math.round(totalDuration / sessionsArray.length),
 		left: leftCount > 0 ? Math.round(leftDuration / leftCount) : 0,
 		right: rightCount > 0 ? Math.round(rightDuration / rightCount) : 0,
+		total: Math.round(totalDuration / sessionsArray.length),
 	};
 
 	const formatDuration = (seconds: number) => {

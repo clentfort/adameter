@@ -65,9 +65,9 @@ export default function HeatMap({ sessions = [] }: HeatMapProps) {
 		const timeLabel = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 
 		return {
-			time: timeLabel,
 			count,
 			index: i,
+			time: timeLabel,
 		};
 	});
 
@@ -103,8 +103,8 @@ export default function HeatMap({ sessions = [] }: HeatMapProps) {
 
 								return (
 									<div
-										key={index}
 										className={`h-full group relative ${bgColor}`}
+										key={index}
 										style={{ width: `${100 / displayIntervals.length}%` }}
 										title={`${interval.time} Uhr: ${interval.count} Mahlzeit${interval.count !== 1 ? 'en' : ''}`}
 									>
@@ -120,7 +120,7 @@ export default function HeatMap({ sessions = [] }: HeatMapProps) {
 						{/* Time markers */}
 						<div className="absolute bottom-0 left-0 right-0 flex justify-between">
 							{[0, 3, 6, 9, 12, 15, 18, 21].map((hour) => (
-								<div key={hour} className="relative">
+								<div className="relative" key={hour}>
 									<div
 										className="absolute bottom-0 w-px h-2 bg-gray-400"
 										style={{ left: `${(hour / 24) * 100}%` }}

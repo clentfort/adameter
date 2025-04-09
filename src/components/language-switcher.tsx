@@ -19,10 +19,10 @@ export default function LanguageSwitcher() {
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button
-					variant="outline"
 					size="icon"
 					title={t('language')}
 					type="button"
+					variant="outline"
 				>
 					<Globe className="h-4 w-4" />
 					<span className="sr-only">{t('language')}</span>
@@ -30,14 +30,14 @@ export default function LanguageSwitcher() {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem
-					onClick={() => setLanguage('de')}
 					className={language === 'de' ? 'bg-accent' : ''}
+					onClick={() => setLanguage('de')}
 				>
 					🇩🇪 {t('german')}
 				</DropdownMenuItem>
 				<DropdownMenuItem
-					onClick={() => setLanguage('en')}
 					className={language === 'en' ? 'bg-accent' : ''}
+					onClick={() => setLanguage('en')}
 				>
 					🇬🇧 {t('english')}
 				</DropdownMenuItem>

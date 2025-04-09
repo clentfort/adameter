@@ -41,7 +41,7 @@ export default function TimeSinceLastFeeding({
 		};
 
 		updateTimeSince();
-		const intervalId = setInterval(updateTimeSince, 60000); // Update every minute
+		const intervalId = setInterval(updateTimeSince, 60_000); // Update every minute
 
 		return () => clearInterval(intervalId);
 	}, [lastSession, t]);

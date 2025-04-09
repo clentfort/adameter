@@ -21,14 +21,14 @@ import { useTranslate } from '@/utils/translate';
 
 interface EventsListProps {
 	events: Event[];
-	onEventUpdate: (event: Event) => void;
 	onEventDelete: (eventId: string) => void;
+	onEventUpdate: (event: Event) => void;
 }
 
 export default function EventsList({
 	events = [],
-	onEventUpdate,
 	onEventDelete,
+	onEventUpdate,
 }: EventsListProps) {
 	const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 	const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
@@ -71,11 +71,11 @@ export default function EventsList({
 
 					return (
 						<div
-							key={event.id}
 							className="border rounded-lg p-4 shadow-sm"
+							key={event.id}
 							style={{
-								borderLeftWidth: '4px',
 								borderLeftColor: event.color || '#6366f1',
+								borderLeftWidth: '4px',
 							}}
 						>
 							<div className="flex justify-between items-start">
@@ -116,19 +116,19 @@ export default function EventsList({
 								</div>
 								<div className="flex gap-1">
 									<Button
-										variant="ghost"
-										size="icon"
 										className="h-7 w-7"
 										onClick={() => setEventToEdit(event)}
+										size="icon"
+										variant="ghost"
 									>
 										<Pencil className="h-4 w-4" />
 										<span className="sr-only">{t('edit')}</span>
 									</Button>
 									<Button
-										variant="ghost"
-										size="icon"
 										className="h-7 w-7 text-destructive"
 										onClick={() => setEventToDelete(event.id)}
+										size="icon"
+										variant="ghost"
 									>
 										<Trash2 className="h-4 w-4" />
 										<span className="sr-only">{t('delete')}</span>
@@ -141,8 +141,8 @@ export default function EventsList({
 			</div>
 
 			<AlertDialog
-				open={!!eventToDelete}
 				onOpenChange={(open) => !open && setEventToDelete(null)}
+				open={!!eventToDelete}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
@@ -163,8 +163,8 @@ export default function EventsList({
 			{eventToEdit && (
 				<AddEventDialog
 					event={eventToEdit}
-					onSave={onEventUpdate}
 					onClose={() => setEventToEdit(null)}
+					onSave={onEventUpdate}
 				/>
 			)}
 		</>

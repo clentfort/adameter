@@ -1,7 +1,6 @@
 import type { Config } from 'tailwindcss';
 
 const config = {
-	darkMode: ['class'],
 	content: [
 		'./pages/**/*.{ts,tsx}',
 		'./components/**/*.{ts,tsx}',
@@ -9,6 +8,8 @@ const config = {
 		'./src/**/*.{ts,tsx}',
 		'*.{js,ts,jsx,tsx,mdx}',
 	],
+	darkMode: ['class'],
+	plugins: [require('tailwindcss-animate')],
 	prefix: '',
 	theme: {
 		container: {
@@ -19,59 +20,67 @@ const config = {
 			},
 		},
 		extend: {
-			screens: {
-				xs: '480px',
-			},
-			colors: {
-				'border': 'hsl(var(--border))',
-				'input': 'hsl(var(--input))',
-				'ring': 'hsl(var(--ring))',
-				'background': 'hsl(var(--background))',
-				'foreground': 'hsl(var(--foreground))',
-				'primary': {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))',
-				},
-				'secondary': {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))',
-				},
-				'destructive': {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))',
-				},
-				'muted': {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))',
-				},
-				'accent': {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))',
-				},
-				'popover': {
-					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))',
-				},
-				'card': {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))',
-				},
-				// Custom colors for breast tracking
-				'left-breast': {
-					DEFAULT: '#6366f1', // Indigo
-					light: '#a5b4fc',
-					dark: '#4338ca',
-				},
-				'right-breast': {
-					DEFAULT: '#ec4899', // Pink
-					light: '#f9a8d4',
-					dark: '#be185d',
-				},
+			animation: {
+				'accordion-down': 'accordion-down 0.2s ease-out',
+				'accordion-up': 'accordion-up 0.2s ease-out',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)',
+			},
+			colors: {
+				'accent': {
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))',
+				},
+				'background': 'hsl(var(--background))',
+				'border': 'hsl(var(--border))',
+				'card': {
+					DEFAULT: 'hsl(var(--card))',
+					foreground: 'hsl(var(--card-foreground))',
+				},
+				'destructive': {
+					DEFAULT: 'hsl(var(--destructive))',
+					foreground: 'hsl(var(--destructive-foreground))',
+				},
+				'foreground': 'hsl(var(--foreground))',
+				'input': 'hsl(var(--input))',
+				// Custom colors for breast tracking
+'left-breast': {
+					DEFAULT: '#6366f1', 
+					dark: '#4338ca',
+					// Indigo
+light: '#a5b4fc',
+				},
+				
+'muted': {
+					DEFAULT: 'hsl(var(--muted))',
+					foreground: 'hsl(var(--muted-foreground))',
+				},
+				
+'popover': {
+					DEFAULT: 'hsl(var(--popover))',
+					foreground: 'hsl(var(--popover-foreground))',
+				},
+				
+'primary': {
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))',
+				},
+				
+'right-breast': {
+					DEFAULT: '#ec4899', 
+					dark: '#be185d',
+					// Pink
+light: '#f9a8d4',
+				},
+				
+				'ring': 'hsl(var(--ring))',
+				'secondary': {
+					DEFAULT: 'hsl(var(--secondary))',
+					foreground: 'hsl(var(--secondary-foreground))',
+				},
 			},
 			keyframes: {
 				'accordion-down': {
@@ -83,13 +92,11 @@ const config = {
 					to: { height: '0' },
 				},
 			},
-			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
+			screens: {
+				xs: '480px',
 			},
 		},
 	},
-	plugins: [require('tailwindcss-animate')],
 } satisfies Config;
 
 export default config;
