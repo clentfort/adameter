@@ -2,10 +2,10 @@
 
 import { useLanguage } from '@/contexts/language-context';
 import {
-	getTranslation,
 	formatTimeAgo,
-	type TranslationKey,
+	getTranslation,
 	type Locale,
+	type TranslationKey,
 } from '@/i18n';
 
 export function useTranslate() {

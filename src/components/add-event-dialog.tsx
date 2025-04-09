@@ -1,26 +1,26 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
-import { PlusCircle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import type { Event } from '@/types/event';
 import { useTranslate } from '@/utils/translate';
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface AddEventDialogProps {
-	event?: Event; 
+	event?: Event;
 	onClose?: () => void;
 	// Optional for editing existing event
 	onSave: (event: Event) => void;

@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { addDays, differenceInDays } from 'date-fns';
 import type { DiaperChange } from '@/types/diaper';
 import { useTranslate } from '@/utils/translate';
+import { addDays, differenceInDays } from 'date-fns';
+import { useState } from 'react';
 
 interface DiaperStatsProps {
 	diaperChanges: DiaperChange[];
@@ -67,7 +67,7 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 	const changesPerDay = (totalChanges / daysDiff).toFixed(1);
 
 	// Calculate diaper brand statistics
-	const brandCounts: Record<string, { leakage: number, total: number; }> = {};
+	const brandCounts: Record<string, { leakage: number; total: number }> = {};
 	filteredChanges.forEach((change) => {
 		if (change.diaperBrand) {
 			if (!brandCounts[change.diaperBrand]) {

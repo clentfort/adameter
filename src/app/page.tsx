@@ -1,22 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import BreastfeedingTracker from '@/components/breastfeeding-tracker';
-import HistoryList from '@/components/history-list';
 import AddHistoricSession from '@/components/add-historic-session';
-import StatisticsView from '@/components/statistics-view';
-import EventsView from '@/components/events-view';
+import BreastfeedingTracker from '@/components/breastfeeding-tracker';
 import DiaperView from '@/components/diaper-view';
+import EventsView from '@/components/events-view';
 import GrowthView from '@/components/growth-view';
-import TimeSinceLastFeeding from '@/components/time-since-last-feeding';
-import TimeSinceLastDiaper from '@/components/time-since-last-diaper';
+import HistoryList from '@/components/history-list';
 import LanguageSwitcher from '@/components/language-switcher';
-import { useTranslate } from '@/utils/translate';
-import type { FeedingSession } from '@/types/feeding';
-import type { Event } from '@/types/event';
-import type { GrowthMeasurement } from '@/types/growth';
-import type { DiaperChange } from '@/types/diaper';
+import StatisticsView from '@/components/statistics-view';
+import TimeSinceLastDiaper from '@/components/time-since-last-diaper';
+import TimeSinceLastFeeding from '@/components/time-since-last-feeding';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { DiaperChange } from '@/types/diaper';
+import type { Event } from '@/types/event';
+import type { FeedingSession } from '@/types/feeding';
+import type { GrowthMeasurement } from '@/types/growth';
+import { useTranslate } from '@/utils/translate';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
 	const t = useTranslate();

@@ -1,11 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { format, isSameDay } from 'date-fns';
-import { de } from 'date-fns/locale';
-import type { FeedingSession } from '@/types/feeding';
-import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -16,8 +10,14 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import EditSessionDialog from './edit-session-dialog';
+import { Button } from '@/components/ui/button';
+import type { FeedingSession } from '@/types/feeding';
 import { useTranslate } from '@/utils/translate';
+import { format, isSameDay } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import EditSessionDialog from './edit-session-dialog';
 
 interface HistoryListProps {
 	onSessionDelete: (sessionId: string) => void;

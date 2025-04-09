@@ -1,8 +1,9 @@
 'use client';
-import DiaperTracker from './diaper-tracker';
-import DiaperHistoryList from './diaper-history-list';
-import AddHistoricDiaper from './add-historic-diaper';
+
 import type { DiaperChange } from '@/types/diaper';
+import AddHistoricDiaper from './add-historic-diaper';
+import DiaperHistoryList from './diaper-history-list';
+import DiaperTracker from './diaper-tracker';
 
 interface DiaperViewProps {
 	diaperChanges: DiaperChange[];

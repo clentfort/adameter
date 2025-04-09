@@ -1,24 +1,24 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle } from 'lucide-react';
 import type { GrowthMeasurement } from '@/types/growth';
 import { useTranslate } from '@/utils/translate';
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface AddGrowthMeasurementProps {
-	measurement?: GrowthMeasurement; 
+	measurement?: GrowthMeasurement;
 	onClose?: () => void;
 	// Optional for editing existing measurement
 	onSave: (measurement: GrowthMeasurement) => void;
@@ -53,12 +53,12 @@ export default function AddGrowthMeasurement({
 
 		const newMeasurement: GrowthMeasurement = {
 			date: new Date(`${date}T12:00:00`).toISOString(),
-			height: height ? Number.parseFloat(height) : undefined, 
+			height: height ? Number.parseFloat(height) : undefined,
 			id: measurement?.id || Date.now().toString(),
-			
-notes: notes || undefined,
+
+			notes: notes || undefined,
 			// Use noon to avoid timezone issues
-weight: weight ? Number.parseFloat(weight) : undefined,
+			weight: weight ? Number.parseFloat(weight) : undefined,
 		};
 
 		onSave(newMeasurement);

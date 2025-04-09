@@ -1,19 +1,17 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
 	Select,
 	SelectContent,
@@ -21,10 +19,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import type { DiaperChange } from '@/types/diaper';
-import { PlusCircle } from 'lucide-react';
 import { useTranslate } from '@/utils/translate';
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 
 // Simplified diaper brands
 const DIAPER_BRANDS = [
@@ -98,13 +98,12 @@ export default function AddHistoricDiaper({
 		const timestamp = new Date(year, month - 1, day, hours, minutes);
 
 		const change: DiaperChange = {
-			
-abnormalities: abnormalities || undefined,
-			
-// Always true, as stool usually comes with urine
-containsStool: diaperType === 'stool',
-			
-containsUrine: true, 
+			abnormalities: abnormalities || undefined,
+
+			// Always true, as stool usually comes with urine
+			containsStool: diaperType === 'stool',
+
+			containsUrine: true,
 			diaperBrand: diaperBrand || undefined,
 			id: Date.now().toString(),
 			leakage: hasLeakage || undefined,

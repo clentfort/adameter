@@ -1,7 +1,7 @@
-import type { FeedingSession } from '@/types/feeding';
-import type { Event } from '@/types/event';
-import type { GrowthMeasurement } from '@/types/growth';
 import type { DiaperChange } from '@/types/diaper';
+import type { Event } from '@/types/event';
+import type { FeedingSession } from '@/types/feeding';
+import type { GrowthMeasurement } from '@/types/growth';
 
 // Function to generate a random integer between min and max (inclusive)
 const randomInt = (min: number, max: number): number => {
@@ -252,12 +252,12 @@ export const generateFakeData = (
 			height: Math.round(currentHeight * 10) / 10,
 			id: `measurement-week-${Date.now()}-${i}`,
 			// Round to 1 decimal place
-notes:
+			notes:
 				i === 1
 					? generateDescription('measurement')
 					: Math.random() > 0.5
 						? generateDescription('measurement')
-						: undefined, 
+						: undefined,
 			weight: currentWeight,
 		});
 	}
@@ -351,13 +351,12 @@ notes:
 
 			// Create diaper change
 			const change: DiaperChange = {
-				
-abnormalities,
-				
-// Always true
-containsStool,
-				
-containsUrine: true, 
+				abnormalities,
+
+				// Always true
+				containsStool,
+
+				containsUrine: true,
 				diaperBrand,
 				id: `${currentDate.getTime()}`,
 				leakage: hasLeakage,

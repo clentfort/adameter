@@ -19,5 +19,6 @@
   "requirePragma": false,
   "tabWidth": 2,
   "useTabs": true,
-  "embeddedLanguageFormatting": "auto"
+  "embeddedLanguageFormatting": "auto",
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
 }

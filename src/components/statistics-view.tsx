@@ -1,10 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import type { FeedingSession } from '@/types/feeding';
-import type { DiaperChange } from '@/types/diaper';
-import type { GrowthMeasurement } from '@/types/growth';
-import type { Event } from '@/types/event';
 import {
 	Select,
 	SelectContent,
@@ -12,15 +7,20 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import DurationStats from './statistics/duration-stats';
-import TimeBetweenStats from './statistics/time-between-stats';
-import FeedingsPerDayStats from './statistics/feedings-per-day-stats';
-import TotalFeedingsStats from './statistics/total-feedings-stats';
-import HeatMap from './statistics/heat-map';
-import DiaperStats from './statistics/diaper-stats';
-import GrowthChart from './growth-chart';
-import { addDays } from 'date-fns';
+import type { DiaperChange } from '@/types/diaper';
+import type { Event } from '@/types/event';
+import type { FeedingSession } from '@/types/feeding';
+import type { GrowthMeasurement } from '@/types/growth';
 import { useTranslate } from '@/utils/translate';
+import { addDays } from 'date-fns';
+import { useState } from 'react';
+import GrowthChart from './growth-chart';
+import DiaperStats from './statistics/diaper-stats';
+import DurationStats from './statistics/duration-stats';
+import FeedingsPerDayStats from './statistics/feedings-per-day-stats';
+import HeatMap from './statistics/heat-map';
+import TimeBetweenStats from './statistics/time-between-stats';
+import TotalFeedingsStats from './statistics/total-feedings-stats';
 
 interface StatisticsViewProps {
 	diaperChanges: DiaperChange[];

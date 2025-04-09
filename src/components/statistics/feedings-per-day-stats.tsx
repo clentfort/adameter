@@ -1,7 +1,7 @@
-import { format } from 'date-fns';
-import StatsCard from './stats-card';
 import type { FeedingSession } from '@/types/feeding';
 import { useTranslate } from '@/utils/translate';
+import { format } from 'date-fns';
+import StatsCard from './stats-card';
 
 interface FeedingsPerDayStatsProps {
 	sessions: FeedingSession[];

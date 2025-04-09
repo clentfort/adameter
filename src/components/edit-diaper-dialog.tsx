@@ -1,18 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
 	Select,
 	SelectContent,
@@ -20,10 +18,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import type { DiaperChange } from '@/types/diaper';
-import { format } from 'date-fns';
 import { useTranslate } from '@/utils/translate';
+import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
 
 // Simplified diaper brands
 const DIAPER_BRANDS = [
@@ -89,11 +89,11 @@ export default function EditDiaperDialog({
 
 		const updatedChange: DiaperChange = {
 			...change,
-			
-abnormalities: abnormalities || undefined,
-			
-// Always true, as stool usually comes with urine
-containsStool: diaperType === 'stool', 
+
+			abnormalities: abnormalities || undefined,
+
+			// Always true, as stool usually comes with urine
+			containsStool: diaperType === 'stool',
 			containsUrine: true,
 			diaperBrand: diaperBrand || undefined,
 			leakage: hasLeakage || undefined,

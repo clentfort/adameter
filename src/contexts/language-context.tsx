@@ -1,5 +1,6 @@
 'use client';
 
+import type { Locale } from '@/i18n';
 import {
 	createContext,
 	useContext,
@@ -7,7 +8,6 @@ import {
 	useState,
 	type ReactNode,
 } from 'react';
-import type { Locale } from '@/i18n';
 
 interface LanguageContextType {
 	language: Locale;

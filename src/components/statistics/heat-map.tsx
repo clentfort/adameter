@@ -1,9 +1,9 @@
 import {
 	Card,
 	CardContent,
+	CardDescription,
 	CardHeader,
 	CardTitle,
-	CardDescription,
 } from '@/components/ui/card';
 import type { FeedingSession } from '@/types/feeding';
 import { useTranslate } from '@/utils/translate';

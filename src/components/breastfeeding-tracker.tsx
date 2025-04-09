@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import type { FeedingSession } from '@/types/feeding';
 import { useTranslate } from '@/utils/translate';
+import { useEffect, useRef, useState } from 'react';
 
 interface BreastfeedingTrackerProps {
 	nextBreast: 'left' | 'right' | null;

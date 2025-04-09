@@ -1,15 +1,15 @@
 'use client';
 
-import { useLanguage } from '@/contexts/language-context';
-import { useTranslate } from '@/utils/translate';
 import { Button } from '@/components/ui/button';
-import { Globe } from 'lucide-react';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useLanguage } from '@/contexts/language-context';
+import { useTranslate } from '@/utils/translate';
+import { Globe } from 'lucide-react';
 
 export default function LanguageSwitcher() {
 	const { language, setLanguage } = useLanguage();

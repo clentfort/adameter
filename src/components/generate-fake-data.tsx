@@ -1,21 +1,21 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { generateFakeData } from '@/utils/generate-fake-data';
 import { useToast } from '@/hooks/use-toast';
-import type { FeedingSession } from '@/types/feeding';
 import type { Event } from '@/types/event';
+import type { FeedingSession } from '@/types/feeding';
 import type { GrowthMeasurement } from '@/types/growth';
+import { generateFakeData } from '@/utils/generate-fake-data';
+import { useState } from 'react';
 
 // Simple database icon
 const DatabaseIcon = () => (

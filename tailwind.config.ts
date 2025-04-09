@@ -47,35 +47,35 @@ const config = {
 				'foreground': 'hsl(var(--foreground))',
 				'input': 'hsl(var(--input))',
 				// Custom colors for breast tracking
-'left-breast': {
-					DEFAULT: '#6366f1', 
+				'left-breast': {
+					DEFAULT: '#6366f1',
 					dark: '#4338ca',
 					// Indigo
-light: '#a5b4fc',
+					light: '#a5b4fc',
 				},
-				
-'muted': {
+
+				'muted': {
 					DEFAULT: 'hsl(var(--muted))',
 					foreground: 'hsl(var(--muted-foreground))',
 				},
-				
-'popover': {
+
+				'popover': {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))',
 				},
-				
-'primary': {
+
+				'primary': {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))',
 				},
-				
-'right-breast': {
-					DEFAULT: '#ec4899', 
+
+				'right-breast': {
+					DEFAULT: '#ec4899',
 					dark: '#be185d',
 					// Pink
-light: '#f9a8d4',
+					light: '#f9a8d4',
 				},
-				
+
 				'ring': 'hsl(var(--ring))',
 				'secondary': {
 					DEFAULT: 'hsl(var(--secondary))',

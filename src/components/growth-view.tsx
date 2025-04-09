@@ -1,11 +1,11 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import GrowthMeasurementsList from './growth-measurements-list';
-import AddGrowthMeasurement from './add-growth-measurement';
-import type { GrowthMeasurement } from '@/types/growth';
 import type { Event } from '@/types/event';
+import type { GrowthMeasurement } from '@/types/growth';
 import { useTranslate } from '@/utils/translate';
+import AddGrowthMeasurement from './add-growth-measurement';
+import GrowthMeasurementsList from './growth-measurements-list';
 
 interface GrowthViewProps {
 	events: Event[];

@@ -1,9 +1,10 @@
 'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import EventsList from './events-list';
-import AddEventDialog from './add-event-dialog';
 import type { Event } from '@/types/event';
 import { useTranslate } from '@/utils/translate';
+import AddEventDialog from './add-event-dialog';
+import EventsList from './events-list';
 
 interface EventsViewProps {
 	events: Event[];

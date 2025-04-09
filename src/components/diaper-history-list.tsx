@@ -1,11 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
-import type { DiaperChange } from '@/types/diaper';
-import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -16,8 +10,14 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import EditDiaperDialog from './edit-diaper-dialog';
+import { Button } from '@/components/ui/button';
+import type { DiaperChange } from '@/types/diaper';
 import { useTranslate } from '@/utils/translate';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import EditDiaperDialog from './edit-diaper-dialog';
 
 interface DiaperHistoryListProps {
 	changes: DiaperChange[];

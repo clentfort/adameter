@@ -1,9 +1,8 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
-
-import { cn } from '@/lib/utils';
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { dark: '.dark', light: '' } as const;
@@ -67,7 +66,7 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = 'Chart';
 
-const ChartStyle = ({ config, id }: { config: ChartConfig, id: string; }) => {
+const ChartStyle = ({ config, id }: { config: ChartConfig; id: string }) => {
 	const colorConfig = Object.entries(config).filter(
 		([_, config]) => config.theme || config.color,
 	);

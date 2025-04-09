@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import type { DiaperChange } from '@/types/diaper';
 import { useTranslate } from '@/utils/translate';
+import { useEffect, useState } from 'react';
 
 interface TimeSinceLastDiaperProps {
 	lastChange: DiaperChange | null;

@@ -5,9 +5,9 @@ export interface DiaperChange {
 	containsUrine: boolean;
 	// Optional temperature in Celsius
 	diaperBrand?: string;
-	id: string; 
+	id: string;
 	// Optional diaper brand
-	leakage?: boolean; 
-	temperature?: number; 
+	leakage?: boolean;
+	temperature?: number;
 	timestamp: string; // Optional notes about abnormalities
 }

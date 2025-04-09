@@ -1,18 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import {
 	Select,
 	SelectContent,
@@ -20,8 +17,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import type { DiaperChange } from '@/types/diaper';
 import { useTranslate } from '@/utils/translate';
+import { useState } from 'react';
 
 // Simplified diaper brands
 const DIAPER_BRANDS = [
@@ -74,13 +74,12 @@ export default function DiaperTracker({
 
 		const now = new Date();
 		const change: DiaperChange = {
-			
-abnormalities: abnormalities || undefined,
-			
-// Stool usually also contains urine
-containsStool: selectedType === 'stool',
-			
-containsUrine: selectedType === 'urine' || selectedType === 'stool', 
+			abnormalities: abnormalities || undefined,
+
+			// Stool usually also contains urine
+			containsStool: selectedType === 'stool',
+
+			containsUrine: selectedType === 'urine' || selectedType === 'stool',
 			diaperBrand: diaperBrand || undefined,
 			id: Date.now().toString(),
 			leakage: hasLeakage || undefined,

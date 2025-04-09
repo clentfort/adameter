@@ -1,10 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
-import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Calendar, Clock, ArrowRight } from 'lucide-react';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -15,9 +10,14 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import type { Event } from '@/types/event';
-import AddEventDialog from './add-event-dialog';
 import { useTranslate } from '@/utils/translate';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { ArrowRight, Calendar, Clock, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import AddEventDialog from './add-event-dialog';
 
 interface EventsListProps {
 	events: Event[];

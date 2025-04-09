@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { GrowthMeasurement } from '@/types/growth';
 import type { Event } from '@/types/event';
+import type { GrowthMeasurement } from '@/types/growth';
+import Chart from 'chart.js/auto';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import Chart from 'chart.js/auto';
+import { useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns'; // Import the date-fns adapter
 import { useTranslate } from '@/utils/translate';
 

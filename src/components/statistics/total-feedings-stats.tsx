@@ -1,6 +1,6 @@
-import StatsCard from './stats-card';
 import type { FeedingSession } from '@/types/feeding';
 import { useTranslate } from '@/utils/translate';
+import StatsCard from './stats-card';
 
 interface TotalFeedingsStatsProps {
 	sessions: FeedingSession[];
