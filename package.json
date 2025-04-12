@@ -8,6 +8,7 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
+		"test": "vitest",
 		"fbtee:manifest": "fbtee manifest --src src",
 		"fbtee:collect": "fbtee collect --manifest < .src_manifest.json > .source_strings.json",
 		"fbtee:translate": "fbtee translate --translations translations/*.json > src/translations.json"
@@ -79,16 +80,22 @@
 		"@nkzw/babel-preset-fbtee": "^0.2.2",
 		"@nkzw/eslint-config": "^2.2.0",
 		"@nkzw/eslint-plugin-fbtee": "^0.2.2",
+		"@testing-library/dom": "^10.4.0",
+		"@testing-library/react": "^16.3.0",
 		"@types/node": "^22",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
+		"@vitejs/plugin-react": "^4.3.4",
 		"eslint": "^9.24.0",
 		"eslint-config-next": "^15.2.5",
 		"eslint-config-prettier": "^10.1.1",
 		"eslint-plugin-react-hooks": "^5.2.0",
+		"jsdom": "^26.0.0",
 		"postcss": "^8",
 		"prettier": "^3.5.3",
 		"tailwindcss": "^3.4.17",
-		"typescript": "^5"
+		"typescript": "^5",
+		"vite-tsconfig-paths": "^5.1.4",
+		"vitest": "^3.1.1"
 	}
 }
