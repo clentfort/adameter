@@ -170,7 +170,9 @@ dist
 # End of https://www.toptal.com/developers/gitignore/api/node
 
 # fbtee
-.src_manifest.json
-.source_strings.json
 .enum_manifest.json
+.source_strings.json
+.src_manifest.json
+source_strings.json
 src/translations.json
+translations/
