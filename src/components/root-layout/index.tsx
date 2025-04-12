@@ -1,7 +1,7 @@
 'use client';
 
 import { useAppState } from '@/hooks/use-app-state';
-import LanguageSwitcher from '../language-switcher';
+import LanguageSwitcher from './language-switcher';
 import { Navigation } from './navigation';
 import TimeSince from './time-since';
 import '@/i18n';

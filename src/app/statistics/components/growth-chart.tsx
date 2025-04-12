@@ -292,31 +292,40 @@ export default function GrowthChart({
 
 	if (measurementsArray.length === 0) {
 		return (
-            <Card>
-                <CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base"><fbt desc="growthChart">Growth Chart</fbt></CardTitle>
+			<Card>
+				<CardHeader className="p-4 pb-2">
+					<CardTitle className="text-base">
+						<fbt desc="growthChart">Growth Chart</fbt>
+					</CardTitle>
 				</CardHeader>
-                <CardContent className="p-4 pt-0">
+				<CardContent className="p-4 pt-0">
 					<p className="text-muted-foreground text-center py-8">
-						<fbt desc="noMeasurementsForGrowthChart">No measurements available. Add measurements to see the growth chart.</fbt>
+						<fbt desc="noMeasurementsForGrowthChart">
+							No measurements available. Add measurements to see the growth
+							chart.
+						</fbt>
 					</p>
 				</CardContent>
-            </Card>
-        );
+			</Card>
+		);
 	}
 
 	const hasWeightData = measurementsArray.some((m) => m.weight !== undefined);
 	const hasHeightData = measurementsArray.some((m) => m.height !== undefined);
 
 	return (
-        <Card>
-            <CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base"><fbt desc="growthChart">Growth Chart</fbt></CardTitle>
+		<Card>
+			<CardHeader className="p-4 pb-2">
+				<CardTitle className="text-base">
+					<fbt desc="growthChart">Growth Chart</fbt>
+				</CardTitle>
 			</CardHeader>
-            <CardContent className="p-4 pt-0 space-y-6">
+			<CardContent className="p-4 pt-0 space-y-6">
 				{/* Weight Chart */}
 				<div>
-					<h3 className="font-medium mb-2"><fbt desc="weight">Weight (g)</fbt></h3>
+					<h3 className="font-medium mb-2">
+						<fbt desc="weight">Weight (g)</fbt>
+					</h3>
 					<div className="h-[250px]">
 						{hasWeightData ? (
 							<canvas key="weightChart" ref={weightChartRef} />
@@ -330,7 +339,9 @@ export default function GrowthChart({
 
 				{/* Height Chart */}
 				<div>
-					<h3 className="font-medium mb-2"><fbt desc="height">Height (cm)</fbt></h3>
+					<h3 className="font-medium mb-2">
+						<fbt desc="height">Height (cm)</fbt>
+					</h3>
 					<div className="h-[250px]">
 						{hasHeightData ? (
 							<canvas key="heightChart" ref={heightChartRef} />
@@ -344,10 +355,14 @@ export default function GrowthChart({
 
 				{eventsArray.length > 0 && (
 					<div className="mt-4 text-xs text-muted-foreground">
-						<p><fbt desc="eventsNote">* Vertical lines indicate important events.</fbt></p>
+						<p>
+							<fbt desc="eventsNote">
+								* Vertical lines indicate important events.
+							</fbt>
+						</p>
 					</div>
 				)}
 			</CardContent>
-        </Card>
-    );
+		</Card>
+	);
 }

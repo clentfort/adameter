@@ -174,5 +174,5 @@ dist
 .source_strings.json
 .src_manifest.json
 source_strings.json
-src/translations.json
+src/i18n/translations.json
 translations/

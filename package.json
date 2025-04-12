@@ -11,7 +11,7 @@
 		"test": "vitest",
 		"fbtee:manifest": "fbtee manifest --src src",
 		"fbtee:collect": "fbtee collect --manifest < .src_manifest.json > .source_strings.json",
-		"fbtee:translate": "fbtee translate --translations translations/*.json > src/translations.json"
+		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins > src/i18n/translations.json"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^3.9.1",

@@ -1,12 +1,5 @@
 'use client';
 
-import GrowthChart from '@/components/growth-chart';
-import DiaperStats from '@/components/statistics/diaper-stats';
-import DurationStats from '@/components/statistics/duration-stats';
-import FeedingsPerDayStats from '@/components/statistics/feedings-per-day-stats';
-import HeatMap from '@/components/statistics/heat-map';
-import TimeBetweenStats from '@/components/statistics/time-between-stats';
-import TotalFeedingsStats from '@/components/statistics/total-feedings-stats';
 import {
 	Select,
 	SelectContent,
@@ -17,6 +10,13 @@ import {
 import { useAppState } from '@/hooks/use-app-state';
 import { addDays } from 'date-fns';
 import { useState } from 'react';
+import DiaperStats from './components/diaper-stats';
+import DurationStats from './components/duration-stats';
+import FeedingsPerDayStats from './components/feedings-per-day-stats';
+import GrowthChart from './components/growth-chart';
+import HeatMap from './components/heat-map';
+import TimeBetweenStats from './components/time-between-stats';
+import TotalFeedingsStats from './components/total-feedings-stats';
 
 export default function StatisticsPage() {
 	const { diaperChanges, events, measurements, sessions } = useAppState();
