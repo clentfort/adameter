@@ -11,7 +11,6 @@ import type { DiaperChange } from '@/types/diaper';
 import type { Event } from '@/types/event';
 import type { FeedingSession } from '@/types/feeding';
 import type { GrowthMeasurement } from '@/types/growth';
-import { useTranslate } from '@/utils/translate';
 import { addDays } from 'date-fns';
 import { useState } from 'react';
 import GrowthChart from './growth-chart';
@@ -36,7 +35,6 @@ export default function StatisticsView({
 	sessions = [],
 }: StatisticsViewProps) {
 	const [timeRange, setTimeRange] = useState<'7' | '14' | '30' | 'all'>('7');
-	const t = useTranslate();
 
 	// Ensure sessions is an array
 	const sessionsArray = Array.isArray(sessions) ? sessions : [];
@@ -69,9 +67,9 @@ export default function StatisticsView({
 	})();
 
 	return (
-		<div className="space-y-6">
-			<div className="flex justify-between items-center">
-				<h2 className="text-xl font-semibold">{t('statistics')}</h2>
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+				<h2 className="text-xl font-semibold"><fbt desc="statistics">Statistics</fbt></h2>
 				<Select
 					onValueChange={(value) =>
 						setTimeRange(value as '7' | '14' | '30' | 'all')
@@ -79,26 +77,25 @@ export default function StatisticsView({
 					value={timeRange}
 				>
 					<SelectTrigger className="w-[140px]">
-						<SelectValue placeholder={t('timeRange')} />
+						<SelectValue placeholder=<fbt desc="timeRange">Time Range</fbt> />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="7">{t('last7Days')}</SelectItem>
-						<SelectItem value="14">{t('last14Days')}</SelectItem>
-						<SelectItem value="30">{t('last30Days')}</SelectItem>
-						<SelectItem value="all">{t('allData')}</SelectItem>
+						<SelectItem value="7"><fbt desc="last7Days">Last 7 Days</fbt></SelectItem>
+						<SelectItem value="14"><fbt desc="last14Days">Last 14 Days</fbt></SelectItem>
+						<SelectItem value="30"><fbt desc="last30Days">Last 30 Days</fbt></SelectItem>
+						<SelectItem value="all"><fbt desc="allData">All Data</fbt></SelectItem>
 					</SelectContent>
 				</Select>
 			</div>
-
-			{filteredSessions.length === 0 &&
+            {filteredSessions.length === 0 &&
 			filteredDiaperChanges.length === 0 &&
 			measurementsArray.length === 0 ? (
 				<div className="text-center py-8 text-muted-foreground">
-					{t('noDataAvailable')}
+					<fbt desc="noDataAvailable">No data available for the selected time range.</fbt>
 				</div>
 			) : (
 				<>
-					<h3 className="text-lg font-medium mt-6 mb-4">{t('feedingTab')}</h3>
+					<h3 className="text-lg font-medium mt-6 mb-4"><fbt desc="feedingTab">Feeding</fbt></h3>
 					{filteredSessions.length > 0 ? (
 						<>
 							<div className="grid grid-cols-2 gap-4">
@@ -112,20 +109,20 @@ export default function StatisticsView({
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
-							{t('noFeedingDataAvailable')}
+							<fbt desc="noFeedingDataAvailable">No feeding data available for the selected time range.</fbt>
 						</div>
 					)}
 
-					<h3 className="text-lg font-medium mt-8 mb-4">{t('diaperTab')}</h3>
+					<h3 className="text-lg font-medium mt-8 mb-4"><fbt desc="diaperTab">Diaper</fbt></h3>
 					{filteredDiaperChanges.length > 0 ? (
 						<DiaperStats diaperChanges={filteredDiaperChanges} />
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
-							{t('noDiaperDataAvailable')}
+							<fbt desc="noDiaperDataAvailable">No diaper data available for the selected time range.</fbt>
 						</div>
 					)}
 
-					<h3 className="text-lg font-medium mt-8 mb-4">{t('growthTab')}</h3>
+					<h3 className="text-lg font-medium mt-8 mb-4"><fbt desc="growthTab">Growth</fbt></h3>
 					{measurementsArray.length > 0 ? (
 						<GrowthChart
 							events={eventsArray}
@@ -133,11 +130,11 @@ export default function StatisticsView({
 						/>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
-							{t('noGrowthDataAvailable')}
+							<fbt desc="noGrowthDataAvailable">No growth data available.</fbt>
 						</div>
 					)}
 				</>
 			)}
-		</div>
-	);
+        </div>
+    );
 }

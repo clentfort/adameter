@@ -6,7 +6,10 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint"
+		"lint": "next lint",
+		"fbtee:manifest": "fbtee manifest --src src",
+		"fbtee:collect": "fbtee collect --manifest < .src_manifest.json > .source_strings.json",
+		"fbtee:translate": "fbtee translate --translations translations/*.json > src/translations.json"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^3.9.1",
@@ -46,6 +49,7 @@
 		"cmdk": "latest",
 		"date-fns": "latest",
 		"embla-carousel-react": "8.5.1",
+		"fbtee": "^0.2.2",
 		"fs": "latest",
 		"input-otp": "1.4.1",
 		"jszip": "latest",
@@ -67,10 +71,13 @@
 		"zod": "^3.24.1"
 	},
 	"devDependencies": {
+		"@crowdin/cli": "^4.7.0",
 		"@eslint/eslintrc": "^3.3.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.4.1",
 		"@next/eslint-plugin-next": "^15.2.5",
+		"@nkzw/babel-preset-fbtee": "^0.2.2",
 		"@nkzw/eslint-config": "^2.2.0",
+		"@nkzw/eslint-plugin-fbtee": "^0.2.2",
 		"@types/node": "^22",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",

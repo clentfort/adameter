@@ -1,11 +1,10 @@
 import type React from 'react';
 import './globals.css';
+import { RootLayout } from '@/components/root-layout';
 import { Toaster } from '@/components/ui/toast';
 import { LanguageProvider } from '@/contexts/language-context';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
+import '@/i18n';
 
 export const metadata: Metadata = {
 	description: 'An app for tracking baby activities',
@@ -13,19 +12,15 @@ export const metadata: Metadata = {
 	title: 'Baby Tracker',
 };
 
-export default function RootLayout({
-	children,
-}: {
-	children: React.ReactNode;
-}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="de">
 			<head>
 				<meta content="width=device-width, initial-scale=1" name="viewport" />
 			</head>
-			<body className={inter.className}>
+			<body>
 				<LanguageProvider>
-					{children}
+					<RootLayout>{children}</RootLayout>
 					<Toaster />
 				</LanguageProvider>
 			</body>

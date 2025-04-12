@@ -7,39 +7,31 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useLanguage } from '@/contexts/language-context';
-import { useTranslate } from '@/utils/translate';
+import { fbt } from 'fbtee';
 import { Globe } from 'lucide-react';
 
 export default function LanguageSwitcher() {
-	const { language, setLanguage } = useLanguage();
-	const t = useTranslate();
-
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button
 					size="icon"
-					title={t('language')}
+					title={fbt('Language', 'Label for the language switcher')}
 					type="button"
 					variant="outline"
 				>
 					<Globe className="h-4 w-4" />
-					<span className="sr-only">{t('language')}</span>
+					<span className="sr-only">
+						<fbt desc="Label for the language switcher">Language</fbt>
+					</span>
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<DropdownMenuItem
-					className={language === 'de' ? 'bg-accent' : ''}
-					onClick={() => setLanguage('de')}
-				>
-					🇩🇪 {t('german')}
+				<DropdownMenuItem className={false ? 'bg-accent' : ''}>
+					🇩🇪 <fbt desc="Label to switch to the German locale">German</fbt>
 				</DropdownMenuItem>
-				<DropdownMenuItem
-					className={language === 'en' ? 'bg-accent' : ''}
-					onClick={() => setLanguage('en')}
-				>
-					🇬🇧 {t('english')}
+				<DropdownMenuItem className={true ? 'bg-accent' : ''}>
+					🇬🇧 <fbt desc="Label to switch to the English locale">English</fbt>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

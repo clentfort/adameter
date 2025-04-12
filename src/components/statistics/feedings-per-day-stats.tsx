@@ -1,5 +1,4 @@
 import type { FeedingSession } from '@/types/feeding';
-import { useTranslate } from '@/utils/translate';
 import { format } from 'date-fns';
 import StatsCard from './stats-card';
 
@@ -12,7 +11,6 @@ export default function FeedingsPerDayStats({
 }: FeedingsPerDayStatsProps) {
 	// Ensure sessions is an array
 	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-	const t = useTranslate();
 
 	if (sessionsArray.length === 0) return null;
 
@@ -35,8 +33,8 @@ export default function FeedingsPerDayStats({
 	const avgFeedingsPerDay = totalFeedings / totalDays;
 
 	return (
-		<StatsCard title={t('feedingsPerDay')}>
-			<div className="text-2xl font-bold">{avgFeedingsPerDay.toFixed(1)}</div>
-		</StatsCard>
-	);
+        <StatsCard title=<fbt desc="feedingsPerDay">Feedings Per Day</fbt>>
+            <div className="text-2xl font-bold">{avgFeedingsPerDay.toFixed(1)}</div>
+        </StatsCard>
+    );
 }

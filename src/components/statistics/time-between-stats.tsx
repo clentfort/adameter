@@ -1,5 +1,4 @@
 import type { FeedingSession } from '@/types/feeding';
-import { useTranslate } from '@/utils/translate';
 import { differenceInSeconds } from 'date-fns';
 import StatsCard from './stats-card';
 
@@ -12,8 +11,6 @@ export default function TimeBetweenStats({
 }: TimeBetweenStatsProps) {
 	// Ensure sessions is an array
 	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-
-	const t = useTranslate();
 
 	if (sessionsArray.length <= 1) return null;
 
@@ -51,8 +48,8 @@ export default function TimeBetweenStats({
 	};
 
 	return (
-		<StatsCard title={t('timeBetweenFeedings')}>
-			<div className="text-2xl font-bold">{formatTimeBetween(avgTime)}</div>
-		</StatsCard>
-	);
+        <StatsCard title=<fbt desc="timeBetweenFeedings">Time Between Feedings</fbt>>
+            <div className="text-2xl font-bold">{formatTimeBetween(avgTime)}</div>
+        </StatsCard>
+    );
 }

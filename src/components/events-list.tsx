@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import type { Event } from '@/types/event';
-import { useTranslate } from '@/utils/translate';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { ArrowRight, Calendar, Clock, Pencil, Trash2 } from 'lucide-react';
@@ -39,14 +38,13 @@ export default function EventsList({
 			? events
 			: []
 		: [];
-	const t = useTranslate();
 
 	if (eventsArray.length === 0) {
 		return (
-			<p className="text-muted-foreground text-center py-4">
-				{t('noEventsRecorded')}
-			</p>
-		);
+            <p className="text-muted-foreground text-center py-4">
+                <fbt desc="noEventsRecorded">No events recorded yet.</fbt>
+            </p>
+        );
 	}
 
 	const handleDeleteConfirm = () => {
@@ -62,15 +60,15 @@ export default function EventsList({
 	);
 
 	return (
-		<>
-			<div className="space-y-4">
+        <>
+            <div className="space-y-4">
 				{sortedEvents.map((event) => {
 					const startDate = new Date(event.startDate);
 					const endDate = event.endDate ? new Date(event.endDate) : null;
 					const isOngoing = event.type === 'period' && !event.endDate;
 
 					return (
-						<div
+                        <div
 							className="border rounded-lg p-4 shadow-sm"
 							key={event.id}
 							style={{
@@ -78,7 +76,7 @@ export default function EventsList({
 								borderLeftWidth: '4px',
 							}}
 						>
-							<div className="flex justify-between items-start">
+                            <div className="flex justify-between items-start">
 								<div>
 									<p className="font-medium text-lg">{event.title}</p>
 									{event.description && (
@@ -97,7 +95,7 @@ export default function EventsList({
 												</>
 											)}
 											{isOngoing && (
-												<span className="ml-1 text-xs">{t('ongoing')}</span>
+												<span className="ml-1 text-xs"><fbt desc="ongoing">ongoing</fbt></span>
 											)}
 										</span>
 									</div>
@@ -122,7 +120,7 @@ export default function EventsList({
 										variant="ghost"
 									>
 										<Pencil className="h-4 w-4" />
-										<span className="sr-only">{t('edit')}</span>
+										<span className="sr-only"><fbt desc="edit">Edit</fbt></span>
 									</Button>
 									<Button
 										className="h-7 w-7 text-destructive"
@@ -131,42 +129,40 @@ export default function EventsList({
 										variant="ghost"
 									>
 										<Trash2 className="h-4 w-4" />
-										<span className="sr-only">{t('delete')}</span>
+										<span className="sr-only"><fbt desc="delete">Delete</fbt></span>
 									</Button>
 								</div>
 							</div>
-						</div>
-					);
+                        </div>
+                    );
 				})}
 			</div>
-
-			<AlertDialog
+            <AlertDialog
 				onOpenChange={(open) => !open && setEventToDelete(null)}
 				open={!!eventToDelete}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>{t('deleteEvent')}</AlertDialogTitle>
+						<AlertDialogTitle><fbt desc="deleteEvent">Delete Event</fbt></AlertDialogTitle>
 						<AlertDialogDescription>
-							{t('deleteEventConfirmation')}
+							<fbt desc="deleteEventConfirmation">Do you really want to delete this event? This action cannot be undone.</fbt>
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+						<AlertDialogCancel><fbt desc="cancel">Cancel</fbt></AlertDialogCancel>
 						<AlertDialogAction onClick={handleDeleteConfirm}>
-							{t('delete')}
+							<fbt desc="delete">Delete</fbt>
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-
-			{eventToEdit && (
+            {eventToEdit && (
 				<AddEventDialog
 					event={eventToEdit}
 					onClose={() => setEventToEdit(null)}
 					onSave={onEventUpdate}
 				/>
 			)}
-		</>
-	);
+        </>
+    );
 }

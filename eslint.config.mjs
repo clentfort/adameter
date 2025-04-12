@@ -1,6 +1,6 @@
-import { defineConfig } from 'eslint/config';
 import { FlatCompat } from '@eslint/eslintrc';
 import nkzw from '@nkzw/eslint-config';
+import { defineConfig } from 'eslint/config';
 
 const compat = new FlatCompat({
 	// import.meta.dirname is available after Node.js v20.11.0
@@ -8,7 +8,11 @@ const compat = new FlatCompat({
 });
 
 const extended = compat.config({
-	extends: ['next', 'prettier'],
+	extends: [
+		/* 'plugin:@nkzw/eslint-plugin-fbtee/recommended', */ 'next',
+		'prettier',
+	],
+	plugins: ['@nkzw/eslint-plugin-fbtee'],
 });
 
 export default defineConfig(

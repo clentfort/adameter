@@ -1,0 +1,5 @@
+{
+  "presets": ["@nkzw/babel-preset-fbtee", "next/babel"],
+  "plugins": []
+}
+

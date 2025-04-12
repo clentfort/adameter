@@ -20,7 +20,6 @@ import type { Event } from '@/types/event';
 import type { FeedingSession } from '@/types/feeding';
 import type { GrowthMeasurement } from '@/types/growth';
 import { downloadAllAsZip } from '@/utils/csv-export';
-import { useTranslate } from '@/utils/translate';
 import { Download, FileArchiveIcon as FileZip, Share2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -44,7 +43,6 @@ export default function StateTransfer({
 	onImport,
 	sessions = [],
 }: StateTransferProps) {
-	const t = useTranslate();
 	const { language } = useLanguage();
 	const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 	const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
@@ -348,29 +346,29 @@ export default function StateTransfer({
 	};
 
 	return (
-		<>
-			{/* Import URL Dialog */}
-			<Dialog
+        <>
+            {/* Import URL Dialog */}
+            <Dialog
 				onOpenChange={setIsImportUrlDialogOpen}
 				open={isImportUrlDialogOpen}
 			>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
-						<DialogTitle>{t('importTitle')}</DialogTitle>
-						<DialogDescription>{t('importDescription')}</DialogDescription>
+						<DialogTitle><fbt desc="importTitle">Import Data</fbt></DialogTitle>
+						<DialogDescription><fbt desc="importDescription">Paste an export URL to import data.</fbt></DialogDescription>
 					</DialogHeader>
 					<div className="grid gap-4 py-4">
 						<div className="space-y-2">
-							<Label htmlFor="import-url">{t('exportUrl')}</Label>
+							<Label htmlFor="import-url"><fbt desc="exportUrl">Export URL</fbt></Label>
 							<Input
 								className="font-mono text-xs"
 								id="import-url"
 								onChange={(e) => setImportUrl(e.target.value)}
-								placeholder={t('urlPlaceholder')}
+								placeholder=<fbt desc="urlPlaceholder">https://example.com/#data=...</fbt>
 								value={importUrl}
 							/>
 							<p className="text-xs text-muted-foreground">
-								{t('importUrlDescription')}
+								<fbt desc="importUrlDescription">Paste the complete URL you received when exporting.</fbt>
 							</p>
 						</div>
 					</div>
@@ -379,19 +377,18 @@ export default function StateTransfer({
 							onClick={() => setIsImportUrlDialogOpen(false)}
 							variant="outline"
 						>
-							{t('cancel')}
+							<fbt desc="cancel">Cancel</fbt>
 						</Button>
-						<Button onClick={handleImportUrl}>{t('next')}</Button>
+						<Button onClick={handleImportUrl}><fbt desc="next">Next</fbt></Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-
-			{/* Export Dialog */}
-			<Dialog onOpenChange={setIsExportDialogOpen} open={isExportDialogOpen}>
+            {/* Export Dialog */}
+            <Dialog onOpenChange={setIsExportDialogOpen} open={isExportDialogOpen}>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
-						<DialogTitle>{t('exportTitle')}</DialogTitle>
-						<DialogDescription>{t('exportDescription')}</DialogDescription>
+						<DialogTitle><fbt desc="exportTitle">Export Data</fbt></DialogTitle>
+						<DialogDescription><fbt desc="exportDescription">Choose an export method for your data.</fbt></DialogDescription>
 					</DialogHeader>
 
 					<Tabs
@@ -400,13 +397,13 @@ export default function StateTransfer({
 						value={exportTab}
 					>
 						<TabsList className="grid grid-cols-2 mb-4">
-							<TabsTrigger value="url">{t('urlExport')}</TabsTrigger>
-							<TabsTrigger value="csv">{t('csvExport')}</TabsTrigger>
+							<TabsTrigger value="url"><fbt desc="urlExport">URL Export</fbt></TabsTrigger>
+							<TabsTrigger value="csv"><fbt desc="csvExport">CSV Export</fbt></TabsTrigger>
 						</TabsList>
 
 						<TabsContent className="space-y-4" value="url">
 							<div className="space-y-2">
-								<Label htmlFor="export-url">{t('exportUrl')}</Label>
+								<Label htmlFor="export-url"><fbt desc="exportUrl">Export URL</fbt></Label>
 								<div className="flex gap-2">
 									<Input
 										className="font-mono text-xs"
@@ -415,11 +412,11 @@ export default function StateTransfer({
 										value={exportUrl}
 									/>
 									<Button onClick={handleCopyUrl} variant="secondary">
-										{t('copy')}
+										<fbt desc="copy">Copy</fbt>
 									</Button>
 								</div>
 								<p className="text-xs text-muted-foreground">
-									{t('urlExportDescription')}
+									<fbt desc="urlExportDescription">Open this URL on another device to import the data.</fbt>
 								</p>
 							</div>
 						</TabsContent>
@@ -433,10 +430,10 @@ export default function StateTransfer({
 										onClick={handleExportZip}
 									>
 										<FileZip className="h-4 w-4 mr-2" />
-										{t('exportAllAsZip')}
+										<fbt desc="exportAllAsZip">Export All Data as ZIP</fbt>
 									</Button>
 									<p className="text-xs text-muted-foreground mt-1">
-										{t('zipExportDescription')}
+										<fbt desc="zipExportDescription">Exports all data in a ZIP file with CSV and JSON files.</fbt>
 									</p>
 								</div>
 							</div>
@@ -445,20 +442,19 @@ export default function StateTransfer({
 
 					<DialogFooter>
 						<Button onClick={() => setIsExportDialogOpen(false)}>
-							{t('close')}
+							<fbt desc="close">Close</fbt>
 						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-
-			{/* Import Dialog */}
-			<Dialog
+            {/* Import Dialog */}
+            <Dialog
 				onOpenChange={(open) => !open && cancelImport()}
 				open={isImportDialogOpen}
 			>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
-						<DialogTitle>{t('importTitle')}</DialogTitle>
+						<DialogTitle><fbt desc="importTitle">Import Data</fbt></DialogTitle>
 						<DialogDescription>
 							{t('importConfirmation', {
 								diaperChanges: importedData?.diaperChanges.length || 0,
@@ -470,10 +466,10 @@ export default function StateTransfer({
 					</DialogHeader>
 					<div className="grid gap-4 py-4">
 						<Alert variant="destructive">
-							<AlertDescription>{t('importWarning')}</AlertDescription>
+							<AlertDescription><fbt desc="importWarning">Warning: Importing will overwrite your existing data. This action cannot be undone.</fbt></AlertDescription>
 						</Alert>
 						<div className="space-y-2">
-							<Label htmlFor="confirm-text">{t('confirmOverwrite')}</Label>
+							<Label htmlFor="confirm-text"><fbt desc="confirmOverwrite">Type "overwrite" to confirm the import:</fbt></Label>
 							<Input
 								id="confirm-text"
 								onChange={(e) => setConfirmText(e.target.value)}
@@ -488,7 +484,7 @@ export default function StateTransfer({
 							onClick={cancelImport}
 							variant="outline"
 						>
-							{t('cancel')}
+							<fbt desc="cancel">Cancel</fbt>
 						</Button>
 						<Button
 							className="sm:order-2"
@@ -499,32 +495,31 @@ export default function StateTransfer({
 							onClick={handleImport}
 						>
 							<Download className="h-4 w-4 mr-1" />
-							{t('importButton')}
+							<fbt desc="importButton">Import</fbt>
 						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-
-			<div className="flex gap-2">
+            <div className="flex gap-2">
 				<Button
 					onClick={() => setIsImportUrlDialogOpen(true)}
 					size="sm"
-					title={t('importData')}
+					title=<fbt desc="importData">Import</fbt>
 					variant="outline"
 				>
 					<Download className="h-4 w-4 mr-1" />
-					{t('importData')}
+					<fbt desc="importData">Import</fbt>
 				</Button>
 				<Button
 					onClick={handleExport}
 					size="sm"
-					title={t('exportData')}
+					title=<fbt desc="exportData">Export</fbt>
 					variant="outline"
 				>
 					<Share2 className="h-4 w-4 mr-1" />
-					{t('exportData')}
+					<fbt desc="exportData">Export</fbt>
 				</Button>
 			</div>
-		</>
-	);
+        </>
+    );
 }

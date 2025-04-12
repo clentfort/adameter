@@ -13,7 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { FeedingSession } from '@/types/feeding';
-import { useTranslate } from '@/utils/translate';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -30,8 +29,6 @@ export default function AddHistoricSession({
 	const [time, setTime] = useState('');
 	const [duration, setDuration] = useState('');
 
-	const t = useTranslate();
-
 	// Set default values for today's date and current time
 	const setDefaultValues = () => {
 		const now = new Date();
@@ -45,7 +42,7 @@ export default function AddHistoricSession({
 	};
 
 	const handleSubmit = () => {
-		if (!date || !time || !duration || isNaN(Number(duration))) {
+		if (!date || !time || !duration || Number.isNaN(Number(duration))) {
 			return;
 		}
 
@@ -83,16 +80,24 @@ export default function AddHistoricSession({
 			<DialogTrigger asChild>
 				<Button size="sm" variant="outline">
 					<PlusCircle className="h-4 w-4 mr-1" />
-					{t('addEntry')}
+					<fbt desc="Label for the button to add a historic feeding session">
+						Add Entry
+					</fbt>
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>{t('addHistoricFeeding')}</DialogTitle>
+					<DialogTitle>
+						<fbt desc="Label for the dialog to add a historic feeding session">
+							Add Historic Feeding
+						</fbt>
+					</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
-						<Label>{t('breast')}</Label>
+						<Label>
+							<fbt desc="Label for the breast selection">Breast</fbt>
+						</Label>
 						<RadioGroup
 							className="flex gap-4"
 							onValueChange={(value) => setBreast(value as 'left' | 'right')}
@@ -105,7 +110,7 @@ export default function AddHistoricSession({
 									value="left"
 								/>
 								<Label className="text-left-breast-dark" htmlFor="left">
-									{t('leftBreast')}
+									<fbt desc="Label for the left breast">Left Breast</fbt>
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
@@ -115,7 +120,7 @@ export default function AddHistoricSession({
 									value="right"
 								/>
 								<Label className="text-right-breast-dark" htmlFor="right">
-									{t('rightBreast')}
+									<fbt desc="Label for the right breast">Right Breast</fbt>
 								</Label>
 							</div>
 						</RadioGroup>
@@ -123,7 +128,9 @@ export default function AddHistoricSession({
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="date">{t('date')}</Label>
+							<Label htmlFor="date">
+								<fbt desc="Label for the date input">Date</fbt>
+							</Label>
 							<Input
 								id="date"
 								onChange={(e) => setDate(e.target.value)}
@@ -132,7 +139,9 @@ export default function AddHistoricSession({
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="time">{t('startTime')}</Label>
+							<Label htmlFor="time">
+								<fbt desc="Label for the start time input">Start Time</fbt>
+							</Label>
 							<Input
 								id="time"
 								onChange={(e) => setTime(e.target.value)}
@@ -143,7 +152,9 @@ export default function AddHistoricSession({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="duration">{t('minutes')}</Label>
+						<Label htmlFor="duration">
+							<fbt desc="Label for the duration input in minutes">Minutes</fbt>
+						</Label>
 						<Input
 							id="duration"
 							min="1"
@@ -163,7 +174,9 @@ export default function AddHistoricSession({
 						onClick={handleSubmit}
 						type="submit"
 					>
-						{t('save')}
+						<fbt desc="Label for the button to save the historic feeding session">
+							Save
+						</fbt>
 					</Button>
 				</DialogFooter>
 			</DialogContent>

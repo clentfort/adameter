@@ -1,5 +1,4 @@
 import type { FeedingSession } from '@/types/feeding';
-import { useTranslate } from '@/utils/translate';
 import StatsCard from './stats-card';
 
 interface TotalFeedingsStatsProps {
@@ -9,7 +8,6 @@ interface TotalFeedingsStatsProps {
 export default function TotalFeedingsStats({
 	sessions = [],
 }: TotalFeedingsStatsProps) {
-	const t = useTranslate();
 	// Ensure sessions is an array
 	const sessionsArray = Array.isArray(sessions) ? sessions : [];
 
@@ -19,16 +17,16 @@ export default function TotalFeedingsStats({
 	const rightCount = sessionsArray.filter((s) => s.breast === 'right').length;
 
 	return (
-		<StatsCard title={t('totalFeedings')}>
-			<div className="text-2xl font-bold">{sessionsArray.length}</div>
-			<div className="text-xs text-muted-foreground mt-1">
-				{t('leftBreast')}:{' '}
+        <StatsCard title=<fbt desc="totalFeedings">Total Feedings</fbt>>
+            <div className="text-2xl font-bold">{sessionsArray.length}</div>
+            <div className="text-xs text-muted-foreground mt-1">
+				<fbt desc="leftBreast">Left Breast</fbt>:{' '}
 				<span className="text-left-breast-dark">{leftCount}</span>
 			</div>
-			<div className="text-xs text-muted-foreground">
-				{t('rightBreast')}:{' '}
+            <div className="text-xs text-muted-foreground">
+				<fbt desc="rightBreast">Right Breast</fbt>:{' '}
 				<span className="text-right-breast-dark">{rightCount}</span>
 			</div>
-		</StatsCard>
-	);
+        </StatsCard>
+    );
 }

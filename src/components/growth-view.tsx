@@ -3,7 +3,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Event } from '@/types/event';
 import type { GrowthMeasurement } from '@/types/growth';
-import { useTranslate } from '@/utils/translate';
 import AddGrowthMeasurement from './add-growth-measurement';
 import GrowthMeasurementsList from './growth-measurements-list';
 
@@ -25,18 +24,15 @@ export default function GrowthView({
 	// Ensure measurements is an array
 	const measurementsArray = Array.isArray(measurements) ? measurements : [];
 
-	const t = useTranslate();
-
 	return (
-		<div className="space-y-6">
-			<div className="flex justify-between items-center">
-				<h2 className="text-xl font-semibold">{t('growthTab')}</h2>
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+				<h2 className="text-xl font-semibold"><fbt desc="growthTab">Growth</fbt></h2>
 				<AddGrowthMeasurement onSave={onMeasurementAdd} />
 			</div>
-
-			<Card>
+            <Card>
 				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">{t('allMeasurements')}</CardTitle>
+					<CardTitle className="text-base"><fbt desc="allMeasurements">All Measurements</fbt></CardTitle>
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<GrowthMeasurementsList
@@ -46,6 +42,6 @@ export default function GrowthView({
 					/>
 				</CardContent>
 			</Card>
-		</div>
-	);
+        </div>
+    );
 }

@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import type { FeedingSession } from '@/types/feeding';
-import { useTranslate } from '@/utils/translate';
 import { format, isSameDay } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -34,7 +33,6 @@ export default function HistoryList({
 	const [sessionToEdit, setSessionToEdit] = useState<FeedingSession | null>(
 		null,
 	);
-	const t = useTranslate();
 
 	// Ensure sessions is an array
 	const sessionsArray = Array.isArray(sessions) ? sessions : [];
@@ -42,7 +40,7 @@ export default function HistoryList({
 	if (sessionsArray.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
-				{t('noFeedingRecorded')}
+				<fbt desc="noFeedingRecorded">No feeding sessions recorded yet.</fbt>
 			</p>
 		);
 	}
@@ -112,12 +110,20 @@ export default function HistoryList({
 									<div className="flex justify-between items-start">
 										<div>
 											<p className={`font-medium ${textColor}`}>
-												{isLeftBreast ? t('leftBreast') : t('rightBreast')}
+												{isLeftBreast ? (
+													<fbt desc="leftBreast">Left Breast</fbt>
+												) : (
+													<fbt desc="rightBreast">Right Breast</fbt>
+												)}
 											</p>
 											{crossesMidnight && (
 												<p className="text-xs text-muted-foreground">
-													<span className="font-medium">{t('note')}:</span>{' '}
-													{t('sessionCrossesMidnight')}
+													<span className="font-medium">
+														<fbt desc="note">Note</fbt>:
+													</span>{' '}
+													<fbt desc="sessionCrossesMidnight">
+														This session crosses midnight
+													</fbt>
 												</p>
 											)}
 										</div>
@@ -126,7 +132,7 @@ export default function HistoryList({
 												{formatDuration(session.durationInSeconds)}
 											</p>
 											<p className="text-xs text-muted-foreground">
-												{`${t('start')}:`}{' '}
+												<fbt desc="start">Start</fbt>:{' '}
 												{format(new Date(session.startTime), 'HH:mm', {
 													locale: de,
 												})}{' '}
@@ -140,7 +146,9 @@ export default function HistoryList({
 													variant="ghost"
 												>
 													<Pencil className="h-4 w-4" />
-													<span className="sr-only">{t('edit')}</span>
+													<span className="sr-only">
+														<fbt desc="edit">Edit</fbt>
+													</span>
 												</Button>
 												<Button
 													className="h-7 w-7 text-destructive"
@@ -149,7 +157,9 @@ export default function HistoryList({
 													variant="ghost"
 												>
 													<Trash2 className="h-4 w-4" />
-													<span className="sr-only">{t('delete')}</span>
+													<span className="sr-only">
+														<fbt desc="delete">Delete</fbt>
+													</span>
 												</Button>
 											</div>
 										</div>
@@ -160,27 +170,32 @@ export default function HistoryList({
 					</div>
 				))}
 			</div>
-
 			<AlertDialog
 				onOpenChange={(open) => !open && setSessionToDelete(null)}
 				open={!!sessionToDelete}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>{t('deleteEntry')}</AlertDialogTitle>
+						<AlertDialogTitle>
+							<fbt desc="deleteEntry">Delete Entry</fbt>
+						</AlertDialogTitle>
 						<AlertDialogDescription>
-							{t('deleteConfirmation')}
+							<fbt desc="deleteConfirmation">
+								Do you really want to delete this entry? This action cannot be
+								undone.
+							</fbt>
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+						<AlertDialogCancel>
+							<fbt desc="cancel">Cancel</fbt>
+						</AlertDialogCancel>
 						<AlertDialogAction onClick={handleDeleteConfirm}>
-							{t('delete')}
+							<fbt desc="delete">Delete</fbt>
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-
 			{sessionToEdit && (
 				<EditSessionDialog
 					onClose={() => setSessionToEdit(null)}

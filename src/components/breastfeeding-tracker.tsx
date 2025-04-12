@@ -12,7 +12,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { FeedingSession } from '@/types/feeding';
-import { useTranslate } from '@/utils/translate';
 import { useEffect, useRef, useState } from 'react';
 
 interface BreastfeedingTrackerProps {
@@ -36,8 +35,6 @@ export default function BreastfeedingTracker({
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [manualMinutes, setManualMinutes] = useState('');
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-	const t = useTranslate();
 
 	// Check for active session on component mount
 	useEffect(() => {
@@ -112,7 +109,7 @@ export default function BreastfeedingTracker({
 	};
 
 	const handleManualEntry = () => {
-		if (activeBreast && manualMinutes && !isNaN(Number(manualMinutes))) {
+		if (activeBreast && manualMinutes && !Number.isNaN(Number(manualMinutes))) {
 			const minutes = Number(manualMinutes);
 			const now = new Date();
 			const calculatedStartTime = new Date(now.getTime() - minutes * 60 * 1000);
@@ -162,11 +159,11 @@ export default function BreastfeedingTracker({
 							onClick={() => startFeeding('left')}
 							size="lg"
 						>
-							{t('leftBreast')}
+							<fbt desc="leftBreast">Left Breast</fbt>
 						</Button>
 						{nextBreast === 'left' && (
 							<Badge className="absolute -top-2 -right-2 bg-left-breast">
-								{t('next')}
+								<fbt desc="next">Next</fbt>
 							</Badge>
 						)}
 					</div>
@@ -176,11 +173,11 @@ export default function BreastfeedingTracker({
 							onClick={() => startFeeding('right')}
 							size="lg"
 						>
-							{t('rightBreast')}
+							<fbt desc="rightBreast">Right Breast</fbt>
 						</Button>
 						{nextBreast === 'right' && (
 							<Badge className="absolute -top-2 -right-2 bg-right-breast">
-								{t('next')}
+								<fbt desc="next">Next</fbt>
 							</Badge>
 						)}
 					</div>
@@ -202,16 +199,19 @@ export default function BreastfeedingTracker({
 										: 'text-right-breast-dark'
 								}`}
 							>
-								{activeBreast === 'left' ? t('leftBreast') : t('rightBreast')}
+								{activeBreast === 'left' ? (
+									<fbt desc="leftBreast">Left Breast</fbt>
+								) : (
+									<fbt desc="rightBreast">Right Breast</fbt>
+								)}
 							</p>
 							<div className="mt-2">
 								<p className="text-3xl font-bold">{formatTime(elapsedTime)}</p>
 								{startTime && (
 									<p className="text-xs text-muted-foreground mt-1">
-										{`${t('start')}:`}{' '}
+										<fbt desc="start">Start</fbt>:{' '}
 										{startTime.getHours().toString().padStart(2, '0')}:
 										{startTime.getMinutes().toString().padStart(2, '0')}
-										{t.language === 'de' ? ' Uhr' : ''}
 									</p>
 								)}
 							</div>
@@ -228,7 +228,7 @@ export default function BreastfeedingTracker({
 							onClick={endFeeding}
 							size="lg"
 						>
-							{t('endFeeding')}
+							<fbt desc="endFeeding">End Feeding</fbt>
 						</Button>
 						<Button
 							className="h-16"
@@ -236,21 +236,24 @@ export default function BreastfeedingTracker({
 							size="lg"
 							variant="outline"
 						>
-							{t('enterTimeManually')}
+							<fbt desc="enterTimeManually">Enter Time Manually</fbt>
 						</Button>
 					</div>
 				</div>
 			)}
-
 			<Dialog onOpenChange={setIsDialogOpen} open={isDialogOpen}>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
-						<DialogTitle>{t('enterFeedingTimeManually')}</DialogTitle>
+						<DialogTitle>
+							<fbt desc="enterFeedingTimeManually">
+								Enter Feeding Time Manually
+							</fbt>
+						</DialogTitle>
 					</DialogHeader>
 					<div className="grid gap-4 py-4">
 						<div className="grid grid-cols-4 items-center gap-4">
 							<Label className="text-right col-span-1" htmlFor="minutes">
-								{t('minutes')}
+								<fbt desc="minutes">minutes</fbt>
 							</Label>
 							<Input
 								className="col-span-3"
@@ -272,7 +275,7 @@ export default function BreastfeedingTracker({
 							onClick={handleManualEntry}
 							type="submit"
 						>
-							{t('save')}
+							<fbt desc="save">Save</fbt>
 						</Button>
 					</DialogFooter>
 				</DialogContent>

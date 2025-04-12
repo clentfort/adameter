@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import type { GrowthMeasurement } from '@/types/growth';
-import { useTranslate } from '@/utils/translate';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -35,7 +34,6 @@ export default function GrowthMeasurementsList({
 	);
 	const [measurementToEdit, setMeasurementToEdit] =
 		useState<GrowthMeasurement | null>(null);
-	const t = useTranslate();
 
 	// Ensure measurements is an array
 	const measurementsArray = Array.isArray(measurements) ? measurements : [];
@@ -43,7 +41,7 @@ export default function GrowthMeasurementsList({
 	if (measurementsArray.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
-				{t('noMeasurementsRecorded')}
+				<fbt desc="noMeasurementsRecorded">No measurements recorded yet.</fbt>
 			</p>
 		);
 	}
@@ -79,13 +77,17 @@ export default function GrowthMeasurementsList({
 									<div className="mt-2 space-y-1">
 										{measurement.weight && (
 											<p className="text-sm">
-												<span className="font-medium">{`${t('weight').split(' ')[0]}:`}</span>{' '}
+												<span className="font-medium">
+													<fbt desc="Weight of the baby">Weight</fbt>
+												</span>{' '}
 												{measurement.weight} g
 											</p>
 										)}
 										{measurement.height && (
 											<p className="text-sm">
-												<span className="font-medium">{`${t('height').split(' ')[0]}:`}</span>{' '}
+												<span className="font-medium">
+													{<fbt desc="Height if the baby">Height</fbt>}
+												</span>{' '}
 												{measurement.height} cm
 											</p>
 										)}
@@ -104,7 +106,9 @@ export default function GrowthMeasurementsList({
 										variant="ghost"
 									>
 										<Pencil className="h-4 w-4" />
-										<span className="sr-only">{t('edit')}</span>
+										<span className="sr-only">
+											<fbt desc="edit">Edit</fbt>
+										</span>
 									</Button>
 									<Button
 										className="h-7 w-7 text-destructive"
@@ -113,7 +117,9 @@ export default function GrowthMeasurementsList({
 										variant="ghost"
 									>
 										<Trash2 className="h-4 w-4" />
-										<span className="sr-only">{t('delete')}</span>
+										<span className="sr-only">
+											<fbt desc="delete">Delete</fbt>
+										</span>
 									</Button>
 								</div>
 							</div>
@@ -121,27 +127,32 @@ export default function GrowthMeasurementsList({
 					);
 				})}
 			</div>
-
 			<AlertDialog
 				onOpenChange={(open) => !open && setMeasurementToDelete(null)}
 				open={!!measurementToDelete}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>{t('deleteMeasurement')}</AlertDialogTitle>
+						<AlertDialogTitle>
+							<fbt desc="deleteMeasurement">Delete Measurement</fbt>
+						</AlertDialogTitle>
 						<AlertDialogDescription>
-							{t('deleteMeasurementConfirmation')}
+							<fbt desc="deleteMeasurementConfirmation">
+								Do you really want to delete this measurement? This action
+								cannot be undone.
+							</fbt>
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+						<AlertDialogCancel>
+							<fbt desc="cancel">Cancel</fbt>
+						</AlertDialogCancel>
 						<AlertDialogAction onClick={handleDeleteConfirm}>
-							{t('delete')}
+							<fbt desc="delete">Delete</fbt>
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-
 			{measurementToEdit && (
 				<AddGrowthMeasurement
 					measurement={measurementToEdit}

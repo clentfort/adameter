@@ -13,7 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { GrowthMeasurement } from '@/types/growth';
-import { useTranslate } from '@/utils/translate';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -39,8 +38,6 @@ export default function AddGrowthMeasurement({
 	const [height, setHeight] = useState(measurement?.height?.toString() || '');
 	const [notes, setNotes] = useState(measurement?.notes || '');
 	const [error, setError] = useState('');
-
-	const t = useTranslate();
 
 	const handleSave = () => {
 		// Validate that at least one of weight or height is provided
@@ -72,24 +69,24 @@ export default function AddGrowthMeasurement({
 	};
 
 	return (
-		<Dialog onOpenChange={handleOpenChange} open={open}>
-			{!measurement && (
+        <Dialog onOpenChange={handleOpenChange} open={open}>
+            {!measurement && (
 				<DialogTrigger asChild>
 					<Button onClick={() => setOpen(true)} size="sm" variant="outline">
 						<PlusCircle className="h-4 w-4 mr-1" />
-						{t('addMeasurement')}
+						<fbt desc="addMeasurement">Add Measurement</fbt>
 					</Button>
 				</DialogTrigger>
 			)}
-			<DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
-						{measurement ? t('editMeasurement') : t('newMeasurement')}
+						{measurement ? <fbt desc='editMeasurement'>Edit Measurement</fbt> : <fbt desc='newMeasurement'>Add New Measurement</fbt>}
 					</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
-						<Label htmlFor="date">{t('date')}</Label>
+						<Label htmlFor="date"><fbt desc="date">Date</fbt></Label>
 						<Input
 							id="date"
 							onChange={(e) => setDate(e.target.value)}
@@ -100,21 +97,21 @@ export default function AddGrowthMeasurement({
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="weight">{t('weight')} (g)</Label>
+							<Label htmlFor="weight"><fbt desc="weight">Weight (g)</fbt> (g)</Label>
 							<Input
 								id="weight"
 								onChange={(e) => setWeight(e.target.value)}
-								placeholder={t('weightExample')}
+								placeholder=<fbt desc="weightExample">e.g. 3500</fbt>
 								type="number"
 								value={weight}
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="height">{t('height')} (cm)</Label>
+							<Label htmlFor="height"><fbt desc="height">Height (cm)</fbt> (cm)</Label>
 							<Input
 								id="height"
 								onChange={(e) => setHeight(e.target.value)}
-								placeholder={t('heightExample')}
+								placeholder=<fbt desc="heightExample">e.g. 50</fbt>
 								step="0.1"
 								type="number"
 								value={height}
@@ -125,11 +122,11 @@ export default function AddGrowthMeasurement({
 					{error && <div className="text-sm text-red-500">{error}</div>}
 
 					<div className="space-y-2">
-						<Label htmlFor="notes">{t('notes')} (optional)</Label>
+						<Label htmlFor="notes"><fbt desc="notes">Notes (optional)</fbt> (optional)</Label>
 						<Textarea
 							id="notes"
 							onChange={(e) => setNotes(e.target.value)}
-							placeholder={t('notesPlaceholder')}
+							placeholder=<fbt desc="notesPlaceholder">Additional information</fbt>
 							rows={3}
 							value={notes}
 						/>
@@ -137,10 +134,10 @@ export default function AddGrowthMeasurement({
 				</div>
 				<DialogFooter>
 					<Button onClick={handleSave} type="submit">
-						{t('save')}
+						<fbt desc="save">Save</fbt>
 					</Button>
 				</DialogFooter>
 			</DialogContent>
-		</Dialog>
-	);
+        </Dialog>
+    );
 }

@@ -1,5 +1,4 @@
 import type { FeedingSession } from '@/types/feeding';
-import { useTranslate } from '@/utils/translate';
 import StatsCard from './stats-card';
 
 interface DurationStatsProps {
@@ -9,8 +8,6 @@ interface DurationStatsProps {
 export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 	// Ensure sessions is an array
 	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-
-	const t = useTranslate();
 
 	if (sessionsArray.length === 0) return null;
 
@@ -52,22 +49,22 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 	};
 
 	return (
-		<StatsCard title={t('averageFeedingDuration')}>
-			<div className="text-2xl font-bold">
+        <StatsCard title=<fbt desc="averageFeedingDuration">Average Feeding Duration</fbt>>
+            <div className="text-2xl font-bold">
 				{formatDuration(avgDuration.total)}
 			</div>
-			<div className="text-xs text-muted-foreground mt-1">
-				{t('leftBreast')}:{' '}
+            <div className="text-xs text-muted-foreground mt-1">
+				<fbt desc="leftBreast">Left Breast</fbt>:{' '}
 				<span className="text-left-breast-dark">
 					{formatDuration(avgDuration.left)}
 				</span>
 			</div>
-			<div className="text-xs text-muted-foreground">
-				{t('rightBreast')}:{' '}
+            <div className="text-xs text-muted-foreground">
+				<fbt desc="rightBreast">Right Breast</fbt>:{' '}
 				<span className="text-right-breast-dark">
 					{formatDuration(avgDuration.right)}
 				</span>
 			</div>
-		</StatsCard>
-	);
+        </StatsCard>
+    );
 }

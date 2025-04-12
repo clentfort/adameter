@@ -168,3 +168,9 @@ dist
 .svelte-kit
 
 # End of https://www.toptal.com/developers/gitignore/api/node
+
+# fbtee
+.src_manifest.json
+.source_strings.json
+.enum_manifest.json
+src/translations.json

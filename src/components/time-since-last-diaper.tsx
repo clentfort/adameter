@@ -1,7 +1,7 @@
 'use client';
 
 import type { DiaperChange } from '@/types/diaper';
-import { useTranslate } from '@/utils/translate';
+import { fbt } from 'fbtee';
 import { useEffect, useState } from 'react';
 
 interface TimeSinceLastDiaperProps {
@@ -11,14 +11,19 @@ interface TimeSinceLastDiaperProps {
 export default function TimeSinceLastDiaper({
 	lastChange,
 }: TimeSinceLastDiaperProps) {
-	const t = useTranslate();
 	const [timeSince, setTimeSince] = useState<string>('');
 
 	useEffect(() => {
 		// Update time since last diaper change every minute
 		const updateTimeSince = () => {
 			if (!lastChange) {
-				setTimeSince(t('noDiaperChangeYet'));
+				setTimeSince(
+					fbt(
+						'No diaper change recorded yet',
+						'Label indicating no diaper change was recorded yet',
+					),
+				);
+
 				return;
 			}
 
@@ -30,13 +35,33 @@ export default function TimeSinceLastDiaper({
 			const diffInDays = Math.floor(diffInHours / 24);
 
 			if (diffInMinutes < 1) {
-				setTimeSince(t('justNow'));
+				setTimeSince(
+					fbt(
+						'Just now',
+						'Label indicating the last diaper change was just now',
+					),
+				);
 			} else if (diffInMinutes < 60) {
-				setTimeSince(t.formatTimeAgo(diffInMinutes, 'minute'));
+				setTimeSince(
+					fbt(
+						[fbt.plural('minute', diffInMinutes, { many: 'minutes' }), 'ago'],
+						'Label indicating that something was a few minutes ago',
+					),
+				);
 			} else if (diffInHours < 24) {
-				setTimeSince(t.formatTimeAgo(diffInHours, 'hour'));
+				setTimeSince(
+					fbt(
+						[fbt.plural('hour', diffInHours, { many: 'hours' }), 'ago'],
+						'Label indicating that something was a few hours ago',
+					),
+				);
 			} else {
-				setTimeSince(t.formatTimeAgo(diffInDays, 'day'));
+				setTimeSince(
+					fbt(
+						[fbt.plural('day', diffInDays, { many: 'days' }), 'ago'],
+						'Label indicating that something was a few days ago',
+					),
+				);
 			}
 		};
 
@@ -44,14 +69,16 @@ export default function TimeSinceLastDiaper({
 		const intervalId = setInterval(updateTimeSince, 60_000); // Update every minute
 
 		return () => clearInterval(intervalId);
-	}, [lastChange, t]);
+	}, [lastChange]);
 
 	return (
 		<div className="text-center bg-muted/20 rounded-lg p-2 flex-1">
 			<div className="flex items-center justify-center gap-1">
 				<span className="text-sm">👶</span>
 				<p className="text-xs text-muted-foreground">
-					{t('timeSinceLastDiaper')}
+					<fbt desc="A short label indicating when a diaper was last changed">
+						Last Diaper Change
+					</fbt>
 				</p>
 			</div>
 			<p className="text-sm font-medium">{timeSince}</p>

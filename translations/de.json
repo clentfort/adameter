@@ -1,0 +1,155 @@
+{
+    "fb-locale": "de_DE",
+    "translations": {
+        "KTOJAcNlM9OGxENMPPsNJA==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "Stillen",
+                    "variations": []
+                }
+            ]
+        },
+        "draZGI/wXM62iToH/Zp68Q==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "Wickeln",
+                    "variations": []
+                }
+            ]
+        },
+        "qpO2x6nWRzDidCtpmu6meg==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "Wachstum",
+                    "variations": []
+                }
+            ]
+        },
+        "kshtPN6W9Rgtb8wwYu+ROA==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "Ereignisse",
+                    "variations": []
+                }
+            ]
+        },
+        "cUrFhqRiwmK3Qe1ZyLfj2w==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "Statistiken",
+                    "variations": []
+                }
+            ]
+        },
+        "IYUmtYxQtGdt1MucjXrsVA==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "{number}+",
+                    "variations": []
+                }
+            ]
+        },
+        "ZIF1WhVQwt7WZJvFTEbMWw==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "<{number}",
+                    "variations": []
+                }
+            ]
+        },
+        "Oc/9PrbjfyLHS60BXceD1A==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "{previous items}; {following items}",
+                    "variations": []
+                }
+            ]
+        },
+        "AXXbKEUZuc0ji1IClRrOOw==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "{previous items} • {following items}",
+                    "variations": []
+                }
+            ]
+        },
+        "89ACgPMtnwlLDSeqhLBx2Q==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "{previous items}, {following items}",
+                    "variations": []
+                }
+            ]
+        },
+        "icNetEL/crQv/PS6yhySVQ==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "{list of items} and {last item}",
+                    "variations": []
+                }
+            ]
+        },
+        "8eSaAzrWtAqn9ktNKfkaEg==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "{list of items} or {last item}",
+                    "variations": []
+                }
+            ]
+        },
+        "+IBI7kr/mMKdzp+3stDvkw==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "{previous items}; {last item}",
+                    "variations": []
+                }
+            ]
+        },
+        "55IeE8c0qqtjTU0lo7q9AA==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "{list of items} • {last item}",
+                    "variations": []
+                }
+            ]
+        },
+        "6PRJS0QalZfvaN8CkKCUCw==": {
+            "tokens": [],
+            "types": [],
+            "translations": [
+                {
+                    "translation": "{list of items}, {last item}",
+                    "variations": []
+                }
+            ]
+        }
+    }
+}

@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import type { DiaperChange } from '@/types/diaper';
-import { useTranslate } from '@/utils/translate';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -32,7 +31,6 @@ export default function DiaperHistoryList({
 }: DiaperHistoryListProps) {
 	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
 	const [changeToEdit, setChangeToEdit] = useState<DiaperChange | null>(null);
-	const t = useTranslate();
 
 	// Ensure changes is an array
 	const changesArray = Array.isArray(changes) ? changes : [];
@@ -40,7 +38,7 @@ export default function DiaperHistoryList({
 	if (changesArray.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
-				{t('noDiapersRecorded')}
+				<fbt desc="noDiapersRecorded">No diaper changes recorded yet.</fbt>
 			</p>
 		);
 	}
@@ -93,18 +91,20 @@ export default function DiaperHistoryList({
 									<div className="flex justify-between items-start">
 										<div>
 											<p className={`font-medium ${textColor}`}>
-												{isStool
-													? `${t('stool')} & ${t('urineOnly')}`
-													: t('urineOnly')}
+												{isStool ? (
+													<fbt desc="Diaper container urine and stool">
+														Urine and Stool
+													</fbt>
+												) : (
+													<fbt desc="Diaper container urine only">
+														Urine Only
+													</fbt>
+												)}
 											</p>
 											<p className="text-xs text-muted-foreground">
-												{t.language === 'en'
-													? format(new Date(change.timestamp), 'h:mm a', {
-															locale: de,
-														})
-													: format(new Date(change.timestamp), 'HH:mm', {
-															locale: de,
-														}) + ' Uhr'}
+												{format(new Date(change.timestamp), 'h:mm a', {
+													locale: de,
+												})}
 											</p>
 
 											{(change.temperature ||
@@ -120,7 +120,7 @@ export default function DiaperHistoryList({
 																	: ''
 															}
 														>
-															{t('temperature')}:{' '}
+															<fbt desc="temperature">Temperature (°C)</fbt>:{' '}
 															<span className="font-medium">
 																{change.temperature} °C
 															</span>
@@ -130,7 +130,7 @@ export default function DiaperHistoryList({
 													)}
 													{change.diaperBrand && (
 														<p>
-															{t('diaperBrand')}:{' '}
+															<fbt desc="diaperBrand">Diaper Brand</fbt>:{' '}
 															<span className="font-medium">
 																{change.diaperBrand === 'pampers'
 																	? 'Pampers'
@@ -150,12 +150,12 @@ export default function DiaperHistoryList({
 													)}
 													{change.leakage && (
 														<p className="text-amber-600 font-medium">
-															{t('leakage')}
+															<fbt desc="leakage">Diaper leaked</fbt>
 														</p>
 													)}
 													{change.abnormalities && (
 														<p>
-															{t('abnormalities')}:{' '}
+															<fbt desc="abnormalities">Abnormalities</fbt>:{' '}
 															<span className="font-medium">
 																{change.abnormalities}
 															</span>
@@ -172,7 +172,9 @@ export default function DiaperHistoryList({
 												variant="ghost"
 											>
 												<Pencil className="h-4 w-4" />
-												<span className="sr-only">{t('edit')}</span>
+												<span className="sr-only">
+													<fbt desc="edit">Edit</fbt>
+												</span>
 											</Button>
 											<Button
 												className="h-7 w-7 text-destructive"
@@ -181,7 +183,9 @@ export default function DiaperHistoryList({
 												variant="ghost"
 											>
 												<Trash2 className="h-4 w-4" />
-												<span className="sr-only">{t('delete')}</span>
+												<span className="sr-only">
+													<fbt desc="delete">Delete</fbt>
+												</span>
 											</Button>
 										</div>
 									</div>
@@ -191,27 +195,32 @@ export default function DiaperHistoryList({
 					</div>
 				))}
 			</div>
-
 			<AlertDialog
 				onOpenChange={(open) => !open && setChangeToDelete(null)}
 				open={!!changeToDelete}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>{t('deleteEntry')}</AlertDialogTitle>
+						<AlertDialogTitle>
+							<fbt desc="deleteEntry">Delete Entry</fbt>
+						</AlertDialogTitle>
 						<AlertDialogDescription>
-							{t('deleteConfirmation')}
+							<fbt desc="deleteConfirmation">
+								Do you really want to delete this entry? This action cannot be
+								undone.
+							</fbt>
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+						<AlertDialogCancel>
+							<fbt desc="cancel">Cancel</fbt>
+						</AlertDialogCancel>
 						<AlertDialogAction onClick={handleDeleteConfirm}>
-							{t('delete')}
+							<fbt desc="delete">Delete</fbt>
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-
 			{changeToEdit && (
 				<EditDiaperDialog
 					allChanges={changesArray}
