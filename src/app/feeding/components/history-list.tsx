@@ -84,7 +84,7 @@ export default function HistoryList({
 				{Object.entries(groupedSessions).map(([date, dateSessions]) => (
 					<div className="space-y-2" key={date}>
 						<div className="bg-muted/50 px-4 py-2 rounded-md text-sm font-medium">
-							{format(new Date(date), 'EEEE, d. MMMM yyyy', { locale: de })}
+							{format(new Date(date), 'EEEE, d. MMMM yyyy')}
 						</div>
 
 						{dateSessions.map((session) => {
@@ -113,17 +113,21 @@ export default function HistoryList({
 										<div>
 											<p className={`font-medium ${textColor}`}>
 												{isLeftBreast ? (
-													<fbt desc="leftBreast">Left Breast</fbt>
+													<fbt desc="Label indicating a feeding was done with the left breast">
+														Left Breast
+													</fbt>
 												) : (
-													<fbt desc="rightBreast">Right Breast</fbt>
+													<fbt desc="Label indicating a feeding was done with the right breast">
+														Right Breast
+													</fbt>
 												)}
 											</p>
 											{crossesMidnight && (
 												<p className="text-xs text-muted-foreground">
 													<span className="font-medium">
-														<fbt desc="note">Note</fbt>:
+														<fbt desc="Label for a note">Note</fbt>:
 													</span>{' '}
-													<fbt desc="sessionCrossesMidnight">
+													<fbt desc="A note describing that the feeding session crosses midnight">
 														This session crosses midnight
 													</fbt>
 												</p>
@@ -151,7 +155,9 @@ export default function HistoryList({
 												>
 													<Pencil className="h-4 w-4" />
 													<span className="sr-only">
-														<fbt desc="edit">Edit</fbt>
+														<fbt desc="Label for an icon button that allows the user to edit a feeding session">
+															Edit
+														</fbt>
 													</span>
 												</Button>
 												<Button
@@ -162,7 +168,9 @@ export default function HistoryList({
 												>
 													<Trash2 className="h-4 w-4" />
 													<span className="sr-only">
-														<fbt desc="delete">Delete</fbt>
+														<fbt desc="Label for an icon button that allows the user to delete a feeding session">
+															Delete
+														</fbt>
 													</span>
 												</Button>
 											</div>
@@ -181,10 +189,12 @@ export default function HistoryList({
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>
-							<fbt desc="deleteEntry">Delete Entry</fbt>
+							<fbt desc="Title for a dialog asking the user to confirm deletion of a feeding session">
+								Delete Entry
+							</fbt>
 						</AlertDialogTitle>
 						<AlertDialogDescription>
-							<fbt desc="deleteConfirmation">
+							<fbt desc="Description for a dialog asking the user to confirm deletion of a feeding session">
 								Do you really want to delete this entry? This action cannot be
 								undone.
 							</fbt>
@@ -192,10 +202,12 @@ export default function HistoryList({
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>
-							<fbt desc="cancel">Cancel</fbt>
+							<fbt desc="Label on a button that cancels an action">Cancel</fbt>
 						</AlertDialogCancel>
 						<AlertDialogAction onClick={handleDeleteConfirm}>
-							<fbt desc="delete">Delete</fbt>
+							<fbt desc="Label on a button that confirms the deletion of an item">
+								Delete
+							</fbt>
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
