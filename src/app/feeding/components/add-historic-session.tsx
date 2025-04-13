@@ -7,43 +7,42 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { FeedingSession } from '@/types/feeding';
-import { format } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 
-interface EditSessionDialogProps {
-	onClose: () => void;
-	onUpdate: (session: FeedingSession) => void;
-	session: FeedingSession;
+interface AddHistoricSessionProps {
+	onSessionAdd: (session: FeedingSession) => void;
 }
 
-export default function EditSessionDialog({
-	onClose,
-	onUpdate,
-	session,
-}: EditSessionDialogProps) {
-	const [breast, setBreast] = useState<'left' | 'right'>(session.breast);
+export default function AddHistoricSession({
+	onSessionAdd,
+}: AddHistoricSessionProps) {
+	const [open, setOpen] = useState(false);
+	const [breast, setBreast] = useState<'left' | 'right'>('left');
 	const [date, setDate] = useState('');
 	const [time, setTime] = useState('');
 	const [duration, setDuration] = useState('');
 
-	useEffect(() => {
-		const startDate = new Date(session.startTime);
-		const endDate = new Date(session.endTime);
+	// Set default values for today's date and current time
+	const setDefaultValues = () => {
+		const now = new Date();
+		const formattedDate = now.toISOString().split('T')[0];
+		const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-		setDate(format(startDate, 'yyyy-MM-dd'));
-		setTime(format(startDate, 'HH:mm'));
-
-		const durationInMinutes = Math.round(session.durationInSeconds / 60);
-		setDuration(durationInMinutes.toString());
-	}, [session]);
+		setDate(formattedDate);
+		setTime(formattedTime);
+		setDuration('');
+		setBreast('left');
+	};
 
 	const handleSubmit = () => {
-		if (!date || !time || !duration || isNaN(Number(duration))) {
+		if (!date || !time || !duration || Number.isNaN(Number(duration))) {
 			return;
 		}
 
@@ -56,27 +55,49 @@ export default function EditSessionDialog({
 			startTime.getTime() + durationInMinutes * 60 * 1000,
 		);
 
-		const updatedSession: FeedingSession = {
-			...session,
+		const session: FeedingSession = {
 			breast,
 			durationInSeconds: durationInMinutes * 60,
 			endTime: endTime.toISOString(),
+			id: Date.now().toString(),
 			startTime: startTime.toISOString(),
 		};
 
-		onUpdate(updatedSession);
-		onClose();
+		onSessionAdd(session);
+		setOpen(false);
 	};
 
 	return (
-        <Dialog onOpenChange={(open) => !open && onClose()} open={true}>
-            <DialogContent className="sm:max-w-[425px]">
+		<Dialog
+			onOpenChange={(newOpen) => {
+				setOpen(newOpen);
+				if (newOpen) {
+					setDefaultValues();
+				}
+			}}
+			open={open}
+		>
+			<DialogTrigger asChild>
+				<Button size="sm" variant="outline">
+					<PlusCircle className="h-4 w-4 mr-1" />
+					<fbt desc="Button to add manually add a feeding session">
+						Add Entry
+					</fbt>
+				</Button>
+			</DialogTrigger>
+			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle><fbt desc="editFeedingTime">Edit Feeding Time</fbt></DialogTitle>
+					<DialogTitle>
+						<fbt desc="Title of the dialog to manually add a feeding session">
+							Add Historic Feeding
+						</fbt>
+					</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
-						<Label><fbt desc="breast">Breast</fbt></Label>
+						<Label>
+							<fbt desc="Label for the breast selection">Breast</fbt>
+						</Label>
 						<RadioGroup
 							className="flex gap-4"
 							onValueChange={(value) => setBreast(value as 'left' | 'right')}
@@ -85,21 +106,21 @@ export default function EditSessionDialog({
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
 									className="text-left-breast border-left-breast"
-									id="edit-left"
+									id="left"
 									value="left"
 								/>
-								<Label className="text-left-breast-dark" htmlFor="edit-left">
-									<fbt desc="leftBreast">Left Breast</fbt>
+								<Label className="text-left-breast-dark" htmlFor="left">
+									<fbt desc="Label for the left breast">Left Breast</fbt>
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
 									className="text-right-breast border-right-breast"
-									id="edit-right"
+									id="right"
 									value="right"
 								/>
-								<Label className="text-right-breast-dark" htmlFor="edit-right">
-									<fbt desc="rightBreast">Right Breast</fbt>
+								<Label className="text-right-breast-dark" htmlFor="right">
+									<fbt desc="Label for the right breast">Right Breast</fbt>
 								</Label>
 							</div>
 						</RadioGroup>
@@ -107,18 +128,22 @@ export default function EditSessionDialog({
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="edit-date"><fbt desc="date">Date</fbt></Label>
+							<Label htmlFor="date">
+								<fbt desc="Label for the date input">Date</fbt>
+							</Label>
 							<Input
-								id="edit-date"
+								id="date"
 								onChange={(e) => setDate(e.target.value)}
 								type="date"
 								value={date}
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="edit-time"><fbt desc="startTime">Start Time</fbt></Label>
+							<Label htmlFor="time">
+								<fbt desc="Label for the start time input">Start Time</fbt>
+							</Label>
 							<Input
-								id="edit-time"
+								id="time"
 								onChange={(e) => setTime(e.target.value)}
 								type="time"
 								value={time}
@@ -127,9 +152,11 @@ export default function EditSessionDialog({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="edit-duration"><fbt desc="minutes">minutes</fbt></Label>
+						<Label htmlFor="duration">
+							<fbt desc="Label for the duration input in minutes">Minutes</fbt>
+						</Label>
 						<Input
-							id="edit-duration"
+							id="duration"
 							min="1"
 							onChange={(e) => setDuration(e.target.value)}
 							type="number"
@@ -147,10 +174,12 @@ export default function EditSessionDialog({
 						onClick={handleSubmit}
 						type="submit"
 					>
-						<fbt desc="save">Save</fbt>
+						<fbt desc="Label for the button to save the historic feeding session">
+							Save
+						</fbt>
 					</Button>
 				</DialogFooter>
 			</DialogContent>
-        </Dialog>
-    );
+		</Dialog>
+	);
 }

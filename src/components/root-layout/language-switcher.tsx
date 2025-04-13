@@ -7,10 +7,38 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useLanguage } from '@/contexts/i18n-context';
+import { Locale } from '@/i18n';
 import { fbt } from 'fbtee';
 import { Globe } from 'lucide-react';
 
+interface LocaleMenuItem {
+	code: Locale;
+	flag: string;
+	label: string;
+}
+
+const locales: Array<LocaleMenuItem> = [
+	{
+		code: 'de_DE',
+		flag: '🇩🇪',
+		label: fbt('German', 'Label to switch to the German locale'),
+	},
+	{
+		code: 'en_US',
+		flag: '🇬🇧',
+		label: fbt('English', 'Label to switch to the English locale'),
+	},
+];
+
 export default function LanguageSwitcher() {
+	const { locale, setLocale } = useLanguage(); // Get the current language and the setter
+
+	// Function to switch the language
+	const switchLocale = (newLocale: Locale) => {
+		setLocale(newLocale); // Set the new language in the context
+	};
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -27,12 +55,15 @@ export default function LanguageSwitcher() {
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<DropdownMenuItem className={false ? 'bg-accent' : ''}>
-					🇩🇪 <fbt desc="Label to switch to the German locale">German</fbt>
-				</DropdownMenuItem>
-				<DropdownMenuItem className={true ? 'bg-accent' : ''}>
-					🇬🇧 <fbt desc="Label to switch to the English locale">English</fbt>
-				</DropdownMenuItem>
+				{locales.map(({ code, flag, label }) => (
+					<DropdownMenuItem
+						className={code === locale ? 'bg-accent font-medium' : ''}
+						key={code}
+						onSelect={() => switchLocale(code)}
+					>
+						<span className="mr-2">{flag}</span> {label}
+					</DropdownMenuItem>
+				))}
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

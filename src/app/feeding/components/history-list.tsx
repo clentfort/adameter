@@ -12,7 +12,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import type { FeedingSession } from '@/types/feeding';
-import { format, isSameDay } from 'date-fns';
+import {
+	format,
+	formatDuration,
+	intervalToDuration,
+	isSameDay,
+} from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -21,7 +26,15 @@ import EditSessionDialog from './edit-session-dialog';
 interface HistoryListProps {
 	onSessionDelete: (sessionId: string) => void;
 	onSessionUpdate: (session: FeedingSession) => void;
-	sessions: FeedingSession[];
+	sessions: readonly FeedingSession[];
+}
+
+function formatDurationInMinutes(start: string, end: string) {
+	const startDate = new Date(start);
+	const endDate = new Date(end);
+	const duration = intervalToDuration({ end: endDate, start: startDate });
+	duration.minutes = Math.max(duration.minutes ?? 0, 1);
+	return formatDuration(duration, { format: ['minutes'] });
 }
 
 export default function HistoryList({
@@ -40,23 +53,12 @@ export default function HistoryList({
 	if (sessionsArray.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
-				<fbt desc="noFeedingRecorded">No feeding sessions recorded yet.</fbt>
+				<fbt desc="Note that tells the user that no feedings have been recorded yet">
+					No feeding sessions recorded yet.
+				</fbt>
 			</p>
 		);
 	}
-
-	const formatDuration = (seconds: number) => {
-		const minutes = Math.floor(seconds / 60);
-		const remainingSeconds = seconds % 60;
-
-		if (minutes === 0) {
-			return `${remainingSeconds} Sek.`;
-		} else if (remainingSeconds === 0) {
-			return `${minutes} Min.`;
-		} else {
-			return `${minutes} Min. ${remainingSeconds} Sek.`;
-		}
-	};
 
 	const handleDeleteConfirm = () => {
 		if (sessionToDelete) {
@@ -129,14 +131,16 @@ export default function HistoryList({
 										</div>
 										<div className="text-right flex flex-col items-end">
 											<p className="font-bold">
-												{formatDuration(session.durationInSeconds)}
+												{formatDurationInMinutes(
+													session.startTime,
+													session.endTime,
+												)}
 											</p>
 											<p className="text-xs text-muted-foreground">
-												<fbt desc="start">Start</fbt>:{' '}
-												{format(new Date(session.startTime), 'HH:mm', {
-													locale: de,
-												})}{' '}
-												Uhr
+												<fbt desc="Label indicating when a feeding session started">
+													Start
+												</fbt>
+												: {format(new Date(session.startTime), 'p')}
 											</p>
 											<div className="flex gap-1 mt-2">
 												<Button

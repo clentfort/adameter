@@ -1,6 +1,6 @@
 'use client';
 
-import { formatSince } from '@/utils/format-since';
+import { formatDistanceToNow } from 'date-fns';
 import { fbt } from 'fbtee';
 import { ReactNode, useEffect, useState } from 'react';
 
@@ -32,7 +32,7 @@ export default function TimeSince({
 			}
 
 			const lastChangeTime = new Date(lastChange);
-			setTimeSince(formatSince(lastChangeTime));
+			setTimeSince(formatDistanceToNow(lastChangeTime));
 		};
 
 		updateTimeSince();

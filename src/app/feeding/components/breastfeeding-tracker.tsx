@@ -12,6 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { FeedingSession } from '@/types/feeding';
+import { formatDurationShort } from '@/utils/format-duration-short';
+import {
+	Duration,
+	format,
+	formatDistanceToNowStrict,
+	formatDuration,
+	intervalToDuration,
+} from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 
 interface BreastfeedingTrackerProps {
@@ -31,7 +39,7 @@ export default function BreastfeedingTracker({
 		null,
 	);
 	const [startTime, setStartTime] = useState<Date | null>(null);
-	const [elapsedTime, setElapsedTime] = useState(0);
+	const [elapsedTime, setElapsedTime] = useState<null | Duration>(null);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [manualMinutes, setManualMinutes] = useState('');
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -51,9 +59,10 @@ export default function BreastfeedingTracker({
 
 			// Calculate elapsed time immediately
 			const now = new Date();
-			const elapsed = Math.floor(
-				(now.getTime() - parsedStartTime.getTime()) / 1000,
-			);
+			const elapsed = intervalToDuration({
+				end: now,
+				start: parsedStartTime,
+			});
 			setElapsedTime(elapsed);
 		}
 	}, []);
@@ -63,9 +72,10 @@ export default function BreastfeedingTracker({
 		if (startTime) {
 			timerRef.current = setInterval(() => {
 				const now = new Date();
-				const elapsed = Math.floor(
-					(now.getTime() - startTime.getTime()) / 1000,
-				);
+				const elapsed = intervalToDuration({
+					end: now,
+					start: startTime,
+				});
 				setElapsedTime(elapsed);
 			}, 1000);
 		}
@@ -81,7 +91,7 @@ export default function BreastfeedingTracker({
 		const now = new Date();
 		setActiveBreast(breast);
 		setStartTime(now);
-		setElapsedTime(0);
+		setElapsedTime({ seconds: 0 });
 
 		// Store in localStorage
 		localStorage.setItem(ACTIVE_BREAST_KEY, breast);
@@ -131,7 +141,7 @@ export default function BreastfeedingTracker({
 	const resetTracker = () => {
 		setActiveBreast(null);
 		setStartTime(null);
-		setElapsedTime(0);
+		setElapsedTime(null);
 		setManualMinutes('');
 
 		// Clear from localStorage
@@ -141,12 +151,6 @@ export default function BreastfeedingTracker({
 		if (timerRef.current) {
 			clearInterval(timerRef.current);
 		}
-	};
-
-	const formatTime = (seconds: number) => {
-		const mins = Math.floor(seconds / 60);
-		const secs = seconds % 60;
-		return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 	};
 
 	return (
@@ -159,13 +163,11 @@ export default function BreastfeedingTracker({
 							onClick={() => startFeeding('left')}
 							size="lg"
 						>
-							<fbt desc="leftBreast">Left Breast</fbt>
+							<fbt desc="Label on a button that starts a feeding session with the left breast">
+								Left Breast
+							</fbt>
 						</Button>
-						{nextBreast === 'left' && (
-							<Badge className="absolute -top-2 -right-2 bg-left-breast">
-								<fbt desc="next">Next</fbt>
-							</Badge>
-						)}
+						{nextBreast === 'left' && <NextBreastBadge breast="left" />}
 					</div>
 					<div className="relative">
 						<Button
@@ -173,13 +175,11 @@ export default function BreastfeedingTracker({
 							onClick={() => startFeeding('right')}
 							size="lg"
 						>
-							<fbt desc="rightBreast">Right Breast</fbt>
+							<fbt desc="Label on a button that starts a feeding session with the right breast">
+								Right Breast
+							</fbt>
 						</Button>
-						{nextBreast === 'right' && (
-							<Badge className="absolute -top-2 -right-2 bg-right-breast">
-								<fbt desc="next">Next</fbt>
-							</Badge>
-						)}
+						{nextBreast === 'right' && <NextBreastBadge breast="right" />}
 					</div>
 				</div>
 			) : (
@@ -200,18 +200,25 @@ export default function BreastfeedingTracker({
 								}`}
 							>
 								{activeBreast === 'left' ? (
-									<fbt desc="leftBreast">Left Breast</fbt>
+									<fbt desc="Label that shows that there is a feeding session in progress with the left breast">
+										Left Breast
+									</fbt>
 								) : (
-									<fbt desc="rightBreast">Right Breast</fbt>
+									<fbt desc="Label that shows that there is a feeding session in progress with the right breast">
+										Right Breast
+									</fbt>
 								)}
 							</p>
 							<div className="mt-2">
-								<p className="text-3xl font-bold">{formatTime(elapsedTime)}</p>
+								<p className="text-3xl font-bold">
+									{formatDurationShort(elapsedTime!)}
+								</p>
 								{startTime && (
 									<p className="text-xs text-muted-foreground mt-1">
-										<fbt desc="start">Start</fbt>:{' '}
-										{startTime.getHours().toString().padStart(2, '0')}:
-										{startTime.getMinutes().toString().padStart(2, '0')}
+										<fbt desc="Label indicating the start time of the current feeding session">
+											Start
+										</fbt>
+										: {format(startTime, 'p')}
 									</p>
 								)}
 							</div>
@@ -228,7 +235,9 @@ export default function BreastfeedingTracker({
 							onClick={endFeeding}
 							size="lg"
 						>
-							<fbt desc="endFeeding">End Feeding</fbt>
+							<fbt desc="Label on a button to mark the current feeding session as done">
+								End Feeding
+							</fbt>
 						</Button>
 						<Button
 							className="h-16"
@@ -236,7 +245,9 @@ export default function BreastfeedingTracker({
 							size="lg"
 							variant="outline"
 						>
-							<fbt desc="enterTimeManually">Enter Time Manually</fbt>
+							<fbt desc="Label on a button to mark the current feeding session as done and to enter the duration of the session by manually">
+								Enter Time Manually
+							</fbt>
 						</Button>
 					</div>
 				</div>
@@ -245,7 +256,7 @@ export default function BreastfeedingTracker({
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
 						<DialogTitle>
-							<fbt desc="enterFeedingTimeManually">
+							<fbt desc="Title of the dialog to enter feeding time manually">
 								Enter Feeding Time Manually
 							</fbt>
 						</DialogTitle>
@@ -253,7 +264,7 @@ export default function BreastfeedingTracker({
 					<div className="grid gap-4 py-4">
 						<div className="grid grid-cols-4 items-center gap-4">
 							<Label className="text-right col-span-1" htmlFor="minutes">
-								<fbt desc="minutes">minutes</fbt>
+								<fbt desc="Label for an input of minutes">minutes</fbt>
 							</Label>
 							<Input
 								className="col-span-3"
@@ -275,11 +286,25 @@ export default function BreastfeedingTracker({
 							onClick={handleManualEntry}
 							type="submit"
 						>
-							<fbt desc="save">Save</fbt>
+							<fbt desc="Label on a save button">Save</fbt>
 						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 		</div>
+	);
+}
+
+interface NextBreastBadgeProps {
+	breast: 'left' | 'right';
+}
+function NextBreastBadge({ breast }: NextBreastBadgeProps) {
+	const bg = breast === 'left' ? 'bg-left-breast' : 'bg-right-breast';
+	return (
+		<Badge className={`absolute -top-2 -right-2 ${bg}`}>
+			<fbt desc="Badge on a button that tells the user that they should use this breast for the next feeding session">
+				Next
+			</fbt>
+		</Badge>
 	);
 }

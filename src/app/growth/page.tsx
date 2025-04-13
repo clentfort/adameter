@@ -1,10 +1,9 @@
 'use client';
 
-import AddGrowthMeasurement from '@/components/add-growth-measurement';
-import GrowthMeasurementsList from '@/components/growth-measurements-list';
-import GrowthView from '@/components/growth-view';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppState } from '@/hooks/use-app-state';
+import AddGrowthMeasurement from './components/add-growth-measurement';
+import GrowthMeasurementsList from './components/growth-measurements-list';
 
 export default function GrowthPage() {
 	const { addMeasurement, deleteMeasurement, measurements, updateMeasurement } =

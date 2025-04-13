@@ -7,39 +7,40 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { FeedingSession } from '@/types/feeding';
-import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
+import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
 
-interface AddHistoricSessionProps {
-	onSessionAdd: (session: FeedingSession) => void;
+interface EditSessionDialogProps {
+	onClose: () => void;
+	onUpdate: (session: FeedingSession) => void;
+	session: Readonly<FeedingSession>;
 }
 
-export default function AddHistoricSession({
-	onSessionAdd,
-}: AddHistoricSessionProps) {
-	const [open, setOpen] = useState(false);
-	const [breast, setBreast] = useState<'left' | 'right'>('left');
+export default function EditSessionDialog({
+	onClose,
+	onUpdate,
+	session,
+}: EditSessionDialogProps) {
+	const [breast, setBreast] = useState<'left' | 'right'>(session.breast);
 	const [date, setDate] = useState('');
 	const [time, setTime] = useState('');
 	const [duration, setDuration] = useState('');
 
-	// Set default values for today's date and current time
-	const setDefaultValues = () => {
-		const now = new Date();
-		const formattedDate = now.toISOString().split('T')[0];
-		const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+	useEffect(() => {
+		const startDate = new Date(session.startTime);
+		const endDate = new Date(session.endTime);
 
-		setDate(formattedDate);
-		setTime(formattedTime);
-		setDuration('');
-		setBreast('left');
-	};
+		setDate(format(startDate, 'yyyy-MM-dd'));
+		setTime(format(startDate, 'HH:mm'));
+
+		const durationInMinutes = Math.round(session.durationInSeconds / 60);
+		setDuration(durationInMinutes.toString());
+	}, [session]);
 
 	const handleSubmit = () => {
 		if (!date || !time || !duration || Number.isNaN(Number(duration))) {
@@ -55,48 +56,34 @@ export default function AddHistoricSession({
 			startTime.getTime() + durationInMinutes * 60 * 1000,
 		);
 
-		const session: FeedingSession = {
+		const updatedSession: FeedingSession = {
+			...session,
 			breast,
 			durationInSeconds: durationInMinutes * 60,
 			endTime: endTime.toISOString(),
-			id: Date.now().toString(),
 			startTime: startTime.toISOString(),
 		};
 
-		onSessionAdd(session);
-		setOpen(false);
+		onUpdate(updatedSession);
+		onClose();
 	};
 
 	return (
-		<Dialog
-			onOpenChange={(newOpen) => {
-				setOpen(newOpen);
-				if (newOpen) {
-					setDefaultValues();
-				}
-			}}
-			open={open}
-		>
-			<DialogTrigger asChild>
-				<Button size="sm" variant="outline">
-					<PlusCircle className="h-4 w-4 mr-1" />
-					<fbt desc="Label for the button to add a historic feeding session">
-						Add Entry
-					</fbt>
-				</Button>
-			</DialogTrigger>
+		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
-						<fbt desc="Label for the dialog to add a historic feeding session">
-							Add Historic Feeding
+						<fbt desc="Title of a dialog that allows the user to edit a feeding session">
+							Edit Feeding Session
 						</fbt>
 					</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
 						<Label>
-							<fbt desc="Label for the breast selection">Breast</fbt>
+							<fbt desc="Label for a radio group that allows the user to select which breat was used to feed">
+								Breast
+							</fbt>
 						</Label>
 						<RadioGroup
 							className="flex gap-4"
@@ -106,21 +93,25 @@ export default function AddHistoricSession({
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
 									className="text-left-breast border-left-breast"
-									id="left"
+									id="edit-left"
 									value="left"
 								/>
-								<Label className="text-left-breast-dark" htmlFor="left">
-									<fbt desc="Label for the left breast">Left Breast</fbt>
+								<Label className="text-left-breast-dark" htmlFor="edit-left">
+									<fbt desc="Label for a radio button that indicates the left breast was used to feed">
+										Left Breast
+									</fbt>
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
 									className="text-right-breast border-right-breast"
-									id="right"
+									id="edit-right"
 									value="right"
 								/>
-								<Label className="text-right-breast-dark" htmlFor="right">
-									<fbt desc="Label for the right breast">Right Breast</fbt>
+								<Label className="text-right-breast-dark" htmlFor="edit-right">
+									<fbt desc="Label for a radio button that indicates the right breast was used to feed">
+										Right Breast
+									</fbt>
 								</Label>
 							</div>
 						</RadioGroup>
@@ -128,22 +119,24 @@ export default function AddHistoricSession({
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="date">
-								<fbt desc="Label for the date input">Date</fbt>
+							<Label htmlFor="edit-date">
+								<fbt desc="Label for a date input">Date</fbt>
 							</Label>
 							<Input
-								id="date"
+								id="edit-date"
 								onChange={(e) => setDate(e.target.value)}
 								type="date"
 								value={date}
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="time">
-								<fbt desc="Label for the start time input">Start Time</fbt>
+							<Label htmlFor="edit-time">
+								<fbt desc="Label for a time input that sets the starting time of a feeding session">
+									Start Time
+								</fbt>
 							</Label>
 							<Input
-								id="time"
+								id="edit-time"
 								onChange={(e) => setTime(e.target.value)}
 								type="time"
 								value={time}
@@ -152,11 +145,13 @@ export default function AddHistoricSession({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="duration">
-							<fbt desc="Label for the duration input in minutes">Minutes</fbt>
+						<Label htmlFor="edit-duration">
+							<fbt desc="Label for a number input that sets the duration of a feeding session in minutes">
+								minutes
+							</fbt>
 						</Label>
 						<Input
-							id="duration"
+							id="edit-duration"
 							min="1"
 							onChange={(e) => setDuration(e.target.value)}
 							type="number"
@@ -174,9 +169,7 @@ export default function AddHistoricSession({
 						onClick={handleSubmit}
 						type="submit"
 					>
-						<fbt desc="Label for the button to save the historic feeding session">
-							Save
-						</fbt>
+						<fbt desc="Label for a save button">Save</fbt>
 					</Button>
 				</DialogFooter>
 			</DialogContent>

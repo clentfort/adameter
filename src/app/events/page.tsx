@@ -1,9 +1,9 @@
 'use client';
 
-import AddEventDialog from '@/components/add-event-dialog';
-import EventsList from '@/components/events-list';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppState } from '@/hooks/use-app-state';
+import AddEventDialog from './components/add-event-dialog';
+import EventsList from './components/events-list';
 
 export default function EventsPage() {
 	const { addEvent, deleteEvent, events, updateEvent } = useAppState();

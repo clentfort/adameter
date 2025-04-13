@@ -1,13 +1,24 @@
 'use client';
 
-import AddHistoricSession from '@/components/add-historic-session';
-import BreastfeedingTracker from '@/components/breastfeeding-tracker';
-import HistoryList from '@/components/history-list';
 import { useAppState } from '@/hooks/use-app-state';
+import { FeedingSession } from '@/types/feeding';
+import AddHistoricSession from './components/add-historic-session';
+import BreastfeedingTracker from './components/breastfeeding-tracker';
+import HistoryList from './components/history-list';
+
+function getNextBreat(sessions: readonly FeedingSession[]) {
+	if (sessions.length === 0) {
+		return 'left'; // Default to left if no feedings exist
+	}
+	const lastFeeding = sessions[0];
+	return lastFeeding.breast === 'left' ? 'right' : 'left';
+}
 
 export default function Feedings() {
-	const { deleteSession, nextBreast, saveSession, sessions, updateSession } =
-		useAppState();
+	const { deleteSession, saveSession, sessions, updateSession } = useAppState();
+
+	const nextBreast = getNextBreat(sessions);
+
 	return (
 		<div className="w-full">
 			<BreastfeedingTracker

@@ -93,8 +93,8 @@ export default function AddEventDialog({
 	};
 
 	return (
-        <Dialog onOpenChange={handleOpenChange} open={open}>
-            {!event && (
+		<Dialog onOpenChange={handleOpenChange} open={open}>
+			{!event && (
 				<DialogTrigger asChild>
 					<Button onClick={() => setOpen(true)} size="sm" variant="outline">
 						<PlusCircle className="h-4 w-4 mr-1" />
@@ -102,34 +102,50 @@ export default function AddEventDialog({
 					</Button>
 				</DialogTrigger>
 			)}
-            <DialogContent className="sm:max-w-[500px]">
+			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
-					<DialogTitle>{event ? <fbt desc='editEvent'>Edit Event</fbt> : <fbt desc='newEvent'>Add New Event</fbt>}</DialogTitle>
+					<DialogTitle>
+						{event ? (
+							<fbt desc="editEvent">Edit Event</fbt>
+						) : (
+							<fbt desc="newEvent">Add New Event</fbt>
+						)}
+					</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
-						<Label htmlFor="title"><fbt desc="title">Title</fbt></Label>
+						<Label htmlFor="title">
+							<fbt desc="title">Title</fbt>
+						</Label>
 						<Input
 							id="title"
 							onChange={(e) => setTitle(e.target.value)}
-							placeholder=<fbt desc="titleExample">e.g. Birth, Vaccination, Illness</fbt>
+							placeholder=<fbt desc="titleExample">
+								e.g. Birth, Vaccination, Illness
+							</fbt>
 							value={title}
 						/>
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="description"><fbt desc="description">Description (optional)</fbt></Label>
+						<Label htmlFor="description">
+							<fbt desc="description">Description (optional)</fbt>
+						</Label>
 						<Textarea
 							id="description"
 							onChange={(e) => setDescription(e.target.value)}
-							placeholder=<fbt desc="descriptionPlaceholder">Additional details about the event</fbt>
+							placeholder=<fbt desc="descriptionPlaceholder">
+								Additional details about the event
+							</fbt>
 							rows={3}
 							value={description}
 						/>
 					</div>
 
 					<div className="space-y-2">
-						<Label><fbt desc="eventType">Event Type</fbt></Label>
+						<Label>
+							<fbt desc="eventType">Event Type</fbt>
+						</Label>
 						<RadioGroup
 							className="flex gap-4"
 							onValueChange={(value) =>
@@ -139,18 +155,24 @@ export default function AddEventDialog({
 						>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem id="point" value="point" />
-								<Label htmlFor="point"><fbt desc="pointEvent">Point in time (e.g. Vaccination)</fbt></Label>
+								<Label htmlFor="point">
+									<fbt desc="pointEvent">Point in time (e.g. Vaccination)</fbt>
+								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem id="period" value="period" />
-								<Label htmlFor="period"><fbt desc="periodEvent">Period (e.g. Illness)</fbt></Label>
+								<Label htmlFor="period">
+									<fbt desc="periodEvent">Period (e.g. Illness)</fbt>
+								</Label>
 							</div>
 						</RadioGroup>
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="start-date"><fbt desc="date">Date</fbt></Label>
+							<Label htmlFor="start-date">
+								<fbt desc="date">Date</fbt>
+							</Label>
 							<Input
 								id="start-date"
 								onChange={(e) => setStartDate(e.target.value)}
@@ -159,7 +181,9 @@ export default function AddEventDialog({
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="start-time"><fbt desc="time">Time</fbt></Label>
+							<Label htmlFor="start-time">
+								<fbt desc="time">Time</fbt>
+							</Label>
 							<Input
 								id="start-time"
 								onChange={(e) => setStartTime(e.target.value)}
@@ -177,13 +201,17 @@ export default function AddEventDialog({
 									id="has-end-date"
 									onCheckedChange={setHasEndDate}
 								/>
-								<Label htmlFor="has-end-date"><fbt desc="setEndDate">Set End Date</fbt></Label>
+								<Label htmlFor="has-end-date">
+									<fbt desc="setEndDate">Set End Date</fbt>
+								</Label>
 							</div>
 
 							{hasEndDate && (
 								<div className="grid grid-cols-2 gap-4">
 									<div className="space-y-2">
-										<Label htmlFor="end-date"><fbt desc="endDate">End Date</fbt></Label>
+										<Label htmlFor="end-date">
+											<fbt desc="endDate">End Date</fbt>
+										</Label>
 										<Input
 											id="end-date"
 											onChange={(e) => setEndDate(e.target.value)}
@@ -192,7 +220,9 @@ export default function AddEventDialog({
 										/>
 									</div>
 									<div className="space-y-2">
-										<Label htmlFor="end-time"><fbt desc="endTime">End Time</fbt></Label>
+										<Label htmlFor="end-time">
+											<fbt desc="endTime">End Time</fbt>
+										</Label>
 										<Input
 											id="end-time"
 											onChange={(e) => setEndTime(e.target.value)}
@@ -206,7 +236,9 @@ export default function AddEventDialog({
 					)}
 
 					<div className="space-y-2">
-						<Label htmlFor="color"><fbt desc="color">Color</fbt></Label>
+						<Label htmlFor="color">
+							<fbt desc="color">Color</fbt>
+						</Label>
 						<div className="flex gap-2">
 							{[
 								'#6366f1',
@@ -234,6 +266,6 @@ export default function AddEventDialog({
 					</Button>
 				</DialogFooter>
 			</DialogContent>
-        </Dialog>
-    );
+		</Dialog>
+	);
 }

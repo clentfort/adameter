@@ -1,9 +1,9 @@
 'use client';
 
-import AddHistoricDiaper from '@/components/add-historic-diaper';
-import DiaperHistoryList from '@/components/diaper-history-list';
-import DiaperTracker from '@/components/diaper-tracker';
 import { useAppState } from '@/hooks/use-app-state';
+import AddHistoricDiaper from './components/add-historic-diaper';
+import DiaperHistoryList from './components/diaper-history-list';
+import DiaperTracker from './components/diaper-tracker';
 
 export default function DiaperPage() {
 	const {
