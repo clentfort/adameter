@@ -10,21 +10,20 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import type { FeedingSession } from '@/types/feeding';
 
-interface DeleteSessionDialogProps {
+interface DeleteEntryDialogProps {
+	entry: string;
 	onClose: () => void;
-	onDelete: (session: FeedingSession) => void;
-	session: FeedingSession;
+	onDelete: (id: string) => void;
 }
 
-export default function DeleteSessionDialog({
+export default function DeleteEntryDialog({
+	entry,
 	onClose,
 	onDelete,
-	session,
-}: DeleteSessionDialogProps) {
+}: DeleteEntryDialogProps) {
 	const handleDeleteConfirm = () => {
-		onDelete(session);
+		onDelete(entry);
 		onClose();
 	};
 
@@ -46,12 +45,10 @@ export default function DeleteSessionDialog({
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>
-						<fbt desc="Label on a button that cancels an action">Cancel</fbt>
+						<fbt common>Cancel</fbt>
 					</AlertDialogCancel>
 					<AlertDialogAction onClick={handleDeleteConfirm}>
-						<fbt desc="Label on a button that confirms the deletion of an item">
-							Delete
-						</fbt>
+						<fbt common>Delete</fbt>
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

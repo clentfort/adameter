@@ -1,3 +1,4 @@
+import type { FeedingSession } from '@/types/feeding';
 import {
 	Card,
 	CardContent,
@@ -5,7 +6,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import type { FeedingSession } from '@/types/feeding';
 
 interface HeatMapProps {
 	sessions: FeedingSession[];
@@ -69,12 +69,18 @@ export default function HeatMap({ sessions = [] }: HeatMapProps) {
 	});
 
 	return (
-        <Card>
-            <CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base"><fbt desc="feedingDistribution">Daily Feeding Distribution</fbt></CardTitle>
-				<CardDescription><fbt desc="feedingDistributionDescription">Distribution of feeding times throughout the day</fbt></CardDescription>
+		<Card>
+			<CardHeader className="p-4 pb-2">
+				<CardTitle className="text-base">
+					<fbt desc="feedingDistribution">Daily Feeding Distribution</fbt>
+				</CardTitle>
+				<CardDescription>
+					<fbt desc="feedingDistributionDescription">
+						Distribution of feeding times throughout the day
+					</fbt>
+				</CardDescription>
 			</CardHeader>
-            <CardContent className="p-4 pt-0">
+			<CardContent className="p-4 pt-0">
 				<div className="mt-6 mb-2">
 					{/* Heat map */}
 					<div className="relative h-16 mb-6">
@@ -149,27 +155,37 @@ export default function HeatMap({ sessions = [] }: HeatMapProps) {
 					<div className="flex justify-center items-center gap-4 text-xs text-muted-foreground mt-4">
 						<div className="flex items-center gap-1">
 							<div className="w-3 h-3 bg-pink-600"></div>
-							<span><fbt desc="veryHighActivity">Very High Activity</fbt></span>
+							<span>
+								<fbt desc="veryHighActivity">Very High Activity</fbt>
+							</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<div className="w-3 h-3 bg-pink-400"></div>
-							<span><fbt desc="highActivity">High Activity</fbt></span>
+							<span>
+								<fbt desc="highActivity">High Activity</fbt>
+							</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<div className="w-3 h-3 bg-purple-400"></div>
-							<span><fbt desc="mediumActivity">Medium Activity</fbt></span>
+							<span>
+								<fbt desc="mediumActivity">Medium Activity</fbt>
+							</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<div className="w-3 h-3 bg-blue-400"></div>
-							<span><fbt desc="lowActivity">Low Activity</fbt></span>
+							<span>
+								<fbt desc="lowActivity">Low Activity</fbt>
+							</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<div className="w-3 h-3 bg-blue-200"></div>
-							<span><fbt desc="veryLowActivity">Very Low Activity</fbt></span>
+							<span>
+								<fbt desc="veryLowActivity">Very Low Activity</fbt>
+							</span>
 						</div>
 					</div>
 				</div>
 			</CardContent>
-        </Card>
-    );
+		</Card>
+	);
 }

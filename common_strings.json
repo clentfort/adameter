@@ -1,3 +1,6 @@
 {
+	"Cancel": "Label on a cancel button",
+	"Delete": "Label on a delete button",
+	"Edit": "Label on an edit button",
 	"Save": "Label on a save button"
 }

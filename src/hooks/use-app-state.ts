@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { diaperRepository } from '@/data/diaper-repository';
 import { eventsRepository } from '@/data/events-repository';
 import { feedingRepository } from '@/data/feeding-repository';
@@ -6,7 +7,6 @@ import { DiaperChange } from '@/types/diaper';
 import { Event } from '@/types/event';
 import { FeedingSession } from '@/types/feeding';
 import { GrowthMeasurement } from '@/types/growth';
-import { useEffect, useState } from 'react';
 
 export function useAppState() {
 	const [sessions, setSessions] = useState<readonly FeedingSession[]>([]);

@@ -1,5 +1,9 @@
 'use client';
 
+import type { DiaperChange } from '@/types/diaper';
+import { formatISO } from 'date-fns';
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -21,10 +25,6 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import type { DiaperChange } from '@/types/diaper';
-import { formatISO } from 'date-fns';
-import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
 // Simplified diaper brands
@@ -281,7 +281,7 @@ export default function AddHistoricDiaper({
 				</div>
 				<DialogFooter>
 					<Button onClick={() => setOpen(false)} variant="outline">
-						<fbt desc="cancel">Cancel</fbt>
+						<fbt common>Cancel</fbt>
 					</Button>
 					<Button onClick={handleSubmit}>
 						<fbt common>Save</fbt>

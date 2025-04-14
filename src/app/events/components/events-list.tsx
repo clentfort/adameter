@@ -1,21 +1,12 @@
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import type { Event } from '@/types/event';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { ArrowRight, Calendar, Clock, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import DeleteEntryDialog from '@/components/delete-entry-dialog';
+import { Button } from '@/components/ui/button';
 import AddEventDialog from './add-event-dialog';
 
 interface EventsListProps {
@@ -41,10 +32,10 @@ export default function EventsList({
 
 	if (eventsArray.length === 0) {
 		return (
-            <p className="text-muted-foreground text-center py-4">
-                <fbt desc="noEventsRecorded">No events recorded yet.</fbt>
-            </p>
-        );
+			<p className="text-muted-foreground text-center py-4">
+				<fbt desc="noEventsRecorded">No events recorded yet.</fbt>
+			</p>
+		);
 	}
 
 	const handleDeleteConfirm = () => {
@@ -60,15 +51,15 @@ export default function EventsList({
 	);
 
 	return (
-        <>
-            <div className="space-y-4">
+		<>
+			<div className="space-y-4">
 				{sortedEvents.map((event) => {
 					const startDate = new Date(event.startDate);
 					const endDate = event.endDate ? new Date(event.endDate) : null;
 					const isOngoing = event.type === 'period' && !event.endDate;
 
 					return (
-                        <div
+						<div
 							className="border rounded-lg p-4 shadow-sm"
 							key={event.id}
 							style={{
@@ -76,7 +67,7 @@ export default function EventsList({
 								borderLeftWidth: '4px',
 							}}
 						>
-                            <div className="flex justify-between items-start">
+							<div className="flex justify-between items-start">
 								<div>
 									<p className="font-medium text-lg">{event.title}</p>
 									{event.description && (
@@ -95,7 +86,9 @@ export default function EventsList({
 												</>
 											)}
 											{isOngoing && (
-												<span className="ml-1 text-xs"><fbt desc="ongoing">ongoing</fbt></span>
+												<span className="ml-1 text-xs">
+													<fbt desc="ongoing">ongoing</fbt>
+												</span>
 											)}
 										</span>
 									</div>
@@ -120,7 +113,9 @@ export default function EventsList({
 										variant="ghost"
 									>
 										<Pencil className="h-4 w-4" />
-										<span className="sr-only"><fbt desc="edit">Edit</fbt></span>
+										<span className="sr-only">
+											<fbt common>Edit</fbt>
+										</span>
 									</Button>
 									<Button
 										className="h-7 w-7 text-destructive"
@@ -129,40 +124,30 @@ export default function EventsList({
 										variant="ghost"
 									>
 										<Trash2 className="h-4 w-4" />
-										<span className="sr-only"><fbt desc="delete">Delete</fbt></span>
+										<span className="sr-only">
+											<fbt desc="delete">Delete</fbt>
+										</span>
 									</Button>
 								</div>
 							</div>
-                        </div>
-                    );
+						</div>
+					);
 				})}
 			</div>
-            <AlertDialog
-				onOpenChange={(open) => !open && setEventToDelete(null)}
-				open={!!eventToDelete}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle><fbt desc="deleteEvent">Delete Event</fbt></AlertDialogTitle>
-						<AlertDialogDescription>
-							<fbt desc="deleteEventConfirmation">Do you really want to delete this event? This action cannot be undone.</fbt>
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel><fbt desc="cancel">Cancel</fbt></AlertDialogCancel>
-						<AlertDialogAction onClick={handleDeleteConfirm}>
-							<fbt desc="delete">Delete</fbt>
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
-            {eventToEdit && (
+			{eventToDelete && (
+				<DeleteEntryDialog
+					entry={eventToDelete}
+					onClose={() => setEventToDelete(null)}
+					onDelete={onEventDelete}
+				/>
+			)}
+			{eventToEdit && (
 				<AddEventDialog
 					event={eventToEdit}
 					onClose={() => setEventToEdit(null)}
 					onSave={onEventUpdate}
 				/>
 			)}
-        </>
-    );
+		</>
+	);
 }

@@ -11,7 +11,7 @@ interface RootLayoutProps {
 	children: React.ReactNode;
 }
 
-export function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({ children }: RootLayoutProps) {
 	const { diaperChanges, isLoading, sessions } = useAppState();
 
 	if (isLoading) {

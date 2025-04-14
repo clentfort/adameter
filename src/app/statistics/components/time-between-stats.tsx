@@ -48,8 +48,10 @@ export default function TimeBetweenStats({
 	};
 
 	return (
-        <StatsCard title=<fbt desc="timeBetweenFeedings">Time Between Feedings</fbt>>
-            <div className="text-2xl font-bold">{formatTimeBetween(avgTime)}</div>
-        </StatsCard>
-    );
+		<StatsCard
+			title=<fbt desc="timeBetweenFeedings">Time Between Feedings</fbt>
+		>
+			<div className="text-2xl font-bold">{formatTimeBetween(avgTime)}</div>
+		</StatsCard>
+	);
 }

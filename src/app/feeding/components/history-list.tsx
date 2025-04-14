@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import type { FeedingSession } from '@/types/feeding';
 import {
 	format,
@@ -10,7 +9,8 @@ import {
 } from 'date-fns';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import DeleteSessionDialog from './delete-session-dialog';
+import DeleteEntryDialog from '@/components/delete-entry-dialog';
+import { Button } from '@/components/ui/button';
 import EditSessionDialog from './edit-session-dialog';
 
 interface HistoryListProps {
@@ -135,9 +135,7 @@ export default function HistoryList({
 												>
 													<Pencil className="h-4 w-4" />
 													<span className="sr-only">
-														<fbt desc="Label for an icon button that allows the user to edit a feeding session">
-															Edit
-														</fbt>
+														<fbt common>Edit</fbt>
 													</span>
 												</Button>
 												<Button
@@ -148,9 +146,7 @@ export default function HistoryList({
 												>
 													<Trash2 className="h-4 w-4" />
 													<span className="sr-only">
-														<fbt desc="Label for an icon button that allows the user to delete a feeding session">
-															Delete
-														</fbt>
+														<fbt common>Delete</fbt>
 													</span>
 												</Button>
 											</div>
@@ -163,10 +159,10 @@ export default function HistoryList({
 				))}
 			</div>
 			{sessionToDelete && (
-				<DeleteSessionDialog
+				<DeleteEntryDialog
+					entry={sessionToDelete}
 					onClose={() => setSessionToDelete(null)}
 					onDelete={onSessionDelete}
-					session={sessionToDelete}
 				/>
 			)}
 			{sessionToEdit && (

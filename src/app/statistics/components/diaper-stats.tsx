@@ -1,10 +1,10 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { DiaperChange } from '@/types/diaper';
 import { addDays, differenceInDays } from 'date-fns';
 import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface DiaperStatsProps {
 	diaperChanges: DiaperChange[];
@@ -30,17 +30,21 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 
 	if (filteredChanges.length === 0) {
 		return (
-            <Card>
-                <CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base"><fbt desc="diaperStatistics">Diaper Statistics</fbt></CardTitle>
+			<Card>
+				<CardHeader className="p-4 pb-2">
+					<CardTitle className="text-base">
+						<fbt desc="diaperStatistics">Diaper Statistics</fbt>
+					</CardTitle>
 				</CardHeader>
-                <CardContent className="p-4 pt-0">
+				<CardContent className="p-4 pt-0">
 					<p className="text-muted-foreground text-center py-4">
-						<fbt desc="noDiaperDataAvailable">No diaper data available for the selected time range.</fbt>
+						<fbt desc="noDiaperDataAvailable">
+							No diaper data available for the selected time range.
+						</fbt>
 					</p>
 				</CardContent>
-            </Card>
-        );
+			</Card>
+		);
 	}
 
 	// Calculate statistics
@@ -93,47 +97,65 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 		.slice(0, 5); // Top 5 leaking brands
 
 	return (
-        <Card>
-            <CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base"><fbt desc="diaperStatistics">Diaper Statistics</fbt></CardTitle>
+		<Card>
+			<CardHeader className="p-4 pb-2">
+				<CardTitle className="text-base">
+					<fbt desc="diaperStatistics">Diaper Statistics</fbt>
+				</CardTitle>
 			</CardHeader>
-            <CardContent className="p-4 pt-0">
+			<CardContent className="p-4 pt-0">
 				<Tabs className="w-full" defaultValue="overview">
 					<TabsList className="grid grid-cols-3 mb-4">
-						<TabsTrigger value="overview"><fbt desc="overview">Overview</fbt></TabsTrigger>
-						<TabsTrigger value="brands"><fbt desc="diaperBrands">Diaper Brands</fbt></TabsTrigger>
-						<TabsTrigger value="leakage"><fbt desc="leakage">Diaper leaked</fbt></TabsTrigger>
+						<TabsTrigger value="overview">
+							<fbt desc="overview">Overview</fbt>
+						</TabsTrigger>
+						<TabsTrigger value="brands">
+							<fbt desc="diaperBrands">Diaper Brands</fbt>
+						</TabsTrigger>
+						<TabsTrigger value="leakage">
+							<fbt desc="leakage">Diaper leaked</fbt>
+						</TabsTrigger>
 					</TabsList>
 
 					<TabsContent className="space-y-4" value="overview">
 						<div className="grid grid-cols-2 gap-4">
 							<div className="border rounded-md p-3">
-								<p className="text-sm text-muted-foreground"><fbt desc="total">Total</fbt></p>
+								<p className="text-sm text-muted-foreground">
+									<fbt desc="total">Total</fbt>
+								</p>
 								<p className="text-2xl font-bold">{totalChanges}</p>
 							</div>
 							<div className="border rounded-md p-3">
-								<p className="text-sm text-muted-foreground"><fbt desc="perDay">Per Day</fbt></p>
+								<p className="text-sm text-muted-foreground">
+									<fbt desc="perDay">Per Day</fbt>
+								</p>
 								<p className="text-2xl font-bold">{changesPerDay}</p>
 							</div>
 						</div>
 
 						<div className="grid grid-cols-3 gap-4">
 							<div className="border rounded-md p-3 bg-yellow-50">
-								<p className="text-sm text-yellow-800"><fbt desc="urineOnly">Urine Only</fbt></p>
+								<p className="text-sm text-yellow-800">
+									<fbt desc="urineOnly">Urine Only</fbt>
+								</p>
 								<p className="text-xl font-bold text-yellow-800">{urineOnly}</p>
 								<p className="text-xs text-yellow-600">
 									{Math.round((urineOnly / totalChanges) * 100)}%
 								</p>
 							</div>
 							<div className="border rounded-md p-3 bg-amber-50">
-								<p className="text-sm text-amber-800"><fbt desc="withStool">With Stool</fbt></p>
+								<p className="text-sm text-amber-800">
+									<fbt desc="withStool">With Stool</fbt>
+								</p>
 								<p className="text-xl font-bold text-amber-800">{withStool}</p>
 								<p className="text-xs text-amber-600">
 									{Math.round((withStool / totalChanges) * 100)}%
 								</p>
 							</div>
 							<div className="border rounded-md p-3 bg-red-50">
-								<p className="text-sm text-red-800"><fbt desc="withLeakage">With Leakage</fbt></p>
+								<p className="text-sm text-red-800">
+									<fbt desc="withLeakage">With Leakage</fbt>
+								</p>
 								<p className="text-xl font-bold text-red-800">{withLeakage}</p>
 								<p className="text-xs text-red-600">
 									{Math.round((withLeakage / totalChanges) * 100)}%
@@ -167,7 +189,9 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 							</div>
 						) : (
 							<p className="text-muted-foreground text-center py-4">
-								<fbt desc="noDiaperBrandsRecorded">No diaper brands recorded.</fbt>
+								<fbt desc="noDiaperBrandsRecorded">
+									No diaper brands recorded.
+								</fbt>
 							</p>
 						)}
 					</TabsContent>
@@ -176,7 +200,9 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 						{leakageBrands.length > 0 ? (
 							<div className="space-y-4">
 								<p className="text-sm text-muted-foreground">
-									<fbt desc="diaperBrandsByLeakage">Diaper brands by leakage frequency (min. 3 uses)</fbt>
+									<fbt desc="diaperBrandsByLeakage">
+										Diaper brands by leakage frequency (min. 3 uses)
+									</fbt>
 								</p>
 
 								<div className="space-y-3">
@@ -210,12 +236,14 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 							</div>
 						) : (
 							<p className="text-muted-foreground text-center py-4">
-								<fbt desc="noLeakageDataAvailable">Not enough data for leakage statistics.</fbt>
+								<fbt desc="noLeakageDataAvailable">
+									Not enough data for leakage statistics.
+								</fbt>
 							</p>
 						)}
 					</TabsContent>
 				</Tabs>
 			</CardContent>
-        </Card>
-    );
+		</Card>
+	);
 }

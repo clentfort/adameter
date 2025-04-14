@@ -1,13 +1,13 @@
+import { NavigationMenuLink } from '@radix-ui/react-navigation-menu';
+import { fbt } from 'fbtee';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
 	NavigationMenu,
 	NavigationMenuItem,
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
-import { NavigationMenuLink } from '@radix-ui/react-navigation-menu';
-import { fbt } from 'fbtee';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import '@/i18n';
 
 const pages = [

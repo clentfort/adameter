@@ -1,21 +1,11 @@
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import type { DiaperChange } from '@/types/diaper';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import DeleteEntryDialog from '@/components/delete-entry-dialog';
+import { Button } from '@/components/ui/button';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import EditDiaperDialog from './edit-diaper-dialog';
 
@@ -68,7 +58,7 @@ export default function DiaperHistoryList({
 				{Object.entries(groupedChanges).map(([date, dateChanges]) => (
 					<div className="space-y-2" key={date}>
 						<div className="bg-muted/50 px-4 py-2 rounded-md text-sm font-medium">
-							{format(new Date(date), 'EEEE, d. MMMM yyyy', { locale: de })}
+							{format(new Date(date), 'EEEE, d. MMMM yyyy')}
 						</div>
 
 						{dateChanges.map((change) => {
@@ -98,9 +88,7 @@ export default function DiaperHistoryList({
 												)}
 											</p>
 											<p className="text-xs text-muted-foreground">
-												{format(new Date(change.timestamp), 'h:mm a', {
-													locale: de,
-												})}
+												{format(new Date(change.timestamp), 'p')}
 											</p>
 
 											{(change.temperature ||
@@ -169,7 +157,7 @@ export default function DiaperHistoryList({
 											>
 												<Pencil className="h-4 w-4" />
 												<span className="sr-only">
-													<fbt desc="edit">Edit</fbt>
+													<fbt common>Edit</fbt>
 												</span>
 											</Button>
 											<Button
@@ -180,7 +168,7 @@ export default function DiaperHistoryList({
 											>
 												<Trash2 className="h-4 w-4" />
 												<span className="sr-only">
-													<fbt desc="delete">Delete</fbt>
+													<fbt common>Delete</fbt>
 												</span>
 											</Button>
 										</div>
@@ -191,35 +179,15 @@ export default function DiaperHistoryList({
 					</div>
 				))}
 			</div>
-			<AlertDialog
-				onOpenChange={(open) => !open && setChangeToDelete(null)}
-				open={!!changeToDelete}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							<fbt desc="deleteEntry">Delete Entry</fbt>
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							<fbt desc="deleteConfirmation">
-								Do you really want to delete this entry? This action cannot be
-								undone.
-							</fbt>
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>
-							<fbt desc="cancel">Cancel</fbt>
-						</AlertDialogCancel>
-						<AlertDialogAction onClick={handleDeleteConfirm}>
-							<fbt desc="delete">Delete</fbt>
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			{changeToDelete && (
+				<DeleteEntryDialog
+					entry={changeToDelete}
+					onClose={() => setChangeToDelete(null)}
+					onDelete={onDiaperDelete}
+				/>
+			)}
 			{changeToEdit && (
 				<EditDiaperDialog
-					allChanges={changesArray}
 					change={changeToEdit}
 					onClose={() => setChangeToEdit(null)}
 					onUpdate={onDiaperUpdate}

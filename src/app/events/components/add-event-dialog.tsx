@@ -1,5 +1,8 @@
 'use client';
 
+import type { Event } from '@/types/event';
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -14,9 +17,6 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import type { Event } from '@/types/event';
-import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
 
 interface AddEventDialogProps {
 	event?: Event;

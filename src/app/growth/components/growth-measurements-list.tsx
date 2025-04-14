@@ -1,21 +1,12 @@
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import type { GrowthMeasurement } from '@/types/growth';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import DeleteEntryDialog from '@/components/delete-entry-dialog';
+import { Button } from '@/components/ui/button';
 import AddGrowthMeasurement from './add-growth-measurement';
 
 interface GrowthMeasurementsListProps {
@@ -107,7 +98,7 @@ export default function GrowthMeasurementsList({
 									>
 										<Pencil className="h-4 w-4" />
 										<span className="sr-only">
-											<fbt desc="edit">Edit</fbt>
+											<fbt common>Edit</fbt>
 										</span>
 									</Button>
 									<Button
@@ -118,7 +109,7 @@ export default function GrowthMeasurementsList({
 									>
 										<Trash2 className="h-4 w-4" />
 										<span className="sr-only">
-											<fbt desc="delete">Delete</fbt>
+											<fbt common>Delete</fbt>
 										</span>
 									</Button>
 								</div>
@@ -127,32 +118,13 @@ export default function GrowthMeasurementsList({
 					);
 				})}
 			</div>
-			<AlertDialog
-				onOpenChange={(open) => !open && setMeasurementToDelete(null)}
-				open={!!measurementToDelete}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							<fbt desc="deleteMeasurement">Delete Measurement</fbt>
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							<fbt desc="deleteMeasurementConfirmation">
-								Do you really want to delete this measurement? This action
-								cannot be undone.
-							</fbt>
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>
-							<fbt desc="cancel">Cancel</fbt>
-						</AlertDialogCancel>
-						<AlertDialogAction onClick={handleDeleteConfirm}>
-							<fbt desc="delete">Delete</fbt>
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			{measurementToDelete && (
+				<DeleteEntryDialog
+					entry={measurementToDelete}
+					onClose={() => setMeasurementToDelete(null)}
+					onDelete={handleDeleteConfirm}
+				/>
+			)}
 			{measurementToEdit && (
 				<AddGrowthMeasurement
 					measurement={measurementToEdit}

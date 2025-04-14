@@ -1,6 +1,5 @@
 'use client';
 
-import { getPreferredLocale, Locale, setLocale as setAppLocale } from '@/i18n';
 import React, {
 	createContext,
 	ReactNode,
@@ -8,6 +7,7 @@ import React, {
 	useEffect,
 	useState,
 } from 'react';
+import { getPreferredLocale, Locale, setLocale as setAppLocale } from '@/i18n';
 
 type I18nContextType = {
 	locale: Locale;

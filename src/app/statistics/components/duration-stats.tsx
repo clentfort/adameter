@@ -49,22 +49,24 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 	};
 
 	return (
-        <StatsCard title=<fbt desc="averageFeedingDuration">Average Feeding Duration</fbt>>
-            <div className="text-2xl font-bold">
+		<StatsCard
+			title=<fbt desc="averageFeedingDuration">Average Feeding Duration</fbt>
+		>
+			<div className="text-2xl font-bold">
 				{formatDuration(avgDuration.total)}
 			</div>
-            <div className="text-xs text-muted-foreground mt-1">
+			<div className="text-xs text-muted-foreground mt-1">
 				<fbt desc="leftBreast">Left Breast</fbt>:{' '}
 				<span className="text-left-breast-dark">
 					{formatDuration(avgDuration.left)}
 				</span>
 			</div>
-            <div className="text-xs text-muted-foreground">
+			<div className="text-xs text-muted-foreground">
 				<fbt desc="rightBreast">Right Breast</fbt>:{' '}
 				<span className="text-right-breast-dark">
 					{formatDuration(avgDuration.right)}
 				</span>
 			</div>
-        </StatsCard>
-    );
+		</StatsCard>
+	);
 }

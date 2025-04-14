@@ -1,5 +1,8 @@
 'use client';
 
+import type { DiaperChange } from '@/types/diaper';
+import { fbt } from 'fbtee';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -19,9 +22,6 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import type { DiaperChange } from '@/types/diaper';
-import { fbt } from 'fbtee';
-import { useState } from 'react';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
 // Simplified diaper brands
@@ -215,7 +215,7 @@ export default function DiaperTracker({
 					</div>
 					<DialogFooter>
 						<Button onClick={resetForm} variant="outline">
-							<fbt desc="cancel">Cancel</fbt>
+							<fbt common>Cancel</fbt>
 						</Button>
 						<Button onClick={handleSave}>
 							<fbt common>Save</fbt>

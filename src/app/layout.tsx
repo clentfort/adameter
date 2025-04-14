@@ -1,8 +1,8 @@
 import type React from 'react';
 import './globals.css';
-import { RootLayout } from '@/components/root-layout';
-import { Toaster } from '@/components/ui/toast';
 import type { Metadata } from 'next';
+import RootLayout from '@/components/root-layout';
+import { Toaster } from '@/components/ui/toast';
 import '@/i18n';
 import { I18nProvider } from '@/contexts/i18n-context';
 

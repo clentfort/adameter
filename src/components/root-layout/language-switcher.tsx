@@ -1,5 +1,7 @@
 'use client';
 
+import { fbt } from 'fbtee';
+import { Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
 	DropdownMenu,
@@ -9,8 +11,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Locale } from '@/i18n';
-import { fbt } from 'fbtee';
-import { Globe } from 'lucide-react';
 
 interface LocaleMenuItem {
 	code: Locale;

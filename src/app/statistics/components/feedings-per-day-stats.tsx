@@ -33,8 +33,8 @@ export default function FeedingsPerDayStats({
 	const avgFeedingsPerDay = totalFeedings / totalDays;
 
 	return (
-        <StatsCard title=<fbt desc="feedingsPerDay">Feedings Per Day</fbt>>
-            <div className="text-2xl font-bold">{avgFeedingsPerDay.toFixed(1)}</div>
-        </StatsCard>
-    );
+		<StatsCard title=<fbt desc="feedingsPerDay">Feedings Per Day</fbt>>
+			<div className="text-2xl font-bold">{avgFeedingsPerDay.toFixed(1)}</div>
+		</StatsCard>
+	);
 }

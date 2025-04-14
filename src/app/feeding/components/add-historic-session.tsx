@@ -1,5 +1,8 @@
 'use client';
 
+import type { FeedingSession } from '@/types/feeding';
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -12,9 +15,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import type { FeedingSession } from '@/types/feeding';
-import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
 
 interface AddHistoricSessionProps {
 	onSessionAdd: (session: FeedingSession) => void;
