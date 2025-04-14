@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import EditDiaperDialog from './edit-diaper-dialog';
 
 interface DiaperHistoryListProps {
@@ -60,11 +61,6 @@ export default function DiaperHistoryList({
 		}
 		groupedChanges[date].push(change);
 	});
-
-	const isAbnormalTemperature = (temp: number | undefined) => {
-		if (temp === undefined) return false;
-		return temp < 36.5 || temp > 37.5;
-	};
 
 	return (
 		<>

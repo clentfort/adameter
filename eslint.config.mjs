@@ -23,5 +23,5 @@ export default defineConfig(
 		return rules;
 	}),
 	extended,
-	{ ignores: ['.next/'] },
+	{ ignores: ['.next/', 'src/components/ui/'] },
 );

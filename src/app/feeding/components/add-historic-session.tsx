@@ -174,9 +174,7 @@ export default function AddHistoricSession({
 						onClick={handleSubmit}
 						type="submit"
 					>
-						<fbt desc="Label for the button to save the historic feeding session">
-							Save
-						</fbt>
+						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>
 			</DialogContent>

@@ -262,7 +262,7 @@ export default function AddEventDialog({
 				</div>
 				<DialogFooter>
 					<Button onClick={handleSave} type="submit">
-						<fbt desc="save">Save</fbt>
+						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>
 			</DialogContent>

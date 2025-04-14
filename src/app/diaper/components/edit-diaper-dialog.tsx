@@ -22,7 +22,9 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import type { DiaperChange } from '@/types/diaper';
 import { format } from 'date-fns';
+import { fbt } from 'fbtee';
 import { useEffect, useState } from 'react';
+import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
 // Simplified diaper brands
 const DIAPER_BRANDS = [
@@ -102,19 +104,19 @@ export default function EditDiaperDialog({
 		onClose();
 	};
 
-	const isAbnormalTemperature = (temp: number) => {
-		return temp < 36.5 || temp > 37.5;
-	};
-
 	return (
-        <Dialog onOpenChange={(open) => !open && onClose()} open={true}>
-            <DialogContent className="sm:max-w-[425px]">
+		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
+			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle><fbt desc="editDiaperEntry">Edit Diaper Entry</fbt></DialogTitle>
+					<DialogTitle>
+						<fbt desc="editDiaperEntry">Edit Diaper Entry</fbt>
+					</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
-						<Label><fbt desc="diaperType">Diaper Type</fbt></Label>
+						<Label>
+							<fbt desc="diaperType">Diaper Type</fbt>
+						</Label>
 						<RadioGroup
 							className="flex gap-4"
 							onValueChange={(value) =>
@@ -129,7 +131,8 @@ export default function EditDiaperDialog({
 									value="urine"
 								/>
 								<Label className="text-yellow-700" htmlFor="edit-urine">
-									<span className="text-lg mr-1">💧</span> <fbt desc="urineOnly">Urine Only</fbt>
+									<span className="text-lg mr-1">💧</span>{' '}
+									<fbt desc="urineOnly">Urine Only</fbt>
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
@@ -139,7 +142,8 @@ export default function EditDiaperDialog({
 									value="stool"
 								/>
 								<Label className="text-amber-800" htmlFor="edit-stool">
-									<span className="text-lg mr-1">💩</span> <fbt desc="stool">Stool</fbt>
+									<span className="text-lg mr-1">💩</span>{' '}
+									<fbt desc="stool">Stool</fbt>
 								</Label>
 							</div>
 						</RadioGroup>
@@ -147,7 +151,9 @@ export default function EditDiaperDialog({
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="edit-date"><fbt desc="date">Date</fbt></Label>
+							<Label htmlFor="edit-date">
+								<fbt desc="date">Date</fbt>
+							</Label>
 							<Input
 								id="edit-date"
 								onChange={(e) => setDate(e.target.value)}
@@ -156,7 +162,9 @@ export default function EditDiaperDialog({
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="edit-time"><fbt desc="time">Time</fbt></Label>
+							<Label htmlFor="edit-time">
+								<fbt desc="time">Time</fbt>
+							</Label>
 							<Input
 								id="edit-time"
 								onChange={(e) => setTime(e.target.value)}
@@ -168,10 +176,16 @@ export default function EditDiaperDialog({
 
 					{/* Diaper brand first */}
 					<div className="space-y-2">
-						<Label htmlFor="edit-diaper-brand"><fbt desc="diaperBrand">Diaper Brand</fbt></Label>
+						<Label htmlFor="edit-diaper-brand">
+							<fbt desc="diaperBrand">Diaper Brand</fbt>
+						</Label>
 						<Select onValueChange={setDiaperBrand} value={diaperBrand}>
 							<SelectTrigger>
-								<SelectValue placeholder=<fbt desc="selectDiaperBrand">Select Diaper Brand</fbt> />
+								<SelectValue
+									placeholder=<fbt desc="selectDiaperBrand">
+										Select Diaper Brand
+									</fbt>
+								/>
 							</SelectTrigger>
 							<SelectContent>
 								{DIAPER_BRANDS.map((brand) => (
@@ -185,7 +199,9 @@ export default function EditDiaperDialog({
 
 					{/* Temperature second */}
 					<div className="space-y-2">
-						<Label htmlFor="edit-temperature"><fbt desc="temperature">Temperature (°C)</fbt></Label>
+						<Label htmlFor="edit-temperature">
+							<fbt desc="temperature">Temperature (°C)</fbt>
+						</Label>
 						<Input
 							className={
 								temperature &&
@@ -195,7 +211,7 @@ export default function EditDiaperDialog({
 							}
 							id="edit-temperature"
 							onChange={(e) => setTemperature(e.target.value)}
-							placeholder=<fbt desc="temperatureExample">e.g. 37.2</fbt>
+							placeholder={fbt('e.g. 37.2', 'temperatureExample')}
 							step="0.1"
 							type="number"
 							value={temperature}
@@ -203,7 +219,9 @@ export default function EditDiaperDialog({
 						{temperature &&
 							isAbnormalTemperature(Number.parseFloat(temperature)) && (
 								<p className="text-xs text-red-500 mt-1">
-									<fbt desc="temperatureWarning">Warning: Temperature outside normal range (36.5°C - 37.5°C)</fbt>
+									<fbt desc="temperatureWarning">
+										Warning: Temperature outside normal range (36.5°C - 37.5°C)
+									</fbt>
 								</p>
 							)}
 					</div>
@@ -215,15 +233,22 @@ export default function EditDiaperDialog({
 							id="edit-leakage"
 							onCheckedChange={setHasLeakage}
 						/>
-						<Label htmlFor="edit-leakage"><fbt desc="leakage">Diaper leaked</fbt></Label>
+						<Label htmlFor="edit-leakage">
+							<fbt desc="leakage">Diaper leaked</fbt>
+						</Label>
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="edit-abnormalities"><fbt desc="abnormalities">Abnormalities</fbt></Label>
+						<Label htmlFor="edit-abnormalities">
+							<fbt desc="abnormalities">Abnormalities</fbt>
+						</Label>
 						<Textarea
 							id="edit-abnormalities"
 							onChange={(e) => setAbnormalities(e.target.value)}
-							placeholder=<fbt desc="abnormalitiesExample">e.g. redness, rash, etc.</fbt>
+							placeholder={fbt(
+								'e.g. redness, rash, etc.',
+								'abnormalitiesExample',
+							)}
 							value={abnormalities}
 						/>
 					</div>
@@ -232,9 +257,11 @@ export default function EditDiaperDialog({
 					<Button onClick={onClose} variant="outline">
 						<fbt desc="cancel">Cancel</fbt>
 					</Button>
-					<Button onClick={handleSubmit}><fbt desc="save">Save</fbt></Button>
+					<Button onClick={handleSubmit}>
+						<fbt common>Save</fbt>
+					</Button>
 				</DialogFooter>
 			</DialogContent>
-        </Dialog>
-    );
+		</Dialog>
+	);
 }

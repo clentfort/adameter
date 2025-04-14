@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
+		"predev": "./scripts/download-translations.sh",
 		"dev": "next dev",
 		"prebuild": "./scripts/download-translations.sh",
 		"build": "next build",
@@ -10,11 +11,12 @@
 		"lint": "next lint",
 		"test": "vitest",
 		"fbtee:manifest": "fbtee manifest --src src",
-		"fbtee:collect": "fbtee collect --manifest < .src_manifest.json > .source_strings.json",
+		"fbtee:collect": "fbtee collect --fbt-common-path ./common_strings.json --pretty --manifest < .src_manifest.json > .source_strings.json",
 		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins > src/i18n/translations.json"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^3.9.1",
+		"@nkzw/core": "^1.2.0",
 		"@radix-ui/react-accordion": "^1.2.2",
 		"@radix-ui/react-alert-dialog": "^1.1.4",
 		"@radix-ui/react-aspect-ratio": "^1.1.1",
@@ -93,7 +95,6 @@
 		"jsdom": "^26.0.0",
 		"postcss": "^8",
 		"prettier": "^3.5.3",
-		"sharp": "^0.34.1",
 		"tailwindcss": "^3.4.17",
 		"typescript": "^5",
 		"vite-tsconfig-paths": "^5.1.4",

@@ -2,11 +2,13 @@ import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
 import translations from './translations.json' with { type: 'json' };
 
-export type Locale = 'en_US' | keyof typeof translations;
 const DEFAULT_LOCALE = 'en_US';
+export type Locale = typeof DEFAULT_LOCALE | keyof typeof translations;
 
 function isSupportedLocale(locale: string): locale is Locale {
-	return locale === 'en_US' || Object.keys(translations).includes(locale);
+	return (
+		locale === DEFAULT_LOCALE || Object.keys(translations).includes(locale)
+	);
 }
 
 const localeToDateFnsLocale: Record<
@@ -14,7 +16,7 @@ const localeToDateFnsLocale: Record<
 	() => undefined | Promise<DateFnsLocale>
 > = {
 	de_DE: () => import('date-fns/locale/de').then(({ de }) => de),
-	en_US: () => undefined,
+	en_US: () => import('date-fns/locale/en-US').then(({ enUS }) => enUS),
 };
 
 const LOCAL_STORAGE_KEY = 'preferredLanguage';
@@ -26,7 +28,7 @@ interface ViewerContext {
 
 const viewerContext: ViewerContext = {
 	GENDER: IntlVariations.GENDER_UNKNOWN,
-	locale: 'en_US',
+	locale: DEFAULT_LOCALE,
 };
 
 setupFbtee({

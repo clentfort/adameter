@@ -169,7 +169,7 @@ export default function EditSessionDialog({
 						onClick={handleSubmit}
 						type="submit"
 					>
-						<fbt desc="Label for a save button">Save</fbt>
+						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>
 			</DialogContent>

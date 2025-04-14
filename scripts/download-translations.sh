@@ -13,6 +13,6 @@ pnpm run fbtee:collect
 # files with a leading dot
 ln -s .source_strings.json source_strings.json
 pnpm exec crowdin pull -b ${BRANCH_NAME} --plain translations
+rm source_strings.json
 
 pnpm run fbtee:translate
-

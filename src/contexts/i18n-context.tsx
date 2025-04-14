@@ -28,14 +28,14 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
 		setLocale(getPreferredLocale());
 	}, []);
 
-	const setLocale = async (lang: Locale) => {
-		setAppLocale(lang);
-		setLocaleState(lang);
+	const setLocale = async (locale: Locale) => {
+		await setAppLocale(locale);
+		setLocaleState(locale);
 	};
 
 	return (
 		<I18nContext.Provider value={{ locale, setLocale }}>
-			{children}
+			<React.Fragment key={locale}>{children}</React.Fragment>
 		</I18nContext.Provider>
 	);
 };

@@ -6,7 +6,7 @@ import type { GrowthMeasurement } from '@/types/growth';
 import Chart from 'chart.js/auto';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns'; // Import the date-fns adapter
 
 interface GrowthChartProps {
@@ -23,16 +23,12 @@ export default function GrowthChart({
 	const weightChartInstance = useRef<Chart | null>(null);
 	const heightChartInstance = useRef<Chart | null>(null);
 
-	// Ensure measurements is an array
-	const measurementsArray = Array.isArray(measurements) ? measurements : [];
-	const eventsArray = Array.isArray(events) ? events : [];
-
 	// Function to create or update the weight chart
-	const createWeightChart = () => {
+	const createWeightChart = useCallback(() => {
 		if (!weightChartRef.current) return;
 
 		// Sort measurements by date (oldest first for the chart)
-		const sortedMeasurements = [...measurementsArray].sort(
+		const sortedMeasurements = [...measurements].sort(
 			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
 		);
 
@@ -117,7 +113,7 @@ export default function GrowthChart({
 						const xAxis = chart.scales.x;
 						const yAxis = chart.scales.y;
 
-						eventsArray.forEach((event) => {
+						events.forEach((event) => {
 							const eventDate = new Date(event.startDate);
 							const xPosition = xAxis.getPixelForValue(eventDate);
 
@@ -147,14 +143,14 @@ export default function GrowthChart({
 			],
 			type: 'line',
 		});
-	};
+	}, [events, measurements]);
 
 	// Function to create or update the height chart
-	const createHeightChart = () => {
+	const createHeightChart = useCallback(() => {
 		if (!heightChartRef.current) return;
 
 		// Sort measurements by date (oldest first for the chart)
-		const sortedMeasurements = [...measurementsArray].sort(
+		const sortedMeasurements = [...measurements].sort(
 			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
 		);
 
@@ -239,7 +235,7 @@ export default function GrowthChart({
 						const xAxis = chart.scales.x;
 						const yAxis = chart.scales.y;
 
-						eventsArray.forEach((event) => {
+						events.forEach((event) => {
 							const eventDate = new Date(event.startDate);
 							const xPosition = xAxis.getPixelForValue(eventDate);
 
@@ -269,11 +265,11 @@ export default function GrowthChart({
 			],
 			type: 'line',
 		});
-	};
+	}, [events, measurements]);
 
 	// Initialize charts when component mounts or data changes
 	useEffect(() => {
-		if (measurementsArray.length === 0) return;
+		if (measurements.length === 0) return;
 
 		// Create both charts
 		createWeightChart();
@@ -288,9 +284,9 @@ export default function GrowthChart({
 				heightChartInstance.current.destroy();
 			}
 		};
-	}, [measurementsArray, eventsArray]);
+	}, [measurements, events, createWeightChart, createHeightChart]);
 
-	if (measurementsArray.length === 0) {
+	if (measurements.length === 0) {
 		return (
 			<Card>
 				<CardHeader className="p-4 pb-2">
@@ -310,8 +306,8 @@ export default function GrowthChart({
 		);
 	}
 
-	const hasWeightData = measurementsArray.some((m) => m.weight !== undefined);
-	const hasHeightData = measurementsArray.some((m) => m.height !== undefined);
+	const hasWeightData = measurements.some((m) => m.weight !== undefined);
+	const hasHeightData = measurements.some((m) => m.height !== undefined);
 
 	return (
 		<Card>
@@ -353,7 +349,7 @@ export default function GrowthChart({
 					</div>
 				</div>
 
-				{eventsArray.length > 0 && (
+				{events.length > 0 && (
 					<div className="mt-4 text-xs text-muted-foreground">
 						<p>
 							<fbt desc="eventsNote">

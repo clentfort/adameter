@@ -69,8 +69,8 @@ export default function AddGrowthMeasurement({
 	};
 
 	return (
-        <Dialog onOpenChange={handleOpenChange} open={open}>
-            {!measurement && (
+		<Dialog onOpenChange={handleOpenChange} open={open}>
+			{!measurement && (
 				<DialogTrigger asChild>
 					<Button onClick={() => setOpen(true)} size="sm" variant="outline">
 						<PlusCircle className="h-4 w-4 mr-1" />
@@ -78,15 +78,21 @@ export default function AddGrowthMeasurement({
 					</Button>
 				</DialogTrigger>
 			)}
-            <DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
-						{measurement ? <fbt desc='editMeasurement'>Edit Measurement</fbt> : <fbt desc='newMeasurement'>Add New Measurement</fbt>}
+						{measurement ? (
+							<fbt desc="editMeasurement">Edit Measurement</fbt>
+						) : (
+							<fbt desc="newMeasurement">Add New Measurement</fbt>
+						)}
 					</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
-						<Label htmlFor="date"><fbt desc="date">Date</fbt></Label>
+						<Label htmlFor="date">
+							<fbt desc="date">Date</fbt>
+						</Label>
 						<Input
 							id="date"
 							onChange={(e) => setDate(e.target.value)}
@@ -97,7 +103,9 @@ export default function AddGrowthMeasurement({
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="weight"><fbt desc="weight">Weight (g)</fbt> (g)</Label>
+							<Label htmlFor="weight">
+								<fbt desc="weight">Weight (g)</fbt> (g)
+							</Label>
 							<Input
 								id="weight"
 								onChange={(e) => setWeight(e.target.value)}
@@ -107,7 +115,9 @@ export default function AddGrowthMeasurement({
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="height"><fbt desc="height">Height (cm)</fbt> (cm)</Label>
+							<Label htmlFor="height">
+								<fbt desc="height">Height (cm)</fbt> (cm)
+							</Label>
 							<Input
 								id="height"
 								onChange={(e) => setHeight(e.target.value)}
@@ -122,11 +132,15 @@ export default function AddGrowthMeasurement({
 					{error && <div className="text-sm text-red-500">{error}</div>}
 
 					<div className="space-y-2">
-						<Label htmlFor="notes"><fbt desc="notes">Notes (optional)</fbt> (optional)</Label>
+						<Label htmlFor="notes">
+							<fbt desc="notes">Notes (optional)</fbt> (optional)
+						</Label>
 						<Textarea
 							id="notes"
 							onChange={(e) => setNotes(e.target.value)}
-							placeholder=<fbt desc="notesPlaceholder">Additional information</fbt>
+							placeholder=<fbt desc="notesPlaceholder">
+								Additional information
+							</fbt>
 							rows={3}
 							value={notes}
 						/>
@@ -134,10 +148,10 @@ export default function AddGrowthMeasurement({
 				</div>
 				<DialogFooter>
 					<Button onClick={handleSave} type="submit">
-						<fbt desc="save">Save</fbt>
+						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>
 			</DialogContent>
-        </Dialog>
-    );
+		</Dialog>
+	);
 }

@@ -22,8 +22,10 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import type { DiaperChange } from '@/types/diaper';
+import { formatISO } from 'date-fns';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
+import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
 // Simplified diaper brands
 const DIAPER_BRANDS = [
@@ -65,8 +67,11 @@ export default function AddHistoricDiaper({
 	// Set default values for today's date and current time
 	const setDefaultValues = () => {
 		const now = new Date();
-		const formattedDate = now.toISOString().split('T')[0];
-		const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+		const formattedDate = formatISO(now, { representation: 'date' });
+		const formattedTime = formatISO(now, { representation: 'time' }).slice(
+			0,
+			5,
+		);
 
 		setDate(formattedDate);
 		setTime(formattedTime);
@@ -112,12 +117,8 @@ export default function AddHistoricDiaper({
 		setOpen(false);
 	};
 
-	const isAbnormalTemperature = (temp: number) => {
-		return temp < 36.5 || temp > 37.5;
-	};
-
 	return (
-        <Dialog
+		<Dialog
 			onOpenChange={(newOpen) => {
 				setOpen(newOpen);
 				if (newOpen) {
@@ -126,19 +127,23 @@ export default function AddHistoricDiaper({
 			}}
 			open={open}
 		>
-            <DialogTrigger asChild>
+			<DialogTrigger asChild>
 				<Button size="sm" variant="outline">
 					<PlusCircle className="h-4 w-4 mr-1" />
 					<fbt desc="addEntry">Add Entry</fbt>
 				</Button>
 			</DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle><fbt desc="addHistoricDiaper">Add Historic Diaper Change</fbt></DialogTitle>
+					<DialogTitle>
+						<fbt desc="addHistoricDiaper">Add Historic Diaper Change</fbt>
+					</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
-						<Label><fbt desc="diaperType">Diaper Type</fbt></Label>
+						<Label>
+							<fbt desc="diaperType">Diaper Type</fbt>
+						</Label>
 						<RadioGroup
 							className="flex gap-4"
 							onValueChange={(value) =>
@@ -153,7 +158,8 @@ export default function AddHistoricDiaper({
 									value="urine"
 								/>
 								<Label className="text-yellow-700" htmlFor="urine">
-									<span className="text-lg mr-1">💧</span> <fbt desc="urineOnly">Urine Only</fbt>
+									<span className="text-lg mr-1">💧</span>{' '}
+									<fbt desc="urineOnly">Urine Only</fbt>
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
@@ -163,7 +169,8 @@ export default function AddHistoricDiaper({
 									value="stool"
 								/>
 								<Label className="text-amber-800" htmlFor="stool">
-									<span className="text-lg mr-1">💩</span> <fbt desc="stool">Stool</fbt>
+									<span className="text-lg mr-1">💩</span>{' '}
+									<fbt desc="stool">Stool</fbt>
 								</Label>
 							</div>
 						</RadioGroup>
@@ -171,7 +178,9 @@ export default function AddHistoricDiaper({
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="date"><fbt desc="date">Date</fbt></Label>
+							<Label htmlFor="date">
+								<fbt desc="date">Date</fbt>
+							</Label>
 							<Input
 								id="date"
 								onChange={(e) => setDate(e.target.value)}
@@ -180,7 +189,9 @@ export default function AddHistoricDiaper({
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="time"><fbt desc="time">Time</fbt></Label>
+							<Label htmlFor="time">
+								<fbt desc="time">Time</fbt>
+							</Label>
 							<Input
 								id="time"
 								onChange={(e) => setTime(e.target.value)}
@@ -192,10 +203,16 @@ export default function AddHistoricDiaper({
 
 					{/* Diaper brand first */}
 					<div className="space-y-2">
-						<Label htmlFor="diaper-brand"><fbt desc="diaperBrand">Diaper Brand</fbt></Label>
+						<Label htmlFor="diaper-brand">
+							<fbt desc="diaperBrand">Diaper Brand</fbt>
+						</Label>
 						<Select onValueChange={setDiaperBrand} value={diaperBrand}>
 							<SelectTrigger>
-								<SelectValue placeholder=<fbt desc="selectDiaperBrand">Select Diaper Brand</fbt> />
+								<SelectValue
+									placeholder=<fbt desc="selectDiaperBrand">
+										Select Diaper Brand
+									</fbt>
+								/>
 							</SelectTrigger>
 							<SelectContent>
 								{DIAPER_BRANDS.map((brand) => (
@@ -209,7 +226,9 @@ export default function AddHistoricDiaper({
 
 					{/* Temperature second */}
 					<div className="space-y-2">
-						<Label htmlFor="temperature"><fbt desc="temperature">Temperature (°C)</fbt> (°C)</Label>
+						<Label htmlFor="temperature">
+							<fbt desc="temperature">Temperature (°C)</fbt> (°C)
+						</Label>
 						<Input
 							className={
 								temperature &&
@@ -227,7 +246,9 @@ export default function AddHistoricDiaper({
 						{temperature &&
 							isAbnormalTemperature(Number.parseFloat(temperature)) && (
 								<p className="text-xs text-red-500 mt-1">
-									<fbt desc="temperatureWarning">Warning: Temperature outside normal range (36.5°C - 37.5°C)</fbt>
+									<fbt desc="temperatureWarning">
+										Warning: Temperature outside normal range (36.5°C - 37.5°C)
+									</fbt>
 								</p>
 							)}
 					</div>
@@ -239,15 +260,21 @@ export default function AddHistoricDiaper({
 							id="leakage"
 							onCheckedChange={setHasLeakage}
 						/>
-						<Label htmlFor="leakage"><fbt desc="leakage">Diaper leaked</fbt></Label>
+						<Label htmlFor="leakage">
+							<fbt desc="leakage">Diaper leaked</fbt>
+						</Label>
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="abnormalities"><fbt desc="abnormalities">Abnormalities</fbt></Label>
+						<Label htmlFor="abnormalities">
+							<fbt desc="abnormalities">Abnormalities</fbt>
+						</Label>
 						<Textarea
 							id="abnormalities"
 							onChange={(e) => setAbnormalities(e.target.value)}
-							placeholder=<fbt desc="abnormalitiesExample">e.g. redness, rash, etc.</fbt>
+							placeholder=<fbt desc="abnormalitiesExample">
+								e.g. redness, rash, etc.
+							</fbt>
 							value={abnormalities}
 						/>
 					</div>
@@ -256,9 +283,11 @@ export default function AddHistoricDiaper({
 					<Button onClick={() => setOpen(false)} variant="outline">
 						<fbt desc="cancel">Cancel</fbt>
 					</Button>
-					<Button onClick={handleSubmit}><fbt desc="save">Save</fbt></Button>
+					<Button onClick={handleSubmit}>
+						<fbt common>Save</fbt>
+					</Button>
 				</DialogFooter>
 			</DialogContent>
-        </Dialog>
-    );
+		</Dialog>
+	);
 }

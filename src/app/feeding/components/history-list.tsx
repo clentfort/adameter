@@ -1,15 +1,5 @@
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import type { FeedingSession } from '@/types/feeding';
 import {
@@ -18,9 +8,9 @@ import {
 	intervalToDuration,
 	isSameDay,
 } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import DeleteSessionDialog from './delete-session-dialog';
 import EditSessionDialog from './edit-session-dialog';
 
 interface HistoryListProps {
@@ -47,10 +37,7 @@ export default function HistoryList({
 		null,
 	);
 
-	// Ensure sessions is an array
-	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-
-	if (sessionsArray.length === 0) {
+	if (sessions.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
 				<fbt desc="Note that tells the user that no feedings have been recorded yet">
@@ -60,17 +47,10 @@ export default function HistoryList({
 		);
 	}
 
-	const handleDeleteConfirm = () => {
-		if (sessionToDelete) {
-			onSessionDelete(sessionToDelete);
-			setSessionToDelete(null);
-		}
-	};
-
 	// Group sessions by date
 	const groupedSessions: { [date: string]: FeedingSession[] } = {};
 
-	sessionsArray.forEach((session) => {
+	sessions.forEach((session) => {
 		const date = format(new Date(session.startTime), 'yyyy-MM-dd');
 		if (!groupedSessions[date]) {
 			groupedSessions[date] = [];
@@ -182,36 +162,13 @@ export default function HistoryList({
 					</div>
 				))}
 			</div>
-			<AlertDialog
-				onOpenChange={(open) => !open && setSessionToDelete(null)}
-				open={!!sessionToDelete}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							<fbt desc="Title for a dialog asking the user to confirm deletion of a feeding session">
-								Delete Entry
-							</fbt>
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							<fbt desc="Description for a dialog asking the user to confirm deletion of a feeding session">
-								Do you really want to delete this entry? This action cannot be
-								undone.
-							</fbt>
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>
-							<fbt desc="Label on a button that cancels an action">Cancel</fbt>
-						</AlertDialogCancel>
-						<AlertDialogAction onClick={handleDeleteConfirm}>
-							<fbt desc="Label on a button that confirms the deletion of an item">
-								Delete
-							</fbt>
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			{sessionToDelete && (
+				<DeleteSessionDialog
+					onClose={() => setSessionToDelete(null)}
+					onDelete={onSessionDelete}
+					session={sessionToDelete}
+				/>
+			)}
 			{sessionToEdit && (
 				<EditSessionDialog
 					onClose={() => setSessionToEdit(null)}

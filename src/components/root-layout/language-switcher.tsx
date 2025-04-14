@@ -26,18 +26,13 @@ const locales: Array<LocaleMenuItem> = [
 	},
 	{
 		code: 'en_US',
-		flag: '🇬🇧',
+		flag: ' 🇺🇸',
 		label: fbt('English', 'Label to switch to the English locale'),
 	},
 ];
 
 export default function LanguageSwitcher() {
 	const { locale, setLocale } = useLanguage(); // Get the current language and the setter
-
-	// Function to switch the language
-	const switchLocale = (newLocale: Locale) => {
-		setLocale(newLocale); // Set the new language in the context
-	};
 
 	return (
 		<DropdownMenu>
@@ -59,7 +54,7 @@ export default function LanguageSwitcher() {
 					<DropdownMenuItem
 						className={code === locale ? 'bg-accent font-medium' : ''}
 						key={code}
-						onSelect={() => switchLocale(code)}
+						onSelect={() => setLocale(code)}
 					>
 						<span className="mr-2">{flag}</span> {label}
 					</DropdownMenuItem>

@@ -13,13 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { FeedingSession } from '@/types/feeding';
 import { formatDurationShort } from '@/utils/format-duration-short';
-import {
-	Duration,
-	format,
-	formatDistanceToNowStrict,
-	formatDuration,
-	intervalToDuration,
-} from 'date-fns';
+import { Duration, format, intervalToDuration } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 
 interface BreastfeedingTrackerProps {
@@ -286,7 +280,7 @@ export default function BreastfeedingTracker({
 							onClick={handleManualEntry}
 							type="submit"
 						>
-							<fbt desc="Label on a save button">Save</fbt>
+							<fbt common>Save</fbt>
 						</Button>
 					</DialogFooter>
 				</DialogContent>
