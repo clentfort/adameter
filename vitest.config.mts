@@ -5,6 +5,11 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
+    coverage: {
+      provider: 'v8', 
+      reporter: ['text', 'json-summary', 'json'], // 'json-summary' is crucial for some reporters
+      reportsDirectory: './coverage', // Optional: specify the output directory
+    },
     environment: 'jsdom',
     setupFiles: ['./src/vitest.setup.ts'],
   },
