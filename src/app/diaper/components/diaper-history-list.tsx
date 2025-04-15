@@ -78,7 +78,10 @@ export default function DiaperHistoryList({
 										)}
 										{change.diaperBrand && (
 											<p>
-												<fbt desc="diaperBrand">Diaper Brand</fbt>:{' '}
+												<fbt desc="Label on a field that informs the user about the diaper brand used">
+													Diaper Brand
+												</fbt>
+												:{' '}
 												<span className="font-medium">
 													{DIAPER_BRAND_LABELS[change.diaperBrand]}
 												</span>

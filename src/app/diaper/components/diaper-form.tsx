@@ -149,7 +149,9 @@ export default function DiaperForm({
 						<>
 							<div className="space-y-2">
 								<Label>
-									<fbt desc="diaperType">Diaper Type</fbt>
+									<fbt desc="Label on a radio button to select the type of diaper (urine or stool)">
+										Diaper Type
+									</fbt>
 								</Label>
 								<RadioGroup
 									className="flex gap-4"
@@ -166,7 +168,9 @@ export default function DiaperForm({
 										/>
 										<Label className="text-yellow-700" htmlFor="edit-urine">
 											<span className="text-lg mr-1">💧</span>{' '}
-											<fbt desc="urineOnly">Urine Only</fbt>
+											<fbt desc="Label on a radio button that sets the input to urine only">
+												Urine Only
+											</fbt>
 										</Label>
 									</div>
 									<div className="flex items-center space-x-2">
@@ -177,7 +181,9 @@ export default function DiaperForm({
 										/>
 										<Label className="text-amber-800" htmlFor="edit-stool">
 											<span className="text-lg mr-1">💩</span>{' '}
-											<fbt desc="stool">Stool</fbt>
+											<fbt desc="Label on a radio button that sets the input to urine and stool">
+												Stool
+											</fbt>
 										</Label>
 									</div>
 								</RadioGroup>
@@ -213,14 +219,18 @@ export default function DiaperForm({
 					{/* Diaper brand first */}
 					<div className="space-y-2">
 						<Label htmlFor="edit-diaper-brand">
-							<fbt desc="diaperBrand">Diaper Brand</fbt>
+							<fbt desc="Label on a select that allows the user to pick a diaper brand">
+								Diaper Brand
+							</fbt>
 						</Label>
 						<Select onValueChange={setDiaperBrand} value={diaperBrand}>
 							<SelectTrigger>
 								<SelectValue
-									placeholder=<fbt desc="selectDiaperBrand">
-										Select Diaper Brand
-									</fbt>
+									placeholder={
+										<fbt desc="Placeholder text on a select that allows the user to pick a diaper brand">
+											Select Diaper Brand
+										</fbt>
+									}
 								/>
 							</SelectTrigger>
 							<SelectContent>
@@ -236,7 +246,9 @@ export default function DiaperForm({
 					{/* Temperature second */}
 					<div className="space-y-2">
 						<Label htmlFor="edit-temperature">
-							<fbt desc="temperature">Temperature (°C)</fbt>
+							<fbt desc="Label on an input to specificy the body temperature in degree Celsius">
+								Temperature (°C)
+							</fbt>
 						</Label>
 						<Input
 							className={
@@ -247,7 +259,10 @@ export default function DiaperForm({
 							}
 							id="edit-temperature"
 							onChange={(e) => setTemperature(e.target.value)}
-							placeholder={fbt('e.g. 37.2', 'temperatureExample')}
+							placeholder={fbt(
+								'e.g. 37.2',
+								'Placeholder text for an input to set the body temperature in degree Celsius',
+							)}
 							step="0.1"
 							type="number"
 							value={temperature}
@@ -255,7 +270,7 @@ export default function DiaperForm({
 						{temperature &&
 							isAbnormalTemperature(Number.parseFloat(temperature)) && (
 								<p className="text-xs text-red-500 mt-1">
-									<fbt desc="temperatureWarning">
+									<fbt desc="A warning that the temperature is outside the normal range">
 										Warning: Temperature outside normal range (36.5°C - 37.5°C)
 									</fbt>
 								</p>
@@ -270,20 +285,24 @@ export default function DiaperForm({
 							onCheckedChange={setHasLeakage}
 						/>
 						<Label htmlFor="edit-leakage">
-							<fbt desc="leakage">Diaper leaked</fbt>
+							<fbt desc="Label for a switch button that indicates that a diaper has leaked">
+								Diaper leaked
+							</fbt>
 						</Label>
 					</div>
 
 					<div className="space-y-2">
 						<Label htmlFor="edit-abnormalities">
-							<fbt desc="abnormalities">Abnormalities</fbt>
+							<fbt desc="Label for a textbox to note any abnormalities">
+								Abnormalities
+							</fbt>
 						</Label>
 						<Textarea
 							id="edit-abnormalities"
 							onChange={(e) => setAbnormalities(e.target.value)}
 							placeholder={fbt(
 								'e.g. redness, rash, etc.',
-								'abnormalitiesExample',
+								'Placeholder text for a textbox to note any abnormalities',
 							)}
 							value={abnormalities}
 						/>
