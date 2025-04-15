@@ -1,5 +1,3 @@
-'use client';
-
 import type { FeedingSession } from '@/types/feeding';
 import { Duration, format, intervalToDuration } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';

@@ -1,5 +1,3 @@
-'use client';
-
 import type { Event } from '@/types/event';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';

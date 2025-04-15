@@ -10,7 +10,7 @@ import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
 import { Button } from '@/components/ui/button';
-import EditSessionDialog from './edit-session-dialog';
+import FeedingForm from './feeding-form';
 
 interface HistoryListProps {
 	onSessionDelete: (sessionId: string) => void;
@@ -139,10 +139,15 @@ export default function HistoryList({
 				/>
 			)}
 			{sessionToEdit && (
-				<EditSessionDialog
+				<FeedingForm
+					feeding={sessionToEdit}
 					onClose={() => setSessionToEdit(null)}
-					onUpdate={onSessionUpdate}
-					session={sessionToEdit}
+					onSave={onSessionUpdate}
+					title={
+						<fbt desc="Title of a dialog that allows the user to edit a feeding session">
+							Edit Feeding Session
+						</fbt>
+					}
 				/>
 			)}
 		</>

@@ -1,8 +1,5 @@
-'use client';
-
 import type { FeedingSession } from '@/types/feeding';
-import { format } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -14,33 +11,50 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
+import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 
-interface EditSessionDialogProps {
+interface FeedingFormProps {
+	feeding?: FeedingSession;
 	onClose: () => void;
-	onUpdate: (session: FeedingSession) => void;
-	session: Readonly<FeedingSession>;
+	onSave: (session: FeedingSession) => void;
+	title: ReactNode;
 }
 
-export default function EditSessionDialog({
+export default function FeedingForm({
+	feeding,
 	onClose,
-	onUpdate,
-	session,
-}: EditSessionDialogProps) {
-	const [breast, setBreast] = useState<'left' | 'right'>(session.breast);
-	const [date, setDate] = useState('');
-	const [time, setTime] = useState('');
-	const [duration, setDuration] = useState('');
+	onSave,
+	title,
+}: FeedingFormProps) {
+	const [breast, setBreast] = useState<'left' | 'right'>(
+		feeding?.breast ?? 'left',
+	);
+	const [date, setDate] = useState(
+		dateToDateInputValue(feeding?.startTime ?? new Date()),
+	);
+	const [time, setTime] = useState(
+		dateToTimeInputValue(feeding?.startTime ?? new Date()),
+	);
+	const [duration, setDuration] = useState(
+		feeding?.durationInSeconds
+			? Math.round(feeding.durationInSeconds / 60).toString()
+			: '',
+	);
 
 	useEffect(() => {
-		const startDate = new Date(session.startTime);
-		const endDate = new Date(session.endTime);
+		if (!feeding) {
+			return;
+		}
 
-		setDate(format(startDate, 'yyyy-MM-dd'));
-		setTime(format(startDate, 'HH:mm'));
+		const startDate = new Date(feeding.startTime);
 
-		const durationInMinutes = Math.round(session.durationInSeconds / 60);
+		setDate(dateToDateInputValue(startDate));
+		setTime(dateToTimeInputValue(startDate));
+
+		const durationInMinutes = Math.round(feeding.durationInSeconds / 60);
 		setDuration(durationInMinutes.toString());
-	}, [session]);
+	}, [feeding]);
 
 	const handleSubmit = () => {
 		if (!date || !time || !duration || Number.isNaN(Number(duration))) {
@@ -57,14 +71,15 @@ export default function EditSessionDialog({
 		);
 
 		const updatedSession: FeedingSession = {
-			...session,
+			...feeding,
 			breast,
 			durationInSeconds: durationInMinutes * 60,
 			endTime: endTime.toISOString(),
+			id: feeding?.id ?? Date.now().toString(),
 			startTime: startTime.toISOString(),
 		};
 
-		onUpdate(updatedSession);
+		onSave(updatedSession);
 		onClose();
 	};
 
@@ -72,11 +87,7 @@ export default function EditSessionDialog({
 		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>
-						<fbt desc="Title of a dialog that allows the user to edit a feeding session">
-							Edit Feeding Session
-						</fbt>
-					</DialogTitle>
+					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">

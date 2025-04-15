@@ -1,5 +1,4 @@
 import type { DiaperChange } from '@/types/diaper';
-import { format } from 'date-fns';
 import { fbt } from 'fbtee';
 import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,8 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
+import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 import { DIAPER_BRANDS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
@@ -56,13 +57,13 @@ export default function DiaperForm({
 }: DiaperFormProps) {
 	const [date, setDate] = useState(
 		'change' in props
-			? dateToDateString(new Date(props.change.timestamp))
-			: dateToDateString(new Date()),
+			? dateToDateInputValue(props.change.timestamp)
+			: dateToDateInputValue(new Date()),
 	);
 	const [time, setTime] = useState(
 		'change' in props
-			? dateToTimeString(new Date(props.change.timestamp))
-			: dateToTimeString(new Date()),
+			? dateToTimeInputValue(props.change.timestamp)
+			: dateToTimeInputValue(new Date()),
 	);
 	const [diaperType, setDiaperType] = useState<'urine' | 'stool'>(
 		'change' in props
@@ -94,8 +95,8 @@ export default function DiaperForm({
 		}
 
 		const changeDate = new Date(change.timestamp);
-		setDate(format(changeDate, 'yyyy-MM-dd'));
-		setTime(format(changeDate, 'HH:mm'));
+		setDate(dateToDateInputValue(changeDate));
+		setTime(dateToTimeInputValue(changeDate));
 		setDiaperType(change.containsStool ? 'stool' : 'urine');
 
 		// Check if the brand is in our predefined list
@@ -319,12 +320,4 @@ export default function DiaperForm({
 			</DialogContent>
 		</Dialog>
 	);
-}
-
-function dateToDateString(date: Date): string {
-	return date.toISOString().split('T')[0];
-}
-
-function dateToTimeString(date: Date): string {
-	return date.toISOString().split('T')[1].slice(0, 5);
 }

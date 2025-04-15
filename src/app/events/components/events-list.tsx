@@ -1,5 +1,3 @@
-'use client';
-
 import type { Event } from '@/types/event';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
