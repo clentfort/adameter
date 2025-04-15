@@ -80,16 +80,14 @@ export default function AddHistoricSession({
 			<DialogTrigger asChild>
 				<Button size="sm" variant="outline">
 					<PlusCircle className="h-4 w-4 mr-1" />
-					<fbt desc="Button to add manually add a feeding session">
-						Add Entry
-					</fbt>
+					<fbt common>Add Entry</fbt>
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
-						<fbt desc="Title of the dialog to manually add a feeding session">
-							Add Historic Feeding
+						<fbt desc="Title of the dialog to manually add a previous feeding session">
+							Add Feeding
 						</fbt>
 					</DialogTitle>
 				</DialogHeader>

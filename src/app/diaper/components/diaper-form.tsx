@@ -1,9 +1,7 @@
-'use client';
-
 import type { DiaperChange } from '@/types/diaper';
 import { format } from 'date-fns';
 import { fbt } from 'fbtee';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -24,41 +22,77 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { DIAPER_BRANDS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
-// Simplified diaper brands
-const DIAPER_BRANDS = [
-	{ label: 'Pampers', value: 'pampers' },
-	{ label: 'Huggies', value: 'huggies' },
-	{ label: 'Lillydoo', value: 'lillydoo' },
-	{ label: 'dm', value: 'dm' },
-	{ label: 'Rossmann', value: 'rossmann' },
-	{ label: 'Stoffwindel', value: 'stoffwindel' },
-	{ label: 'Lidl', value: 'lidl' },
-	{ label: 'Aldi', value: 'aldi' },
-	{ label: 'Andere', value: 'andere' },
-];
-
-interface EditDiaperDialogProps {
-	change: DiaperChange;
+interface AddDiaperProps {
 	onClose: () => void;
-	onUpdate: (change: DiaperChange) => void;
+	onSave: (change: DiaperChange) => void;
+	presetDiaperBrand: string | undefined;
+	presetType?: 'urine' | 'stool' | undefined;
+	/**
+	 * Whether the dialog is reduced or not
+	 */
+	reducedOptions?: boolean;
+	title: ReactNode;
 }
 
-export default function EditDiaperDialog({
-	change,
+interface EditDiaperProps {
+	change: DiaperChange;
+	onClose: () => void;
+	onSave: (change: DiaperChange) => void;
+	title: ReactNode;
+}
+
+type DiaperFormProps = AddDiaperProps | EditDiaperProps;
+
+export default function DiaperForm(props: AddDiaperProps): ReactNode;
+export default function DiaperForm(props: EditDiaperProps): ReactNode;
+export default function DiaperForm({
 	onClose,
-	onUpdate,
-}: EditDiaperDialogProps) {
-	const [date, setDate] = useState('');
-	const [time, setTime] = useState('');
-	const [diaperType, setDiaperType] = useState<'urine' | 'stool'>('urine');
-	const [diaperBrand, setDiaperBrand] = useState('');
-	const [temperature, setTemperature] = useState('');
-	const [hasLeakage, setHasLeakage] = useState(false);
-	const [abnormalities, setAbnormalities] = useState('');
+	onSave,
+	title,
+	...props
+}: DiaperFormProps) {
+	const [date, setDate] = useState(
+		'change' in props
+			? dateToDateString(new Date(props.change.timestamp))
+			: dateToDateString(new Date()),
+	);
+	const [time, setTime] = useState(
+		'change' in props
+			? dateToTimeString(new Date(props.change.timestamp))
+			: dateToTimeString(new Date()),
+	);
+	const [diaperType, setDiaperType] = useState<'urine' | 'stool'>(
+		'change' in props
+			? props.change.containsStool
+				? 'stool'
+				: 'urine'
+			: (props.presetType ?? 'urine'),
+	);
+	const [diaperBrand, setDiaperBrand] = useState(
+		'change' in props
+			? props.change.diaperBrand
+			: (props.presetDiaperBrand ?? 'andere'),
+	);
+	const [temperature, setTemperature] = useState(
+		'change' in props ? props.change.temperature?.toString() || '' : '',
+	);
+	const [hasLeakage, setHasLeakage] = useState(
+		'change' in props ? (props.change.leakage ?? false) : false,
+	);
+	const [abnormalities, setAbnormalities] = useState(
+		'change' in props ? (props.change.abnormalities ?? '') : '',
+	);
+
+	const change = 'change' in props ? props.change : undefined;
 
 	useEffect(() => {
+		if (!change) {
+			return;
+		}
+
 		const changeDate = new Date(change.timestamp);
 		setDate(format(changeDate, 'yyyy-MM-dd'));
 		setTime(format(changeDate, 'HH:mm'));
@@ -88,19 +122,19 @@ export default function EditDiaperDialog({
 
 		const updatedChange: DiaperChange = {
 			...change,
-
 			abnormalities: abnormalities || undefined,
+			containsStool: diaperType === 'stool',
 
 			// Always true, as stool usually comes with urine
-			containsStool: diaperType === 'stool',
 			containsUrine: true,
 			diaperBrand: diaperBrand || undefined,
+			id: change?.id || Date.now().toString(),
 			leakage: hasLeakage || undefined,
 			temperature: temperature ? Number.parseFloat(temperature) : undefined,
 			timestamp: timestamp.toISOString(),
 		};
 
-		onUpdate(updatedChange);
+		onSave(updatedChange);
 		onClose();
 	};
 
@@ -108,71 +142,73 @@ export default function EditDiaperDialog({
 		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>
-						<fbt desc="editDiaperEntry">Edit Diaper Entry</fbt>
-					</DialogTitle>
+					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
-					<div className="space-y-2">
-						<Label>
-							<fbt desc="diaperType">Diaper Type</fbt>
-						</Label>
-						<RadioGroup
-							className="flex gap-4"
-							onValueChange={(value) =>
-								setDiaperType(value as 'urine' | 'stool')
-							}
-							value={diaperType}
-						>
-							<div className="flex items-center space-x-2">
-								<RadioGroupItem
-									className="text-yellow-500 border-yellow-500"
-									id="edit-urine"
-									value="urine"
-								/>
-								<Label className="text-yellow-700" htmlFor="edit-urine">
-									<span className="text-lg mr-1">💧</span>{' '}
-									<fbt desc="urineOnly">Urine Only</fbt>
+					{!('reducedOptions' in props && props.reducedOptions === true) && (
+						<>
+							<div className="space-y-2">
+								<Label>
+									<fbt desc="diaperType">Diaper Type</fbt>
 								</Label>
+								<RadioGroup
+									className="flex gap-4"
+									onValueChange={(value) =>
+										setDiaperType(value as 'urine' | 'stool')
+									}
+									value={diaperType}
+								>
+									<div className="flex items-center space-x-2">
+										<RadioGroupItem
+											className="text-yellow-500 border-yellow-500"
+											id="edit-urine"
+											value="urine"
+										/>
+										<Label className="text-yellow-700" htmlFor="edit-urine">
+											<span className="text-lg mr-1">💧</span>{' '}
+											<fbt desc="urineOnly">Urine Only</fbt>
+										</Label>
+									</div>
+									<div className="flex items-center space-x-2">
+										<RadioGroupItem
+											className="text-amber-700 border-amber-700"
+											id="edit-stool"
+											value="stool"
+										/>
+										<Label className="text-amber-800" htmlFor="edit-stool">
+											<span className="text-lg mr-1">💩</span>{' '}
+											<fbt desc="stool">Stool</fbt>
+										</Label>
+									</div>
+								</RadioGroup>
 							</div>
-							<div className="flex items-center space-x-2">
-								<RadioGroupItem
-									className="text-amber-700 border-amber-700"
-									id="edit-stool"
-									value="stool"
-								/>
-								<Label className="text-amber-800" htmlFor="edit-stool">
-									<span className="text-lg mr-1">💩</span>{' '}
-									<fbt desc="stool">Stool</fbt>
-								</Label>
-							</div>
-						</RadioGroup>
-					</div>
 
-					<div className="grid grid-cols-2 gap-4">
-						<div className="space-y-2">
-							<Label htmlFor="edit-date">
-								<fbt desc="date">Date</fbt>
-							</Label>
-							<Input
-								id="edit-date"
-								onChange={(e) => setDate(e.target.value)}
-								type="date"
-								value={date}
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="edit-time">
-								<fbt desc="time">Time</fbt>
-							</Label>
-							<Input
-								id="edit-time"
-								onChange={(e) => setTime(e.target.value)}
-								type="time"
-								value={time}
-							/>
-						</div>
-					</div>
+							<div className="grid grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<Label htmlFor="edit-date">
+										<fbt common>Date</fbt>
+									</Label>
+									<Input
+										id="edit-date"
+										onChange={(e) => setDate(e.target.value)}
+										type="date"
+										value={date}
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="edit-time">
+										<fbt common>Time</fbt>
+									</Label>
+									<Input
+										id="edit-time"
+										onChange={(e) => setTime(e.target.value)}
+										type="time"
+										value={time}
+									/>
+								</div>
+							</div>
+						</>
+					)}
 
 					{/* Diaper brand first */}
 					<div className="space-y-2">
@@ -264,4 +300,12 @@ export default function EditDiaperDialog({
 			</DialogContent>
 		</Dialog>
 	);
+}
+
+function dateToDateString(date: Date): string {
+	return date.toISOString().split('T')[0];
+}
+
+function dateToTimeString(date: Date): string {
+	return date.toISOString().split('T')[1].slice(0, 5);
 }

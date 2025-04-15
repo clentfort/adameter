@@ -91,7 +91,7 @@ export default function AddGrowthMeasurement({
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
 						<Label htmlFor="date">
-							<fbt desc="date">Date</fbt>
+							<fbt common>Date</fbt>
 						</Label>
 						<Input
 							id="date"

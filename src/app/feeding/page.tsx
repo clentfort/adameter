@@ -1,12 +1,12 @@
 'use client';
 
+import type { FeedingSession } from '@/types/feeding';
 import { useAppState } from '@/hooks/use-app-state';
-import { FeedingSession } from '@/types/feeding';
 import AddHistoricSession from './components/add-historic-session';
 import BreastfeedingTracker from './components/breastfeeding-tracker';
 import HistoryList from './components/history-list';
 
-function getNextBreat(sessions: readonly FeedingSession[]) {
+function getNextBreat(sessions: ReadonlyArray<FeedingSession>) {
 	if (sessions.length === 0) {
 		return 'left'; // Default to left if no feedings exist
 	}
@@ -29,7 +29,9 @@ export default function Feedings() {
 			<div className="w-full mt-8">
 				<div className="flex justify-between items-center mb-4">
 					<h2 className="text-xl font-semibold">
-						<fbt desc="History of feeding sessions">History</fbt>
+						<fbt desc="Descedingly ordered history of events (i.e. diaper changes or feeding sessions)">
+							History
+						</fbt>
 					</h2>
 					<AddHistoricSession onSessionAdd={saveSession} />
 				</div>

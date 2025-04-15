@@ -1,6 +1,14 @@
 {
+	"Add Entry": "Label on a button to add a new entry",
+	"Breast": "Female Breast",
 	"Cancel": "Label on a cancel button",
+	"Date": "Label for a date field",
 	"Delete": "Label on a delete button",
 	"Edit": "Label on an edit button",
-	"Save": "Label on a save button"
+	"Left": "Left direction",
+	"Right": "Right direction",
+	"Save": "Label on a save button",
+	"Stool": "Stool",
+	"Time": "Label for a time field",
+	"Urine": "Urine"
 }

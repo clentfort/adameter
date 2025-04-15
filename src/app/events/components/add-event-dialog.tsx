@@ -171,7 +171,7 @@ export default function AddEventDialog({
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
 							<Label htmlFor="start-date">
-								<fbt desc="date">Date</fbt>
+								<fbt common>Date</fbt>
 							</Label>
 							<Input
 								id="start-date"
@@ -182,7 +182,7 @@ export default function AddEventDialog({
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="start-time">
-								<fbt desc="time">Time</fbt>
+								<fbt common>Time</fbt>
 							</Label>
 							<Input
 								id="start-time"

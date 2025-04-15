@@ -1,22 +1,22 @@
+import type { DiaperChange } from '@/types/diaper';
+import type { Event } from '@/types/event';
+import type { FeedingSession } from '@/types/feeding';
+import type { GrowthMeasurement } from '@/types/growth';
 import { useEffect, useState } from 'react';
 import { diaperRepository } from '@/data/diaper-repository';
 import { eventsRepository } from '@/data/events-repository';
 import { feedingRepository } from '@/data/feeding-repository';
 import { measurementsRepository } from '@/data/measurements-repository';
-import { DiaperChange } from '@/types/diaper';
-import { Event } from '@/types/event';
-import { FeedingSession } from '@/types/feeding';
-import { GrowthMeasurement } from '@/types/growth';
 
 export function useAppState() {
-	const [sessions, setSessions] = useState<readonly FeedingSession[]>([]);
-	const [events, setEvents] = useState<readonly Event[]>([]);
+	const [sessions, setSessions] = useState<ReadonlyArray<FeedingSession>>([]);
+	const [events, setEvents] = useState<ReadonlyArray<Event>>([]);
 	const [measurements, setMeasurements] = useState<
-		readonly GrowthMeasurement[]
+		ReadonlyArray<GrowthMeasurement>
 	>([]);
-	const [diaperChanges, setDiaperChanges] = useState<readonly DiaperChange[]>(
-		[],
-	);
+	const [diaperChanges, setDiaperChanges] = useState<
+		ReadonlyArray<DiaperChange>
+	>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
