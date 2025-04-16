@@ -1,14 +1,14 @@
 import type { Event } from '@/types/event';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
-import { ArrowRight, Calendar, Clock, Pencil, Trash2 } from 'lucide-react';
+import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import { Button } from '@/components/ui/button';
-import AddEventDialog from './add-event-dialog';
+import DeleteIconButton from '@/components/icon-buttons/delete';
+import EditIconButton from '@/components/icon-buttons/edit';
+import AddEventDialog from './event-form';
 
 interface EventsListProps {
-	events: Event[];
+	events: ReadonlyArray<Event>;
 	onEventDelete: (eventId: string) => void;
 	onEventUpdate: (event: Event) => void;
 }
@@ -31,17 +31,12 @@ export default function EventsList({
 	if (eventsArray.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
-				<fbt desc="noEventsRecorded">No events recorded yet.</fbt>
+				<fbt desc="Info message that no event data has been recorded yet">
+					No events recorded yet.
+				</fbt>
 			</p>
 		);
 	}
-
-	const handleDeleteConfirm = () => {
-		if (eventToDelete) {
-			onEventDelete(eventToDelete);
-			setEventToDelete(null);
-		}
-	};
 
 	// Sort events by start date (newest first)
 	const sortedEvents = [...eventsArray].sort(
@@ -76,16 +71,18 @@ export default function EventsList({
 									<div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
 										<Calendar className="h-4 w-4" />
 										<span>
-											{format(startDate, 'dd.MM.yyyy', { locale: de })}
+											{format(startDate, 'dd.MM.yyyy')}
 											{event.type === 'period' && endDate && (
 												<>
 													<ArrowRight className="h-3 w-3 inline mx-1" />
-													{format(endDate, 'dd.MM.yyyy', { locale: de })}
+													{format(endDate, 'dd.MM.yyyy')}
 												</>
 											)}
 											{isOngoing && (
 												<span className="ml-1 text-xs">
-													<fbt desc="ongoing">ongoing</fbt>
+													<fbt desc="Label on an event that is still ongoing">
+														ongoing
+													</fbt>
 												</span>
 											)}
 										</span>
@@ -93,39 +90,21 @@ export default function EventsList({
 									<div className="flex items-center gap-1 text-sm text-muted-foreground">
 										<Clock className="h-4 w-4" />
 										<span>
-											{format(startDate, 'HH:mm', { locale: de })}
+											{format(startDate, 'HH:mm')}
 											{event.type === 'period' && endDate && (
 												<>
 													<ArrowRight className="h-3 w-3 inline mx-1" />
-													{format(endDate, 'HH:mm', { locale: de })}
+													{format(endDate, 'HH:mm')}
 												</>
 											)}
 										</span>
 									</div>
 								</div>
 								<div className="flex gap-1">
-									<Button
-										className="h-7 w-7"
-										onClick={() => setEventToEdit(event)}
-										size="icon"
-										variant="ghost"
-									>
-										<Pencil className="h-4 w-4" />
-										<span className="sr-only">
-											<fbt common>Edit</fbt>
-										</span>
-									</Button>
-									<Button
-										className="h-7 w-7 text-destructive"
+									<EditIconButton onClick={() => setEventToEdit(event)} />
+									<DeleteIconButton
 										onClick={() => setEventToDelete(event.id)}
-										size="icon"
-										variant="ghost"
-									>
-										<Trash2 className="h-4 w-4" />
-										<span className="sr-only">
-											<fbt desc="delete">Delete</fbt>
-										</span>
-									</Button>
+									/>
 								</div>
 							</div>
 						</div>
@@ -144,6 +123,9 @@ export default function EventsList({
 					event={eventToEdit}
 					onClose={() => setEventToEdit(null)}
 					onSave={onEventUpdate}
+					title={
+						<fbt desc="Title of the dialog to edit a measurement">Edit Measurement</fbt>
+					}
 				/>
 			)}
 		</>

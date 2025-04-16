@@ -1,16 +1,13 @@
-'use client';
-
 import type { GrowthMeasurement } from '@/types/growth';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
-import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import { Button } from '@/components/ui/button';
-import AddGrowthMeasurement from './add-growth-measurement';
+import DeleteIconButton from '@/components/icon-buttons/delete';
+import EditIconButton from '@/components/icon-buttons/edit';
+import EditGrowthForm from './growth-form';
 
 interface GrowthMeasurementsListProps {
-	measurements: GrowthMeasurement[];
+	measurements: ReadonlyArray<GrowthMeasurement>;
 	onMeasurementDelete: (measurementId: string) => void;
 	onMeasurementUpdate: (measurement: GrowthMeasurement) => void;
 }
@@ -63,7 +60,7 @@ export default function GrowthMeasurementsList({
 							<div className="flex justify-between items-start">
 								<div>
 									<p className="font-medium text-lg">
-										{format(measurementDate, 'dd. MMMM yyyy', { locale: de })}
+										{format(measurementDate, 'dd. MMMM yyyy')}
 									</p>
 									<div className="mt-2 space-y-1">
 										{measurement.weight && (
@@ -77,7 +74,7 @@ export default function GrowthMeasurementsList({
 										{measurement.height && (
 											<p className="text-sm">
 												<span className="font-medium">
-													{<fbt desc="Height if the baby">Height</fbt>}
+													{<fbt desc="Height of the baby">Height</fbt>}
 												</span>{' '}
 												{measurement.height} cm
 											</p>
@@ -90,28 +87,12 @@ export default function GrowthMeasurementsList({
 									</div>
 								</div>
 								<div className="flex gap-1">
-									<Button
-										className="h-7 w-7"
+									<EditIconButton
 										onClick={() => setMeasurementToEdit(measurement)}
-										size="icon"
-										variant="ghost"
-									>
-										<Pencil className="h-4 w-4" />
-										<span className="sr-only">
-											<fbt common>Edit</fbt>
-										</span>
-									</Button>
-									<Button
-										className="h-7 w-7 text-destructive"
+									/>
+									<DeleteIconButton
 										onClick={() => setMeasurementToDelete(measurement.id)}
-										size="icon"
-										variant="ghost"
-									>
-										<Trash2 className="h-4 w-4" />
-										<span className="sr-only">
-											<fbt common>Delete</fbt>
-										</span>
-									</Button>
+									/>
 								</div>
 							</div>
 						</div>
@@ -126,7 +107,7 @@ export default function GrowthMeasurementsList({
 				/>
 			)}
 			{measurementToEdit && (
-				<AddGrowthMeasurement
+				<EditGrowthForm
 					measurement={measurementToEdit}
 					onClose={() => setMeasurementToEdit(null)}
 					onSave={onMeasurementUpdate}

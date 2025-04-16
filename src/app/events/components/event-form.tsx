@@ -1,6 +1,6 @@
 import type { Event } from '@/types/event';
-import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
+import { fbt } from 'fbtee';
+import { ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -8,57 +8,84 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
+import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 
-interface AddEventDialogProps {
-	event?: Event;
-	onClose?: () => void;
-	// Optional for editing existing event
+interface AddEventFormProps {
+	onClose: () => void;
 	onSave: (event: Event) => void;
+	title: ReactNode;
 }
 
-export default function AddEventDialog({
-	event,
+interface EditEventFormProps {
+	event: Event;
+	onClose: () => void;
+	onSave: (event: Event) => void;
+	title: ReactNode;
+}
+
+type EventFromProps = EditEventFormProps | AddEventFormProps;
+
+const COLORS = [
+	'#6366f1',
+	'#ec4899',
+	'#10b981',
+	'#f59e0b',
+	'#ef4444',
+	'#8b5cf6',
+];
+
+export default function EventForm({
 	onClose,
 	onSave,
-}: AddEventDialogProps) {
-	const [open, setOpen] = useState(!!event);
-	const [title, setTitle] = useState(event?.title || '');
-	const [description, setDescription] = useState(event?.description || '');
+	title: dialogTitle,
+	...props
+}: EventFromProps) {
+	const [eventTitle, setEventTitle] = useState(
+		'event' in props ? props.event.title : '',
+	);
+	const [description, setDescription] = useState(
+		'event' in props ? props.event.description : '',
+	);
 	const [startDate, setStartDate] = useState(
-		event?.startDate
-			? new Date(event.startDate).toISOString().split('T')[0]
-			: new Date().toISOString().split('T')[0],
+		dateToDateInputValue('event' in props ? props.event.startDate : new Date()),
 	);
 	const [startTime, setStartTime] = useState(
-		event?.startDate
-			? new Date(event.startDate).toTimeString().slice(0, 5)
-			: new Date().toTimeString().slice(0, 5),
+		dateToTimeInputValue('event' in props ? props.event.startDate : new Date()),
 	);
 	const [eventType, setEventType] = useState<'point' | 'period'>(
-		event?.type || 'point',
+		'event' in props ? props.event.type : 'point',
 	);
-	const [hasEndDate, setHasEndDate] = useState(!!event?.endDate);
+	const [hasEndDate, setHasEndDate] = useState(
+		'event' in props ? !!props.event.endDate : false,
+	);
 	const [endDate, setEndDate] = useState(
-		event?.endDate
-			? new Date(event.endDate).toISOString().split('T')[0]
-			: new Date().toISOString().split('T')[0],
+		dateToDateInputValue(
+			'event' in props && props.event.endDate
+				? props.event.endDate
+				: new Date(),
+		),
 	);
 	const [endTime, setEndTime] = useState(
-		event?.endDate
-			? new Date(event.endDate).toTimeString().slice(0, 5)
-			: new Date().toTimeString().slice(0, 5),
+		dateToTimeInputValue(
+			'event' in props && props.event.endDate
+				? props.event.endDate
+				: new Date(),
+		),
 	);
-	const [color, setColor] = useState(event?.color || '#6366f1'); // Default to indigo
+	const [color, setColor] = useState(
+		'event' in props && props.event.color ? props.event.color : COLORS[0], // Default to indigo
+	);
 
+	const event = 'event' in props ? props.event : undefined;
 	const handleSave = () => {
-		if (!title || !startDate) return;
+		if (!eventTitle || !startDate) return;
 
 		const startDateTime = new Date(`${startDate}T${startTime}`);
 		let endDateTime = hasEndDate
@@ -71,70 +98,55 @@ export default function AddEventDialog({
 		}
 
 		const newEvent: Event = {
+			...event,
 			color,
 			description: description || undefined,
 			endDate: endDateTime?.toISOString(),
 			id: event?.id || Date.now().toString(),
 			startDate: startDateTime.toISOString(),
-			title,
+			title: eventTitle,
 			type: eventType,
 		};
 
 		onSave(newEvent);
-		setOpen(false);
-		if (onClose) onClose();
-	};
-
-	const handleOpenChange = (newOpen: boolean) => {
-		setOpen(newOpen);
-		if (!newOpen && onClose) onClose();
+		onClose();
 	};
 
 	return (
-		<Dialog onOpenChange={handleOpenChange} open={open}>
-			{!event && (
-				<DialogTrigger asChild>
-					<Button onClick={() => setOpen(true)} size="sm" variant="outline">
-						<PlusCircle className="h-4 w-4 mr-1" />
-						<fbt desc="addEvent">Add Event</fbt>
-					</Button>
-				</DialogTrigger>
-			)}
+		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
-					<DialogTitle>
-						{event ? (
-							<fbt desc="editEvent">Edit Event</fbt>
-						) : (
-							<fbt desc="newEvent">Add New Event</fbt>
-						)}
-					</DialogTitle>
+					<DialogTitle>{dialogTitle}</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
 						<Label htmlFor="title">
-							<fbt desc="title">Title</fbt>
+							<fbt desc="Label for an input to set an events title">Title</fbt>
 						</Label>
 						<Input
 							id="title"
-							onChange={(e) => setTitle(e.target.value)}
-							placeholder=<fbt desc="titleExample">
-								e.g. Birth, Vaccination, Illness
-							</fbt>
-							value={title}
+							onChange={(e) => setEventTitle(e.target.value)}
+							placeholder={fbt(
+								'e.g. Birth, Vaccination, Illness',
+								'Placeholder for event title input',
+							)}
+							value={eventTitle}
 						/>
 					</div>
 
 					<div className="space-y-2">
 						<Label htmlFor="description">
-							<fbt desc="description">Description (optional)</fbt>
+							<fbt desc="Label for an optional event description input">
+								Description (optional)
+							</fbt>
 						</Label>
 						<Textarea
 							id="description"
 							onChange={(e) => setDescription(e.target.value)}
-							placeholder=<fbt desc="descriptionPlaceholder">
-								Additional details about the event
-							</fbt>
+							placeholder={fbt(
+								'Additional details about the event',
+								'Placeholder for event description input',
+							)}
 							rows={3}
 							value={description}
 						/>
@@ -142,7 +154,9 @@ export default function AddEventDialog({
 
 					<div className="space-y-2">
 						<Label>
-							<fbt desc="eventType">Event Type</fbt>
+							<fbt desc="Label for a radio input to set the events type (point or period)">
+								Event Type
+							</fbt>
 						</Label>
 						<RadioGroup
 							className="flex gap-4"
@@ -154,13 +168,17 @@ export default function AddEventDialog({
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem id="point" value="point" />
 								<Label htmlFor="point">
-									<fbt desc="pointEvent">Point in time (e.g. Vaccination)</fbt>
+									<fbt desc="Label for a radio input that sets the value to a point in time">
+										Point in time (e.g. Vaccination)
+									</fbt>
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem id="period" value="period" />
 								<Label htmlFor="period">
-									<fbt desc="periodEvent">Period (e.g. Illness)</fbt>
+									<fbt desc="Label for a radio input that sets the value to a timne period">
+										Period (e.g. Illness)
+									</fbt>
 								</Label>
 							</div>
 						</RadioGroup>
@@ -200,7 +218,9 @@ export default function AddEventDialog({
 									onCheckedChange={setHasEndDate}
 								/>
 								<Label htmlFor="has-end-date">
-									<fbt desc="setEndDate">Set End Date</fbt>
+									<fbt desc="Label for a switch that enables or disable the fields to set an end date for an event">
+										Set End Date
+									</fbt>
 								</Label>
 							</div>
 
@@ -208,7 +228,9 @@ export default function AddEventDialog({
 								<div className="grid grid-cols-2 gap-4">
 									<div className="space-y-2">
 										<Label htmlFor="end-date">
-											<fbt desc="endDate">End Date</fbt>
+											<fbt desc="Label for an input to set the end date of an event">
+												End Date
+											</fbt>
 										</Label>
 										<Input
 											id="end-date"
@@ -219,7 +241,9 @@ export default function AddEventDialog({
 									</div>
 									<div className="space-y-2">
 										<Label htmlFor="end-time">
-											<fbt desc="endTime">End Time</fbt>
+											<fbt desc="Label for an input to set the end time of an event">
+												End Time
+											</fbt>
 										</Label>
 										<Input
 											id="end-time"
@@ -238,14 +262,7 @@ export default function AddEventDialog({
 							<fbt desc="color">Color</fbt>
 						</Label>
 						<div className="flex gap-2">
-							{[
-								'#6366f1',
-								'#ec4899',
-								'#10b981',
-								'#f59e0b',
-								'#ef4444',
-								'#8b5cf6',
-							].map((colorOption) => (
+							{COLORS.map((colorOption) => (
 								<button
 									aria-label={`Farbe ${colorOption}`}
 									className={`w-8 h-8 rounded-full ${color === colorOption ? 'ring-2 ring-offset-2 ring-black' : ''}`}

@@ -1,8 +1,6 @@
-'use client';
-
 import type { GrowthMeasurement } from '@/types/growth';
-import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
+import { fbt } from 'fbtee';
+import { ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -10,45 +8,69 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
-interface AddGrowthMeasurementProps {
-	measurement?: GrowthMeasurement;
-	onClose?: () => void;
+interface EditGrowthFormProps {
+	measurement: GrowthMeasurement;
+	onClose: () => void;
 	// Optional for editing existing measurement
 	onSave: (measurement: GrowthMeasurement) => void;
+	title: ReactNode;
 }
 
-export default function AddGrowthMeasurement({
-	measurement,
+interface AddGrowthFormProps {
+	onClose: () => void;
+	// Optional for editing existing measurement
+	onSave: (measurement: GrowthMeasurement) => void;
+	title: ReactNode;
+}
+
+type MeasurementFormProps = EditGrowthFormProps | AddGrowthFormProps;
+
+export default function MeasurementForm({
 	onClose,
 	onSave,
-}: AddGrowthMeasurementProps) {
-	const [open, setOpen] = useState(!!measurement);
+	title,
+	...props
+}: MeasurementFormProps) {
 	const [date, setDate] = useState(
-		measurement?.date
-			? new Date(measurement.date).toISOString().split('T')[0]
-			: new Date().toISOString().split('T')[0],
+		dateToDateInputValue(
+			'measurement' in props ? props.measurement.date : new Date(),
+		),
 	);
-	const [weight, setWeight] = useState(measurement?.weight?.toString() || '');
-	const [height, setHeight] = useState(measurement?.height?.toString() || '');
-	const [notes, setNotes] = useState(measurement?.notes || '');
+	const [weight, setWeight] = useState(
+		'measurement' in props ? props.measurement.weight?.toString() : '',
+	);
+	const [height, setHeight] = useState(
+		'measurement' in props ? props.measurement.height?.toString() : '',
+	);
+	const [notes, setNotes] = useState(
+		'measurement' in props ? props.measurement.notes : '',
+	);
 	const [error, setError] = useState('');
 
 	const handleSave = () => {
 		// Validate that at least one of weight or height is provided
 		if (!weight && !height) {
-			setError(t('validationError'));
+			setError(
+				fbt(
+					'Please enter at least a weight or height.',
+					'Message shown when no weight or height is provided. At least one is required',
+				),
+			);
 			return;
 		}
 
 		setError('');
 
+		const measurement = 'measurement' in props ? props.measurement : undefined;
+
 		const newMeasurement: GrowthMeasurement = {
+			...measurement,
 			date: new Date(`${date}T12:00:00`).toISOString(),
 			height: height ? Number.parseFloat(height) : undefined,
 			id: measurement?.id || Date.now().toString(),
@@ -59,34 +81,14 @@ export default function AddGrowthMeasurement({
 		};
 
 		onSave(newMeasurement);
-		setOpen(false);
-		if (onClose) onClose();
-	};
-
-	const handleOpenChange = (newOpen: boolean) => {
-		setOpen(newOpen);
-		if (!newOpen && onClose) onClose();
+		onClose();
 	};
 
 	return (
-		<Dialog onOpenChange={handleOpenChange} open={open}>
-			{!measurement && (
-				<DialogTrigger asChild>
-					<Button onClick={() => setOpen(true)} size="sm" variant="outline">
-						<PlusCircle className="h-4 w-4 mr-1" />
-						<fbt desc="addMeasurement">Add Measurement</fbt>
-					</Button>
-				</DialogTrigger>
-			)}
+		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>
-						{measurement ? (
-							<fbt desc="editMeasurement">Edit Measurement</fbt>
-						) : (
-							<fbt desc="newMeasurement">Add New Measurement</fbt>
-						)}
-					</DialogTitle>
+					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
@@ -104,24 +106,24 @@ export default function AddGrowthMeasurement({
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
 							<Label htmlFor="weight">
-								<fbt desc="weight">Weight (g)</fbt> (g)
+								<fbt desc="Label for a body weight input">Weight (g)</fbt>
 							</Label>
 							<Input
 								id="weight"
 								onChange={(e) => setWeight(e.target.value)}
-								placeholder=<fbt desc="weightExample">e.g. 3500</fbt>
+								placeholder={fbt('e.g. 3500', 'Placeholder for a weight input')}
 								type="number"
 								value={weight}
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="height">
-								<fbt desc="height">Height (cm)</fbt> (cm)
+								<fbt desc="Label for a body height input">Height (cm)</fbt>
 							</Label>
 							<Input
 								id="height"
 								onChange={(e) => setHeight(e.target.value)}
-								placeholder=<fbt desc="heightExample">e.g. 50</fbt>
+								placeholder={fbt('e.g. 50', 'Placeholder for a height input')}
 								step="0.1"
 								type="number"
 								value={height}
@@ -133,14 +135,18 @@ export default function AddGrowthMeasurement({
 
 					<div className="space-y-2">
 						<Label htmlFor="notes">
-							<fbt desc="notes">Notes (optional)</fbt> (optional)
+							<fbt desc="Label for an optional notes textarea">
+								Notes (optional)
+							</fbt>{' '}
+							(optional)
 						</Label>
 						<Textarea
 							id="notes"
 							onChange={(e) => setNotes(e.target.value)}
-							placeholder=<fbt desc="notesPlaceholder">
-								Additional information
-							</fbt>
+							placeholder={fbt(
+								'Additional information',
+								'Placeholder for a text input for notes',
+							)}
 							rows={3}
 							value={notes}
 						/>

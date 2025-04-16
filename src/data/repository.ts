@@ -1,3 +1,5 @@
+import { compareDesc } from 'date-fns';
+
 interface Item {
 	id: string;
 }
@@ -62,5 +64,16 @@ export class Repository<T extends Item> {
 			}
 		}
 		return [];
+	}
+
+	restoreSortingOrder(): void {
+		const items = this.#getAllMutable();
+		items.sort((a, b) => {
+			const aId = new Date(Number.parseInt(a.id));
+			const bId = new Date(Number.parseInt(b.id));
+
+			return compareDesc(aId, bId);
+		});
+		localStorage.setItem(this.#storageKey, JSON.stringify(items));
 	}
 }

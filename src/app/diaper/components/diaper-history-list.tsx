@@ -1,9 +1,10 @@
 import type { DiaperChange } from '@/types/diaper';
 import { format } from 'date-fns';
-import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
+import DeleteIconButton from '@/components/icon-buttons/delete';
+import EditIconButton from '@/components/icon-buttons/edit';
 import { Button } from '@/components/ui/button';
 import { DIAPER_BRAND_LABELS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
@@ -108,28 +109,10 @@ export default function DiaperHistoryList({
 									</div>
 								</div>
 								<div className="flex gap-1 mt-2">
-									<Button
-										className="h-7 w-7"
-										onClick={() => setChangeToEdit(change)}
-										size="icon"
-										variant="ghost"
-									>
-										<Pencil className="h-4 w-4" />
-										<span className="sr-only">
-											<fbt common>Edit</fbt>
-										</span>
-									</Button>
-									<Button
-										className="h-7 w-7 text-destructive"
+									<EditIconButton onClick={() => setChangeToEdit(change)} />
+									<DeleteIconButton
 										onClick={() => setChangeToDelete(change.id)}
-										size="icon"
-										variant="ghost"
-									>
-										<Trash2 className="h-4 w-4" />
-										<span className="sr-only">
-											<fbt common>Delete</fbt>
-										</span>
-									</Button>
+									/>
 								</div>
 							</div>
 						</div>

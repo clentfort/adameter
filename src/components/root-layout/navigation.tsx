@@ -13,27 +13,27 @@ import '@/i18n';
 const pages = [
 	{
 		icon: '🍼',
-		label: fbt('Feeding', 'Label for the Feeding tab'),
+		label: fbt('Feeding', 'Title of the Feeding tab'),
 		path: '/feeding',
 	},
 	{
 		icon: '👶',
-		label: fbt('Diaper', 'Label for the Diaper tab'),
+		label: fbt('Diaper', 'Title of the Diaper tab'),
 		path: '/diaper',
 	},
 	{
 		icon: '📏',
-		label: fbt('Growth', 'Label for the Growth tab'),
+		label: fbt('Growth', 'Title of the Growth tab'),
 		path: '/growth',
 	},
 	{
 		icon: '📅',
-		label: fbt('Events', 'Label for the Events tab'),
+		label: fbt('Events', 'Title of the Events tab'),
 		path: '/events',
 	},
 	{
 		icon: '📊',
-		label: fbt('Statistics', 'Label for the Statistics tab'),
+		label: fbt('Statistics', 'Title of the Statistics tab'),
 		path: '/statistics',
 	},
 ];

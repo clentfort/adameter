@@ -1,37 +1,53 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { useAppState } from '@/hooks/use-app-state';
-import AddGrowthMeasurement from './components/add-growth-measurement';
-import GrowthMeasurementsList from './components/growth-measurements-list';
+import MeasurementForm from './components/growth-form';
+import GrowthMeasurementsList from './components/growth-list';
 
 export default function GrowthPage() {
+	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const { addMeasurement, deleteMeasurement, measurements, updateMeasurement } =
 		useAppState();
 	return (
-		<div className="w-full">
-			<div className="space-y-6">
-				<div className="flex justify-between items-center">
+		<>
+			<div className="w-full">
+				<div className="flex justify-between items-center mb-4">
 					<h2 className="text-xl font-semibold">
 						<fbt desc="growthTab">Growth</fbt>
 					</h2>
-					<AddGrowthMeasurement onSave={addMeasurement} />
+					<Button
+						onClick={() => setIsAddEntryDialogOpen(true)}
+						size="sm"
+						variant="outline"
+					>
+						<PlusCircle className="h-4 w-4 mr-1" />
+						<fbt common>Add Entry</fbt>
+					</Button>
 				</div>
-				<Card>
-					<CardHeader className="p-4 pb-2">
-						<CardTitle className="text-base">
-							<fbt desc="allMeasurements">All Measurements</fbt>
-						</CardTitle>
-					</CardHeader>
-					<CardContent className="p-4 pt-0">
-						<GrowthMeasurementsList
-							measurements={measurements}
-							onMeasurementDelete={deleteMeasurement}
-							onMeasurementUpdate={updateMeasurement}
-						/>
-					</CardContent>
-				</Card>
+				<GrowthMeasurementsList
+					measurements={measurements}
+					onMeasurementDelete={deleteMeasurement}
+					onMeasurementUpdate={updateMeasurement}
+				/>
 			</div>
-		</div>
+
+			{isAddEntryDialogOpen && (
+				<MeasurementForm
+					onClose={() => setIsAddEntryDialogOpen(false)}
+					onSave={(measurement) => {
+						addMeasurement(measurement);
+						setIsAddEntryDialogOpen(false);
+					}}
+					title={
+						<fbt desc="Title of the dialog to manually add a previous feeding session">
+							Add Feeding
+						</fbt>
+					}
+				/>
+			)}
+		</>
 	);
 }
