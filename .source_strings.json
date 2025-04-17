@@ -1,0 +1,3651 @@
+{
+ "childParentMappings": {},
+ "phrases": [
+  {
+   "hashToLeaf": {
+    "Pbf5XxGQj/ThYHas2Vn4Gw==": {
+     "desc": "Note that no data has been recorded and therefore nothing is displayed yet",
+     "text": "No data recorded yet."
+    }
+   },
+   "col_beg": 4,
+   "col_end": 10,
+   "filepath": "src/components/history-list.tsx",
+   "line_beg": 33,
+   "line_end": 35,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Note that no data has been recorded and therefore nothing is displayed yet",
+     "text": "No data recorded yet."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "eOGl+VgWOfEZACxiZVcc8Q==": {
+     "desc": "Title for a dialog asking the user to confirm deletion of a feeding session",
+     "text": "Delete Entry"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/components/delete-entry-dialog.tsx",
+   "line_beg": 33,
+   "line_end": 35,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title for a dialog asking the user to confirm deletion of a feeding session",
+     "text": "Delete Entry"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "WYFv/dbQNYMENrGOySAA9A==": {
+     "desc": "Description for a dialog asking the user to confirm deletion of a feeding session",
+     "text": "Do you really want to delete this entry? This action cannot be undone."
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/components/delete-entry-dialog.tsx",
+   "line_beg": 38,
+   "line_end": 41,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Description for a dialog asking the user to confirm deletion of a feeding session",
+     "text": "Do you really want to delete this entry? This action cannot be undone."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "ICrhnp794kKquu/va1BGcw==": {
+     "desc": "Label on a cancel button",
+     "text": "Cancel"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 30,
+   "filepath": "src/components/delete-entry-dialog.tsx",
+   "line_beg": 46,
+   "line_end": 46,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a cancel button",
+     "text": "Cancel"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "oGpCbaZ7ko05cFQNxk9xdA==": {
+     "desc": "Label on a delete button",
+     "text": "Delete"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 30,
+   "filepath": "src/components/delete-entry-dialog.tsx",
+   "line_beg": 49,
+   "line_end": 49,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a delete button",
+     "text": "Delete"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "wh9JZWabPa55WvaK7bwRNw==": {
+     "desc": "Placeholder value indicating that no data has been recorded",
+     "text": "No data yet"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 6,
+   "filepath": "src/components/root-layout/time-since.tsx",
+   "line_beg": 25,
+   "line_end": 28,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Placeholder value indicating that no data has been recorded",
+     "text": "No data yet"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "hIGWhCGtlLUtyTn91ssztg==": {
+     "desc": "Title of the Feeding tab",
+     "text": "Feeding"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 59,
+   "filepath": "src/components/root-layout/navigation.tsx",
+   "line_beg": 16,
+   "line_end": 16,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the Feeding tab",
+     "text": "Feeding"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "K+H1qYEg6Kqk6MdfP3La9g==": {
+     "desc": "Title of the Diaper tab",
+     "text": "Diaper"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 57,
+   "filepath": "src/components/root-layout/navigation.tsx",
+   "line_beg": 21,
+   "line_end": 21,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the Diaper tab",
+     "text": "Diaper"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "2wTZhQ6HMq9u8Iy0SQlSVw==": {
+     "desc": "Title of the Growth tab",
+     "text": "Growth"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 57,
+   "filepath": "src/components/root-layout/navigation.tsx",
+   "line_beg": 26,
+   "line_end": 26,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the Growth tab",
+     "text": "Growth"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "pMdZDs9MjOClqRBGbYl1wA==": {
+     "desc": "Title of the Events tab",
+     "text": "Events"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 57,
+   "filepath": "src/components/root-layout/navigation.tsx",
+   "line_beg": 31,
+   "line_end": 31,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the Events tab",
+     "text": "Events"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "4aLaSFhJd7v3AaKAVSiguw==": {
+     "desc": "Title of the Statistics tab",
+     "text": "Statistics"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 65,
+   "filepath": "src/components/root-layout/navigation.tsx",
+   "line_beg": 36,
+   "line_end": 36,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the Statistics tab",
+     "text": "Statistics"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "SiQ7pYEz/3u9zAc6qBr2rg==": {
+     "desc": "Label to switch to the German locale",
+     "text": "German"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 62,
+   "filepath": "src/components/root-layout/language-switcher.tsx",
+   "line_beg": 25,
+   "line_end": 25,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label to switch to the German locale",
+     "text": "German"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "ypGUoA339DiFGhqEycR1CQ==": {
+     "desc": "Label to switch to the English locale",
+     "text": "English"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 64,
+   "filepath": "src/components/root-layout/language-switcher.tsx",
+   "line_beg": 30,
+   "line_end": 30,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label to switch to the English locale",
+     "text": "English"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "eTTQBt9Zmf3KFRS2ylz0og==": {
+     "desc": "Label for the language switcher",
+     "text": "Language"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 62,
+   "filepath": "src/components/root-layout/language-switcher.tsx",
+   "line_beg": 42,
+   "line_end": 42,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for the language switcher",
+     "text": "Language"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "eTTQBt9Zmf3KFRS2ylz0og==": {
+     "desc": "Label for the language switcher",
+     "text": "Language"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 64,
+   "filepath": "src/components/root-layout/language-switcher.tsx",
+   "line_beg": 48,
+   "line_end": 48,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for the language switcher",
+     "text": "Language"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "kH44IkQ7nT8QbtOL5dZ2xQ==": {
+     "desc": "Loading indicator",
+     "text": "Loading"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 48,
+   "filepath": "src/components/root-layout/index.tsx",
+   "line_beg": 21,
+   "line_end": 21,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Loading indicator",
+     "text": "Loading"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "unAMAmhRyZqCKG4oaIgZ4Q==": {
+     "desc": "Short label indicating when a feeding was last recorded",
+     "text": "Last Feeding"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 11,
+   "filepath": "src/components/root-layout/index.tsx",
+   "line_beg": 45,
+   "line_end": 47,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Short label indicating when a feeding was last recorded",
+     "text": "Last Feeding"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "/xgYxzwr3arrO4U+cRSIKw==": {
+     "desc": "A short label indicating when a diaper was last changed",
+     "text": "Last Diaper Change"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 11,
+   "filepath": "src/components/root-layout/index.tsx",
+   "line_beg": 51,
+   "line_end": 53,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A short label indicating when a diaper was last changed",
+     "text": "Last Diaper Change"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "a76EbCnlAOF3msEO3exPqg==": {
+     "desc": "Label on an edit button",
+     "text": "Edit"
+    }
+   },
+   "col_beg": 4,
+   "col_end": 26,
+   "filepath": "src/components/icon-buttons/edit.tsx",
+   "line_beg": 13,
+   "line_end": 13,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on an edit button",
+     "text": "Edit"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "TkyxGV2k45V5e8RZ1mKzZA==": {
+     "desc": "delete",
+     "text": "Delete"
+    }
+   },
+   "col_beg": 4,
+   "col_end": 35,
+   "filepath": "src/components/icon-buttons/delete.tsx",
+   "line_beg": 18,
+   "line_end": 18,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "delete",
+     "text": "Delete"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "BhELZ6AoQ8yzVIArv45dBA==": {
+     "desc": "statistics",
+     "text": "Statistics"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 44,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 60,
+   "line_end": 60,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "statistics",
+     "text": "Statistics"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "exJryBaRmwL5Hyvz/75vKg==": {
+     "desc": "timeRange",
+     "text": "Time Range"
+    }
+   },
+   "col_beg": 31,
+   "col_end": 69,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 69,
+   "line_end": 69,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "timeRange",
+     "text": "Time Range"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "p6LrbpZG1rdalTknMh/kig==": {
+     "desc": "last7Days",
+     "text": "Last 7 Days"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 46,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 73,
+   "line_end": 73,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "last7Days",
+     "text": "Last 7 Days"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "m0hoJCVSyEvK26+i+dIKlQ==": {
+     "desc": "last14Days",
+     "text": "Last 14 Days"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 48,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 76,
+   "line_end": 76,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "last14Days",
+     "text": "Last 14 Days"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "nxCbN49tSQuLxaz7j1kqxg==": {
+     "desc": "last30Days",
+     "text": "Last 30 Days"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 48,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 79,
+   "line_end": 79,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "last30Days",
+     "text": "Last 30 Days"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "jeclg8r9zj96A6aEKhVHdQ==": {
+     "desc": "allData",
+     "text": "All Data"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 41,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 82,
+   "line_end": 82,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "allData",
+     "text": "All Data"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "2Y04Pe2xLAlA3qsMkzgYsQ==": {
+     "desc": "noDataAvailable",
+     "text": "No data available for the selected time range."
+    }
+   },
+   "col_beg": 5,
+   "col_end": 11,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 91,
+   "line_end": 93,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noDataAvailable",
+     "text": "No data available for the selected time range."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "ZFK8BSNPyVz8JNoADA+3ug==": {
+     "desc": "feedingTab",
+     "text": "Feeding"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 42,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 98,
+   "line_end": 98,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "feedingTab",
+     "text": "Feeding"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "6VZtxIO73ztfFl7K/c64SA==": {
+     "desc": "noFeedingDataAvailable",
+     "text": "No feeding data available for the selected time range."
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 113,
+   "line_end": 115,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noFeedingDataAvailable",
+     "text": "No feeding data available for the selected time range."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "TzV3P5SkYEQgn50s+Q3hRQ==": {
+     "desc": "diaperTab",
+     "text": "Diaper"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 40,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 120,
+   "line_end": 120,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "diaperTab",
+     "text": "Diaper"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "RRq3xlz/dEfxJgFReBGoww==": {
+     "desc": "noDiaperDataAvailable",
+     "text": "No diaper data available for the selected time range."
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 126,
+   "line_end": 128,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noDiaperDataAvailable",
+     "text": "No diaper data available for the selected time range."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "sJwbdHaeKYrEGDUFV4vmNg==": {
+     "desc": "growthTab",
+     "text": "Growth"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 40,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 133,
+   "line_end": 133,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "growthTab",
+     "text": "Growth"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "IjQ9uZz5+IKbnl3LPTcujg==": {
+     "desc": "noGrowthDataAvailable",
+     "text": "No growth data available."
+    }
+   },
+   "col_beg": 7,
+   "col_end": 72,
+   "filepath": "src/app/statistics/page.tsx",
+   "line_beg": 142,
+   "line_end": 142,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noGrowthDataAvailable",
+     "text": "No growth data available."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "sodYlTnft53nI4+dIVT/cQ==": {
+     "desc": "totalFeedings",
+     "text": "Total Feedings"
+    }
+   },
+   "col_beg": 19,
+   "col_end": 65,
+   "filepath": "src/app/statistics/components/total-feedings-stats.tsx",
+   "line_beg": 20,
+   "line_end": 20,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "totalFeedings",
+     "text": "Total Feedings"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "CbOdZizL+o7Zc/nh5adFvg==": {
+     "desc": "leftBreast",
+     "text": "Left Breast"
+    }
+   },
+   "col_beg": 4,
+   "col_end": 44,
+   "filepath": "src/app/statistics/components/total-feedings-stats.tsx",
+   "line_beg": 23,
+   "line_end": 23,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "leftBreast",
+     "text": "Left Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "1VzvODk6/hhXyam5tnhXJA==": {
+     "desc": "rightBreast",
+     "text": "Right Breast"
+    }
+   },
+   "col_beg": 4,
+   "col_end": 46,
+   "filepath": "src/app/statistics/components/total-feedings-stats.tsx",
+   "line_beg": 27,
+   "line_end": 27,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "rightBreast",
+     "text": "Right Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "7jVtWj3Lt8kXbJ4RPqKa6Q==": {
+     "desc": "timeBetweenFeedings",
+     "text": "Time Between Feedings"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 68,
+   "filepath": "src/app/statistics/components/time-between-stats.tsx",
+   "line_beg": 52,
+   "line_end": 52,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "timeBetweenFeedings",
+     "text": "Time Between Feedings"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "67jGfWnLXz7iLy9AlQqJ5w==": {
+     "desc": "feedingDistribution",
+     "text": "Daily Feeding Distribution"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 69,
+   "filepath": "src/app/statistics/components/heat-map.tsx",
+   "line_beg": 75,
+   "line_end": 75,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "feedingDistribution",
+     "text": "Daily Feeding Distribution"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "ZsyCrv/5i09WAZn+ADNn9A==": {
+     "desc": "feedingDistributionDescription",
+     "text": "Distribution of feeding times throughout the day"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 11,
+   "filepath": "src/app/statistics/components/heat-map.tsx",
+   "line_beg": 78,
+   "line_end": 80,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "feedingDistributionDescription",
+     "text": "Distribution of feeding times throughout the day"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "5iI489zNpAmgwom+DkfbZg==": {
+     "desc": "veryHighActivity",
+     "text": "Very High Activity"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 61,
+   "filepath": "src/app/statistics/components/heat-map.tsx",
+   "line_beg": 159,
+   "line_end": 159,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "veryHighActivity",
+     "text": "Very High Activity"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "eH7bIrF8i0Qcw00xdeVhWg==": {
+     "desc": "highActivity",
+     "text": "High Activity"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 52,
+   "filepath": "src/app/statistics/components/heat-map.tsx",
+   "line_beg": 165,
+   "line_end": 165,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "highActivity",
+     "text": "High Activity"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "6+JCk/8VI2Qu6jyvQ1QSow==": {
+     "desc": "mediumActivity",
+     "text": "Medium Activity"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 56,
+   "filepath": "src/app/statistics/components/heat-map.tsx",
+   "line_beg": 171,
+   "line_end": 171,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "mediumActivity",
+     "text": "Medium Activity"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "KkaDiSYm65O2KeTxLzGErg==": {
+     "desc": "lowActivity",
+     "text": "Low Activity"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 50,
+   "filepath": "src/app/statistics/components/heat-map.tsx",
+   "line_beg": 177,
+   "line_end": 177,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "lowActivity",
+     "text": "Low Activity"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "hfj+LGLPWHZfgjyHWMKZIg==": {
+     "desc": "veryLowActivity",
+     "text": "Very Low Activity"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 59,
+   "filepath": "src/app/statistics/components/heat-map.tsx",
+   "line_beg": 183,
+   "line_end": 183,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "veryLowActivity",
+     "text": "Very Low Activity"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "Iuf+4/DtfhOCXakCw8Wo8Q==": {
+     "desc": "growthChart",
+     "text": "Growth Chart"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 48,
+   "filepath": "src/app/statistics/components/growth-chart.tsx",
+   "line_beg": 294,
+   "line_end": 294,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "growthChart",
+     "text": "Growth Chart"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "VkJ5gsfFeEl8V8qhUcOa6w==": {
+     "desc": "noMeasurementsForGrowthChart",
+     "text": "No measurements available. Add measurements to see the growth chart."
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/app/statistics/components/growth-chart.tsx",
+   "line_beg": 299,
+   "line_end": 302,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noMeasurementsForGrowthChart",
+     "text": "No measurements available. Add measurements to see the growth chart."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "Iuf+4/DtfhOCXakCw8Wo8Q==": {
+     "desc": "growthChart",
+     "text": "Growth Chart"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 47,
+   "filepath": "src/app/statistics/components/growth-chart.tsx",
+   "line_beg": 316,
+   "line_end": 316,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "growthChart",
+     "text": "Growth Chart"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "kbGONxRC5DcZawiEhJZcsg==": {
+     "desc": "weight",
+     "text": "Weight (g)"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 41,
+   "filepath": "src/app/statistics/components/growth-chart.tsx",
+   "line_beg": 323,
+   "line_end": 323,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "weight",
+     "text": "Weight (g)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "3/3nMAUWktiGgBn/+wcxzA==": {
+     "desc": "noWeightData",
+     "text": "No weight data available."
+    }
+   },
+   "col_beg": 8,
+   "col_end": 64,
+   "filepath": "src/app/statistics/components/growth-chart.tsx",
+   "line_beg": 330,
+   "line_end": 330,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noWeightData",
+     "text": "No weight data available."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "UPqPkI182yGefQffQ6y0wA==": {
+     "desc": "height",
+     "text": "Height (cm)"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 42,
+   "filepath": "src/app/statistics/components/growth-chart.tsx",
+   "line_beg": 339,
+   "line_end": 339,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "height",
+     "text": "Height (cm)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "LQOOdZt25k6OR/oDHydgiw==": {
+     "desc": "noHeightData",
+     "text": "No height data available."
+    }
+   },
+   "col_beg": 8,
+   "col_end": 64,
+   "filepath": "src/app/statistics/components/growth-chart.tsx",
+   "line_beg": 346,
+   "line_end": 346,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noHeightData",
+     "text": "No height data available."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "SA3lHB7cY0e7kB1tLN7gzg==": {
+     "desc": "eventsNote",
+     "text": "* Vertical lines indicate important events."
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/statistics/components/growth-chart.tsx",
+   "line_beg": 355,
+   "line_end": 357,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "eventsNote",
+     "text": "* Vertical lines indicate important events."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "UNefAsm52J9m0uTz15i6sQ==": {
+     "desc": "feedingsPerDay",
+     "text": "Feedings Per Day"
+    }
+   },
+   "col_beg": 19,
+   "col_end": 68,
+   "filepath": "src/app/statistics/components/feedings-per-day-stats.tsx",
+   "line_beg": 36,
+   "line_end": 36,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "feedingsPerDay",
+     "text": "Feedings Per Day"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "8+QYAIsqmOGWUtLL9DeJNA==": {
+     "desc": "averageFeedingDuration",
+     "text": "Average Feeding Duration"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 74,
+   "filepath": "src/app/statistics/components/duration-stats.tsx",
+   "line_beg": 53,
+   "line_end": 53,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "averageFeedingDuration",
+     "text": "Average Feeding Duration"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "CbOdZizL+o7Zc/nh5adFvg==": {
+     "desc": "leftBreast",
+     "text": "Left Breast"
+    }
+   },
+   "col_beg": 4,
+   "col_end": 44,
+   "filepath": "src/app/statistics/components/duration-stats.tsx",
+   "line_beg": 59,
+   "line_end": 59,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "leftBreast",
+     "text": "Left Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "1VzvODk6/hhXyam5tnhXJA==": {
+     "desc": "rightBreast",
+     "text": "Right Breast"
+    }
+   },
+   "col_beg": 4,
+   "col_end": 46,
+   "filepath": "src/app/statistics/components/duration-stats.tsx",
+   "line_beg": 65,
+   "line_end": 65,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "rightBreast",
+     "text": "Right Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "/kmWdV9mhsTgibW9JNiHMA==": {
+     "desc": "diaperStatistics",
+     "text": "Diaper Statistics"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 58,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 36,
+   "line_end": 36,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "diaperStatistics",
+     "text": "Diaper Statistics"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "RRq3xlz/dEfxJgFReBGoww==": {
+     "desc": "noDiaperDataAvailable",
+     "text": "No diaper data available for the selected time range."
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 41,
+   "line_end": 43,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noDiaperDataAvailable",
+     "text": "No diaper data available for the selected time range."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "/kmWdV9mhsTgibW9JNiHMA==": {
+     "desc": "diaperStatistics",
+     "text": "Diaper Statistics"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 57,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 103,
+   "line_end": 103,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "diaperStatistics",
+     "text": "Diaper Statistics"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "IQTk0XFYg+7mWtrGa920jw==": {
+     "desc": "overview",
+     "text": "Overview"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 42,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 110,
+   "line_end": 110,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "overview",
+     "text": "Overview"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "qVqiiNYEB8lIY4WoKezi0w==": {
+     "desc": "diaperBrands",
+     "text": "Diaper Brands"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 51,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 113,
+   "line_end": 113,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "diaperBrands",
+     "text": "Diaper Brands"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "smVDp+OpZepAgih3jrHEeg==": {
+     "desc": "leakage",
+     "text": "Diaper leaked"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 46,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 116,
+   "line_end": 116,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "leakage",
+     "text": "Diaper leaked"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "KVa2s1fKerOMwVU3IPApjw==": {
+     "desc": "total",
+     "text": "Total"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 38,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 124,
+   "line_end": 124,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "total",
+     "text": "Total"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "N20FWygVZAvLjw8co4d3yA==": {
+     "desc": "perDay",
+     "text": "Per Day"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 41,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 130,
+   "line_end": 130,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "perDay",
+     "text": "Per Day"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "/ca5mzogDPA834/9O+dtsw==": {
+     "desc": "urineOnly",
+     "text": "Urine Only"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 47,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 139,
+   "line_end": 139,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "urineOnly",
+     "text": "Urine Only"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "lgXC8vRq7AP0e1q/QzOdQw==": {
+     "desc": "withStool",
+     "text": "With Stool"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 47,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 148,
+   "line_end": 148,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "withStool",
+     "text": "With Stool"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "x5HxzfvNKWgKB3/BhXQNUQ==": {
+     "desc": "withLeakage",
+     "text": "With Leakage"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 51,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 157,
+   "line_end": 157,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "withLeakage",
+     "text": "With Leakage"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "6WU/P+qLW9lSfFVuYzeDFg==": {
+     "desc": "noDiaperBrandsRecorded",
+     "text": "No diaper brands recorded."
+    }
+   },
+   "col_beg": 8,
+   "col_end": 14,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 192,
+   "line_end": 194,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noDiaperBrandsRecorded",
+     "text": "No diaper brands recorded."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "iBM7QA5CXMQFLAkl6T7oeg==": {
+     "desc": "diaperBrandsByLeakage",
+     "text": "Diaper brands by leakage frequency (min. 3 uses)"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 203,
+   "line_end": 205,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "diaperBrandsByLeakage",
+     "text": "Diaper brands by leakage frequency (min. 3 uses)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "vjXbM/kDO+x6REYZdTF4FA==": {
+     "desc": "noLeakageDataAvailable",
+     "text": "Not enough data for leakage statistics."
+    }
+   },
+   "col_beg": 8,
+   "col_end": 14,
+   "filepath": "src/app/statistics/components/diaper-stats.tsx",
+   "line_beg": 239,
+   "line_end": 241,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noLeakageDataAvailable",
+     "text": "Not enough data for leakage statistics."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "sJwbdHaeKYrEGDUFV4vmNg==": {
+     "desc": "growthTab",
+     "text": "Growth"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 40,
+   "filepath": "src/app/growth/page.tsx",
+   "line_beg": 19,
+   "line_end": 19,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "growthTab",
+     "text": "Growth"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "sOiViMq1cYfc54ftpG7fPQ==": {
+     "desc": "Label on a button to add a new entry",
+     "text": "Add Entry"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 33,
+   "filepath": "src/app/growth/page.tsx",
+   "line_beg": 27,
+   "line_end": 27,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a button to add a new entry",
+     "text": "Add Entry"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "CxUOdYU7F0H4N8iKAvq39A==": {
+     "desc": "Title of the dialog to manually add a previous feeding session",
+     "text": "Add Feeding"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/app/growth/page.tsx",
+   "line_beg": 45,
+   "line_end": 47,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the dialog to manually add a previous feeding session",
+     "text": "Add Feeding"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "e+FnEDDpEsQVx8O6eEVkbg==": {
+     "desc": "noMeasurementsRecorded",
+     "text": "No measurements recorded yet."
+    }
+   },
+   "col_beg": 4,
+   "col_end": 74,
+   "filepath": "src/app/growth/components/growth-list.tsx",
+   "line_beg": 32,
+   "line_end": 32,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "noMeasurementsRecorded",
+     "text": "No measurements recorded yet."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "+L9WgG9P6IVJZg/rzLL8hg==": {
+     "desc": "Weight of the baby",
+     "text": "Weight"
+    }
+   },
+   "col_beg": 13,
+   "col_end": 56,
+   "filepath": "src/app/growth/components/growth-list.tsx",
+   "line_beg": 69,
+   "line_end": 69,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Weight of the baby",
+     "text": "Weight"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "f1eSeOB3tGAG1gHfeTjYVQ==": {
+     "desc": "Height of the baby",
+     "text": "Height"
+    }
+   },
+   "col_beg": 14,
+   "col_end": 57,
+   "filepath": "src/app/growth/components/growth-list.tsx",
+   "line_beg": 77,
+   "line_end": 77,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Height of the baby",
+     "text": "Height"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "0MMkz6P8P5HIwlxgFuRHuA==": {
+     "desc": "Message shown when no weight or height is provided. At least one is required",
+     "text": "Please enter at least a weight or height."
+    }
+   },
+   "col_beg": 4,
+   "col_end": 5,
+   "filepath": "src/app/growth/components/growth-form.tsx",
+   "line_beg": 60,
+   "line_end": 63,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Message shown when no weight or height is provided. At least one is required",
+     "text": "Please enter at least a weight or height."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "o9/791nq8HNHWZLr+kCpXQ==": {
+     "desc": "Label for a date field",
+     "text": "Date"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 29,
+   "filepath": "src/app/growth/components/growth-form.tsx",
+   "line_beg": 96,
+   "line_end": 96,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a date field",
+     "text": "Date"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "E/8jm0M5Yc4/pq+xiWzhcg==": {
+     "desc": "Label for a body weight input",
+     "text": "Weight (g)"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 66,
+   "filepath": "src/app/growth/components/growth-form.tsx",
+   "line_beg": 109,
+   "line_end": 109,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a body weight input",
+     "text": "Weight (g)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "I4JLnsD+gc9LL6A24X+GkA==": {
+     "desc": "Placeholder for a weight input",
+     "text": "e.g. 3500"
+    }
+   },
+   "col_beg": 21,
+   "col_end": 71,
+   "filepath": "src/app/growth/components/growth-form.tsx",
+   "line_beg": 114,
+   "line_end": 114,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Placeholder for a weight input",
+     "text": "e.g. 3500"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "ahi/bJUe1jhQQzBtkdPD/w==": {
+     "desc": "Label for a body height input",
+     "text": "Height (cm)"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 67,
+   "filepath": "src/app/growth/components/growth-form.tsx",
+   "line_beg": 121,
+   "line_end": 121,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a body height input",
+     "text": "Height (cm)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "PClK+GAF9vsQqo/clYTY9w==": {
+     "desc": "Placeholder for a height input",
+     "text": "e.g. 50"
+    }
+   },
+   "col_beg": 21,
+   "col_end": 69,
+   "filepath": "src/app/growth/components/growth-form.tsx",
+   "line_beg": 126,
+   "line_end": 126,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Placeholder for a height input",
+     "text": "e.g. 50"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "fz1rj5/66HoPMzBKAGITGg==": {
+     "desc": "Label for an optional notes textarea",
+     "text": "Notes (optional)"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/growth/components/growth-form.tsx",
+   "line_beg": 138,
+   "line_end": 140,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for an optional notes textarea",
+     "text": "Notes (optional)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "ry0QIAp75Bg9SEz20iIcfA==": {
+     "desc": "Placeholder for a text input for notes",
+     "text": "Additional information"
+    }
+   },
+   "col_beg": 20,
+   "col_end": 8,
+   "filepath": "src/app/growth/components/growth-form.tsx",
+   "line_beg": 146,
+   "line_end": 149,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Placeholder for a text input for notes",
+     "text": "Additional information"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "92jFti+9ZpStiIsAlSLJVA==": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 28,
+   "filepath": "src/app/growth/components/growth-form.tsx",
+   "line_beg": 157,
+   "line_end": 157,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "XOa5yDd43/4k6SicSknEOA==": {
+     "desc": "Descedingly ordered history of events (i.e. diaper changes or feeding sessions)",
+     "text": "History"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/feeding/page.tsx",
+   "line_beg": 37,
+   "line_end": 39,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Descedingly ordered history of events (i.e. diaper changes or feeding sessions)",
+     "text": "History"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "sOiViMq1cYfc54ftpG7fPQ==": {
+     "desc": "Label on a button to add a new entry",
+     "text": "Add Entry"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 34,
+   "filepath": "src/app/feeding/page.tsx",
+   "line_beg": 47,
+   "line_end": 47,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a button to add a new entry",
+     "text": "Add Entry"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "CxUOdYU7F0H4N8iKAvq39A==": {
+     "desc": "Title of the dialog to manually add a previous feeding session",
+     "text": "Add Feeding"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/app/feeding/page.tsx",
+   "line_beg": 66,
+   "line_end": 68,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the dialog to manually add a previous feeding session",
+     "text": "Add Feeding"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "e6atSd6V6OsSZ3A4txfhBg==": {
+     "desc": "Label on a button that starts a feeding session with the left breast",
+     "text": "Left Breast"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 158,
+   "line_end": 160,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a button that starts a feeding session with the left breast",
+     "text": "Left Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "Had/jciOH8BwtilHk3oxAg==": {
+     "desc": "Label on a button that starts a feeding session with the right breast",
+     "text": "Right Breast"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 170,
+   "line_end": 172,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a button that starts a feeding session with the right breast",
+     "text": "Right Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "oI1A3TSwWphmKoGdSoo7aQ==": {
+     "desc": "Label that shows that there is a feeding session in progress with the left breast",
+     "text": "Left Breast"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 195,
+   "line_end": 197,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label that shows that there is a feeding session in progress with the left breast",
+     "text": "Left Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "z3IxQm6HQhOCBkOmx2o3ag==": {
+     "desc": "Label that shows that there is a feeding session in progress with the right breast",
+     "text": "Right Breast"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 199,
+   "line_end": 201,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label that shows that there is a feeding session in progress with the right breast",
+     "text": "Right Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "TDi3YylpxNqy5wpCb0w+6g==": {
+     "desc": "Label indicating the start time of the current feeding session",
+     "text": "Start"
+    }
+   },
+   "col_beg": 10,
+   "col_end": 16,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 210,
+   "line_end": 212,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label indicating the start time of the current feeding session",
+     "text": "Start"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "22sBBPag1Ky2WJKGRBdR2g==": {
+     "desc": "Label on a button to mark the current feeding session as done",
+     "text": "End Feeding"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 230,
+   "line_end": 232,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a button to mark the current feeding session as done",
+     "text": "End Feeding"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "tRZTDi+LQd+N7t+ylHcpYQ==": {
+     "desc": "Label on a button to mark the current feeding session as done and to enter the duration of the session by manually",
+     "text": "Enter Time Manually"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 240,
+   "line_end": 242,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a button to mark the current feeding session as done and to enter the duration of the session by manually",
+     "text": "Enter Time Manually"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "RM0AC8QIpYLDgKgN1c91lA==": {
+     "desc": "Title of the dialog to enter feeding time manually",
+     "text": "Enter Feeding Time Manually"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 251,
+   "line_end": 253,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the dialog to enter feeding time manually",
+     "text": "Enter Feeding Time Manually"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "7eOqvsKLA7g/LpyC1vayNw==": {
+     "desc": "Label for an input of minutes",
+     "text": "minutes"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 63,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 259,
+   "line_end": 259,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for an input of minutes",
+     "text": "minutes"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "92jFti+9ZpStiIsAlSLJVA==": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 29,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 281,
+   "line_end": 281,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "/inS/3ZxenJMNTjoNKY5Ew==": {
+     "desc": "Badge on a button that tells the user that they should use this breast for the next feeding session",
+     "text": "Next"
+    }
+   },
+   "col_beg": 3,
+   "col_end": 9,
+   "filepath": "src/app/feeding/components/feeding-tracker.tsx",
+   "line_beg": 297,
+   "line_end": 299,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Badge on a button that tells the user that they should use this breast for the next feeding session",
+     "text": "Next"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "dGC4MdeweH6mGZRo+OwDMw==": {
+     "desc": "Label indicating a feeding was done with the left breast",
+     "text": "Left Breast"
+    }
+   },
+   "col_beg": 11,
+   "col_end": 17,
+   "filepath": "src/app/feeding/components/feeding-history-list.tsx",
+   "line_beg": 72,
+   "line_end": 74,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label indicating a feeding was done with the left breast",
+     "text": "Left Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "NzpsQLsDxGxNrshDC+YUPg==": {
+     "desc": "Label indicating a feeding was done with the right breast",
+     "text": "Right Breast"
+    }
+   },
+   "col_beg": 11,
+   "col_end": 17,
+   "filepath": "src/app/feeding/components/feeding-history-list.tsx",
+   "line_beg": 76,
+   "line_end": 78,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label indicating a feeding was done with the right breast",
+     "text": "Right Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "48TFhF5jKj/MAkOdJSIL0w==": {
+     "desc": "Label for a note",
+     "text": "Note"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 51,
+   "filepath": "src/app/feeding/components/feeding-history-list.tsx",
+   "line_beg": 84,
+   "line_end": 84,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a note",
+     "text": "Note"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "wKd4Ggr/UJW1UR/e5Db+Ug==": {
+     "desc": "A note describing that the feeding session crosses midnight",
+     "text": "This session crosses midnight"
+    }
+   },
+   "col_beg": 11,
+   "col_end": 17,
+   "filepath": "src/app/feeding/components/feeding-history-list.tsx",
+   "line_beg": 86,
+   "line_end": 88,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A note describing that the feeding session crosses midnight",
+     "text": "This session crosses midnight"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "PFX4d/XVcifWrcjrk+hdBw==": {
+     "desc": "Label indicating when a feeding session started",
+     "text": "Start"
+    }
+   },
+   "col_beg": 10,
+   "col_end": 16,
+   "filepath": "src/app/feeding/components/feeding-history-list.tsx",
+   "line_beg": 100,
+   "line_end": 102,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label indicating when a feeding session started",
+     "text": "Start"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "lEyABWlcYOw5ULR4etSFHw==": {
+     "desc": "Title of a dialog that allows the user to edit a feeding session",
+     "text": "Edit Feeding Session"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/app/feeding/components/feeding-history-list.tsx",
+   "line_beg": 130,
+   "line_end": 132,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of a dialog that allows the user to edit a feeding session",
+     "text": "Edit Feeding Session"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "SAV5pQQpFl+bClhlN7e9jQ==": {
+     "desc": "Label for a radio group that allows the user to select which breat was used to feed",
+     "text": "Breast"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/feeding/components/feeding-form.tsx",
+   "line_beg": 95,
+   "line_end": 97,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a radio group that allows the user to select which breat was used to feed",
+     "text": "Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "r19sVcW2W5QMKcNt7U8rig==": {
+     "desc": "Label for a radio button that indicates the left breast was used to feed",
+     "text": "Left Breast"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/feeding/components/feeding-form.tsx",
+   "line_beg": 111,
+   "line_end": 113,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a radio button that indicates the left breast was used to feed",
+     "text": "Left Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "KnN83G6cu54a8odinEahNg==": {
+     "desc": "Label for a radio button that indicates the right breast was used to feed",
+     "text": "Right Breast"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/feeding/components/feeding-form.tsx",
+   "line_beg": 123,
+   "line_end": 125,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a radio button that indicates the right breast was used to feed",
+     "text": "Right Breast"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "TXCg2gf2w3gFvRZFzSa5sA==": {
+     "desc": "Label for a date input",
+     "text": "Date"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 53,
+   "filepath": "src/app/feeding/components/feeding-form.tsx",
+   "line_beg": 134,
+   "line_end": 134,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a date input",
+     "text": "Date"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "MvTAe4+2dK44NmqhJQps/Q==": {
+     "desc": "Label for a time input that sets the starting time of a feeding session",
+     "text": "Start Time"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 14,
+   "filepath": "src/app/feeding/components/feeding-form.tsx",
+   "line_beg": 145,
+   "line_end": 147,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a time input that sets the starting time of a feeding session",
+     "text": "Start Time"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "MCgjRy2lCa+MB6lT7QOW4A==": {
+     "desc": "Label for a number input that sets the duration of a feeding session in minutes",
+     "text": "minutes"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/feeding/components/feeding-form.tsx",
+   "line_beg": 160,
+   "line_end": 162,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a number input that sets the duration of a feeding session in minutes",
+     "text": "minutes"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "92jFti+9ZpStiIsAlSLJVA==": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 28,
+   "filepath": "src/app/feeding/components/feeding-form.tsx",
+   "line_beg": 183,
+   "line_end": 183,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "mwtErJHH4PdDkFgLKbYkbA==": {
+     "desc": "Title of the events page",
+     "text": "Events"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 55,
+   "filepath": "src/app/events/page.tsx",
+   "line_beg": 18,
+   "line_end": 18,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the events page",
+     "text": "Events"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "sOiViMq1cYfc54ftpG7fPQ==": {
+     "desc": "Label on a button to add a new entry",
+     "text": "Add Entry"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 33,
+   "filepath": "src/app/events/page.tsx",
+   "line_beg": 26,
+   "line_end": 26,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a button to add a new entry",
+     "text": "Add Entry"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "xdjK+9O4yfd69cLNhyL0ew==": {
+     "desc": "Title of the dialog to add a measurement",
+     "text": "Add Measurement"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/app/events/page.tsx",
+   "line_beg": 45,
+   "line_end": 47,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the dialog to add a measurement",
+     "text": "Add Measurement"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "uqypwmgMTFHUXekxPkCJCA==": {
+     "desc": "Info message that no event data has been recorded yet",
+     "text": "No events recorded yet."
+    }
+   },
+   "col_beg": 4,
+   "col_end": 10,
+   "filepath": "src/app/events/components/events-list.tsx",
+   "line_beg": 34,
+   "line_end": 36,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Info message that no event data has been recorded yet",
+     "text": "No events recorded yet."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "Je7hP0iMfI6RuMD5NyZlCA==": {
+     "desc": "Label on an event that is still ongoing",
+     "text": "ongoing"
+    }
+   },
+   "col_beg": 13,
+   "col_end": 19,
+   "filepath": "src/app/events/components/events-list.tsx",
+   "line_beg": 83,
+   "line_end": 85,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on an event that is still ongoing",
+     "text": "ongoing"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "ZV50jK8HrEyzr+u7tDFo0g==": {
+     "desc": "Title of the dialog to edit a measurement",
+     "text": "Edit Measurement"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 82,
+   "filepath": "src/app/events/components/events-list.tsx",
+   "line_beg": 127,
+   "line_end": 127,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the dialog to edit a measurement",
+     "text": "Edit Measurement"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "PpD/LO3zLsYX41ijNfIGmQ==": {
+     "desc": "Label for an input to set an events title",
+     "text": "Title"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 72,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 124,
+   "line_end": 124,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for an input to set an events title",
+     "text": "Title"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "JFPU0pvu4BpqHWkS5Kogkg==": {
+     "desc": "Placeholder for event title input",
+     "text": "e.g. Birth, Vaccination, Illness"
+    }
+   },
+   "col_beg": 20,
+   "col_end": 8,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 129,
+   "line_end": 132,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Placeholder for event title input",
+     "text": "e.g. Birth, Vaccination, Illness"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "XNg60cJOtgRGp3lM0M6cQA==": {
+     "desc": "Label for an optional event description input",
+     "text": "Description (optional)"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 139,
+   "line_end": 141,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for an optional event description input",
+     "text": "Description (optional)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "T4hW2lUwTHVgx3oHhuGOAw==": {
+     "desc": "Placeholder for event description input",
+     "text": "Additional details about the event"
+    }
+   },
+   "col_beg": 20,
+   "col_end": 8,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 146,
+   "line_end": 149,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Placeholder for event description input",
+     "text": "Additional details about the event"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "TcYBTg8y33SW4lCYmraFyw==": {
+     "desc": "Label for a radio input to set the events type (point or period)",
+     "text": "Event Type"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 157,
+   "line_end": 159,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a radio input to set the events type (point or period)",
+     "text": "Event Type"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "nxyeKtztP0wxIGC80MlNEQ==": {
+     "desc": "Label for a radio input that sets the value to a point in time",
+     "text": "Point in time (e.g. Vaccination)"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 171,
+   "line_end": 173,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a radio input that sets the value to a point in time",
+     "text": "Point in time (e.g. Vaccination)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "NcTLOx8DCiOoH4V/j3gh+w==": {
+     "desc": "Label for a radio input that sets the value to a timne period",
+     "text": "Period (e.g. Illness)"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 179,
+   "line_end": 181,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a radio input that sets the value to a timne period",
+     "text": "Period (e.g. Illness)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "o9/791nq8HNHWZLr+kCpXQ==": {
+     "desc": "Label for a date field",
+     "text": "Date"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 30,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 190,
+   "line_end": 190,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a date field",
+     "text": "Date"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "3MlTgq++hG5xp5v70Cgolw==": {
+     "desc": "Label for a time field",
+     "text": "Time"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 30,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 201,
+   "line_end": 201,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a time field",
+     "text": "Time"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "1CZwE9bTZCdo96K1cfcU7w==": {
+     "desc": "Label for a switch that enables or disable the fields to set an end date for an event",
+     "text": "Set End Date"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 221,
+   "line_end": 223,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a switch that enables or disable the fields to set an end date for an event",
+     "text": "Set End Date"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "jbnKZdp4L/7+EwZ4NAV5TA==": {
+     "desc": "Label for an input to set the end date of an event",
+     "text": "End Date"
+    }
+   },
+   "col_beg": 11,
+   "col_end": 17,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 231,
+   "line_end": 233,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for an input to set the end date of an event",
+     "text": "End Date"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "R71jS1ju8ZRN4rnlXpOLpQ==": {
+     "desc": "Label for an input to set the end time of an event",
+     "text": "End Time"
+    }
+   },
+   "col_beg": 11,
+   "col_end": 17,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 244,
+   "line_end": 246,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for an input to set the end time of an event",
+     "text": "End Time"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "S9lPSpqdYLHP2EUPuOvdzw==": {
+     "desc": "color",
+     "text": "Color"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 36,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 262,
+   "line_end": 262,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "color",
+     "text": "Color"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "92jFti+9ZpStiIsAlSLJVA==": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 28,
+   "filepath": "src/app/events/components/event-form.tsx",
+   "line_beg": 280,
+   "line_end": 280,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "XOa5yDd43/4k6SicSknEOA==": {
+     "desc": "Descedingly ordered history of events (i.e. diaper changes or feeding sessions)",
+     "text": "History"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 14,
+   "filepath": "src/app/diaper/page.tsx",
+   "line_beg": 32,
+   "line_end": 34,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Descedingly ordered history of events (i.e. diaper changes or feeding sessions)",
+     "text": "History"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "sOiViMq1cYfc54ftpG7fPQ==": {
+     "desc": "Label on a button to add a new entry",
+     "text": "Add Entry"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 35,
+   "filepath": "src/app/diaper/page.tsx",
+   "line_beg": 42,
+   "line_end": 42,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a button to add a new entry",
+     "text": "Add Entry"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "myTl7xkxfQgUCz9MV+cAyg==": {
+     "desc": "Title of the dialog to manually add a previous diaper change",
+     "text": "Add Diaper Change"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/app/diaper/page.tsx",
+   "line_beg": 63,
+   "line_end": 65,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title of the dialog to manually add a previous diaper change",
+     "text": "Add Diaper Change"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "CbEfPkR7inUz8SRue5W0ig==": {
+     "desc": "Label for a button that tracks a urine only diaper",
+     "text": "Urine Only"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 11,
+   "filepath": "src/app/diaper/components/diaper-tracker.tsx",
+   "line_beg": 34,
+   "line_end": 36,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a button that tracks a urine only diaper",
+     "text": "Urine Only"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "wP8YoQcKLcgvEWjz0zrF1g==": {
+     "desc": "Label for a button that tracks a urine and stool diaper",
+     "text": "Stool"
+    }
+   },
+   "col_beg": 5,
+   "col_end": 11,
+   "filepath": "src/app/diaper/components/diaper-tracker.tsx",
+   "line_beg": 44,
+   "line_end": 46,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a button that tracks a urine and stool diaper",
+     "text": "Stool"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "J8lj15YDmpetPlEHC+trKw==": {
+     "desc": "Title for the diaper change details dialog",
+     "text": "{diaperType} Diaper - Details"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 12,
+   "filepath": "src/app/diaper/components/diaper-tracker.tsx",
+   "line_beg": 60,
+   "line_end": 69,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Title for the diaper change details dialog",
+     "text": "{diaperType} Diaper - Details"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "FMugYukb3YkOSqYR1I9pvw==": {
+     "desc": "Urine",
+     "text": "Urine"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 32,
+   "filepath": "src/app/diaper/components/diaper-tracker.tsx",
+   "line_beg": 63,
+   "line_end": 63,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Urine",
+     "text": "Urine"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "4pSvVOueN5/F3voXnlcVFg==": {
+     "desc": "Stool",
+     "text": "Stool"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 32,
+   "filepath": "src/app/diaper/components/diaper-tracker.tsx",
+   "line_beg": 65,
+   "line_end": 65,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Stool",
+     "text": "Stool"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "v8jIOMoe6DERPgjpGMNg0w==": {
+     "desc": "Diaper container urine and stool",
+     "text": "Urine and Stool"
+    }
+   },
+   "col_beg": 11,
+   "col_end": 17,
+   "filepath": "src/app/diaper/components/diaper-history-list.tsx",
+   "line_beg": 50,
+   "line_end": 52,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Diaper container urine and stool",
+     "text": "Urine and Stool"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "wDpJf0hr39EZyXan7d6yow==": {
+     "desc": "Diaper container urine only",
+     "text": "Urine Only"
+    }
+   },
+   "col_beg": 11,
+   "col_end": 67,
+   "filepath": "src/app/diaper/components/diaper-history-list.tsx",
+   "line_beg": 54,
+   "line_end": 54,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Diaper container urine only",
+     "text": "Urine Only"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "yclVixtC4QvKnwWEGf8xeQ==": {
+     "desc": "Label for a measured body temperature in degree Celsius",
+     "text": "Temperature (°C)"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 18,
+   "filepath": "src/app/diaper/components/diaper-history-list.tsx",
+   "line_beg": 70,
+   "line_end": 72,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a measured body temperature in degree Celsius",
+     "text": "Temperature (°C)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "d49BaGzuyPMIZfHhgPleIg==": {
+     "desc": "Label on a field that informs the user about the diaper brand used",
+     "text": "Diaper Brand"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 18,
+   "filepath": "src/app/diaper/components/diaper-history-list.tsx",
+   "line_beg": 82,
+   "line_end": 84,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a field that informs the user about the diaper brand used",
+     "text": "Diaper Brand"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "LwNldlcrN5a+Y1rniLvYOw==": {
+     "desc": "Short information text that a diaper has leaked",
+     "text": "Diaper leaked"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 18,
+   "filepath": "src/app/diaper/components/diaper-history-list.tsx",
+   "line_beg": 93,
+   "line_end": 95,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Short information text that a diaper has leaked",
+     "text": "Diaper leaked"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "+OMZbOWqml0fpJx1apMgRw==": {
+     "desc": "Prefix to a user defined text on abnormalities on a diaper change (i.e. rashes, redness.)",
+     "text": "Abnormalities"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 18,
+   "filepath": "src/app/diaper/components/diaper-history-list.tsx",
+   "line_beg": 100,
+   "line_end": 102,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Prefix to a user defined text on abnormalities on a diaper change (i.e. rashes, redness.)",
+     "text": "Abnormalities"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "Watqqe4XR3l7IQe6ttJNnw==": {
+     "desc": "editDiaperEntry",
+     "text": "Edit Diaper Entry"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 63,
+   "filepath": "src/app/diaper/components/diaper-history-list.tsx",
+   "line_beg": 134,
+   "line_end": 134,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "editDiaperEntry",
+     "text": "Edit Diaper Entry"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "5KGEWjodzCazUm0jC6OldA==": {
+     "desc": "Label on a radio button to select the type of diaper (urine or stool)",
+     "text": "Diaper Type"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 153,
+   "line_end": 155,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a radio button to select the type of diaper (urine or stool)",
+     "text": "Diaper Type"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "1+tNkr1iYA+03eMA3LJBcA==": {
+     "desc": "Label on a radio button that sets the input to urine only",
+     "text": "Urine Only"
+    }
+   },
+   "col_beg": 11,
+   "col_end": 17,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 172,
+   "line_end": 174,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a radio button that sets the input to urine only",
+     "text": "Urine Only"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "Mz55VSaBRTb6zp83h57vRQ==": {
+     "desc": "Label on a radio button that sets the input to urine and stool",
+     "text": "Stool"
+    }
+   },
+   "col_beg": 11,
+   "col_end": 17,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 185,
+   "line_end": 187,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a radio button that sets the input to urine and stool",
+     "text": "Stool"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "o9/791nq8HNHWZLr+kCpXQ==": {
+     "desc": "Label for a date field",
+     "text": "Date"
+    }
+   },
+   "col_beg": 10,
+   "col_end": 32,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 196,
+   "line_end": 196,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a date field",
+     "text": "Date"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "3MlTgq++hG5xp5v70Cgolw==": {
+     "desc": "Label for a time field",
+     "text": "Time"
+    }
+   },
+   "col_beg": 10,
+   "col_end": 32,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 207,
+   "line_end": 207,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a time field",
+     "text": "Time"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "7D7ziJntCoxQTBesJHrztA==": {
+     "desc": "Label on a select that allows the user to pick a diaper brand",
+     "text": "Diaper Brand"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 223,
+   "line_end": 225,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a select that allows the user to pick a diaper brand",
+     "text": "Diaper Brand"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "63qbxN9QNsvm/02G0q+IBQ==": {
+     "desc": "Placeholder text on a select that allows the user to pick a diaper brand",
+     "text": "Select Diaper Brand"
+    }
+   },
+   "col_beg": 10,
+   "col_end": 16,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 231,
+   "line_end": 233,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Placeholder text on a select that allows the user to pick a diaper brand",
+     "text": "Select Diaper Brand"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "94EgjPavoqzLJzpI+OfVwA==": {
+     "desc": "Label on an input to specificy the body temperature in degree Celsius",
+     "text": "Temperature (°C)"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 250,
+   "line_end": 252,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on an input to specificy the body temperature in degree Celsius",
+     "text": "Temperature (°C)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "Zus98nCLBjGApT7TuZlkyQ==": {
+     "desc": "Placeholder text for an input to set the body temperature in degree Celsius",
+     "text": "e.g. 37.2"
+    }
+   },
+   "col_beg": 20,
+   "col_end": 8,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 263,
+   "line_end": 266,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Placeholder text for an input to set the body temperature in degree Celsius",
+     "text": "e.g. 37.2"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "Da8q8rqrDXU3uEJF3foUXA==": {
+     "desc": "A warning that the temperature is outside the normal range",
+     "text": "Warning: Temperature outside normal range (36.5°C - 37.5°C)"
+    }
+   },
+   "col_beg": 9,
+   "col_end": 15,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 274,
+   "line_end": 276,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A warning that the temperature is outside the normal range",
+     "text": "Warning: Temperature outside normal range (36.5°C - 37.5°C)"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "4JomOmheRFWYHDqzrzPwcQ==": {
+     "desc": "Label for a switch button that indicates that a diaper has leaked",
+     "text": "Diaper leaked"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 289,
+   "line_end": 291,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a switch button that indicates that a diaper has leaked",
+     "text": "Diaper leaked"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "MVsPoGCUJLwg7LO9Z1HA8Q==": {
+     "desc": "Label for a textbox to note any abnormalities",
+     "text": "Abnormalities"
+    }
+   },
+   "col_beg": 7,
+   "col_end": 13,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 297,
+   "line_end": 299,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label for a textbox to note any abnormalities",
+     "text": "Abnormalities"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "6540LQjwLzDiLG4lNPiedg==": {
+     "desc": "Placeholder text for a textbox to note any abnormalities",
+     "text": "e.g. redness, rash, etc."
+    }
+   },
+   "col_beg": 20,
+   "col_end": 8,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 304,
+   "line_end": 307,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Placeholder text for a textbox to note any abnormalities",
+     "text": "e.g. redness, rash, etc."
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "ICrhnp794kKquu/va1BGcw==": {
+     "desc": "Label on a cancel button",
+     "text": "Cancel"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 30,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 314,
+   "line_end": 314,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a cancel button",
+     "text": "Cancel"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "92jFti+9ZpStiIsAlSLJVA==": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   },
+   "col_beg": 6,
+   "col_end": 28,
+   "filepath": "src/app/diaper/components/diaper-form.tsx",
+   "line_beg": 317,
+   "line_end": 317,
+   "project": "",
+   "common": true,
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "Label on a save button",
+     "text": "Save"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "IYUmtYxQtGdt1MucjXrsVA==": {
+     "desc": "Label with meaning 'at least number'",
+     "text": "{number}+"
+    }
+   },
+   "col_beg": 4,
+   "col_end": 10,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 19,
+   "line_end": 24,
+   "project": "locale_data",
+   "jsfbt": {
+    "m": [
+     {
+      "token": "number",
+      "type": 2
+     }
+    ],
+    "t": {
+     "*": {
+      "desc": "Label with meaning 'at least number'",
+      "text": "{number}+"
+     }
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "ZIF1WhVQwt7WZJvFTEbMWw==": {
+     "desc": "Label with meaning 'less than number'",
+     "text": "<{number}"
+    }
+   },
+   "col_beg": 4,
+   "col_end": 10,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 34,
+   "line_end": 39,
+   "project": "locale_data",
+   "jsfbt": {
+    "m": [
+     {
+      "token": "number",
+      "type": 2
+     }
+    ],
+    "t": {
+     "*": {
+      "desc": "Label with meaning 'less than number'",
+      "text": "<{number}"
+     }
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "Oc/9PrbjfyLHS60BXceD1A==": {
+     "desc": "A list of items of various types, for example: \"San Francisco; London; Tokyo\". {previous items} and {following items} are themselves lists that contain one or more items.",
+     "text": "{previous items}; {following items}"
+    }
+   },
+   "col_beg": 10,
+   "col_end": 16,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 42,
+   "line_end": 46,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A list of items of various types, for example: \"San Francisco; London; Tokyo\". {previous items} and {following items} are themselves lists that contain one or more items.",
+     "text": "{previous items}; {following items}"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "AXXbKEUZuc0ji1IClRrOOw==": {
+     "desc": "A list of items of various types separated by bullets, for example: \"San Francisco \\u2022 London \\u2022 Tokyo\". {previous items} and {following items} are themselves lists that contain one or more items.",
+     "text": "{previous items} • {following items}"
+    }
+   },
+   "col_beg": 10,
+   "col_end": 16,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 51,
+   "line_end": 54,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A list of items of various types separated by bullets, for example: \"San Francisco \\u2022 London \\u2022 Tokyo\". {previous items} and {following items} are themselves lists that contain one or more items.",
+     "text": "{previous items} • {following items}"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "89ACgPMtnwlLDSeqhLBx2Q==": {
+     "desc": "A list of items of various types separated by commas, for example: \"San Francisco, London, Tokyo\". {previous items} and {following items} are themselves lists that contain one or more items.",
+     "text": "{previous items}, {following items}"
+    }
+   },
+   "col_beg": 10,
+   "col_end": 16,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 59,
+   "line_end": 63,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A list of items of various types separated by commas, for example: \"San Francisco, London, Tokyo\". {previous items} and {following items} are themselves lists that contain one or more items.",
+     "text": "{previous items}, {following items}"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "icNetEL/crQv/PS6yhySVQ==": {
+     "desc": "A list of items of various types, for example: \"item1, item2, item3 and item4\"",
+     "text": "{list of items} and {last item}"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 14,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 71,
+   "line_end": 75,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A list of items of various types, for example: \"item1, item2, item3 and item4\"",
+     "text": "{list of items} and {last item}"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "8eSaAzrWtAqn9ktNKfkaEg==": {
+     "desc": "A list of items of various types, for example: \"item1, item2, item3 or item4\"",
+     "text": "{list of items} or {last item}"
+    }
+   },
+   "col_beg": 8,
+   "col_end": 14,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 80,
+   "line_end": 84,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A list of items of various types, for example: \"item1, item2, item3 or item4\"",
+     "text": "{list of items} or {last item}"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "+IBI7kr/mMKdzp+3stDvkw==": {
+     "desc": "A list of items of various types, for example: \"San Francisco; London; Tokyo\". {previous items} itself contains one or more items.",
+     "text": "{previous items}; {last item}"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 18,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 91,
+   "line_end": 95,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A list of items of various types, for example: \"San Francisco; London; Tokyo\". {previous items} itself contains one or more items.",
+     "text": "{previous items}; {last item}"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "55IeE8c0qqtjTU0lo7q9AA==": {
+     "desc": "A list of items of various types separated by bullets, for example: \"San Francisco \\u2022 London \\u2022 Tokyo\". {previous items} contains one or more items.",
+     "text": "{list of items} • {last item}"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 18,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 99,
+   "line_end": 102,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A list of items of various types separated by bullets, for example: \"San Francisco \\u2022 London \\u2022 Tokyo\". {previous items} contains one or more items.",
+     "text": "{list of items} • {last item}"
+    }
+   }
+  },
+  {
+   "hashToLeaf": {
+    "6PRJS0QalZfvaN8CkKCUCw==": {
+     "desc": "A list of items of various types, for example: \"item1, item2, item3, item4\"",
+     "text": "{list of items}, {last item}"
+    }
+   },
+   "col_beg": 12,
+   "col_end": 18,
+   "filepath": "node_modules/fbtee/lib/index.js",
+   "line_beg": 106,
+   "line_end": 110,
+   "project": "",
+   "jsfbt": {
+    "m": [],
+    "t": {
+     "desc": "A list of items of various types, for example: \"item1, item2, item3, item4\"",
+     "text": "{list of items}, {last item}"
+    }
+   }
+  }
+ ]
+}

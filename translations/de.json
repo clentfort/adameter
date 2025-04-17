@@ -1,0 +1,1525 @@
+{
+ "fb-locale": "de_DE",
+ "translations": {
+  "Pbf5XxGQj/ThYHas2Vn4Gw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Es wurden noch keine Daten erfasst.",
+     "variations": []
+    }
+   ]
+  },
+  "eOGl+VgWOfEZACxiZVcc8Q==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Eintrag löschen",
+     "variations": []
+    }
+   ]
+  },
+  "WYFv/dbQNYMENrGOySAA9A==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Möchten Sie diesen Eintrag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+     "variations": []
+    }
+   ]
+  },
+  "ICrhnp794kKquu/va1BGcw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Abbrechen",
+     "variations": []
+    }
+   ]
+  },
+  "oGpCbaZ7ko05cFQNxk9xdA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Löschen",
+     "variations": []
+    }
+   ]
+  },
+  "wh9JZWabPa55WvaK7bwRNw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Noch keine Daten",
+     "variations": []
+    }
+   ]
+  },
+  "hIGWhCGtlLUtyTn91ssztg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Stillen",
+     "variations": []
+    }
+   ]
+  },
+  "K+H1qYEg6Kqk6MdfP3La9g==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Wickeln",
+     "variations": []
+    }
+   ]
+  },
+  "2wTZhQ6HMq9u8Iy0SQlSVw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Wachstum",
+     "variations": []
+    }
+   ]
+  },
+  "pMdZDs9MjOClqRBGbYl1wA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Ereignisse",
+     "variations": []
+    }
+   ]
+  },
+  "4aLaSFhJd7v3AaKAVSiguw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Statistiken",
+     "variations": []
+    }
+   ]
+  },
+  "SiQ7pYEz/3u9zAc6qBr2rg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Deutsch",
+     "variations": []
+    }
+   ]
+  },
+  "ypGUoA339DiFGhqEycR1CQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Englisch",
+     "variations": []
+    }
+   ]
+  },
+  "eTTQBt9Zmf3KFRS2ylz0og==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Sprache",
+     "variations": []
+    }
+   ]
+  },
+  "kH44IkQ7nT8QbtOL5dZ2xQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Lädt",
+     "variations": []
+    }
+   ]
+  },
+  "unAMAmhRyZqCKG4oaIgZ4Q==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Letzte Stillzeit",
+     "variations": []
+    }
+   ]
+  },
+  "/xgYxzwr3arrO4U+cRSIKw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Letzte Wickelzeit",
+     "variations": []
+    }
+   ]
+  },
+  "a76EbCnlAOF3msEO3exPqg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Bearbeiten",
+     "variations": []
+    }
+   ]
+  },
+  "TkyxGV2k45V5e8RZ1mKzZA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Löschen",
+     "variations": []
+    }
+   ]
+  },
+  "BhELZ6AoQ8yzVIArv45dBA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Statistiken",
+     "variations": []
+    }
+   ]
+  },
+  "exJryBaRmwL5Hyvz/75vKg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Zeitraum",
+     "variations": []
+    }
+   ]
+  },
+  "p6LrbpZG1rdalTknMh/kig==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Letzte 7 Tage",
+     "variations": []
+    }
+   ]
+  },
+  "m0hoJCVSyEvK26+i+dIKlQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Letzte 14 Tage",
+     "variations": []
+    }
+   ]
+  },
+  "nxCbN49tSQuLxaz7j1kqxg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Letzte 30 Tage",
+     "variations": []
+    }
+   ]
+  },
+  "jeclg8r9zj96A6aEKhVHdQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Alle Daten",
+     "variations": []
+    }
+   ]
+  },
+  "2Y04Pe2xLAlA3qsMkzgYsQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Keine Daten für den ausgewählten Zeitraum verfügbar.",
+     "variations": []
+    }
+   ]
+  },
+  "ZFK8BSNPyVz8JNoADA+3ug==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Stillen",
+     "variations": []
+    }
+   ]
+  },
+  "6VZtxIO73ztfFl7K/c64SA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Für den gewählten Zeitbereich sind keine Daten zum Stillen verfügbar.",
+     "variations": []
+    }
+   ]
+  },
+  "TzV3P5SkYEQgn50s+Q3hRQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Wickeln",
+     "variations": []
+    }
+   ]
+  },
+  "RRq3xlz/dEfxJgFReBGoww==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Für den gewählten Zeitbereich sind keine Daten zum Wickeln verfügbar.",
+     "variations": []
+    }
+   ]
+  },
+  "sJwbdHaeKYrEGDUFV4vmNg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Wachstum",
+     "variations": []
+    }
+   ]
+  },
+  "IjQ9uZz5+IKbnl3LPTcujg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Keine Wachstumsinformationen verfügbar.",
+     "variations": []
+    }
+   ]
+  },
+  "sodYlTnft53nI4+dIVT/cQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Alle Stillzeiten",
+     "variations": []
+    }
+   ]
+  },
+  "CbOdZizL+o7Zc/nh5adFvg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Linke Brust",
+     "variations": []
+    }
+   ]
+  },
+  "1VzvODk6/hhXyam5tnhXJA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Rechte Brust",
+     "variations": []
+    }
+   ]
+  },
+  "7jVtWj3Lt8kXbJ4RPqKa6Q==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Zeit zwischen Mahlzeiten",
+     "variations": []
+    }
+   ]
+  },
+  "67jGfWnLXz7iLy9AlQqJ5w==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Tagesverteilung der Mahlzeiten",
+     "variations": []
+    }
+   ]
+  },
+  "ZsyCrv/5i09WAZn+ADNn9A==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Verteilung der Stillzeiten über den Tag",
+     "variations": []
+    }
+   ]
+  },
+  "5iI489zNpAmgwom+DkfbZg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Sehr hohe Aktivität",
+     "variations": []
+    }
+   ]
+  },
+  "eH7bIrF8i0Qcw00xdeVhWg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Hohe Aktivität",
+     "variations": []
+    }
+   ]
+  },
+  "6+JCk/8VI2Qu6jyvQ1QSow==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Mittlere Aktivität",
+     "variations": []
+    }
+   ]
+  },
+  "KkaDiSYm65O2KeTxLzGErg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Geringe Aktivität",
+     "variations": []
+    }
+   ]
+  },
+  "hfj+LGLPWHZfgjyHWMKZIg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Sehr geringe Aktivität",
+     "variations": []
+    }
+   ]
+  },
+  "Iuf+4/DtfhOCXakCw8Wo8Q==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Wachstumskurve",
+     "variations": []
+    }
+   ]
+  },
+  "VkJ5gsfFeEl8V8qhUcOa6w==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Keine Messungen verfügbar. Füge Messungen hinzu, um die Wachstumskurve zu sehen.",
+     "variations": []
+    }
+   ]
+  },
+  "kbGONxRC5DcZawiEhJZcsg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Gewicht (g)",
+     "variations": []
+    }
+   ]
+  },
+  "3/3nMAUWktiGgBn/+wcxzA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Keine Gewichtsdaten verfügbar.",
+     "variations": []
+    }
+   ]
+  },
+  "UPqPkI182yGefQffQ6y0wA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Größe (cm)",
+     "variations": []
+    }
+   ]
+  },
+  "LQOOdZt25k6OR/oDHydgiw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Keine Größendaten vorhanden.",
+     "variations": []
+    }
+   ]
+  },
+  "SA3lHB7cY0e7kB1tLN7gzg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "* Vertikale Linien zeigen wichtige Ereignisse an.",
+     "variations": []
+    }
+   ]
+  },
+  "UNefAsm52J9m0uTz15i6sQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Mahlzeiten pro Tag",
+     "variations": []
+    }
+   ]
+  },
+  "8+QYAIsqmOGWUtLL9DeJNA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Durchschnittliche Stilldauer",
+     "variations": []
+    }
+   ]
+  },
+  "/kmWdV9mhsTgibW9JNiHMA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windelstatistiken",
+     "variations": []
+    }
+   ]
+  },
+  "IQTk0XFYg+7mWtrGa920jw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Übersicht",
+     "variations": []
+    }
+   ]
+  },
+  "qVqiiNYEB8lIY4WoKezi0w==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windelmarken",
+     "variations": []
+    }
+   ]
+  },
+  "smVDp+OpZepAgih3jrHEeg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windel ist ausgelaufen",
+     "variations": []
+    }
+   ]
+  },
+  "KVa2s1fKerOMwVU3IPApjw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Gesamt",
+     "variations": []
+    }
+   ]
+  },
+  "N20FWygVZAvLjw8co4d3yA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Pro Tag",
+     "variations": []
+    }
+   ]
+  },
+  "/ca5mzogDPA834/9O+dtsw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Nur Urin",
+     "variations": []
+    }
+   ]
+  },
+  "lgXC8vRq7AP0e1q/QzOdQw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Mit Stuhl",
+     "variations": []
+    }
+   ]
+  },
+  "x5HxzfvNKWgKB3/BhXQNUQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Ausgelaufen",
+     "variations": []
+    }
+   ]
+  },
+  "6WU/P+qLW9lSfFVuYzeDFg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Keine Windelmarken aufgezeichnet.",
+     "variations": []
+    }
+   ]
+  },
+  "iBM7QA5CXMQFLAkl6T7oeg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windelmarken nach Auslaufhäufigkeit (mind. 3 Verwendungen)",
+     "variations": []
+    }
+   ]
+  },
+  "vjXbM/kDO+x6REYZdTF4FA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Nicht genügend Daten für Auslaufstatistik.",
+     "variations": []
+    }
+   ]
+  },
+  "sOiViMq1cYfc54ftpG7fPQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Eintrag hinzufügen",
+     "variations": []
+    }
+   ]
+  },
+  "CxUOdYU7F0H4N8iKAvq39A==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Stillen hinzufügen",
+     "variations": []
+    }
+   ]
+  },
+  "e+FnEDDpEsQVx8O6eEVkbg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Noch keine Messungen erfasst.",
+     "variations": []
+    }
+   ]
+  },
+  "+L9WgG9P6IVJZg/rzLL8hg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Gewicht",
+     "variations": []
+    }
+   ]
+  },
+  "f1eSeOB3tGAG1gHfeTjYVQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Größe",
+     "variations": []
+    }
+   ]
+  },
+  "0MMkz6P8P5HIwlxgFuRHuA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Bitte geben Sie mindestens ein Gewicht oder eine Größe ein.",
+     "variations": []
+    }
+   ]
+  },
+  "o9/791nq8HNHWZLr+kCpXQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Datum",
+     "variations": []
+    }
+   ]
+  },
+  "E/8jm0M5Yc4/pq+xiWzhcg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Gewicht (g)",
+     "variations": []
+    }
+   ]
+  },
+  "I4JLnsD+gc9LL6A24X+GkA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "z.B. 3500",
+     "variations": []
+    }
+   ]
+  },
+  "ahi/bJUe1jhQQzBtkdPD/w==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Größe (cm)",
+     "variations": []
+    }
+   ]
+  },
+  "PClK+GAF9vsQqo/clYTY9w==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "z.B. 50",
+     "variations": []
+    }
+   ]
+  },
+  "fz1rj5/66HoPMzBKAGITGg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Notizen (optional)",
+     "variations": []
+    }
+   ]
+  },
+  "ry0QIAp75Bg9SEz20iIcfA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Zusätzliche Informationen",
+     "variations": []
+    }
+   ]
+  },
+  "92jFti+9ZpStiIsAlSLJVA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Speichern",
+     "variations": []
+    }
+   ]
+  },
+  "XOa5yDd43/4k6SicSknEOA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Verlauf",
+     "variations": []
+    }
+   ]
+  },
+  "e6atSd6V6OsSZ3A4txfhBg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Linke Brust",
+     "variations": []
+    }
+   ]
+  },
+  "Had/jciOH8BwtilHk3oxAg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Rechte Brust",
+     "variations": []
+    }
+   ]
+  },
+  "oI1A3TSwWphmKoGdSoo7aQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Linke Brust",
+     "variations": []
+    }
+   ]
+  },
+  "z3IxQm6HQhOCBkOmx2o3ag==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Rechte Brust",
+     "variations": []
+    }
+   ]
+  },
+  "TDi3YylpxNqy5wpCb0w+6g==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Start",
+     "variations": []
+    }
+   ]
+  },
+  "22sBBPag1Ky2WJKGRBdR2g==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Stillen beenden",
+     "variations": []
+    }
+   ]
+  },
+  "tRZTDi+LQd+N7t+ylHcpYQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Zeit manuell eingeben",
+     "variations": []
+    }
+   ]
+  },
+  "RM0AC8QIpYLDgKgN1c91lA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Stillzeit manuell eingeben",
+     "variations": []
+    }
+   ]
+  },
+  "7eOqvsKLA7g/LpyC1vayNw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Minuten",
+     "variations": []
+    }
+   ]
+  },
+  "/inS/3ZxenJMNTjoNKY5Ew==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Nächste",
+     "variations": []
+    }
+   ]
+  },
+  "dGC4MdeweH6mGZRo+OwDMw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Linke Brust",
+     "variations": []
+    }
+   ]
+  },
+  "NzpsQLsDxGxNrshDC+YUPg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Rechte Brust",
+     "variations": []
+    }
+   ]
+  },
+  "48TFhF5jKj/MAkOdJSIL0w==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Notiz",
+     "variations": []
+    }
+   ]
+  },
+  "wKd4Ggr/UJW1UR/e5Db+Ug==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Diese Sitzung geht über Mitternacht",
+     "variations": []
+    }
+   ]
+  },
+  "PFX4d/XVcifWrcjrk+hdBw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Start",
+     "variations": []
+    }
+   ]
+  },
+  "lEyABWlcYOw5ULR4etSFHw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Stillen beenden",
+     "variations": []
+    }
+   ]
+  },
+  "SAV5pQQpFl+bClhlN7e9jQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Brust",
+     "variations": []
+    }
+   ]
+  },
+  "r19sVcW2W5QMKcNt7U8rig==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Linke Brust",
+     "variations": []
+    }
+   ]
+  },
+  "KnN83G6cu54a8odinEahNg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Rechte Brust",
+     "variations": []
+    }
+   ]
+  },
+  "TXCg2gf2w3gFvRZFzSa5sA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Datum",
+     "variations": []
+    }
+   ]
+  },
+  "MvTAe4+2dK44NmqhJQps/Q==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Startzeit",
+     "variations": []
+    }
+   ]
+  },
+  "MCgjRy2lCa+MB6lT7QOW4A==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Minuten",
+     "variations": []
+    }
+   ]
+  },
+  "mwtErJHH4PdDkFgLKbYkbA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Ereignisse",
+     "variations": []
+    }
+   ]
+  },
+  "xdjK+9O4yfd69cLNhyL0ew==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Messwert hinzufügen",
+     "variations": []
+    }
+   ]
+  },
+  "uqypwmgMTFHUXekxPkCJCA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Es wurden noch keine Daten erfasst.",
+     "variations": []
+    }
+   ]
+  },
+  "Je7hP0iMfI6RuMD5NyZlCA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "laufend",
+     "variations": []
+    }
+   ]
+  },
+  "ZV50jK8HrEyzr+u7tDFo0g==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Messwert bearbeiten",
+     "variations": []
+    }
+   ]
+  },
+  "PpD/LO3zLsYX41ijNfIGmQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Titel",
+     "variations": []
+    }
+   ]
+  },
+  "JFPU0pvu4BpqHWkS5Kogkg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "z.B. Geburt, Impfung, Krankheit",
+     "variations": []
+    }
+   ]
+  },
+  "XNg60cJOtgRGp3lM0M6cQA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Beschreibung (optional)",
+     "variations": []
+    }
+   ]
+  },
+  "T4hW2lUwTHVgx3oHhuGOAw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Zusätzliche Details zum Event",
+     "variations": []
+    }
+   ]
+  },
+  "TcYBTg8y33SW4lCYmraFyw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Ereignis Typ",
+     "variations": []
+    }
+   ]
+  },
+  "nxyeKtztP0wxIGC80MlNEQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Zeitpunkt (z.B. Impfung)",
+     "variations": []
+    }
+   ]
+  },
+  "NcTLOx8DCiOoH4V/j3gh+w==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Zeitraum (z.B. Krankheit)",
+     "variations": []
+    }
+   ]
+  },
+  "3MlTgq++hG5xp5v70Cgolw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Zeit",
+     "variations": []
+    }
+   ]
+  },
+  "1CZwE9bTZCdo96K1cfcU7w==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Enddatum festlegen",
+     "variations": []
+    }
+   ]
+  },
+  "jbnKZdp4L/7+EwZ4NAV5TA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Enddatum",
+     "variations": []
+    }
+   ]
+  },
+  "R71jS1ju8ZRN4rnlXpOLpQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Endzeitpunkt",
+     "variations": []
+    }
+   ]
+  },
+  "S9lPSpqdYLHP2EUPuOvdzw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Farbe",
+     "variations": []
+    }
+   ]
+  },
+  "myTl7xkxfQgUCz9MV+cAyg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windelwechsel hinzufügen",
+     "variations": []
+    }
+   ]
+  },
+  "CbEfPkR7inUz8SRue5W0ig==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Nur Urin",
+     "variations": []
+    }
+   ]
+  },
+  "wP8YoQcKLcgvEWjz0zrF1g==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Stuhl",
+     "variations": []
+    }
+   ]
+  },
+  "J8lj15YDmpetPlEHC+trKw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{diaperType} Windeln - Details",
+     "variations": []
+    }
+   ]
+  },
+  "FMugYukb3YkOSqYR1I9pvw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Urin",
+     "variations": []
+    }
+   ]
+  },
+  "4pSvVOueN5/F3voXnlcVFg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Stuhl",
+     "variations": []
+    }
+   ]
+  },
+  "v8jIOMoe6DERPgjpGMNg0w==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Urin und Stuhl",
+     "variations": []
+    }
+   ]
+  },
+  "wDpJf0hr39EZyXan7d6yow==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Nur Urin",
+     "variations": []
+    }
+   ]
+  },
+  "yclVixtC4QvKnwWEGf8xeQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Temperatur (°C)",
+     "variations": []
+    }
+   ]
+  },
+  "d49BaGzuyPMIZfHhgPleIg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windelmarken",
+     "variations": []
+    }
+   ]
+  },
+  "LwNldlcrN5a+Y1rniLvYOw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windel ist ausgelaufen",
+     "variations": []
+    }
+   ]
+  },
+  "+OMZbOWqml0fpJx1apMgRw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Abnormalitäten",
+     "variations": []
+    }
+   ]
+  },
+  "Watqqe4XR3l7IQe6ttJNnw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Wickeln bearbeiten",
+     "variations": []
+    }
+   ]
+  },
+  "5KGEWjodzCazUm0jC6OldA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windelart",
+     "variations": []
+    }
+   ]
+  },
+  "1+tNkr1iYA+03eMA3LJBcA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Nur Urin",
+     "variations": []
+    }
+   ]
+  },
+  "Mz55VSaBRTb6zp83h57vRQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Stuhl",
+     "variations": []
+    }
+   ]
+  },
+  "7D7ziJntCoxQTBesJHrztA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windelmarke",
+     "variations": []
+    }
+   ]
+  },
+  "63qbxN9QNsvm/02G0q+IBQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windelmarke auswählen",
+     "variations": []
+    }
+   ]
+  },
+  "94EgjPavoqzLJzpI+OfVwA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Temperatur (°C)",
+     "variations": []
+    }
+   ]
+  },
+  "Zus98nCLBjGApT7TuZlkyQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "z.B. 37,2",
+     "variations": []
+    }
+   ]
+  },
+  "Da8q8rqrDXU3uEJF3foUXA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Warnung: Temperatur außerhalb des normalen Bereichs (36,5°C - 37,5°C)",
+     "variations": []
+    }
+   ]
+  },
+  "4JomOmheRFWYHDqzrzPwcQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Windel ist ausgelaufen",
+     "variations": []
+    }
+   ]
+  },
+  "MVsPoGCUJLwg7LO9Z1HA8Q==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "Abnormalitäten",
+     "variations": []
+    }
+   ]
+  },
+  "6540LQjwLzDiLG4lNPiedg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "z.B. Rötung, Hautausschlag, etc.",
+     "variations": []
+    }
+   ]
+  },
+  "IYUmtYxQtGdt1MucjXrsVA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{number}+",
+     "variations": []
+    }
+   ]
+  },
+  "ZIF1WhVQwt7WZJvFTEbMWw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "<{number}",
+     "variations": []
+    }
+   ]
+  },
+  "Oc/9PrbjfyLHS60BXceD1A==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{previous items}; {following items}",
+     "variations": []
+    }
+   ]
+  },
+  "AXXbKEUZuc0ji1IClRrOOw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{previous items} • {following items}",
+     "variations": []
+    }
+   ]
+  },
+  "89ACgPMtnwlLDSeqhLBx2Q==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{previous items}, {following items}",
+     "variations": []
+    }
+   ]
+  },
+  "icNetEL/crQv/PS6yhySVQ==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{list of items} and {last item}",
+     "variations": []
+    }
+   ]
+  },
+  "8eSaAzrWtAqn9ktNKfkaEg==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{list of items} or {last item}",
+     "variations": []
+    }
+   ]
+  },
+  "+IBI7kr/mMKdzp+3stDvkw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{previous items}; {last item}",
+     "variations": []
+    }
+   ]
+  },
+  "55IeE8c0qqtjTU0lo7q9AA==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{list of items} • {last item}",
+     "variations": []
+    }
+   ]
+  },
+  "6PRJS0QalZfvaN8CkKCUCw==": {
+   "tokens": [],
+   "types": [],
+   "translations": [
+    {
+     "translation": "{list of items}, {last item}",
+     "variations": []
+    }
+   ]
+  }
+ }
+}
