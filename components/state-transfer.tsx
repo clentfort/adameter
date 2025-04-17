@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useTranslate } from "@/utils/translate"
 import { useLanguage } from "@/contexts/language-context"
 import { downloadAllAsZip } from "@/utils/csv-export"
+import JSZip from "jszip"
 
 interface StateTransferProps {
   sessions: FeedingSession[]
@@ -73,62 +74,62 @@ export default function StateTransfer({
   const diaperChangesArray = Array.isArray(diaperChanges) ? diaperChanges : []
 
   // Check for hash in URL on component mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash
-      if (hash && hash.startsWith("#data=")) {
-        try {
-          const encodedData = hash.substring(6) // Remove "#data="
-          const jsonData = decodeURIComponent(atob(encodedData))
-          const parsedData = JSON.parse(jsonData)
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const hash = window.location.hash
+  //     if (hash && hash.startsWith("#data=")) {
+  //       try {
+  //         const encodedData = hash.substring(6) // Remove "#data="
+  //         const jsonData = decodeURIComponent(atob(encodedData))
+  //         const parsedData = JSON.parse(jsonData)
 
-          // Handle different data formats for backward compatibility
-          let sessions: FeedingSession[] = []
-          let events: Event[] = []
-          let measurements: GrowthMeasurement[] = []
-          let diaperChanges: DiaperChange[] = []
-		  let userSettings = {}
+  //         // Handle different data formats for backward compatibility
+  //         let sessions: FeedingSession[] = []
+  //         let events: Event[] = []
+  //         let measurements: GrowthMeasurement[] = []
+  //         let diaperChanges: DiaperChange[] = []
+		  // let userSettings = {}
 
-          // Case 1: New format with sessions, events, measurements, and diaperChanges
-          if (parsedData && typeof parsedData === "object" && Array.isArray(parsedData.sessions)) {
-            sessions = parsedData.sessions
-            events = Array.isArray(parsedData.events) ? parsedData.events : []
-            measurements = Array.isArray(parsedData.measurements) ? parsedData.measurements : []
-            diaperChanges = Array.isArray(parsedData.diaperChanges) ? parsedData.diaperChanges : []
-          }
-          // Case 2: Old format with just an array of sessions
-          else if (Array.isArray(parsedData)) {
-            sessions = parsedData
-          }
-          // Case 3: Invalid format
-          else {
-            throw new Error("Invalid data format")
-          }
+  //         // Case 1: New format with sessions, events, measurements, and diaperChanges
+  //         if (parsedData && typeof parsedData === "object" && Array.isArray(parsedData.sessions)) {
+  //           sessions = parsedData.sessions
+  //           events = Array.isArray(parsedData.events) ? parsedData.events : []
+  //           measurements = Array.isArray(parsedData.measurements) ? parsedData.measurements : []
+  //           diaperChanges = Array.isArray(parsedData.diaperChanges) ? parsedData.diaperChanges : []
+  //         }
+  //         // Case 2: Old format with just an array of sessions
+  //         else if (Array.isArray(parsedData)) {
+  //           sessions = parsedData
+  //         }
+  //         // Case 3: Invalid format
+  //         else {
+  //           throw new Error("Invalid data format")
+  //         }
 
-          if (sessions.length > 0) {
-            setImportedData({
-              sessions,
-              events,
-              measurements,
-              diaperChanges,
-            })
-            setIsImportDialogOpen(true)
+  //         if (sessions.length > 0) {
+  //           setImportedData({
+  //             sessions,
+  //             events,
+  //             measurements,
+  //             diaperChanges,
+  //           })
+  //           setIsImportDialogOpen(true)
 
-            // Clear the hash from the URL without reloading the page
-            history.pushState("", document.title, window.location.pathname + window.location.search)
-          }
-        } catch (error) {
-          toast({
-            title: t("importTitle"),
-            description: t("importDescription"),
-            variant: "destructive",
-          })
-        }
-      }
-    }
-  }, [toast, t])
+  //           // Clear the hash from the URL without reloading the page
+  //           history.pushState("", document.title, window.location.pathname + window.location.search)
+  //         }
+  //       } catch (error) {
+  //         toast({
+  //           title: t("importTitle"),
+  //           description: t("importDescription"),
+  //           variant: "destructive",
+  //         })
+  //       }
+  //     }
+  //   }
+  // }, [toast, t])
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (sessionsArray.length === 0) {
       toast({
         title: t("exportTitle"),
@@ -139,7 +140,7 @@ export default function StateTransfer({
     }
 
     const ACTIVE_BREAST_KEY = "activeBreast"
-const START_TIME_KEY = "startTime"
+    const START_TIME_KEY = "startTime"
     const storedBreast = localStorage.getItem(ACTIVE_BREAST_KEY) as "left" | "right" | null
     const storedStartTime = localStorage.getItem(START_TIME_KEY)
 
@@ -152,16 +153,18 @@ const START_TIME_KEY = "startTime"
         events: eventsArray,
         measurements: measurementsArray,
         diaperChanges: diaperChangesArray,
-		userSettings: {
-    storedBreast,
-    storedStartTime,
-    storedLanguage,
-    }
+        userSettings: {
+          storedBreast,
+          storedStartTime,
+          storedLanguage,
+        }
       }
 
       const jsonData = JSON.stringify(exportData)
-      const encodedData = btoa((jsonData))
-      const url = `${window.location.origin}${window.location.pathname}#data=${encodedData}`
+      const zip = new JSZip();
+      zip.file("data.json", jsonData)
+      const zipBase64 = await zip.generateAsync({ type: "base64", compression: "DEFLATE", compressionOptions: { level: 9 } })
+      const url = `${window.location.origin}${window.location.pathname}#data=${zipBase64}`
       setExportUrl(url)
       setIsExportDialogOpen(true)
     } catch (error) {
@@ -454,10 +457,6 @@ const START_TIME_KEY = "startTime"
       </Dialog>
 
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={() => setIsImportUrlDialogOpen(true)} title={t("importData")}>
-          <Download className="h-4 w-4 mr-1" />
-          {t("importData")}
-        </Button>
         <Button variant="outline" size="sm" onClick={handleExport} title={t("exportData")}>
           <Share2 className="h-4 w-4 mr-1" />
           {t("exportData")}
