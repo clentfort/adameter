@@ -4,6 +4,7 @@ import translations from './translations.json' with { type: 'json' };
 
 const DEFAULT_LOCALE = 'en_US';
 export type Locale = typeof DEFAULT_LOCALE | keyof typeof translations;
+const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
 function isSupportedLocale(locale: string): locale is Locale {
 	return (
@@ -18,8 +19,6 @@ const localeToDateFnsLocale: Record<
 	de_DE: () => import('date-fns/locale/de').then(({ de }) => de),
 	en_US: () => import('date-fns/locale/en-US').then(({ enUS }) => enUS),
 };
-
-const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
 interface ViewerContext {
 	GENDER: IntlVariations;
