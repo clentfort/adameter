@@ -25,19 +25,21 @@ export function ModeToggle() {
 					className={theme === 'light' ? 'bg-accent font-medium' : ''}
 					onClick={() => setTheme('light')}
 				>
-					Light
+					<fbt desc="Label for light mode setting on a theme switcher">
+						Light
+					</fbt>
 				</DropdownMenuItem>
 				<DropdownMenuItem
 					className={theme === 'dark' ? 'bg-accent font-medium' : ''}
 					onClick={() => setTheme('dark')}
 				>
-					Dark
+					<fbt desc="Label for dark mode on a theme switcher">Dark</fbt>
 				</DropdownMenuItem>
 				<DropdownMenuItem
 					className={theme === 'system' ? 'bg-accent font-medium' : ''}
 					onClick={() => setTheme('system')}
 				>
-					System
+					<fbt desc="Label for system mode on a theme switcher">System</fbt>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
