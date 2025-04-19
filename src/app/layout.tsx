@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import RootLayout from '@/components/root-layout';
 import { Toaster } from '@/components/ui/toast';
 import '@/i18n';
+import { ThemeProvider } from '@/components/theme-provider';
 import { I18nProvider } from '@/contexts/i18n-context';
 
 export const metadata: Metadata = {
@@ -13,13 +14,20 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html>
+		<html suppressHydrationWarning>
 			<head>
 				<meta content="width=device-width, initial-scale=1" name="viewport" />
 			</head>
 			<body>
 				<I18nProvider>
-					<RootLayout>{children}</RootLayout>
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="system"
+						disableTransitionOnChange
+						enableSystem
+					>
+						<RootLayout>{children}</RootLayout>
+					</ThemeProvider>
 				</I18nProvider>
 				<Toaster />
 			</body>

@@ -6,6 +6,7 @@ import { Navigation } from './navigation';
 import TimeSince from './time-since';
 import '@/i18n';
 import Image from 'next/image';
+import { ModeToggle } from './theme-switcher';
 
 interface RootLayoutProps {
 	children: React.ReactNode;
@@ -37,7 +38,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					/>
 				</span>
 				<h1 className="text-2xl font-bold">AdaMeter</h1>
-				<LanguageSwitcher />
+				<div className="flex items-center gap-2">
+					<LanguageSwitcher />
+					<ModeToggle />
+				</div>
 			</div>
 
 			<div className="w-full flex flex-row justify-between gap-2 mb-6">
