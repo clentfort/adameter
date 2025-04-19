@@ -38,11 +38,20 @@ export default function BreastfeedingTracker({
 
 	// Check for active session on component mount
 	useEffect(() => {
-		const storedBreast = localStorage.getItem(ACTIVE_BREAST_KEY) as
-			| 'left'
-			| 'right'
-			| null;
-		const storedStartTime = localStorage.getItem(START_TIME_KEY);
+		const storedBreastRaw = localStorage.getItem(ACTIVE_BREAST_KEY) ?? '';
+		let storedBreast: 'left' | 'right' | null;
+		try {
+			storedBreast = JSON.parse(storedBreastRaw);
+		} catch {
+			storedBreast = null;
+		}
+		const storedStartTimeRaw = localStorage.getItem(START_TIME_KEY) ?? '';
+		let storedStartTime;
+		try {
+			storedStartTime = JSON.parse(storedStartTimeRaw);
+		} catch {
+			storedStartTime = null;
+		}
 
 		if (storedBreast && storedStartTime) {
 			const parsedStartTime = new Date(storedStartTime);
