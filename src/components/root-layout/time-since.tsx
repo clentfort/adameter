@@ -47,7 +47,12 @@ export default function TimeSince({
 				<span className="text-sm">{icon}</span>
 				<p className="text-xs text-muted-foreground">{children}</p>
 			</div>
-			<p className="text-sm font-medium">{timeSince}</p>
+			<p className="text-sm font-medium">
+				<fbt desc="Time since an event happened">
+					<fbt:param name="timeSince">{timeSince}</fbt:param>
+					ago
+				</fbt>
+			</p>
 		</div>
 	);
 }
