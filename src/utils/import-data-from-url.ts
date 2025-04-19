@@ -13,7 +13,7 @@ const ACTIVE_BREAST_KEY = 'activeBreast';
 const START_TIME_KEY = 'startTime';
 const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
-export async function* importDataFromUrl(url: string) {
+export async function importDataFromUrl(url: string) {
 	const params = new URL(url).hash.slice(1);
 	const zip = new URLSearchParams(params).get('data')!.replaceAll(' ', '+');
 
@@ -22,24 +22,17 @@ export async function* importDataFromUrl(url: string) {
 	}
 
 	const data = await defalteData(zip);
-	yield 'DEFLATED';
 
 	const { diaperChanges, events, measurements, sessions, userSettings } = data;
 	importDataIntoRepository(diaperRepository, diaperChanges);
-	yield 'IMPORTED_DIAPERS';
 	importDataIntoRepository(eventsRepository, events);
-	yield 'IMPORTED_EVENTS';
 	importDataIntoRepository(feedingRepository, sessions);
-	yield 'IMPORTED_SESSIONS';
 	importDataIntoRepository(measurementsRepository, measurements);
-	yield 'IMPORTED_GROWTH';
 
 	localStorage.setItem(ACTIVE_BREAST_KEY, userSettings.storedBreast);
 	localStorage.setItem(START_TIME_KEY, userSettings.storedStartTime);
 	const locale = userSettings.storedLanguage === 'de' ? 'de_DE' : 'en_US';
 	localStorage.setItem(LOCAL_STORAGE_KEY, locale);
-
-	return;
 }
 
 interface DecompressedData {

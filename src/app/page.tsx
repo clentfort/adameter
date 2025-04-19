@@ -6,7 +6,6 @@ import { importDataFromUrl } from '@/utils/import-data-from-url';
 
 export default function HomePagek() {
 	const [shouldRedirect, setShouldRedirect] = useState(false);
-	const [status, setStatus] = useState('Loading');
 
 	useEffect(() => {
 		let active = true;
@@ -24,9 +23,7 @@ export default function HomePagek() {
 				enableRedirect();
 				return;
 			}
-			for await (const status of importDataFromUrl(window.location.href)) {
-				setStatus(status);
-			}
+			await importDataFromUrl(window.location.href);
 			enableRedirect();
 		})();
 
@@ -38,5 +35,5 @@ export default function HomePagek() {
 	if (shouldRedirect) {
 		redirect('/feeding');
 	}
-	return <div>{status}</div>;
+	return null;
 }
