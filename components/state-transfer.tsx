@@ -164,7 +164,7 @@ export default function StateTransfer({
       const zip = new JSZip();
       zip.file("data.json", jsonData)
       const zipBase64 = await zip.generateAsync({ type: "base64", compression: "DEFLATE", compressionOptions: { level: 9 } })
-      const url = `${window.location.origin}${window.location.pathname}#data=${zipBase64}`
+      const url = `https://adameter.vercel.app/#data=${zipBase64}`
       setExportUrl(url)
       setIsExportDialogOpen(true)
     } catch (error) {
