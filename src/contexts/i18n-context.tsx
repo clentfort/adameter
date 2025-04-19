@@ -7,21 +7,29 @@ import React, {
 	useEffect,
 	useState,
 } from 'react';
-import { getPreferredLocale, Locale, setLocale as setAppLocale } from '@/i18n';
+import {
+	DEFAULT_LOCALE,
+	getPreferredLocale,
+	Locale,
+	setLocale as setAppLocale,
+} from '@/i18n';
 
 type I18nContextType = {
 	locale: Locale;
 	setLocale: (lang: Locale) => Promise<void>;
 };
 
-const I18nContext = createContext<I18nContextType | undefined>(undefined);
+export const I18nContext = createContext<I18nContextType>({
+	locale: DEFAULT_LOCALE,
+	setLocale: async () => {},
+});
 
 type I18nProviderProps = {
 	children: ReactNode;
 };
 
 export const I18nProvider = ({ children }: I18nProviderProps) => {
-	const [locale, setLocaleState] = useState<Locale>(getPreferredLocale());
+	const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
 
 	// Refresh preferred locale on mount, as this happens only on the client
 	useEffect(() => {

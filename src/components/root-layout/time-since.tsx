@@ -2,7 +2,8 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { fbt } from 'fbtee';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useContext, useEffect, useState } from 'react';
+import { I18nContext } from '@/contexts/i18n-context';
 
 interface TimeSinceLastDiaperProps {
 	children: ReactNode;
@@ -16,6 +17,7 @@ export default function TimeSince({
 	lastChange,
 }: TimeSinceLastDiaperProps) {
 	const [timeSince, setTimeSince] = useState<string>('');
+	const { locale } = useContext(I18nContext);
 
 	useEffect(() => {
 		// Update time since last diaper change every minute
@@ -39,7 +41,7 @@ export default function TimeSince({
 		const intervalId = setInterval(updateTimeSince, 60_000); // Update every minute
 
 		return () => clearInterval(intervalId);
-	}, [lastChange]);
+	}, [lastChange, locale]);
 
 	return (
 		<div className="text-center bg-muted/20 rounded-lg p-2 flex-1">

@@ -2,7 +2,7 @@ import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
 import translations from './translations.json' with { type: 'json' };
 
-const DEFAULT_LOCALE = 'en_US';
+export const DEFAULT_LOCALE = 'en_US';
 export type Locale = typeof DEFAULT_LOCALE | keyof typeof translations;
 const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
@@ -12,10 +12,7 @@ function isSupportedLocale(locale: string): locale is Locale {
 	);
 }
 
-const localeToDateFnsLocale: Record<
-	Locale,
-	() => undefined | Promise<DateFnsLocale>
-> = {
+const localeToDateFnsLocale: Record<Locale, () => Promise<DateFnsLocale>> = {
 	de_DE: () => import('date-fns/locale/de').then(({ de }) => de),
 	en_US: () => import('date-fns/locale/en-US').then(({ enUS }) => enUS),
 };
