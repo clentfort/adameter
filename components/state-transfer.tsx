@@ -388,6 +388,11 @@ export default function StateTransfer({
                   <Button onClick={handleCopyUrl} variant="secondary">
                     {t("copy")}
                   </Button>
+                  <Button onClick={() => {
+                    window.location.href = exportUrl;
+                  }} variant="secondary">
+                    Open
+                  </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">{t("urlExportDescription")}</p>
               </div>
