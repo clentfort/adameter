@@ -35,5 +35,6 @@ export default function HomePagek() {
 	if (shouldRedirect) {
 		redirect('/feeding');
 	}
-	return null;
+
+	return <div>Loading...</div>;
 }
