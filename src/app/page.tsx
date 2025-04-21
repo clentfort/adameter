@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { importDataFromUrl } from '@/utils/import-data-from-url';
 
-export default function HomePagek() {
+export default function HomePage() {
 	const [shouldRedirect, setShouldRedirect] = useState(false);
 
 	useEffect(() => {
@@ -19,11 +19,9 @@ export default function HomePagek() {
 
 		(async () => {
 			const hash = window.location.hash;
-			if (!hash) {
-				enableRedirect();
-				return;
+			if (hash) {
+				await importDataFromUrl(window.location.href);
 			}
-			await importDataFromUrl(window.location.href);
 			enableRedirect();
 		})();
 

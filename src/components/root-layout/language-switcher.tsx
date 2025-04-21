@@ -34,6 +34,11 @@ const locales: Array<LocaleMenuItem> = [
 export default function LanguageSwitcher() {
 	const { locale, setLocale } = useLanguage(); // Get the current language and the setter
 
+	const updateLocale = async (code: Locale) => {
+		await setLocale(code);
+		window.location.reload();
+	};
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -54,7 +59,7 @@ export default function LanguageSwitcher() {
 					<DropdownMenuItem
 						className={code === locale ? 'bg-accent font-medium' : ''}
 						key={code}
-						onSelect={() => setLocale(code)}
+						onSelect={() => updateLocale(code)}
 					>
 						<span className="mr-2">{flag}</span> {label}
 					</DropdownMenuItem>

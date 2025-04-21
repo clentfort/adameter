@@ -43,7 +43,7 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
 
 	return (
 		<I18nContext.Provider value={{ locale, setLocale }}>
-			<React.Fragment key={locale}>{children}</React.Fragment>
+			{children}
 		</I18nContext.Provider>
 	);
 };
