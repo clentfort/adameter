@@ -22,7 +22,7 @@ interface ViewerContext {
 	locale: Locale;
 }
 
-const viewerContext: ViewerContext = {
+let viewerContext: ViewerContext = {
 	GENDER: IntlVariations.GENDER_UNKNOWN,
 	locale: DEFAULT_LOCALE,
 };
@@ -43,7 +43,7 @@ export async function setLocale(locale: Locale): Promise<void> {
 
 	// @TODO(localStorage): Move all local storage access to dedicated module
 	localStorage.setItem(LOCAL_STORAGE_KEY, locale);
-	viewerContext.locale = locale;
+	viewerContext = { ...viewerContext, locale };
 
 	const dateFnsLocale = localeToDateFnsLocale[locale];
 	if (!dateFnsLocale) {
@@ -59,14 +59,12 @@ export function getPreferredLocale(): Locale {
 	}
 
 	// @TODO(localStorage): Move all local storage access to dedicated module
-	const storedLocale = localStorage.getItem(LOCAL_STORAGE_KEY) as Locale | null;
+	let locale = localStorage.getItem(LOCAL_STORAGE_KEY);
 
-	if (storedLocale) {
-		return storedLocale;
+	if (!locale) {
+		const browserLang = navigator.language;
+		locale = browserLang.replace('-', '_');
 	}
-
-	const browserLang = navigator.language;
-	const locale = browserLang.replace('-', '_');
 
 	if (isSupportedLocale(locale)) {
 		return locale;
