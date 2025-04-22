@@ -1,6 +1,8 @@
+import { format } from 'date-fns';
+
 export function dateToDateInputValue(date: Date | string): string {
 	if (typeof date === 'string') {
 		date = new Date(date);
 	}
-	return date.toISOString().split('T')[0];
+	return format(date, 'yyyy-MM-dd');
 }

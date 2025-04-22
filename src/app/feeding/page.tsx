@@ -1,35 +1,23 @@
 'use client';
 
-import type { FeedingSession } from '@/types/feeding';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useAppState } from '@/hooks/use-app-state';
+import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useNextBreast } from '@/hooks/use-next-breast';
 import FeedingForm from './components/feeding-form';
 import HistoryList from './components/feeding-history-list';
 import BreastfeedingTracker from './components/feeding-tracker';
 
-function getNextBreat(sessions: ReadonlyArray<FeedingSession>) {
-	if (sessions.length === 0) {
-		return 'left'; // Default to left if no feedings exist
-	}
-	const lastFeeding = sessions[0];
-	return lastFeeding.breast === 'left' ? 'right' : 'left';
-}
-
 export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
-	const { deleteSession, saveSession, sessions, updateSession } = useAppState();
-
-	const nextBreast = getNextBreat(sessions);
+	const { add, remove, update, value: sessions } = useFeedingSessions();
+	const [nextBreast] = useNextBreast();
 
 	return (
 		<>
 			<div className="w-full">
-				<BreastfeedingTracker
-					nextBreast={nextBreast}
-					onSessionComplete={saveSession}
-				/>
+				<BreastfeedingTracker nextBreast={nextBreast} onSessionComplete={add} />
 
 				<div className="w-full mt-8">
 					<div className="flex justify-between items-center mb-4">
@@ -48,8 +36,8 @@ export default function Feedings() {
 						</Button>
 					</div>
 					<HistoryList
-						onSessionDelete={deleteSession}
-						onSessionUpdate={updateSession}
+						onSessionDelete={remove}
+						onSessionUpdate={update}
 						sessions={sessions}
 					/>
 				</div>
@@ -59,7 +47,7 @@ export default function Feedings() {
 				<FeedingForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(change) => {
-						saveSession(change);
+						add(change);
 						setIsAddEntryDialogOpen(false);
 					}}
 					title={

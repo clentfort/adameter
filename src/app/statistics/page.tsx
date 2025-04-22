@@ -9,7 +9,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { useAppState } from '@/hooks/use-app-state';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useEvents } from '@/hooks/use-events';
+import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
@@ -19,36 +22,33 @@ import TimeBetweenStats from './components/time-between-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
 
 export default function StatisticsPage() {
-	const { diaperChanges, events, measurements, sessions } = useAppState();
+	const { value: diaperChanges } = useDiaperChanges();
+	const { value: events } = useEvents();
+	const { value: measurements } = useGrowthMeasurements();
+	const { value: sessions } = useFeedingSessions();
 
 	const [timeRange, setTimeRange] = useState<'7' | '14' | '30' | 'all'>('7');
 
-	// Ensure sessions is an array
-	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-	const diaperChangesArray = Array.isArray(diaperChanges) ? diaperChanges : [];
-	const measurementsArray = Array.isArray(measurements) ? measurements : [];
-	const eventsArray = Array.isArray(events) ? events : [];
-
 	// Filter sessions based on selected time range
 	const filteredSessions = (() => {
-		if (timeRange === 'all') return sessionsArray;
+		if (timeRange === 'all') return sessions;
 
 		const now = new Date();
 		const daysToLookBack = Number.parseInt(timeRange);
 		const cutoffDate = addDays(now, -daysToLookBack);
-		return sessionsArray.filter(
+		return sessions.filter(
 			(session) => new Date(session.startTime) >= cutoffDate,
 		);
 	})();
 
 	// Filter diaper changes based on selected time range
 	const filteredDiaperChanges = (() => {
-		if (timeRange === 'all') return diaperChangesArray;
+		if (timeRange === 'all') return diaperChanges;
 
 		const now = new Date();
 		const daysToLookBack = Number.parseInt(timeRange);
 		const cutoffDate = addDays(now, -daysToLookBack);
-		return diaperChangesArray.filter(
+		return diaperChanges.filter(
 			(change) => new Date(change.timestamp) >= cutoffDate,
 		);
 	})();
@@ -86,7 +86,7 @@ export default function StatisticsPage() {
 			</div>
 			{filteredSessions.length === 0 &&
 			filteredDiaperChanges.length === 0 &&
-			measurementsArray.length === 0 ? (
+			measurements.length === 0 ? (
 				<div className="text-center py-8 text-muted-foreground">
 					<fbt desc="noDataAvailable">
 						No data available for the selected time range.
@@ -132,11 +132,8 @@ export default function StatisticsPage() {
 					<h3 className="text-lg font-medium mt-8 mb-4">
 						<fbt desc="growthTab">Growth</fbt>
 					</h3>
-					{measurementsArray.length > 0 ? (
-						<GrowthChart
-							events={eventsArray}
-							measurements={measurementsArray}
-						/>
+					{measurements.length > 0 ? (
+						<GrowthChart events={events} measurements={measurements} />
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
 							<fbt desc="noGrowthDataAvailable">No growth data available.</fbt>

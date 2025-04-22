@@ -3,28 +3,23 @@
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useAppState } from '@/hooks/use-app-state';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useLastUsedDiaperBrand } from '@/hooks/use-last-used-diaper-brand';
 import DiaperForm from './components/diaper-form';
 import DiaperHistoryList from './components/diaper-history-list';
 import DiaperTracker from './components/diaper-tracker';
 
 export default function DiaperPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
-	const {
-		addDiaperChange,
-		deleteDiaperChange,
-		diaperChanges,
-		updateDiaperChange,
-	} = useAppState();
+
+	const { add } = useDiaperChanges();
+	const [lastUsedDiaperBrand] = useLastUsedDiaperBrand();
 
 	return (
 		<>
 			<div className="w-full">
 				<div className="w-full">
-					<DiaperTracker
-						diaperChanges={diaperChanges}
-						onDiaperChange={addDiaperChange}
-					/>
+					<DiaperTracker />
 
 					<div className="w-full mt-8">
 						<div className="flex justify-between items-center mb-4">
@@ -42,11 +37,7 @@ export default function DiaperPage() {
 								<fbt common>Add Entry</fbt>
 							</Button>
 						</div>
-						<DiaperHistoryList
-							changes={diaperChanges}
-							onDiaperDelete={deleteDiaperChange}
-							onDiaperUpdate={updateDiaperChange}
-						/>
+						<DiaperHistoryList />
 					</div>
 				</div>
 			</div>
@@ -55,10 +46,10 @@ export default function DiaperPage() {
 				<DiaperForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(change) => {
-						addDiaperChange(change);
+						add(change);
 						setIsAddEntryDialogOpen(false);
 					}}
-					presetDiaperBrand={diaperChanges[0]?.diaperBrand}
+					presetDiaperBrand={lastUsedDiaperBrand}
 					title={
 						<fbt desc="Title of the dialog to manually add a previous diaper change">
 							Add Diaper Change

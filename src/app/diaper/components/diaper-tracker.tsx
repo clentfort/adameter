@@ -1,21 +1,16 @@
-import type { DiaperChange } from '@/types/diaper';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useLastUsedDiaperBrand } from '@/hooks/use-last-used-diaper-brand';
 import DiaperForm from './diaper-form';
 
-interface DiaperTrackerProps {
-	diaperChanges: ReadonlyArray<DiaperChange>;
-	onDiaperChange: (change: DiaperChange) => void;
-}
-
-export default function DiaperTracker({
-	diaperChanges = [],
-	onDiaperChange,
-}: DiaperTrackerProps) {
+export default function DiaperTracker() {
 	const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 	const [selectedType, setSelectedType] = useState<'urine' | 'stool' | null>(
 		null,
 	);
+	const { add } = useDiaperChanges();
+	const [lastUsedDiaperBrand] = useLastUsedDiaperBrand();
 
 	const handleQuickChange = (type: 'urine' | 'stool') => {
 		setSelectedType(type);
@@ -51,9 +46,9 @@ export default function DiaperTracker({
 					onClose={() => setIsDetailsDialogOpen(false)}
 					onSave={(change) => {
 						setIsDetailsDialogOpen(false);
-						onDiaperChange(change);
+						add(change);
 					}}
-					presetDiaperBrand={diaperChanges[0]?.diaperBrand}
+					presetDiaperBrand={lastUsedDiaperBrand}
 					presetType={selectedType ?? undefined}
 					reducedOptions
 					title={

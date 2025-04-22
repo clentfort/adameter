@@ -12,10 +12,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useNextBreast } from '@/hooks/use-next-breast';
 import { formatDurationShort } from '@/utils/format-duration-short';
 
 interface BreastfeedingTrackerProps {
-	nextBreast: 'left' | 'right' | null;
 	onSessionComplete: (session: FeedingSession) => void;
 }
 
@@ -24,7 +24,6 @@ const ACTIVE_BREAST_KEY = 'activeBreast';
 const START_TIME_KEY = 'startTime';
 
 export default function BreastfeedingTracker({
-	nextBreast,
 	onSessionComplete,
 }: BreastfeedingTrackerProps) {
 	const [activeBreast, setActiveBreast] = useState<'left' | 'right' | null>(
@@ -35,6 +34,8 @@ export default function BreastfeedingTracker({
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [manualMinutes, setManualMinutes] = useState('');
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+	const [nextBreast] = useNextBreast();
 
 	// Check for active session on component mount
 	useEffect(() => {

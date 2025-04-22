@@ -10,7 +10,6 @@ import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
-import { Button } from '@/components/ui/button';
 import FeedingForm from './feeding-form';
 
 interface HistoryListProps {

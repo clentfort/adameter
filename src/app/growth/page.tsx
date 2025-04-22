@@ -3,14 +3,13 @@
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useAppState } from '@/hooks/use-app-state';
+import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import MeasurementForm from './components/growth-form';
 import GrowthMeasurementsList from './components/growth-list';
 
 export default function GrowthPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
-	const { addMeasurement, deleteMeasurement, measurements, updateMeasurement } =
-		useAppState();
+	const { add, remove, update, value: measurements } = useGrowthMeasurements();
 	return (
 		<>
 			<div className="w-full">
@@ -29,8 +28,8 @@ export default function GrowthPage() {
 				</div>
 				<GrowthMeasurementsList
 					measurements={measurements}
-					onMeasurementDelete={deleteMeasurement}
-					onMeasurementUpdate={updateMeasurement}
+					onMeasurementDelete={remove}
+					onMeasurementUpdate={update}
 				/>
 			</div>
 
@@ -38,7 +37,7 @@ export default function GrowthPage() {
 				<MeasurementForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(measurement) => {
-						addMeasurement(measurement);
+						add(measurement);
 						setIsAddEntryDialogOpen(false);
 					}}
 					title={

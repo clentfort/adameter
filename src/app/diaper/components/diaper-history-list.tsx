@@ -5,24 +5,15 @@ import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
-import { Button } from '@/components/ui/button';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { DIAPER_BRAND_LABELS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
 
-interface DiaperHistoryListProps {
-	changes: ReadonlyArray<DiaperChange>;
-	onDiaperDelete: (changeId: string) => void;
-	onDiaperUpdate: (change: DiaperChange) => void;
-}
-
-export default function DiaperHistoryList({
-	changes = [],
-	onDiaperDelete,
-	onDiaperUpdate,
-}: DiaperHistoryListProps) {
+export default function DiaperHistoryList() {
 	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
 	const [changeToEdit, setChangeToEdit] = useState<DiaperChange | null>(null);
+	const { remove, update, value: changes } = useDiaperChanges();
 
 	return (
 		<>
@@ -123,14 +114,14 @@ export default function DiaperHistoryList({
 				<DeleteEntryDialog
 					entry={changeToDelete}
 					onClose={() => setChangeToDelete(null)}
-					onDelete={onDiaperDelete}
+					onDelete={(id) => remove(id)}
 				/>
 			)}
 			{changeToEdit && (
 				<DiaperForm
 					change={changeToEdit}
 					onClose={() => setChangeToEdit(null)}
-					onSave={onDiaperUpdate}
+					onSave={update}
 					title={<fbt desc="editDiaperEntry">Edit Diaper Entry</fbt>}
 				/>
 			)}

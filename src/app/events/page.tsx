@@ -3,12 +3,12 @@
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useAppState } from '@/hooks/use-app-state';
+import { useEvents } from '@/hooks/use-events';
 import EventForm from './components/event-form';
 import EventsList from './components/events-list';
 
 export default function EventsPage() {
-	const { addEvent, deleteEvent, events, updateEvent } = useAppState();
+	const { add } = useEvents();
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	return (
 		<>
@@ -27,18 +27,14 @@ export default function EventsPage() {
 					</Button>
 				</div>
 
-				<EventsList
-					events={events}
-					onEventDelete={deleteEvent}
-					onEventUpdate={updateEvent}
-				/>
+				<EventsList />
 			</div>
 
 			{isAddEntryDialogOpen && (
 				<EventForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(event) => {
-						addEvent(event);
+						add(event);
 						setIsAddEntryDialogOpen(false);
 					}}
 					title={

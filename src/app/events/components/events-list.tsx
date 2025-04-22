@@ -5,30 +5,16 @@ import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import { useEvents } from '@/hooks/use-events';
 import AddEventDialog from './event-form';
 
-interface EventsListProps {
-	events: ReadonlyArray<Event>;
-	onEventDelete: (eventId: string) => void;
-	onEventUpdate: (event: Event) => void;
-}
-
-export default function EventsList({
-	events = [],
-	onEventDelete,
-	onEventUpdate,
-}: EventsListProps) {
+export default function EventsList() {
 	const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 	const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
 
-	// Ensure events is an array
-	const eventsArray = Array.isArray(events)
-		? Array.isArray(events)
-			? events
-			: []
-		: [];
+	const { remove, update, value: events } = useEvents();
 
-	if (eventsArray.length === 0) {
+	if (events.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
 				<fbt desc="Info message that no event data has been recorded yet">
@@ -39,7 +25,7 @@ export default function EventsList({
 	}
 
 	// Sort events by start date (newest first)
-	const sortedEvents = [...eventsArray].sort(
+	const sortedEvents = [...events].sort(
 		(a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
 	);
 
@@ -115,16 +101,24 @@ export default function EventsList({
 				<DeleteEntryDialog
 					entry={eventToDelete}
 					onClose={() => setEventToDelete(null)}
-					onDelete={onEventDelete}
+					onDelete={(event) => {
+						remove(event);
+						setEventToDelete(null);
+					}}
 				/>
 			)}
 			{eventToEdit && (
 				<AddEventDialog
 					event={eventToEdit}
 					onClose={() => setEventToEdit(null)}
-					onSave={onEventUpdate}
+					onSave={(event) => {
+						update(event);
+						setEventToEdit(null);
+					}}
 					title={
-						<fbt desc="Title of the dialog to edit a measurement">Edit Measurement</fbt>
+						<fbt desc="Title of the dialog to edit a measurement">
+							Edit Measurement
+						</fbt>
 					}
 				/>
 			)}

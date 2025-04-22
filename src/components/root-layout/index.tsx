@@ -1,11 +1,12 @@
 'use client';
 
-import { useAppState } from '@/hooks/use-app-state';
 import LanguageSwitcher from './language-switcher';
 import { Navigation } from './navigation';
 import TimeSince from './time-since';
 import '@/i18n';
 import Image from 'next/image';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { ModeToggle } from './theme-switcher';
 
 interface RootLayoutProps {
@@ -13,17 +14,8 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
-	const { diaperChanges, isLoading, sessions } = useAppState();
-
-	if (isLoading) {
-		return (
-			<div className="flex min-h-screen items-center justify-center">
-				<p>
-					<fbt desc="Loading indicator">Loading</fbt>
-				</p>
-			</div>
-		);
-	}
+	const { value: sessions } = useFeedingSessions();
+	const { value: diaperChanges } = useDiaperChanges();
 
 	return (
 		<main className="flex min-h-screen flex-col items-center p-4 max-w-md mx-auto">

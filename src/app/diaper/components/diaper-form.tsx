@@ -29,7 +29,7 @@ import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 interface AddDiaperProps {
 	onClose: () => void;
 	onSave: (change: DiaperChange) => void;
-	presetDiaperBrand: string | undefined;
+	presetDiaperBrand?: string;
 	presetType?: 'urine' | 'stool' | undefined;
 	/**
 	 * Whether the dialog is reduced or not
