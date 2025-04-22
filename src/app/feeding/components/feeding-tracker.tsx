@@ -1,5 +1,6 @@
 import type { FeedingSession } from '@/types/feeding';
 import { Duration, format, intervalToDuration } from 'date-fns';
+import { RESET } from 'jotai/utils';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
 import { useNextBreast } from '@/hooks/use-next-breast';
 import { formatDurationShort } from '@/utils/format-duration-short';
 
@@ -26,40 +28,23 @@ const START_TIME_KEY = 'startTime';
 export default function BreastfeedingTracker({
 	onSessionComplete,
 }: BreastfeedingTrackerProps) {
-	const [activeBreast, setActiveBreast] = useState<'left' | 'right' | null>(
-		null,
-	);
-	const [startTime, setStartTime] = useState<Date | null>(null);
 	const [elapsedTime, setElapsedTime] = useState<null | Duration>(null);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [manualMinutes, setManualMinutes] = useState('');
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
+	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
 
 	const [nextBreast] = useNextBreast();
 
 	// Check for active session on component mount
 	useEffect(() => {
-		const storedBreastRaw = localStorage.getItem(ACTIVE_BREAST_KEY) ?? '';
-		let storedBreast: 'left' | 'right' | null;
-		try {
-			storedBreast = JSON.parse(storedBreastRaw);
-		} catch {
-			storedBreast = null;
-		}
-		const storedStartTimeRaw = localStorage.getItem(START_TIME_KEY) ?? '';
-		let storedStartTime;
-		try {
-			storedStartTime = JSON.parse(storedStartTimeRaw);
-		} catch {
-			storedStartTime = null;
+		if (!feedingInProgress) {
+			return;
 		}
 
-		if (storedBreast && storedStartTime) {
-			const parsedStartTime = new Date(storedStartTime);
-			setActiveBreast(storedBreast);
-			setStartTime(parsedStartTime);
+		const parsedStartTime = new Date(feedingInProgress.startTime);
 
-			// Calculate elapsed time immediately
+		function updateTimer() {
 			const now = new Date();
 			const elapsed = intervalToDuration({
 				end: now,
@@ -67,32 +52,25 @@ export default function BreastfeedingTracker({
 			});
 			setElapsedTime(elapsed);
 		}
-	}, []);
 
-	// Update timer every second when active
-	useEffect(() => {
-		if (startTime) {
-			timerRef.current = setInterval(() => {
-				const now = new Date();
-				const elapsed = intervalToDuration({
-					end: now,
-					start: startTime,
-				});
-				setElapsedTime(elapsed);
-			}, 1000);
-		}
+		updateTimer();
+		timerRef.current = setInterval(() => {
+			updateTimer();
+		}, 1000);
 
 		return () => {
 			if (timerRef.current) {
 				clearInterval(timerRef.current);
 			}
 		};
-	}, [startTime]);
+	}, [feedingInProgress]);
 
 	const startFeeding = (breast: 'left' | 'right') => {
 		const now = new Date();
-		setActiveBreast(breast);
-		setStartTime(now);
+		setFeedingInProgress({
+			breast,
+			startTime: now.toISOString(),
+		});
 		setElapsedTime({ seconds: 0 });
 
 		// Store in localStorage
@@ -101,48 +79,54 @@ export default function BreastfeedingTracker({
 	};
 
 	const endFeeding = () => {
-		if (startTime && activeBreast) {
-			const endTime = new Date();
-			const durationInSeconds = Math.floor(
-				(endTime.getTime() - startTime.getTime()) / 1000,
-			);
-
-			const session: FeedingSession = {
-				breast: activeBreast,
-				durationInSeconds,
-				endTime: endTime.toISOString(),
-				id: Date.now().toString(),
-				startTime: startTime.toISOString(),
-			};
-
-			onSessionComplete(session);
-			resetTracker();
+		if (!feedingInProgress) {
+			return;
 		}
+		const { breast, startTime } = feedingInProgress;
+		const endTime = new Date();
+		const durationInSeconds = Math.floor(
+			(endTime.getTime() - new Date(startTime).getTime()) / 1000,
+		);
+
+		const session: FeedingSession = {
+			breast,
+			durationInSeconds,
+			endTime: endTime.toISOString(),
+			id: Date.now().toString(),
+			startTime,
+		};
+
+		onSessionComplete(session);
+		resetTracker();
 	};
 
 	const handleManualEntry = () => {
-		if (activeBreast && manualMinutes && !Number.isNaN(Number(manualMinutes))) {
-			const minutes = Number(manualMinutes);
-			const now = new Date();
-			const calculatedStartTime = new Date(now.getTime() - minutes * 60 * 1000);
-
-			const session: FeedingSession = {
-				breast: activeBreast,
-				durationInSeconds: minutes * 60,
-				endTime: now.toISOString(),
-				id: Date.now().toString(),
-				startTime: calculatedStartTime.toISOString(),
-			};
-
-			onSessionComplete(session);
-			setIsDialogOpen(false);
-			resetTracker();
+		if (
+			!feedingInProgress ||
+			!manualMinutes ||
+			Number.isNaN(Number(manualMinutes))
+		) {
+			return;
 		}
+		const minutes = Number(manualMinutes);
+		const now = new Date();
+		const calculatedStartTime = new Date(now.getTime() - minutes * 60 * 1000);
+
+		const session: FeedingSession = {
+			breast: feedingInProgress.breast,
+			durationInSeconds: minutes * 60,
+			endTime: now.toISOString(),
+			id: Date.now().toString(),
+			startTime: calculatedStartTime.toISOString(),
+		};
+
+		onSessionComplete(session);
+		setIsDialogOpen(false);
+		resetTracker();
 	};
 
 	const resetTracker = () => {
-		setActiveBreast(null);
-		setStartTime(null);
+		setFeedingInProgress(RESET);
 		setElapsedTime(null);
 		setManualMinutes('');
 
@@ -157,7 +141,7 @@ export default function BreastfeedingTracker({
 
 	return (
 		<div className="w-full">
-			{!activeBreast ? (
+			{!feedingInProgress ? (
 				<div className="grid grid-cols-2 gap-4">
 					<div className="relative">
 						<Button
@@ -189,19 +173,19 @@ export default function BreastfeedingTracker({
 					<div className="text-center mb-2 w-full">
 						<div
 							className={`p-3 rounded-lg ${
-								activeBreast === 'left'
+								feedingInProgress.breast === 'left'
 									? 'bg-left-breast/10 border border-left-breast/30'
 									: 'bg-right-breast/10 border border-right-breast/30'
 							}`}
 						>
 							<p
 								className={`text-lg font-medium ${
-									activeBreast === 'left'
+									feedingInProgress.breast === 'left'
 										? 'text-left-breast-dark'
 										: 'text-right-breast-dark'
 								}`}
 							>
-								{activeBreast === 'left' ? (
+								{feedingInProgress.breast === 'left' ? (
 									<fbt desc="Label that shows that there is a feeding session in progress with the left breast">
 										Left Breast
 									</fbt>
@@ -213,14 +197,14 @@ export default function BreastfeedingTracker({
 							</p>
 							<div className="mt-2">
 								<p className="text-3xl font-bold">
-									{formatDurationShort(elapsedTime!)}
+									{formatDurationShort(elapsedTime ?? { seconds: 0 })}
 								</p>
-								{startTime && (
+								{feedingInProgress.startTime && (
 									<p className="text-xs text-muted-foreground mt-1">
 										<fbt desc="Label indicating the start time of the current feeding session">
 											Start
 										</fbt>
-										: {format(startTime, 'p')}
+										: {format(feedingInProgress.startTime, 'p')}
 									</p>
 								)}
 							</div>
@@ -230,7 +214,7 @@ export default function BreastfeedingTracker({
 					<div className="grid grid-cols-2 gap-4 w-full">
 						<Button
 							className={`h-16 ${
-								activeBreast === 'left'
+								feedingInProgress.breast === 'left'
 									? 'bg-left-breast hover:bg-left-breast-dark'
 									: 'bg-right-breast hover:bg-right-breast-dark'
 							}`}
@@ -281,7 +265,7 @@ export default function BreastfeedingTracker({
 					<DialogFooter>
 						<Button
 							className={
-								activeBreast === 'left'
+								feedingInProgress?.breast === 'left'
 									? 'bg-left-breast hover:bg-left-breast-dark'
 									: 'bg-right-breast hover:bg-right-breast-dark'
 							}

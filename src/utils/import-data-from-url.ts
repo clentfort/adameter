@@ -7,6 +7,7 @@ import { Repository } from '@/data/repository';
 import { DiaperChange } from '@/types/diaper';
 import { Event } from '@/types/event';
 import { FeedingSession } from '@/types/feeding';
+import { FeedingInProgress } from '@/types/feeding-in-progress';
 import { GrowthMeasurement } from '@/types/growth';
 
 const ACTIVE_BREAST_KEY = 'activeBreast';
@@ -29,8 +30,16 @@ export async function importDataFromUrl(url: string) {
 	importDataIntoRepository(feedingRepository, sessions);
 	importDataIntoRepository(measurementsRepository, measurements);
 
-	localStorage.setItem(ACTIVE_BREAST_KEY, userSettings.storedBreast);
-	localStorage.setItem(START_TIME_KEY, userSettings.storedStartTime);
+	if (userSettings.storedBreast && userSettings.storedStartTime) {
+		const feedingInProgress: FeedingInProgress = {
+			breast: userSettings.storedBreast as 'left' | 'right',
+			startTime: userSettings.storedStartTime,
+		};
+		localStorage.setItem(
+			'feedingInProgress',
+			JSON.stringify(feedingInProgress),
+		);
+	}
 	const locale = userSettings.storedLanguage === 'de' ? 'de_DE' : 'en_US';
 	localStorage.setItem(LOCAL_STORAGE_KEY, locale);
 }

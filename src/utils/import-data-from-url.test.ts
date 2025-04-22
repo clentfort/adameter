@@ -29,8 +29,12 @@ describe('importDataFromUrl', () => {
 		expect(measurementsRepository.getAll()).toHaveLength(8);
 		expect(feedingRepository.getAll()).toHaveLength(214);
 
-		expect(localStorage.getItem('activeBreast')).toBe('right');
-		expect(localStorage.getItem('startTime')).toBe('2025-04-17T15:21:23.590Z');
+		expect(localStorage.getItem('feedingInProgress')).toBe(
+			JSON.stringify({
+				breast: 'right',
+				startTime: '2025-04-17T15:21:23.590Z',
+			}),
+		);
 		expect(localStorage.getItem('preferredLanguage')).toBe('de_DE');
 	});
 
@@ -51,8 +55,12 @@ describe('importDataFromUrl', () => {
 		expect(measurementsRepository.getAll()).toHaveLength(8);
 		expect(feedingRepository.getAll()).toHaveLength(214);
 
-		expect(localStorage.getItem('activeBreast')).toBe('right');
-		expect(localStorage.getItem('startTime')).toBe('2025-04-17T15:21:23.590Z');
+		expect(localStorage.getItem('feedingInProgress')).toBe(
+			JSON.stringify({
+				breast: 'right',
+				startTime: '2025-04-17T15:21:23.590Z',
+			}),
+		);
 		expect(localStorage.getItem('preferredLanguage')).toBe('de_DE');
 	});
 });
