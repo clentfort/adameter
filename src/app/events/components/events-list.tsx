@@ -39,7 +39,7 @@ export default function EventsList() {
 
 					return (
 						<div
-							className="border rounded-lg p-4 shadow-sm"
+							className="border rounded-lg p-4 shadow-xs"
 							key={event.id}
 							style={{
 								borderLeftColor: event.color || '#6366f1',

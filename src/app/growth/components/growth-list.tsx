@@ -54,7 +54,7 @@ export default function GrowthMeasurementsList({
 
 					return (
 						<div
-							className="border rounded-lg p-4 shadow-sm"
+							className="border rounded-lg p-4 shadow-xs"
 							key={measurement.id}
 						>
 							<div className="flex justify-between items-start">

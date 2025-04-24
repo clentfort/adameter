@@ -2,7 +2,6 @@ import type React from 'react';
 import './globals.css';
 import type { Metadata } from 'next';
 import RootLayout from '@/components/root-layout';
-import { Toaster } from '@/components/ui/toast';
 import '@/i18n';
 import { Provider } from 'jotai/react';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -32,7 +31,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							<RootLayout>{children}</RootLayout>
 						</ThemeProvider>
 					</I18nProvider>
-					<Toaster />
 				</Provider>
 			</body>
 		</html>

@@ -31,7 +31,7 @@ export default function DiaperHistoryList() {
 
 					return (
 						<div
-							className={`border rounded-lg p-4 shadow-sm ${borderColor} ${bgColor}`}
+							className={`border rounded-lg p-4 shadow-xs ${borderColor} ${bgColor}`}
 							key={change.id}
 						>
 							<div className="flex justify-between items-start">

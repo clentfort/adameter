@@ -61,7 +61,7 @@ export default function HistoryList({
 
 					return (
 						<div
-							className={`border rounded-lg p-4 shadow-sm ${borderColor} ${bgColor}`}
+							className={`border rounded-lg p-4 shadow-xs ${borderColor} ${bgColor}`}
 							key={session.id}
 						>
 							<div className="flex justify-between items-start">
