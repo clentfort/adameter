@@ -1,10 +1,23 @@
 import { useAtom } from 'jotai/react';
 import { PrimitiveAtom } from 'jotai/vanilla';
+import { useIsMounted } from './use-is-mounted';
 
 export function useArrayAtom<T extends { id: string }>(
 	atom: PrimitiveAtom<T[]>,
 ) {
 	const [value, set] = useAtom(atom);
+	const isMounted = useIsMounted();
+
+	if (!isMounted) {
+		return {
+			add: () => {},
+			remove: () => {},
+			set: () => {},
+			update: () => {},
+			value: [],
+		};
+	}
+
 	const add = (item: T) => {
 		set([item, ...value]);
 	};

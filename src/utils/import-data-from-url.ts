@@ -1,18 +1,12 @@
+import { compareDesc } from 'date-fns';
+import { SetStateAction, WritableAtom } from 'jotai/vanilla';
 import JSZip from 'jszip';
-import { diaperRepository } from '@/data/diaper-repository';
-import { eventsRepository } from '@/data/events-repository';
-import { feedingRepository } from '@/data/feeding-repository';
-import { measurementsRepository } from '@/data/measurements-repository';
-import { Repository } from '@/data/repository';
+import { Locale } from '@/i18n';
 import { DiaperChange } from '@/types/diaper';
 import { Event } from '@/types/event';
 import { FeedingSession } from '@/types/feeding';
 import { FeedingInProgress } from '@/types/feeding-in-progress';
 import { GrowthMeasurement } from '@/types/growth';
-
-const ACTIVE_BREAST_KEY = 'activeBreast';
-const START_TIME_KEY = 'startTime';
-const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
 export async function importDataFromUrl(url: string) {
 	const params = new URL(url).hash.slice(1);
@@ -25,23 +19,26 @@ export async function importDataFromUrl(url: string) {
 	const data = await defalteData(zip);
 
 	const { diaperChanges, events, measurements, sessions, userSettings } = data;
-	importDataIntoRepository(diaperRepository, diaperChanges);
-	importDataIntoRepository(eventsRepository, events);
-	importDataIntoRepository(feedingRepository, sessions);
-	importDataIntoRepository(measurementsRepository, measurements);
+
+	let feedingInProgress: FeedingInProgress | undefined;
 
 	if (userSettings.storedBreast && userSettings.storedStartTime) {
-		const feedingInProgress: FeedingInProgress = {
+		feedingInProgress = {
 			breast: userSettings.storedBreast as 'left' | 'right',
 			startTime: userSettings.storedStartTime,
 		};
-		localStorage.setItem(
-			'feedingInProgress',
-			JSON.stringify(feedingInProgress),
-		);
 	}
-	const locale = userSettings.storedLanguage === 'de' ? 'de_DE' : 'en_US';
-	localStorage.setItem(LOCAL_STORAGE_KEY, locale);
+	const locale: Locale =
+		userSettings.storedLanguage === 'de' ? 'de_DE' : 'en_US';
+
+	return {
+		diaperChanges,
+		events,
+		feedingInProgress,
+		measurements,
+		preferredLanguage: locale,
+		sessions,
+	};
 }
 
 interface DecompressedData {
@@ -63,13 +60,21 @@ async function defalteData(data: string): Promise<DecompressedData> {
 }
 
 function importDataIntoRepository<T extends { id: string }>(
-	repository: Repository<T>,
+	atom: WritableAtom<T[], [SetStateAction<T[]>], void>,
 	items: T[],
 ): void {
-	items.forEach((item) => {
-		if (!repository.getById(item.id)) {
-			repository.insertAtFront(item);
+	const currentItems = atom.read();
+	for (const item of items) {
+		if (currentItems.some((i) => i.id === item.id)) {
+			continue;
 		}
+		currentItems.unshift(item);
+	}
+
+	currentItems.sort((a, b) => {
+		const aId = new Date(Number.parseInt(a.id));
+		const bId = new Date(Number.parseInt(b.id));
+
+		return compareDesc(aId, bId);
 	});
-	repository.restoreSortingOrder();
 }

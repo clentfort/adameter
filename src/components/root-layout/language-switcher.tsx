@@ -1,5 +1,3 @@
-'use client';
-
 import { fbt } from 'fbtee';
 import { Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai/react';
 import { feedingInProgress } from '@/data/feeding-in-progress-atom';
+import { useClientOnlyAtom } from './use-client-only-atom';
 
-export const useFeedingInProgress = () => useAtom(feedingInProgress);
+export const useFeedingInProgress = () => useClientOnlyAtom(feedingInProgress);

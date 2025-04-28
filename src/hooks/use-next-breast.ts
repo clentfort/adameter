@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai/react';
 import { nextBreastAtom } from '@/data/next-breast-atom';
+import { useClientOnlyAtom } from './use-client-only-atom';
 
-export const useNextBreast = () => useAtom(nextBreastAtom);
+export const useNextBreast = () => useClientOnlyAtom(nextBreastAtom);

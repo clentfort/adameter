@@ -5,6 +5,7 @@ import RootLayout from '@/components/root-layout';
 import '@/i18n';
 import { Provider } from 'jotai/react';
 import { ThemeProvider } from '@/components/theme-provider';
+import { DataSynchronizationProvider } from '@/contexts/data-synchronization-context';
 import { I18nProvider } from '@/contexts/i18n-context';
 
 export const metadata: Metadata = {
@@ -28,7 +29,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							disableTransitionOnChange
 							enableSystem
 						>
-							<RootLayout>{children}</RootLayout>
+							<DataSynchronizationProvider>
+								<RootLayout>{children}</RootLayout>
+							</DataSynchronizationProvider>
 						</ThemeProvider>
 					</I18nProvider>
 				</Provider>

@@ -1,4 +1,5 @@
-import { useAtom } from 'jotai/react';
 import { lastUsedDiaperBrandAtom } from '@/data/last-used-diaper-brand-atom';
+import { useClientOnlyAtom } from './use-client-only-atom';
 
-export const useLastUsedDiaperBrand = () => useAtom(lastUsedDiaperBrandAtom);
+export const useLastUsedDiaperBrand = () =>
+	useClientOnlyAtom(lastUsedDiaperBrandAtom);

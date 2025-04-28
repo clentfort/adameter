@@ -1,11 +1,27 @@
 'use client';
 
+import { compareDesc } from 'date-fns';
+import { useAtom } from 'jotai/react';
 import { redirect } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { I18nContext } from '@/contexts/i18n-context';
+import { diapersAtom } from '@/data/diapers-atom';
+import { eventsAtom } from '@/data/events-atom';
+import { feedingsAtom } from '@/data/feedings-atom';
+import { measurementsAtom } from '@/data/measurements-atom';
+import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
 import { importDataFromUrl } from '@/utils/import-data-from-url';
 
 export default function HomePage() {
 	const [shouldRedirect, setShouldRedirect] = useState(false);
+
+	const diapers = useAtom(diapersAtom);
+	const events = useAtom(eventsAtom);
+	const feedings = useAtom(feedingsAtom);
+	const measurements = useAtom(measurementsAtom);
+
+	const [, setFeedingInProgress] = useFeedingInProgress();
+	const { setLocale } = useContext(I18nContext);
 
 	useEffect(() => {
 		let active = true;
@@ -20,7 +36,18 @@ export default function HomePage() {
 		(async () => {
 			const hash = window.location.hash;
 			if (hash) {
-				await importDataFromUrl(window.location.href);
+				try {
+					const data = await importDataFromUrl(window.location.href);
+
+					upsert(data.diaperChanges, diapers);
+					upsert(data.events, events);
+					upsert(data.measurements, measurements);
+					upsert(data.sessions, feedings);
+					setFeedingInProgress(data.feedingInProgress);
+					setLocale(data.preferredLanguage);
+				} catch (error) {
+					console.error('Error importing data:', error);
+				}
 			}
 			enableRedirect();
 		})();
@@ -28,11 +55,39 @@ export default function HomePage() {
 		return () => {
 			active = false;
 		};
-	}, []);
+	}, [
+		diapers,
+		events,
+		feedings,
+		measurements,
+		setFeedingInProgress,
+		setLocale,
+	]);
 
 	if (shouldRedirect) {
 		redirect('/feeding');
 	}
 
 	return <div>Loading...</div>;
+}
+
+function upsert<T extends { id: string }>(
+	importedItems: T[],
+	[currentItems, set]: [T[], (items: T[]) => void],
+) {
+	for (const itemToImport of importedItems) {
+		if (currentItems.some((item) => item.id === itemToImport.id)) {
+			continue;
+		}
+		currentItems.unshift(itemToImport);
+	}
+
+	currentItems.sort((a, b) => {
+		const aId = new Date(Number.parseInt(a.id));
+		const bId = new Date(Number.parseInt(b.id));
+
+		return compareDesc(aId, bId);
+	});
+
+	set(currentItems);
 }

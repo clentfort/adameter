@@ -1,5 +1,3 @@
-'use client';
-
 import { formatDistanceToNow } from 'date-fns';
 import { fbt } from 'fbtee';
 import { ReactNode, useContext, useEffect, useState } from 'react';

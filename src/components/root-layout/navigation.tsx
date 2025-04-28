@@ -38,7 +38,7 @@ const pages = [
 	},
 ];
 
-export function Navigation() {
+export default function Navigation() {
 	const pathname = usePathname();
 	return (
 		<div className="mb-6">
@@ -48,15 +48,16 @@ export function Navigation() {
 						const isActive = pathname === page.path;
 						return (
 							<NavigationMenuItem key={page.path}>
-								<Link href={page.path} legacyBehavior passHref>
-									<NavigationMenuLink
-										active={isActive}
-										className={`${navigationMenuTriggerStyle()} flex flex-col xs:flex-row items-center xs:gap-1 px-1 sm:px-2 py-2 text-xs sm:text-sm`}
-									>
+								<NavigationMenuLink
+									active={isActive}
+									asChild
+									className={`${navigationMenuTriggerStyle()} flex flex-col xs:flex-row items-center xs:gap-1 px-1 sm:px-2 py-2 text-xs sm:text-sm`}
+								>
+									<Link href={page.path}>
 										<span className="h-4 w-4">{page.icon}</span>
 										<span className="hidden xs:inline">{page.label()}</span>
-									</NavigationMenuLink>
-								</Link>
+									</Link>
+								</NavigationMenuLink>
 							</NavigationMenuItem>
 						);
 					})}
