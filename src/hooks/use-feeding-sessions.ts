@@ -1,4 +1,3 @@
-import { feedingsAtom } from '@/data/feedings-atom';
-import { useArrayAtom } from './use-array-atom';
+import { useArrayState } from './use-array-state';
 
-export const useFeedingSessions = () => useArrayAtom(feedingsAtom);
+export const useFeedingSessions = () => useArrayState('feedingSessions');

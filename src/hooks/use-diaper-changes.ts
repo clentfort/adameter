@@ -1,4 +1,3 @@
-import { diapersAtom } from '@/data/diapers-atom';
-import { useArrayAtom } from './use-array-atom';
+import { useArrayState } from './use-array-state';
 
-export const useDiaperChanges = () => useArrayAtom(diapersAtom);
+export const useDiaperChanges = () => useArrayState('diaperChanges');

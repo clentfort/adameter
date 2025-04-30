@@ -1,5 +1,6 @@
-import { lastUsedDiaperBrandAtom } from '@/data/last-used-diaper-brand-atom';
-import { useClientOnlyAtom } from './use-client-only-atom';
+import { useDiaperChanges } from './use-diaper-changes';
 
-export const useLastUsedDiaperBrand = () =>
-	useClientOnlyAtom(lastUsedDiaperBrandAtom);
+export const useLastUsedDiaperBrand = () => {
+	const { value: diaperChanges } = useDiaperChanges();
+	return [diaperChanges[0]?.diaperBrand];
+};

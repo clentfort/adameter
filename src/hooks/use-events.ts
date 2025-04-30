@@ -1,4 +1,3 @@
-import { eventsAtom } from '@/data/events-atom';
-import { useArrayAtom } from './use-array-atom';
+import { useArrayState } from './use-array-state';
 
-export const useEvents = () => useArrayAtom(eventsAtom);
+export const useEvents = () => useArrayState('events');

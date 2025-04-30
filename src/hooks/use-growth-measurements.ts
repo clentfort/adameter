@@ -1,4 +1,3 @@
-import { measurementsAtom } from '@/data/measurements-atom';
-import { useArrayAtom } from './use-array-atom';
+import { useArrayState } from './use-array-state';
 
-export const useGrowthMeasurements = () => useArrayAtom(measurementsAtom);
+export const useGrowthMeasurements = () => useArrayState('growthMeasurements');
