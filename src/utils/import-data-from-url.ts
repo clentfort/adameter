@@ -1,5 +1,3 @@
-import { compareDesc } from 'date-fns';
-import { SetStateAction, WritableAtom } from 'jotai/vanilla';
 import JSZip from 'jszip';
 import { Locale } from '@/i18n';
 import { DiaperChange } from '@/types/diaper';
@@ -57,24 +55,4 @@ async function defalteData(data: string): Promise<DecompressedData> {
 	const zip = await JSZip.loadAsync(data, { base64: true });
 	const json = await zip.files['data.json'].async('text');
 	return JSON.parse(json);
-}
-
-function importDataIntoRepository<T extends { id: string }>(
-	atom: WritableAtom<T[], [SetStateAction<T[]>], void>,
-	items: T[],
-): void {
-	const currentItems = atom.read();
-	for (const item of items) {
-		if (currentItems.some((i) => i.id === item.id)) {
-			continue;
-		}
-		currentItems.unshift(item);
-	}
-
-	currentItems.sort((a, b) => {
-		const aId = new Date(Number.parseInt(a.id));
-		const bId = new Date(Number.parseInt(b.id));
-
-		return compareDesc(aId, bId);
-	});
 }

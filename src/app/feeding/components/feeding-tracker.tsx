@@ -1,6 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
 import { Duration, format, intervalToDuration } from 'date-fns';
-import { RESET } from 'jotai/utils';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -125,7 +124,7 @@ export default function BreastfeedingTracker({
 	};
 
 	const resetTracker = () => {
-		setFeedingInProgress(RESET);
+		setFeedingInProgress();
 		setElapsedTime(null);
 		setManualMinutes('');
 

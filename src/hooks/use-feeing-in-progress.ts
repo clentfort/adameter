@@ -1,1 +1,1 @@
-export const useFeedingInProgress = () => [undefined, () => {}];
+export const useFeedingInProgress = () => [undefined, () => {}] as const;
