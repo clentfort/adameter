@@ -15,7 +15,7 @@ let i = 0;
 export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const { add, remove, update, value: sessions } = useFeedingSessions();
-	const [nextBreast = 'left'] = useNextBreast();
+	const nextBreast = useNextBreast();
 
 	return (
 		<>

@@ -29,5 +29,5 @@ export default defineConfig(
 		return rules;
 	}),
 	extended,
-	{ ignores: ['.next/', 'src/components/ui/'] },
+	{ ignores: ['.next/', 'src/components/ui/', 'src/valtio-yjs'] },
 );

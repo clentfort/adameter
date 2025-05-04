@@ -124,7 +124,7 @@ export default function BreastfeedingTracker({
 	};
 
 	const resetTracker = () => {
-		setFeedingInProgress();
+		setFeedingInProgress(null);
 		setElapsedTime(null);
 		setManualMinutes('');
 

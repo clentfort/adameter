@@ -2,12 +2,19 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import YPartyKitProvider from 'y-partykit/provider';
-import { AbstractType, Doc } from 'yjs';
+import { Doc as YjsDoc } from 'yjs';
 import { yjsContext } from './yjs-context';
 
-export const DataSynchronizationContext = createContext(
-	(_room: string | undefined) => {},
-);
+interface DataSynchronizationContextProps {
+	room: string | undefined;
+	setRoom: (room: string | undefined) => void;
+}
+
+export const DataSynchronizationContext =
+	createContext<DataSynchronizationContextProps>({
+		room: undefined,
+		setRoom: (_room: string | undefined) => {},
+	});
 
 interface DataSynchronizationProviderProps {
 	children: React.ReactNode;
@@ -18,8 +25,19 @@ export function DataSynchronizationProvider({
 }: DataSynchronizationProviderProps) {
 	const [room, setRoom] = useState<string | undefined>();
 	const { doc } = useContext(yjsContext);
-	const [provider, setProvider] = useState<YPartyKitProvider | undefined>();
+	useYPartykitSync(room, doc);
 
+	return (
+		<DataSynchronizationContext.Provider value={{ room, setRoom }}>
+			{children}
+		</DataSynchronizationContext.Provider>
+	);
+}
+
+/**
+ * Sets up synchronization of Yjs document via PartyKit
+ */
+function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
 	useEffect(() => {
 		if (!room) {
 			return;
@@ -29,17 +47,8 @@ export function DataSynchronizationProvider({
 			connect: true,
 		});
 
-		setProvider(provider);
-
 		return () => {
-			setProvider(undefined);
 			provider.destroy();
 		};
 	}, [room, doc]);
-
-	return (
-		<DataSynchronizationContext.Provider value={setRoom}>
-			{children}
-		</DataSynchronizationContext.Provider>
-	);
 }

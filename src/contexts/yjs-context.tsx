@@ -1,83 +1,69 @@
 'use client';
 
 import { createContext, useEffect, useState } from 'react';
-import { proxy } from 'valtio';
 import { bind } from 'valtio-yjs';
 import { IndexeddbPersistence } from 'y-indexeddb';
-import { Doc } from 'yjs';
-import { DiaperChange } from '@/types/diaper';
-import { Event } from '@/types/event';
-import { FeedingSession } from '@/types/feeding';
-import { GrowthMeasurement } from '@/types/growth';
+import { Array, Doc, Map } from 'yjs';
+import { diaperChanges } from '@/data/diaper-changes';
+import { events } from '@/data/events';
+import { feedingInProgress } from '@/data/feeding-in-progress';
+import { feedingSessions } from '@/data/feeding-sessions';
+import { growthMeasurements } from '@/data/growth-measurments';
 
-export interface State {
-	diaperChanges: DiaperChange[];
-	events: Event[];
-	feedingSessions: FeedingSession[];
-	growthMeasurements: GrowthMeasurement[];
-}
-
-const INITIAL_STATE: State = {
-	diaperChanges: [],
-	events: [],
-	feedingSessions: [],
-	growthMeasurements: [],
-};
-
-interface YjsContext {
-	doc: Doc;
-	persistence?: IndexeddbPersistence | undefined;
-	state: State;
-}
-export const yjsContext = createContext<YjsContext>(
-	(() => {
-		const doc = new Doc();
-		const persistence =
-			typeof window !== 'undefined'
-				? new IndexeddbPersistence('adameter', doc)
-				: undefined;
-		return {
-			doc,
-			persistence,
-			state: INITIAL_STATE,
-		};
-	})(),
-);
+const doc = new Doc();
+export const yjsContext = createContext<{ doc: Doc }>({ doc });
 
 interface YjsProviderProps {
 	children: React.ReactNode;
 }
+
 export function YjsProvider({ children }: YjsProviderProps) {
-	const [doc] = useState(() => new Doc());
-	const [state] = useState(() => proxy({}));
-	const [persistence] = useState(() => {
-		if (typeof window === 'undefined') {
-			return undefined;
-		}
-		return new IndexeddbPersistence('adameter', doc);
-	});
-	const [isLoading, setIsLoading] = useState(true);
+	const isSynced = useYjsPersistence(doc);
+	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes'));
+	useBindValtioToYjs(events, doc.getArray('events'));
+	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
+	useBindValtioToYjs(growthMeasurements, doc.getArray('growth-measurments'));
+	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
 
-	useEffect(() => {
-		const ymap = doc.getMap('state');
-		let unbind: () => void | undefined;
-		persistence?.whenSynced.then(() => {
-			unbind = bind(state, ymap);
-			setIsLoading(false);
-		});
-
-		return () => {
-			unbind?.();
-		};
-	}, [doc, persistence, state]);
-
-	if (isLoading) {
+	if (!isSynced) {
 		return <div>Loading...</div>;
 	}
 
-	return (
-		<yjsContext.Provider value={{ doc, persistence, state }}>
-			{children}
-		</yjsContext.Provider>
-	);
+	return <yjsContext.Provider value={{ doc }}>{children}</yjsContext.Provider>;
+}
+
+function useBindValtioToYjs<T>(state: T[], yArray: Array<T>): void;
+function useBindValtioToYjs<T>(state: Record<string, T>, yMap: Map<T>): void;
+function useBindValtioToYjs<T>(
+	state: Record<string, T> | T[],
+	yMap: Map<T> | Array<T>,
+) {
+	useEffect(() => {
+		const unbind = bind(state, yMap);
+		return () => {
+			unbind();
+		};
+	}, [state, yMap]);
+}
+
+function useYjsPersistence(doc: Doc) {
+	const [isSynced, setIsSynced] = useState(false);
+	useEffect(() => {
+		if (typeof window === 'undefined') {
+			return undefined;
+		}
+		const persistence = new IndexeddbPersistence('adameter', doc);
+		let isMounted = true;
+		persistence.whenSynced.then(() => {
+			if (!isMounted) {
+				return;
+			}
+			setIsSynced(true);
+		});
+		return () => {
+			isMounted = false;
+		};
+	}, [doc]);
+
+	return isSynced;
 }

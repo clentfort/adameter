@@ -1,38 +1,106 @@
+import { DialogDescription } from '@radix-ui/react-dialog';
 import { fbt } from 'fbtee';
-import { Globe } from 'lucide-react';
+import { Wifi, WifiOff } from 'lucide-react';
 import { useContext } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
+import { Card } from '../ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 export default function DataSharingSwitcher() {
-	const setRoom = useContext(DataSynchronizationContext);
+	const { room, setRoom } = useContext(DataSynchronizationContext);
+
+	const Icon = room ? Wifi : WifiOff;
 
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
+		<Dialog>
+			<DialogTrigger asChild>
 				<Button
 					size="icon"
 					title={fbt('Language', 'Label for the language switcher')}
 					type="button"
 					variant="outline"
 				>
-					<Globe className="h-4 w-4" />
+					<Icon className="h-4 w-4" />
 					<span className="sr-only">
 						<fbt desc="Label for the language switcher">Language</fbt>
 					</span>
 				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
-				<DropdownMenuItem onSelect={() => setRoom('feeding')}>
-					On
-				</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>
+						<fbt desc="Title of a dialog to configure sharing options">
+							Sharing
+						</fbt>
+					</DialogTitle>
+				</DialogHeader>
+
+				<Tabs>
+					<TabsList className="w-full">
+						<TabsTrigger value="join">
+							<fbt desc="Label on a tab trigger to switch to the 'Join Room' tab'">
+								Join room
+							</fbt>
+						</TabsTrigger>
+						<TabsTrigger value="create">
+							<fbt desc="Label on a tab trigger to switch to the 'Create Room' tab'">
+								Create room
+							</fbt>
+						</TabsTrigger>
+					</TabsList>
+
+					<TabsContent value="join">
+						<div className="grid gap-4 py-4">
+							<div className="space-y-2">
+								<Label htmlFor="room">
+									<fbt desc="Label for an input to set the id of a shared room">
+										Room
+									</fbt>
+								</Label>
+								<Input id="room" />
+							</div>
+
+							<div className="space-y-2">
+								<Label htmlFor="passphrase">
+									<fbt desc="Label for an input to set the passphrase of a shared room">
+										Passphrase
+									</fbt>
+								</Label>
+								<Input id="passphrase" />
+							</div>
+						</div>
+					</TabsContent>
+					<TabsContent value="create">
+						<div className="grid gap-4 py-4">
+							<div className="space-y-2">
+								<Label htmlFor="passphrase">
+									<fbt desc="Label for an input to set the passphrase of a shared room">
+										Passphrase
+									</fbt>
+								</Label>
+								<Input id="passphrase" />
+							</div>
+						</div>
+					</TabsContent>
+				</Tabs>
+
+				<DialogFooter>
+					<Button type="submit" onClick={() => setRoom('feeding')}>
+						<fbt common>Save</fbt>
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
 	);
 }
