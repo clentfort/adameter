@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useEffect, useState } from 'react';
 import { bind } from 'valtio-yjs';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { Array, Doc, Map } from 'yjs';
@@ -19,13 +19,37 @@ interface YjsProviderProps {
 
 export function YjsProvider({ children }: YjsProviderProps) {
 	const isSynced = useYjsPersistence(doc);
+	const [passphrase, setPassphrase] = useState<string | null>(null);
+
 	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes'));
 	useBindValtioToYjs(events, doc.getArray('events'));
 	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
 	useBindValtioToYjs(growthMeasurements, doc.getArray('growth-measurments'));
 	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
 
-	if (!isSynced) {
+	useEffect(() => {
+		if (passphrase == null) {
+			return;
+		}
+
+		let localPassphrase = localStorage.getItem('passphrase');
+		if (localPassphrase == null) {
+			localPassphrase = window.crypto.randomUUID();
+			localStorage.setItem('passphrase', localPassphrase);
+		}
+
+		setPassphrase(localPassphrase);
+	}, [passphrase]);
+
+	const setLocalPassphrase = useCallback(
+		(passphrase: string) => {
+			localStorage.setItem('passphrase', passphrase);
+			setPassphrase(passphrase);
+		},
+		[setPassphrase],
+	);
+
+	if (!isSynced || passphrase == null) {
 		return <div>Loading...</div>;
 	}
 

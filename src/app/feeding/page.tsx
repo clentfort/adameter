@@ -9,7 +9,6 @@ import FeedingForm from './components/feeding-form';
 import HistoryList from './components/feeding-history-list';
 import BreastfeedingTracker from './components/feeding-tracker';
 
-const i = 0;
 export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const { add, remove, update, value: sessions } = useFeedingSessions();
