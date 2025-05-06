@@ -3,6 +3,7 @@ import { Wifi, WifiOff } from 'lucide-react';
 import { useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
+import { useEncryptionKey } from '@/hooks/use-encryption-key';
 import {
 	Dialog,
 	DialogContent,
@@ -17,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 export default function DataSharingSwitcher() {
 	const { room, setRoom } = useContext(DataSynchronizationContext);
+	const passphrase = useEncryptionKey();
 
 	const Icon = room ? Wifi : WifiOff;
 
@@ -75,10 +77,11 @@ export default function DataSharingSwitcher() {
 										Passphrase
 									</fbt>
 								</Label>
-								<Input id="passphrase" />
+								<Input id="passphrase" value={passphrase} />
 							</div>
 						</div>
 					</TabsContent>
+
 					<TabsContent value="create">
 						<div className="grid gap-4 py-4">
 							<div className="space-y-2">
@@ -87,7 +90,7 @@ export default function DataSharingSwitcher() {
 										Passphrase
 									</fbt>
 								</Label>
-								<Input id="passphrase" />
+								<Input id="passphrase" value={passphrase} />
 							</div>
 						</div>
 					</TabsContent>

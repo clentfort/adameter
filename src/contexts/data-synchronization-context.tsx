@@ -23,9 +23,17 @@ interface DataSynchronizationProviderProps {
 export function DataSynchronizationProvider({
 	children,
 }: DataSynchronizationProviderProps) {
-	const [room, setRoom] = useState<string | undefined>();
+	const [room, setRoom] = useState<string | undefined>(
+		localStorage.getItem('room') ?? undefined,
+	);
 	const { doc } = useContext(yjsContext);
 	useYPartykitSync(room, doc);
+	useEffect(() => {
+		if (!room) {
+			return;
+		}
+		localStorage.setItem('room', room);
+	}, [room]);
 
 	return (
 		<DataSynchronizationContext.Provider value={{ room, setRoom }}>
