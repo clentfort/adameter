@@ -133,7 +133,7 @@ export function decrypt<T extends Encrypted<Encrypteable>>(
 	try {
 		return decryptPrimitive(value, secret) as unknown as Decrypted<T>;
 	} catch (error) {
-		console.log({ value, type: typeof value });
+		console.log({ type: typeof value, value });
 		throw new Error('Could not decrypt primitive', { cause: error });
 	}
 }

@@ -1,9 +1,7 @@
 'use client';
 
 import { PlusCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { IndexeddbPersistence } from 'y-indexeddb';
-import useYProvider from 'y-partykit/react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useNextBreast } from '@/hooks/use-next-breast';
@@ -11,7 +9,7 @@ import FeedingForm from './components/feeding-form';
 import HistoryList from './components/feeding-history-list';
 import BreastfeedingTracker from './components/feeding-tracker';
 
-let i = 0;
+const i = 0;
 export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const { add, remove, update, value: sessions } = useFeedingSessions();

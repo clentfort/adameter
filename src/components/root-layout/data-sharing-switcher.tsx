@@ -1,10 +1,8 @@
-import { DialogDescription } from '@radix-ui/react-dialog';
 import { fbt } from 'fbtee';
 import { Wifi, WifiOff } from 'lucide-react';
 import { useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
-import { Card } from '../ui/card';
 import {
 	Dialog,
 	DialogContent,
@@ -96,7 +94,7 @@ export default function DataSharingSwitcher() {
 				</Tabs>
 
 				<DialogFooter>
-					<Button type="submit" onClick={() => setRoom('feeding')}>
+					<Button onClick={() => setRoom('feeding')} type="submit">
 						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>
