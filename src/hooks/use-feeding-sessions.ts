@@ -1,4 +1,5 @@
-import { feedingsAtom } from '@/data/feedings-atom';
-import { useArrayAtom } from './use-array-atom';
+import { feedingSessions } from '@/data/feeding-sessions';
+import { useEncryptedArrayState } from './use-encrypted-array-state';
 
-export const useFeedingSessions = () => useArrayAtom(feedingsAtom);
+export const useFeedingSessions = () =>
+	useEncryptedArrayState(feedingSessions, 'feedingSessions-backup');

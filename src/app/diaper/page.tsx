@@ -13,7 +13,7 @@ export default function DiaperPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 
 	const { add } = useDiaperChanges();
-	const [lastUsedDiaperBrand] = useLastUsedDiaperBrand();
+	const lastUsedDiaperBrand = useLastUsedDiaperBrand();
 
 	return (
 		<>

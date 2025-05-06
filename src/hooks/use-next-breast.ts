@@ -1,4 +1,6 @@
-import { useAtom } from 'jotai/react';
-import { nextBreastAtom } from '@/data/next-breast-atom';
+import { useFeedingSessions } from './use-feeding-sessions';
 
-export const useNextBreast = () => useAtom(nextBreastAtom);
+export const useNextBreast = () => {
+	const { value: feedingSessions } = useFeedingSessions();
+	return (feedingSessions[0]?.breast ?? 'right') === 'left' ? 'right' : 'left';
+};

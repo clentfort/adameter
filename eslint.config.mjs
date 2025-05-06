@@ -20,8 +20,14 @@ export default defineConfig(
 		if (rules.plugins?.import != null) {
 			delete rules.plugins.import;
 		}
+		if (rules.plugins?.['react-hooks'] != null) {
+			delete rules.plugins['react-hooks'];
+		}
+		if (rules.rules?.['react-hooks/react-compiler']) {
+			delete rules.rules['react-hooks/react-compiler'];
+		}
 		return rules;
 	}),
 	extended,
-	{ ignores: ['.next/', 'src/components/ui/'] },
+	{ ignores: ['.next/', 'src/components/ui/', 'src/valtio-yjs'] },
 );

@@ -1,6 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
 import { Duration, format, intervalToDuration } from 'date-fns';
-import { RESET } from 'jotai/utils';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,18 +13,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
-import { useNextBreast } from '@/hooks/use-next-breast';
 import { formatDurationShort } from '@/utils/format-duration-short';
 
 interface BreastfeedingTrackerProps {
+	nextBreast: 'left' | 'right';
 	onSessionComplete: (session: FeedingSession) => void;
 }
 
-// Keys for localStorage
-const ACTIVE_BREAST_KEY = 'activeBreast';
-const START_TIME_KEY = 'startTime';
-
 export default function BreastfeedingTracker({
+	nextBreast,
 	onSessionComplete,
 }: BreastfeedingTrackerProps) {
 	const [elapsedTime, setElapsedTime] = useState<null | Duration>(null);
@@ -33,8 +29,6 @@ export default function BreastfeedingTracker({
 	const [manualMinutes, setManualMinutes] = useState('');
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
-
-	const [nextBreast] = useNextBreast();
 
 	// Check for active session on component mount
 	useEffect(() => {
@@ -72,10 +66,6 @@ export default function BreastfeedingTracker({
 			startTime: now.toISOString(),
 		});
 		setElapsedTime({ seconds: 0 });
-
-		// Store in localStorage
-		localStorage.setItem(ACTIVE_BREAST_KEY, breast);
-		localStorage.setItem(START_TIME_KEY, now.toISOString());
 	};
 
 	const endFeeding = () => {
@@ -126,13 +116,9 @@ export default function BreastfeedingTracker({
 	};
 
 	const resetTracker = () => {
-		setFeedingInProgress(RESET);
+		setFeedingInProgress(null);
 		setElapsedTime(null);
 		setManualMinutes('');
-
-		// Clear from localStorage
-		localStorage.removeItem(ACTIVE_BREAST_KEY);
-		localStorage.removeItem(START_TIME_KEY);
 
 		if (timerRef.current) {
 			clearInterval(timerRef.current);

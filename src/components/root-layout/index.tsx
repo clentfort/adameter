@@ -1,13 +1,14 @@
 'use client';
 
-import LanguageSwitcher from './language-switcher';
-import { Navigation } from './navigation';
-import TimeSince from './time-since';
-import '@/i18n';
 import Image from 'next/image';
+import '@/i18n';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
-import { ModeToggle } from './theme-switcher';
+import DataSharingSwitcher from './data-sharing-switcher';
+import LanguageSwitcher from './language-switcher';
+import Navigation from './navigation';
+import ThemeSwitcher from './theme-switcher';
+import TimeSince from './time-since';
 
 interface RootLayoutProps {
 	children: React.ReactNode;
@@ -32,7 +33,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
 				<h1 className="text-2xl font-bold">AdaMeter</h1>
 				<div className="flex items-center gap-2">
 					<LanguageSwitcher />
-					<ModeToggle />
+					<ThemeSwitcher />
+					<DataSharingSwitcher />
 				</div>
 			</div>
 

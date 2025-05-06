@@ -12,7 +12,7 @@ import BreastfeedingTracker from './components/feeding-tracker';
 export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const { add, remove, update, value: sessions } = useFeedingSessions();
-	const [nextBreast] = useNextBreast();
+	const nextBreast = useNextBreast();
 
 	return (
 		<>

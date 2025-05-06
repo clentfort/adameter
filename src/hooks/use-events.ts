@@ -1,4 +1,4 @@
-import { eventsAtom } from '@/data/events-atom';
-import { useArrayAtom } from './use-array-atom';
+import { events } from '@/data/events';
+import { useEncryptedArrayState } from './use-encrypted-array-state';
 
-export const useEvents = () => useArrayAtom(eventsAtom);
+export const useEvents = () => useEncryptedArrayState(events, 'events-backup');

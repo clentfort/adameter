@@ -10,7 +10,7 @@ export default function DiaperTracker() {
 		null,
 	);
 	const { add } = useDiaperChanges();
-	const [lastUsedDiaperBrand] = useLastUsedDiaperBrand();
+	const lastUsedDiaperBrand = useLastUsedDiaperBrand();
 
 	const handleQuickChange = (type: 'urine' | 'stool') => {
 		setSelectedType(type);

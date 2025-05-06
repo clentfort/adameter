@@ -1,4 +1,5 @@
-import { measurementsAtom } from '@/data/measurements-atom';
-import { useArrayAtom } from './use-array-atom';
+import { growthMeasurements } from '@/data/growth-measurments';
+import { useEncryptedArrayState } from './use-encrypted-array-state';
 
-export const useGrowthMeasurements = () => useArrayAtom(measurementsAtom);
+export const useGrowthMeasurements = () =>
+	useEncryptedArrayState(growthMeasurements, 'growthMeasurements-backup');

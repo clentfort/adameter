@@ -1,4 +1,6 @@
-import { useAtom } from 'jotai/react';
-import { lastUsedDiaperBrandAtom } from '@/data/last-used-diaper-brand-atom';
+import { useDiaperChanges } from './use-diaper-changes';
 
-export const useLastUsedDiaperBrand = () => useAtom(lastUsedDiaperBrandAtom);
+export const useLastUsedDiaperBrand = () => {
+	const { value: diaperChanges } = useDiaperChanges();
+	return diaperChanges[0]?.diaperBrand ?? 'andere';
+};
