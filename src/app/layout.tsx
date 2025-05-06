@@ -3,6 +3,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import RootLayout from '@/components/root-layout';
 import '@/i18n';
+import Link from 'next/link';
 import { ThemeProvider } from '@/components/theme-provider';
 import { DataSynchronizationProvider } from '@/contexts/data-synchronization-context';
 import { I18nProvider } from '@/contexts/i18n-context';
@@ -35,6 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 						</YjsProvider>
 					</ThemeProvider>
 				</I18nProvider>
+				<Link href="/">Reload</Link>
 			</body>
 		</html>
 	);
