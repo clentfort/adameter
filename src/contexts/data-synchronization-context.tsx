@@ -51,9 +51,14 @@ function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
 			return;
 		}
 
-		const provider = new YPartyKitProvider('localhost:1999', room, doc, {
-			connect: true,
-		});
+		const provider = new YPartyKitProvider(
+			'https://adameter-party.clentfort.partykit.dev',
+			room,
+			doc,
+			{
+				connect: true,
+			},
+		);
 
 		return () => {
 			provider.destroy();
