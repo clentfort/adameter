@@ -20,10 +20,6 @@ interface BreastfeedingTrackerProps {
 	onSessionComplete: (session: FeedingSession) => void;
 }
 
-// Keys for localStorage
-const ACTIVE_BREAST_KEY = 'activeBreast';
-const START_TIME_KEY = 'startTime';
-
 export default function BreastfeedingTracker({
 	nextBreast,
 	onSessionComplete,
@@ -70,10 +66,6 @@ export default function BreastfeedingTracker({
 			startTime: now.toISOString(),
 		});
 		setElapsedTime({ seconds: 0 });
-
-		// Store in localStorage
-		localStorage.setItem(ACTIVE_BREAST_KEY, breast);
-		localStorage.setItem(START_TIME_KEY, now.toISOString());
 	};
 
 	const endFeeding = () => {
@@ -127,10 +119,6 @@ export default function BreastfeedingTracker({
 		setFeedingInProgress(null);
 		setElapsedTime(null);
 		setManualMinutes('');
-
-		// Clear from localStorage
-		localStorage.removeItem(ACTIVE_BREAST_KEY);
-		localStorage.removeItem(START_TIME_KEY);
 
 		if (timerRef.current) {
 			clearInterval(timerRef.current);

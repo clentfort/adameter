@@ -1,20 +1,26 @@
 'use client';
 
-import { compareDesc } from 'date-fns';
 import { redirect } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 import { I18nContext } from '@/contexts/i18n-context';
-import { importDataFromUrl } from '@/utils/import-data-from-url';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useEvents } from '@/hooks/use-events';
+import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
+import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import {
+	loadDataFromLocalStorage,
+	loadDataFromUrl,
+} from '@/utils/load-data-from-legacy-storage';
 
 export default function HomePage() {
 	const [shouldRedirect, setShouldRedirect] = useState(false);
+	const { replace: diaperChangesReplace } = useDiaperChanges();
+	const { replace: eventsReplace } = useEvents();
+	const { replace: feedingSessionsReplace } = useFeedingSessions();
+	const [, setFeedingInProgress] = useFeedingInProgress();
+	const { replace: growthMeasurementsReplace } = useGrowthMeasurements();
 
-	// const diapers = useAtom(diapersAtom);
-	// const events = useAtom(eventsAtom);
-	// const feedings = useAtom(feedingsAtom);
-	// const measurements = useAtom(measurementsAtom);
-
-	// const [, setFeedingInProgress] = useFeedingInProgress();
 	const { setLocale } = useContext(I18nContext);
 
 	useEffect(() => {
@@ -29,19 +35,36 @@ export default function HomePage() {
 
 		(async () => {
 			const hash = window.location.hash;
+			let data: ReturnType<typeof loadDataFromLocalStorage> | undefined;
 			if (hash) {
 				try {
-					const data = await importDataFromUrl(window.location.href);
-
-					// upsert(data.diaperChanges, diapers);
-					// upsert(data.events, events);
-					// upsert(data.measurements, measurements);
-					// upsert(data.sessions, feedings);
-					// setFeedingInProgress(data.feedingInProgress);
-					setLocale(data.preferredLanguage);
+					data = await loadDataFromUrl(window.location.href);
 				} catch (error) {
 					console.error('Error importing data:', error);
 				}
+			} else if (
+				localStorage.length > 0 &&
+				[
+					'diaperChanges',
+					'events',
+					'feedingSessions',
+					'growthMeasurements',
+					'activeBreast',
+					'startTime',
+				].some((key) => key in localStorage) &&
+				localStorage.getItem('importedVersionFromLocalStorage') == null
+			) {
+				data = loadDataFromLocalStorage();
+				localStorage.setItem('importedVersionFromLocalStorage', '2025-05-06');
+			}
+
+			if (data) {
+				diaperChangesReplace(data.diaperChanges);
+				eventsReplace(data.events);
+				growthMeasurementsReplace(data.measurements);
+				feedingSessionsReplace(data.sessions);
+				setFeedingInProgress(data.feedingInProgress ?? null);
+				setLocale(data.preferredLanguage);
 			}
 			enableRedirect();
 		})();
@@ -49,7 +72,14 @@ export default function HomePage() {
 		return () => {
 			active = false;
 		};
-	}, [setLocale]);
+	}, [
+		diaperChangesReplace,
+		eventsReplace,
+		feedingSessionsReplace,
+		growthMeasurementsReplace,
+		setFeedingInProgress,
+		setLocale,
+	]);
 
 	if (shouldRedirect) {
 		redirect('/feeding');
@@ -57,24 +87,3 @@ export default function HomePage() {
 
 	return <div>Loading...</div>;
 }
-
-// function upsert<T extends { id: string }>(
-// 	importedItems: T[],
-// 	[currentItems, set]: [T[], (items: T[]) => void],
-// ) {
-// 	for (const itemToImport of importedItems) {
-// 		if (currentItems.some((item) => item.id === itemToImport.id)) {
-// 			continue;
-// 		}
-// 		currentItems.unshift(itemToImport);
-// 	}
-
-// 	currentItems.sort((a, b) => {
-// 		const aId = new Date(Number.parseInt(a.id));
-// 		const bId = new Date(Number.parseInt(b.id));
-
-// 		return compareDesc(aId, bId);
-// 	});
-
-// 	set(currentItems);
-// }

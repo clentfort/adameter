@@ -1,4 +1,5 @@
 import { feedingSessions } from '@/data/feeding-sessions';
-import { useArrayState } from './use-array-state';
+import { useEncryptedArrayState } from './use-encrypted-array-state';
 
-export const useFeedingSessions = () => useArrayState(feedingSessions);
+export const useFeedingSessions = () =>
+	useEncryptedArrayState(feedingSessions, 'feedingSessions-backup');

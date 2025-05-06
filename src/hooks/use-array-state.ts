@@ -1,45 +1,53 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { useSnapshot } from 'valtio/react';
-import { decrypt, encrypt, Encrypted } from '@/utils/crypto';
 
-export function useArrayState<T extends { id: string }>(array: Encrypted<T>[]) {
+export interface ObjectWithId {
+	id: string;
+}
+
+export function useArrayState<S extends ObjectWithId>(array: S[]) {
 	const value = useSnapshot(array);
-	const [decryptedValue, setDecryptedValue] = useState<ReadonlyArray<T>>([]);
-
-	useEffect(() => {
-		// @ts-expect-error Figure out better typing for this later
-		setDecryptedValue(value.map((v) => decrypt(v, 'secret')));
-	}, [value]);
 	return {
 		add: useCallback(
-			(item: T) => {
-				// Using JSON.stringify + parse as a quick way to get rid of any
-				// `undefined` values as this causes a render freeze with valtio/yjs
-				// eslint-disable-next-line unicorn/prefer-structured-clone
-				array.unshift(JSON.parse(JSON.stringify(encrypt(item, 'secret'))));
+			(item: S) => {
+				array.unshift(normalize(item));
 			},
 			[array],
 		),
 		remove: useCallback(
 			(id: string) => {
-				const index = decryptedValue.findIndex((item) => item.id === id);
+				const index = array.findIndex((item) => item.id === id);
 				if (index === -1) {
+					console.log('could not find item with id', id);
 					return;
 				}
 				array.splice(index, 1);
 			},
-			[array, decryptedValue],
+			[array],
+		),
+		replace: useCallback(
+			(next: S[]) => {
+				array.splice(0, array.length, ...next.map((item) => normalize(item)));
+			},
+			[array],
 		),
 		update: useCallback(
-			(update: T) => {
-				const index = decryptedValue.findIndex((item) => item.id === update.id);
+			(update: S) => {
+				const index = array.findIndex((item) => item.id === update.id);
 				if (index === -1) {
 					return;
 				}
-				array[index] = encrypt(update, 'secret');
+				array[index] = normalize(update);
 			},
-			[array, decryptedValue],
+			[array],
 		),
-		value: decryptedValue,
+		value,
 	} as const;
+}
+
+function normalize<T extends ObjectWithId>(item: T) {
+	// Using JSON.stringify + parse as a quick way to get rid of any
+	// `undefined` values as this causes a render freeze with valtio/yjs
+	// eslint-disable-next-line unicorn/prefer-structured-clone
+	return JSON.parse(JSON.stringify(item));
 }
