@@ -23,10 +23,14 @@ interface DataSynchronizationProviderProps {
 export function DataSynchronizationProvider({
 	children,
 }: DataSynchronizationProviderProps) {
-	const [room, setRoom] = useState<string | undefined>(
-		localStorage.getItem('room') ?? undefined,
-	);
+	const [room, setRoom] = useState<string | undefined>(undefined);
 	const { doc } = useContext(yjsContext);
+	useEffect(() => {
+		const room = localStorage.getItem('room');
+		if (room) {
+			setRoom(room);
+		}
+	}, []);
 	useYPartykitSync(room, doc);
 	useEffect(() => {
 		if (!room) {
@@ -55,9 +59,7 @@ function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
 			'https://adameter-party.clentfort.partykit.dev',
 			room,
 			doc,
-			{
-				connect: true,
-			},
+			{ connect: true },
 		);
 
 		return () => {
