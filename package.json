@@ -51,7 +51,7 @@
 		"valtio-yjs": "^0.6.0",
 		"y-indexeddb": "^9.0.12",
 		"y-partykit": "^0.0.32",
-		"yjs": "^13.6.26"
+		"yjs": "^13.6.27"
 	},
 	"devDependencies": {
 		"@babel/runtime": "^7.27.0",
