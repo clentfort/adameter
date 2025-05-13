@@ -106,13 +106,13 @@ importers:
         version: 0.6.0(valtio@2.1.5(@types/react@19.1.4)(react@19.1.0))
       y-indexeddb:
         specifier: ^9.0.12
-        version: 9.0.12(yjs@13.6.26)
+        version: 9.0.12(yjs@13.6.27)
       y-partykit:
         specifier: ^0.0.32
-        version: 0.0.32(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.26))(yjs@13.6.26)
+        version: 0.0.32(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
       yjs:
         specifier: ^13.6.26
-        version: 13.6.26
+        version: 13.6.27
     devDependencies:
       '@babel/runtime':
         specifier: ^7.27.0
@@ -4512,8 +4512,8 @@ packages:
     resolution: {integrity: sha512-Ow9nuGZE+qp1u4JIPvg+uCiUr7xGQWdff7JQSk5VGYTAZMDe2q8lxJ10ygv10qmSj031Ty/6FNJpLO4o1Sgc+w==}
     engines: {node: '>=12'}
 
-  yjs@13.6.26:
-    resolution: {integrity: sha512-wiARO3wixu7mtoRP5f7LqpUtsURP9SmNgXUt3RlnZg4qDuF7dUjthwIvwxIDmK55dPw4Wl4QdW5A3ag0atwu7g==}
+  yjs@13.6.27:
+    resolution: {integrity: sha512-OIDwaflOaq4wC6YlPBy2L6ceKeKuF7DeTxx+jPzv1FHn9tCZ0ZwSRnUBxD05E3yed46fv/FWJbvR+Ud7x0L7zw==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
 
   yocto-queue@0.1.0:
@@ -9118,24 +9118,24 @@ snapshots:
 
   xmlchars@2.2.0: {}
 
-  y-indexeddb@9.0.12(yjs@13.6.26):
+  y-indexeddb@9.0.12(yjs@13.6.27):
     dependencies:
       lib0: 0.2.107
-      yjs: 13.6.26
+      yjs: 13.6.27
 
-  y-partykit@0.0.32(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.26))(yjs@13.6.26):
+  y-partykit@0.0.32(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27):
     dependencies:
       lib0: 0.2.107
       lodash.debounce: 4.0.8
-      y-protocols: 1.0.6(yjs@13.6.26)
-      yjs: 13.6.26
+      y-protocols: 1.0.6(yjs@13.6.27)
+      yjs: 13.6.27
     optionalDependencies:
       react: 19.1.0
 
-  y-protocols@1.0.6(yjs@13.6.26):
+  y-protocols@1.0.6(yjs@13.6.27):
     dependencies:
       lib0: 0.2.107
-      yjs: 13.6.26
+      yjs: 13.6.27
 
   y18n@5.0.8: {}
 
@@ -9160,7 +9160,7 @@ snapshots:
       buffer-crc32: 0.2.13
       pend: 1.2.0
 
-  yjs@13.6.26:
+  yjs@13.6.27:
     dependencies:
       lib0: 0.2.107
 
