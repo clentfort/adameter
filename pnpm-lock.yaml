@@ -172,8 +172,8 @@ importers:
         specifier: ^26.0.0
         version: 26.1.0
       partykit:
-        specifier: 0.0.114
-        version: 0.0.114
+        specifier: 0.0.115
+        version: 0.0.115
       postcss:
         specifier: ^8
         version: 8.5.3
@@ -3445,8 +3445,8 @@ packages:
   parse5@7.3.0:
     resolution: {integrity: sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==}
 
-  partykit@0.0.114:
-    resolution: {integrity: sha512-ZKXNA/1lCWtqopQ7+JMwjuiNI5/IwwB2+ohjF7CKj1hdYvbZPg+5CeSGEac/Eu0MLDTdmxXYKtwFSTXijxBy7A==}
+  partykit@0.0.115:
+    resolution: {integrity: sha512-WHmJIZsAzRWrm1lrtU7wcl0tpD4rg2vgmn4+hXGPjU4mnXgFxyjVq2ZzO547xRXa1IbETOP6J9INl/ergR99bA==}
     hasBin: true
 
   partysocket@1.1.4:
@@ -7708,7 +7708,7 @@ snapshots:
     dependencies:
       entities: 6.0.0
 
-  partykit@0.0.114:
+  partykit@0.0.115:
     dependencies:
       '@cloudflare/workers-types': 4.20240718.0
       clipboardy: 4.0.0
