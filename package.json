@@ -14,7 +14,11 @@
 		"test": "vitest",
 		"fbtee:manifest": "fbtee manifest --src src",
 		"fbtee:collect": "fbtee collect --fbt-common-path ./common_strings.json --pretty --manifest < .src_manifest.json > .source_strings.json",
-		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins > src/i18n/translations.json"
+		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins > src/i18n/translations.json",
+		"preinstall": "node -e \"if(process.env.npm_execpath.indexOf('pnpm') === -1) {console.error('You must use pnpm to install dependencies.'); process.exit(1);}\""
+	},
+	"devEngines": {
+		"pnpm": "9.0.0"
 	},
 	"dependencies": {
 		"@nkzw/core": "^1.2.0",
