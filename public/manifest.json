@@ -3,7 +3,7 @@
 	"short_name": "AdaMeter",
 	"start_url": "/feeding",
 	"display": "standalone",
-	"background_color": "#fff",
+	"background_color": "#faf7ee",
 	"theme_color": "#000",
 	"icons": [
 		{
@@ -45,6 +45,12 @@
 			"src": "/icon-512x512.png",
 			"sizes": "512x512",
 			"type": "image/png"
+		},
+		{
+			"src": "/icon-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
 		}
 	]
 }
