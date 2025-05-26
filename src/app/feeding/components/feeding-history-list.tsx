@@ -5,6 +5,7 @@ import {
 	intervalToDuration,
 	isSameDay,
 } from 'date-fns';
+import { formatDurationShort } from '@/utils/format-duration-short';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
@@ -22,8 +23,7 @@ function formatDurationInMinutes(start: string, end: string) {
 	const startDate = new Date(start);
 	const endDate = new Date(end);
 	const duration = intervalToDuration({ end: endDate, start: startDate });
-	duration.minutes = Math.max(duration.minutes ?? 0, 1);
-	return formatDuration(duration, { format: ['minutes'] });
+	return formatDurationShort(duration);
 }
 
 export default function HistoryList({
