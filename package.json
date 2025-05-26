@@ -62,6 +62,8 @@
 		"@nkzw/babel-preset-fbtee": "^0.2.2",
 		"@nkzw/eslint-config": "^2.2.0",
 		"@nkzw/eslint-plugin-fbtee": "^0.2.2",
+		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/react": "^16.3.0",
 		"@types/crypto-js": "^4.2.2",
 		"@types/node": "^22",
 		"@types/react": "^19",
