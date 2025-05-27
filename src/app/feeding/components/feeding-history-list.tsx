@@ -5,7 +5,7 @@ import {
 	isSameDay,
 } from 'date-fns';
 import { useState } from 'react';
-import { formatDurationLocale } from '../../../../utils/format-duration-locale';
+import { formatDurationLocale } from '../../../utils/format-duration-locale';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
