@@ -108,8 +108,8 @@ importers:
         specifier: ^9.0.12
         version: 9.0.12(yjs@13.6.27)
       y-partykit:
-        specifier: ^0.0.32
-        version: 0.0.32(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
+        specifier: ^0.0.33
+        version: 0.0.33(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
@@ -4343,10 +4343,10 @@ packages:
     peerDependencies:
       yjs: ^13.0.0
 
-  y-partykit@0.0.32:
-    resolution: {integrity: sha512-qkB5nN0Q5LnnTtc0Y4fhlv2hn1aI9jpPTyYhyxL2P+22R0voJ/5SocvLNpiVXQcFYS1ztLQBW40VukJcDzEryw==}
+  y-partykit@0.0.33:
+    resolution: {integrity: sha512-TqM2H/C1fBZbFjL9kpBLC3EWWaizBUYdFzW5DMGmcZYfQv5tYYIBTqUW4eCZOXHkhNLTEA+s2ydSKGYi8u1+sg==}
     peerDependencies:
-      react: ^18.2.0
+      react: '*'
       y-protocols: ^1.0.6
       yjs: ^13.6.16
     peerDependenciesMeta:
@@ -8807,7 +8807,7 @@ snapshots:
       lib0: 0.2.108
       yjs: 13.6.27
 
-  y-partykit@0.0.32(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27):
+  y-partykit@0.0.33(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27):
     dependencies:
       lib0: 0.2.108
       lodash.debounce: 4.0.8
