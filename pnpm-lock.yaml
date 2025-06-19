@@ -103,7 +103,7 @@ importers:
         version: 2.1.5(@types/react@19.1.8)(react@19.1.0)
       valtio-yjs:
         specifier: ^0.6.0
-        version: 0.6.0(valtio@2.1.5(@types/react@19.1.8)(react@19.1.0))
+        version: 0.6.1(valtio@2.1.5(@types/react@19.1.8)(react@19.1.0))
       y-indexeddb:
         specifier: ^9.0.12
         version: 9.0.12(yjs@13.6.27)
@@ -4167,8 +4167,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  valtio-yjs@0.6.0:
-    resolution: {integrity: sha512-YTIL97kKWudMlZABT8kyYKFjptactYIZARjYlpwIh84DD8SqezNJi0HUQoWUBfNhu1dT0l6NrNCLXvXx/xUm9Q==}
+  valtio-yjs@0.6.1:
+    resolution: {integrity: sha512-JJnbPIF99deVzr1oUKDZKwR1MXW3sN66yiEHDjuCQZ9W22PTyzlw9e+0nJqrV2fHyJt8D/tiramHlWLCftY0pA==}
     peerDependencies:
       valtio: '>=2.0.0-rc.0'
 
@@ -8618,9 +8618,8 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  valtio-yjs@0.6.0(valtio@2.1.5(@types/react@19.1.8)(react@19.1.0)):
+  valtio-yjs@0.6.1(valtio@2.1.5(@types/react@19.1.8)(react@19.1.0)):
     dependencies:
-      fast-deep-equal: 3.1.3
       valtio: 2.1.5(@types/react@19.1.8)(react@19.1.0)
 
   valtio@2.1.5(@types/react@19.1.8)(react@19.1.0):
