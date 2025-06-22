@@ -5,8 +5,8 @@ export interface Event {
 	// ISO string
 	endDate?: string;
 	id: string;
-	startDate: string;
-	title: string;
+	date: string; // Renamed from startDate for generic usage
+	title?: string; // Made optional
 	// ISO string, optional for ongoing events
-	type: 'point' | 'period'; // Optional color for the event
+	type?: 'point' | 'period'; // Made optional // Optional color for the event
 }
