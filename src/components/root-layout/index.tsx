@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import '@/i18n';
 import Link from 'next/link';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
+import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
 import DataSharingSwitcher from './data-sharing-switcher';
 import LanguageSwitcher from './language-switcher';
 import Navigation from './navigation';
@@ -16,8 +16,8 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
-	const { value: sessions } = useFeedingSessions();
-	const { value: diaperChanges } = useDiaperChanges();
+	const latestFeedingSession = useLatestFeedingSession();
+	const latestDiaperChange = useLatestDiaperChange();
 
 	return (
 		<main className="flex min-h-screen flex-col items-center p-4 max-w-md mx-auto">
@@ -42,13 +42,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
 			</div>
 
 			<div className="w-full flex flex-row justify-between gap-2 mb-6">
-				<TimeSince icon="🍼" lastChange={sessions[0]?.endTime || null}>
+				<TimeSince icon="🍼" lastChange={latestFeedingSession?.endTime || null}>
 					<fbt desc="Short label indicating when a feeding was last recorded">
 						Last Feeding
 					</fbt>
 				</TimeSince>
 
-				<TimeSince icon="👶" lastChange={diaperChanges[0]?.timestamp || null}>
+				<TimeSince icon="👶" lastChange={latestDiaperChange?.timestamp || null}>
 					<fbt desc="A short label indicating when a diaper was last changed">
 						Last Diaper Change
 					</fbt>
