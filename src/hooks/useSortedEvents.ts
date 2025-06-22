@@ -1,29 +1,38 @@
 import { useMemo } from 'react';
-import { Event } from '@/types/event';
 import groupBy from '@nkzw/core/groupBy';
 import { format, parseISO } from 'date-fns';
 
-export function useSortedEvents(events: ReadonlyArray<Event>) {
+// Make the hook generic for any item type T that has an id
+interface ItemWithId {
+  id: string;
+}
+
+export function useSortedEvents<T extends ItemWithId>(
+  items: ReadonlyArray<T>,
+  dateAccessor: (item: T) => string, // Function to get the date string from an item
+) {
   return useMemo(() => {
-    if (!events || events.length === 0) {
+    if (!items || items.length === 0) {
       return {};
     }
 
-    // Sort all events by date initially
-    const sortedEvents = [...events].sort(
-      (a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime(),
+    // Sort all items by date initially, using the dateAccessor
+    const sortedItems = [...items].sort(
+      (a, b) =>
+        parseISO(dateAccessor(b)).getTime() -
+        parseISO(dateAccessor(a)).getTime(),
     );
 
-    // Group events by date string
-    const groupedByDate = groupBy(sortedEvents, (event) =>
-      format(parseISO(event.date), 'yyyy-MM-dd'),
+    // Group items by date string, using the dateAccessor
+    const groupedByDate = groupBy(sortedItems, (item) =>
+      format(parseISO(dateAccessor(item)), 'yyyy-MM-dd'),
     );
 
     // Convert Map to object
-    const result: Record<string, Event[]> = {};
-    for (const [date, eventArray] of groupedByDate.entries()) {
-      result[date] = eventArray;
+    const result: Record<string, T[]> = {};
+    for (const [date, itemArray] of groupedByDate.entries()) {
+      result[date] = itemArray;
     }
     return result;
-  }, [events]);
+  }, [items, dateAccessor]);
 }

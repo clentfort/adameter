@@ -1,19 +1,24 @@
 import { format, parseISO } from 'date-fns';
 import React, { Fragment } from 'react';
-import { Event } from '@/types/event'; // Assuming Event type is similar to Entry
-import { useSortedEvents } from '@/hooks/useSortedEvents'; // Import the new hook
+// No longer import Event directly, T will be generic
+import { useSortedEvents } from '@/hooks/useSortedEvents';
 
-interface HistoryListProps<T extends Event> {
-	children: (entry: T) => React.ReactNode;
-	entries: ReadonlyArray<T>;
-	// keySelector is no longer needed as sorting/grouping is based on startDate
+interface ItemWithId {
+	id: string;
 }
 
-export default function HistoryList<T extends Event>({
+interface HistoryListProps<T extends ItemWithId> {
+	children: (entry: T) => React.ReactNode;
+	entries: ReadonlyArray<T>;
+	dateAccessor: (entry: T) => string; // Add dateAccessor prop
+}
+
+export default function HistoryList<T extends ItemWithId>({
 	children,
 	entries,
+	dateAccessor, // Destructure dateAccessor
 }: HistoryListProps<T>) {
-	const groupedEvents = useSortedEvents(entries);
+	const groupedEvents = useSortedEvents(entries, dateAccessor); // Pass dateAccessor to the hook
 
 	if (Object.keys(groupedEvents).length === 0) {
 		return (

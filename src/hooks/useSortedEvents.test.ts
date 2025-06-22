@@ -6,44 +6,49 @@ import { useSortedEvents } from './useSortedEvents';
 const mockEvents: Event[] = [
   {
     id: '1',
-    date: '2024-05-20T10:00:00Z',
-    title: 'Event 1', // Optional but provided
-    type: 'point', // Optional but provided
+    startDate: '2024-05-20T10:00:00Z',
+    title: 'Event 1',
+    type: 'point',
   },
   {
     id: '2',
-    date: '2024-05-20T12:00:00Z',
-    title: 'Event 2', // Optional but provided
-    type: 'point', // Optional but provided
+    startDate: '2024-05-20T12:00:00Z',
+    title: 'Event 2',
+    type: 'point',
   },
   {
     id: '3',
-    date: '2024-05-19T15:00:00Z',
-    title: 'Event 3', // Optional but provided
-    type: 'point', // Optional but provided
+    startDate: '2024-05-19T15:00:00Z',
+    title: 'Event 3',
+    type: 'point',
   },
   {
     id: '4',
-    date: '2024-05-20T09:00:00Z', // Unsorted event
-    title: 'Event 4', // Optional but provided
-    type: 'point', // Optional but provided
+    startDate: '2024-05-20T09:00:00Z', // Unsorted event
+    title: 'Event 4',
+    type: 'point',
   },
   {
     id: '5',
-    date: '2024-05-18T18:00:00Z',
-    title: 'Event 5', // Optional but provided
-    type: 'point', // Optional but provided
+    startDate: '2024-05-18T18:00:00Z',
+    title: 'Event 5',
+    type: 'point',
   },
 ];
 
+// Mock date accessor for testing the generic hook
+const eventDateAccessor = (event: Event) => event.startDate;
+
 describe('useSortedEvents', () => {
   it('should return an empty object for an empty array of events', () => {
-    const { result } = renderHook(() => useSortedEvents([]));
+    const { result } = renderHook(() => useSortedEvents([], eventDateAccessor));
     expect(result.current).toEqual({});
   });
 
   it('should group events by date and sort them correctly', () => {
-    const { result } = renderHook(() => useSortedEvents(mockEvents));
+    const { result } = renderHook(() =>
+      useSortedEvents(mockEvents, eventDateAccessor),
+    );
     const sorted = result.current;
 
     // Check date keys
@@ -67,24 +72,26 @@ describe('useSortedEvents', () => {
     const alreadySortedEvents: Event[] = [
       {
         id: '2',
-        date: '2024-05-20T12:00:00Z',
-        title: 'Event 2', // Optional but provided
-        type: 'point', // Optional but provided
+        startDate: '2024-05-20T12:00:00Z',
+        title: 'Event 2',
+        type: 'point',
       },
       {
         id: '1',
-        date: '2024-05-20T10:00:00Z',
-        title: 'Event 1', // Optional but provided
-        type: 'point', // Optional but provided
+        startDate: '2024-05-20T10:00:00Z',
+        title: 'Event 1',
+        type: 'point',
       },
       {
         id: '3',
-        date: '2024-05-19T15:00:00Z',
-        title: 'Event 3', // Optional but provided
-        type: 'point', // Optional but provided
+        startDate: '2024-05-19T15:00:00Z',
+        title: 'Event 3',
+        type: 'point',
       },
     ];
-    const { result } = renderHook(() => useSortedEvents(alreadySortedEvents));
+    const { result } = renderHook(() =>
+      useSortedEvents(alreadySortedEvents, eventDateAccessor),
+    );
     const sorted = result.current;
 
     expect(Object.keys(sorted)).toEqual(['2024-05-20', '2024-05-19']);
@@ -96,12 +103,14 @@ describe('useSortedEvents', () => {
     const singleEvent: Event[] = [
       {
         id: '1',
-        date: '2024-01-05T10:00:00Z',
-        title: 'Event 1', // Optional but provided
-        type: 'point', // Optional but provided
+        startDate: '2024-01-05T10:00:00Z',
+        title: 'Event 1',
+        type: 'point',
       },
     ];
-    const { result } = renderHook(() => useSortedEvents(singleEvent));
+    const { result } = renderHook(() =>
+      useSortedEvents(singleEvent, eventDateAccessor),
+    );
     expect(Object.keys(result.current)).toEqual(['2024-01-05']);
   });
 });

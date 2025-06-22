@@ -36,17 +36,11 @@ export default function HistoryList({
 		null,
 	);
 
-	const transformedSessions = sessions.map(session => ({
-		...session,
-		date: session.startTime,
-		// Ensure other Event properties like title and type are present or handled if needed
-		// For now, assuming FeedingSession has id, and HistoryList only needs id and date from Event
-	}));
-
 	return (
 		<>
 			<HistoryListInternal
-				entries={transformedSessions}
+				entries={sessions}
+				dateAccessor={(session) => session.startTime}
 			>
 				{(session) => {
 					const isLeftBreast = session.breast === 'left';

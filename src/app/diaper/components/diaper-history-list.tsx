@@ -15,17 +15,11 @@ export default function DiaperHistoryList() {
 	const [changeToEdit, setChangeToEdit] = useState<DiaperChange | null>(null);
 	const { remove, update, value: changes } = useDiaperChanges();
 
-	const transformedChanges = changes.map(change => ({
-		...change,
-		date: change.timestamp,
-		// Ensure other Event properties like title and type are present or handled if needed
-		// For now, assuming DiaperChange has id, and HistoryList only needs id and date from Event
-	}));
-
 	return (
 		<>
 			<HistoryListInternal
-				entries={transformedChanges}
+				entries={changes}
+				dateAccessor={(change) => change.timestamp}
 			>
 				{(change) => {
 					const isStool = change.containsStool;
