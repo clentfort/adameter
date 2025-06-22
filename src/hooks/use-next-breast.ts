@@ -1,6 +1,6 @@
-import { useFeedingSessions } from './use-feeding-sessions';
+import { useLatestFeedingSession } from './use-latest-feeding-session';
 
 export const useNextBreast = () => {
-	const { value: feedingSessions } = useFeedingSessions();
-	return (feedingSessions[0]?.breast ?? 'right') === 'left' ? 'right' : 'left';
+	const latestFeedingSession = useLatestFeedingSession();
+	return (latestFeedingSession?.breast ?? 'right') === 'left' ? 'right' : 'left';
 };
