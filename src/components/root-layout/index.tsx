@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
 import DataSharingSwitcher from './data-sharing-switcher';
+import Footer from './footer';
 import LanguageSwitcher from './language-switcher';
 import Navigation from './navigation';
 import ThemeSwitcher from './theme-switcher';
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 			</div>
 			<Navigation />
 			{children}
+			<Footer />
 		</main>
 	);
 }
