@@ -40,7 +40,7 @@ export default function HistoryList({
 		<>
 			<HistoryListInternal
 				entries={sessions}
-				keySelector={(session) => session.startTime}
+				dateAccessor={(session) => session.startTime}
 			>
 				{(session) => {
 					const isLeftBreast = session.breast === 'left';

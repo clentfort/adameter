@@ -1,33 +1,26 @@
-import groupBy from '@nkzw/core/groupBy';
-import { format } from 'date-fns';
-import React, { Fragment, useMemo } from 'react';
+import { format, parseISO } from 'date-fns';
+import React, { Fragment } from 'react';
+// No longer import Event directly, T will be generic
+import { useSortedEvents } from '@/hooks/useSortedEvents';
 
-interface Entry {
+interface ItemWithId {
 	id: string;
 }
 
-interface HistoryListProps<T extends Entry> {
+interface HistoryListProps<T extends ItemWithId> {
 	children: (entry: T) => React.ReactNode;
 	entries: ReadonlyArray<T>;
-	keySelector: (entry: T) => string;
+	dateAccessor: (entry: T) => string; // Add dateAccessor prop
 }
 
-export default function HistoryList<T extends Entry>({
+export default function HistoryList<T extends ItemWithId>({
 	children,
 	entries,
-	keySelector,
+	dateAccessor, // Destructure dateAccessor
 }: HistoryListProps<T>) {
-	const groups = useMemo(
-		() =>
-			Array.from(
-				groupBy(entries, (entry) =>
-					format(new Date(keySelector(entry)), 'yyyy-MM-dd'),
-				),
-			),
-		[entries, keySelector],
-	);
+	const groupedEvents = useSortedEvents(entries, dateAccessor); // Pass dateAccessor to the hook
 
-	if (entries.length === 0) {
+	if (Object.keys(groupedEvents).length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
 				<fbt desc="Note that no data has been recorded and therefore nothing is displayed yet">
@@ -37,16 +30,22 @@ export default function HistoryList<T extends Entry>({
 		);
 	}
 
+	// Get sorted dates to ensure the sections are rendered in reverse chronological order
+	const sortedDates = Object.keys(groupedEvents).sort(
+		(a, b) => parseISO(b).getTime() - parseISO(a).getTime(),
+	);
+
 	return (
 		<div className="space-y-4">
-			{groups.map(([date, entries]) => (
+			{sortedDates.map((date) => (
 				<div className="space-y-2" key={date}>
 					<div className="bg-muted/50 px-4 py-2 rounded-md text-sm font-medium">
-						{format(new Date(date), 'EEEE, d. MMMM yyyy')}
+						{/* Date is already 'yyyy-MM-dd', parseISO is needed for format */}
+						{format(parseISO(date), 'EEEE, d. MMMM yyyy')}
 					</div>
 
-					{entries.map((session) => {
-						return <Fragment key={session.id}>{children(session)}</Fragment>;
+					{groupedEvents[date].map((event) => {
+						return <Fragment key={event.id}>{children(event)}</Fragment>;
 					})}
 				</div>
 			))}

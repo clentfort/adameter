@@ -19,7 +19,7 @@ export default function DiaperHistoryList() {
 		<>
 			<HistoryListInternal
 				entries={changes}
-				keySelector={(change) => change.timestamp}
+				dateAccessor={(change) => change.timestamp}
 			>
 				{(change) => {
 					const isStool = change.containsStool;
