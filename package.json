@@ -13,7 +13,7 @@
 		"lint": "next lint",
 		"test": "vitest",
 		"fbtee:manifest": "fbtee manifest --src src",
-		"fbtee:collect": "fbtee collect --fbt-common-path ./common_strings.json --pretty --manifest < .src_manifest.json > .source_strings.json",
+		"fbtee:collect": "fbtee collect --fbt-common-path ./common_strings.json --pretty --manifest < .src_manifest.json > source_strings.json",
 		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins > src/i18n/translations.json"
 	},
   "devEngines": {
