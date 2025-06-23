@@ -41,8 +41,8 @@ export default function GrowthPage() {
 						setIsAddEntryDialogOpen(false);
 					}}
 					title={
-						<fbt desc="Title of the dialog to manually add a previous feeding session">
-							Add Feeding
+						<fbt desc="Title of the dialog to manually add a growth measurement">
+							Add Growth Measurement
 						</fbt>
 					}
 				/>
