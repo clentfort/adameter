@@ -48,6 +48,11 @@ export default function MeasurementForm({
 	const [height, setHeight] = useState(
 		'measurement' in props ? props.measurement.height?.toString() : '',
 	);
+	const [headCircumference, setHeadCircumference] = useState(
+		'measurement' in props
+			? props.measurement.headCircumference?.toString()
+			: '',
+	);
 	const [notes, setNotes] = useState(
 		'measurement' in props ? props.measurement.notes : '',
 	);
@@ -55,11 +60,11 @@ export default function MeasurementForm({
 
 	const handleSave = () => {
 		// Validate that at least one of weight or height is provided
-		if (!weight && !height) {
+		if (!weight && !height && !headCircumference) {
 			setError(
 				fbt(
-					'Please enter at least a weight or height.',
-					'Message shown when no weight or height is provided. At least one is required',
+					'Please enter at least a weight, height, or head circumference.',
+					'Message shown when no weight, height, or head circumference is provided. At least one is required',
 				),
 			);
 			return;
@@ -73,6 +78,9 @@ export default function MeasurementForm({
 			...measurement,
 			date: new Date(`${date}T12:00:00`).toISOString(),
 			height: height ? Number.parseFloat(height) : undefined,
+			headCircumference: headCircumference
+				? Number.parseFloat(headCircumference)
+				: undefined,
 			id: measurement?.id || Date.now().toString(),
 
 			notes: notes || undefined,
@@ -127,6 +135,21 @@ export default function MeasurementForm({
 								step="0.1"
 								type="number"
 								value={height}
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="headCircumference">
+								<fbt desc="Label for a head circumference input">
+									Head Circumference (cm)
+								</fbt>
+							</Label>
+							<Input
+								id="headCircumference"
+								onChange={(e) => setHeadCircumference(e.target.value)}
+								placeholder={fbt('e.g. 35', 'Placeholder for a head circumference input')}
+								step="0.1"
+								type="number"
+								value={headCircumference}
 							/>
 						</div>
 					</div>
