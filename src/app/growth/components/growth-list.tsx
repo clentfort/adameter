@@ -79,6 +79,16 @@ export default function GrowthMeasurementsList({
 												{measurement.height} cm
 											</p>
 										)}
+										{measurement.headCircumference && (
+											<p className="text-sm">
+												<span className="font-medium">
+													<fbt desc="Head circumference of the baby">
+														Head Circumference
+													</fbt>
+												</span>{' '}
+												{measurement.headCircumference} cm
+											</p>
+										)}
 										{measurement.notes && (
 											<p className="text-sm text-muted-foreground mt-2">
 												{measurement.notes}

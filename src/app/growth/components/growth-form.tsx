@@ -111,7 +111,7 @@ export default function MeasurementForm({
 						/>
 					</div>
 
-					<div className="grid grid-cols-2 gap-4">
+					<div className="grid grid-cols-1 gap-4">
 						<div className="space-y-2">
 							<Label htmlFor="weight">
 								<fbt desc="Label for a body weight input">Weight (g)</fbt>
