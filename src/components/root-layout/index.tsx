@@ -56,7 +56,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
 				</TimeSince>
 			</div>
 			<Navigation />
-			<div className="flex-grow w-full">{children}</div>
+			{/* The parent 'main' is already flex-col, so this div will grow */}
+			<div className="w-full flex-grow">{children}</div>
 			<Footer />
 		</main>
 	);
