@@ -66,7 +66,7 @@
 		"@eslint/eslintrc": "^3.3.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.4.1",
 		"@next/eslint-plugin-next": "^15.2.5",
-		"@nkzw/babel-preset-fbtee": "^0.2.2",
+		"@nkzw/babel-preset-fbtee": "^0.3.0",
 		"@nkzw/eslint-config": "^3.0.0",
 		"@nkzw/eslint-plugin-fbtee": "^0.2.2",
 		"@testing-library/jest-dom": "^6.6.3",
