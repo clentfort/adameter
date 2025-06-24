@@ -227,6 +227,9 @@ User-facing strings must be internationalized using the `fbtee` library.
 - **Immutability**: When working with state, especially Valtio stores, prefer
   immutable update patterns where possible, or use Valtio's proxy nature
   correctly to trigger updates.
+- **Early Returns**: Prefer early returns (or "guard clauses") to reduce nesting
+  and improve readability in functions. For example, check for invalid
+  conditions at the beginning of a function and return immediately.
 - **Error Handling**: Implement proper error handling, especially for async
   operations and user inputs.
 - **Accessibility (a11y)**: Keep accessibility in mind when creating UI

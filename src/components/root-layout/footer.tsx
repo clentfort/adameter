@@ -35,6 +35,21 @@ export function Footer() {
 						href="https://github.com/clentfort/adameter"
 						rel="noopener noreferrer"
 						target="_blank"
+						onClick={(e) => {
+							// Check if running as a PWA
+							if (!window.matchMedia('(display-mode: standalone)').matches) {
+								// Not a PWA, or display-mode is not standalone,
+								// let the default target="_blank" behavior apply.
+								return;
+							}
+
+							e.preventDefault();
+							window.open(
+								'https://github.com/clentfort/adameter',
+								'_blank',
+								'noopener,noreferrer',
+							);
+						}}
 					>
 						<Github className="mr-1 h-5 w-5" />
 						<fbt desc="Link text for GitHub repository in footer">GitHub</fbt>
