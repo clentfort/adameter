@@ -33,8 +33,6 @@ export function Footer() {
 					<a
 						className="inline-flex items-center hover:underline"
 						href="https://github.com/clentfort/adameter"
-						rel="noopener noreferrer"
-						target="_blank"
 						onClick={(e) => {
 							// Check if running as a PWA
 							if (!window.matchMedia('(display-mode: standalone)').matches) {
@@ -50,6 +48,8 @@ export function Footer() {
 								'noopener,noreferrer',
 							);
 						}}
+						rel="noopener noreferrer"
+						target="_blank"
 					>
 						<Github className="mr-1 h-5 w-5" />
 						<fbt desc="Link text for GitHub repository in footer">GitHub</fbt>
