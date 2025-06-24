@@ -22,4 +22,5 @@ else
   pnpm exec crowdin pull -b ${BRANCH_NAME} --plain translations
 fi
 
+mkdir -p src/i18n
 pnpm run fbtee:translate
