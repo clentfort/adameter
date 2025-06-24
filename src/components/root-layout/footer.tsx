@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export function Footer() {
 	return (
-		<footer className="mt-auto border-t border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950">
+		<footer className="w-full border-t border-gray-200 dark:border-gray-800 bg-muted/20">
 			<div className="container mx-auto px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
 				<div className="mb-2">
 					<Link
@@ -33,8 +33,6 @@ export function Footer() {
 					<a
 						className="inline-flex items-center hover:underline"
 						href="https://github.com/clentfort/adameter"
-						rel="noopener noreferrer"
-						target="_blank"
 						onClick={(e) => {
 							// Check if running as a PWA
 							if (!window.matchMedia('(display-mode: standalone)').matches) {
@@ -50,6 +48,8 @@ export function Footer() {
 								'noopener,noreferrer',
 							);
 						}}
+						rel="noopener noreferrer"
+						target="_blank"
 					>
 						<Github className="mr-1 h-5 w-5" />
 						<fbt desc="Link text for GitHub repository in footer">GitHub</fbt>
