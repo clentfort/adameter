@@ -1,8 +1,7 @@
 'use client';
 
 import type { DiaperChange } from '@/types/diaper';
-import { addDays, differenceInDays } from 'date-fns';
-import { useState } from 'react';
+import { differenceInDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -10,25 +9,13 @@ interface DiaperStatsProps {
 	diaperChanges: DiaperChange[];
 }
 
-export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
-	const [timeRange, setTimeRange] = useState<'7' | '14' | '30' | 'all'>('7');
+export default function DiaperStats({
+	diaperChanges = [],
+}: DiaperStatsProps) {
+	// The prop 'diaperChanges' is guaranteed to be an array by TypeScript
+	// and the default value in destructuring.
 
-	// Ensure diaperChanges is an array
-	const changesArray = Array.isArray(diaperChanges) ? diaperChanges : [];
-
-	// Filter changes based on selected time range
-	const filteredChanges = (() => {
-		if (timeRange === 'all') return changesArray;
-
-		const now = new Date();
-		const daysToLookBack = Number.parseInt(timeRange);
-		const cutoffDate = addDays(now, -daysToLookBack);
-		return changesArray.filter(
-			(change) => new Date(change.timestamp) >= cutoffDate,
-		);
-	})();
-
-	if (filteredChanges.length === 0) {
+	if (diaperChanges.length === 0) {
 		return (
 			<Card>
 				<CardHeader className="p-4 pb-2">
@@ -48,19 +35,19 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 	}
 
 	// Calculate statistics
-	const totalChanges = filteredChanges.length;
-	const urineOnly = filteredChanges.filter(
+	const totalChanges = diaperChanges.length;
+	const urineOnly = diaperChanges.filter(
 		(c) => c.containsUrine && !c.containsStool,
 	).length;
-	const withStool = filteredChanges.filter((c) => c.containsStool).length;
-	const withLeakage = filteredChanges.filter((c) => c.leakage).length;
+	const withStool = diaperChanges.filter((c) => c.containsStool).length;
+	const withLeakage = diaperChanges.filter((c) => c.leakage).length;
 
 	// Calculate changes per day
 	const oldestChange = new Date(
-		Math.min(...filteredChanges.map((c) => new Date(c.timestamp).getTime())),
+		Math.min(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
 	);
 	const newestChange = new Date(
-		Math.max(...filteredChanges.map((c) => new Date(c.timestamp).getTime())),
+		Math.max(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
 	);
 	const daysDiff = Math.max(
 		1,
@@ -70,7 +57,7 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 
 	// Calculate diaper brand statistics
 	const brandCounts: Record<string, { leakage: number; total: number }> = {};
-	filteredChanges.forEach((change) => {
+	diaperChanges.forEach((change) => {
 		if (change.diaperBrand) {
 			if (!brandCounts[change.diaperBrand]) {
 				brandCounts[change.diaperBrand] = { leakage: 0, total: 0 };
