@@ -119,7 +119,7 @@ importers:
         version: 7.27.6
       '@crowdin/cli':
         specifier: ^4.7.0
-        version: 4.7.1
+        version: 4.8.0
       '@eslint/eslintrc':
         specifier: ^3.3.1
         version: 3.3.1
@@ -429,8 +429,8 @@ packages:
   '@cloudflare/workers-types@4.20240718.0':
     resolution: {integrity: sha512-7RqxXIM9HyhjfZ9ztXjITuc7mL0w4s+zXgypqKmMuvuObC3DgXutJ3bOYbQ+Ss5QbywrzWSNMlmGdL/ldg/yZg==}
 
-  '@crowdin/cli@4.7.1':
-    resolution: {integrity: sha512-4EEQxoSB1tqRhhvEX4apsUmLvKisCHAHL+hc/vuibm7mzjTikdUCzjcyji03YowrUAn4i/2ASdokstC27Qp2Qg==}
+  '@crowdin/cli@4.8.0':
+    resolution: {integrity: sha512-k3AK/SRLHiEAAWyhY7072egNLPqJqj8MjW5cqrS/TzdJzSoQmNv97TGjZYw/xCAzGLTAMrTSrLAdV+mjBfqrjA==}
     hasBin: true
 
   '@cspotcode/source-map-support@0.8.1':
@@ -4671,7 +4671,7 @@ snapshots:
 
   '@cloudflare/workers-types@4.20240718.0': {}
 
-  '@crowdin/cli@4.7.1':
+  '@crowdin/cli@4.8.0':
     dependencies:
       command-exists-promise: 2.0.2
       node-fetch: 2.7.0
