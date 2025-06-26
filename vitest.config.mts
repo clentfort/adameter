@@ -11,9 +11,14 @@ export default defineConfig({
   }})],
   test: {
     coverage: {
-      provider: 'v8', 
-      reporter: ['text', 'json-summary', 'json'], // 'json-summary' is crucial for some reporters
-      reportsDirectory: './coverage', // Optional: specify the output directory
+      provider: 'v8',
+      reporter: ['text', 'json-summary', 'json'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'src/components/ui',
+        'src/app/legal',
+        'src/types',
+      ],
     },
     environment: 'jsdom',
     setupFiles: ['./src/vitest.setup.ts'],
