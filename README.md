@@ -6,6 +6,11 @@ AdaMeter is a privacy-first application designed to help you track all aspects
 of your newborn baby's development and routines. Built with care in Germany,
 AdaMeter prioritizes your data security and privacy above all else.
 
+[![Codecov](https://img.shields.io/codecov/c/github/clentfort/adameter)](https://app.codecov.io/github/clentfort/adameter)
+[![Deployment](https://img.shields.io/github/deployments/clentfort/adameter/Production?logo=github&label=Deployment)](https://vercel.com/clentfort-team/adameter)
+[![Tests](https://img.shields.io/github/actions/workflow/status/clentfort/adameter/test.yaml?branch=main&label=tests)](https://github.com/clentfort/adameter/actions/workflows/test.yaml)
+[![Translations](https://img.shields.io/badge/Translations-Crowdin-blue?logo=crowdin)](https://crowdin.com/project/adameter)
+
 **Your Data, Your Control:**
 
 - **On-Device Storage by Default:** All data is stored locally on your device,
