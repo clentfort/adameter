@@ -104,9 +104,8 @@ export default function StatisticsPage() {
 								<TimeBetweenStats sessions={filteredSessions} />
 								<FeedingsPerDayStats sessions={filteredSessions} />
 								<TotalFeedingsStats sessions={filteredSessions} />
+								<HeatMap className="col-span-2" sessions={filteredSessions} />
 							</div>
-
-							<HeatMap sessions={filteredSessions} />
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">

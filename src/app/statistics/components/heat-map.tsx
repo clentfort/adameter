@@ -8,10 +8,11 @@ import {
 } from '@/components/ui/card';
 
 interface HeatMapProps {
+	className?: string;
 	sessions: FeedingSession[];
 }
 
-export default function HeatMap({ sessions = [] }: HeatMapProps) {
+export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	// Ensure sessions is an array
 	const sessionsArray = Array.isArray(sessions) ? sessions : [];
 
@@ -69,7 +70,7 @@ export default function HeatMap({ sessions = [] }: HeatMapProps) {
 	});
 
 	return (
-		<Card>
+		<Card className={className}>
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
 					<fbt desc="feedingDistribution">Daily Feeding Distribution</fbt>
