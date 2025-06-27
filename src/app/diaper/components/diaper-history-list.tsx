@@ -88,8 +88,8 @@ export default function DiaperHistoryList() {
 										)}
 										{change.abnormalities && (
 											<p>
-												<fbt desc="Prefix to a user defined text on abnormalities on a diaper change (i.e. rashes, redness.)">
-													Abnormalities
+												<fbt desc="Prefix to a user defined text on notes on a diaper change (i.e. rashes, redness.)">
+													Notes
 												</fbt>
 												:{' '}
 												<span className="font-medium">
