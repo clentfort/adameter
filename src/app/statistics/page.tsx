@@ -20,6 +20,7 @@ import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
 import TimeBetweenStats from './components/time-between-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
+import TotalDurationStats from './components/total-duration-stats';
 
 export default function StatisticsPage() {
 	const { value: diaperChanges } = useDiaperChanges();
@@ -101,6 +102,7 @@ export default function StatisticsPage() {
 						<>
 							<div className="grid grid-cols-2 gap-4">
 								<DurationStats sessions={filteredSessions} />
+								<TotalDurationStats sessions={filteredSessions} />
 								<TimeBetweenStats sessions={filteredSessions} />
 								<FeedingsPerDayStats sessions={filteredSessions} />
 								<TotalFeedingsStats sessions={filteredSessions} />
