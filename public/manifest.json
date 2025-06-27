@@ -53,7 +53,7 @@
       "sizes": "512x512",
       "src": "maskable_icon_x512.png",
       "type": "image/png"
-    }
+    },
 		{
 			"src": "/icon-72x72.png",
 			"sizes": "72x72",
