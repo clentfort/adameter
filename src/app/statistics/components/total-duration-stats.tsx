@@ -40,7 +40,13 @@ export default function TotalDurationStats({
 	};
 
 	return (
-		<StatsCard title={<fbt desc="totalFeedingDuration">Total feeding duration</fbt>}>
+		<StatsCard
+			title={
+				<fbt desc="Title for the total feeding duration statistics card">
+					Total feeding duration
+				</fbt>
+			}
+		>
 			<div className="text-2xl font-bold">
 				{formatTotalDuration(totalDurationInSeconds)}
 			</div>

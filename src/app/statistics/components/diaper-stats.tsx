@@ -20,12 +20,12 @@ export default function DiaperStats({
 			<Card>
 				<CardHeader className="p-4 pb-2">
 					<CardTitle className="text-base">
-						<fbt desc="diaperStatistics">Diaper Statistics</fbt>
+						<fbt desc="Title for the diaper statistics card">Diaper Statistics</fbt>
 					</CardTitle>
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<p className="text-muted-foreground text-center py-4">
-						<fbt desc="noDiaperDataAvailable">
+						<fbt desc="Message shown when no diaper data is available for the selected time range">
 							No diaper data available for the selected time range.
 						</fbt>
 					</p>
@@ -87,20 +87,20 @@ export default function DiaperStats({
 		<Card>
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
-					<fbt desc="diaperStatistics">Diaper Statistics</fbt>
+					<fbt desc="Title for the diaper statistics card">Diaper Statistics</fbt>
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="p-4 pt-0">
 				<Tabs className="w-full" defaultValue="overview">
 					<TabsList className="grid grid-cols-3 mb-4">
 						<TabsTrigger value="overview">
-							<fbt desc="overview">Overview</fbt>
+							<fbt desc="Label for the overview tab in diaper statistics">Overview</fbt>
 						</TabsTrigger>
 						<TabsTrigger value="brands">
-							<fbt desc="diaperBrands">Diaper Brands</fbt>
+							<fbt desc="Label for the diaper brands tab in diaper statistics">Diaper Brands</fbt>
 						</TabsTrigger>
 						<TabsTrigger value="leakage">
-							<fbt desc="leakage">Diaper leaked</fbt>
+							<fbt desc="Label for the leakage tab in diaper statistics">Diaper leaked</fbt>
 						</TabsTrigger>
 					</TabsList>
 
@@ -108,13 +108,13 @@ export default function DiaperStats({
 						<div className="grid grid-cols-2 gap-4">
 							<div className="border rounded-md p-3">
 								<p className="text-sm text-muted-foreground">
-									<fbt desc="total">Total</fbt>
+									<fbt desc="Label for the total number of diaper changes">Total</fbt>
 								</p>
 								<p className="text-2xl font-bold">{totalChanges}</p>
 							</div>
 							<div className="border rounded-md p-3">
 								<p className="text-sm text-muted-foreground">
-									<fbt desc="perDay">Per Day</fbt>
+									<fbt desc="Label for the average number of diaper changes per day">Per Day</fbt>
 								</p>
 								<p className="text-2xl font-bold">{changesPerDay}</p>
 							</div>
@@ -123,7 +123,7 @@ export default function DiaperStats({
 						<div className="grid grid-cols-3 gap-4">
 							<div className="border rounded-md p-3 bg-yellow-50 dark:bg-yellow-800/30">
 								<p className="text-sm text-yellow-800 dark:text-yellow-300">
-									<fbt desc="urineOnly">Urine Only</fbt>
+									<fbt desc="Label for diaper changes that only contain urine">Urine Only</fbt>
 								</p>
 								<p className="text-xl font-bold text-yellow-800 dark:text-yellow-300">
 									{urineOnly}
@@ -134,7 +134,7 @@ export default function DiaperStats({
 							</div>
 							<div className="border rounded-md p-3 bg-amber-50 dark:bg-amber-800/30">
 								<p className="text-sm text-amber-800 dark:text-amber-300">
-									<fbt desc="withStool">With Stool</fbt>
+									<fbt desc="Label for diaper changes that contain stool">With Stool</fbt>
 								</p>
 								<p className="text-xl font-bold text-amber-800 dark:text-amber-300">
 									{withStool}
@@ -145,7 +145,7 @@ export default function DiaperStats({
 							</div>
 							<div className="border rounded-md p-3 bg-red-50 dark:bg-red-800/30">
 								<p className="text-sm text-red-800 dark:text-red-300">
-									<fbt desc="withLeakage">With Leakage</fbt>
+									<fbt desc="Label for diaper changes that had leakage">With Leakage</fbt>
 								</p>
 								<p className="text-xl font-bold text-red-800 dark:text-red-300">
 									{withLeakage}
@@ -182,7 +182,7 @@ export default function DiaperStats({
 							</div>
 						) : (
 							<p className="text-muted-foreground text-center py-4">
-								<fbt desc="noDiaperBrandsRecorded">
+								<fbt desc="Message shown when no diaper brand data is available">
 									No diaper brands recorded.
 								</fbt>
 							</p>
@@ -193,7 +193,7 @@ export default function DiaperStats({
 						{leakageBrands.length > 0 ? (
 							<div className="space-y-4">
 								<p className="text-sm text-muted-foreground">
-									<fbt desc="diaperBrandsByLeakage">
+									<fbt desc="Title for the list of diaper brands sorted by leakage frequency">
 										Diaper brands by leakage frequency (min. 3 uses)
 									</fbt>
 								</p>
@@ -229,7 +229,7 @@ export default function DiaperStats({
 							</div>
 						) : (
 							<p className="text-muted-foreground text-center py-4">
-								<fbt desc="noLeakageDataAvailable">
+								<fbt desc="Message shown when not enough data is available for leakage statistics">
 									Not enough data for leakage statistics.
 								</fbt>
 							</p>

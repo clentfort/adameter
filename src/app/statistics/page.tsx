@@ -58,7 +58,7 @@ export default function StatisticsPage() {
 		<div className="w-full">
 			<div className="flex justify-between items-center mb-4">
 				<h2 className="text-xl font-semibold">
-					<fbt desc="statistics">Statistics</fbt>
+					<fbt desc="Title for the statistics page">Statistics</fbt>
 				</h2>
 				<Select
 					onValueChange={(value) =>
@@ -67,20 +67,34 @@ export default function StatisticsPage() {
 					value={timeRange}
 				>
 					<SelectTrigger className="w-[140px]">
-						<SelectValue placeholder=<fbt desc="timeRange">Time Range</fbt> />
+						<SelectValue
+							placeholder={
+								<fbt desc="Placeholder text for the time range select input on the statistics page">
+									Time Range
+								</fbt>
+							}
+						/>
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value="7">
-							<fbt desc="last7Days">Last 7 Days</fbt>
+							<fbt desc="Option to display data for the last 7 days in statistics">
+								Last 7 Days
+							</fbt>
 						</SelectItem>
 						<SelectItem value="14">
-							<fbt desc="last14Days">Last 14 Days</fbt>
+							<fbt desc="Option to display data for the last 14 days in statistics">
+								Last 14 Days
+							</fbt>
 						</SelectItem>
 						<SelectItem value="30">
-							<fbt desc="last30Days">Last 30 Days</fbt>
+							<fbt desc="Option to display data for the last 30 days in statistics">
+								Last 30 Days
+							</fbt>
 						</SelectItem>
 						<SelectItem value="all">
-							<fbt desc="allData">All Data</fbt>
+							<fbt desc="Option to display all data in statistics">
+								All Data
+							</fbt>
 						</SelectItem>
 					</SelectContent>
 				</Select>
@@ -89,14 +103,14 @@ export default function StatisticsPage() {
 			filteredDiaperChanges.length === 0 &&
 			measurements.length === 0 ? (
 				<div className="text-center py-8 text-muted-foreground">
-					<fbt desc="noDataAvailable">
+					<fbt desc="Message shown when no data is available for the selected time range on the statistics page">
 						No data available for the selected time range.
 					</fbt>
 				</div>
 			) : (
 				<>
 					<h3 className="text-lg font-medium mt-6 mb-4">
-						<fbt desc="feedingTab">Feeding</fbt>
+						<fbt desc="Subtitle for the feeding statistics section">Feeding</fbt>
 					</h3>
 					{filteredSessions.length > 0 ? (
 						<>
@@ -111,33 +125,35 @@ export default function StatisticsPage() {
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
-							<fbt desc="noFeedingDataAvailable">
+							<fbt desc="Message shown when no feeding data is available for the selected time range">
 								No feeding data available for the selected time range.
 							</fbt>
 						</div>
 					)}
 
 					<h3 className="text-lg font-medium mt-8 mb-4">
-						<fbt desc="diaperTab">Diaper</fbt>
+						<fbt desc="Subtitle for the diaper statistics section">Diaper</fbt>
 					</h3>
 					{filteredDiaperChanges.length > 0 ? (
 						<DiaperStats diaperChanges={filteredDiaperChanges} />
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
-							<fbt desc="noDiaperDataAvailable">
+							<fbt desc="Message shown when no diaper data is available for the selected time range">
 								No diaper data available for the selected time range.
 							</fbt>
 						</div>
 					)}
 
 					<h3 className="text-lg font-medium mt-8 mb-4">
-						<fbt desc="growthTab">Growth</fbt>
+						<fbt desc="Subtitle for the growth statistics section">Growth</fbt>
 					</h3>
 					{measurements.length > 0 ? (
 						<GrowthChart events={events} measurements={measurements} />
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
-							<fbt desc="noGrowthDataAvailable">No growth data available.</fbt>
+							<fbt desc="Message shown when no growth data is available">
+								No growth data available.
+							</fbt>
 						</div>
 					)}
 				</>
