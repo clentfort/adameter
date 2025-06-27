@@ -78,6 +78,12 @@
   }
 }
 
+/* Set initial background color for body to match splash screen */
+/* This should be overridden by Tailwind's theme provider once loaded */
+body {
+  background-color: #faf7ee;
+}
+
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
