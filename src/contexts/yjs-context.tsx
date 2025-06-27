@@ -1,7 +1,8 @@
 'use client';
 
-import { createContext, useCallback, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { bind } from 'valtio-yjs';
+import { SplashScreen } from '@/components/splash-screen';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { Array, Doc, Map } from 'yjs';
 import { diaperChanges } from '@/data/diaper-changes';
@@ -27,7 +28,7 @@ export function YjsProvider({ children }: YjsProviderProps) {
 	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
 
 	if (!isSynced) {
-		return <div>Loading...</div>;
+		return <SplashScreen />;
 	}
 
 	return <yjsContext.Provider value={{ doc }}>{children}</yjsContext.Provider>;

@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 				<meta content="width=device-width, initial-scale=1" name="viewport" />
 				<link href="/manifest.json" rel="manifest" type="manifest" />
 			</head>
-			<body>
+			<body style={{ backgroundColor: '#faf7ee' }}>
 				<I18nProvider>
 					<ThemeProvider
 						attribute="class"
