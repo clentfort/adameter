@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
+import { SplashScreen } from '@/components/splash-screen';
 import { I18nContext } from '@/contexts/i18n-context';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useEvents } from '@/hooks/use-events';
@@ -85,5 +86,5 @@ export default function HomePage() {
 		redirect('/feeding');
 	}
 
-	return <div>Loading...</div>;
+	return <SplashScreen />;
 }
