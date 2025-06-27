@@ -121,30 +121,36 @@ export default function DiaperStats({
 						</div>
 
 						<div className="grid grid-cols-3 gap-4">
-							<div className="border rounded-md p-3 bg-yellow-50">
-								<p className="text-sm text-yellow-800">
+							<div className="border rounded-md p-3 bg-yellow-50 dark:bg-yellow-800/30">
+								<p className="text-sm text-yellow-800 dark:text-yellow-300">
 									<fbt desc="urineOnly">Urine Only</fbt>
 								</p>
-								<p className="text-xl font-bold text-yellow-800">{urineOnly}</p>
-								<p className="text-xs text-yellow-600">
+								<p className="text-xl font-bold text-yellow-800 dark:text-yellow-300">
+									{urineOnly}
+								</p>
+								<p className="text-xs text-yellow-600 dark:text-yellow-400">
 									{Math.round((urineOnly / totalChanges) * 100)}%
 								</p>
 							</div>
-							<div className="border rounded-md p-3 bg-amber-50">
-								<p className="text-sm text-amber-800">
+							<div className="border rounded-md p-3 bg-amber-50 dark:bg-amber-800/30">
+								<p className="text-sm text-amber-800 dark:text-amber-300">
 									<fbt desc="withStool">With Stool</fbt>
 								</p>
-								<p className="text-xl font-bold text-amber-800">{withStool}</p>
-								<p className="text-xs text-amber-600">
+								<p className="text-xl font-bold text-amber-800 dark:text-amber-300">
+									{withStool}
+								</p>
+								<p className="text-xs text-amber-600 dark:text-amber-400">
 									{Math.round((withStool / totalChanges) * 100)}%
 								</p>
 							</div>
-							<div className="border rounded-md p-3 bg-red-50">
-								<p className="text-sm text-red-800">
+							<div className="border rounded-md p-3 bg-red-50 dark:bg-red-800/30">
+								<p className="text-sm text-red-800 dark:text-red-300">
 									<fbt desc="withLeakage">With Leakage</fbt>
 								</p>
-								<p className="text-xl font-bold text-red-800">{withLeakage}</p>
-								<p className="text-xs text-red-600">
+								<p className="text-xl font-bold text-red-800 dark:text-red-300">
+									{withLeakage}
+								</p>
+								<p className="text-xs text-red-600 dark:text-red-400">
 									{Math.round((withLeakage / totalChanges) * 100)}%
 								</p>
 							</div>
@@ -156,9 +162,9 @@ export default function DiaperStats({
 							<div className="space-y-3">
 								{sortedBrands.map(([brand, stats]) => (
 									<div className="flex items-center" key={brand}>
-										<div className="w-full bg-gray-200 rounded-full h-4">
+										<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
 											<div
-												className="bg-blue-600 h-4 rounded-full"
+												className="bg-blue-600 dark:bg-blue-500 h-4 rounded-full"
 												style={{
 													width: `${(stats.total / totalChanges) * 100}%`,
 												}}
@@ -202,14 +208,14 @@ export default function DiaperStats({
 												<div className="flex justify-between items-center mb-1">
 													<span className="font-medium">{brand}</span>
 													<span
-														className={`text-sm ${leakagePercent > 20 ? 'text-red-600 font-bold' : 'text-muted-foreground'}`}
+														className={`text-sm ${leakagePercent > 20 ? 'text-red-600 dark:text-red-400 font-bold' : 'text-muted-foreground'}`}
 													>
 														{leakagePercent}% ausgelaufen
 													</span>
 												</div>
-												<div className="w-full bg-gray-200 rounded-full h-3">
+												<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
 													<div
-														className={`h-3 rounded-full ${leakagePercent > 20 ? 'bg-red-500' : 'bg-amber-500'}`}
+														className={`h-3 rounded-full ${leakagePercent > 20 ? 'bg-red-500 dark:bg-red-600' : 'bg-amber-500 dark:bg-amber-600'}`}
 														style={{ width: `${leakagePercent}%` }}
 													></div>
 												</div>
