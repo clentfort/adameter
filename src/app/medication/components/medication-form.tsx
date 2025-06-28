@@ -69,36 +69,8 @@ export default function MedicationForm({
 	const [notes, setNotes] = useState(medication ? medication.notes || '' : '');
 	const [error, setError] = useState('');
 
-	// useEffect to update form if 'medication' prop changes after initial mount
-	// This is important if the same form instance is kept open and the prop changes (e.g. selecting a different item to edit without closing/reopening)
-	// REMOVED as per user feedback: Caller is responsible for unmount/remount or key change.
-	// useEffect(() => {
-	// 	if (medication) {
-	// 		setName(medication.name);
-	// 		setDosage(medication.dosage);
-	// 		setStartDate(dateToDateInputValue(new Date(medication.startDate)));
-	// 		setIsOngoing(medication.endDate === null);
-	// 		setEndDate(
-	// 			dateToDateInputValue(
-	// 				medication.endDate ? new Date(medication.endDate) : new Date(),
-	// 			),
-	// 		);
-	// 		setPrescriberType(medication.prescriberType);
-	// 		setPrescriberName(medication.prescriberName || '');
-	// 		setTimeOfDay(
-	// 			medication.timeOfDay
-	// 				? dateToTimeInputValue(
-	// 						new Date(`1970-01-01T${medication.timeOfDay}:00`),
-	// 					)
-	// 				: '',
-	// 		);
-	// 		setNotificationsEnabled(medication.notificationsEnabled ?? true);
-	// 		setNotes(medication.notes || '');
-	// 	}
-	// }, [medication]);
-
 	const handleSave = () => {
-		setError(''); // Clear previous errors
+		setError('');
 
 		if (!name.trim()) {
 			setError(
