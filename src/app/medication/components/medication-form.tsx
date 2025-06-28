@@ -166,6 +166,66 @@ export default function MedicationForm({
 			timeOfDay: timeOfDay || undefined,
 		};
 		onSave(newMedicationEntry);
+		// Schedule notification
+		if (
+			newMedicationEntry.notificationsEnabled &&
+			newMedicationEntry.timeOfDay &&
+			newMedicationEntry.startDate
+		) {
+			const [hours, minutes] = newMedicationEntry.timeOfDay.split(':').map(Number);
+			const notificationTime = new Date(newMedicationEntry.startDate);
+			notificationTime.setHours(hours, minutes, 0, 0);
+
+			const now = new Date();
+			const timeDifference = notificationTime.getTime() - now.getTime();
+
+			if (timeDifference > 0) {
+				// Fallback: Local setTimeout notification
+				setTimeout(() => {
+					if (Notification.permission === 'granted') {
+						new Notification(`Medication Reminder: ${newMedicationEntry.name}`, {
+							body: `It's time for your medication: ${newMedicationEntry.dosage}.`,
+							icon: '/icon-192x192.png',
+						});
+					}
+				}, timeDifference);
+
+				// PWA Push Notification (simulated client-side)
+				if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+					navigator.serviceWorker.ready.then((registration) => {
+						// Check if the registration has the showNotification method
+						if (typeof registration.showNotification === 'function') {
+							registration.showNotification(
+								`Medication: ${newMedicationEntry.name}`,
+								{
+									body: `Time for ${newMedicationEntry.dosage}. Notes: ${newMedicationEntry.notes || ''}`,
+									icon: '/icon-192x192.png',
+									tag: `medication-${newMedicationEntry.id}`, // Tag to prevent duplicate notifications if needed
+									// timestamp: notificationTime.getTime(), // Show original scheduled time
+									// renotify: true, // Vibrate/sound again if replacing an existing notification with the same tag
+									// requireInteraction: true, // Keep notification visible until user interaction
+									data: {
+										url: `/medication?id=${newMedicationEntry.id}`, // URL to open when notification is clicked
+									},
+								},
+							);
+						} else {
+							console.warn(
+								'registration.showNotification is not available. Scheduling with setTimeout instead.',
+							);
+						}
+					}).catch(error => {
+						console.error("Service worker not ready or error showing notification:", error);
+						// Fallback already handled by setTimeout above
+					});
+				} else {
+					console.warn("Service worker not available for push notification. Fallback to setTimeout.");
+				}
+			} else {
+				console.log("Scheduled time is in the past. No notification will be set.");
+			}
+		}
+
 		onClose();
 	};
 
