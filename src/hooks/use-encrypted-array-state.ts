@@ -32,10 +32,20 @@ export function useEncryptedArrayState<T extends ObjectWithId>(
 	const secret = useEncryptionKey();
 
 	useEffect(() => {
-		const decryptedValue = encryptedValue.map((value) =>
-			decryptWithoutId(value, secret),
-		);
-		setValue(decryptedValue);
+		if (secret && secret.length > 0) {
+			try {
+				const decryptedValue = encryptedValue.map((item) =>
+					decryptWithoutId(item, secret),
+				);
+				setValue(decryptedValue);
+			} catch {
+				// console.error('Failed to decrypt data in useEncryptedArrayState:', e);
+				setValue([]); // Fallback to empty array on decryption error
+			}
+		} else {
+			// If secret is not available, treat as if there's no data to decrypt or show
+			setValue([]);
+		}
 	}, [encryptedValue, secret]);
 
 	return {

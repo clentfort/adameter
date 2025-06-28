@@ -33,9 +33,24 @@ export default function MedicationHistoryList() {
 		}
 	};
 
-	const sortedMedicationEntries = [...medicationEntries].sort(
-		(a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
-	);
+	const sortedMedicationEntries = [...medicationEntries].sort((a, b) => {
+		try {
+			const dateA = new Date(a.startDate).getTime();
+			const dateB = new Date(b.startDate).getTime();
+
+			// Use Number.isNaN for clarity and to avoid global isNaN pitfalls
+			if (Number.isNaN(dateA) && Number.isNaN(dateB)) return 0;
+			if (Number.isNaN(dateA)) return 1;
+			if (Number.isNaN(dateB)) return -1;
+
+			return dateB - dateA;
+		} catch {
+			// In case of catastrophic error during date parsing, log to console (dev only ideally)
+			// and default to not changing order to prevent crashes.
+			// console.error('Error parsing dates during medication sort:', e, a, b);
+			return 0;
+		}
+	});
 
 	if (sortedMedicationEntries.length === 0) {
 		return (
