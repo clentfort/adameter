@@ -2,14 +2,15 @@
 
 import { createContext, useEffect, useState } from 'react';
 import { bind } from 'valtio-yjs';
-import { SplashScreen } from '@/components/splash-screen';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { Array, Doc, Map } from 'yjs';
+import { SplashScreen } from '@/components/splash-screen';
 import { diaperChanges } from '@/data/diaper-changes';
 import { events } from '@/data/events';
 import { feedingInProgress } from '@/data/feeding-in-progress';
 import { feedingSessions } from '@/data/feeding-sessions';
 import { growthMeasurements } from '@/data/growth-measurments';
+import { medicationStore } from '@/data/medication';
 
 const doc = new Doc();
 export const yjsContext = createContext<{ doc: Doc }>({ doc });
@@ -25,6 +26,7 @@ export function YjsProvider({ children }: YjsProviderProps) {
 	useBindValtioToYjs(events, doc.getArray('events'));
 	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
 	useBindValtioToYjs(growthMeasurements, doc.getArray('growth-measurments'));
+	useBindValtioToYjs(medicationStore, doc.getArray('medication'));
 	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
 
 	if (!isSynced) {
