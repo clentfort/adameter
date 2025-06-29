@@ -77,10 +77,10 @@ export default function MeasurementForm({
 		const newMeasurement: GrowthMeasurement = {
 			...measurement,
 			date: new Date(`${date}T12:00:00`).toISOString(),
-			height: height ? Number.parseFloat(height) : undefined,
 			headCircumference: headCircumference
 				? Number.parseFloat(headCircumference)
 				: undefined,
+			height: height ? Number.parseFloat(height) : undefined,
 			id: measurement?.id || Date.now().toString(),
 
 			notes: notes || undefined,

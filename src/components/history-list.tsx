@@ -9,14 +9,14 @@ interface ItemWithId {
 
 interface HistoryListProps<T extends ItemWithId> {
 	children: (entry: T) => React.ReactNode;
-	entries: ReadonlyArray<T>;
 	dateAccessor: (entry: T) => string; // Add dateAccessor prop
+	entries: ReadonlyArray<T>;
 }
 
 export default function HistoryList<T extends ItemWithId>({
 	children,
-	entries,
 	dateAccessor, // Destructure dateAccessor
+	entries,
 }: HistoryListProps<T>) {
 	const groupedEvents = useSortedEvents(entries, dateAccessor); // Pass dateAccessor to the hook
 
