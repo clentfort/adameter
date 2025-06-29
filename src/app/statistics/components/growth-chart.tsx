@@ -2,9 +2,9 @@
 
 import type { Event } from '@/types/event';
 import type { GrowthMeasurement } from '@/types/growth';
-// Ensured fbt import is present
+import { fbt } from 'fbtee'; // Ensured fbt import is present
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import LineChart from './line-chart'; // Updated import name and path
+import LineChart from './line-chart';
 
 interface GrowthChartProps {
 	events?: Event[];
@@ -35,6 +35,25 @@ export default function GrowthChart({
 		);
 	}
 
+	const transformMeasurements = (
+		dataKey: keyof GrowthMeasurement,
+		currentMeasurements: GrowthMeasurement[],
+	) => {
+		return currentMeasurements
+			.filter((m) => m[dataKey] !== undefined && m[dataKey] !== null)
+			.map((m) => ({
+				x: new Date(m.date),
+				y: m[dataKey] as number,
+			}));
+	};
+
+	const weightData = transformMeasurements('weight', measurements);
+	const heightData = transformMeasurements('height', measurements);
+	const headCircumferenceData = transformMeasurements(
+		'headCircumference',
+		measurements,
+	);
+
 	return (
 		<Card>
 			<CardHeader className="p-4 pb-2">
@@ -46,38 +65,34 @@ export default function GrowthChart({
 				<LineChart
 					backgroundColor="rgba(99, 102, 241, 0.1)"
 					borderColor="#6366f1"
-					dataKey="weight"
+					chartData={weightData}
+					datasetLabel={fbt('Weight (g)', 'Dataset label for weight in grams')}
 					events={events}
-					label="Weight"
-					measurements={measurements}
-					title={<fbt desc="weightChartTitle">Weight (g)</fbt>}
-					unit="g"
+					title={<fbt desc="weightChartTitle">Weight</fbt>}
+					xAxisLabel={fbt('Date', 'X-axis label for date')}
+					noDataMessageLabel={fbt('Weight', 'Data type for no data message - weight')}
 				/>
 
 				<LineChart
 					backgroundColor="rgba(236, 72, 153, 0.1)"
 					borderColor="#ec4899"
-					dataKey="height"
+					chartData={heightData}
+					datasetLabel={fbt('Height (cm)', 'Dataset label for height in centimeters')}
 					events={events}
-					label="Height"
-					measurements={measurements}
-					title={<fbt desc="heightChartTitle">Height (cm)</fbt>}
-					unit="cm"
+					title={<fbt desc="heightChartTitle">Height</fbt>}
+					xAxisLabel={fbt('Date', 'X-axis label for date')}
+					noDataMessageLabel={fbt('Height', 'Data type for no data message - height')}
 				/>
 
 				<LineChart
 					backgroundColor="rgba(59, 130, 246, 0.1)" // Tailwind blue-500
 					borderColor="#3b82f6" // Tailwind blue-500
-					dataKey="headCircumference"
+					chartData={headCircumferenceData}
+					datasetLabel={fbt('Head Circumference (cm)', 'Dataset label for head circumference in centimeters')}
 					events={events}
-					label="Head Circumference"
-					measurements={measurements}
-					title={
-						<fbt desc="headCircumferenceChartTitle">
-							Head Circumference (cm)
-						</fbt>
-					}
-					unit="cm"
+					title={<fbt desc="headCircumferenceChartTitle">Head Circumference</fbt>}
+					xAxisLabel={fbt('Date', 'X-axis label for date')}
+					noDataMessageLabel={fbt('Head Circumference', 'Data type for no data message - head circumference')}
 				/>
 
 				{events.length > 0 && (
