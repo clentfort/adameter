@@ -8,10 +8,7 @@ const compat = new FlatCompat({
 });
 
 const extended = compat.config({
-	extends: [
-		/* 'plugin:@nkzw/eslint-plugin-fbtee/recommended', */ 'next',
-		'prettier',
-	],
+	extends: ['plugin:@nkzw/eslint-plugin-fbtee/recommended', 'next', 'prettier'],
 	plugins: ['@nkzw/eslint-plugin-fbtee'],
 });
 

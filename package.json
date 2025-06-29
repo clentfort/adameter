@@ -2,6 +2,11 @@
 	"name": "adameter",
 	"version": "0.1.0",
 	"private": true,
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"canvas"
+		]
+	},
 	"scripts": {
 		"predev": "./scripts/download-translations.sh",
 		"dev:next": "next dev",
