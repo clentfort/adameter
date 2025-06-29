@@ -23,10 +23,7 @@ export default function GrowthMeasurementsList({
 	const [measurementToEdit, setMeasurementToEdit] =
 		useState<GrowthMeasurement | null>(null);
 
-	// Ensure measurements is an array
-	const measurementsArray = Array.isArray(measurements) ? measurements : [];
-
-	if (measurementsArray.length === 0) {
+	if (measurements.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
 				<fbt desc="noMeasurementsRecorded">No measurements recorded yet.</fbt>
@@ -42,7 +39,7 @@ export default function GrowthMeasurementsList({
 	};
 
 	// Sort measurements by date (newest first)
-	const sortedMeasurements = [...measurementsArray].sort(
+	const sortedMeasurements = [...measurements].sort(
 		(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
 	);
 

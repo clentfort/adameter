@@ -9,13 +9,10 @@ interface TotalDurationStatsProps {
 export default function TotalDurationStats({
 	sessions = [],
 }: TotalDurationStatsProps) {
-	// Ensure sessions is an array
-	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-
-	if (sessionsArray.length === 0) return null;
+	if (sessions.length === 0) return null;
 
 	// Calculate total duration
-	const totalDurationInSeconds = sessionsArray.reduce(
+	const totalDurationInSeconds = sessions.reduce(
 		(sum, session) => sum + session.durationInSeconds,
 		0,
 	);

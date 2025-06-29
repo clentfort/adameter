@@ -9,14 +9,11 @@ interface FeedingsPerDayStatsProps {
 export default function FeedingsPerDayStats({
 	sessions = [],
 }: FeedingsPerDayStatsProps) {
-	// Ensure sessions is an array
-	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-
-	if (sessionsArray.length === 0) return null;
+	if (sessions.length === 0) return null;
 
 	// Group sessions by day
 	const sessionsByDay = new Map<string, number>();
-	sessionsArray.forEach((session) => {
+	sessions.forEach((session) => {
 		const day = format(new Date(session.startTime), 'yyyy-MM-dd');
 		sessionsByDay.set(day, (sessionsByDay.get(day) || 0) + 1);
 	});

@@ -13,15 +13,12 @@ interface HeatMapProps {
 }
 
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
-	// Ensure sessions is an array
-	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-
-	if (sessionsArray.length === 0) return null;
+	if (sessions.length === 0) return null;
 
 	// Calculate time distribution (5-minute intervals)
 	const distribution = Array(288).fill(0); // 288 5-minute intervals in a day
 
-	sessionsArray.forEach((session) => {
+	sessions.forEach((session) => {
 		const startTime = new Date(session.startTime);
 		const endTime = new Date(session.endTime);
 
