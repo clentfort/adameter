@@ -1,4 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
+import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import StatsCard from './stats-card';
 
 interface DurationStatsProps {
@@ -35,19 +36,6 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 		total: Math.round(totalDuration / sessionsArray.length),
 	};
 
-	const formatDuration = (seconds: number) => {
-		const minutes = Math.floor(seconds / 60);
-		const remainingSeconds = seconds % 60;
-
-		if (minutes === 0) {
-			return `${remainingSeconds} Sek.`;
-		} else if (remainingSeconds === 0) {
-			return `${minutes} Min.`;
-		} else {
-			return `${minutes} Min. ${remainingSeconds} Sek.`;
-		}
-	};
-
 	return (
 		<StatsCard
 			title={
@@ -57,7 +45,7 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 			}
 		>
 			<div className="text-2xl font-bold">
-				{formatDuration(avgDuration.total)}
+				{formatDurationAbbreviated(avgDuration.total)}
 			</div>
 			<div className="text-xs text-muted-foreground mt-1">
 				<fbt desc="Label for the average feeding duration on the left breast">
@@ -65,7 +53,7 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 				</fbt>
 				:{' '}
 				<span className="text-left-breast-dark">
-					{formatDuration(avgDuration.left)}
+					{formatDurationAbbreviated(avgDuration.left)}
 				</span>
 			</div>
 			<div className="text-xs text-muted-foreground">
@@ -74,7 +62,7 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 				</fbt>
 				:{' '}
 				<span className="text-right-breast-dark">
-					{formatDuration(avgDuration.right)}
+					{formatDurationAbbreviated(avgDuration.right)}
 				</span>
 			</div>
 		</StatsCard>
