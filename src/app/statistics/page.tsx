@@ -19,8 +19,8 @@ import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
 import TimeBetweenStats from './components/time-between-stats';
-import TotalFeedingsStats from './components/total-feedings-stats';
 import TotalDurationStats from './components/total-duration-stats';
+import TotalFeedingsStats from './components/total-feedings-stats';
 
 export default function StatisticsPage() {
 	const { value: diaperChanges } = useDiaperChanges();
@@ -110,7 +110,9 @@ export default function StatisticsPage() {
 			) : (
 				<>
 					<h3 className="text-lg font-medium mt-6 mb-4">
-						<fbt desc="Subtitle for the feeding statistics section">Feeding</fbt>
+						<fbt desc="Subtitle for the feeding statistics section">
+							Feeding
+						</fbt>
 					</h3>
 					{filteredSessions.length > 0 ? (
 						<>

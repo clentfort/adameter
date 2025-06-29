@@ -44,13 +44,19 @@ export default function RootLayout({ children }: RootLayoutProps) {
 				</div>
 
 				<div className="w-full flex flex-row justify-between gap-2 mb-6">
-					<TimeSince icon="🍼" lastChange={latestFeedingSession?.endTime || null}>
+					<TimeSince
+						icon="🍼"
+						lastChange={latestFeedingSession?.endTime || null}
+					>
 						<fbt desc="Short label indicating when a feeding was last recorded">
 							Last Feeding
 						</fbt>
 					</TimeSince>
 
-					<TimeSince icon="👶" lastChange={latestDiaperChange?.timestamp || null}>
+					<TimeSince
+						icon="👶"
+						lastChange={latestDiaperChange?.timestamp || null}
+					>
 						<fbt desc="A short label indicating when a diaper was last changed">
 							Last Diaper Change
 						</fbt>

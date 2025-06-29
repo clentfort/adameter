@@ -1,7 +1,7 @@
 import type { FeedingSession } from '@/types/feeding';
 import { differenceInSeconds } from 'date-fns';
-import StatsCard from './stats-card';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
+import StatsCard from './stats-card';
 
 interface TimeBetweenStatsProps {
 	sessions: FeedingSession[];
@@ -49,7 +49,9 @@ export default function TimeBetweenStats({
 				</fbt>
 			}
 		>
-			<div className="text-2xl font-bold">{formatDurationAbbreviated(avgTime)}</div>
+			<div className="text-2xl font-bold">
+				{formatDurationAbbreviated(avgTime)}
+			</div>
 		</StatsCard>
 	);
 }

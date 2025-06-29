@@ -146,7 +146,10 @@ export default function MeasurementForm({
 							<Input
 								id="headCircumference"
 								onChange={(e) => setHeadCircumference(e.target.value)}
-								placeholder={fbt('e.g. 35', 'Placeholder for a head circumference input')}
+								placeholder={fbt(
+									'e.g. 35',
+									'Placeholder for a head circumference input',
+								)}
 								step="0.1"
 								type="number"
 								value={headCircumference}

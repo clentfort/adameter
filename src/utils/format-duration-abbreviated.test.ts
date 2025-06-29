@@ -1,6 +1,5 @@
-import {  describe, expect, it, } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { formatDurationAbbreviated } from './format-duration-abbreviated';
-
 
 describe('formatDurationAbbreviated', () => {
 	it('should format duration with hours and minutes', () => {

@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import HistoryList from './feeding-history-list';
 import type { FeedingSession } from '@/types/feeding';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import HistoryList from './feeding-history-list';
 
 describe('FeedingHistoryList', () => {
 	it('should render a feeding session shorter than one hour correctly', () => {

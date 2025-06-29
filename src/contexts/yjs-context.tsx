@@ -2,9 +2,9 @@
 
 import { createContext, useEffect, useState } from 'react';
 import { bind } from 'valtio-yjs';
-import { SplashScreen } from '@/components/splash-screen';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { Array, Doc, Map } from 'yjs';
+import { SplashScreen } from '@/components/splash-screen';
 import { diaperChanges } from '@/data/diaper-changes';
 import { events } from '@/data/events';
 import { feedingInProgress } from '@/data/feeding-in-progress';
