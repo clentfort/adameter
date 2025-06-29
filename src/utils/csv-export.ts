@@ -18,7 +18,7 @@ const escapeCSV = (field: string): string => {
 
 // Function to convert feeding sessions to CSV
 export const feedingSessionsToCsv = (sessions: FeedingSession[]): string => {
-	if (!Array.isArray(sessions) || sessions.length === 0) {
+	if (sessions.length === 0) {
 		return 'Brust,Startzeit,Endzeit,Dauer (Sekunden),Dauer (formatiert)\n';
 	}
 
@@ -53,7 +53,7 @@ export const feedingSessionsToCsv = (sessions: FeedingSession[]): string => {
 
 // Function to convert events to CSV
 export const eventsToCsv = (events: Event[]): string => {
-	if (!Array.isArray(events) || events.length === 0) {
+	if (events.length === 0) {
 		return 'Titel,Beschreibung,Startzeit,Endzeit,Typ,Farbe\n';
 	}
 
@@ -84,7 +84,7 @@ export const eventsToCsv = (events: Event[]): string => {
 export const growthMeasurementsToCsv = (
 	measurements: GrowthMeasurement[],
 ): string => {
-	if (!Array.isArray(measurements) || measurements.length === 0) {
+	if (measurements.length === 0) {
 		return 'Datum,Gewicht (g),Größe (cm),Notizen\n';
 	}
 
@@ -111,7 +111,7 @@ export const growthMeasurementsToCsv = (
 
 // Function to convert diaper changes to CSV
 export const diaperChangesToCsv = (changes: DiaperChange[]): string => {
-	if (!Array.isArray(changes) || changes.length === 0) {
+	if (changes.length === 0) {
 		return 'Zeitpunkt,Typ,Temperatur,Windelmarke,Ausgelaufen,Auffälligkeiten\n';
 	}
 
@@ -148,10 +148,10 @@ export const createJsonExport = (
 	diaperChanges: DiaperChange[],
 ): string => {
 	const exportData = {
-		diaperChanges: Array.isArray(diaperChanges) ? diaperChanges : [],
-		events: Array.isArray(events) ? events : [],
-		measurements: Array.isArray(measurements) ? measurements : [],
-		sessions: Array.isArray(sessions) ? sessions : [],
+		diaperChanges,
+		events,
+		measurements,
+		sessions,
 	};
 
 	return JSON.stringify(exportData, null, 2);

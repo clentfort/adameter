@@ -10,13 +10,10 @@ interface TimeBetweenStatsProps {
 export default function TimeBetweenStats({
 	sessions = [],
 }: TimeBetweenStatsProps) {
-	// Ensure sessions is an array
-	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-
-	if (sessionsArray.length <= 1) return null;
+	if (sessions.length <= 1) return null;
 
 	// Sort sessions by start time (newest first)
-	const sortedSessions = [...sessionsArray].sort(
+	const sortedSessions = [...sessions].sort(
 		(a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime(),
 	);
 

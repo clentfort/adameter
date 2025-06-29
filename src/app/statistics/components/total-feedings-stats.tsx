@@ -8,13 +8,10 @@ interface TotalFeedingsStatsProps {
 export default function TotalFeedingsStats({
 	sessions = [],
 }: TotalFeedingsStatsProps) {
-	// Ensure sessions is an array
-	const sessionsArray = Array.isArray(sessions) ? sessions : [];
+	if (sessions.length === 0) return null;
 
-	if (sessionsArray.length === 0) return null;
-
-	const leftCount = sessionsArray.filter((s) => s.breast === 'left').length;
-	const rightCount = sessionsArray.filter((s) => s.breast === 'right').length;
+	const leftCount = sessions.filter((s) => s.breast === 'left').length;
+	const rightCount = sessions.filter((s) => s.breast === 'right').length;
 
 	return (
 		<StatsCard
@@ -24,7 +21,7 @@ export default function TotalFeedingsStats({
 				</fbt>
 			}
 		>
-			<div className="text-2xl font-bold">{sessionsArray.length}</div>
+			<div className="text-2xl font-bold">{sessions.length}</div>
 			<div className="text-xs text-muted-foreground mt-1">
 				<fbt desc="Label for the total number of feedings on the left breast">
 					Left Breast

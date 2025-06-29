@@ -7,10 +7,7 @@ interface DurationStatsProps {
 }
 
 export default function DurationStats({ sessions = [] }: DurationStatsProps) {
-	// Ensure sessions is an array
-	const sessionsArray = Array.isArray(sessions) ? sessions : [];
-
-	if (sessionsArray.length === 0) return null;
+	if (sessions.length === 0) return null;
 
 	// Calculate average durations
 	let totalDuration = 0;
@@ -19,7 +16,7 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 	let leftCount = 0;
 	let rightCount = 0;
 
-	sessionsArray.forEach((session) => {
+	sessions.forEach((session) => {
 		totalDuration += session.durationInSeconds;
 		if (session.breast === 'left') {
 			leftDuration += session.durationInSeconds;
@@ -33,7 +30,7 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 	const avgDuration = {
 		left: leftCount > 0 ? Math.round(leftDuration / leftCount) : 0,
 		right: rightCount > 0 ? Math.round(rightDuration / rightCount) : 0,
-		total: Math.round(totalDuration / sessionsArray.length),
+		total: Math.round(totalDuration / sessions.length),
 	};
 
 	return (
