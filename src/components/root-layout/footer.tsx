@@ -26,7 +26,11 @@ export function Footer() {
 				</div>
 				<div className="mb-2">
 					<fbt desc="Footer message: Made with love in Germany. {heartIcon} is a placeholder for a heart icon.">
-						Made with <fbt:param name="heartIcon_footer_v2"><Heart className="inline-block h-4 w-4 text-red-500" /></fbt:param> in Germany
+						Made with{' '}
+						<fbt:param name="heartIcon_footer_v2">
+							<Heart className="inline-block h-4 w-4 text-red-500" />
+						</fbt:param>{' '}
+						in Germany
 					</fbt>
 				</div>
 				<div>

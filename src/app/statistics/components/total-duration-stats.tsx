@@ -1,4 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
+import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import StatsCard from './stats-card';
 
 interface TotalDurationStatsProps {
@@ -19,26 +20,6 @@ export default function TotalDurationStats({
 		0,
 	);
 
-	const formatTotalDuration = (totalSeconds: number) => {
-		const hours = Math.floor(totalSeconds / 3600);
-		const minutes = Math.floor((totalSeconds % 3600) / 60);
-		const seconds = totalSeconds % 60;
-
-		const parts: string[] = [];
-		if (hours > 0) {
-			parts.push(`${hours} Std.`);
-		}
-		if (minutes > 0) {
-			parts.push(`${minutes} Min.`);
-		}
-		if (seconds > 0 || (hours === 0 && minutes === 0)) {
-			// Show seconds if there are seconds, or if hours and minutes are zero (e.g. "0 Sek.")
-			parts.push(`${seconds} Sek.`);
-		}
-
-		return parts.join(' ');
-	};
-
 	return (
 		<StatsCard
 			title={
@@ -48,7 +29,7 @@ export default function TotalDurationStats({
 			}
 		>
 			<div className="text-2xl font-bold">
-				{formatTotalDuration(totalDurationInSeconds)}
+				{formatDurationAbbreviated(totalDurationInSeconds)}
 			</div>
 		</StatsCard>
 	);

@@ -1,29 +1,17 @@
 import type { FeedingSession } from '@/types/feeding';
-import {
-	format,
-	formatDuration,
-	intervalToDuration,
-	isSameDay,
-} from 'date-fns';
-import { formatDurationShort } from '@/utils/format-duration-short';
+import { format, isSameDay } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import FeedingForm from './feeding-form';
 
 interface HistoryListProps {
 	onSessionDelete: (sessionId: string) => void;
 	onSessionUpdate: (session: FeedingSession) => void;
 	sessions: ReadonlyArray<FeedingSession>;
-}
-
-function formatDurationInMinutes(start: string, end: string) {
-	const startDate = new Date(start);
-	const endDate = new Date(end);
-	const duration = intervalToDuration({ end: endDate, start: startDate });
-	return formatDurationShort(duration);
 }
 
 export default function HistoryList({
@@ -39,8 +27,8 @@ export default function HistoryList({
 	return (
 		<>
 			<HistoryListInternal
-				entries={sessions}
 				dateAccessor={(session) => session.startTime}
+				entries={sessions}
 			>
 				{(session) => {
 					const isLeftBreast = session.breast === 'left';
@@ -90,10 +78,7 @@ export default function HistoryList({
 								</div>
 								<div className="text-right flex flex-col items-end">
 									<p className="font-bold">
-										{formatDurationInMinutes(
-											session.startTime,
-											session.endTime,
-										)}
+										{formatDurationAbbreviated(session.durationInSeconds)}
 									</p>
 									<p className="text-xs text-muted-foreground">
 										<fbt desc="Label indicating when a feeding session started">

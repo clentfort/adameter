@@ -16,11 +16,11 @@ const mockUseDiaperChanges = useDiaperChanges as vi.MockedFunction<
 describe('useLatestDiaperChange', () => {
 	it('should return undefined if there are no diaper changes', () => {
 		mockUseDiaperChanges.mockReturnValue({
-			value: [],
 			add: vi.fn(),
 			remove: vi.fn(),
 			replace: vi.fn(),
 			update: vi.fn(),
+			value: [],
 		});
 
 		const { result } = renderHook(() => useLatestDiaperChange());
@@ -29,17 +29,17 @@ describe('useLatestDiaperChange', () => {
 
 	it('should return the diaper change if there is only one', () => {
 		const singleChange: DiaperChange = {
+			containsStool: false,
+			containsUrine: true,
 			id: '1',
 			timestamp: '2023-01-01T12:00:00Z',
-			containsUrine: true,
-			containsStool: false,
 		};
 		mockUseDiaperChanges.mockReturnValue({
-			value: [singleChange],
 			add: vi.fn(),
 			remove: vi.fn(),
 			replace: vi.fn(),
 			update: vi.fn(),
+			value: [singleChange],
 		});
 
 		const { result } = renderHook(() => useLatestDiaperChange());
@@ -49,30 +49,30 @@ describe('useLatestDiaperChange', () => {
 	it('should return the latest diaper change when newest is at the end', () => {
 		const changes: DiaperChange[] = [
 			{
+				containsStool: false,
+				containsUrine: true,
 				id: '1',
 				timestamp: '2023-01-01T10:00:00Z',
-				containsUrine: true,
-				containsStool: false,
 			},
 			{
+				containsStool: true,
+				containsUrine: false,
 				id: '2',
 				timestamp: '2023-01-01T11:00:00Z',
-				containsUrine: false,
-				containsStool: true,
 			},
 			{
+				containsStool: true,
+				containsUrine: true,
 				id: '3',
 				timestamp: '2023-01-01T12:00:00Z',
-				containsUrine: true,
-				containsStool: true,
 			}, // Newest
 		];
 		mockUseDiaperChanges.mockReturnValue({
-			value: changes,
 			add: vi.fn(),
 			remove: vi.fn(),
 			replace: vi.fn(),
 			update: vi.fn(),
+			value: changes,
 		});
 
 		const { result } = renderHook(() => useLatestDiaperChange());
@@ -82,30 +82,30 @@ describe('useLatestDiaperChange', () => {
 	it('should return the latest diaper change when newest is at the beginning', () => {
 		const changes: DiaperChange[] = [
 			{
+				containsStool: true,
+				containsUrine: true,
 				id: '3',
 				timestamp: '2023-01-01T12:00:00Z',
-				containsUrine: true,
-				containsStool: true,
 			}, // Newest
 			{
+				containsStool: false,
+				containsUrine: true,
 				id: '1',
 				timestamp: '2023-01-01T10:00:00Z',
-				containsUrine: true,
-				containsStool: false,
 			},
 			{
+				containsStool: true,
+				containsUrine: false,
 				id: '2',
 				timestamp: '2023-01-01T11:00:00Z',
-				containsUrine: false,
-				containsStool: true,
 			},
 		];
 		mockUseDiaperChanges.mockReturnValue({
-			value: changes,
 			add: vi.fn(),
 			remove: vi.fn(),
 			replace: vi.fn(),
 			update: vi.fn(),
+			value: changes,
 		});
 
 		const { result } = renderHook(() => useLatestDiaperChange());
@@ -115,30 +115,30 @@ describe('useLatestDiaperChange', () => {
 	it('should return the latest diaper change when newest is in the middle', () => {
 		const changes: DiaperChange[] = [
 			{
+				containsStool: false,
+				containsUrine: true,
 				id: '1',
 				timestamp: '2023-01-01T10:00:00Z',
-				containsUrine: true,
-				containsStool: false,
 			},
 			{
+				containsStool: true,
+				containsUrine: true,
 				id: '3',
 				timestamp: '2023-01-01T12:00:00Z',
-				containsUrine: true,
-				containsStool: true,
 			}, // Newest
 			{
+				containsStool: true,
+				containsUrine: false,
 				id: '2',
 				timestamp: '2023-01-01T11:00:00Z',
-				containsUrine: false,
-				containsStool: true,
 			},
 		];
 		mockUseDiaperChanges.mockReturnValue({
-			value: changes,
 			add: vi.fn(),
 			remove: vi.fn(),
 			replace: vi.fn(),
 			update: vi.fn(),
+			value: changes,
 		});
 
 		const { result } = renderHook(() => useLatestDiaperChange());
@@ -148,40 +148,40 @@ describe('useLatestDiaperChange', () => {
 	it('should update when diaper changes array reference changes', () => {
 		const initialChanges: DiaperChange[] = [
 			{
+				containsStool: false,
+				containsUrine: true,
 				id: '1',
 				timestamp: '2023-01-01T10:00:00Z',
-				containsUrine: true,
-				containsStool: false,
 			},
 		];
 		const nextChanges: DiaperChange[] = [
 			...initialChanges,
 			{
+				containsStool: true,
+				containsUrine: true,
 				id: '2',
 				timestamp: '2023-01-01T11:00:00Z',
-				containsUrine: true,
-				containsStool: true,
 			}, // Newest
 		];
 
 		const mockDiaperChangesHook = mockUseDiaperChanges.mockReturnValue({
-			value: initialChanges,
 			add: vi.fn(),
 			remove: vi.fn(),
 			replace: vi.fn(),
 			update: vi.fn(),
+			value: initialChanges,
 		});
 
-		const { result, rerender } = renderHook(() => useLatestDiaperChange());
+		const { rerender, result } = renderHook(() => useLatestDiaperChange());
 		expect(result.current).toEqual(initialChanges[0]);
 
 		act(() => {
 			mockDiaperChangesHook.mockReturnValue({
-				value: nextChanges,
 				add: vi.fn(),
 				remove: vi.fn(),
 				replace: vi.fn(),
 				update: vi.fn(),
+				value: nextChanges,
 			});
 		});
 		rerender();

@@ -294,9 +294,7 @@ export default function DiaperForm({
 
 					<div className="space-y-2">
 						<Label htmlFor="edit-notes">
-							<fbt desc="Label for a textbox to note any notes">
-								Notes
-							</fbt>
+							<fbt desc="Label for a textbox to note any notes">Notes</fbt>
 						</Label>
 						<Textarea
 							id="edit-notes"

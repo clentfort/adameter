@@ -29,15 +29,13 @@ export default function TotalFeedingsStats({
 				<fbt desc="Label for the total number of feedings on the left breast">
 					Left Breast
 				</fbt>
-				:{' '}
-				<span className="text-left-breast-dark">{leftCount}</span>
+				: <span className="text-left-breast-dark">{leftCount}</span>
 			</div>
 			<div className="text-xs text-muted-foreground">
 				<fbt desc="Label for the total number of feedings on the right breast">
 					Right Breast
 				</fbt>
-				:{' '}
-				<span className="text-right-breast-dark">{rightCount}</span>
+				: <span className="text-right-breast-dark">{rightCount}</span>
 			</div>
 		</StatsCard>
 	);

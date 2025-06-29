@@ -48,8 +48,8 @@ export default function PrivacyPolicyPage() {
 				<p>
 					<fbt desc="Text for Data Sharing section in Privacy Policy page">
 						Your personal data will not be passed on to third parties unless we
-						are legally obliged to do so or you have given us your express
-						prior consent.
+						are legally obliged to do so or you have given us your express prior
+						consent.
 					</fbt>
 				</p>
 			</section>
@@ -79,11 +79,11 @@ export default function PrivacyPolicyPage() {
 				<p>
 					<fbt desc="Text for Your Rights section in Privacy Policy page">
 						You have the right to free information about your stored personal
-						data, its origin and recipients, and the purpose of data
-						processing, as well as a right to correction, blocking, or
-						deletion of this data at any time. For this purpose, as well as
-						for further questions on the subject of personal data, you can
-						contact us at any time at the address given in the imprint.
+						data, its origin and recipients, and the purpose of data processing,
+						as well as a right to correction, blocking, or deletion of this data
+						at any time. For this purpose, as well as for further questions on
+						the subject of personal data, you can contact us at any time at the
+						address given in the imprint.
 					</fbt>
 				</p>
 			</section>

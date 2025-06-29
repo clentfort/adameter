@@ -6,16 +6,16 @@ export function SplashScreen() {
 	return (
 		<div
 			style={{
-				position: 'fixed',
-				top: 0,
-				left: 0,
-				width: '100vw',
-				height: '100vh',
+				alignItems: 'center',
+				backgroundColor: '#faf7ee', // From manifest.json
 				display: 'flex',
 				flexDirection: 'column',
-				alignItems: 'center',
+				height: '100vh',
 				justifyContent: 'center',
-				backgroundColor: '#faf7ee', // From manifest.json
+				left: 0,
+				position: 'fixed',
+				top: 0,
+				width: '100vw',
 				zIndex: 9999, // Ensure it's on top
 			}}
 		>
