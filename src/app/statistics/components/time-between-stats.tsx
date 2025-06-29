@@ -1,6 +1,7 @@
 import type { FeedingSession } from '@/types/feeding';
 import { differenceInSeconds } from 'date-fns';
 import StatsCard from './stats-card';
+import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 
 interface TimeBetweenStatsProps {
 	sessions: FeedingSession[];
@@ -40,13 +41,6 @@ export default function TimeBetweenStats({
 	const avgTime =
 		timeBetweenCount > 0 ? Math.abs(totalTimeBetween / timeBetweenCount) : 0;
 
-	const formatTimeBetween = (seconds: number) => {
-		const hours = Math.floor(seconds / 3600);
-		const minutes = Math.floor((seconds % 3600) / 60);
-
-		return hours === 0 ? `${minutes} Min.` : `${hours} Std. ${minutes} Min.`;
-	};
-
 	return (
 		<StatsCard
 			title={
@@ -55,7 +49,7 @@ export default function TimeBetweenStats({
 				</fbt>
 			}
 		>
-			<div className="text-2xl font-bold">{formatTimeBetween(avgTime)}</div>
+			<div className="text-2xl font-bold">{formatDurationAbbreviated(avgTime)}</div>
 		</StatsCard>
 	);
 }

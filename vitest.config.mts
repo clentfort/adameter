@@ -11,14 +11,14 @@ export default defineConfig({
   }})],
   test: {
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json-summary', 'json'],
-      reportsDirectory: './coverage',
       exclude: [
         'src/components/ui',
         'src/app/legal',
         'src/types',
       ],
+      provider: 'v8',
+      reporter: ['text', 'json-summary', 'json'],
+      reportsDirectory: './coverage',
     },
     environment: 'jsdom',
     setupFiles: ['./src/vitest.setup.ts'],
