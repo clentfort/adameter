@@ -10,52 +10,49 @@ import { fbt } from 'fbtee';
 import { useCallback, useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns';
 
-// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Not used here
-// No longer importing useSingleGrowthChart as it's co-located
+interface ChartPoint {
+	x: Date;
+	y: number;
+}
+
+interface ChartDataPoint {
+	x: Date;
+	y: number;
+}
 
 interface LineChartProps {
-	// Changed to LineChartProps
 	backgroundColor: string;
 	borderColor: string;
-	dataKey: keyof GrowthMeasurement;
+	chartData: ChartDataPoint[];
+	datasetLabel: string; // e.g., "Weight (g)"
 	events?: Event[];
-	label: string; // This is used for the "no data" message parameter, so it's a string
-	measurements: GrowthMeasurement[];
-	title: ReactNode; // Allow FbtElement
-	unit: string;
+	title: ReactNode; // Chart card title
+	xAxisLabel: string; // e.g., "Date"
+	noDataMessageLabel: string; // e.g., "Weight"
 }
 
 export default function LineChart({
-	// Changed to LineChart
 	backgroundColor,
 	borderColor,
-	dataKey,
+	chartData,
+	datasetLabel,
 	events = [],
-	label,
-	measurements,
 	title,
-	unit,
+	xAxisLabel,
+	noDataMessageLabel,
 }: LineChartProps) {
-	// Changed to LineChartProps
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<Chart | null>(null);
 
-	// Logic from useSingleGrowthChart starts here
 	const createChart = useCallback(() => {
 		if (!chartRef.current) return;
 
-		const sortedMeasurements = [...measurements].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+		// Data is already processed, sort it just in case
+		const sortedData = [...chartData].sort(
+			(a, b) => a.x.getTime() - b.x.getTime(),
 		);
 
-		const chartData = sortedMeasurements
-			.filter((m) => m[dataKey] !== undefined && m[dataKey] !== null)
-			.map((m) => ({
-				x: new Date(m.date),
-				y: m[dataKey] as number,
-			}));
-
-		if (chartData.length === 0) {
+		if (sortedData.length === 0) {
 			if (chartInstance.current) {
 				chartInstance.current.destroy();
 				chartInstance.current = null;
@@ -76,8 +73,8 @@ export default function LineChart({
 					{
 						backgroundColor,
 						borderColor,
-						data: chartData,
-						label: `${label} (${unit})`,
+						data: sortedData,
+						label: datasetLabel, // Use the combined label
 						pointHoverRadius: 7,
 						pointRadius: 5,
 						tension: 0.3,
@@ -91,6 +88,7 @@ export default function LineChart({
 						callbacks: {
 							title: (context) => {
 								const date = new Date(context[0].parsed.x);
+								// TODO: Use active locale from fbt
 								return format(date, 'dd. MMMM yyyy', { locale: de });
 							},
 						},
@@ -101,6 +99,7 @@ export default function LineChart({
 					x: {
 						adapters: {
 							date: {
+								// TODO: Use active locale from fbt
 								locale: de,
 							},
 						},
@@ -112,7 +111,7 @@ export default function LineChart({
 						},
 						title: {
 							display: true,
-							text: 'Datum',
+							text: xAxisLabel,
 						},
 						type: 'time',
 					},
@@ -120,7 +119,7 @@ export default function LineChart({
 						beginAtZero: false,
 						title: {
 							display: true,
-							text: `${label} (${unit})`,
+							text: datasetLabel, // Use the combined label for Y-axis
 						},
 					},
 				},
@@ -160,13 +159,12 @@ export default function LineChart({
 			type: 'line',
 		});
 	}, [
-		measurements,
+		chartData,
+		datasetLabel,
 		events,
-		dataKey,
-		label,
-		unit,
 		backgroundColor,
 		borderColor,
+		xAxisLabel,
 	]);
 
 	useEffect(() => {
@@ -179,11 +177,8 @@ export default function LineChart({
 			}
 		};
 	}, [createChart]);
-	// Logic from useSingleGrowthChart ends here
 
-	const hasData = measurements.some(
-		(m) => m[dataKey] !== undefined && m[dataKey] !== null,
-	);
+	const hasData = chartData.length > 0;
 
 	return (
 		<div>
@@ -194,7 +189,10 @@ export default function LineChart({
 				) : (
 					<p className="text-muted-foreground text-center py-8">
 						<fbt desc="no data available for chart">
-							No <fbt:param name="dataType">{label.toLowerCase()}</fbt:param>{' '}
+							No{' '}
+							<fbt:param name="dataType">
+								{noDataMessageLabel.toLowerCase()}
+							</fbt:param>{' '}
 							data available.
 						</fbt>
 					</p>
