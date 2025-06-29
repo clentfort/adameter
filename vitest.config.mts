@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import fbtCommon from './common_strings.json' with { type: 'json' };
 
 export default defineConfig({
@@ -14,12 +14,18 @@ export default defineConfig({
 	],
 	test: {
 		coverage: {
-			exclude: ['src/components/ui', 'src/app/legal', 'src/types'],
+			exclude: [
+				...(configDefaults.coverage.exclude ?? []),
+				'src/components/ui',
+				'src/app/legal',
+				'src/types',
+			],
 			provider: 'v8',
 			reporter: ['text', 'json-summary', 'json'],
 			reportsDirectory: './coverage',
 		},
 		environment: 'jsdom',
+    root: './src',
 		setupFiles: ['./src/vitest.setup.ts'],
 	},
 });
