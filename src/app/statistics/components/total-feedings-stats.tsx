@@ -17,14 +17,26 @@ export default function TotalFeedingsStats({
 	const rightCount = sessionsArray.filter((s) => s.breast === 'right').length;
 
 	return (
-		<StatsCard title=<fbt desc="totalFeedings">Total Feedings</fbt>>
+		<StatsCard
+			title={
+				<fbt desc="Title for the total number of feedings statistics card">
+					Total Feedings
+				</fbt>
+			}
+		>
 			<div className="text-2xl font-bold">{sessionsArray.length}</div>
 			<div className="text-xs text-muted-foreground mt-1">
-				<fbt desc="leftBreast">Left Breast</fbt>:{' '}
+				<fbt desc="Label for the total number of feedings on the left breast">
+					Left Breast
+				</fbt>
+				:{' '}
 				<span className="text-left-breast-dark">{leftCount}</span>
 			</div>
 			<div className="text-xs text-muted-foreground">
-				<fbt desc="rightBreast">Right Breast</fbt>:{' '}
+				<fbt desc="Label for the total number of feedings on the right breast">
+					Right Breast
+				</fbt>
+				:{' '}
 				<span className="text-right-breast-dark">{rightCount}</span>
 			</div>
 		</StatsCard>
