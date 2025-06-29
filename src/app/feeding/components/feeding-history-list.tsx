@@ -1,11 +1,11 @@
 import type { FeedingSession } from '@/types/feeding';
 import { format, isSameDay } from 'date-fns';
-import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import FeedingForm from './feeding-form';
 
 interface HistoryListProps {
@@ -27,8 +27,8 @@ export default function HistoryList({
 	return (
 		<>
 			<HistoryListInternal
-				entries={sessions}
 				dateAccessor={(session) => session.startTime}
+				entries={sessions}
 			>
 				{(session) => {
 					const isLeftBreast = session.breast === 'left';

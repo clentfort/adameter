@@ -21,12 +21,8 @@ export function formatDurationAbbreviated(totalSeconds: number): string {
 	if (hours > 0) {
 		parts.push(
 			fbt(
-				`${hours} h`,
-				'Abbreviated format for hours. Example: "1 h", "2 h". Use the "h" abbreviation for hour. The number of hours will be prepended.',
-				{
-					// Use `hour` as a common key for pluralization if needed, though here we are constructing the string directly.
-					// For more complex pluralization, direct use of fbt.plural might be needed if this structure isn't sufficient.
-				},
+				[fbt.param('count', hours), ' h'],
+				'Abbreviated format for hours. Example: "1 h", "2 h". Use the "h" abbreviation for hour. [count] will be replaced by the number of hours.',
 			).toString(),
 		);
 	}
@@ -34,11 +30,8 @@ export function formatDurationAbbreviated(totalSeconds: number): string {
 	if (minutes > 0) {
 		parts.push(
 			fbt(
-				`${minutes} min`,
-				'Abbreviated format for minutes. Example: "1 min", "30 min". Use the "min" abbreviation for minute. The number of minutes will be prepended.',
-				{
-					// Use `minute` as a common key for pluralization if needed.
-				},
+				[fbt.param('count', minutes), ' min'],
+				'Abbreviated format for minutes. Example: "1 min", "30 min". Use the "min" abbreviation for minute. [count] will be replaced by the number of minutes.',
 			).toString(),
 		);
 	}
