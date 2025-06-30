@@ -2,12 +2,10 @@
 
 import Chart from 'chart.js/auto';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale'; // TODO: Make locale configurable
 import { useCallback, useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns';
-import type { Event } from '@/types/event'; // Assuming Event type is available
+import type { Event } from '@/types/event';
 
-// Define FbtFunction type for props
 type FbtFunction = (text: string, description: string) => React.ReactNode;
 
 interface ChartDataContext {
@@ -25,23 +23,21 @@ interface PointData {
 interface LineChartProps {
 	backgroundColor?: string;
 	borderColor?: string;
-	chartId: string;
 	data: PointData[];
-	datasetLabel: React.ReactNode; // For <fbt>
-	emptyStateMessage: React.ReactNode; // For <fbt>
+	datasetLabel: React.ReactNode;
+	emptyStateMessage: React.ReactNode;
 	events?: Event[];
-	title: React.ReactNode; // For <fbt>
+	title: React.ReactNode;
 	tooltipLabelFormatter?: (context: ChartDataContext) => string;
 	tooltipTitleFormatter?: (context: ChartDataContext[]) => string;
-	xAxisLabel: React.ReactNode; // For <fbt>
-	yAxisLabel: React.ReactNode; // For <fbt>
-	yAxisUnit?: string; // e.g., 'g', 'cm', 's'
+	xAxisLabel: React.ReactNode;
+	yAxisLabel: React.ReactNode;
+	yAxisUnit?: string;
 }
 
 export default function LineChart({
 	backgroundColor = 'rgba(99, 102, 241, 0.1)',
 	borderColor = '#6366f1',
-	chartId,
 	data,
 	datasetLabel,
 	emptyStateMessage,
@@ -60,11 +56,9 @@ export default function LineChart({
 		if (!chartRef.current) return;
 
 		if (data.length === 0) {
-			// Potentially render empty state message directly in the canvas area or handle outside
 			return;
 		}
 
-		// Clean up existing chart
 		if (chartInstance.current) {
 			chartInstance.current.destroy();
 		}
@@ -79,7 +73,7 @@ export default function LineChart({
 						backgroundColor,
 						borderColor,
 						data,
-						label: String(datasetLabel), // Ensure string conversion
+						label: String(datasetLabel),
 						pointHoverRadius: 7,
 						pointRadius: 5,
 						tension: 0.3,
@@ -90,7 +84,7 @@ export default function LineChart({
 				maintainAspectRatio: false,
 				plugins: {
 					legend: {
-						display: !!datasetLabel, // Only display legend if a label is provided
+						display: !!datasetLabel,
 					},
 					tooltip: {
 						callbacks: {
@@ -110,7 +104,7 @@ export default function LineChart({
 								? tooltipTitleFormatter
 								: (context) => {
 										const date = new Date(context[0].parsed.x);
-										return format(date, 'dd. MMMM yyyy', { locale: de });
+										return format(date, 'dd. MMMM yyyy');
 									},
 						},
 					},
@@ -119,33 +113,31 @@ export default function LineChart({
 				scales: {
 					x: {
 						adapters: {
-							date: {
-								locale: de, // TODO: Make locale configurable
-							},
+							date: {},
 						},
 						time: {
 							displayFormats: {
 								day: 'dd.MM',
 							},
-							unit: 'day', // TODO: Make unit configurable if not always time
+							unit: 'day',
 						},
 						title: {
 							display: true,
-							text: String(xAxisLabel), // Ensure string conversion
+							text: String(xAxisLabel),
 						},
-						type: 'time', // TODO: Make type configurable (e.g. 'linear')
+						type: 'time',
 					},
 					y: {
-						beginAtZero: false, // TODO: Make configurable
+						beginAtZero: false,
 						ticks: {
 							callback:
-								yAxisUnit && typeof yAxisUnit === 'string' // Ensure yAxisUnit is a string
+								yAxisUnit && typeof yAxisUnit === 'string'
 									? (value) => `${value} ${yAxisUnit}`
 									: undefined,
 						},
 						title: {
 							display: true,
-							text: String(yAxisLabel), // Ensure string conversion
+							text: String(yAxisLabel),
 						},
 					},
 				},
@@ -174,7 +166,7 @@ export default function LineChart({
 
 								chartCtx.textAlign = 'center';
 								chartCtx.fillStyle = event.color || '#6366f1';
-								chartCtx.font = '10px Arial'; // TODO: Consider making font configurable or use theme
+								chartCtx.font = '10px Arial';
 								chartCtx.fillText(event.title, xPosition, yAxis.top - 5);
 								chartCtx.restore();
 							}
@@ -196,7 +188,6 @@ export default function LineChart({
 		yAxisUnit,
 		tooltipTitleFormatter,
 		tooltipLabelFormatter,
-		// Note: title is not directly used in chart.js options but is part of the component's identity
 	]);
 
 	useEffect(() => {
@@ -219,17 +210,9 @@ export default function LineChart({
 
 	return (
 		<div className="h-[250px]">
-			{' '}
-			{/* TODO: Make height configurable */}
-			<canvas
-				id={chartId}
-				ref={chartRef}
-				aria-label={chartId} // Use chartId for a stable aria-label for testing
-				role="graphics-document"
-			/>
+			<canvas ref={chartRef} role="graphics-document" />
 		</div>
 	);
 }
 
-// It's good practice to also export the props type if it might be useful elsewhere
 export type { LineChartProps };
