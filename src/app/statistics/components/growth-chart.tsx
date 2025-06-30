@@ -2,8 +2,9 @@
 
 import type { Event } from '@/types/event';
 import type { GrowthMeasurement } from '@/types/growth';
-import { fbt } from 'fbtee';
-import LineChart from '@/components/charts/line-chart'; // Import the new LineChart component
+// Import fbt
+import { useMemo } from 'react';
+import LineChart from '@/components/charts/line-chart'; // Import the new chart component
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface GrowthChartProps {
@@ -15,17 +16,65 @@ export default function GrowthChart({
 	events = [],
 	measurements = [],
 }: GrowthChartProps) {
+	// Sort measurements by date (oldest first for the chart)
+	const sortedMeasurements = useMemo(
+		() =>
+			[...measurements].sort(
+				(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+			),
+		[measurements],
+	);
+
+	// Prepare data for weight chart
+	const weightData = useMemo(
+		() =>
+			sortedMeasurements
+				.filter((m) => m.weight !== undefined && m.weight !== null)
+				.map((m) => ({
+					x: new Date(m.date),
+					y: m.weight!,
+				})),
+		[sortedMeasurements],
+	);
+
+	// Prepare data for height chart
+	const heightData = useMemo(
+		() =>
+			sortedMeasurements
+				.filter((m) => m.height !== undefined && m.height !== null)
+				.map((m) => ({
+					x: new Date(m.date),
+					y: m.height!,
+				})),
+		[sortedMeasurements],
+	);
+
+	// Prepare data for head circumference chart
+	const headCircumferenceData = useMemo(
+		() =>
+			sortedMeasurements
+				.filter(
+					(m) =>
+						m.headCircumference !== undefined && m.headCircumference !== null,
+				)
+				.map((m) => ({
+					x: new Date(m.date),
+					y: m.headCircumference!,
+				})),
+		[sortedMeasurements],
+	);
+
 	if (measurements.length === 0) {
 		return (
 			<Card>
 				<CardHeader className="p-4 pb-2">
 					<CardTitle className="text-base">
-						<fbt desc="growthChartTitle">Growth Chart</fbt>
+						<fbt desc="Title for the growth chart card">Growth Chart</fbt>
 					</CardTitle>
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<p className="text-muted-foreground text-center py-8">
-						<fbt desc="noMeasurementsForGrowthChartMessage">
+						<fbt desc="Message shown when no measurements are available for the growth chart">
 							No measurements available. Add measurements to see the growth
 							chart.
 						</fbt>
@@ -35,97 +84,121 @@ export default function GrowthChart({
 		);
 	}
 
-	// Prepare data for charts
-	const sortedMeasurements = [...measurements].sort(
-		(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+	const commonXAxisLabel = (
+		<fbt desc="Label for the date axis on charts">Datum</fbt>
 	);
-
-	const weightData = sortedMeasurements
-		.filter((m) => m.weight !== undefined && m.weight !== null)
-		.map((m) => ({
-			x: new Date(m.date),
-			y: m.weight as number,
-		}));
-
-	const heightData = sortedMeasurements
-		.filter((m) => m.height !== undefined && m.height !== null)
-		.map((m) => ({
-			x: new Date(m.date),
-			y: m.height as number,
-		}));
-
-	const headCircumferenceData = sortedMeasurements
-		.filter(
-			(m) => m.headCircumference !== undefined && m.headCircumference !== null,
-		)
-		.map((m) => ({
-			x: new Date(m.date),
-			y: m.headCircumference as number,
-		}));
+	const commonEmptyState = (
+		<fbt desc="Message shown when no data is available for a specific growth chart (e.g. no weight data)">
+			No data available.
+		</fbt>
+	);
 
 	return (
 		<Card>
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
-					<fbt desc="growthChartTitle">Growth Chart</fbt>
+					<fbt desc="Title for the growth chart card">Growth Chart</fbt>
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="p-4 pt-0 space-y-6">
 				{/* Weight Chart */}
 				<div>
 					<h3 className="font-medium mb-2">
-						<fbt desc="weightChartLabel">Weight</fbt> (
-						<fbt desc="gramUnit">g</fbt>)
+						<fbt desc="Title for the weight section in the growth chart">
+							Weight (g)
+						</fbt>
 					</h3>
 					<LineChart
-						color="#6366f1" // Tailwind indigo-500
+						backgroundColor="rgba(99, 102, 241, 0.1)"
+						borderColor="#6366f1"
+						chartId="weightChart"
 						data={weightData}
+						datasetLabel={
+							<fbt desc="Dataset label for weight data in the chart legend">
+								Weight
+							</fbt>
+						}
+						emptyStateMessage={commonEmptyState}
 						events={events}
-						label={fbt('Weight', 'Label for weight chart').toString()}
-						unit={fbt('g', 'Unit for weight (grams)').toString()}
+						title={<fbt desc="Chart title for weight">Weight</fbt>}
+						xAxisLabel={commonXAxisLabel}
+						yAxisLabel={
+							<fbt desc="Label for the Y-axis showing weight in grams">
+								Weight (g)
+							</fbt>
+						}
+						yAxisUnit="g"
 					/>
 				</div>
 
 				{/* Height Chart */}
 				<div>
 					<h3 className="font-medium mb-2">
-						<fbt desc="heightChartLabel">Height</fbt> (
-						<fbt desc="cmUnit">cm</fbt>)
+						<fbt desc="Title for the height section in the growth chart">
+							Height (cm)
+						</fbt>
 					</h3>
 					<LineChart
-						color="#ec4899" // Tailwind pink-500
+						backgroundColor="rgba(236, 72, 153, 0.1)"
+						borderColor="#ec4899"
+						chartId="heightChart"
 						data={heightData}
+						datasetLabel={
+							<fbt desc="Dataset label for height data in the chart legend">
+								Height
+							</fbt>
+						}
+						emptyStateMessage={commonEmptyState}
 						events={events}
-						label={fbt('Height', 'Label for height chart').toString()}
-						unit={fbt('cm', 'Unit for height (centimeters)').toString()}
+						title={<fbt desc="Chart title for height">Height</fbt>}
+						xAxisLabel={commonXAxisLabel}
+						yAxisLabel={
+							<fbt desc="Label for the Y-axis showing height in centimeters">
+								Height (cm)
+							</fbt>
+						}
+						yAxisUnit="cm"
 					/>
 				</div>
 
 				{/* Head Circumference Chart */}
 				<div>
 					<h3 className="font-medium mb-2">
-						<fbt desc="headCircumferenceChartLabel">Head Circumference</fbt> (
-						<fbt desc="cmUnit">cm</fbt>)
+						<fbt desc="Title for the head circumference section in the growth chart">
+							Head Circumference (cm)
+						</fbt>
 					</h3>
 					<LineChart
-						color="#3b82f6" // Tailwind blue-500
+						backgroundColor="rgba(59, 130, 246, 0.1)"
+						borderColor="#3b82f6"
+						chartId="headCircumferenceChart"
 						data={headCircumferenceData}
+						datasetLabel={
+							<fbt desc="Dataset label for head circumference data in the chart legend">
+								Head Circumference
+							</fbt>
+						}
+						emptyStateMessage={commonEmptyState}
 						events={events}
-						label={fbt(
-							'Head Circumference',
-							'Label for head circumference chart',
-						).toString()}
-						unit={fbt(
-							'cm',
-							'Unit for head circumference (centimeters)',
-						).toString()}
+						title={
+							<fbt desc="Chart title for head circumference">
+								Head Circumference
+							</fbt>
+						}
+						xAxisLabel={commonXAxisLabel}
+						yAxisLabel={
+							<fbt desc="Label for the Y-axis showing head circumference in centimeters">
+								Head Circumference (cm)
+							</fbt>
+						}
+						yAxisUnit="cm"
 					/>
 				</div>
 
 				{events.length > 0 && (
 					<div className="mt-4 text-xs text-muted-foreground">
 						<p>
-							<fbt desc="eventsNoteInGrowthChart">
+							<fbt desc="Note explaining that vertical lines on the chart indicate important events">
 								* Vertical lines indicate important events.
 							</fbt>
 						</p>
