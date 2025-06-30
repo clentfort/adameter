@@ -111,7 +111,6 @@ export default function GrowthChart({
 					<LineChart
 						backgroundColor="rgba(99, 102, 241, 0.1)"
 						borderColor="#6366f1"
-						chartId="weightChart"
 						data={weightData}
 						datasetLabel={
 							<fbt desc="Dataset label for weight data in the chart legend">
@@ -141,7 +140,6 @@ export default function GrowthChart({
 					<LineChart
 						backgroundColor="rgba(236, 72, 153, 0.1)"
 						borderColor="#ec4899"
-						chartId="heightChart"
 						data={heightData}
 						datasetLabel={
 							<fbt desc="Dataset label for height data in the chart legend">
@@ -171,7 +169,6 @@ export default function GrowthChart({
 					<LineChart
 						backgroundColor="rgba(59, 130, 246, 0.1)"
 						borderColor="#3b82f6"
-						chartId="headCircumferenceChart"
 						data={headCircumferenceData}
 						datasetLabel={
 							<fbt desc="Dataset label for head circumference data in the chart legend">
