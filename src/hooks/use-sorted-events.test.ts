@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { Event } from '@/types/event';
-import { useSortedEvents } from './useSortedEvents';
+import { useSortedEvents } from './use-sorted-events';
 
 const mockEvents: Event[] = [
 	{
