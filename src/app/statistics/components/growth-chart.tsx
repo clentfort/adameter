@@ -2,12 +2,10 @@
 
 import type { Event } from '@/types/event';
 import type { GrowthMeasurement } from '@/types/growth';
-import Chart from 'chart.js/auto';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
-import { useCallback, useEffect, useRef } from 'react';
+// Import fbt
+import { useMemo } from 'react';
+import LineChart from '@/components/charts/line-chart'; // Import the new chart component
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import 'chartjs-adapter-date-fns'; // Import the date-fns adapter
 
 interface GrowthChartProps {
 	events?: Event[];
@@ -18,419 +16,65 @@ export default function GrowthChart({
 	events = [],
 	measurements = [],
 }: GrowthChartProps) {
-	const weightChartRef = useRef<HTMLCanvasElement | null>(null);
-	const heightChartRef = useRef<HTMLCanvasElement | null>(null);
-	const headCircumferenceChartRef = useRef<HTMLCanvasElement | null>(null);
-	const weightChartInstance = useRef<Chart | null>(null);
-	const heightChartInstance = useRef<Chart | null>(null);
-	const headCircumferenceChartInstance = useRef<Chart | null>(null);
+	// Sort measurements by date (oldest first for the chart)
+	const sortedMeasurements = useMemo(
+		() =>
+			[...measurements].sort(
+				(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+			),
+		[measurements],
+	);
 
-	// Function to create or update the weight chart
-	const createWeightChart = useCallback(() => {
-		if (!weightChartRef.current) return;
+	// Prepare data for weight chart
+	const weightData = useMemo(
+		() =>
+			sortedMeasurements
+				.filter((m) => m.weight !== undefined && m.weight !== null)
+				.map((m) => ({
+					x: new Date(m.date),
+					y: m.weight!,
+				})),
+		[sortedMeasurements],
+	);
 
-		// Sort measurements by date (oldest first for the chart)
-		const sortedMeasurements = [...measurements].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-		);
+	// Prepare data for height chart
+	const heightData = useMemo(
+		() =>
+			sortedMeasurements
+				.filter((m) => m.height !== undefined && m.height !== null)
+				.map((m) => ({
+					x: new Date(m.date),
+					y: m.height!,
+				})),
+		[sortedMeasurements],
+	);
 
-		// Prepare data for weight chart
-		const weightData = sortedMeasurements
-			.filter((m) => m.weight !== undefined)
-			.map((m) => ({
-				x: new Date(m.date),
-				y: m.weight,
-			}));
-
-		if (weightData.length === 0) return;
-
-		// Clean up existing chart
-		if (weightChartInstance.current) {
-			weightChartInstance.current.destroy();
-		}
-
-		const ctx = weightChartRef.current.getContext('2d');
-		if (!ctx) return;
-
-		// Create new chart
-		weightChartInstance.current = new Chart(ctx, {
-			data: {
-				datasets: [
-					{
-						backgroundColor: 'rgba(99, 102, 241, 0.1)',
-						borderColor: '#6366f1',
-						data: weightData,
-						label: 'Gewicht (g)',
-						pointHoverRadius: 7,
-						pointRadius: 5,
-						tension: 0.3,
-					},
-				],
-			},
-			options: {
-				maintainAspectRatio: false,
-				plugins: {
-					tooltip: {
-						callbacks: {
-							title: (context) => {
-								const date = new Date(context[0].parsed.x);
-								return format(date, 'dd. MMMM yyyy', { locale: de });
-							},
-						},
-					},
-				},
-				responsive: true,
-				scales: {
-					x: {
-						adapters: {
-							date: {
-								locale: de,
-							},
-						},
-						time: {
-							displayFormats: {
-								day: 'dd.MM',
-							},
-							unit: 'day',
-						},
-						title: {
-							display: true,
-							text: 'Datum',
-						},
-						type: 'time',
-					},
-					y: {
-						beginAtZero: false,
-						title: {
-							display: true,
-							text: 'Gewicht (g)',
-						},
-					},
-				},
-			},
-			plugins: [
-				{
-					afterDraw: (chart) => {
-						const ctx = chart.ctx;
-						const xAxis = chart.scales.x;
-						const yAxis = chart.scales.y;
-
-						events.forEach((event) => {
-							const eventDate = new Date(event.startDate);
-							const xPosition = xAxis.getPixelForValue(eventDate);
-
-							// Only draw if the event is within the visible range
-							if (xPosition >= xAxis.left && xPosition <= xAxis.right) {
-								// Draw vertical line
-								ctx.save();
-								ctx.beginPath();
-								ctx.moveTo(xPosition, yAxis.top);
-								ctx.lineTo(xPosition, yAxis.bottom);
-								ctx.lineWidth = 2;
-								ctx.strokeStyle = event.color || '#6366f1';
-								ctx.setLineDash([5, 5]);
-								ctx.stroke();
-
-								// Draw event title
-								ctx.textAlign = 'center';
-								ctx.fillStyle = event.color || '#6366f1';
-								ctx.font = '10px Arial';
-								ctx.fillText(event.title, xPosition, yAxis.top - 5);
-								ctx.restore();
-							}
-						});
-					},
-					id: 'eventLines',
-				},
-			],
-			type: 'line',
-		});
-	}, [events, measurements]);
-
-	// Function to create or update the height chart
-	const createHeightChart = useCallback(() => {
-		if (!heightChartRef.current) return;
-
-		// Sort measurements by date (oldest first for the chart)
-		const sortedMeasurements = [...measurements].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-		);
-
-		// Prepare data for height chart
-		const heightData = sortedMeasurements
-			.filter((m) => m.height !== undefined)
-			.map((m) => ({
-				x: new Date(m.date),
-				y: m.height,
-			}));
-
-		if (heightData.length === 0) return;
-
-		// Clean up existing chart
-		if (heightChartInstance.current) {
-			heightChartInstance.current.destroy();
-		}
-
-		const ctx = heightChartRef.current.getContext('2d');
-		if (!ctx) return;
-
-		// Create new chart
-		heightChartInstance.current = new Chart(ctx, {
-			data: {
-				datasets: [
-					{
-						backgroundColor: 'rgba(236, 72, 153, 0.1)',
-						borderColor: '#ec4899',
-						data: heightData,
-						label: 'Größe (cm)',
-						pointHoverRadius: 7,
-						pointRadius: 5,
-						tension: 0.3,
-					},
-				],
-			},
-			options: {
-				maintainAspectRatio: false,
-				plugins: {
-					tooltip: {
-						callbacks: {
-							title: (context) => {
-								const date = new Date(context[0].parsed.x);
-								return format(date, 'dd. MMMM yyyy', { locale: de });
-							},
-						},
-					},
-				},
-				responsive: true,
-				scales: {
-					x: {
-						adapters: {
-							date: {
-								locale: de,
-							},
-						},
-						time: {
-							displayFormats: {
-								day: 'dd.MM',
-							},
-							unit: 'day',
-						},
-						title: {
-							display: true,
-							text: 'Datum',
-						},
-						type: 'time',
-					},
-					y: {
-						beginAtZero: false,
-						title: {
-							display: true,
-							text: 'Größe (cm)',
-						},
-					},
-				},
-			},
-			plugins: [
-				{
-					afterDraw: (chart) => {
-						const ctx = chart.ctx;
-						const xAxis = chart.scales.x;
-						const yAxis = chart.scales.y;
-
-						events.forEach((event) => {
-							const eventDate = new Date(event.startDate);
-							const xPosition = xAxis.getPixelForValue(eventDate);
-
-							// Only draw if the event is within the visible range
-							if (xPosition >= xAxis.left && xPosition <= xAxis.right) {
-								// Draw vertical line
-								ctx.save();
-								ctx.beginPath();
-								ctx.moveTo(xPosition, yAxis.top);
-								ctx.lineTo(xPosition, yAxis.bottom);
-								ctx.lineWidth = 2;
-								ctx.strokeStyle = event.color || '#6366f1';
-								ctx.setLineDash([5, 5]);
-								ctx.stroke();
-
-								// Draw event title
-								ctx.textAlign = 'center';
-								ctx.fillStyle = event.color || '#6366f1';
-								ctx.font = '10px Arial';
-								ctx.fillText(event.title, xPosition, yAxis.top - 5);
-								ctx.restore();
-							}
-						});
-					},
-					id: 'eventLines',
-				},
-			],
-			type: 'line',
-		});
-	}, [events, measurements]);
-
-	// Function to create or update the head circumference chart
-	const createHeadCircumferenceChart = useCallback(() => {
-		if (!headCircumferenceChartRef.current) return;
-
-		// Sort measurements by date (oldest first for the chart)
-		const sortedMeasurements = [...measurements].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-		);
-
-		// Prepare data for head circumference chart
-		const headCircumferenceData = sortedMeasurements
-			.filter((m) => m.headCircumference !== undefined)
-			.map((m) => ({
-				x: new Date(m.date),
-				y: m.headCircumference,
-			}));
-
-		if (headCircumferenceData.length === 0) return;
-
-		// Clean up existing chart
-		if (headCircumferenceChartInstance.current) {
-			headCircumferenceChartInstance.current.destroy();
-		}
-
-		const ctx = headCircumferenceChartRef.current.getContext('2d');
-		if (!ctx) return;
-
-		// Create new chart
-		headCircumferenceChartInstance.current = new Chart(ctx, {
-			data: {
-				datasets: [
-					{
-						backgroundColor: 'rgba(59, 130, 246, 0.1)', // Tailwind blue-500
-						borderColor: '#3b82f6', // Tailwind blue-500
-						data: headCircumferenceData,
-						label: 'Kopfumfang (cm)',
-						pointHoverRadius: 7,
-						pointRadius: 5,
-						tension: 0.3,
-					},
-				],
-			},
-			options: {
-				maintainAspectRatio: false,
-				plugins: {
-					tooltip: {
-						callbacks: {
-							title: (context) => {
-								const date = new Date(context[0].parsed.x);
-								return format(date, 'dd. MMMM yyyy', { locale: de });
-							},
-						},
-					},
-				},
-				responsive: true,
-				scales: {
-					x: {
-						adapters: {
-							date: {
-								locale: de,
-							},
-						},
-						time: {
-							displayFormats: {
-								day: 'dd.MM',
-							},
-							unit: 'day',
-						},
-						title: {
-							display: true,
-							text: 'Datum',
-						},
-						type: 'time',
-					},
-					y: {
-						beginAtZero: false,
-						title: {
-							display: true,
-							text: 'Kopfumfang (cm)',
-						},
-					},
-				},
-			},
-			plugins: [
-				{
-					afterDraw: (chart) => {
-						const ctx = chart.ctx;
-						const xAxis = chart.scales.x;
-						const yAxis = chart.scales.y;
-
-						events.forEach((event) => {
-							const eventDate = new Date(event.startDate);
-							const xPosition = xAxis.getPixelForValue(eventDate);
-
-							// Only draw if the event is within the visible range
-							if (xPosition >= xAxis.left && xPosition <= xAxis.right) {
-								// Draw vertical line
-								ctx.save();
-								ctx.beginPath();
-								ctx.moveTo(xPosition, yAxis.top);
-								ctx.lineTo(xPosition, yAxis.bottom);
-								ctx.lineWidth = 2;
-								ctx.strokeStyle = event.color || '#6366f1';
-								ctx.setLineDash([5, 5]);
-								ctx.stroke();
-
-								// Draw event title
-								ctx.textAlign = 'center';
-								ctx.fillStyle = event.color || '#6366f1';
-								ctx.font = '10px Arial';
-								ctx.fillText(event.title, xPosition, yAxis.top - 5);
-								ctx.restore();
-							}
-						});
-					},
-					id: 'eventLines',
-				},
-			],
-			type: 'line',
-		});
-	}, [events, measurements]);
-
-	// Initialize charts when component mounts or data changes
-	useEffect(() => {
-		if (measurements.length === 0) return;
-
-		// Create all charts
-		createWeightChart();
-		createHeightChart();
-		createHeadCircumferenceChart();
-
-		// Cleanup on unmount
-		return () => {
-			if (weightChartInstance.current) {
-				weightChartInstance.current.destroy();
-			}
-			if (heightChartInstance.current) {
-				heightChartInstance.current.destroy();
-			}
-			if (headCircumferenceChartInstance.current) {
-				headCircumferenceChartInstance.current.destroy();
-			}
-		};
-	}, [
-		measurements,
-		events,
-		createWeightChart,
-		createHeightChart,
-		createHeadCircumferenceChart,
-	]);
+	// Prepare data for head circumference chart
+	const headCircumferenceData = useMemo(
+		() =>
+			sortedMeasurements
+				.filter(
+					(m) =>
+						m.headCircumference !== undefined && m.headCircumference !== null,
+				)
+				.map((m) => ({
+					x: new Date(m.date),
+					y: m.headCircumference!,
+				})),
+		[sortedMeasurements],
+	);
 
 	if (measurements.length === 0) {
 		return (
 			<Card>
 				<CardHeader className="p-4 pb-2">
 					<CardTitle className="text-base">
-						<fbt desc="growthChart">Growth Chart</fbt>
+						<fbt desc="Title for the growth chart card">Growth Chart</fbt>
 					</CardTitle>
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<p className="text-muted-foreground text-center py-8">
-						<fbt desc="noMeasurementsForGrowthChart">
+						<fbt desc="Message shown when no measurements are available for the growth chart">
 							No measurements available. Add measurements to see the growth
 							chart.
 						</fbt>
@@ -440,77 +84,121 @@ export default function GrowthChart({
 		);
 	}
 
-	const hasWeightData = measurements.some((m) => m.weight !== undefined);
-	const hasHeightData = measurements.some((m) => m.height !== undefined);
-	const hasHeadCircumferenceData = measurements.some(
-		(m) => m.headCircumference !== undefined,
+	const commonXAxisLabel = (
+		<fbt desc="Label for the date axis on charts">Datum</fbt>
+	);
+	const commonEmptyState = (
+		<fbt desc="Message shown when no data is available for a specific growth chart (e.g. no weight data)">
+			No data available.
+		</fbt>
 	);
 
 	return (
 		<Card>
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
-					<fbt desc="growthChart">Growth Chart</fbt>
+					<fbt desc="Title for the growth chart card">Growth Chart</fbt>
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="p-4 pt-0 space-y-6">
 				{/* Weight Chart */}
 				<div>
 					<h3 className="font-medium mb-2">
-						<fbt desc="weight">Weight (g)</fbt>
+						<fbt desc="Title for the weight section in the growth chart">
+							Weight (g)
+						</fbt>
 					</h3>
-					<div className="h-[250px]">
-						{hasWeightData ? (
-							<canvas key="weightChart" ref={weightChartRef} />
-						) : (
-							<p className="text-muted-foreground text-center py-8">
-								<fbt desc="noWeightData">No weight data available.</fbt>
-							</p>
-						)}
-					</div>
+					<LineChart
+						backgroundColor="rgba(99, 102, 241, 0.1)"
+						borderColor="#6366f1"
+						chartId="weightChart"
+						data={weightData}
+						datasetLabel={
+							<fbt desc="Dataset label for weight data in the chart legend">
+								Weight
+							</fbt>
+						}
+						emptyStateMessage={commonEmptyState}
+						events={events}
+						title={<fbt desc="Chart title for weight">Weight</fbt>}
+						xAxisLabel={commonXAxisLabel}
+						yAxisLabel={
+							<fbt desc="Label for the Y-axis showing weight in grams">
+								Weight (g)
+							</fbt>
+						}
+						yAxisUnit="g"
+					/>
 				</div>
 
 				{/* Height Chart */}
 				<div>
 					<h3 className="font-medium mb-2">
-						<fbt desc="height">Height (cm)</fbt>
+						<fbt desc="Title for the height section in the growth chart">
+							Height (cm)
+						</fbt>
 					</h3>
-					<div className="h-[250px]">
-						{hasHeightData ? (
-							<canvas key="heightChart" ref={heightChartRef} />
-						) : (
-							<p className="text-muted-foreground text-center py-8">
-								<fbt desc="noHeightData">No height data available.</fbt>
-							</p>
-						)}
-					</div>
+					<LineChart
+						backgroundColor="rgba(236, 72, 153, 0.1)"
+						borderColor="#ec4899"
+						chartId="heightChart"
+						data={heightData}
+						datasetLabel={
+							<fbt desc="Dataset label for height data in the chart legend">
+								Height
+							</fbt>
+						}
+						emptyStateMessage={commonEmptyState}
+						events={events}
+						title={<fbt desc="Chart title for height">Height</fbt>}
+						xAxisLabel={commonXAxisLabel}
+						yAxisLabel={
+							<fbt desc="Label for the Y-axis showing height in centimeters">
+								Height (cm)
+							</fbt>
+						}
+						yAxisUnit="cm"
+					/>
 				</div>
 
 				{/* Head Circumference Chart */}
 				<div>
 					<h3 className="font-medium mb-2">
-						<fbt desc="headCircumference">Head Circumference (cm)</fbt>
+						<fbt desc="Title for the head circumference section in the growth chart">
+							Head Circumference (cm)
+						</fbt>
 					</h3>
-					<div className="h-[250px]">
-						{hasHeadCircumferenceData ? (
-							<canvas
-								key="headCircumferenceChart"
-								ref={headCircumferenceChartRef}
-							/>
-						) : (
-							<p className="text-muted-foreground text-center py-8">
-								<fbt desc="noHeadCircumferenceData">
-									No head circumference data available.
-								</fbt>
-							</p>
-						)}
-					</div>
+					<LineChart
+						backgroundColor="rgba(59, 130, 246, 0.1)"
+						borderColor="#3b82f6"
+						chartId="headCircumferenceChart"
+						data={headCircumferenceData}
+						datasetLabel={
+							<fbt desc="Dataset label for head circumference data in the chart legend">
+								Head Circumference
+							</fbt>
+						}
+						emptyStateMessage={commonEmptyState}
+						events={events}
+						title={
+							<fbt desc="Chart title for head circumference">
+								Head Circumference
+							</fbt>
+						}
+						xAxisLabel={commonXAxisLabel}
+						yAxisLabel={
+							<fbt desc="Label for the Y-axis showing head circumference in centimeters">
+								Head Circumference (cm)
+							</fbt>
+						}
+						yAxisUnit="cm"
+					/>
 				</div>
 
 				{events.length > 0 && (
 					<div className="mt-4 text-xs text-muted-foreground">
 						<p>
-							<fbt desc="eventsNote">
+							<fbt desc="Note explaining that vertical lines on the chart indicate important events">
 								* Vertical lines indicate important events.
 							</fbt>
 						</p>
