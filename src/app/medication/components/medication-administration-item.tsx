@@ -21,7 +21,7 @@ export function MedicationAdministrationItem({
 		<Card className="mb-2 py-0 gap-0" key={med.id}>
 			<CardContent className="p-3 flex justify-between items-center">
 				<div className="flex-1">
-					<p className="font-semibold text-base">
+					<p className="font-medium text-base">
 						{getRegimenNameById(med.regimenId)} - {med.dosageAmount}
 					</p>
 					<p className="text-sm text-muted-foreground">

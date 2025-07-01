@@ -46,7 +46,7 @@ export function MedicationRegimenCard({
 			<CardHeader className="pb-3 px-4">
 				<div className="flex justify-between items-start">
 					<div>
-						<h3 className="text-lg font-semibold">{regimen.name}</h3>
+						<h3 className="text-lg font-medium">{regimen.name}</h3>
 						<p className="text-sm text-muted-foreground">
 							<fbt desc="Label for dosage">Dosage:</fbt> {regimen.dosageAmount}{' '}
 							{regimen.dosageUnit}
