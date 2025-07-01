@@ -22,6 +22,11 @@ const pages = [
 		path: '/diaper',
 	},
 	{
+		icon: '💊',
+		label: () => fbt('Medication', 'Title of the Medication tab'),
+		path: '/medication',
+	},
+	{
 		icon: '📏',
 		label: () => fbt('Growth', 'Title of the Growth tab'),
 		path: '/growth',
