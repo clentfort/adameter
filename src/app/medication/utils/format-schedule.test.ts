@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MedicationRegimen } from '@/types/medication-regimen';
-import { formatSchedule } from './schedule-formatting';
+import { formatSchedule } from './format-schedule';
 
 describe('formatSchedule', () => {
 	it('should format daily schedule with one time', () => {

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MedicationRegimen } from '@/types/medication-regimen';
-import { calculateNextDue } from './next-due-calculation';
+import { calculateNextDue } from './calculate-next-due';
 
 describe('calculateNextDue', () => {
 	const constantDate = new Date('2024-07-22T10:00:00.000Z'); // Monday, 10:00 AM UTC

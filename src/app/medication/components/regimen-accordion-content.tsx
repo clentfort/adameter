@@ -1,5 +1,5 @@
 import { MedicationRegimen } from '@/types/medication-regimen';
-import { calculateNextDue } from '../utils/next-due-calculation';
+import { calculateNextDue } from '../utils/calculate-next-due';
 import { MedicationRegimenCard } from './medication-regimen-card';
 
 interface RegimenAccordionContentProps {
