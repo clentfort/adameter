@@ -49,7 +49,9 @@ export default function MedicationPage() {
 
   const { activeRegimens, pastRegimens } = useMemo(() => {
     const now = new Date().toISOString();
-    return medicationRegimens.reduce(
+    // Ensure medicationRegimens is an array before calling reduce
+    const currentRegimens = Array.isArray(medicationRegimens) ? medicationRegimens : [];
+    return currentRegimens.reduce(
       (acc, regimen) => {
         const isActive = !regimen.isDiscontinued && (!regimen.endDate || regimen.endDate > now);
         if (isActive) {
@@ -65,7 +67,9 @@ export default function MedicationPage() {
 
   const medicationsByDate = useMemo(() => {
     const grouped: Record<string, ReturnType<typeof useMedications>['medications']> = {};
-    [...medications]
+    // Ensure medications is an array before spreading and sorting
+    const currentMedications = Array.isArray(medications) ? medications : [];
+    [...currentMedications]
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .forEach((med) => {
         const date = new Date(med.timestamp).toLocaleDateString();
