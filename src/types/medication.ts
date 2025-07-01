@@ -2,26 +2,31 @@
 
 /**
  * Represents a single instance of medication administered to the child.
- * This entry typically logs an administration that is part of a MedicationRegimen.
+ * This can be linked to a MedicationRegimen or be a one-off administration.
  */
-export interface Medication {
+export interface MedicationAdministration {
 	/**
 	 * Indicates if this administration was given as planned ('On Time'),
 	 * if it was missed ('Missed'), or given at a different time/dosage ('Adjusted').
+	 * For one-off administrations, 'On Time' would typically be used.
 	 */
 	administrationStatus: 'On Time' | 'Missed' | 'Adjusted';
 
 	/**
 	 * Optional: Specific notes for this particular administration (e.g., "Child spit out half", "Given late").
-	 * This is separate from the general notes on the regimen.
 	 */
 	details?: string;
 
 	/**
 	 * The actual dosage amount given for this specific administration.
-	 * This might differ from the regimen's planned dosage (e.g., if a partial dose was given).
 	 */
 	dosageAmount: number;
+
+	/**
+	 * The unit for the dosageAmount (e.g., "ml", "mg", "drops").
+	 * If linked to a regimen, this is copied from the regimen at the time of administration.
+	 */
+	dosageUnit: string;
 
 	/**
 	 * Unique identifier for this individual medication administration.
@@ -29,10 +34,16 @@ export interface Medication {
 	id: string;
 
 	/**
-	 * The ID of the MedicationRegimen this administration belongs to.
-	 * This links the individual log to its broader plan and allows inheriting properties like dosage unit.
+	 * The name of the medication administered.
+	 * If linked to a regimen, this is copied from the regimen at the time of administration.
 	 */
-	regimenId: string;
+	medicationName: string;
+
+	/**
+	 * Optional: The ID of the MedicationRegimen this administration belongs to.
+	 * If undefined, this administration is a one-off event not tied to a specific regimen.
+	 */
+	regimenId?: string;
 
 	/**
 	 * The exact date and time the medication was given, in ISO 8601 string format.
