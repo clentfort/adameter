@@ -92,10 +92,7 @@ export default function MedicationPage() {
 						<AccordionTrigger className="text-xl font-semibold mb-2 hover:no-underline py-2">
 							<fbt desc="Accordion title for current medication regimens">
 								Current Regimens
-							</fbt>{' '}
-							<span className="text-base font-normal text-muted-foreground ml-2">
-								({activeRegimens.length})
-							</span>
+							</fbt>
 						</AccordionTrigger>
 						<AccordionContent>
 							<RegimenAccordionContent
@@ -119,10 +116,7 @@ export default function MedicationPage() {
 						<AccordionTrigger className="text-xl font-semibold mb-2 hover:no-underline py-2">
 							<fbt desc="Accordion title for archived medication regimens">
 								Archived
-							</fbt>{' '}
-							<span className="text-base font-normal text-muted-foreground ml-2">
-								({pastRegimens.length})
-							</span>
+							</fbt>
 						</AccordionTrigger>
 						<AccordionContent>
 							<RegimenAccordionContent
