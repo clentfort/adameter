@@ -1,18 +1,18 @@
 import { format } from 'date-fns';
+// Ensure fbt is imported
 import { Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Medication } from '@/types/medication'; // Assuming Medication type is here
+import { MedicationAdministration } from '@/types/medication'; // Updated type
 
 interface MedicationAdministrationItemProps {
-	getRegimenNameById: (regimenId: string) => string;
-	med: Medication;
+	med: MedicationAdministration;
 	onDeleteAdministration: (adminId: string) => void;
 	onEditAdministration: (adminId: string) => void;
+	// getRegimenNameById is removed as medicationName and dosageUnit are now direct properties
 }
 
 export function MedicationAdministrationItem({
-	getRegimenNameById,
 	med,
 	onDeleteAdministration,
 	onEditAdministration,
@@ -22,7 +22,8 @@ export function MedicationAdministrationItem({
 			<CardContent className="p-3 flex justify-between items-center">
 				<div className="flex-1">
 					<p className="font-medium text-base">
-						{getRegimenNameById(med.regimenId)} - {med.dosageAmount}
+						{med.medicationName} - {med.dosageAmount}
+						{med.dosageUnit}
 					</p>
 					<p className="text-sm text-muted-foreground">
 						{format(new Date(med.timestamp), 'h:mm a')}
@@ -31,6 +32,13 @@ export function MedicationAdministrationItem({
 						{med.administrationStatus}
 						{med.details && ` (${med.details})`}
 					</p>
+					{med.regimenId && (
+						<p className="text-xs text-muted-foreground italic">
+							<fbt desc="Indicator that this administration is linked to a regimen">
+								(Linked to regimen)
+							</fbt>
+						</p>
+					)}
 				</div>
 				<div className="flex gap-1">
 					<Button

@@ -1,9 +1,12 @@
 // src/data/medications.ts
 import { proxy } from 'valtio';
-import { Medication } from '@/types/medication';
-import { Encrypted } from '@/utils/crypto'; // Import Encrypted
+import { MedicationAdministration } from '@/types/medication';
+import { Encrypted } from '@/utils/crypto';
 
-// Initialize with an empty array, as default data is now handled by the hook.
-// The type is Encrypted<Medication[]> because useEncryptedArrayState expects
-// its initial array argument `array: Encrypted<T[]>`
-export const medicationsProxy = proxy<Encrypted<Medication[]>>([]);
+// Initialize with an empty array.
+// The type Encrypted<MedicationAdministration[]> is effectively Array<Encrypted<Item>> & { __type: 'array' }.
+// An empty array [] is a valid assignment for the Array<Encrypted<Item>> part.
+// useEncryptedArrayState expects an actual array for its .map operations.
+export const medicationsProxy = proxy<Encrypted<MedicationAdministration[]>>(
+	[],
+);
