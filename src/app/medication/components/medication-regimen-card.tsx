@@ -9,7 +9,7 @@ import {
 	CardHeader,
 } from '@/components/ui/card';
 import { MedicationRegimen } from '@/types/medication-regimen';
-import { formatSchedule } from '../utils';
+import { formatSchedule } from '../utils/schedule-formatting';
 
 const formatDateDisplay = (dateString?: string) => {
 	if (!dateString) return String(fbt('N/A', 'Not applicable or not available'));

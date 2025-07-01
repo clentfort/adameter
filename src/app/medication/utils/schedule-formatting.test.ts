@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MedicationRegimen } from '@/types/medication-regimen';
-import { calculateNextDue, formatSchedule } from './utils';
+import { formatSchedule } from './schedule-formatting';
 
 describe('formatSchedule', () => {
 	it('should format daily schedule with one time', () => {
@@ -68,58 +68,4 @@ describe('formatSchedule', () => {
 		const schedule = { type: 'unknown' };
 		expect(String(formatSchedule(schedule))).toBe('N/A');
 	});
-
-    // Removed test for undefined schedule as the function is not designed to handle it gracefully
-    // and would throw a TypeError, which is not what 'N/A' implies.
-});
-
-describe('calculateNextDue', () => {
-	// Note: These tests depend on the current time and may need to be adjusted
-	// or mocked for stability if run in different timezones or at different times.
-	// For now, we rely on the logic as implemented.
-
-	it('should return "Calculation pending" for empty daily times', () => {
-		const regimen: Partial<MedicationRegimen> = {
-			schedule: { times: [], type: 'daily' },
-		};
-		expect(calculateNextDue(regimen as MedicationRegimen)).toBe(
-			'Calculation pending',
-		);
-	});
-
-	it('should return "Calculation pending" for interval schedule', () => {
-		const regimen: Partial<MedicationRegimen> = {
-			schedule: {
-				firstDoseTime: '10:00',
-				intervalUnit: 'hours',
-				intervalValue: 4,
-				type: 'interval',
-			},
-		};
-		expect(calculateNextDue(regimen as MedicationRegimen)).toBe(
-			'Calculation pending',
-		);
-	});
-
-	it('should return "Calculation pending" for weekly schedule', () => {
-		const regimen: Partial<MedicationRegimen> = {
-			schedule: { daysOfWeek: ['Monday'], times: ['10:00'], type: 'weekly' },
-		};
-		expect(calculateNextDue(regimen as MedicationRegimen)).toBe(
-			'Calculation pending',
-		);
-	});
-
-	it('should return "Calculation pending" for asNeeded schedule', () => {
-		const regimen: Partial<MedicationRegimen> = {
-			schedule: { details: 'Take as needed', type: 'asNeeded' },
-		};
-		expect(calculateNextDue(regimen as MedicationRegimen)).toBe(
-			'Calculation pending',
-		);
-	});
-
-	// More complex tests for daily schedule might require mocking Date
-	// For example, to test a specific time of day for "later today" vs "tomorrow"
-	// Current implementation of calculateNextDue is simple, so these tests cover its branches.
 });
