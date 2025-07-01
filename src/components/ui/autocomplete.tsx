@@ -161,16 +161,6 @@ function Autocomplete<T extends { id: string; label: string }>(
               type="auto" // Show scrollbar only when needed
             >
               <CommandGroup>
-                {/* Options will be mapped here based on filteredOptions */}
-                {/* This is a placeholder structure for UI. Actual rendering and selection
-                                    will be implemented in subsequent steps.
-                                {filteredOptions.map((option) => (
-                                  <CommandItem
-                                    key={option.id}
-                                    // `value` for CommandItem is used by CMDK for its own state/navigation logic.
-                                    // It's often set to the string that's being searched/matched. Here, `option.label`.
-                                    value={option.label}
-                                    onSelect={() => {
                                 {filteredOptions.map((option) => (
                                   <CommandItem
                                     key={option.id}
@@ -211,14 +201,3 @@ const ForwardedAutocomplete = React.forwardRef(Autocomplete) as <
 ) => ReturnType<typeof Autocomplete>;
 
 export { ForwardedAutocomplete as Autocomplete };
-
-// TODOs from the plan:
-// - Step 4: Implement Filtering Logic (actual filtering in React.useEffect)
-// - Step 5: Implement Core Functionality (onSelect in CommandItem)
-// - Step 6: Implement Custom Rendering (ensure renderOption works)
-// - Step 7: Styling and Consistency (e.g., Check icon)
-// - Step 8: Accessibility review
-// - Refine popover interactions, especially around blur and focus management if issues arise.
-// - Ensure all `restInputProps` are correctly applied and don't cause conflicts.
-// - Test keyboard navigation thoroughly (arrows, Enter, Escape).
-```
