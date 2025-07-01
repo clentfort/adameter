@@ -14,7 +14,9 @@
 		"test": "vitest",
 		"fbtee:manifest": "fbtee manifest --src src",
 		"fbtee:collect": "fbtee collect --fbt-common-path ./common_strings.json --pretty --manifest < .src_manifest.json > source_strings.json",
-		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins > src/i18n/translations.json"
+		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins > src/i18n/translations.json",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build"
 	},
 	"devEngines": {
 		"packageManager": {
@@ -24,13 +26,17 @@
 		}
 	},
 	"dependencies": {
+		"@hookform/resolvers": "^5.1.1",
 		"@nkzw/core": "^1.2.0",
+		"@radix-ui/react-accordion": "^1.2.11",
 		"@radix-ui/react-alert-dialog": "^1.1.11",
 		"@radix-ui/react-dialog": "^1.1.11",
 		"@radix-ui/react-dropdown-menu": "^2.1.12",
 		"@radix-ui/react-label": "^2.1.4",
 		"@radix-ui/react-navigation-menu": "^1.2.10",
+		"@radix-ui/react-popover": "^1.1.14",
 		"@radix-ui/react-radio-group": "^1.3.4",
+		"@radix-ui/react-scroll-area": "^1.2.9",
 		"@radix-ui/react-select": "^2.2.2",
 		"@radix-ui/react-slot": "^1.2.0",
 		"@radix-ui/react-switch": "^1.2.2",
@@ -40,6 +46,7 @@
 		"chartjs-adapter-date-fns": "latest",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"cmdk": "^1.1.1",
 		"crypto-js": "^4.2.0",
 		"date-fns": "latest",
 		"fast-deep-equal": "^3.1.3",
@@ -51,6 +58,7 @@
 		"partysocket": "1.1.4",
 		"react": "^19",
 		"react-dom": "^19",
+		"react-hook-form": "^7.59.0",
 		"tailwind-merge": "^3.2.0",
 		"tailwindcss": "^4.1.4",
 		"tw-animate-css": "^1.2.8",
@@ -58,7 +66,8 @@
 		"valtio-yjs": "^0.6.0",
 		"y-indexeddb": "^9.0.12",
 		"y-partykit": "^0.0.33",
-		"yjs": "^13.6.27"
+		"yjs": "^13.6.27",
+		"zod": "^3.25.67"
 	},
 	"devDependencies": {
 		"@babel/runtime": "^7.27.0",
@@ -69,6 +78,11 @@
 		"@nkzw/babel-preset-fbtee": "^0.3.0",
 		"@nkzw/eslint-config": "^3.0.0",
 		"@nkzw/eslint-plugin-fbtee": "^0.3.0",
+		"@storybook/addon-docs": "^9.0.15",
+		"@storybook/addon-onboarding": "^9.0.15",
+		"@storybook/addon-vitest": "^9.0.15",
+		"@storybook/nextjs-vite": "^9.0.15",
+		"@storybook/test": "9.0.0-alpha.2",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/react": "^16.3.0",
 		"@types/crypto-js": "^4.2.2",
@@ -81,10 +95,13 @@
 		"eslint-config-next": "^15.2.5",
 		"eslint-config-prettier": "^10.1.1",
 		"eslint-plugin-react-hooks": "^5.2.0",
+		"eslint-plugin-storybook": "^9.0.15",
 		"jsdom": "^26.0.0",
 		"partykit": "0.0.115",
 		"postcss": "^8",
 		"prettier": "^3.5.3",
+		"prettier-plugin-tailwindcss": "^0.6.13",
+		"storybook": "^9.0.15",
 		"typescript": "^5",
 		"typescript-eslint": "^8.29.1",
 		"vite-tsconfig-paths": "^5.1.4",

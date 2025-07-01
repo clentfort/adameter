@@ -221,8 +221,8 @@ Die JSON-Datei kann für den Import in die Baby-Tracker App verwendet werden.`;
 
 		return;
 	} catch (error) {
-		console.error('Error creating ZIP file:', error);
-		return Promise.reject(error);
+		// console.error('Error creating ZIP file:', error); // Removed for linting
+		throw error; // Changed for unicorn/no-useless-promise-resolve-reject
 	}
 };
 

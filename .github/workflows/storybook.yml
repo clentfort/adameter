@@ -1,0 +1,54 @@
+name: Storybook Deploy
+
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to the main branch
+
+permissions:
+  contents: write # To push to gh-pages branch
+  pages: write # To deploy to GitHub Pages
+  id-token: write # For OIDC token if action uses it
+
+jobs:
+  build-storybook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Using a recent LTS version
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9 # Specify pnpm version if needed, or let it pick from package.json
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Storybook
+        run: pnpm run build-storybook
+
+      - name: Upload Storybook artifact
+        uses: actions/upload-pages-artifact@v3 # This action is designed for GitHub Pages
+        with:
+          path: storybook-static
+
+  deploy-to-gh-pages:
+    needs: build-storybook
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }} # Output the deployment URL
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 # This action handles downloading the artifact and deploying
+        # No need to explicitly download artifact, actions/deploy-pages handles it by default
+        # No need to specify branch or folder, it uses the artifact from upload-pages-artifact
+        # and deploys to gh-pages branch by default.
+        # Ensure your repository settings are configured to deploy from the gh-pages branch.

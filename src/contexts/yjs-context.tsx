@@ -10,6 +10,8 @@ import { events } from '@/data/events';
 import { feedingInProgress } from '@/data/feeding-in-progress';
 import { feedingSessions } from '@/data/feeding-sessions';
 import { growthMeasurements } from '@/data/growth-measurments';
+import { medicationRegimensProxy } from '@/data/medication-regimens';
+import { medicationsProxy } from '@/data/medications';
 
 const doc = new Doc();
 export const yjsContext = createContext<{ doc: Doc }>({ doc });
@@ -26,6 +28,8 @@ export function YjsProvider({ children }: YjsProviderProps) {
 	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
 	useBindValtioToYjs(growthMeasurements, doc.getArray('growth-measurments'));
 	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
+	useBindValtioToYjs(medicationRegimensProxy, doc.getArray('medication-regimens'));
+	useBindValtioToYjs(medicationsProxy, doc.getArray('medications'));
 
 	if (!isSynced) {
 		return <SplashScreen />;
