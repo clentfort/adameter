@@ -22,6 +22,11 @@ const pages = [
 		path: '/diaper',
 	},
 	{
+		icon: '💊',
+		label: () => fbt('Medication', 'Title of the Medication tab'),
+		path: '/medication',
+	},
+	{
 		icon: '📏',
 		label: () => fbt('Growth', 'Title of the Growth tab'),
 		path: '/growth',
@@ -43,7 +48,7 @@ export default function Navigation() {
 	return (
 		<div className="mb-6">
 			<NavigationMenu>
-				<NavigationMenuList className="grid grid-cols-5">
+				<NavigationMenuList className="grid grid-cols-6">
 					{pages.map((page) => {
 						const isActive = pathname === page.path;
 						return (
