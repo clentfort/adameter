@@ -2,18 +2,10 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
-import { Check, ChevronsUpDown } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { Autocomplete } from '@/components/autocomplete'; // Added
 import { Button } from '@/components/ui/button';
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command';
 import {
 	Dialog,
 	DialogContent,
@@ -24,25 +16,20 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
 import { MedicationAdministration } from '@/types/medication';
 import { MedicationRegimen } from '@/types/medication-regimen';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import { MedicationAutocompleteOptionData } from '../types/medication-autocomplete-option'; // Added
+import { calculateFrecencySuggestions } from '../utils/frecency-calculator'; // Added
 import {
 	MedicationAdministrationFormData,
 	medicationAdministrationSchema,
 } from '../validation/medication-administration-schema';
 
 interface MedicationAdministrationFormProps {
-	// To get unique one-off medication names for suggestions
 	allAdministrations: readonly MedicationAdministration[];
 	initialData?: MedicationAdministration;
 	isOpen: boolean;
@@ -51,14 +38,7 @@ interface MedicationAdministrationFormProps {
 	regimens: readonly MedicationRegimen[];
 }
 
-interface ComboboxOption {
-	dosageAmount?: number;
-	dosageUnit?: string;
-	label: string; // medication name
-	regimenId?: string;
-	type: 'regimen' | 'one-off';
-	value: string; // medication name, or special value for regimen
-}
+// Removed ComboboxOption interface as it's replaced by MedicationAutocompleteOptionData
 
 export const MedicationAdministrationForm: React.FC<
 	MedicationAdministrationFormProps
@@ -80,13 +60,13 @@ export const MedicationAdministrationForm: React.FC<
 			initialData?.timestamp ? new Date(initialData.timestamp) : new Date(),
 		),
 	);
-	const [comboboxOpen, setComboboxOpen] = useState(false);
+	// const [comboboxOpen, setComboboxOpen] = useState(false); // No longer needed for Autocomplete
 
 	const form = useForm<MedicationAdministrationFormData>({
 		defaultValues: {
 			administrationStatus: initialData?.administrationStatus || 'On Time',
 			details: initialData?.details || '',
-			dosageAmount: initialData?.dosageAmount || undefined,
+			dosageAmount: initialData?.dosageAmount ?? Number.NaN, // Ensure number for empty
 			dosageUnit: initialData?.dosageUnit || '',
 			medicationName: initialData?.medicationName || '',
 			regimenId: initialData?.regimenId || undefined,
@@ -107,7 +87,6 @@ export const MedicationAdministrationForm: React.FC<
 
 	useEffect(() => {
 		if (isOpen) {
-			// Reset form when dialog opens or initialData changes
 			const initialTimestamp = initialData?.timestamp
 				? new Date(initialData.timestamp)
 				: new Date();
@@ -117,7 +96,7 @@ export const MedicationAdministrationForm: React.FC<
 			form.reset({
 				administrationStatus: initialData?.administrationStatus || 'On Time',
 				details: initialData?.details || '',
-				dosageAmount: initialData?.dosageAmount || undefined,
+				dosageAmount: initialData?.dosageAmount ?? Number.NaN,
 				dosageUnit: initialData?.dosageUnit || '',
 				medicationName: initialData?.medicationName || '',
 				regimenId: initialData?.regimenId || undefined,
@@ -127,41 +106,37 @@ export const MedicationAdministrationForm: React.FC<
 	}, [initialData, form, isOpen]);
 
 	const medicationOptions = useMemo(() => {
-		const options: ComboboxOption[] = [];
-		const seenNames = new Set<string>();
-
-		// Add regimens
-		regimens.forEach((reg) => {
-			const value = `regimen-${reg.id}-${reg.name}`; // Unique value for regimen
-			options.push({
+		const regimenOptions: MedicationAutocompleteOptionData[] = regimens.map(
+			(reg) => ({
 				dosageAmount: reg.dosageAmount,
 				dosageUnit: reg.dosageUnit,
+				id: `regimen-${reg.id}`,
+				isRegimen: true,
 				label: reg.name,
+				medicationName: reg.name,
 				regimenId: reg.id,
-				type: 'regimen',
-				value,
-			});
-			seenNames.add(reg.name.toLowerCase());
-		});
+			}),
+		);
 
-		// Add unique one-off medication names from past administrations
-		allAdministrations.forEach((admin) => {
-			if (
-				!admin.regimenId &&
-				admin.medicationName &&
-				!seenNames.has(admin.medicationName.toLowerCase())
-			) {
-				options.push({
-					dosageAmount: admin.dosageAmount,
-					dosageUnit: admin.dosageUnit,
-					label: admin.medicationName,
-					type: 'one-off',
-					value: admin.medicationName, // Use name itself as value for one-offs
-				});
-				seenNames.add(admin.medicationName.toLowerCase());
-			}
-		});
-		return options;
+		const frecencyOptions = calculateFrecencySuggestions(allAdministrations);
+
+		// Combine, ensuring regimen-based suggestions for the same med/dose/unit
+		// are distinct or prioritized. For now, we list regimens first, then frecency.
+		// We might want to de-duplicate if a frecency item is identical to a regimen.
+		// A simple way is to filter out frecency items that match a regimen's name, dosage, and unit.
+		const frecencyOnlyOptions = frecencyOptions.filter(
+			(frecOpt) =>
+				!regimenOptions.some(
+					(regOpt) =>
+						regOpt.medicationName.toLowerCase() ===
+							frecOpt.medicationName.toLowerCase() &&
+						regOpt.dosageAmount === frecOpt.dosageAmount &&
+						regOpt.dosageUnit.toLowerCase() ===
+							frecOpt.dosageUnit.toLowerCase(),
+				),
+		);
+
+		return [...regimenOptions, ...frecencyOnlyOptions];
 	}, [regimens, allAdministrations]);
 
 	const handleFormSubmit = (data: MedicationAdministrationFormData) => {
@@ -213,121 +188,57 @@ export const MedicationAdministrationForm: React.FC<
 							control={form.control}
 							name="medicationName"
 							render={({ field }) => (
-								<Popover onOpenChange={setComboboxOpen} open={comboboxOpen}>
-									<PopoverTrigger asChild>
-										<Button
-											aria-expanded={comboboxOpen}
-											className="w-full justify-between"
-											role="combobox"
-											variant="outline"
-										>
-											{field.value ? (
-												medicationOptions.find(
-													(option) =>
-														option.value === field.value ||
-														option.label === field.value,
-												)?.label || field.value
-											) : (
-												<fbt desc="Placeholder text for medication name combobox">
-													Select or type medication...
-												</fbt>
-											)}
-											<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-										<Command
-											filter={(value, search) => {
-												const option = medicationOptions.find(
-													(opt) => opt.value === value,
-												);
-												if (
-													option?.label
-														.toLowerCase()
-														.includes(search.toLowerCase())
-												)
-													return 1;
-												return 0;
-											}}
-										>
-											<CommandInput
-												placeholder={fbt(
-													'Search medication...',
-													'Placeholder for medication search input in combobox',
-												)}
-											/>
-											<CommandList>
-												<CommandEmpty>
-													<fbt desc="Message shown when no medication is found in combobox search">
-														No medication found.
-													</fbt>
-												</CommandEmpty>
-												<CommandGroup>
-													{medicationOptions.map((option) => (
-														<CommandItem
-															key={option.value}
-															onSelect={(currentValue) => {
-																const selectedOption = medicationOptions.find(
-																	(opt) => opt.value === currentValue,
-																);
-																if (selectedOption) {
-																	form.setValue(
-																		'medicationName',
-																		selectedOption.label,
-																		{ shouldDirty: true, shouldValidate: true },
-																	);
-																	form.setValue(
-																		'dosageAmount',
-																		selectedOption.dosageAmount ?? Number.NaN,
-																		{ shouldDirty: true },
-																	);
-																	form.setValue(
-																		'dosageUnit',
-																		selectedOption.dosageUnit || '',
-																		{ shouldDirty: true },
-																	);
-																	form.setValue(
-																		'regimenId',
-																		selectedOption.regimenId || undefined,
-																		{ shouldDirty: true },
-																	);
-																} else {
-																	// Manual entry
-																	form.setValue(
-																		'medicationName',
-																		currentValue,
-																		{ shouldDirty: true, shouldValidate: true },
-																	); // Use raw input if not found
-																	form.setValue('regimenId', undefined, {
-																		shouldDirty: true,
-																	}); // Clear regimenId for manual entry
-																}
-																setComboboxOpen(false);
-															}}
-															value={option.value}
-														>
-															<Check
-																className={cn(
-																	'mr-2 h-4 w-4',
-																	field.value === option.label ||
-																		field.value === option.value
-																		? 'opacity-100'
-																		: 'opacity-0',
-																)}
-															/>
-															{option.label}{' '}
-															{option.type === 'regimen' && (
-																<span className="text-xs text-muted-foreground ml-2">
-																	(Regimen)
-																</span>
-															)}
-														</CommandItem>
-													))}
-												</CommandGroup>
-											</CommandList>
-										</Command>
-									</PopoverContent>
-								</Popover>
+								<Autocomplete
+									inputClassName="w-full" // Ensure input takes full width
+									onOptionSelect={(option) => {
+										form.setValue('medicationName', option.medicationName, {
+											shouldDirty: true,
+											shouldValidate: true,
+										});
+										form.setValue('dosageAmount', option.dosageAmount, {
+											shouldDirty: true,
+										});
+										form.setValue('dosageUnit', option.dosageUnit, {
+											shouldDirty: true,
+										});
+										form.setValue('regimenId', option.regimenId, {
+											shouldDirty: true,
+										});
+										// field.onChange will be called by onValueChange with option.label
+									}}
+									onValueChange={(value) => {
+										field.onChange(value);
+										// If user types and it doesn't match a known regimen or frecency item,
+										// clear related fields.
+										const matchedOption = medicationOptions.find(
+											(opt) => opt.label === value,
+										);
+										if (!matchedOption) {
+											form.setValue('dosageAmount', Number.NaN, {
+												shouldDirty: true,
+											});
+											form.setValue('dosageUnit', '', { shouldDirty: true });
+											form.setValue('regimenId', undefined, {
+												shouldDirty: true,
+											});
+										}
+									}}
+									options={medicationOptions}
+									placeholder={fbt(
+										'Select or type medication...',
+										'Placeholder for medication name autocomplete',
+									).toString()}
+									renderOption={(option) => (
+										<div className="flex justify-between w-full">
+											<span>{option.medicationName}</span>
+											<span className="text-xs text-muted-foreground ml-2">
+												{option.dosageAmount} {option.dosageUnit}
+												{option.isRegimen && ' (Regimen)'}
+											</span>
+										</div>
+									)}
+									value={field.value}
+								/>
 							)}
 						/>
 						{form.formState.errors.medicationName && (
@@ -348,6 +259,16 @@ export const MedicationAdministrationForm: React.FC<
 								step="any"
 								type="number"
 								{...form.register('dosageAmount', { valueAsNumber: true })}
+								// To prevent showing "NaN" if field is empty after reset/clearing
+								onChange={(e) => {
+									const num = Number.parseFloat(e.target.value);
+									form.setValue(
+										'dosageAmount',
+										Number.isNaN(num) ? Number.NaN : num,
+										{ shouldDirty: true, shouldValidate: true },
+									);
+								}}
+								value={form.watch('dosageAmount') || ''} // Show empty string for undefined/NaN
 							/>
 							{form.formState.errors.dosageAmount && (
 								<p className="text-sm text-red-500">
@@ -365,7 +286,7 @@ export const MedicationAdministrationForm: React.FC<
 								placeholder={fbt(
 									'e.g., ml, mg, drops',
 									'Placeholder for dosage unit input',
-								)}
+								).toString()}
 							/>
 							{form.formState.errors.dosageUnit && (
 								<p className="text-sm text-red-500">
@@ -379,9 +300,7 @@ export const MedicationAdministrationForm: React.FC<
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-1">
 							<Label htmlFor="adminDate">
-								<fbt common>
-									Date
-								</fbt>
+								<fbt common>Date</fbt>
 							</Label>
 							<Input
 								id="adminDate"
@@ -392,9 +311,7 @@ export const MedicationAdministrationForm: React.FC<
 						</div>
 						<div className="space-y-1">
 							<Label htmlFor="adminTime">
-								<fbt common>
-									Time
-								</fbt>
+								<fbt common>Time</fbt>
 							</Label>
 							<Input
 								id="adminTime"
@@ -462,7 +379,7 @@ export const MedicationAdministrationForm: React.FC<
 							placeholder={fbt(
 								'e.g., child spit out some, given with food',
 								'Placeholder for medication administration notes',
-							)}
+							).toString()}
 						/>
 					</div>
 
@@ -472,9 +389,13 @@ export const MedicationAdministrationForm: React.FC<
 						</Button>
 						<Button disabled={form.formState.isSubmitting} type="submit">
 							{initialData ? (
-								<fbt desc="Button text to save changes to an existing medication entry">Save Changes</fbt>
+								<fbt desc="Button text to save changes to an existing medication entry">
+									Save Changes
+								</fbt>
 							) : (
-								<fbt desc="Button text to save a new medication entry">Save Entry</fbt>
+								<fbt desc="Button text to save a new medication entry">
+									Save Entry
+								</fbt>
 							)}
 						</Button>
 					</DialogFooter>
