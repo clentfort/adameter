@@ -44,14 +44,13 @@ const handleEditAdministration = (adminId: string) => { /* Placeholder for actua
 const handleDeleteAdministration = (adminId: string) => { /* Placeholder for actual delete logic */ };
 
 export default function MedicationPage() {
-  const { medicationRegimens } = useMedicationRegimens();
-  const { medications } = useMedications();
+  const { value: medicationRegimens, update: updateRegimen, remove: removeRegimen } = useMedicationRegimens();
+  const { value: medications, update: updateMedication, remove: removeMedication } = useMedications();
 
   const { activeRegimens, pastRegimens } = useMemo(() => {
     const now = new Date().toISOString();
-    // Ensure medicationRegimens is an array before calling reduce
-    const currentRegimens = Array.isArray(medicationRegimens) ? medicationRegimens : [];
-    return currentRegimens.reduce(
+    // Ensure medicationRegimens is an array before calling reduce (it should be by hook design)
+    return (medicationRegimens || []).reduce(
       (acc, regimen) => {
         const isActive = !regimen.isDiscontinued && (!regimen.endDate || regimen.endDate > now);
         if (isActive) {
@@ -66,10 +65,9 @@ export default function MedicationPage() {
   }, [medicationRegimens]);
 
   const medicationsByDate = useMemo(() => {
-    const grouped: Record<string, ReturnType<typeof useMedications>['medications']> = {};
-    // Ensure medications is an array before spreading and sorting
-    const currentMedications = Array.isArray(medications) ? medications : [];
-    [...currentMedications]
+    const grouped: Record<string, Medication[]> = {}; // Use Medication[] type directly
+    // Ensure medications is an array before spreading and sorting (it should be by hook design)
+    ([...(medications || [])])
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .forEach((med) => {
         const date = new Date(med.timestamp).toLocaleDateString();
@@ -82,7 +80,8 @@ export default function MedicationPage() {
   }, [medications]);
 
   const getRegimenNameById = (regimenId: string) => {
-    const regimen = medicationRegimens.find(r => r.id === regimenId);
+    // Ensure medicationRegimens is an array before calling find
+    const regimen = (medicationRegimens || []).find(r => r.id === regimenId);
     return regimen ? regimen.name : 'Unknown Medication';
   };
 
