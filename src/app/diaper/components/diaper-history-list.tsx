@@ -5,21 +5,15 @@ import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
-import { UseDiaperChangesReturn } from '@/hooks/use-diaper-changes';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { DIAPER_BRAND_LABELS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
 
-interface DiaperHistoryListProps {
-	diaperChangesData: UseDiaperChangesReturn;
-}
-
-export default function DiaperHistoryList({
-	diaperChangesData,
-}: DiaperHistoryListProps) {
+export default function DiaperHistoryList() {
 	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
 	const [changeToEdit, setChangeToEdit] = useState<DiaperChange | null>(null);
-	const { remove, update, value: changes } = diaperChangesData;
+	const { remove, update, value: changes } = useDiaperChanges();
 
 	return (
 		<>

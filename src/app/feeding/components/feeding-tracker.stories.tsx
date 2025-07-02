@@ -3,11 +3,12 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { userEvent, waitFor, within } from '@testing-library/react'; // Corrected
 import { FbtContext, IntlVariations } from 'fbt';
+// Mock the hook using vi.mock
+import { vi } from 'vitest';
 import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress'; // Corrected hook name
 import BreastfeedingTracker from './feeding-tracker'; // Assuming component is default export
 
-// Mock the hook using jest.mock
-jest.mock('@/hooks/use-feeing-in-progress');
+vi.mock('@/hooks/use-feeing-in-progress');
 
 // Mock FbtContext for Storybook
 const fbtContextValue = {
@@ -42,7 +43,7 @@ const meta: Meta<typeof BreastfeedingTracker> = {
 				mockFeedingInProgressState = context.args.initialFeedingState;
 			}
 
-			(useFeedingInProgress as jest.Mock).mockReturnValue([
+			(useFeedingInProgress as import('vitest').Mock).mockReturnValue([
 				mockFeedingInProgressState,
 				mockSetFeedingInProgress,
 			]);
@@ -181,14 +182,14 @@ export const EndFeedingAction: Story = {
 		}, // 5 mins ago
 	},
 	play: async ({ args, canvasElement }) => {
-		jest.useFakeTimers(); // Use fake timers to control time
+		vi.useFakeTimers(); // Use Vitest fake timers
 		const canvas = within(canvasElement);
 
 		const endButton = canvas.getByRole('button', { name: /end feeding/i });
 		await userEvent.click(endButton);
 
-		jest.runOnlyPendingTimers(); // If there are any timeouts/intervals from the click
-		jest.useRealTimers(); // Restore real timers
+		vi.runOnlyPendingTimers(); // If there are any timeouts/intervals from the click
+		vi.useRealTimers(); // Restore real timers
 
 		await waitFor(() =>
 			expect(args.onSessionComplete).toHaveBeenCalledTimes(1),

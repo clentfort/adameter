@@ -3,16 +3,16 @@ import { fn } from '@storybook/test';
 import { waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FbtContext, IntlVariations } from 'fbt';
+// import { expect } from '@storybook/jest'; // Removed
+import { vi } from 'vitest';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useLastUsedDiaperBrand } from '@/hooks/use-last-used-diaper-brand';
 import { DIAPER_BRANDS } from '../utils/diaper-brands';
 import DiaperTracker from './diaper-tracker';
 
-// import { expect } from '@storybook/jest'; // Removed
-
-// Mock the hooks using jest.mock
-jest.mock('@/hooks/use-diaper-changes');
-jest.mock('@/hooks/use-last-used-diaper-brand');
+// Mock the hooks using vi.mock
+vi.mock('@/hooks/use-diaper-changes');
+vi.mock('@/hooks/use-last-used-diaper-brand');
 
 // Mock FbtContext for Storybook
 const fbtContextValue = {
@@ -43,14 +43,14 @@ const meta: Meta<typeof DiaperTracker> = {
 			mockAddDiaperChange.mockClear();
 
 			// Configure the return values of the mocked hooks
-			(useDiaperChanges as jest.Mock).mockReturnValue({
+			(useDiaperChanges as import('vitest').Mock).mockReturnValue({
 				add: mockAddDiaperChange,
 				remove: fn(),
 				update: fn(),
 				value: [],
 			});
 
-			(useLastUsedDiaperBrand as jest.Mock).mockReturnValue(
+			(useLastUsedDiaperBrand as import('vitest').Mock).mockReturnValue(
 				context.args.mockedLastBrand || currentMockLastUsedBrand,
 			);
 

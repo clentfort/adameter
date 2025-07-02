@@ -12,8 +12,7 @@ import DiaperTracker from './components/diaper-tracker';
 export default function DiaperPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 
-	const diaperChangesData = useDiaperChanges();
-	const { add } = diaperChangesData;
+	const { add } = useDiaperChanges();
 	const lastUsedDiaperBrand = useLastUsedDiaperBrand();
 
 	return (
@@ -38,7 +37,7 @@ export default function DiaperPage() {
 								<fbt common>Add Entry</fbt>
 							</Button>
 						</div>
-						<DiaperHistoryList diaperChangesData={diaperChangesData} />
+						<DiaperHistoryList />
 					</div>
 				</div>
 			</div>

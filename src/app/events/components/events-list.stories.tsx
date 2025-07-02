@@ -1,12 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { FbtContext, IntlVariations } from 'fbt';
+// Mock the hook using vi.mock
+import { vi } from 'vitest';
 import { useEvents } from '@/hooks/use-events'; // Import for spying
 import { Event } from '@/types/event';
 import EventsList from './events-list';
 
-// Mock the hook using jest.mock
-jest.mock('@/hooks/use-events');
+vi.mock('@/hooks/use-events');
 
 // Mock FbtContext for Storybook
 const fbtContextValue = {
@@ -77,7 +78,7 @@ const meta: Meta<typeof EventsList> = {
 	decorators: [
 		(Story, context) => {
 			// Configure the return value of the mocked hook
-			(useEvents as jest.Mock).mockReturnValue(
+			(useEvents as import('vitest').Mock).mockReturnValue(
 				mockUseEvents(context.args.mockedEvents || []),
 			);
 
