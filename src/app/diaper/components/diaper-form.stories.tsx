@@ -25,6 +25,11 @@ const meta: Meta<typeof DiaperForm> = {
 	component: DiaperForm,
 	parameters: {
 		layout: 'centered',
+		docs: {
+			story: {
+				inline: false,
+			},
+		},
 	},
 	tags: ['autodocs'],
 	title: 'App/Diaper/DiaperForm',

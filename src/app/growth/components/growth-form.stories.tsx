@@ -18,6 +18,11 @@ const meta: Meta<typeof MeasurementForm> = {
 	component: MeasurementForm,
 	parameters: {
 		layout: 'centered',
+		docs: {
+			story: {
+				inline: false,
+			},
+		},
 	},
 	tags: ['autodocs'],
 	title: 'App/Growth/MeasurementForm',

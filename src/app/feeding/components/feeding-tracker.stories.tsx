@@ -39,6 +39,11 @@ const meta: Meta<typeof BreastfeedingTracker> = {
 	],
 	parameters: {
 		layout: 'centered',
+		docs: {
+			story: {
+				inline: false,
+			},
+		},
 	},
 	tags: ['autodocs'],
 	title: 'App/Feeding/BreastfeedingTracker',
