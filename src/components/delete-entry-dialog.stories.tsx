@@ -11,6 +11,11 @@ const meta: Meta<typeof DeleteEntryDialog> = {
 	component: DeleteEntryDialog,
 	parameters: {
 		layout: 'centered',
+		docs: {
+			story: {
+				inline: false,
+			},
+		},
 	},
 	tags: ['autodocs'],
 	title: 'Components/DeleteEntryDialog',

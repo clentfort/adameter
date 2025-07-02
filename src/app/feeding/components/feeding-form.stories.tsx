@@ -20,6 +20,11 @@ const meta: Meta<typeof FeedingForm> = {
 	component: FeedingForm,
 	parameters: {
 		layout: 'centered',
+		docs: {
+			story: {
+				inline: false,
+			},
+		},
 	},
 	tags: ['autodocs'],
 	title: 'App/Feeding/FeedingForm',

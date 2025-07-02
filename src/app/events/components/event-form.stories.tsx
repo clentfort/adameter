@@ -31,6 +31,11 @@ const meta: Meta<typeof EventForm> = {
 	component: EventForm,
 	parameters: {
 		layout: 'centered',
+		docs: {
+			story: {
+				inline: false,
+			},
+		},
 	},
 	tags: ['autodocs'],
 	title: 'App/Events/EventForm',

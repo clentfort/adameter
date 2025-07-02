@@ -78,6 +78,11 @@ const meta: Meta<typeof MedicationAdministrationForm> = {
 	],
 	parameters: {
 		layout: 'centered',
+		docs: {
+			story: {
+				inline: false,
+			},
+		},
 	},
 	tags: ['autodocs'],
 	title: 'App/Medication/MedicationAdministrationForm',
