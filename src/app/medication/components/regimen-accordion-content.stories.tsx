@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { userEvent, within } from '@testing-library/react';
+import { within } from '@testing-library/react';
+import { vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { fbt } from 'fbtee';
 import {
 	MedicationRegimen,
@@ -102,12 +103,12 @@ type Story = StoryObj<typeof RegimenAccordionContent>;
 export const ActiveRegimensSomeExpanded: Story = {
 	args: {
 		expandedRegimens: { [activeRegimens[0].id]: true },
-		handleDeleteRegimen: fn(),
-		handleEditRegimen: fn(),
+		handleDeleteRegimen: vi.fn(),
+		handleEditRegimen: vi.fn(),
 		isPastSection: false,
 		noItemsMessage: noItemsFbtMessage,
 		regimens: activeRegimens,
-		toggleRegimenExpansion: fn(),
+		toggleRegimenExpansion: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -122,24 +123,24 @@ export const ActiveRegimensSomeExpanded: Story = {
 export const ActiveRegimensNoneExpanded: Story = {
 	args: {
 		expandedRegimens: {},
-		handleDeleteRegimen: fn(),
-		handleEditRegimen: fn(),
+		handleDeleteRegimen: vi.fn(),
+		handleEditRegimen: vi.fn(),
 		isPastSection: false,
 		noItemsMessage: noItemsFbtMessage,
 		regimens: activeRegimens,
-		toggleRegimenExpansion: fn(),
+		toggleRegimenExpansion: vi.fn(),
 	},
 };
 
 export const PastRegimensOneExpanded: Story = {
 	args: {
 		expandedRegimens: { [pastRegimens[1].id]: true },
-		handleDeleteRegimen: fn(),
-		handleEditRegimen: fn(),
+		handleDeleteRegimen: vi.fn(),
+		handleEditRegimen: vi.fn(),
 		isPastSection: true,
 		noItemsMessage: noItemsFbtMessage,
 		regimens: pastRegimens,
-		toggleRegimenExpansion: fn(),
+		toggleRegimenExpansion: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -151,8 +152,8 @@ export const PastRegimensOneExpanded: Story = {
 export const NoActiveRegimens: Story = {
 	args: {
 		expandedRegimens: {},
-		handleDeleteRegimen: fn(),
-		handleEditRegimen: fn(),
+		handleDeleteRegimen: vi.fn(),
+		handleEditRegimen: vi.fn(),
 		isPastSection: false,
 		noItemsMessage: (
 			<fbt desc="No active regimens message">
@@ -160,7 +161,7 @@ export const NoActiveRegimens: Story = {
 			</fbt>
 		),
 		regimens: [],
-		toggleRegimenExpansion: fn(),
+		toggleRegimenExpansion: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -173,8 +174,8 @@ export const NoActiveRegimens: Story = {
 export const NoPastRegimens: Story = {
 	args: {
 		expandedRegimens: {},
-		handleDeleteRegimen: fn(),
-		handleEditRegimen: fn(),
+		handleDeleteRegimen: vi.fn(),
+		handleEditRegimen: vi.fn(),
 		isPastSection: true,
 		noItemsMessage: (
 			<fbt desc="No past regimens message">
@@ -182,7 +183,7 @@ export const NoPastRegimens: Story = {
 			</fbt>
 		),
 		regimens: [],
-		toggleRegimenExpansion: fn(),
+		toggleRegimenExpansion: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);

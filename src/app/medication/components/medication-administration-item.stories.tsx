@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { userEvent, within } from '@testing-library/react';
+import { within } from '@testing-library/react';
+import { vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { MedicationAdministration } from '@/types/medication';
 import { MedicationAdministrationItem } from './medication-administration-item';
 
@@ -64,16 +65,16 @@ type Story = StoryObj<typeof MedicationAdministrationItem>;
 export const OnTime: Story = {
 	args: {
 		med: sampleAdminOnTime,
-		onDeleteAdministration: fn(),
-		onEditAdministration: fn(),
+		onDeleteAdministration: vi.fn(),
+		onEditAdministration: vi.fn(),
 	},
 };
 
 export const MissedWithDetails: Story = {
 	args: {
 		med: sampleAdminMissedWithDetails,
-		onDeleteAdministration: fn(),
-		onEditAdministration: fn(),
+		onDeleteAdministration: vi.fn(),
+		onEditAdministration: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -86,8 +87,8 @@ export const MissedWithDetails: Story = {
 export const AdjustedAndLinkedToRegimen: Story = {
 	args: {
 		med: sampleAdminAdjustedLinkedToRegimen,
-		onDeleteAdministration: fn(),
-		onEditAdministration: fn(),
+		onDeleteAdministration: vi.fn(),
+		onEditAdministration: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -137,7 +138,7 @@ export const LongMedicationNameAndDetails: Story = {
 				'Supercalifragilisticexpialidocious Compound RX Plus Ultra Mega Strength',
 			timestamp: now.toISOString(),
 		},
-		onDeleteAdministration: fn(),
-		onEditAdministration: fn(),
+		onDeleteAdministration: vi.fn(),
+		onEditAdministration: vi.fn(),
 	},
 };

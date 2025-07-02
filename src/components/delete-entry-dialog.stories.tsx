@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { vi } from 'vitest';
 import DeleteEntryDialog from './delete-entry-dialog';
 
 const meta: Meta<typeof DeleteEntryDialog> = {
@@ -22,8 +22,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
 	args: {
 		entry: 'sample-entry-id-123',
-		onClose: fn(),
-		onDelete: fn(),
+		onClose: vi.fn(),
+		onDelete: vi.fn(),
 	},
 };
 
@@ -31,7 +31,7 @@ export const WithLongEntryId: Story = {
 	args: {
 		entry:
 			'a-very-long-and-detailed-entry-identifier-that-might-overflow-or-wrap',
-		onClose: fn(),
-		onDelete: fn(),
+		onClose: vi.fn(),
+		onDelete: vi.fn(),
 	},
 };

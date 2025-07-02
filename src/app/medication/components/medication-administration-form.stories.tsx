@@ -1,12 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { userEvent, waitFor, within } from '@testing-library/react';
+import { waitFor, within } from '@testing-library/react';
+import { vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { MedicationAdministration } from '@/types/medication';
 import { MedicationRegimen } from '@/types/medication-regimen';
-import {
-	dateToDateInputValue,
-	dateToTimeInputValue,
-} from '@/utils/date-to-date-input-value';
+import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
+import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 import { MedicationAdministrationForm } from './medication-administration-form';
 
 const now = new Date();
@@ -92,8 +91,8 @@ export const AddMode: Story = {
 		allAdministrations: samplePastAdministrations,
 		initialData: undefined,
 		isOpen: true,
-		onClose: fn(),
-		onSubmit: fn(),
+		onClose: vi.fn(),
+		onSubmit: vi.fn(),
 		regimens: sampleRegimens,
 	},
 	play: async ({ args, canvasElement }) => {
@@ -201,8 +200,8 @@ export const EditMode: Story = {
 		allAdministrations: samplePastAdministrations,
 		initialData: samplePastAdministrations[0],
 		isOpen: true,
-		onClose: fn(),
-		onSubmit: fn(),
+		onClose: vi.fn(),
+		onSubmit: vi.fn(),
 		regimens: sampleRegimens,
 	},
 	play: async ({ args, canvasElement }) => {

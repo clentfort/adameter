@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { vi } from 'vitest';
 import DeleteIconButton from './delete';
 
 const meta: Meta<typeof DeleteIconButton> = {
@@ -19,13 +19,13 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
 	args: {
-		onClick: fn(),
+		onClick: vi.fn(),
 	},
 };
 
 export const WithTooltipVisible: Story = {
 	args: {
-		onClick: fn(),
+		onClick: vi.fn(),
 	},
 	parameters: {
 		docs: {

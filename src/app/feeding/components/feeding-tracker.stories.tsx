@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { userEvent, waitFor, within } from '@testing-library/react';
+import { waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
 import BreastfeedingTracker from './feeding-tracker';
@@ -11,7 +11,7 @@ let mockFeedingInProgressState: {
 	breast: 'left' | 'right';
 	startTime: string;
 } | null = null;
-const mockSetFeedingInProgress = fn((newState) => {
+const mockSetFeedingInProgress = vi.fn((newState) => {
 	mockFeedingInProgressState = newState;
 });
 
@@ -57,7 +57,7 @@ type Story = StoryObj<
 export const InitialScreenNextLeft: Story = {
 	args: {
 		nextBreast: 'left',
-		onSessionComplete: fn(),
+		onSessionComplete: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -81,7 +81,7 @@ export const InitialScreenNextLeft: Story = {
 export const InitialScreenNextRight: Story = {
 	args: {
 		nextBreast: 'right',
-		onSessionComplete: fn(),
+		onSessionComplete: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -99,7 +99,7 @@ export const InitialScreenNextRight: Story = {
 export const StartLeftFeeding: Story = {
 	args: {
 		nextBreast: 'left',
-		onSessionComplete: fn(),
+		onSessionComplete: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -120,7 +120,7 @@ export const StartLeftFeeding: Story = {
 export const FeedingInProgressView: Story = {
 	args: {
 		nextBreast: 'right',
-		onSessionComplete: fn(),
+		onSessionComplete: vi.fn(),
 		// @ts-ignore: Forcing initial state via args for story setup
 		initialFeedingState: {
 			breast: 'right',

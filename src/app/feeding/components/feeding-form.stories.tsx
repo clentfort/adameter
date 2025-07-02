@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { waitFor, within } from '@testing-library/react';
+import { vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
@@ -30,8 +30,8 @@ type Story = StoryObj<typeof FeedingForm>;
 
 export const AddModeDefaultLeft: Story = {
 	args: {
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Log New Feeding Session',
 	},
 	play: async ({ args, canvasElement }) => {
@@ -108,8 +108,8 @@ export const EditMode: Story = {
 			id: 'feeding-123',
 			startTime: yesterday.toISOString(),
 		},
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Edit Feeding Session',
 	},
 	play: async ({ args, canvasElement }) => {

@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 // import { FbtContext, IntlVariations } from 'fbt'; // Removed
@@ -21,7 +20,7 @@ vi.mock('@/hooks/use-last-used-diaper-brand');
 // 	translation: {},
 // };
 
-const mockAddDiaperChange = fn();
+const mockAddDiaperChange = vi.fn();
 const currentMockLastUsedBrand = DIAPER_BRANDS[0].value;
 
 const meta: Meta<typeof DiaperTracker> = {
@@ -40,8 +39,8 @@ const meta: Meta<typeof DiaperTracker> = {
 			// Configure the return values of the mocked hooks
 			(useDiaperChanges as import('vitest').Mock).mockReturnValue({
 				add: mockAddDiaperChange,
-				remove: fn(),
-				update: fn(),
+				remove: vi.fn(),
+				update: vi.fn(),
 				value: [],
 			});
 

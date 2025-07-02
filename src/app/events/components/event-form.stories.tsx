@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { waitFor, within } from '@testing-library/react';
+import { vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
@@ -41,8 +41,8 @@ type Story = StoryObj<typeof EventForm>;
 
 export const AddModePointEvent: Story = {
 	args: {
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Add New Point Event',
 	},
 	play: async ({ args, canvasElement }) => {
@@ -80,8 +80,8 @@ export const AddModePointEvent: Story = {
 
 export const AddModePeriodEvent: Story = {
 	args: {
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Add New Period Event',
 	},
 	play: async ({ args, canvasElement }) => {
@@ -146,8 +146,8 @@ export const EditModePointEvent: Story = {
 			title: 'Old Vaccination',
 			type: 'point',
 		},
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Edit Point Event',
 	},
 	play: async ({ args, canvasElement }) => {
@@ -187,8 +187,8 @@ export const EditModePeriodEventWithEndDateChange: Story = {
 			title: 'Initial Sickness',
 			type: 'period',
 		},
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Edit Period Event',
 	},
 	play: async ({ args, canvasElement }) => {
@@ -223,8 +223,8 @@ export const EditModePeriodEventWithEndDateChange: Story = {
 
 export const PeriodEventEndDateBeforeStartDateCorrection: Story = {
 	args: {
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Test End Date Correction',
 	},
 	play: async ({ args, canvasElement }) => {

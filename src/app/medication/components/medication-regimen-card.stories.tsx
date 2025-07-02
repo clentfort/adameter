@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { userEvent, within } from '@testing-library/react';
+import { within } from '@testing-library/react';
+import { vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import {
 	MedicationRegimen,
 	MedicationSchedule,
@@ -109,9 +110,9 @@ export const ActiveDailyCollapsed: Story = {
 		isExpanded: false,
 		isPast: false,
 		nextDueText: 'Today at 9:00 PM',
-		onDeleteRegimen: fn(),
-		onEditRegimen: fn(),
-		onToggleExpansion: fn(),
+		onDeleteRegimen: vi.fn(),
+		onEditRegimen: vi.fn(),
+		onToggleExpansion: vi.fn(),
 		regimen: sampleRegimens[0],
 	},
 };
@@ -133,9 +134,9 @@ export const ActiveIntervalWithEndDate: Story = {
 		isExpanded: false,
 		isPast: false,
 		nextDueText: 'Tomorrow at 3:00 AM',
-		onDeleteRegimen: fn(),
-		onEditRegimen: fn(),
-		onToggleExpansion: fn(),
+		onDeleteRegimen: vi.fn(),
+		onEditRegimen: vi.fn(),
+		onToggleExpansion: vi.fn(),
 		regimen: sampleRegimens[1],
 	},
 };
@@ -145,9 +146,9 @@ export const AsNeededExpanded: Story = {
 		isExpanded: true,
 		isPast: false,
 		nextDueText: 'As needed',
-		onDeleteRegimen: fn(),
-		onEditRegimen: fn(),
-		onToggleExpansion: fn(),
+		onDeleteRegimen: vi.fn(),
+		onEditRegimen: vi.fn(),
+		onToggleExpansion: vi.fn(),
 		regimen: sampleRegimens[3],
 	},
 	play: async ({ canvasElement }) => {
@@ -163,9 +164,9 @@ export const PastRegimenCollapsed: Story = {
 		isExpanded: false,
 		isPast: true,
 		regimen: sampleRegimens[4],
-		onDeleteRegimen: fn(),
-		onEditRegimen: fn(),
-		onToggleExpansion: fn(),
+		onDeleteRegimen: vi.fn(),
+		onEditRegimen: vi.fn(),
+		onToggleExpansion: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -179,9 +180,9 @@ export const PastDiscontinuedRegimenExpanded: Story = {
 	args: {
 		isExpanded: true,
 		isPast: true,
-		onDeleteRegimen: fn(),
-		onEditRegimen: fn(),
-		onToggleExpansion: fn(),
+		onDeleteRegimen: vi.fn(),
+		onEditRegimen: vi.fn(),
+		onToggleExpansion: vi.fn(),
 		regimen: sampleRegimens[5],
 	},
 	play: async ({ canvasElement }) => {

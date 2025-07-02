@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { userEvent, waitFor, within } from '@testing-library/react';
+import { waitFor, within } from '@testing-library/react';
+import { vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { FeedingSession } from '@/types/feeding';
 import HistoryList from './feeding-history-list';
 
@@ -59,40 +60,40 @@ type Story = StoryObj<typeof HistoryList>;
 
 export const Default: Story = {
 	args: {
-		onSessionDelete: fn(),
-		onSessionUpdate: fn(),
+		onSessionDelete: vi.fn(),
+		onSessionUpdate: vi.fn(),
 		sessions: [...sampleSessions],
 	},
 };
 
 export const Empty: Story = {
 	args: {
-		onSessionDelete: fn(),
-		onSessionUpdate: fn(),
+		onSessionDelete: vi.fn(),
+		onSessionUpdate: vi.fn(),
 		sessions: [],
 	},
 };
 
 export const SingleSessionLeft: Story = {
 	args: {
-		onSessionDelete: fn(),
-		onSessionUpdate: fn(),
+		onSessionDelete: vi.fn(),
+		onSessionUpdate: vi.fn(),
 		sessions: [sampleSessions[0]],
 	},
 };
 
 export const SingleSessionRight: Story = {
 	args: {
-		onSessionDelete: fn(),
-		onSessionUpdate: fn(),
+		onSessionDelete: vi.fn(),
+		onSessionUpdate: vi.fn(),
 		sessions: [sampleSessions[1]],
 	},
 };
 
 export const SessionCrossingMidnight: Story = {
 	args: {
-		onSessionDelete: fn(),
-		onSessionUpdate: fn(),
+		onSessionDelete: vi.fn(),
+		onSessionUpdate: vi.fn(),
 		sessions: [
 			createSession(
 				'midnight-crosser',
@@ -112,8 +113,8 @@ export const SessionCrossingMidnight: Story = {
 
 export const DeleteSessionInteraction: Story = {
 	args: {
-		onSessionDelete: fn(),
-		onSessionUpdate: fn(),
+		onSessionDelete: vi.fn(),
+		onSessionUpdate: vi.fn(),
 		sessions: [sampleSessions[0], sampleSessions[1]],
 	},
 	play: async ({ args, canvasElement }) => {
@@ -141,8 +142,8 @@ export const DeleteSessionInteraction: Story = {
 
 export const EditSessionInteraction: Story = {
 	args: {
-		onSessionDelete: fn(),
-		onSessionUpdate: fn(),
+		onSessionDelete: vi.fn(),
+		onSessionUpdate: vi.fn(),
 		sessions: [sampleSessions[0]],
 	},
 	play: async ({ args, canvasElement }) => {

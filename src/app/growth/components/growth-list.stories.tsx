@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { userEvent, waitFor, within } from '@testing-library/react';
+import { waitFor, within } from '@testing-library/react';
+import { vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { GrowthMeasurement } from '@/types/growth';
 import GrowthMeasurementsList from './growth-list';
 
@@ -60,16 +61,16 @@ type Story = StoryObj<typeof GrowthMeasurementsList>;
 export const Default: Story = {
 	args: {
 		measurements: [...sampleMeasurements],
-		onMeasurementDelete: fn(),
-		onMeasurementUpdate: fn(),
+		onMeasurementDelete: vi.fn(),
+		onMeasurementUpdate: vi.fn(),
 	},
 };
 
 export const Empty: Story = {
 	args: {
 		measurements: [],
-		onMeasurementDelete: fn(),
-		onMeasurementUpdate: fn(),
+		onMeasurementDelete: vi.fn(),
+		onMeasurementUpdate: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -82,16 +83,16 @@ export const Empty: Story = {
 export const SingleMeasurementAllFields: Story = {
 	args: {
 		measurements: [sampleMeasurements[0]],
-		onMeasurementDelete: fn(),
-		onMeasurementUpdate: fn(),
+		onMeasurementDelete: vi.fn(),
+		onMeasurementUpdate: vi.fn(),
 	},
 };
 
 export const SingleMeasurementPartialFields: Story = {
 	args: {
 		measurements: [sampleMeasurements[3]],
-		onMeasurementDelete: fn(),
-		onMeasurementUpdate: fn(),
+		onMeasurementDelete: vi.fn(),
+		onMeasurementUpdate: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -108,8 +109,8 @@ export const SingleMeasurementPartialFields: Story = {
 export const DeleteMeasurementInteraction: Story = {
 	args: {
 		measurements: [sampleMeasurements[0], sampleMeasurements[1]],
-		onMeasurementDelete: fn(),
-		onMeasurementUpdate: fn(),
+		onMeasurementDelete: vi.fn(),
+		onMeasurementUpdate: vi.fn(),
 	},
 	play: async ({ args, canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -139,8 +140,8 @@ export const DeleteMeasurementInteraction: Story = {
 export const EditMeasurementInteraction: Story = {
 	args: {
 		measurements: [sampleMeasurements[0]],
-		onMeasurementDelete: fn(),
-		onMeasurementUpdate: fn(),
+		onMeasurementDelete: vi.fn(),
+		onMeasurementUpdate: vi.fn(),
 	},
 	play: async ({ args, canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -187,8 +188,8 @@ export const CorrectSorting: Story = {
 			sampleMeasurements[0],
 			sampleMeasurements[1],
 		],
-		onMeasurementDelete: fn(),
-		onMeasurementUpdate: fn(),
+		onMeasurementDelete: vi.fn(),
+		onMeasurementUpdate: vi.fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);

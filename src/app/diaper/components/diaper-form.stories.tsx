@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { vi } from 'vitest';
 import { DIAPER_BRANDS } from '../utils/diaper-brands'; // Required for default props
 import DiaperForm from './diaper-form';
 
@@ -35,8 +35,8 @@ type Story = StoryObj<typeof DiaperForm>;
 
 export const AddMode: Story = {
 	args: {
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		presetDiaperBrand: DIAPER_BRANDS[0].value, // Default to first brand
 		presetType: 'urine',
 		reducedOptions: false,
@@ -72,8 +72,8 @@ export const EditMode: Story = {
 			temperature: 37.0,
 			timestamp: yesterday.toISOString(),
 		},
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Edit Diaper Change',
 		// reducedOptions, presetDiaperBrand, presetType are not used in EditMode
 	},

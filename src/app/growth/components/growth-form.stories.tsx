@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { userEvent, waitFor, within } from '@testing-library/react';
+import { waitFor, within } from '@testing-library/react';
+import { vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import MeasurementForm from './growth-form';
 
@@ -27,8 +28,8 @@ type Story = StoryObj<typeof MeasurementForm>;
 
 export const AddMode: Story = {
 	args: {
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Add New Growth Measurement',
 	},
 	play: async ({ args, canvasElement }) => {
@@ -108,8 +109,8 @@ export const EditMode: Story = {
 			notes: 'Initial measurement',
 			weight: 3100,
 		},
-		onClose: fn(),
-		onSave: fn(),
+		onClose: vi.fn(),
+		onSave: vi.fn(),
 		title: 'Edit Growth Measurement',
 	},
 	play: async ({ args, canvasElement }) => {

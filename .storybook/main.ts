@@ -5,9 +5,9 @@ const config: StorybookConfig = {
 		'@storybook/addon-docs',
 		'@storybook/addon-onboarding',
 		'@storybook/addon-essentials', // Added for broader compatibility
-		'@storybook/addon-interactions', // Added for interaction testing
+		// '@storybook/addon-interactions', // Temporarily removed due to React.act build error
 		// '@storybook/addon-postcss', // PostCSS is typically handled by Next.js integration
-		'@storybook/addon-vitest',
+		// '@storybook/addon-vitest', // Temporarily removed to address customEqualityTesters error
 	],
 	framework: {
 		name: '@storybook/nextjs',

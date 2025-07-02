@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { vi } from 'vitest';
 import { useEvents } from '@/hooks/use-events';
 import { Event } from '@/types/event';
@@ -48,12 +47,12 @@ const sampleEvents: Event[] = [
 
 // Mock return value for useEvents hook
 const mockUseEvents = (events: Event[]) => ({
-	add: fn((event: Event) => events.push(event)),
-	remove: fn((id: string) => {
+	add: vi.fn((event: Event) => events.push(event)),
+	remove: vi.fn((id: string) => {
 		const index = events.findIndex((e) => e.id === id);
 		if (index > -1) events.splice(index, 1);
 	}),
-	update: fn((updatedEvent: Event) => {
+	update: vi.fn((updatedEvent: Event) => {
 		const index = events.findIndex((e) => e.id === updatedEvent.id);
 		if (index > -1) events[index] = updatedEvent;
 	}),
