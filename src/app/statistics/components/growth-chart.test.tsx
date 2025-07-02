@@ -9,12 +9,12 @@ interface MockLineChartProps {
 	backgroundColor: string;
 	borderColor: string;
 	data: Array<{ x: Date; y: number }>;
-	datasetLabel: { toString: () => string } | string;
-	emptyStateMessage: { toString: () => string } | string;
+	datasetLabel: string;
+	emptyStateMessage: string;
 	events: Event[];
-	title: { toString: () => string } | string;
-	xAxisLabel: { toString: () => string } | string;
-	yAxisLabel: { toString: () => string } | string;
+	title: string;
+	xAxisLabel: string;
+	yAxisLabel: string;
 	yAxisUnit: string;
 }
 
@@ -23,12 +23,12 @@ vi.mock('@/components/charts/line-chart', () => ({
 	default: (props: MockLineChartProps) => {
 		mockLineChart(props);
 		const titleString =
-			typeof props.title === 'string' ? props.title : props.title.toString();
+			typeof props.title === 'string' ? props.title : (props.title as string).toString();
 		return (
 			<div data-testid={`mock-line-chart-${titleString.toLowerCase()}`}>
 				{props.title} Chart - Data Length: {props.data.length}
 				{props.emptyStateMessage && props.data.length === 0
-					? props.emptyStateMessage.toString()
+					? (props.emptyStateMessage as string).toString()
 					: null}
 			</div>
 		);
@@ -41,7 +41,6 @@ const mockMeasurements: GrowthMeasurement[] = [
 		headCircumference: 35,
 		height: 50,
 		id: '1',
-		notes: '',
 		weight: 3000,
 	},
 	{
@@ -63,10 +62,13 @@ const mockMeasurements: GrowthMeasurement[] = [
 const mockEvents: Event[] = [
 	{
 		id: 'e1',
-		name: 'First Smile',
-		notes: '',
-		timestamp: new Date('2024-01-10T00:00:00Z').toISOString(),
-		type: 'milestone',
+		// name: 'First Smile', // Removed name property
+		// notes: '', // Removed notes property
+		// timestamp: new Date('2024-01-10T00:00:00Z').toISOString(), // Removed timestamp property
+		type: 'milestone' as Event['type'],
+		title: 'First Smile', // Added title property
+		startDate: new Date('2024-01-10T00:00:00Z').toISOString(), // Added startDate property
+		color: '#000000', // Added color property
 	},
 ];
 
@@ -97,6 +99,7 @@ describe('GrowthChart', () => {
 			(call) => call[0].title.toString() === 'Weight',
 		);
 		expect(weightChartCall).toBeDefined();
+		if (!weightChartCall) return; // Type guard
 		expect(weightChartCall[0].data.length).toBe(3);
 		expect(weightChartCall[0].data[0].y).toBe(3000); // 2024-01-01
 		expect(weightChartCall[0].data[1].y).toBe(3200); // 2024-01-08
@@ -122,6 +125,7 @@ describe('GrowthChart', () => {
 			(call) => call[0].title.toString() === 'Height',
 		);
 		expect(heightChartCall).toBeDefined();
+		if (!heightChartCall) return; // Type guard
 		expect(heightChartCall[0].data.length).toBe(2);
 		expect(heightChartCall[0].data[0].y).toBe(50); // 2024-01-01
 		expect(heightChartCall[0].data[1].y).toBe(52); // 2024-01-15
@@ -141,6 +145,7 @@ describe('GrowthChart', () => {
 			(call) => call[0].title.toString() === 'Head Circumference',
 		);
 		expect(headChartCall).toBeDefined();
+		if (!headChartCall) return; // Type guard
 		expect(headChartCall[0].data.length).toBe(2);
 		expect(headChartCall[0].data[0].y).toBe(35); // 2024-01-01
 		expect(headChartCall[0].data[1].y).toBe(36); // 2024-01-08
@@ -167,6 +172,8 @@ describe('GrowthChart', () => {
 		const weightChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Weight',
 		);
+		expect(weightChartCall).toBeDefined();
+		if (!weightChartCall) return; // Type guard
 		expect(weightChartCall[0].data.length).toBe(0);
 		expect(
 			within(growthCard).getByTestId('mock-line-chart-weight'),
@@ -175,6 +182,8 @@ describe('GrowthChart', () => {
 		const heightChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Height',
 		);
+		expect(heightChartCall).toBeDefined();
+		if (!heightChartCall) return; // Type guard
 		expect(heightChartCall[0].data.length).toBe(0);
 		expect(
 			within(growthCard).getByTestId('mock-line-chart-height'),
@@ -183,6 +192,8 @@ describe('GrowthChart', () => {
 		const headChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Head Circumference',
 		);
+		expect(headChartCall).toBeDefined();
+		if (!headChartCall) return; // Type guard
 		expect(headChartCall[0].data.length).toBe(0);
 		expect(
 			within(growthCard).getByTestId('mock-line-chart-head circumference'),

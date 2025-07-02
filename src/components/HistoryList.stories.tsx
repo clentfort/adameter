@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import HistoryList from './history-list'; // Assuming HistoryList is exported as default
+import HistoryList, { ItemWithId } from './history-list'; // Assuming HistoryList is exported as default
 import { fn } from '@storybook/test';
 
 // Define a simple item type for the story
-interface MockEventItem {
-  id: string;
+interface MockEventItem extends ItemWithId {
   timestamp: string; // ISO string for date
   data: string;
 }
@@ -37,12 +36,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     entries: mockEvents,
-    dateAccessor: (entry: MockEventItem) => entry.timestamp,
-    children: (entry: MockEventItem) => (
+    dateAccessor: (entry) => (entry as MockEventItem).timestamp,
+    children: (entry) => (
       <div style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
         <div>ID: {entry.id}</div>
-        <div>Data: {entry.data}</div>
-        <div>Time: {new Date(entry.timestamp).toLocaleTimeString()}</div>
+        <div>Data: {(entry as MockEventItem).data}</div>
+        <div>Time: {new Date((entry as MockEventItem).timestamp).toLocaleTimeString()}</div>
       </div>
     ),
   },
@@ -51,9 +50,9 @@ export const Default: Story = {
 export const Empty: Story = {
   args: {
     entries: [],
-    dateAccessor: (entry: MockEventItem) => entry.timestamp,
-    children: (entry: MockEventItem) => (
-      <div>{entry.data}</div>
+    dateAccessor: (entry) => (entry as MockEventItem).timestamp,
+    children: (entry) => (
+      <div>{(entry as MockEventItem).data}</div>
     ),
   },
 };

@@ -2,16 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSnapshot } from 'valtio';
 import { feedingInProgress } from '@/data/feeding-in-progress';
 import { FeedingInProgress } from '@/types/feeding-in-progress';
-import { decrypt, encrypt } from '@/utils/crypto';
+import { decrypt, encrypt, Encrypted } from '@/utils/crypto'; // Added Encrypted import
 import { useEncryptionKey } from './use-encryption-key';
 
 export const useFeedingInProgress = () => {
-	const current = useSnapshot(feedingInProgress).current;
+	const current = useSnapshot(feedingInProgress).current as Encrypted<FeedingInProgress | null> | null;
 	const secret = useEncryptionKey();
 	const [decryptedCurrent, setDecryptedCurrent] =
 		useState<null | FeedingInProgress>(null);
 	useEffect(() => {
-		if (current === null) {
+		if (current === null || secret === undefined) {
 			setDecryptedCurrent(null);
 		} else {
 			setDecryptedCurrent(decrypt(current, secret));
@@ -19,8 +19,11 @@ export const useFeedingInProgress = () => {
 	}, [current, secret]);
 	const set = useCallback(
 		(nextFeedingInProgress: FeedingInProgress | null) => {
-			// @ts-ignore Fix this
-			feedingInProgress.current = encrypt(nextFeedingInProgress, secret);
+			if (nextFeedingInProgress === null || secret === undefined) {
+				feedingInProgress.current = null;
+			} else {
+				feedingInProgress.current = encrypt(nextFeedingInProgress, secret);
+			}
 			localStorage.setItem(
 				'feedingInProgress-backup',
 				JSON.stringify(nextFeedingInProgress),

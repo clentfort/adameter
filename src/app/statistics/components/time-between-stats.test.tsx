@@ -16,7 +16,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 600,
 		endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
 		id: '1',
-		notes: '',
 		startTime: new Date('2024-01-01T10:00:00Z').toISOString(), // Oldest
 	},
 	{
@@ -25,7 +24,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 900,
 		endTime: new Date('2024-01-01T12:15:00Z').toISOString(),
 		id: '2',
-		notes: '',
 		startTime: new Date('2024-01-01T12:00:00Z').toISOString(),
 	},
 	{
@@ -34,7 +32,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 300,
 		endTime: new Date('2024-01-01T15:05:00Z').toISOString(),
 		id: '3',
-		notes: '',
 		startTime: new Date('2024-01-01T15:00:00Z').toISOString(), // Newest
 	},
 ];

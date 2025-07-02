@@ -9,7 +9,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 600,
 		endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
 		id: '1',
-		notes: '',
 		startTime: new Date('2024-01-01T10:00:00Z').toISOString(), // Day 1
 	},
 	{
@@ -17,7 +16,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 900,
 		endTime: new Date('2024-01-01T14:15:00Z').toISOString(),
 		id: '2',
-		notes: '',
 		startTime: new Date('2024-01-01T14:00:00Z').toISOString(), // Day 1
 	},
 	{
@@ -25,7 +23,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 300,
 		endTime: new Date('2024-01-02T08:05:00Z').toISOString(),
 		id: '3',
-		notes: '',
 		startTime: new Date('2024-01-02T08:00:00Z').toISOString(), // Day 2
 	},
 	{
@@ -33,7 +30,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 600,
 		endTime: new Date('2024-01-03T12:10:00Z').toISOString(),
 		id: '4',
-		notes: '',
 		startTime: new Date('2024-01-03T12:00:00Z').toISOString(), // Day 3
 	},
 	{
@@ -41,7 +37,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 300,
 		endTime: new Date('2024-01-03T18:05:00Z').toISOString(),
 		id: '5',
-		notes: '',
 		startTime: new Date('2024-01-03T18:00:00Z').toISOString(), // Day 3
 	},
 ]; // 5 sessions over 3 days. Day1: 2, Day2: 1, Day3: 2. Total 5. Avg = 5/3 = 1.666... -> 1.7
@@ -66,7 +61,6 @@ describe('FeedingsPerDayStats', () => {
 				durationInSeconds: 600,
 				endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
 				id: '1',
-				notes: '',
 				startTime: new Date('2024-01-01T10:00:00Z').toISOString(),
 			},
 			{
@@ -74,7 +68,6 @@ describe('FeedingsPerDayStats', () => {
 				durationInSeconds: 900,
 				endTime: new Date('2024-01-01T14:15:00Z').toISOString(),
 				id: '2',
-				notes: '',
 				startTime: new Date('2024-01-01T14:00:00Z').toISOString(),
 			},
 		]; // 2 sessions / 1 day
@@ -89,7 +82,6 @@ describe('FeedingsPerDayStats', () => {
 				durationInSeconds: 600,
 				endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
 				id: '1',
-				notes: '',
 				startTime: new Date('2024-01-01T10:00:00Z').toISOString(),
 			},
 		]; // 1 session / 1 day

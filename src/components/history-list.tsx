@@ -3,7 +3,7 @@ import React, { Fragment } from 'react';
 // No longer import Event directly, T will be generic
 import { useSortedEvents } from '@/hooks/use-sorted-events';
 
-interface ItemWithId {
+export interface ItemWithId {
 	id: string;
 }
 

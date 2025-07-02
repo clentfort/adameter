@@ -13,7 +13,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 600,
 		endTime: new Date('2024-01-01T10:10:00Z').toISOString(), // 10 mins = 600s
 		id: '1',
-		notes: '',
 		startTime: new Date('2024-01-01T10:00:00Z').toISOString(),
 	},
 	{
@@ -21,7 +20,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 900,
 		endTime: new Date('2024-01-01T14:15:00Z').toISOString(), // 15 mins = 900s
 		id: '2',
-		notes: '',
 		startTime: new Date('2024-01-01T14:00:00Z').toISOString(),
 	},
 	{
@@ -29,7 +27,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 300,
 		endTime: new Date('2024-01-02T08:05:00Z').toISOString(), // 5 mins = 300s
 		id: '3',
-		notes: '',
 		startTime: new Date('2024-01-02T08:00:00Z').toISOString(),
 	},
 ];
@@ -76,7 +73,6 @@ describe('DurationStats', () => {
 				durationInSeconds: 600,
 				endTime: new Date().toISOString(),
 				id: '1',
-				notes: '',
 				startTime: new Date().toISOString(),
 			},
 			{
@@ -84,7 +80,6 @@ describe('DurationStats', () => {
 				durationInSeconds: 300,
 				endTime: new Date().toISOString(),
 				id: '2',
-				notes: '',
 				startTime: new Date().toISOString(),
 			},
 		];
@@ -113,7 +108,6 @@ describe('DurationStats', () => {
 				durationInSeconds: 0,
 				endTime: new Date().toISOString(),
 				id: '1',
-				notes: '',
 				startTime: new Date().toISOString(),
 			},
 			{
@@ -121,7 +115,6 @@ describe('DurationStats', () => {
 				durationInSeconds: 0,
 				endTime: new Date().toISOString(),
 				id: '2',
-				notes: '',
 				startTime: new Date().toISOString(),
 			},
 		];

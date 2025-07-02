@@ -35,7 +35,7 @@ describe('LineChart', () => {
       // However, our Chart constructor is already mocked, so it *shouldn't* use the context.
     } as unknown as CanvasRenderingContext2D;
 
-    HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCanvasContext);
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCanvasContext as any);
   });
 
   afterEach(() => {

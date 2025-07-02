@@ -280,5 +280,11 @@ files you have modified** for the current task:
 
     Address any build errors that arise.
 
+5.  **Run TypeScript Checker**: Ensure there are no TypeScript errors.
+    ```bash
+    pnpm exec tsc --noEmit
+    ```
+    Address any TypeScript errors that arise.
+
 By following these guidelines, you'll help maintain the quality, consistency,
 and stability of the AdaMeter project.
