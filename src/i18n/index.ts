@@ -29,6 +29,7 @@ let viewerContext: ViewerContext = {
 };
 
 setupFbtee({
+	// @ts-expect-error Call signature return types 'ViewerContext' and '{ GENDER: IntlVariations; locale: string; }' are incompatible.
 	hooks: { getViewerContext: () => viewerContext },
 	translations,
 });

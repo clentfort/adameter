@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, MockedFunction } from 'vitest';
 import { FeedingSession } from '@/types/feeding';
 import { useFeedingSessions } from './use-feeding-sessions';
 import { useLatestFeedingSession } from './use-latest-feeding-session';
@@ -9,8 +9,7 @@ vi.mock('./use-feeding-sessions', () => ({
 	useFeedingSessions: vi.fn(),
 }));
 
-// @ts-expect-error Cannot find namespace 'vi'.
-const mockUseFeedingSessions = useFeedingSessions as vi.MockedFunction<
+const mockUseFeedingSessions = useFeedingSessions as MockedFunction<
 	typeof useFeedingSessions
 >;
 
