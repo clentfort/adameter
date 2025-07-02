@@ -1,23 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-// import { FbtContext, IntlVariations } from 'fbt'; // Removed
-import DeleteIconButton from './delete'; // Assuming the component is exported as default from './delete'
+import DeleteIconButton from './delete';
 
 const meta: Meta<typeof DeleteIconButton> = {
 	argTypes: {
 		onClick: { action: 'clicked' },
 	},
 	component: DeleteIconButton,
-	// decorators: [ // Removed
-	// 	(Story) => (
-	// 		// Mock FbtContext if your component uses fbt for internationalization
-	// 		<FbtContext.Provider
-	// 			value={{ IntlVariations, locale: 'en_US', translation: {} }}
-	// 		>
-	// 			<Story />
-	// 		</FbtContext.Provider>
-	// 	),
-	// ],
 	parameters: {
 		layout: 'centered',
 	},
@@ -38,10 +27,6 @@ export const WithTooltipVisible: Story = {
 	args: {
 		onClick: fn(),
 	},
-	// This story is more of a conceptual reminder.
-	// Actual tooltip visibility testing would require interaction tests (e.g., using `play` function)
-	// and potentially specific Storybook addons or configurations if the tooltip is complex (e.g., portal-based).
-	// For a simple sr-only span, it won't be visually different in Storybook's canvas by default.
 	parameters: {
 		docs: {
 			description: {

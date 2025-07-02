@@ -24,11 +24,6 @@ vi.mock('@/hooks/use-last-used-diaper-brand');
 const mockAddDiaperChange = fn();
 const currentMockLastUsedBrand = DIAPER_BRANDS[0].value;
 
-// Store spies globally to ensure they are reset correctly
-// No longer needed with jest.mock
-// let useDiaperChangesSpy: jest.SpyInstance;
-// let useLastUsedDiaperBrandSpy: jest.SpyInstance;
-
 const meta: Meta<typeof DiaperTracker> = {
 	argTypes: {
 		// @ts-ignore : Storybook specific arg for controlling the mock
