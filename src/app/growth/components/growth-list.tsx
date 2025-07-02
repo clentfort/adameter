@@ -115,7 +115,7 @@ export default function GrowthMeasurementsList({
 			)}
 			{measurementToEdit && (
 				<EditGrowthForm
-					title="Edit Measurement"
+					title="Edit Growth Measurement"
 					measurement={measurementToEdit}
 					onClose={() => setMeasurementToEdit(null)}
 					onSave={onMeasurementUpdate}

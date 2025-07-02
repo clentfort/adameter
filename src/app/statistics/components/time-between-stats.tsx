@@ -40,11 +40,11 @@ export default function TimeBetweenStats({
 
 	return (
 		<StatsCard
-			title={(
+			title={
 				<fbt desc="Title for the average time between feedings statistics card">
 					Time Between Feedings
 				</fbt>
-			).toString()}
+			}
 		>
 			<div className="text-2xl font-bold">
 				{formatDurationAbbreviated(avgTime)}

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface StatsCardProps {
 	children: React.ReactNode;
-	title: string;
+	title: React.ReactNode;
 }
 
 export default function StatsCard({ children, title }: StatsCardProps) {

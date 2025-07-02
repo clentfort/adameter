@@ -31,11 +31,11 @@ export default function FeedingsPerDayStats({
 
 	return (
 		<StatsCard
-			title={(
+			title={
 				<fbt desc="Title for the average number of feedings per day statistics card">
 					Feedings Per Day
 				</fbt>
-			).toString()}
+			}
 		>
 			<div className="text-2xl font-bold">{avgFeedingsPerDay.toFixed(1)}</div>
 		</StatsCard>
