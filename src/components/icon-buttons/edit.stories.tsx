@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+// import { action } from '@storybook/addon-actions'; // Removed
 import EditIconButton from './edit';
 
 const meta: Meta<typeof EditIconButton> = {
@@ -19,13 +19,13 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
 	args: {
-		onClick: fn(),
+		onClick: () => {},
 	},
 };
 
 export const WithTooltipVisible: Story = {
 	args: {
-		onClick: fn(),
+		onClick: () => {},
 	},
 	parameters: {
 		docs: {

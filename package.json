@@ -79,13 +79,11 @@
 		"@nkzw/eslint-config": "^3.0.0",
 		"@nkzw/eslint-plugin-fbtee": "^0.3.0",
 		"@storybook/addon-docs": "^9.0.15",
-		"@storybook/addon-onboarding": "^9.0.15",
-		"@storybook/addon-vitest": "^9.0.15",
 		"@storybook/nextjs": "^9.0.15",
 		"@storybook/react": "^9.0.15",
-		"@storybook/test": "9.0.0-alpha.2",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/react": "^16.3.0",
+		"@testing-library/user-event": "^14.5.2",
 		"@types/crypto-js": "^4.2.2",
 		"@types/node": "^22",
 		"@types/react": "^19",
@@ -106,7 +104,6 @@
 		"typescript": "^5",
 		"typescript-eslint": "^8.29.1",
 		"vite-tsconfig-paths": "^5.1.4",
-		"vitest": "^3.1.1",
-		"@testing-library/user-event": "^14.5.2"
+		"vitest": "^3.1.1"
 	}
 }

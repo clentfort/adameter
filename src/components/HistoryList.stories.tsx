@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import HistoryList, { ItemWithId } from './history-list'; // Assuming HistoryList is exported as default
-import { fn } from '@storybook/test';
 
 // Define a simple item type for the story
 interface MockEventItem extends ItemWithId {

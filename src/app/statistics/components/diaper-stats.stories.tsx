@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { userEvent, within } from '@testing-library/react';
+import { within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { DiaperChange } from '@/types/diaper';
 import DiaperStats from './diaper-stats';
 
