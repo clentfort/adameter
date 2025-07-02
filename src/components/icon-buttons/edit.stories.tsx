@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { IntlVariations } from 'fbt'; // Assuming IntlVariations is available
-import { FbtContext } from 'fbt-react'; // Assuming FbtContext is available
+import { FbtContext, IntlVariations } from 'fbt'; // Corrected: FbtContext from 'fbt'
 import EditIconButton from './edit'; // Assuming the component is exported as default from './edit'
 
 const meta: Meta<typeof EditIconButton> = {
