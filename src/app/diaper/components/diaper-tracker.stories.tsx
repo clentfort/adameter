@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FbtContext, IntlVariations } from 'fbt';
+// import { FbtContext, IntlVariations } from 'fbt'; // Removed
 // import { expect } from '@storybook/jest'; // Removed
 import { vi } from 'vitest';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
@@ -14,12 +14,12 @@ import DiaperTracker from './diaper-tracker';
 vi.mock('@/hooks/use-diaper-changes');
 vi.mock('@/hooks/use-last-used-diaper-brand');
 
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
+// Mock FbtContext for Storybook - REMOVED
+// const fbtContextValue = {
+// 	IntlVariations,
+// 	locale: 'en_US',
+// 	translation: {},
+// };
 
 const mockAddDiaperChange = fn();
 const currentMockLastUsedBrand = DIAPER_BRANDS[0].value;
@@ -54,11 +54,8 @@ const meta: Meta<typeof DiaperTracker> = {
 				context.args.mockedLastBrand || currentMockLastUsedBrand,
 			);
 
-			return (
-				<FbtContext.Provider value={fbtContextValue}>
-					<Story />
-				</FbtContext.Provider>
-			);
+			// Removed FBT Context Provider
+			return <Story />;
 		},
 	],
 	parameters: {

@@ -1,17 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { expect } from '@storybook/jest'; // Removed
 import { fn } from '@storybook/test';
-import { userEvent, waitFor, within } from '@testing-library/react'; // Corrected
-import { FbtContext, IntlVariations } from 'fbt';
+import { userEvent, waitFor, within } from '@testing-library/react';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
-import MeasurementForm from './growth-form'; // Assuming default export
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
+import MeasurementForm from './growth-form';
 
 const now = new Date();
 const yesterday = new Date(now);
@@ -22,16 +13,8 @@ const meta: Meta<typeof MeasurementForm> = {
 		onClose: { action: 'closed' },
 		onSave: { action: 'saved' },
 		title: { control: 'text' },
-		// 'measurement' prop for EditMode is complex, handled by specific stories
 	},
 	component: MeasurementForm,
-	decorators: [
-		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<Story />
-			</FbtContext.Provider>
-		),
-	],
 	parameters: {
 		layout: 'centered',
 	},
@@ -144,7 +127,6 @@ export const EditMode: Story = {
 			'Initial measurement',
 		);
 
-		// Update values
 		const weightInput = within(dialog).getByLabelText(/weight \(g\)/i);
 		await userEvent.clear(weightInput);
 		await userEvent.type(weightInput, '3150');
@@ -159,7 +141,7 @@ export const EditMode: Story = {
 		await waitFor(() => expect(args.onSave).toHaveBeenCalledTimes(1));
 		expect(args.onSave).toHaveBeenCalledWith(
 			expect.objectContaining({
-				height: 49.0, // Unchanged
+				height: 49.0,
 				id: 'growth-123',
 				notes: 'Follow-up measurement, slight increase.',
 				weight: 3150,
@@ -175,12 +157,10 @@ export const ValidationNoMeasurementEntered: Story = {
 	},
 	play: async ({ args, canvasElement }) => {
 		const dialog = within(document.body).getByRole('dialog');
-		// Clear any default/pre-filled values if necessary, though inputs should be empty for AddMode
 
 		const saveButton = within(dialog).getByRole('button', { name: /save/i });
 		await userEvent.click(saveButton);
 
-		// Check for error message
 		const errorMessage = await within(dialog).findByText(
 			/please enter at least a weight, height, or head circumference./i,
 		);
@@ -197,14 +177,12 @@ export const ValidationPartialEntryThenSave: Story = {
 	play: async ({ args, canvasElement }) => {
 		const dialog = within(document.body).getByRole('dialog');
 
-		// Enter only height
 		const heightInput = within(dialog).getByLabelText(/height \(cm\)/i);
 		await userEvent.type(heightInput, '51.2');
 
 		const saveButton = within(dialog).getByRole('button', { name: /save/i });
 		await userEvent.click(saveButton);
 
-		// Error message should not appear
 		await waitFor(() => {
 			expect(
 				within(dialog).queryByText(

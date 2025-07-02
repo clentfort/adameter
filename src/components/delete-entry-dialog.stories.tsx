@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { FbtContext, IntlVariations } from 'fbt'; // Corrected: FbtContext also from 'fbt'
 import DeleteEntryDialog from './delete-entry-dialog';
 
 const meta: Meta<typeof DeleteEntryDialog> = {
@@ -10,15 +9,6 @@ const meta: Meta<typeof DeleteEntryDialog> = {
 		onDelete: { action: 'deleted' },
 	},
 	component: DeleteEntryDialog,
-	decorators: [
-		(Story) => (
-			<FbtContext.Provider
-				value={{ IntlVariations, locale: 'en_US', translation: {} }}
-			>
-				<Story />
-			</FbtContext.Provider>
-		),
-	],
 	parameters: {
 		layout: 'centered',
 	},
@@ -45,26 +35,3 @@ export const WithLongEntryId: Story = {
 		onDelete: fn(),
 	},
 };
-
-// To properly test the dialog interactions, you would typically use Storybook's `play` function
-// and testing library utilities. However, since this component relies on `fbt` and AlertDialog's
-// own open/close state management which can be tricky in isolation without the full app context
-// or more complex mocking, we'll keep these stories focused on rendering with different props.
-
-// Example of how one might test interaction if environment allows:
-// import { userEvent, within } from '@storybook/testing-library';
-// Default.play = async ({ canvasElement, args }) => {
-//   const canvas = within(canvasElement);
-//   // Storybook's test runner might not fully support AlertDialog's portal nature well
-//   // Need to get the dialog content, which might be in a portal
-//   const dialogContent = within(document.body).getByRole('alertdialog');
-//
-//   const cancelButton = within(dialogContent).getByRole('button', { name: /Cancel/i });
-//   await userEvent.click(cancelButton);
-//   // expect(args.onClose).toHaveBeenCalled();
-//
-//   // Re-open or re-render might be needed for subsequent interactions in a real test
-//   const deleteButton = within(dialogContent).getByRole('button', { name: /Delete/i });
-//   await userEvent.click(deleteButton);
-//   // expect(args.onDelete).toHaveBeenCalledWith(args.entry);
-// };

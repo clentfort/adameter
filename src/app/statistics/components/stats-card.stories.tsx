@@ -1,31 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { within } from '@testing-library/react';
-// import { expect } from '@storybook/jest'; // Removed
-import { FbtContext, IntlVariations } from 'fbt'; // Assuming fbt might be used in title prop
 import StatsCard from './stats-card';
-
-// Mock FbtContext for Storybook (in case title is an fbt string)
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
 
 const meta: Meta<typeof StatsCard> = {
 	argTypes: {
-		children: { control: 'object' }, // Or 'text' if simple string children
+		children: { control: 'object' },
 		title: { control: 'text' },
 	},
 	component: StatsCard,
 	decorators: [
 		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<div style={{ width: '250px' }}>
-					{' '}
-					{/* Give card some reasonable width */}
-					<Story />
-				</div>
-			</FbtContext.Provider>
+			<div style={{ width: '250px' }}>
+				<Story />
+			</div>
 		),
 	],
 	parameters: {
@@ -86,26 +73,17 @@ export const WithLongTitle: Story = {
 
 export const NoChildren: Story = {
 	args: {
-		children: null, // Or undefined
+		children: null,
 		title: 'Awaiting Data',
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		await expect(canvas.getByText('Awaiting Data')).toBeInTheDocument();
-		// Check that CardContent is empty or doesn't contain unexpected elements
 		const cardContent = canvas
 			.getByText('Awaiting Data')
 			.closest('div')?.nextElementSibling;
 		if (cardContent) {
-			expect(cardContent.childElementCount).toBe(0); // Or check for specific placeholder if any
+			expect(cardContent.childElementCount).toBe(0);
 		}
 	},
 };
-
-// Example with fbt in title, assuming fbt is set up
-// export const WithFbtTitle: Story = {
-//   args: {
-//     title: <fbt desc="A sample fbt title for stats card">FBT Title Example</fbt>,
-//     children: <p>Content</p>,
-//   },
-// };

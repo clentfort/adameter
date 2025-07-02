@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { FbtContext, IntlVariations } from 'fbt'; // Corrected: FbtContext from 'fbt'
+// import { FbtContext, IntlVariations } from 'fbt'; // Removed
 import DeleteIconButton from './delete'; // Assuming the component is exported as default from './delete'
 
 const meta: Meta<typeof DeleteIconButton> = {
@@ -8,16 +8,16 @@ const meta: Meta<typeof DeleteIconButton> = {
 		onClick: { action: 'clicked' },
 	},
 	component: DeleteIconButton,
-	decorators: [
-		(Story) => (
-			// Mock FbtContext if your component uses fbt for internationalization
-			<FbtContext.Provider
-				value={{ IntlVariations, locale: 'en_US', translation: {} }}
-			>
-				<Story />
-			</FbtContext.Provider>
-		),
-	],
+	// decorators: [ // Removed
+	// 	(Story) => (
+	// 		// Mock FbtContext if your component uses fbt for internationalization
+	// 		<FbtContext.Provider
+	// 			value={{ IntlVariations, locale: 'en_US', translation: {} }}
+	// 		>
+	// 			<Story />
+	// 		</FbtContext.Provider>
+	// 	),
+	// ],
 	parameters: {
 		layout: 'centered',
 	},

@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Download translations
+        run: ./scripts/download-translations.sh
+
       - name: Build Storybook
         run: pnpm run build-storybook
 

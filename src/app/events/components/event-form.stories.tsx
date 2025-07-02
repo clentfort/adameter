@@ -1,19 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { expect } from '@storybook/jest'; // Removed
 import { fn } from '@storybook/test';
 import { waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FbtContext, IntlVariations } from 'fbt';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 import EventForm from './event-form';
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
 
 const now = new Date();
 const tomorrow = new Date(now);
@@ -38,13 +29,6 @@ const meta: Meta<typeof EventForm> = {
 		// 'event' prop for EditMode is complex, handled by specific stories
 	},
 	component: EventForm,
-	decorators: [
-		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<Story />
-			</FbtContext.Provider>
-		),
-	],
 	parameters: {
 		layout: 'centered',
 	},

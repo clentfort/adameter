@@ -1,17 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { expect } from '@storybook/jest'; // Removed
 import { fn } from '@storybook/test';
-import { userEvent, waitFor, within } from '@testing-library/react'; // Corrected
-import { FbtContext, IntlVariations } from 'fbt';
+import { userEvent, waitFor, within } from '@testing-library/react';
 import { FeedingSession } from '@/types/feeding';
-import HistoryList from './feeding-history-list'; // Renamed to avoid conflict with internal HistoryList
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
+import HistoryList from './feeding-history-list';
 
 const now = new Date();
 const time = (offsetHours: number, offsetMinutes: number = 0): Date => {
@@ -42,11 +33,11 @@ const createSession = (
 };
 
 const sampleSessions: FeedingSession[] = [
-	createSession('s1', 'left', time(0, 30), 15), // 30 mins ago, 15 min duration
-	createSession('s2', 'right', time(1, 0), 20), // 1 hour ago, 20 min
-	createSession('s3', 'left', time(2, 15), 10), // 2h 15m ago, 10 min
-	createSession('s4', 'right', time(23, 50), 25), // Yesterday ~23:50, 25 min (likely crosses midnight)
-	createSession('s5', 'left', time(48, 0), 18), // Two days ago, 18 min
+	createSession('s1', 'left', time(0, 30), 15),
+	createSession('s2', 'right', time(1, 0), 20),
+	createSession('s3', 'left', time(2, 15), 10),
+	createSession('s4', 'right', time(23, 50), 25),
+	createSession('s5', 'left', time(48, 0), 18),
 ];
 
 const meta: Meta<typeof HistoryList> = {
@@ -56,13 +47,6 @@ const meta: Meta<typeof HistoryList> = {
 		sessions: { control: 'object' },
 	},
 	component: HistoryList,
-	decorators: [
-		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<Story />
-			</FbtContext.Provider>
-		),
-	],
 	parameters: {
 		layout: 'padded',
 	},
@@ -77,7 +61,7 @@ export const Default: Story = {
 	args: {
 		onSessionDelete: fn(),
 		onSessionUpdate: fn(),
-		sessions: [...sampleSessions], // Pass a copy
+		sessions: [...sampleSessions],
 	},
 };
 
@@ -87,9 +71,6 @@ export const Empty: Story = {
 		onSessionUpdate: fn(),
 		sessions: [],
 	},
-	// HistoryListInternal renders the empty message, not this component directly.
-	// So, we'd need to check for the absence of list items or a message from HistoryListInternal if it bubbles up.
-	// For now, this story just shows it with no sessions.
 };
 
 export const SingleSessionLeft: Story = {
@@ -119,7 +100,7 @@ export const SessionCrossingMidnight: Story = {
 				new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 50),
 				30,
 			),
-		], // Starts 23:50 yesterday, ends today 00:20
+		],
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -139,10 +120,8 @@ export const DeleteSessionInteraction: Story = {
 		const canvas = within(canvasElement);
 		const sessionToDelete = args.sessions![0];
 
-		// Find the delete button for the first session.
-		// This relies on the order and structure; more robust selectors might be needed for complex lists.
 		const allDeleteButtons = canvas.getAllByRole('button', { name: /delete/i });
-		await userEvent.click(allDeleteButtons[0]); // Assuming first delete button corresponds to first session in display order
+		await userEvent.click(allDeleteButtons[0]);
 
 		const dialog = await waitFor(() =>
 			within(document.body).getByRole('alertdialog'),
@@ -180,10 +159,9 @@ export const EditSessionInteraction: Story = {
 		);
 		await expect(dialog).toBeVisible();
 
-		// Example: Change duration in the form
 		const durationInput = within(dialog).getByLabelText(/minutes/i);
 		await userEvent.clear(durationInput);
-		await userEvent.type(durationInput, '25'); // New duration
+		await userEvent.type(durationInput, '25');
 
 		const saveButton = within(dialog).getByRole('button', { name: /save/i });
 		await userEvent.click(saveButton);
@@ -198,7 +176,3 @@ export const EditSessionInteraction: Story = {
 		);
 	},
 };
-
-// Note: HistoryListInternal groups by date. For more complex visual assertions
-// about grouping, ensure your sampleSessions cover different dates.
-// The current sample sessions are mostly on the same day or consecutive days.

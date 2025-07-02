@@ -1,15 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { FbtContext, IntlVariations } from 'fbt'; // Assuming these are the correct imports for Fbt
 import { DIAPER_BRANDS } from '../utils/diaper-brands'; // Required for default props
 import DiaperForm from './diaper-form';
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
 
 const now = new Date();
 const yesterday = new Date(now);
@@ -31,13 +23,6 @@ const meta: Meta<typeof DiaperForm> = {
 		// 'change' prop is complex and better handled by distinct stories for Add vs Edit modes
 	},
 	component: DiaperForm,
-	decorators: [
-		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<Story />
-			</FbtContext.Provider>
-		),
-	],
 	parameters: {
 		layout: 'centered',
 	},

@@ -1,20 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { expect } from '@storybook/jest'; // Removed
 import { fn } from '@storybook/test';
 import { userEvent, within } from '@testing-library/react';
-import { FbtContext, IntlVariations } from 'fbt';
 import {
 	MedicationRegimen,
 	MedicationSchedule,
 } from '@/types/medication-regimen';
 import { MedicationRegimenCard } from './medication-regimen-card';
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
 
 const today = new Date();
 const yesterday = new Date(today);
@@ -98,11 +89,9 @@ const meta: Meta<typeof MedicationRegimenCard> = {
 	component: MedicationRegimenCard,
 	decorators: [
 		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<div style={{ margin: 'auto', maxWidth: '600px' }}>
-					<Story />
-				</div>
-			</FbtContext.Provider>
+			<div style={{ margin: 'auto', maxWidth: '600px' }}>
+				<Story />
+			</div>
 		),
 	],
 	parameters: {
@@ -155,7 +144,7 @@ export const AsNeededExpanded: Story = {
 	args: {
 		isExpanded: true,
 		isPast: false,
-		nextDueText: 'As needed', // Or could be empty for PRN
+		nextDueText: 'As needed',
 		onDeleteRegimen: fn(),
 		onEditRegimen: fn(),
 		onToggleExpansion: fn(),
@@ -174,15 +163,14 @@ export const PastRegimenCollapsed: Story = {
 		isExpanded: false,
 		isPast: true,
 		regimen: sampleRegimens[4],
-		// nextDueText is not applicable for past regimens
 		onDeleteRegimen: fn(),
 		onEditRegimen: fn(),
 		onToggleExpansion: fn(),
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await expect(canvas.getByText(/january 1, 2023/i)).toBeInTheDocument(); // Start Date
-		await expect(canvas.getByText(/february 1, 2023/i)).toBeInTheDocument(); // End Date
+		await expect(canvas.getByText(/january 1, 2023/i)).toBeInTheDocument();
+		await expect(canvas.getByText(/february 1, 2023/i)).toBeInTheDocument();
 		await expect(canvas.queryByText(/next due:/i)).not.toBeInTheDocument();
 	},
 };
@@ -199,7 +187,7 @@ export const PastDiscontinuedRegimenExpanded: Story = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		await expect(canvas.getByText(/discontinued/i)).toBeInTheDocument();
-		await expect(canvas.getByText(/schedule:/i)).toBeInTheDocument(); // Check expanded content
+		await expect(canvas.getByText(/schedule:/i)).toBeInTheDocument();
 	},
 };
 
@@ -212,8 +200,6 @@ export const ToggleExpansionButton: Story = {
 		const toggleButton = canvas.getByRole('button', { name: /show more/i });
 		await userEvent.click(toggleButton);
 		await expect(args.onToggleExpansion).toHaveBeenCalledTimes(1);
-		// In a real app, this would re-render with isExpanded=true. Storybook controls this via args.
-		// To test visual change, you'd need a stateful wrapper or Storybook interactions addon.
 	},
 };
 
@@ -221,7 +207,7 @@ export const ClickEditButton: Story = {
 	args: { ...ActiveDailyCollapsed.args },
 	play: async ({ args, canvasElement }) => {
 		const canvas = within(canvasElement);
-		const editButton = canvas.getAllByRole('button', { name: /edit/i })[0]; // Card might have multiple "Edit" if details are also editable
+		const editButton = canvas.getAllByRole('button', { name: /edit/i })[0];
 		await userEvent.click(editButton);
 		await expect(args.onEditRegimen).toHaveBeenCalledWith(args.regimen.id);
 	},

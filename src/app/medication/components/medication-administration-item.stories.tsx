@@ -1,17 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { expect } from '@storybook/jest'; // Removed
 import { fn } from '@storybook/test';
 import { userEvent, within } from '@testing-library/react';
-import { FbtContext, IntlVariations } from 'fbt';
 import { MedicationAdministration } from '@/types/medication';
 import { MedicationAdministrationItem } from './medication-administration-item';
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
 
 const now = new Date();
 const anHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
@@ -55,13 +46,9 @@ const meta: Meta<typeof MedicationAdministrationItem> = {
 	component: MedicationAdministrationItem,
 	decorators: [
 		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<div style={{ margin: 'auto', maxWidth: '500px' }}>
-					{' '}
-					{/* Constrain width for better display of Card */}
-					<Story />
-				</div>
-			</FbtContext.Provider>
+			<div style={{ margin: 'auto', maxWidth: '500px' }}>
+				<Story />
+			</div>
 		),
 	],
 	parameters: {
@@ -115,7 +102,7 @@ export const AdjustedAndLinkedToRegimen: Story = {
 
 export const ClickEditButton: Story = {
 	args: {
-		...OnTime.args, // Reuse args from OnTime story
+		...OnTime.args,
 	},
 	play: async ({ args, canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -127,7 +114,7 @@ export const ClickEditButton: Story = {
 
 export const ClickDeleteButton: Story = {
 	args: {
-		...MissedWithDetails.args, // Reuse args
+		...MissedWithDetails.args,
 	},
 	play: async ({ args, canvasElement }) => {
 		const canvas = within(canvasElement);

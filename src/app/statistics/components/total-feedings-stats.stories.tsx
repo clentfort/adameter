@@ -1,16 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { within } from '@testing-library/react';
-// import { expect } from '@storybook/jest'; // Removed
-import { FbtContext, IntlVariations } from 'fbt';
 import { FeedingSession } from '@/types/feeding';
 import TotalFeedingsStats from './total-feedings-stats';
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
 
 const createSession = (
 	id: string,
@@ -30,7 +21,7 @@ const sampleSessions: FeedingSession[] = [
 	createSession('s1', 'left'),
 	createSession('s2', 'right'),
 	createSession('s3', 'left'),
-	createSession('s4', 'left'), // 3 left, 1 right
+	createSession('s4', 'left'),
 ];
 
 const meta: Meta<typeof TotalFeedingsStats> = {
@@ -40,11 +31,9 @@ const meta: Meta<typeof TotalFeedingsStats> = {
 	component: TotalFeedingsStats,
 	decorators: [
 		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<div style={{ width: '300px' }}>
-					<Story />
-				</div>
-			</FbtContext.Provider>
+			<div style={{ width: '300px' }}>
+				<Story />
+			</div>
 		),
 	],
 	parameters: {
@@ -64,7 +53,7 @@ export const DefaultView: Story = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		await expect(canvas.getByText('Total Feedings')).toBeInTheDocument();
-		await expect(canvas.getByText('4')).toBeInTheDocument(); // Total
+		await expect(canvas.getByText('4')).toBeInTheDocument();
 		await expect(canvas.getByText('3').closest('div')).toHaveTextContent(
 			/Left Breast/,
 		);
@@ -76,11 +65,11 @@ export const DefaultView: Story = {
 
 export const OnlyLeftBreast: Story = {
 	args: {
-		sessions: [createSession('s1', 'left'), createSession('s2', 'left')], // 2 left, 0 right
+		sessions: [createSession('s1', 'left'), createSession('s2', 'left')],
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await expect(canvas.getByText('2')).toBeInTheDocument(); // Total
+		await expect(canvas.getByText('2')).toBeInTheDocument();
 		await expect(canvas.getByText('2').closest('div')).toHaveTextContent(
 			/Left Breast/,
 		);
@@ -96,11 +85,11 @@ export const OnlyRightBreast: Story = {
 			createSession('s1', 'right'),
 			createSession('s2', 'right'),
 			createSession('s3', 'right'),
-		], // 0 left, 3 right
+		],
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await expect(canvas.getByText('3')).toBeInTheDocument(); // Total
+		await expect(canvas.getByText('3')).toBeInTheDocument();
 		await expect(canvas.getByText('0').closest('div')).toHaveTextContent(
 			/Left Breast/,
 		);
@@ -116,17 +105,17 @@ export const NoSessions: Story = {
 	},
 	play: ({ canvasElement }) => {
 		const cardTitle = within(canvasElement).queryByText('Total Feedings');
-		expect(cardTitle).not.toBeInTheDocument(); // Component returns null
+		expect(cardTitle).not.toBeInTheDocument();
 	},
 };
 
 export const SingleSession: Story = {
 	args: {
-		sessions: [createSession('s1', 'right')], // 0 left, 1 right
+		sessions: [createSession('s1', 'right')],
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await expect(canvas.getByText('1')).toBeInTheDocument(); // Total
+		await expect(canvas.getByText('1')).toBeInTheDocument();
 		await expect(canvas.getByText('0').closest('div')).toHaveTextContent(
 			/Left Breast/,
 		);

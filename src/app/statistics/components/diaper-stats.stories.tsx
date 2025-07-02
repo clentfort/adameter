@@ -1,16 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { expect } from '@storybook/jest'; // Removed
 import { userEvent, within } from '@testing-library/react';
-import { FbtContext, IntlVariations } from 'fbt';
 import { DiaperChange } from '@/types/diaper';
 import DiaperStats from './diaper-stats';
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
 
 const today = new Date();
 const createTimestamp = (
@@ -105,7 +96,6 @@ const sampleDiaperChanges: DiaperChange[] = [
 		leakage: false,
 		timestamp: createTimestamp(3, 10),
 	},
-	// Add more for robust brand/leakage stats
 	{
 		containsStool: false,
 		containsUrine: true,
@@ -147,11 +137,9 @@ const meta: Meta<typeof DiaperStats> = {
 	component: DiaperStats,
 	decorators: [
 		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<div style={{ margin: 'auto', maxWidth: '600px' }}>
-					<Story />
-				</div>
-			</FbtContext.Provider>
+			<div style={{ margin: 'auto', maxWidth: '600px' }}>
+				<Story />
+			</div>
 		),
 	],
 	parameters: {
@@ -170,17 +158,12 @@ export const DefaultView: Story = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		// Check for title
 		await expect(canvas.getByText('Diaper Statistics')).toBeInTheDocument();
-		// Check for default tab (Overview)
 		await expect(
 			canvas.getByRole('tab', { name: 'Overview', selected: true }),
 		).toBeInTheDocument();
-		// Check some overview stats (values depend on sampleDiaperChanges)
-		// Total changes = 14
-		// Days diff: today (day 0) to 3 days ago = 4 days. 14 / 4 = 3.5 per day
-		await expect(canvas.getByText('14')).toBeInTheDocument(); // Total
-		await expect(canvas.getByText('3.5')).toBeInTheDocument(); // Per Day
+		await expect(canvas.getByText('14')).toBeInTheDocument();
+		await expect(canvas.getByText('3.5')).toBeInTheDocument();
 	},
 };
 
@@ -205,11 +188,10 @@ export const BrandsTab: Story = {
 		const brandsTab = canvas.getByRole('tab', { name: 'Diaper Brands' });
 		await userEvent.click(brandsTab);
 		await expect(brandsTab).toHaveAttribute('aria-selected', 'true');
-		// Check for some brand stats (Pampers: 6, Huggies: 4, Luvs: 3)
 		await expect(canvas.getByText('Pampers')).toBeInTheDocument();
-		await expect(canvas.getByText(/6 \(/i)).toBeInTheDocument(); // "6 (43%)"
+		await expect(canvas.getByText(/6 \(/i)).toBeInTheDocument();
 		await expect(canvas.getByText('Huggies')).toBeInTheDocument();
-		await expect(canvas.getByText(/4 \(/i)).toBeInTheDocument(); // "4 (29%)"
+		await expect(canvas.getByText(/4 \(/i)).toBeInTheDocument();
 	},
 };
 
@@ -219,16 +201,11 @@ export const LeakageTab: Story = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		const leakageTab = canvas.getByRole('tab', { name: 'Diaper leaked' }); // Name from fbt string if exact
+		const leakageTab = canvas.getByRole('tab', { name: 'Diaper leaked' });
 		await userEvent.click(leakageTab);
 		await expect(leakageTab).toHaveAttribute('aria-selected', 'true');
-		// Check for leakage stats.
-		// Pampers: 1/6 = 17%
-		// Huggies: 2/4 = 50%
-		// Luvs: 1/3 = 33%
-		// Only brands with >=3 uses: Pampers, Huggies, Luvs. Sorted by leakage % desc: Huggies, Luvs, Pampers.
+
 		const pampersLeakage = await canvas.findByText((content, element) => {
-			// Check if element is part of a leakage entry for Pampers
 			const parentCard = element?.closest('.border.rounded-md.p-3');
 			return (
 				!!parentCard &&
@@ -294,7 +271,7 @@ export const OnlyOneBrandRecorded: Story = {
 		const brandsTab = canvas.getByRole('tab', { name: 'Diaper Brands' });
 		await userEvent.click(brandsTab);
 		await expect(canvas.getByText('EcoNappies')).toBeInTheDocument();
-		await expect(canvas.getByText(/3 \(/i)).toBeInTheDocument(); // "3 (100%)"
+		await expect(canvas.getByText(/3 \(/i)).toBeInTheDocument();
 
 		const leakageTab = canvas.getByRole('tab', { name: 'Diaper leaked' });
 		await userEvent.click(leakageTab);
@@ -313,7 +290,6 @@ export const OnlyOneBrandRecorded: Story = {
 export const NotEnoughDataForLeakageStats: Story = {
 	args: {
 		diaperChanges: [
-			// Only 2 uses for each brand
 			{
 				containsUrine: true,
 				diaperBrand: 'BrandA',
