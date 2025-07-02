@@ -1,22 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { expect } from '@storybook/jest'; // Removed
 import { fn } from '@storybook/test';
 import { userEvent, within } from '@testing-library/react';
-import { FbtContext, IntlVariations } from 'fbt'; // Added fbt for noItemsMessage
-
+import { fbt } from 'fbtee';
 import {
 	MedicationRegimen,
 	MedicationSchedule,
 } from '@/types/medication-regimen';
-// For realistic nextDueText
 import { RegimenAccordionContent } from './regimen-accordion-content';
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
 
 const today = new Date();
 const yesterday = new Date(today);
@@ -51,10 +41,6 @@ const intervalSchedule: MedicationSchedule = {
 	intervalUnit: 'hours',
 	intervalValue: 8,
 	type: 'interval',
-};
-const asNeededSchedule: MedicationSchedule = {
-	details: 'For high fever over 38.5°C',
-	type: 'asNeeded',
 };
 
 const activeRegimens: MedicationRegimen[] = [
@@ -91,18 +77,16 @@ const meta: Meta<typeof RegimenAccordionContent> = {
 		handleDeleteRegimen: { action: 'deletedRegimen' },
 		handleEditRegimen: { action: 'editedRegimen' },
 		isPastSection: { control: 'boolean' },
-		noItemsMessage: { control: 'object' }, // For JSX element
+		noItemsMessage: { control: 'object' },
 		regimens: { control: 'object' },
 		toggleRegimenExpansion: { action: 'toggledExpansion' },
 	},
 	component: RegimenAccordionContent,
 	decorators: [
 		(Story) => (
-			<FbtContext.Provider value={fbtContextValue}>
-				<div style={{ margin: 'auto', maxWidth: '700px' }}>
-					<Story />
-				</div>
-			</FbtContext.Provider>
+			<div style={{ margin: 'auto', maxWidth: '700px' }}>
+				<Story />
+			</div>
 		),
 	],
 	parameters: {
@@ -117,7 +101,7 @@ type Story = StoryObj<typeof RegimenAccordionContent>;
 
 export const ActiveRegimensSomeExpanded: Story = {
 	args: {
-		expandedRegimens: { [activeRegimens[0].id]: true }, // First one expanded
+		expandedRegimens: { [activeRegimens[0].id]: true },
 		handleDeleteRegimen: fn(),
 		handleEditRegimen: fn(),
 		isPastSection: false,
@@ -127,12 +111,10 @@ export const ActiveRegimensSomeExpanded: Story = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		// Check for expanded content of the first regimen
 		await expect(canvas.getByText(activeRegimens[0].name)).toBeInTheDocument();
 		await expect(
 			canvas.getByText(activeRegimens[0].notes!),
-		).toBeInTheDocument(); // Note should be visible
-		// Check that the second regimen is present but its specific expanded content (e.g., notes if any) is not.
+		).toBeInTheDocument();
 		await expect(canvas.getByText(activeRegimens[1].name)).toBeInTheDocument();
 	},
 };
@@ -151,7 +133,7 @@ export const ActiveRegimensNoneExpanded: Story = {
 
 export const PastRegimensOneExpanded: Story = {
 	args: {
-		expandedRegimens: { [pastRegimens[1].id]: true }, // Second past one expanded
+		expandedRegimens: { [pastRegimens[1].id]: true },
 		handleDeleteRegimen: fn(),
 		handleEditRegimen: fn(),
 		isPastSection: true,
@@ -162,7 +144,7 @@ export const PastRegimensOneExpanded: Story = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		await expect(canvas.getByText(pastRegimens[1].name)).toBeInTheDocument();
-		await expect(canvas.getByText(/discontinued/i)).toBeInTheDocument(); // From MedicationRegimenCard
+		await expect(canvas.getByText(/discontinued/i)).toBeInTheDocument();
 	},
 };
 
@@ -212,15 +194,14 @@ export const NoPastRegimens: Story = {
 
 export const InteractionToggleExpansion: Story = {
 	args: {
-		...ActiveRegimensSomeExpanded.args, // Start with first one expanded
-		expandedRegimens: { [activeRegimens[0].id]: false }, // But actually start collapsed for this test
+		...ActiveRegimensSomeExpanded.args,
+		expandedRegimens: { [activeRegimens[0].id]: false },
 	},
 	play: async ({ args, canvasElement }) => {
 		const canvas = within(canvasElement);
-		// Find the "Show More" button for the first regimen
 		const firstRegimenCard = canvas
 			.getByText(activeRegimens[0].name)
-			.closest('div.rounded-lg'); // Assuming card structure
+			.closest('div.rounded-lg');
 		if (!firstRegimenCard)
 			throw new Error('Could not find regimen card for interaction test');
 
@@ -233,7 +214,3 @@ export const InteractionToggleExpansion: Story = {
 		);
 	},
 };
-
-// Note: calculateNextDue is used internally by MedicationRegimenCard when not isPast.
-// Its output can be verified by checking the `nextDueText` rendered by the card, as seen in card stories.
-// This component primarily orchestrates the display of multiple cards.

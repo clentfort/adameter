@@ -1,20 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { FbtContext, IntlVariations } from 'fbt';
-// Mock the hook using vi.mock
 import { vi } from 'vitest';
-import { useEvents } from '@/hooks/use-events'; // Import for spying
+import { useEvents } from '@/hooks/use-events';
 import { Event } from '@/types/event';
 import EventsList from './events-list';
 
 vi.mock('@/hooks/use-events');
-
-// Mock FbtContext for Storybook
-const fbtContextValue = {
-	IntlVariations,
-	locale: 'en_US',
-	translation: {},
-};
 
 const now = new Date();
 const anHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
@@ -77,16 +68,10 @@ const meta: Meta<typeof EventsList> = {
 	component: EventsList,
 	decorators: [
 		(Story, context) => {
-			// Configure the return value of the mocked hook
 			(useEvents as import('vitest').Mock).mockReturnValue(
 				mockUseEvents(context.args.mockedEvents || []),
 			);
-
-			return (
-				<FbtContext.Provider value={fbtContextValue}>
-					<Story />
-				</FbtContext.Provider>
-			);
+			return <Story />;
 		},
 	],
 	parameters: {
@@ -97,7 +82,6 @@ const meta: Meta<typeof EventsList> = {
 };
 
 export default meta;
-// Use `typeof EventsList` for StoryObj if you are not adding custom args like `mockedEvents` to the component itself
 type Story = StoryObj<typeof EventsList & { mockedEvents?: Event[] }>;
 
 export const Default: Story = {
@@ -112,8 +96,6 @@ export const Empty: Story = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		// Storybook's `within` is scoped to the component.
-		// If the message is rendered by the component, it should find it.
 		await expect(
 			canvas.getByText(/no events recorded yet./i),
 		).toBeInTheDocument();
@@ -171,10 +153,3 @@ export const WithManyEvents: Story = {
 		],
 	},
 };
-
-// Note: Interaction tests for edit/delete (opening dialogs, confirming actions)
-// would require more complex play functions, potentially involving `waitFor` for dialogs
-// and ensuring the mocked hook functions (`remove`, `update`) are called correctly.
-// The EventForm and DeleteEntryDialog have their own stories for their internal states.
-// This story focuses on the list rendering based on the provided events.
-// The `jest.spyOn` approach in decorators is a robust way to mock hooks for Storybook.
