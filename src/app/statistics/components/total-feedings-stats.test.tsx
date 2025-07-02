@@ -9,8 +9,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 600,
 		endTime: new Date().toISOString(),
 		id: '1',
-		// @ts-expect-error
-		notes: '',
 		startTime: new Date().toISOString(),
 	},
 	{
@@ -18,8 +16,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 900,
 		endTime: new Date().toISOString(),
 		id: '2',
-		// @ts-expect-error
-		notes: '',
 		startTime: new Date().toISOString(),
 	},
 	{
@@ -27,8 +23,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 300,
 		endTime: new Date().toISOString(),
 		id: '3',
-		// @ts-expect-error
-		notes: '',
 		startTime: new Date().toISOString(),
 	},
 	{
@@ -36,8 +30,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 300,
 		endTime: new Date().toISOString(),
 		id: '4',
-		// @ts-expect-error
-		notes: '',
 		startTime: new Date().toISOString(),
 	},
 ];

@@ -8,7 +8,6 @@ export type Locale = typeof DEFAULT_LOCALE | keyof typeof translations;
 const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
 function isSupportedLocale(locale: string): locale is Locale {
-	// @ts-expect-error A type predicate's type must be assignable to its parameter's type.
 	return (
 		locale === DEFAULT_LOCALE || Object.keys(translations).includes(locale)
 	);
@@ -30,7 +29,6 @@ let viewerContext: ViewerContext = {
 };
 
 setupFbtee({
-	// @ts-expect-error Call signature return types 'ViewerContext' and '{ GENDER: IntlVariations; locale: string; }' are incompatible.
 	hooks: { getViewerContext: () => viewerContext },
 	translations,
 });
