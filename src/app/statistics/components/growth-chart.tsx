@@ -2,7 +2,6 @@
 
 import type { Event } from '@/types/event';
 import type { GrowthMeasurement } from '@/types/growth';
-// Import fbt
 import { useMemo } from 'react';
 import LineChart from '@/components/charts/line-chart'; // Import the new chart component
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

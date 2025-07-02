@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-// Ensure fbt is imported
+import { fbt } from 'fbtee'; // Added explicit import
 import { Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

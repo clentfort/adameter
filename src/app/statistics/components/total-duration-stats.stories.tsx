@@ -1,0 +1,101 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import { within } from '@testing-library/react';
+import { FeedingSession } from '@/types/feeding';
+import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
+import TotalDurationStats from './total-duration-stats';
+
+const createSession = (id: string, durationMinutes: number): FeedingSession => {
+	const startTime = new Date();
+	const endTime = new Date(startTime.getTime() + durationMinutes * 60 * 1000);
+	return {
+		breast: 'left',
+		durationInSeconds: durationMinutes * 60,
+		endTime: endTime.toISOString(),
+		id,
+		startTime: startTime.toISOString(),
+	};
+};
+
+const sampleSessions: FeedingSession[] = [
+	createSession('s1', 15),
+	createSession('s2', 20),
+	createSession('s3', 12),
+	createSession('s4', 18),
+];
+
+const meta: Meta<typeof TotalDurationStats> = {
+	argTypes: {
+		sessions: { control: 'object' },
+	},
+	component: TotalDurationStats,
+	decorators: [
+		(Story) => (
+			<div style={{ width: '300px' }}>
+				<Story />
+			</div>
+		),
+	],
+	parameters: {
+		layout: 'centered',
+	},
+	tags: ['autodocs'],
+	title: 'App/Statistics/TotalDurationStats',
+};
+
+export default meta;
+type Story = StoryObj<typeof TotalDurationStats>;
+
+export const DefaultView: Story = {
+	args: {
+		sessions: sampleSessions,
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(
+			canvas.getByText('Total feeding duration'),
+		).toBeInTheDocument();
+		await expect(
+			canvas.getByText(formatDurationAbbreviated(65 * 60)),
+		).toBeInTheDocument();
+	},
+};
+
+export const NoSessions: Story = {
+	args: {
+		sessions: [],
+	},
+	play: ({ canvasElement }) => {
+		const cardTitle = within(canvasElement).queryByText(
+			'Total feeding duration',
+		);
+		expect(cardTitle).not.toBeInTheDocument();
+	},
+};
+
+export const SingleSession: Story = {
+	args: {
+		sessions: [createSession('s1', 25)],
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(
+			canvas.getByText(formatDurationAbbreviated(25 * 60)),
+		).toBeInTheDocument();
+	},
+};
+
+export const LongDurations: Story = {
+	args: {
+		sessions: [
+			createSession('s1', 60),
+			createSession('s2', 75),
+			createSession('s3', 90),
+		],
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(
+			canvas.getByText(formatDurationAbbreviated(225 * 60)),
+		).toBeInTheDocument();
+	},
+};

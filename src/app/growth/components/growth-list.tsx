@@ -4,7 +4,7 @@ import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
-import EditGrowthForm from './growth-form';
+import MeasurementForm from './growth-form';
 
 interface GrowthMeasurementsListProps {
 	measurements: ReadonlyArray<GrowthMeasurement>;
@@ -114,10 +114,15 @@ export default function GrowthMeasurementsList({
 				/>
 			)}
 			{measurementToEdit && (
-				<EditGrowthForm
+				<MeasurementForm
 					measurement={measurementToEdit}
 					onClose={() => setMeasurementToEdit(null)}
 					onSave={onMeasurementUpdate}
+					title={
+						<fbt desc="Title for dialog to edit a growth measurement">
+							Edit Growth Measurement
+						</fbt>
+					}
 				/>
 			)}
 		</>
