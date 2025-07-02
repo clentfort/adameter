@@ -41,7 +41,6 @@ const mockMeasurements: GrowthMeasurement[] = [
 		headCircumference: 35,
 		height: 50,
 		id: '1',
-		notes: '',
 		weight: 3000,
 	},
 	{
@@ -64,8 +63,7 @@ const mockEvents: Event[] = [
 	{
 		id: 'e1',
 		// name: 'First Smile', // Removed name property
-		// @ts-expect-error Object literal may only specify known properties, and 'notes' does not exist in type 'Event'.
-		notes: '',
+		// notes: '', // Removed notes property
 		// timestamp: new Date('2024-01-10T00:00:00Z').toISOString(), // Removed timestamp property
 		type: 'milestone' as Event['type'],
 		title: 'First Smile', // Added title property

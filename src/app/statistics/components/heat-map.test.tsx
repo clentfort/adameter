@@ -10,8 +10,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 540,
 		endTime: new Date('2024-01-01T00:09:00Z').toISOString(), // Spans 2 5-min intervals (00:00, 00:05)
 		id: '1',
-		// @ts-expect-error
-		notes: '',
 		startTime: new Date('2024-01-01T00:00:00Z').toISOString(),
 	},
 	// Session 2: 00:05 - 00:14 (Intervals 1, 2)
@@ -20,8 +18,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 540,
 		endTime: new Date('2024-01-01T00:14:00Z').toISOString(), // Spans 2 5-min intervals (00:05, 00:10)
 		id: '2',
-		// @ts-expect-error
-		notes: '',
 		startTime: new Date('2024-01-01T00:05:00Z').toISOString(),
 	},
 	// Session 3: 23:55 - 00:04 (Intervals 287 (day 1), 0 (day 2))
@@ -30,8 +26,6 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 540,
 		endTime: new Date('2024-01-02T00:04:00Z').toISOString(), // Spans 2 5-min intervals (23:55 day 1, 00:00 day 2)
 		id: '3',
-		// @ts-expect-error
-		notes: '',
 		startTime: new Date('2024-01-01T23:55:00Z').toISOString(),
 	},
 ];
@@ -49,8 +43,6 @@ describe('HeatMap', () => {
 				durationInSeconds: 0,
 				endTime: new Date('2024-01-01T00:00:00Z').toISOString(), // Falls into 00:00 interval
 				id: '1',
-				// @ts-expect-error
-				notes: '',
 				startTime: new Date('2024-01-01T00:00:00Z').toISOString(),
 			},
 		];

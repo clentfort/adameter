@@ -10,11 +10,11 @@ const LOCAL_STORAGE_KEY = 'preferredLanguage';
 function isSupportedLocale(locale: string): locale is Locale {
 	// @ts-expect-error A type predicate's type must be assignable to its parameter's type.
 	return (
-		locale === DEFAULT_LOCALE || (Object.keys(translations) as string[]).includes(locale)
+		locale === DEFAULT_LOCALE || Object.keys(translations).includes(locale)
 	);
 }
 
-const localeToDateFnsLocale: Record<string, () => Promise<DateFnsLocale>> = {
+const localeToDateFnsLocale: Record<Locale, () => Promise<DateFnsLocale>> = {
 	de_DE: () => import('date-fns/locale/de').then(({ de }) => de),
 	en_US: () => import('date-fns/locale/en-US').then(({ enUS }) => enUS),
 };
@@ -30,7 +30,8 @@ let viewerContext: ViewerContext = {
 };
 
 setupFbtee({
-	hooks: { getViewerContext: () => viewerContext as any }, // Cast to any to bypass type incompatibility
+	// @ts-expect-error Call signature return types 'ViewerContext' and '{ GENDER: IntlVariations; locale: string; }' are incompatible.
+	hooks: { getViewerContext: () => viewerContext },
 	translations,
 });
 
@@ -44,10 +45,11 @@ export async function setLocale(locale: Locale): Promise<void> {
 	}
 
 	// @TODO(localStorage): Move all local storage access to dedicated module
-	localStorage.setItem(LOCAL_STORAGE_KEY, locale as string);
+	// @ts-expect-error Argument of type 'Locale' is not assignable to parameter of type 'string'.
+	localStorage.setItem(LOCAL_STORAGE_KEY, locale);
 	viewerContext = { ...viewerContext, locale };
 
-	const dateFnsLocale = localeToDateFnsLocale[locale as string];
+	const dateFnsLocale = localeToDateFnsLocale[locale];
 	if (!dateFnsLocale) {
 		return;
 	}
