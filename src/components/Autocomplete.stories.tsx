@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import React from 'react'; // Added React import
 // import { action } from '@storybook/addon-actions'; // Removed
+// import { expect, userEvent, within } from '@storybook/test'; // Removed due to unavailability
+import React from 'react'; // Added React import
 
 import { Autocomplete } from './autocomplete';
 
@@ -145,5 +146,23 @@ export const EmptyOptionsWithInput: Story = {
 		options: [],
 		placeholder: 'No options available...',
 		value: 'User typed this',
+	},
+};
+
+export const HidesWhenNoResultsAfterTyping: Story = {
+	args: {
+		// Reuse options and placeholder from BasicUsage or define specific ones
+		options: [
+			{ id: '1', label: 'Apple' },
+			{ id: '2', label: 'Banana' },
+			{ id: '3', label: 'Cherry' },
+		],
+		placeholder: 'Search here...',
+		value: '',
+		// Note: The play function was removed because @storybook/test is not available.
+		// Manual testing steps for this scenario:
+		// 1. Type "App" - popover opens with "Apple".
+		// 2. Clear input.
+		// 3. Type "xyz123" - popover should close and "No results found." should not be visible.
 	},
 };

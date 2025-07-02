@@ -1,0 +1,199 @@
+src/app/diaper/components/diaper-form.stories.tsx(16,3): error TS2353: Object literal may only specify known properties, and 'presetDiaperBrand' does not exist in type 'Partial<ArgTypes<EditDiaperProps>>'.
+src/app/diaper/components/diaper-form.stories.tsx(40,3): error TS2353: Object literal may only specify known properties, and 'presetDiaperBrand' does not exist in type 'Partial<EditDiaperProps>'.
+src/app/diaper/components/diaper-form.stories.tsx(50,3): error TS2353: Object literal may only specify known properties, and 'reducedOptions' does not exist in type 'Partial<EditDiaperProps>'.
+src/app/diaper/components/diaper-form.stories.tsx(58,3): error TS2353: Object literal may only specify known properties, and 'presetType' does not exist in type 'Partial<EditDiaperProps>'.
+src/app/diaper/components/diaper-form.stories.tsx(103,7): error TS18048: 'EditMode.args' is possibly 'undefined'.
+src/app/diaper/components/diaper-form.stories.tsx(115,7): error TS18048: 'EditMode.args' is possibly 'undefined'.
+src/app/diaper/components/diaper-tracker.stories.tsx(83,23): error TS18046: 'args' is of type 'unknown'.
+src/app/diaper/components/diaper-tracker.stories.tsx(108,23): error TS18046: 'args' is of type 'unknown'.
+src/app/events/components/events-list.stories.tsx(94,18): error TS2304: Cannot find name 'within'.
+src/app/events/components/events-list.stories.tsx(118,18): error TS2304: Cannot find name 'within'.
+src/app/feeding/components/feeding-tracker.stories.tsx(29,21): error TS2339: Property 'initialFeedingState' does not exist on type '{ nextBreast: "left" | "right"; onSessionComplete: (session: FeedingSession) => void; }'.
+src/app/feeding/components/feeding-tracker.stories.tsx(30,47): error TS2339: Property 'initialFeedingState' does not exist on type '{ nextBreast: "left" | "right"; onSessionComplete: (session: FeedingSession) => void; }'.
+src/app/feeding/components/feeding-tracker.stories.tsx(64,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(67,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(75,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(93,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(110,4): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(111,5): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(113,17): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(132,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(135,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(138,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(143,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(167,4): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(169,3): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(170,4): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(172,24): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(173,14): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(174,21): error TS2339: Property 'initialFeedingState' does not exist on type 'BreastfeedingTrackerProps'.
+src/app/feeding/components/feeding-tracker.stories.tsx(178,4): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(202,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(203,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(206,9): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(235,4): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(237,3): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(238,4): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(241,14): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(242,16): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(246,4): error TS2304: Cannot find name 'expect'.
+src/app/feeding/components/feeding-tracker.stories.tsx(248,23): error TS2304: Cannot find name 'expect'.
+src/app/medication/components/medication-administration-form.stories.tsx(17,3): error TS2353: Object literal may only specify known properties, and 'dayOfWeek' does not exist in type 'MedicationRegimen'.
+src/app/medication/components/medication-administration-form.stories.tsx(32,3): error TS2561: Object literal may only specify known properties, but 'scheduleType' does not exist in type 'MedicationRegimen'. Did you mean to write 'schedule'?
+src/app/medication/components/medication-administration-form.stories.tsx(75,24): error TS2322: Type 'Element | null' is not assignable to type 'Element'.
+  Type 'null' is not assignable to type 'ReactElement<any, any>'.
+src/app/medication/components/medication-administration-item.stories.tsx(89,27): error TS2304: Cannot find name 'action'.
+src/app/medication/components/medication-administration-item.stories.tsx(90,25): error TS2304: Cannot find name 'action'.
+src/app/medication/components/medication-administration-item.stories.tsx(140,27): error TS2304: Cannot find name 'action'.
+src/app/medication/components/medication-administration-item.stories.tsx(141,25): error TS2304: Cannot find name 'action'.
+src/app/medication/components/regimen-accordion-content.stories.tsx(209,33): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+  Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
+src/app/statistics/components/diaper-stats.stories.tsx(162,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(163,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(166,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(167,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(177,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(191,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(192,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(193,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(194,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(195,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(207,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(209,50): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined): Promise<HTMLElement>', gave the following error.
+    Argument of type '(content: string, element: Element | null) => boolean | undefined' is not assignable to parameter of type 'Matcher'.
+      Type '(content: string, element: Element | null) => boolean | undefined' is not assignable to type 'MatcherFunction'.
+        Type 'boolean | undefined' is not assignable to type 'boolean'.
+          Type 'undefined' is not assignable to type 'boolean'.
+  Overload 2 of 2, '(id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined): Promise<HTMLElement>', gave the following error.
+    Argument of type '(content: string, element: Element | null) => boolean | undefined' is not assignable to parameter of type 'Matcher'.
+      Type '(content: string, element: Element | null) => boolean | undefined' is not assignable to type 'MatcherFunction'.
+        Type 'boolean | undefined' is not assignable to type 'boolean'.
+          Type 'undefined' is not assignable to type 'boolean'.
+src/app/statistics/components/diaper-stats.stories.tsx(217,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(219,50): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined): Promise<HTMLElement>', gave the following error.
+    Argument of type '(content: string, element: Element | null) => boolean | undefined' is not assignable to parameter of type 'Matcher'.
+      Type '(content: string, element: Element | null) => boolean | undefined' is not assignable to type 'MatcherFunction'.
+        Type 'boolean | undefined' is not assignable to type 'boolean'.
+          Type 'undefined' is not assignable to type 'boolean'.
+  Overload 2 of 2, '(id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined): Promise<HTMLElement>', gave the following error.
+    Argument of type '(content: string, element: Element | null) => boolean | undefined' is not assignable to parameter of type 'Matcher'.
+      Type '(content: string, element: Element | null) => boolean | undefined' is not assignable to type 'MatcherFunction'.
+        Type 'boolean | undefined' is not assignable to type 'boolean'.
+          Type 'undefined' is not assignable to type 'boolean'.
+src/app/statistics/components/diaper-stats.stories.tsx(227,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(229,47): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined): Promise<HTMLElement>', gave the following error.
+    Argument of type '(content: string, element: Element | null) => boolean | undefined' is not assignable to parameter of type 'Matcher'.
+      Type '(content: string, element: Element | null) => boolean | undefined' is not assignable to type 'MatcherFunction'.
+        Type 'boolean | undefined' is not assignable to type 'boolean'.
+          Type 'undefined' is not assignable to type 'boolean'.
+  Overload 2 of 2, '(id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined): Promise<HTMLElement>', gave the following error.
+    Argument of type '(content: string, element: Element | null) => boolean | undefined' is not assignable to parameter of type 'Matcher'.
+      Type '(content: string, element: Element | null) => boolean | undefined' is not assignable to type 'MatcherFunction'.
+        Type 'boolean | undefined' is not assignable to type 'boolean'.
+          Type 'undefined' is not assignable to type 'boolean'.
+src/app/statistics/components/diaper-stats.stories.tsx(237,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(274,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(275,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(279,53): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined): Promise<HTMLElement>', gave the following error.
+    Argument of type '(content: string, element: Element | null) => boolean | undefined' is not assignable to parameter of type 'Matcher'.
+      Type '(content: string, element: Element | null) => boolean | undefined' is not assignable to type 'MatcherFunction'.
+        Type 'boolean | undefined' is not assignable to type 'boolean'.
+          Type 'undefined' is not assignable to type 'boolean'.
+  Overload 2 of 2, '(id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined): Promise<HTMLElement>', gave the following error.
+    Argument of type '(content: string, element: Element | null) => boolean | undefined' is not assignable to parameter of type 'Matcher'.
+      Type '(content: string, element: Element | null) => boolean | undefined' is not assignable to type 'MatcherFunction'.
+        Type 'boolean | undefined' is not assignable to type 'boolean'.
+          Type 'undefined' is not assignable to type 'boolean'.
+src/app/statistics/components/diaper-stats.stories.tsx(287,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/diaper-stats.stories.tsx(294,4): error TS2741: Property 'containsStool' is missing in type '{ containsUrine: true; diaperBrand: string; id: string; leakage: false; timestamp: string; }' but required in type 'DiaperChange'.
+src/app/statistics/components/diaper-stats.stories.tsx(301,4): error TS2741: Property 'containsStool' is missing in type '{ containsUrine: true; diaperBrand: string; id: string; leakage: true; timestamp: string; }' but required in type 'DiaperChange'.
+src/app/statistics/components/diaper-stats.stories.tsx(308,4): error TS2741: Property 'containsStool' is missing in type '{ containsUrine: true; diaperBrand: string; id: string; leakage: false; timestamp: string; }' but required in type 'DiaperChange'.
+src/app/statistics/components/diaper-stats.stories.tsx(315,4): error TS2741: Property 'containsStool' is missing in type '{ containsUrine: true; diaperBrand: string; id: string; leakage: false; timestamp: string; }' but required in type 'DiaperChange'.
+src/app/statistics/components/diaper-stats.stories.tsx(328,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(60,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(63,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(66,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(71,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(89,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(92,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(97,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(112,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(115,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(118,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(134,3): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(144,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(147,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/duration-stats.stories.tsx(150,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/feedings-per-day-stats.stories.tsx(68,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/feedings-per-day-stats.stories.tsx(69,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/feedings-per-day-stats.stories.tsx(86,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/feedings-per-day-stats.stories.tsx(102,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/feedings-per-day-stats.stories.tsx(112,3): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/feedings-per-day-stats.stories.tsx(122,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(95,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(96,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(97,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(98,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(101,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(114,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(132,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(135,10): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(143,10): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(156,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/growth-chart.stories.tsx(174,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(70,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(73,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(74,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(75,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(76,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(77,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(89,3): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(103,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(122,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/heat-map.stories.tsx(136,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/stats-card.stories.tsx(35,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/stats-card.stories.tsx(36,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/stats-card.stories.tsx(52,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/stats-card.stories.tsx(53,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/stats-card.stories.tsx(54,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/stats-card.stories.tsx(65,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/stats-card.stories.tsx(70,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/stats-card.stories.tsx(81,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/stats-card.stories.tsx(86,4): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/time-between-stats.stories.tsx(65,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/time-between-stats.stories.tsx(66,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/time-between-stats.stories.tsx(83,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/time-between-stats.stories.tsx(97,3): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/time-between-stats.stories.tsx(109,3): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/time-between-stats.stories.tsx(122,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/time-between-stats.stories.tsx(138,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-duration-stats.stories.tsx(54,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-duration-stats.stories.tsx(57,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-duration-stats.stories.tsx(71,3): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-duration-stats.stories.tsx(81,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-duration-stats.stories.tsx(97,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(55,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(56,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(57,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(60,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(72,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(73,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(76,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(92,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(93,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(96,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(108,3): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(118,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(119,9): error TS2304: Cannot find name 'expect'.
+src/app/statistics/components/total-feedings-stats.stories.tsx(122,9): error TS2304: Cannot find name 'expect'.
+src/components/charts/line-chart.stories.tsx(70,4): error TS2741: Property 'type' is missing in type '{ color: string; endDate: string; id: string; startDate: string; title: string; }' but required in type 'Event'.
+src/components/charts/line-chart.stories.tsx(85,4): error TS2741: Property 'type' is missing in type '{ color: string; endDate: string; id: string; startDate: string; title: string; }' but required in type 'Event'.
+src/components/charts/line-chart.stories.tsx(148,49): error TS2339: Property 'dataset' does not exist on type 'ChartDataContext'.
+src/contexts/i18n-context.tsx(40,22): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Locale'.
+src/i18n/index.ts(3,1): error TS2578: Unused '@ts-expect-error' directive.
+src/i18n/index.ts(32,2): error TS2578: Unused '@ts-expect-error' directive.
+src/i18n/index.ts(47,2): error TS2578: Unused '@ts-expect-error' directive.
