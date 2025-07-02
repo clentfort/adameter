@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react'; // Added React import
-import { vi } from 'vitest'; // For action logging
+// import { action } from '@storybook/addon-actions'; // Removed
 
 import { Autocomplete } from './autocomplete';
 
@@ -20,8 +20,8 @@ const meta = {
 		onOptionSelect: { action: 'onOptionSelect' },
 		onValueChange: { action: 'onValueChange' },
 	},
-	// Use `fn` to spy on the onValueChange arg, which will appear in the actions panel once invoked
-	args: { onOptionSelect: vi.fn(), onValueChange: vi.fn() },
+	// Using no-op functions for callbacks
+	args: { onOptionSelect: () => {}, onValueChange: () => {} },
 } satisfies Meta<typeof Autocomplete>;
 
 export default meta;
