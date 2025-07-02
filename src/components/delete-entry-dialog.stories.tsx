@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { IntlVariations } from 'fbt'; // Assuming IntlVariations is available
-import { FbtContext } from 'fbt-react'; // Assuming FbtContext is available for fbt
+import { FbtContext, IntlVariations } from 'fbt'; // Corrected: FbtContext also from 'fbt'
 import DeleteEntryDialog from './delete-entry-dialog';
 
 const meta: Meta<typeof DeleteEntryDialog> = {
