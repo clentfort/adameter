@@ -37,7 +37,7 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
 	}, []);
 
 	const setLocale = async (locale: Locale) => {
-		await setAppLocale(locale);
+		await setAppLocale(locale as string);
 		setLocaleState(locale);
 	};
 

@@ -9,6 +9,7 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 600,
 		endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
 		id: '1',
+		// @ts-expect-error
 		notes: '',
 		startTime: new Date('2024-01-01T10:00:00Z').toISOString(), // Day 1
 	},
@@ -17,6 +18,7 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 900,
 		endTime: new Date('2024-01-01T14:15:00Z').toISOString(),
 		id: '2',
+		// @ts-expect-error
 		notes: '',
 		startTime: new Date('2024-01-01T14:00:00Z').toISOString(), // Day 1
 	},
@@ -25,6 +27,7 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 300,
 		endTime: new Date('2024-01-02T08:05:00Z').toISOString(),
 		id: '3',
+		// @ts-expect-error
 		notes: '',
 		startTime: new Date('2024-01-02T08:00:00Z').toISOString(), // Day 2
 	},
@@ -33,6 +36,7 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 600,
 		endTime: new Date('2024-01-03T12:10:00Z').toISOString(),
 		id: '4',
+		// @ts-expect-error
 		notes: '',
 		startTime: new Date('2024-01-03T12:00:00Z').toISOString(), // Day 3
 	},
@@ -41,6 +45,7 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 300,
 		endTime: new Date('2024-01-03T18:05:00Z').toISOString(),
 		id: '5',
+		// @ts-expect-error
 		notes: '',
 		startTime: new Date('2024-01-03T18:00:00Z').toISOString(), // Day 3
 	},
@@ -66,6 +71,7 @@ describe('FeedingsPerDayStats', () => {
 				durationInSeconds: 600,
 				endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
 				id: '1',
+				// @ts-expect-error
 				notes: '',
 				startTime: new Date('2024-01-01T10:00:00Z').toISOString(),
 			},
@@ -74,6 +80,7 @@ describe('FeedingsPerDayStats', () => {
 				durationInSeconds: 900,
 				endTime: new Date('2024-01-01T14:15:00Z').toISOString(),
 				id: '2',
+				// @ts-expect-error
 				notes: '',
 				startTime: new Date('2024-01-01T14:00:00Z').toISOString(),
 			},
@@ -89,6 +96,7 @@ describe('FeedingsPerDayStats', () => {
 				durationInSeconds: 600,
 				endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
 				id: '1',
+				// @ts-expect-error
 				notes: '',
 				startTime: new Date('2024-01-01T10:00:00Z').toISOString(),
 			},

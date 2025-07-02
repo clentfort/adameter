@@ -60,14 +60,21 @@ export const WithCustomRenderOption: Story = {
 			{ description: '10mg, once daily', id: 'med3', label: 'Loratadine' },
 		] as CustomOption[],
 		placeholder: 'Search for medication...',
-		renderOption: (option: CustomOption) => (
-			<div style={{ display: 'flex', flexDirection: 'column' }}>
-				<span style={{ fontWeight: 'bold' }}>{option.label}</span>
-				<span style={{ color: 'gray', fontSize: '0.8em' }}>
-					{option.description}
-				</span>
-			</div>
-		),
+		renderOption: (option: CustomOption | { id: string; label: string }) => {
+			// Type guard to handle both CustomOption and the base option type
+			if ('description' in option) {
+				return (
+					<div style={{ display: 'flex', flexDirection: 'column' }}>
+						<span style={{ fontWeight: 'bold' }}>{option.label}</span>
+						<span style={{ color: 'gray', fontSize: '0.8em' }}>
+							{option.description}
+						</span>
+					</div>
+				);
+			}
+			// Default rendering for base option type
+			return <div>{option.label}</div>;
+		},
 		value: '',
 	},
 };

@@ -9,6 +9,7 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 600,
 		endTime: new Date().toISOString(),
 		id: '1',
+		// @ts-expect-error
 		notes: '',
 		startTime: new Date().toISOString(),
 	},
@@ -17,6 +18,7 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 900,
 		endTime: new Date().toISOString(),
 		id: '2',
+		// @ts-expect-error
 		notes: '',
 		startTime: new Date().toISOString(),
 	},
@@ -25,14 +27,16 @@ const mockSessions: FeedingSession[] = [
 		durationInSeconds: 300,
 		endTime: new Date().toISOString(),
 		id: '3',
+		// @ts-expect-error
 		notes: '',
 		startTime: new Date().toISOString(),
 	},
 	{
-		breast: 'bottle', // Should be ignored by left/right counts but included in total
+		breast: 'bottle' as FeedingSession['breast'], // Should be ignored by left/right counts but included in total
 		durationInSeconds: 300,
 		endTime: new Date().toISOString(),
 		id: '4',
+		// @ts-expect-error
 		notes: '',
 		startTime: new Date().toISOString(),
 	},
@@ -114,8 +118,8 @@ describe('TotalFeedingsStats', () => {
 
 	it('handles sessions with no specific breast (e.g., bottle)', () => {
 		const bottleOnlySessions: FeedingSession[] = [
-			{ ...mockSessions[0], breast: 'bottle' },
-			{ ...mockSessions[1], breast: 'bottle' },
+			{ ...mockSessions[0], breast: 'bottle' as FeedingSession['breast'] },
+			{ ...mockSessions[1], breast: 'bottle' as FeedingSession['breast'] },
 		]; // Total 2, Left 0, Right 0
 		const { container } = render(
 			<TotalFeedingsStats sessions={bottleOnlySessions} />,

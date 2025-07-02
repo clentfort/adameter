@@ -35,11 +35,11 @@ export default function DurationStats({ sessions = [] }: DurationStatsProps) {
 
 	return (
 		<StatsCard
-			title={
+			title={(
 				<fbt desc="Title for the average feeding duration statistics card">
 					Average Feeding Duration
 				</fbt>
-			}
+			).toString()}
 		>
 			<div className="text-2xl font-bold">
 				{formatDurationAbbreviated(avgDuration.total)}

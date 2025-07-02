@@ -56,7 +56,7 @@ export default function LanguageSwitcher() {
 				{locales.map(({ code, flag, label }) => (
 					<DropdownMenuItem
 						className={code === locale ? 'bg-accent font-medium' : ''}
-						key={code}
+						key={code as React.Key}
 						onSelect={() => updateLocale(code)}
 					>
 						<span className="mr-2">{flag}</span> {label}

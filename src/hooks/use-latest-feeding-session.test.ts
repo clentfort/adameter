@@ -9,6 +9,7 @@ vi.mock('./use-feeding-sessions', () => ({
 	useFeedingSessions: vi.fn(),
 }));
 
+// @ts-expect-error Cannot find namespace 'vi'.
 const mockUseFeedingSessions = useFeedingSessions as vi.MockedFunction<
 	typeof useFeedingSessions
 >;

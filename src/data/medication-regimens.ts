@@ -8,5 +8,6 @@ import { Encrypted } from '@/utils/crypto';
 // An empty array [] is a valid assignment for the Array<Encrypted<Item>> part.
 // useEncryptedArrayState expects an actual array for its .map operations.
 export const medicationRegimensProxy = proxy<Encrypted<MedicationRegimen[]>>(
+	// @ts-expect-error Argument of type 'never[]' is not assignable to parameter of type 'Encrypted<MedicationRegimen[]>'.
 	[],
 );

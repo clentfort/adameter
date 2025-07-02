@@ -19,11 +19,11 @@ export default function TotalDurationStats({
 
 	return (
 		<StatsCard
-			title={
+			title={(
 				<fbt desc="Title for the total feeding duration statistics card">
 					Total feeding duration
 				</fbt>
-			}
+			).toString()}
 		>
 			<div className="text-2xl font-bold">
 				{formatDurationAbbreviated(totalDurationInSeconds)}

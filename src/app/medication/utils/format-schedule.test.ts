@@ -65,7 +65,7 @@ describe('formatSchedule', () => {
 
 	it('should return N/A for unknown schedule type', () => {
 		// @ts-expect-error Testing behavior with an unknown schedule type
-		const schedule = { type: 'unknown' };
+		const schedule = { type: 'unknown' } as MedicationRegimen['schedule'];
 		expect(String(formatSchedule(schedule))).toBe('N/A');
 	});
 });

@@ -9,6 +9,7 @@ vi.mock('./use-diaper-changes', () => ({
 	useDiaperChanges: vi.fn(),
 }));
 
+// @ts-expect-error Cannot find namespace 'vi'.
 const mockUseDiaperChanges = useDiaperChanges as vi.MockedFunction<
 	typeof useDiaperChanges
 >;

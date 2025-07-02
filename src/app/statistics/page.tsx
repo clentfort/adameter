@@ -32,24 +32,24 @@ export default function StatisticsPage() {
 
 	// Filter sessions based on selected time range
 	const filteredSessions = (() => {
-		if (timeRange === 'all') return sessions;
+		if (timeRange === 'all') return [...sessions];
 
 		const now = new Date();
 		const daysToLookBack = Number.parseInt(timeRange);
 		const cutoffDate = addDays(now, -daysToLookBack);
-		return sessions.filter(
+		return [...sessions].filter(
 			(session) => new Date(session.startTime) >= cutoffDate,
 		);
 	})();
 
 	// Filter diaper changes based on selected time range
 	const filteredDiaperChanges = (() => {
-		if (timeRange === 'all') return diaperChanges;
+		if (timeRange === 'all') return [...diaperChanges];
 
 		const now = new Date();
 		const daysToLookBack = Number.parseInt(timeRange);
 		const cutoffDate = addDays(now, -daysToLookBack);
-		return diaperChanges.filter(
+		return [...diaperChanges].filter(
 			(change) => new Date(change.timestamp) >= cutoffDate,
 		);
 	})();
@@ -150,7 +150,7 @@ export default function StatisticsPage() {
 						<fbt desc="Subtitle for the growth statistics section">Growth</fbt>
 					</h3>
 					{measurements.length > 0 ? (
-						<GrowthChart events={events} measurements={measurements} />
+						<GrowthChart events={[...events]} measurements={[...measurements]} />
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
 							<fbt desc="Message shown when no growth data is available">

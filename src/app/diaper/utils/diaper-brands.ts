@@ -14,4 +14,4 @@ export const DIAPER_BRAND_LABELS = Object.fromEntries(
 	DIAPER_BRANDS.map((brand) => [brand.value, brand.label]),
 );
 
-export const DEFAULT_DIAPER_BRAND: string = DIAPER_BRANDS.at(-1)?.value;
+export const DEFAULT_DIAPER_BRAND: string = DIAPER_BRANDS.at(-1)?.value ?? 'andere';

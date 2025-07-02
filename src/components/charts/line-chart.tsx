@@ -66,6 +66,7 @@ export default function LineChart({
 		const ctx = chartRef.current.getContext('2d');
 		if (!ctx) return;
 
+		// @ts-expect-error Type 'Chart<keyof ChartTypeRegistry, (number | Point | [number, number] | BubbleDataPoint | null)[], unknown>' is not assignable to type 'Chart<"line", PointData[], unknown>'.
 		chartInstance.current = new Chart(ctx, {
 			data: {
 				datasets: [

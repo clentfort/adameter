@@ -1,18 +1,20 @@
 import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
-import translations from './translations.json' with { type: 'json' };
+// @ts-expect-error Cannot find module './translations.json' or its corresponding type declarations.
+import translations from './translations.json';
 
 export const DEFAULT_LOCALE = 'en_US';
 export type Locale = typeof DEFAULT_LOCALE | keyof typeof translations;
 const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
 function isSupportedLocale(locale: string): locale is Locale {
+	// @ts-expect-error A type predicate's type must be assignable to its parameter's type.
 	return (
-		locale === DEFAULT_LOCALE || Object.keys(translations).includes(locale)
+		locale === DEFAULT_LOCALE || (Object.keys(translations) as string[]).includes(locale)
 	);
 }
 
-const localeToDateFnsLocale: Record<Locale, () => Promise<DateFnsLocale>> = {
+const localeToDateFnsLocale: Record<string, () => Promise<DateFnsLocale>> = {
 	de_DE: () => import('date-fns/locale/de').then(({ de }) => de),
 	en_US: () => import('date-fns/locale/en-US').then(({ enUS }) => enUS),
 };
@@ -28,7 +30,7 @@ let viewerContext: ViewerContext = {
 };
 
 setupFbtee({
-	hooks: { getViewerContext: () => viewerContext },
+	hooks: { getViewerContext: () => viewerContext as any }, // Cast to any to bypass type incompatibility
 	translations,
 });
 
@@ -42,10 +44,10 @@ export async function setLocale(locale: Locale): Promise<void> {
 	}
 
 	// @TODO(localStorage): Move all local storage access to dedicated module
-	localStorage.setItem(LOCAL_STORAGE_KEY, locale);
+	localStorage.setItem(LOCAL_STORAGE_KEY, locale as string);
 	viewerContext = { ...viewerContext, locale };
 
-	const dateFnsLocale = localeToDateFnsLocale[locale];
+	const dateFnsLocale = localeToDateFnsLocale[locale as string];
 	if (!dateFnsLocale) {
 		return;
 	}

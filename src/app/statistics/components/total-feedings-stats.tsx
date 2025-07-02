@@ -15,11 +15,11 @@ export default function TotalFeedingsStats({
 
 	return (
 		<StatsCard
-			title={
+			title={(
 				<fbt desc="Title for the total number of feedings statistics card">
 					Total Feedings
 				</fbt>
-			}
+			).toString()}
 		>
 			<div className="text-2xl font-bold">{sessions.length}</div>
 			<div className="text-xs text-muted-foreground mt-1">
