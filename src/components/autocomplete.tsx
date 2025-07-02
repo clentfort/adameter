@@ -69,24 +69,34 @@ function Autocomplete<T extends { id: string; label: string }>(
 
 	// Effect to update filteredOptions when `options` or `value` props change.
 	useEffect(() => {
-		// Use imported function
+		let newFilteredOptions: T[];
 		if (!value) {
-			// If input is empty, show all options or keep it empty based on desired UX.
-			// For now, showing all options. Could also be `setFilteredOptions([])`
-			// if we only want to show options after typing.
-			// Based on typical autocomplete behavior, showing all when empty (if dropdown is open) is fine,
-			// or showing none if dropdown only opens on typing.
-			// Since our dropdown can open on focus even with empty input, showing all is reasonable.
-			setFilteredOptions(options);
+			// If input is empty, show all options.
+			newFilteredOptions = options;
+			setFilteredOptions(newFilteredOptions);
+			// Keep popover open if it was already open and there are options,
+			// or if the input is focused and there are options (handled by onFocus).
+			// Don't automatically open here if input is simply cleared.
 		} else {
 			const lowercasedValue = value.toLowerCase();
-			setFilteredOptions(
-				options.filter((option) =>
-					option.label.toLowerCase().includes(lowercasedValue),
-				),
+			newFilteredOptions = options.filter((option) =>
+				option.label.toLowerCase().includes(lowercasedValue),
 			);
+			setFilteredOptions(newFilteredOptions);
+
+			// If there's a value and no options match, close the popover.
+			if (newFilteredOptions.length === 0) {
+				setIsOpen(false);
+			} else {
+				// If there are results, ensure the popover is open,
+				// but only if it's not already in the process of closing.
+				// This handles the case where a user types and results appear.
+				if (!isOpen && internalInputRef.current === document.activeElement) {
+					setIsOpen(true);
+				}
+			}
 		}
-	}, [value, options]);
+	}, [value, options, isOpen]); // Added isOpen to dependencies to avoid stale closures if we modify it more complexly
 
 	// Input change handler
 	const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {

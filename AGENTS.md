@@ -281,10 +281,34 @@ files you have modified** for the current task:
     Address any build errors that arise.
 
 5.  **Run TypeScript Checker**: Ensure there are no TypeScript errors.
+
     ```bash
     pnpm exec tsc --noEmit
     ```
+
     Address any TypeScript errors that arise.
+
+6.  **Build Storybook (if stories changed)**: If you added or modified any
+    Storybook story files (`*.stories.tsx`), ensure the Storybook static build
+    is successful.
+    ```bash
+    pnpm run build-storybook
+    ```
+    Address any build errors.
 
 By following these guidelines, you'll help maintain the quality, consistency,
 and stability of the AdaMeter project.
+
+## Storybook Stories
+
+- **Write Stories**: Agents should write Storybook stories for any new
+  components created.
+- **Update Stories**: Existing stories should be updated when the corresponding
+  components are changed to reflect the new behavior or props.
+- **Limitations**:
+  - The `@storybook/test` package (which provides `userEvent`, `expect`, etc.
+    for `play` functions) is currently not available in this project. Therefore,
+    `play` functions requiring these utilities for automated interaction testing
+    within Storybook cannot be used. Manual testing instructions or descriptions
+    of behavior should be added to stories where complex interactions would
+    normally be automated.
