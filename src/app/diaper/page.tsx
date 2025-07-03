@@ -14,7 +14,8 @@ export default function DiaperPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const [showConfetti, setShowConfetti] = useState(false);
 
-	const { add } = useDiaperChanges();
+	const diaperChanges = useDiaperChanges();
+	const { add } = diaperChanges;
 	const lastUsedDiaperBrand = useLastUsedDiaperBrand();
 
 	useEffect(() => {
@@ -56,11 +57,11 @@ export default function DiaperPage() {
 				<DiaperForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(change) => {
-						const newLength = add(change);
-						// The add function from useArrayState (which useEncryptedArrayState wraps)
-						// returns the new length of the array, or void if the item already exists.
+						add(change);
+						const currentTotalChanges = diaperChanges.value.length;
+
 						if (
-							(typeof newLength === 'number' && newLength % 100 === 0) ||
+							currentTotalChanges % 100 === 0 ||
 							(change.abnormalities && change.abnormalities.includes('🎉'))
 						) {
 							setShowConfetti(true);
