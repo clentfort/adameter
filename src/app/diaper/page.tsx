@@ -1,8 +1,9 @@
 'use client';
 
+import type { DiaperChange } from '@/types/diaper';
 import { PlusCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import ConfettiCelebration from '@/components/confetti-celebration';
+import { useState } from 'react';
+import ReactConfetti from 'react-confetti';
 import { Button } from '@/components/ui/button';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useLastUsedDiaperBrand } from '@/hooks/use-last-used-diaper-brand';
@@ -18,19 +19,41 @@ export default function DiaperPage() {
 	const { add } = diaperChanges;
 	const lastUsedDiaperBrand = useLastUsedDiaperBrand();
 
-	useEffect(() => {
-		if (showConfetti) {
-			const timer = setTimeout(() => setShowConfetti(false), 5000); // Hide confetti after 5 seconds
-			return () => clearTimeout(timer);
+	const checkAndTriggerConfetti = (
+		change: DiaperChange,
+		totalChanges: number,
+	) => {
+		if (
+			totalChanges % 100 === 0 ||
+			(change.abnormalities && change.abnormalities.includes('🎉'))
+		) {
+			setShowConfetti(true);
 		}
-	}, [showConfetti]);
+	};
+
+	const handleConfettiComplete = (
+		confettiInstance?: { reset: () => void } | null,
+	) => {
+		setShowConfetti(false);
+		if (confettiInstance && typeof confettiInstance.reset === 'function') {
+			confettiInstance.reset();
+		}
+	};
 
 	return (
 		<>
-			<ConfettiCelebration show={showConfetti} />
+			{showConfetti && (
+				<ReactConfetti
+					numberOfPieces={200}
+					onConfettiComplete={handleConfettiComplete}
+					recycle={false}
+					style={{ pointerEvents: 'none', zIndex: 1000 }} // Ensure it's on top and non-interactive
+					tweenDuration={10_000}
+				/>
+			)}
 			<div className="w-full">
 				<div className="w-full">
-					<DiaperTracker />
+					<DiaperTracker checkAndTriggerConfetti={checkAndTriggerConfetti} />
 
 					<div className="w-full mt-8">
 						<div className="flex justify-between items-center mb-4">
@@ -59,13 +82,7 @@ export default function DiaperPage() {
 					onSave={(change) => {
 						add(change);
 						const currentTotalChanges = diaperChanges.value.length;
-
-						if (
-							currentTotalChanges % 100 === 0 ||
-							(change.abnormalities && change.abnormalities.includes('🎉'))
-						) {
-							setShowConfetti(true);
-						}
+						checkAndTriggerConfetti(change, currentTotalChanges);
 						setIsAddEntryDialogOpen(false);
 					}}
 					presetDiaperBrand={lastUsedDiaperBrand}
