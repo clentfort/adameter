@@ -8,6 +8,7 @@ export interface DiaperChange {
 	id: string;
 	// Optional diaper brand
 	leakage?: boolean;
+	notes?: string; // Optional notes for the diaper change
 	temperature?: number;
 	timestamp: string; // Optional notes about abnormalities
 }

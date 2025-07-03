@@ -1,7 +1,8 @@
 'use client';
 
 import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import ConfettiCelebration from '@/components/confetti-celebration';
 import { Button } from '@/components/ui/button';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useLastUsedDiaperBrand } from '@/hooks/use-last-used-diaper-brand';
@@ -11,12 +12,21 @@ import DiaperTracker from './components/diaper-tracker';
 
 export default function DiaperPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
+	const [showConfetti, setShowConfetti] = useState(false);
 
 	const { add } = useDiaperChanges();
 	const lastUsedDiaperBrand = useLastUsedDiaperBrand();
 
+	useEffect(() => {
+		if (showConfetti) {
+			const timer = setTimeout(() => setShowConfetti(false), 5000); // Hide confetti after 5 seconds
+			return () => clearTimeout(timer);
+		}
+	}, [showConfetti]);
+
 	return (
 		<>
+			<ConfettiCelebration show={showConfetti} />
 			<div className="w-full">
 				<div className="w-full">
 					<DiaperTracker />
@@ -46,7 +56,15 @@ export default function DiaperPage() {
 				<DiaperForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(change) => {
-						add(change);
+						const newLength = add(change);
+						// The add function from useArrayState (which useEncryptedArrayState wraps)
+						// returns the new length of the array, or void if the item already exists.
+						if (
+							(typeof newLength === 'number' && newLength % 100 === 0) ||
+							(change.notes && change.notes.includes('🎉'))
+						) {
+							setShowConfetti(true);
+						}
 						setIsAddEntryDialogOpen(false);
 					}}
 					presetDiaperBrand={lastUsedDiaperBrand}

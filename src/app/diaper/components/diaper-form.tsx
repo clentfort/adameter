@@ -84,7 +84,7 @@ export default function DiaperForm({
 		'change' in props ? (props.change.leakage ?? false) : false,
 	);
 	const [notes, setNotes] = useState(
-		'change' in props ? (props.change.abnormalities ?? '') : '',
+		'change' in props ? (props.change.notes ?? '') : '',
 	);
 
 	const change = 'change' in props ? props.change : undefined;
@@ -111,7 +111,7 @@ export default function DiaperForm({
 
 		setTemperature(change.temperature ? change.temperature.toString() : '');
 		setHasLeakage(change.leakage || false);
-		setNotes(change.abnormalities || '');
+		setNotes(change.notes || '');
 	}, [change]);
 
 	const handleSubmit = () => {
@@ -123,8 +123,8 @@ export default function DiaperForm({
 
 		const updatedChange: DiaperChange = {
 			...change,
-			abnormalities: notes || undefined,
 			containsStool: diaperType === 'stool',
+			notes: notes || undefined,
 
 			// Always true, as stool usually comes with urine
 			containsUrine: true,
