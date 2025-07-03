@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
-import { medicationRegimensProxy } from '@/data/medication-regimens'; // Will be changed in a later step
+import { medicationRegimensProxy } from '@/data/medication-regimens';
 import { useEncryptedArrayState } from './use-encrypted-array-state';
 import { MedicationRegimen } from '@/types/medication-regimen';
 import { useEncryptionKey } from './use-encryption-key';
 
-// Default data for medication regimens
 const defaultMedicationRegimens: MedicationRegimen[] = [
 	{
 		dosageAmount: 0.5,
@@ -61,18 +60,15 @@ const defaultMedicationRegimens: MedicationRegimen[] = [
 
 export const useMedicationRegimens = () => {
 	const state = useEncryptedArrayState<MedicationRegimen>(
-		medicationRegimensProxy, // This will be changed to an empty array proxy in a later step
+		medicationRegimensProxy,
 		'medicationRegimens-backup',
 	);
 	const secret = useEncryptionKey();
 
 	useEffect(() => {
-		// Only set default data if the current value is empty, secret is available,
-		// and default data actually has items.
 		if (state.value && state.value.length === 0 && secret && defaultMedicationRegimens.length > 0) {
 			state.replace(defaultMedicationRegimens);
 		}
-		// defaultMedicationRegimens is a module-level const and doesn't need to be in the dependency array.
 	}, [state.value, state.replace, secret]);
 
 	return state;

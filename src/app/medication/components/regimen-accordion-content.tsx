@@ -7,7 +7,7 @@ interface RegimenAccordionContentProps {
 	handleDeleteRegimen: (regimenId: string) => void;
 	handleEditRegimen: (regimenId: string) => void;
 	isPastSection: boolean;
-	noItemsMessage: React.ReactNode; // Allow passing the fbt message
+	noItemsMessage: React.ReactNode;
 	regimens: MedicationRegimen[];
 	toggleRegimenExpansion: (regimenId: string) => void;
 }

@@ -1,6 +1,3 @@
-// For <fbt> tags, no explicit import of 'fbt' itself is typically needed in the file
-// if Babel plugin is configured.
-
 export default function ImprintPage() {
 	return (
 		<div className="container mx-auto px-4 py-8">

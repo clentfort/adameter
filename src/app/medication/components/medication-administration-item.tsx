@@ -1,15 +1,14 @@
 import { format } from 'date-fns';
-import { fbt } from 'fbtee'; // Added explicit import
+import { fbt } from 'fbtee';
 import { Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { MedicationAdministration } from '@/types/medication'; // Updated type
+import { MedicationAdministration } from '@/types/medication';
 
 interface MedicationAdministrationItemProps {
 	med: MedicationAdministration;
 	onDeleteAdministration: (adminId: string) => void;
 	onEditAdministration: (adminId: string) => void;
-	// getRegimenNameById is removed as medicationName and dosageUnit are now direct properties
 }
 
 export function MedicationAdministrationItem({

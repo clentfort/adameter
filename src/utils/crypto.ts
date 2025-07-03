@@ -107,8 +107,6 @@ export type Decrypted<T extends Encrypted<Encrypteable>> = T extends {
 								: unknown
 			: never;
 
-// export type Decrypted<T> = T extends Encrypted<infer U> ? U : never;
-
 export function decrypt<T extends Encrypted<Encrypteable>>(
 	value: T,
 	secret: string,
@@ -133,7 +131,6 @@ export function decrypt<T extends Encrypted<Encrypteable>>(
 	try {
 		return decryptPrimitive(value, secret) as unknown as Decrypted<T>;
 	} catch (error) {
-		// console.log({ type: typeof value, value }); // Removed for linting
 		throw new Error('Could not decrypt primitive', { cause: error });
 	}
 }

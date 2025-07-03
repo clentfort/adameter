@@ -31,9 +31,6 @@ interface AddDiaperProps {
 	onSave: (change: DiaperChange) => void;
 	presetDiaperBrand?: string;
 	presetType?: 'urine' | 'stool' | undefined;
-	/**
-	 * Whether the dialog is reduced or not
-	 */
 	reducedOptions?: boolean;
 	title: ReactNode;
 }
@@ -99,7 +96,6 @@ export default function DiaperForm({
 		setTime(dateToTimeInputValue(changeDate));
 		setDiaperType(change.containsStool ? 'stool' : 'urine');
 
-		// Check if the brand is in our predefined list
 		const isPredefinedBrand = DIAPER_BRANDS.some(
 			(brand) => brand.value === change.diaperBrand,
 		);
@@ -123,10 +119,8 @@ export default function DiaperForm({
 
 		const updatedChange: DiaperChange = {
 			...change,
-			containsStool: diaperType === 'stool',
 			abnormalities: abnormalities || undefined,
-
-			// Always true, as stool usually comes with urine
+			containsStool: diaperType === 'stool',
 			containsUrine: true,
 			diaperBrand: diaperBrand || undefined,
 			id: change?.id || Date.now().toString(),
@@ -217,7 +211,6 @@ export default function DiaperForm({
 						</>
 					)}
 
-					{/* Diaper brand first */}
 					<div className="space-y-2">
 						<Label htmlFor="edit-diaper-brand">
 							<fbt desc="Label on a select that allows the user to pick a diaper brand">
@@ -244,7 +237,6 @@ export default function DiaperForm({
 						</Select>
 					</div>
 
-					{/* Temperature second */}
 					<div className="space-y-2">
 						<Label htmlFor="edit-temperature">
 							<fbt desc="Label on an input to specificy the body temperature in degree Celsius">
@@ -278,7 +270,6 @@ export default function DiaperForm({
 							)}
 					</div>
 
-					{/* Leakage and abnormalities last */}
 					<div className="flex items-center space-x-2">
 						<Switch
 							checked={hasLeakage}

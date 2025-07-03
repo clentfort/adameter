@@ -10,9 +10,6 @@ interface DiaperStatsProps {
 }
 
 export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
-	// The prop 'diaperChanges' is guaranteed to be an array by TypeScript
-	// and the default value in destructuring.
-
 	if (diaperChanges.length === 0) {
 		return (
 			<Card>
@@ -34,7 +31,6 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 		);
 	}
 
-	// Calculate statistics
 	const totalChanges = diaperChanges.length;
 	const urineOnly = diaperChanges.filter(
 		(c) => c.containsUrine && !c.containsStool,
@@ -42,7 +38,6 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 	const withStool = diaperChanges.filter((c) => c.containsStool).length;
 	const withLeakage = diaperChanges.filter((c) => c.leakage).length;
 
-	// Calculate changes per day
 	const oldestChange = new Date(
 		Math.min(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
 	);
@@ -55,7 +50,6 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 	);
 	const changesPerDay = (totalChanges / daysDiff).toFixed(1);
 
-	// Calculate diaper brand statistics
 	const brandCounts: Record<string, { leakage: number; total: number }> = {};
 	diaperChanges.forEach((change) => {
 		if (change.diaperBrand) {
@@ -69,19 +63,17 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 		}
 	});
 
-	// Sort brands by usage count
 	const sortedBrands = Object.entries(brandCounts)
 		.sort(([, countA], [, countB]) => countB.total - countA.total)
-		.slice(0, 5); // Top 5 brands
+		.slice(0, 5);
 
-	// Sort brands by leakage percentage (for those with at least 3 uses)
 	const leakageBrands = Object.entries(brandCounts)
-		.filter(([, stats]) => stats.total >= 3) // Only consider brands with at least 3 uses
+		.filter(([, stats]) => stats.total >= 3)
 		.sort(
 			([, statsA], [, statsB]) =>
 				statsB.leakage / statsB.total - statsA.leakage / statsA.total,
 		)
-		.slice(0, 5); // Top 5 leaking brands
+		.slice(0, 5);
 
 	return (
 		<Card>
