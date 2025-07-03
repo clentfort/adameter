@@ -61,7 +61,7 @@ export default function DiaperPage() {
 						// returns the new length of the array, or void if the item already exists.
 						if (
 							(typeof newLength === 'number' && newLength % 100 === 0) ||
-							(change.notes && change.notes.includes('🎉'))
+							(change.abnormalities && change.abnormalities.includes('🎉'))
 						) {
 							setShowConfetti(true);
 						}

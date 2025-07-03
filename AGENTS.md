@@ -239,6 +239,10 @@ User-facing strings must be internationalized using the `fbtee` library.
     for dev dependencies.
   - Carefully consider the necessity and impact of adding new dependencies.
 - **Commits**: Write clear and descriptive commit messages.
+- **Data Models**: Do not alter data models (typically found in `src/types/*`
+  and influencing data storage) unless explicitly instructed or confirmed by the
+  human operator. Changes to data models can have significant downstream
+  effects, including data loss or corruption if not handled carefully.
 
 ## Pre-Submission Checklist for Agents
 
