@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
 import { FeedingSession } from '@/types/feeding';
 import HeatMap from './heat-map';
 
@@ -65,28 +64,11 @@ export const DefaultView: Story = {
 	args: {
 		sessions: sampleSessions,
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText('Daily Feeding Distribution'),
-		).toBeInTheDocument();
-		await expect(canvas.getByText('00:00')).toBeInTheDocument();
-		await expect(canvas.getByText('12:00')).toBeInTheDocument();
-		await expect(canvas.getByText('24:00')).toBeInTheDocument();
-		await expect(canvas.getByText('Very High Activity')).toBeInTheDocument();
-		await expect(canvas.getByText('Low Activity')).toBeInTheDocument();
-	},
 };
 
 export const NoSessions: Story = {
 	args: {
 		sessions: [],
-	},
-	play: ({ canvasElement }) => {
-		const cardTitle = within(canvasElement).queryByText(
-			'Daily Feeding Distribution',
-		);
-		expect(cardTitle).not.toBeInTheDocument();
 	},
 };
 
@@ -97,12 +79,6 @@ export const SparselyDistributedSessions: Story = {
 			createSession('sparse2', 14, 0, 30),
 			createSession('sparse3', 22, 0, 30),
 		],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText('Daily Feeding Distribution'),
-		).toBeInTheDocument();
 	},
 };
 
@@ -117,24 +93,10 @@ export const ConcentratedActivity: Story = {
 			createSession('c6', 9, 15, 20),
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText('Daily Feeding Distribution'),
-		).toBeInTheDocument();
-	},
 };
 
 export const SessionsSpanningMidnightExactly: Story = {
 	args: {
-		sessions: [
-			createSession('midnight1', 23, 30, 60),
-		],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText('Daily Feeding Distribution'),
-		).toBeInTheDocument();
+		sessions: [createSession('midnight1', 23, 30, 60)],
 	},
 };

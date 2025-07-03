@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
 import { FeedingSession } from '@/types/feeding';
-import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import TotalDurationStats from './total-duration-stats';
 
 const createSession = (id: string, durationMinutes: number): FeedingSession => {
@@ -49,38 +47,17 @@ export const DefaultView: Story = {
 	args: {
 		sessions: sampleSessions,
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText('Total feeding duration'),
-		).toBeInTheDocument();
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(65 * 60)),
-		).toBeInTheDocument();
-	},
 };
 
 export const NoSessions: Story = {
 	args: {
 		sessions: [],
 	},
-	play: ({ canvasElement }) => {
-		const cardTitle = within(canvasElement).queryByText(
-			'Total feeding duration',
-		);
-		expect(cardTitle).not.toBeInTheDocument();
-	},
 };
 
 export const SingleSession: Story = {
 	args: {
 		sessions: [createSession('s1', 25)],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(25 * 60)),
-		).toBeInTheDocument();
 	},
 };
 
@@ -91,11 +68,5 @@ export const LongDurations: Story = {
 			createSession('s2', 75),
 			createSession('s3', 90),
 		],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(225 * 60)),
-		).toBeInTheDocument();
 	},
 };

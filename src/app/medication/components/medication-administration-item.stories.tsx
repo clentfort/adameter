@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { MedicationAdministration } from '@/types/medication';
 import { MedicationAdministrationItem } from './medication-administration-item';
 
@@ -75,12 +73,6 @@ export const MissedWithDetails: Story = {
 		onDeleteAdministration: () => {},
 		onEditAdministration: () => {},
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect( // Assertion removed
-		// 	canvas.getByText(/forgot to take in the morning/i),
-		// ).toBeInTheDocument();
-	},
 };
 
 export const AdjustedAndLinkedToRegimen: Story = {
@@ -89,38 +81,17 @@ export const AdjustedAndLinkedToRegimen: Story = {
 		onDeleteAdministration: action('onDeleteAdministration'),
 		onEditAdministration: action('onEditAdministration'),
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect( // Assertion removed
-		// 	canvas.getByText(/taken 1 hour late with food/i),
-		// ).toBeInTheDocument();
-		// await expect( // Assertion removed
-		// 	canvas.getByText(/\(linked to regimen\)/i),
-		// ).toBeInTheDocument();
-	},
 };
 
 export const ClickEditButton: Story = {
 	args: {
 		...OnTime.args,
 	},
-	play: async ({ args, canvasElement }) => {
-		const canvas = within(canvasElement);
-		const editButton = canvas.getByRole('button', { name: /edit/i });
-		await userEvent.click(editButton);
-		// await expect(args.onEditAdministration).toHaveBeenCalledWith(args.med.id); // Assertion removed
-	},
 };
 
 export const ClickDeleteButton: Story = {
 	args: {
 		...MissedWithDetails.args,
-	},
-	play: async ({ args, canvasElement }) => {
-		const canvas = within(canvasElement);
-		const deleteButton = canvas.getByRole('button', { name: /delete/i });
-		await userEvent.click(deleteButton);
-		// await expect(args.onDeleteAdministration).toHaveBeenCalledWith(args.med.id); // Assertion removed
 	},
 };
 

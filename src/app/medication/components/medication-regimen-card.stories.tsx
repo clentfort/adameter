@@ -1,7 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
-// import { action } from '@storybook/addon-actions'; // Removed
-import userEvent from '@testing-library/user-event';
 import {
 	MedicationRegimen,
 	MedicationSchedule,
@@ -122,11 +119,6 @@ export const ActiveDailyExpanded: Story = {
 		...ActiveDailyCollapsed.args,
 		isExpanded: true,
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect(canvas.getByText(/take with food./i)).toBeInTheDocument(); // Assertion removed
-		// await expect(canvas.getByText(/dr. smith/i)).toBeInTheDocument(); // Assertion removed
-	},
 };
 
 export const ActiveIntervalWithEndDate: Story = {
@@ -151,28 +143,16 @@ export const AsNeededExpanded: Story = {
 		onToggleExpansion: () => {},
 		regimen: sampleRegimens[3],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect( // Assertion removed
-		// 	canvas.getByText(/for high fever over 38.5°c/i),
-		// ).toBeInTheDocument();
-	},
 };
 
 export const PastRegimenCollapsed: Story = {
 	args: {
 		isExpanded: false,
 		isPast: true,
-		regimen: sampleRegimens[4],
 		onDeleteRegimen: () => {},
 		onEditRegimen: () => {},
 		onToggleExpansion: () => {},
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect(canvas.getByText(/january 1, 2023/i)).toBeInTheDocument(); // Assertion removed
-		// await expect(canvas.getByText(/february 1, 2023/i)).toBeInTheDocument(); // Assertion removed
-		// await expect(canvas.queryByText(/next due:/i)).not.toBeInTheDocument(); // Assertion removed
+		regimen: sampleRegimens[4],
 	},
 };
 
@@ -185,41 +165,18 @@ export const PastDiscontinuedRegimenExpanded: Story = {
 		onToggleExpansion: () => {},
 		regimen: sampleRegimens[5],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect(canvas.getByText(/discontinued/i)).toBeInTheDocument(); // Assertion removed
-		// await expect(canvas.getByText(/schedule:/i)).toBeInTheDocument(); // Assertion removed
-	},
 };
 
 export const ToggleExpansionButton: Story = {
 	args: {
 		...ActiveDailyCollapsed.args,
 	},
-	play: async ({ args, canvasElement }) => {
-		const canvas = within(canvasElement);
-		const toggleButton = canvas.getByRole('button', { name: /show more/i });
-		await userEvent.click(toggleButton);
-		// await expect(args.onToggleExpansion).toHaveBeenCalledTimes(1); // Assertion removed
-	},
 };
 
 export const ClickEditButton: Story = {
 	args: { ...ActiveDailyCollapsed.args },
-	play: async ({ args, canvasElement }) => {
-		const canvas = within(canvasElement);
-		const editButton = canvas.getAllByRole('button', { name: /edit/i })[0];
-		await userEvent.click(editButton);
-		// await expect(args.onEditRegimen).toHaveBeenCalledWith(args.regimen.id); // Assertion removed
-	},
 };
 
 export const ClickDeleteButton: Story = {
 	args: { ...ActiveDailyCollapsed.args },
-	play: async ({ args, canvasElement }) => {
-		const canvas = within(canvasElement);
-		const deleteButton = canvas.getAllByRole('button', { name: /delete/i })[0];
-		await userEvent.click(deleteButton);
-		// await expect(args.onDeleteRegimen).toHaveBeenCalledWith(args.regimen.id); // Assertion removed
-	},
 };

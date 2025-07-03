@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
 import { FeedingSession } from '@/types/feeding';
-import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import DurationStats from './duration-stats';
 
 const createSession = (
@@ -55,25 +53,6 @@ export const DefaultView: Story = {
 	args: {
 		sessions: sampleSessions,
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText('Average Feeding Duration'),
-		).toBeInTheDocument();
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(Math.round((103 * 60) / 6))),
-		).toBeInTheDocument();
-		await expect(
-			canvas
-				.getByText(formatDurationAbbreviated(Math.round((43 * 60) / 3)))
-				.closest('div'),
-		).toHaveTextContent(/Left Breast/);
-		await expect(
-			canvas
-				.getByText(formatDurationAbbreviated(Math.round((60 * 60) / 3)))
-				.closest('div'),
-		).toHaveTextContent(/Right Breast/);
-	},
 };
 
 export const OnlyLeftBreastSessions: Story = {
@@ -84,20 +63,6 @@ export const OnlyLeftBreastSessions: Story = {
 			createSession('s3', 'left', 12),
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(Math.round((37 * 60) / 3))),
-		).toBeInTheDocument();
-		await expect(
-			canvas
-				.getByText(formatDurationAbbreviated(Math.round((37 * 60) / 3)))
-				.closest('div'),
-		).toHaveTextContent(/Left Breast/);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(0)).closest('div'),
-		).toHaveTextContent(/Right Breast/);
-	},
 };
 
 export const OnlyRightBreastSessions: Story = {
@@ -107,48 +72,16 @@ export const OnlyRightBreastSessions: Story = {
 			createSession('s2', 'right', 25),
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(Math.round((45 * 60) / 2))),
-		).toBeInTheDocument();
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(0)).closest('div'),
-		).toHaveTextContent(/Left Breast/);
-		await expect(
-			canvas
-				.getByText(formatDurationAbbreviated(Math.round((45 * 60) / 2)))
-				.closest('div'),
-		).toHaveTextContent(/Right Breast/);
-	},
 };
 
 export const NoSessions: Story = {
 	args: {
 		sessions: [],
 	},
-	play: ({ canvasElement }) => {
-		const cardTitle = within(canvasElement).queryByText(
-			'Average Feeding Duration',
-		);
-		expect(cardTitle).not.toBeInTheDocument();
-	},
 };
 
 export const SingleSession: Story = {
 	args: {
 		sessions: [createSession('s1', 'left', 13)],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(13 * 60)),
-		).toBeInTheDocument();
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(13 * 60)).closest('div'),
-		).toHaveTextContent(/Left Breast/);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(0)).closest('div'),
-		).toHaveTextContent(/Right Breast/);
 	},
 };

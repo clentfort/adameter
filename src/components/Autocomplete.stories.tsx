@@ -83,8 +83,6 @@ export const WithSelection: Story = {
 	args: {
 		...BasicUsage.args,
 	},
-	play: async ({ args, canvasElement }) => {
-	},
 };
 
 const ControlledAutocomplete = (args: Story['args']) => {
@@ -136,7 +134,7 @@ export const HidesWhenNoResultsAfterTyping: Story = {
 	args: {
 		options: [
 			{ id: '1', label: 'Apple' },
-			{ id: '2', label: 'Banana' },
+			{ id: '2', label: 'Banana' },	
 			{ id: '3', label: 'Cherry' },
 		],
 		placeholder: 'Search here...',

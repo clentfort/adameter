@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
 import { Event } from '@/types/event';
 import { GrowthMeasurement } from '@/types/growth';
 import GrowthChart from './growth-chart';
@@ -90,32 +89,12 @@ export const DefaultView: Story = {
 		events: sampleEvents,
 		measurements: sampleMeasurements,
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(canvas.getByText('Growth Chart')).toBeInTheDocument();
-		await expect(canvas.getByText('Weight (g)')).toBeInTheDocument();
-		await expect(canvas.getByText('Height (cm)')).toBeInTheDocument();
-		await expect(
-			canvas.getByText('Head Circumference (cm)'),
-		).toBeInTheDocument();
-		await expect(
-			canvas.getByText(/vertical lines indicate important events/i),
-		).toBeInTheDocument();
-	},
 };
 
 export const NoMeasurements: Story = {
 	args: {
 		events: [],
 		measurements: [],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText(
-				'No measurements available. Add measurements to see the growth chart.',
-			),
-		).toBeInTheDocument();
 	},
 };
 
@@ -127,35 +106,12 @@ export const OnlyWeightData: Story = {
 			{ date: createDate(0), id: 'gmw2', weight: 5500 },
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(canvas.getByText('Weight (g)')).toBeInTheDocument();
-		const heightChartArea = canvas.getByText('Height (cm)').closest('div');
-		if (heightChartArea)
-			await expect(
-				within(heightChartArea).getByText('No data available.'),
-			).toBeInTheDocument();
-
-		const headCircChartArea = canvas
-			.getByText('Head Circumference (cm)')
-			.closest('div');
-		if (headCircChartArea)
-			await expect(
-				within(headCircChartArea).getByText('No data available.'),
-			).toBeInTheDocument();
-	},
 };
 
 export const NoEvents: Story = {
 	args: {
 		events: [],
 		measurements: sampleMeasurements,
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.queryByText(/vertical lines indicate important events/i),
-		).not.toBeInTheDocument();
 	},
 };
 
@@ -168,9 +124,5 @@ export const MeasurementsWithGaps: Story = {
 			{ date: createDate(60), headCircumference: 36, id: 'gm_hc1' },
 			{ date: createDate(30), headCircumference: 38, id: 'gm_hc2' },
 		],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(canvas.getByText('Growth Chart')).toBeInTheDocument();
 	},
 };

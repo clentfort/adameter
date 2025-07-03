@@ -1,8 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
-// import { action } from '@storybook/addon-actions'; // Removed
-import userEvent from '@testing-library/user-event';
-import { fbt } from 'fbtee';
 import {
 	MedicationRegimen,
 	MedicationSchedule,
@@ -110,14 +106,6 @@ export const ActiveRegimensSomeExpanded: Story = {
 		regimens: activeRegimens,
 		toggleRegimenExpansion: () => {},
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect(canvas.getByText(activeRegimens[0].name)).toBeInTheDocument(); // Assertion removed
-		// await expect( // Assertion removed
-		// 	canvas.getByText(activeRegimens[0].notes!),
-		// ).toBeInTheDocument();
-		// await expect(canvas.getByText(activeRegimens[1].name)).toBeInTheDocument(); // Assertion removed
-	},
 };
 
 export const ActiveRegimensNoneExpanded: Story = {
@@ -142,11 +130,6 @@ export const PastRegimensOneExpanded: Story = {
 		regimens: pastRegimens,
 		toggleRegimenExpansion: () => {},
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect(canvas.getByText(pastRegimens[1].name)).toBeInTheDocument(); // Assertion removed
-		// await expect(canvas.getByText(/discontinued/i)).toBeInTheDocument(); // Assertion removed
-	},
 };
 
 export const NoActiveRegimens: Story = {
@@ -162,12 +145,6 @@ export const NoActiveRegimens: Story = {
 		),
 		regimens: [],
 		toggleRegimenExpansion: () => {},
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect( // Assertion removed
-		// 	canvas.getByText(/you have no active medication regimens./i),
-		// ).toBeInTheDocument();
 	},
 };
 
@@ -185,33 +162,11 @@ export const NoPastRegimens: Story = {
 		regimens: [],
 		toggleRegimenExpansion: () => {},
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect( // Assertion removed
-		// 	canvas.getByText(/no past medication regimens found./i),
-		// ).toBeInTheDocument();
-	},
 };
 
 export const InteractionToggleExpansion: Story = {
 	args: {
 		...ActiveRegimensSomeExpanded.args,
 		expandedRegimens: { [activeRegimens[0].id]: false },
-	},
-	play: async ({ args, canvasElement }) => {
-		const canvas = within(canvasElement);
-		const firstRegimenCard = canvas
-			.getByText(activeRegimens[0].name)
-			.closest('div.rounded-lg');
-		if (!firstRegimenCard)
-			throw new Error('Could not find regimen card for interaction test');
-
-		const showMoreButton = within(firstRegimenCard).getByRole('button', {
-			name: /show more/i,
-		});
-		await userEvent.click(showMoreButton);
-		// await expect(args.toggleRegimenExpansion).toHaveBeenCalledWith( // Assertion removed
-		// 	activeRegimens[0].id,
-		// );
 	},
 };

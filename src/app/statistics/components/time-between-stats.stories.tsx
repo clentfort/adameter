@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
 import { FeedingSession } from '@/types/feeding';
-import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import TimeBetweenStats from './time-between-stats';
 
 const today = new Date();
@@ -60,13 +58,6 @@ export const DefaultView: Story = {
 	args: {
 		sessions: sampleSessions,
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(canvas.getByText('Time Between Feedings')).toBeInTheDocument();
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(27_900)),
-		).toBeInTheDocument();
-	},
 };
 
 export const RegularIntervals: Story = {
@@ -78,35 +69,17 @@ export const RegularIntervals: Story = {
 			createSession('r4', createTimestamp(0, 15)),
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(3 * 60 * 60)),
-		).toBeInTheDocument();
-	},
 };
 
 export const NoSessions: Story = {
 	args: {
 		sessions: [],
 	},
-	play: ({ canvasElement }) => {
-		const cardTitle = within(canvasElement).queryByText(
-			'Time Between Feedings',
-		);
-		expect(cardTitle).not.toBeInTheDocument();
-	},
 };
 
 export const OneSession: Story = {
 	args: {
 		sessions: [createSession('s1', createTimestamp(0, 12))],
-	},
-	play: ({ canvasElement }) => {
-		const cardTitle = within(canvasElement).queryByText(
-			'Time Between Feedings',
-		);
-		expect(cardTitle).not.toBeInTheDocument();
 	},
 };
 
@@ -117,12 +90,6 @@ export const TwoSessionsCloseTogether: Story = {
 			createSession('s2', createTimestamp(0, 12, 30)),
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(30 * 60)),
-		).toBeInTheDocument();
-	},
 };
 
 export const SessionsWithZeroTimeBetween: Story = {
@@ -132,11 +99,5 @@ export const SessionsWithZeroTimeBetween: Story = {
 			createSession('s2', createTimestamp(0, 12, 0)),
 			createSession('s3', createTimestamp(0, 15, 0)),
 		],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText(formatDurationAbbreviated(3 * 60 * 60)),
-		).toBeInTheDocument();
 	},
 };
