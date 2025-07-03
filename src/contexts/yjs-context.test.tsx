@@ -88,6 +88,8 @@ describe('YjsProvider', () => {
 		const feedingSessionsData = await import('@/data/feeding-sessions');
 		const growthMeasurementsData = await import('@/data/growth-measurments');
 		const feedingInProgressData = await import('@/data/feeding-in-progress');
+		const medicationRegimensData = await import('@/data/medication-regimens');
+		const medicationsData = await import('@/data/medications');
 
 		// Render YjsProvider with a minimal child for this test
 		render(
@@ -120,6 +122,14 @@ describe('YjsProvider', () => {
 			feedingInProgressData.feedingInProgress,
 			expect.any(YMap),
 		);
-		expect(ValtioYjsMocked.bind).toHaveBeenCalledTimes(5);
+		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(
+			medicationRegimensData.medicationRegimensProxy,
+			expect.any(YArray),
+		);
+		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(
+			medicationsData.medicationsProxy,
+			expect.any(YArray),
+		);
+		expect(ValtioYjsMocked.bind).toHaveBeenCalledTimes(7);
 	});
 });
