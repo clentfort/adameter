@@ -59,7 +59,6 @@ export function getPreferredLocale(): Locale {
 		return DEFAULT_LOCALE;
 	}
 
-	// @TODO(localStorage): Move all local storage access to dedicated module
 	let locale = localStorage.getItem(LOCAL_STORAGE_KEY);
 
 	if (!locale) {

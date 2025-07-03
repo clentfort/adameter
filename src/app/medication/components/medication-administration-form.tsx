@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Autocomplete } from '@/components/autocomplete'; // Added
+import { Autocomplete } from '@/components/autocomplete';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -22,8 +22,8 @@ import { MedicationAdministration } from '@/types/medication';
 import { MedicationRegimen } from '@/types/medication-regimen';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
-import { MedicationAutocompleteOptionData } from '../types/medication-autocomplete-option'; // Added
-import { calculateFrecencySuggestions } from '../utils/frecency-calculator'; // Added
+import { MedicationAutocompleteOptionData } from '../types/medication-autocomplete-option';
+import { calculateFrecencySuggestions } from '../utils/frecency-calculator';
 import {
 	MedicationAdministrationFormData,
 	medicationAdministrationSchema,
@@ -37,8 +37,6 @@ interface MedicationAdministrationFormProps {
 	onSubmit: (data: MedicationAdministrationFormData, id?: string) => void;
 	regimens: readonly MedicationRegimen[];
 }
-
-// Removed ComboboxOption interface as it's replaced by MedicationAutocompleteOptionData
 
 export const MedicationAdministrationForm: React.FC<
 	MedicationAdministrationFormProps
@@ -60,13 +58,12 @@ export const MedicationAdministrationForm: React.FC<
 			initialData?.timestamp ? new Date(initialData.timestamp) : new Date(),
 		),
 	);
-	// const [comboboxOpen, setComboboxOpen] = useState(false); // No longer needed for Autocomplete
 
 	const form = useForm<MedicationAdministrationFormData>({
 		defaultValues: {
 			administrationStatus: initialData?.administrationStatus || 'On Time',
 			details: initialData?.details || '',
-			dosageAmount: initialData?.dosageAmount ?? Number.NaN, // Ensure number for empty
+			dosageAmount: initialData?.dosageAmount ?? Number.NaN,
 			dosageUnit: initialData?.dosageUnit || '',
 			medicationName: initialData?.medicationName || '',
 			regimenId: initialData?.regimenId || undefined,
@@ -120,10 +117,6 @@ export const MedicationAdministrationForm: React.FC<
 
 		const frecencyOptions = calculateFrecencySuggestions(allAdministrations);
 
-		// Combine, ensuring regimen-based suggestions for the same med/dose/unit
-		// are distinct or prioritized. For now, we list regimens first, then frecency.
-		// We might want to de-duplicate if a frecency item is identical to a regimen.
-		// A simple way is to filter out frecency items that match a regimen's name, dosage, and unit.
 		const frecencyOnlyOptions = frecencyOptions.filter(
 			(frecOpt) =>
 				!regimenOptions.some(
@@ -179,7 +172,6 @@ export const MedicationAdministrationForm: React.FC<
 					className="space-y-4 max-h-[70vh] overflow-y-auto p-1 pr-3"
 					onSubmit={form.handleSubmit(handleFormSubmit)}
 				>
-					{/* Medication Name (Combobox) */}
 					<div className="space-y-1">
 						<Label htmlFor="medicationName">
 							<fbt desc="Label for medication name input">Medication Name</fbt>
@@ -204,12 +196,9 @@ export const MedicationAdministrationForm: React.FC<
 										form.setValue('regimenId', option.regimenId, {
 											shouldDirty: true,
 										});
-										// field.onChange will be called by onValueChange with option.label
 									}}
 									onValueChange={(value) => {
 										field.onChange(value);
-										// If user types and it doesn't match a known regimen or frecency item,
-										// clear related fields.
 										const matchedOption = medicationOptions.find(
 											(opt) => opt.label === value,
 										);
@@ -248,7 +237,6 @@ export const MedicationAdministrationForm: React.FC<
 						)}
 					</div>
 
-					{/* Dosage Amount & Unit */}
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-1">
 							<Label htmlFor="dosageAmount">
@@ -259,7 +247,6 @@ export const MedicationAdministrationForm: React.FC<
 								step="any"
 								type="number"
 								{...form.register('dosageAmount', { valueAsNumber: true })}
-								// To prevent showing "NaN" if field is empty after reset/clearing
 								onChange={(e) => {
 									const num = Number.parseFloat(e.target.value);
 									form.setValue(
@@ -268,7 +255,7 @@ export const MedicationAdministrationForm: React.FC<
 										{ shouldDirty: true, shouldValidate: true },
 									);
 								}}
-								value={form.watch('dosageAmount') || ''} // Show empty string for undefined/NaN
+								value={form.watch('dosageAmount') || ''}
 							/>
 							{form.formState.errors.dosageAmount && (
 								<p className="text-sm text-red-500">
@@ -296,7 +283,6 @@ export const MedicationAdministrationForm: React.FC<
 						</div>
 					</div>
 
-					{/* Timestamp (Date and Time) */}
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-1">
 							<Label htmlFor="adminDate">
@@ -321,7 +307,6 @@ export const MedicationAdministrationForm: React.FC<
 							/>
 						</div>
 					</div>
-					{/* Hidden input for react-hook-form to track the combined timestamp */}
 					<input type="hidden" {...form.register('timestamp')} />
 					{form.formState.errors.timestamp && (
 						<p className="text-sm text-red-500">
@@ -329,7 +314,6 @@ export const MedicationAdministrationForm: React.FC<
 						</p>
 					)}
 
-					{/* Administration Status */}
 					<div className="space-y-1">
 						<Label>
 							<fbt desc="Label for administration status radio group">
@@ -366,7 +350,6 @@ export const MedicationAdministrationForm: React.FC<
 						)}
 					</div>
 
-					{/* Details/Notes */}
 					<div className="space-y-1">
 						<Label htmlFor="details">
 							<fbt desc="Label for optional details/notes textarea">

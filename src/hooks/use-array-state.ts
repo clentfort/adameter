@@ -18,7 +18,6 @@ export function useArrayState<S extends ObjectWithId>(array: S[]) {
 			(id: string) => {
 				const index = array.findIndex((item) => item.id === id);
 				if (index === -1) {
-					// console.log('could not find item with id', id); // Removed for linting
 					return;
 				}
 				array.splice(index, 1);

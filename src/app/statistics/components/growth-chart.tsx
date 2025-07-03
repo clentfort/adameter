@@ -3,7 +3,7 @@
 import type { Event } from '@/types/event';
 import type { GrowthMeasurement } from '@/types/growth';
 import { useMemo } from 'react';
-import LineChart from '@/components/charts/line-chart'; // Import the new chart component
+import LineChart from '@/components/charts/line-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface GrowthChartProps {
@@ -15,7 +15,6 @@ export default function GrowthChart({
 	events = [],
 	measurements = [],
 }: GrowthChartProps) {
-	// Sort measurements by date (oldest first for the chart)
 	const sortedMeasurements = useMemo(
 		() =>
 			[...measurements].sort(
@@ -24,7 +23,6 @@ export default function GrowthChart({
 		[measurements],
 	);
 
-	// Prepare data for weight chart
 	const weightData = useMemo(
 		() =>
 			sortedMeasurements
@@ -36,7 +34,6 @@ export default function GrowthChart({
 		[sortedMeasurements],
 	);
 
-	// Prepare data for height chart
 	const heightData = useMemo(
 		() =>
 			sortedMeasurements
@@ -48,7 +45,6 @@ export default function GrowthChart({
 		[sortedMeasurements],
 	);
 
-	// Prepare data for head circumference chart
 	const headCircumferenceData = useMemo(
 		() =>
 			sortedMeasurements
@@ -100,7 +96,6 @@ export default function GrowthChart({
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="p-4 pt-0 space-y-6">
-				{/* Weight Chart */}
 				<div>
 					<h3 className="font-medium mb-2">
 						<fbt desc="Title for the weight section in the growth chart">
@@ -129,7 +124,6 @@ export default function GrowthChart({
 					/>
 				</div>
 
-				{/* Height Chart */}
 				<div>
 					<h3 className="font-medium mb-2">
 						<fbt desc="Title for the height section in the growth chart">
@@ -158,7 +152,6 @@ export default function GrowthChart({
 					/>
 				</div>
 
-				{/* Head Circumference Chart */}
 				<div>
 					<h3 className="font-medium mb-2">
 						<fbt desc="Title for the head circumference section in the growth chart">

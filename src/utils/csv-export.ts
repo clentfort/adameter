@@ -6,27 +6,21 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import JSZip from 'jszip';
 
-// Helper function to escape CSV fields
 const escapeCSV = (field: string): string => {
-	// If the field contains commas, quotes, or newlines, wrap it in quotes
 	if (field.includes(',') || field.includes('"') || field.includes('\n')) {
-		// Double up any quotes
 		return `"${field.replaceAll('"', '""')}"`;
 	}
 	return field;
 };
 
-// Function to convert feeding sessions to CSV
 export const feedingSessionsToCsv = (sessions: FeedingSession[]): string => {
 	if (sessions.length === 0) {
 		return 'Brust,Startzeit,Endzeit,Dauer (Sekunden),Dauer (formatiert)\n';
 	}
 
-	// Create header row
 	const header =
 		'Brust,Startzeit,Endzeit,Dauer (Sekunden),Dauer (formatiert)\n';
 
-	// Format each session as a CSV row
 	const rows = sessions
 		.map((session) => {
 			const startTime = format(
@@ -39,7 +33,6 @@ export const feedingSessionsToCsv = (sessions: FeedingSession[]): string => {
 			});
 			const breast = session.breast === 'left' ? 'Links' : 'Rechts';
 
-			// Format duration
 			const minutes = Math.floor(session.durationInSeconds / 60);
 			const seconds = session.durationInSeconds % 60;
 			const formattedDuration = `${minutes} Min. ${seconds} Sek.`;
@@ -51,16 +44,13 @@ export const feedingSessionsToCsv = (sessions: FeedingSession[]): string => {
 	return header + rows;
 };
 
-// Function to convert events to CSV
 export const eventsToCsv = (events: Event[]): string => {
 	if (events.length === 0) {
 		return 'Titel,Beschreibung,Startzeit,Endzeit,Typ,Farbe\n';
 	}
 
-	// Create header row
 	const header = 'Titel,Beschreibung,Startzeit,Endzeit,Typ,Farbe\n';
 
-	// Format each event as a CSV row
 	const rows = events
 		.map((event) => {
 			const startTime = format(
@@ -80,7 +70,6 @@ export const eventsToCsv = (events: Event[]): string => {
 	return header + rows;
 };
 
-// Function to convert growth measurements to CSV
 export const growthMeasurementsToCsv = (
 	measurements: GrowthMeasurement[],
 ): string => {
@@ -88,10 +77,8 @@ export const growthMeasurementsToCsv = (
 		return 'Datum,Gewicht (g),Größe (cm),Notizen\n';
 	}
 
-	// Create header row
 	const header = 'Datum,Gewicht (g),Größe (cm),Notizen\n';
 
-	// Format each measurement as a CSV row
 	const rows = measurements
 		.map((measurement) => {
 			const date = format(new Date(measurement.date), 'dd.MM.yyyy', {
@@ -109,17 +96,14 @@ export const growthMeasurementsToCsv = (
 	return header + rows;
 };
 
-// Function to convert diaper changes to CSV
 export const diaperChangesToCsv = (changes: DiaperChange[]): string => {
 	if (changes.length === 0) {
 		return 'Zeitpunkt,Typ,Temperatur,Windelmarke,Ausgelaufen,Auffälligkeiten\n';
 	}
 
-	// Create header row
 	const header =
 		'Zeitpunkt,Typ,Temperatur,Windelmarke,Ausgelaufen,Auffälligkeiten\n';
 
-	// Format each change as a CSV row
 	const rows = changes
 		.map((change) => {
 			const timestamp = format(
@@ -140,7 +124,6 @@ export const diaperChangesToCsv = (changes: DiaperChange[]): string => {
 	return header + rows;
 };
 
-// Function to create a JSON export of all data
 export const createJsonExport = (
 	sessions: FeedingSession[],
 	events: Event[],
@@ -157,7 +140,6 @@ export const createJsonExport = (
 	return JSON.stringify(exportData, null, 2);
 };
 
-// Function to download all data as a ZIP file
 export const downloadAllAsZip = async (
 	sessions: FeedingSession[],
 	events: Event[],
@@ -165,22 +147,18 @@ export const downloadAllAsZip = async (
 	diaperChanges: DiaperChange[],
 ): Promise<void> => {
 	try {
-		// Create a new JSZip instance
 		const zip = new JSZip();
 
-		// Add CSV files to the zip
 		zip.file('stillzeiten.csv', feedingSessionsToCsv(sessions));
 		zip.file('ereignisse.csv', eventsToCsv(events));
 		zip.file('wachstum.csv', growthMeasurementsToCsv(measurements));
 		zip.file('windeln.csv', diaperChangesToCsv(diaperChanges));
 
-		// Add a JSON file with all data
 		zip.file(
 			'alle_daten.json',
 			createJsonExport(sessions, events, measurements, diaperChanges),
 		);
 
-		// Add a README file
 		const readmeContent = `Stillzeit-Tracker Export
 Erstellt am: ${format(new Date(), 'dd.MM.yyyy HH:mm:ss', { locale: de })}
 
@@ -196,57 +174,39 @@ Die JSON-Datei kann für den Import in die Baby-Tracker App verwendet werden.`;
 
 		zip.file('README.txt', readmeContent);
 
-		// Generate the zip file
 		const content = await zip.generateAsync({ type: 'blob' });
 
-		// Generate filename with current date
 		const date = format(new Date(), 'yyyy-MM-dd');
 		const filename = `baby-tracker-export-${date}.zip`;
 
-		// Create a download link
 		const link = document.createElement('a');
 		link.href = URL.createObjectURL(content);
 		link.download = filename;
 		link.style.display = 'none';
 
-		// Add link to document, click it, and remove it
 		document.body.append(link);
 		link.click();
 		document.body.removeChild(link);
 
-		// Clean up the URL
 		setTimeout(() => {
 			URL.revokeObjectURL(link.href);
 		}, 100);
 
 		return;
 	} catch (error) {
-		// console.error('Error creating ZIP file:', error); // Removed for linting
-		throw error; // Changed for unicorn/no-useless-promise-resolve-reject
+		throw error;
 	}
 };
 
-// Function to download CSV data (kept for backward compatibility)
 export const downloadCsv = (csvContent: string, filename: string): void => {
-	// Create a Blob with the CSV content
 	const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-
-	// Create a download link
 	const link = document.createElement('a');
-
-	// Create a URL for the blob
 	const url = URL.createObjectURL(blob);
-
-	// Set link properties
 	link.setAttribute('href', url);
 	link.setAttribute('download', filename);
 	link.style.visibility = 'hidden';
-
-	// Add link to document, click it, and remove it
 	document.body.append(link);
 	link.click();
 	document.body.removeChild(link);
-
-	// Clean up the URL
 	URL.revokeObjectURL(url);
 };

@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import HistoryList, { ItemWithId } from './history-list'; // Assuming HistoryList is exported as default
+import HistoryList, { ItemWithId } from './history-list';
 
-// Define a simple item type for the story
 interface MockEventItem extends ItemWithId {
-  timestamp: string; // ISO string for date
+  timestamp: string;
   data: string;
 }
 
@@ -19,15 +18,11 @@ const meta = {
   title: 'Components/HistoryList',
   component: HistoryList,
   parameters: {
-    layout: 'padded', // Use padded to give some space around the list
+    layout: 'padded',
   },
   tags: ['autodocs'],
-  argTypes: {
-    // entries: { control: 'object' }, // Might be too complex for control
-    // children: { control: false }, // Cannot be controlled via UI
-    // dateAccessor: { control: false }, // Cannot be controlled via UI
-  },
-} satisfies Meta<typeof HistoryList<MockEventItem>>; // Specify the generic type
+  argTypes: {},
+} satisfies Meta<typeof HistoryList<MockEventItem>>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

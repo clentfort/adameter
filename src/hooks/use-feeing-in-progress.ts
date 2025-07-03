@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSnapshot } from 'valtio';
 import { feedingInProgress } from '@/data/feeding-in-progress';
 import { FeedingInProgress } from '@/types/feeding-in-progress';
-import { decrypt, encrypt, Encrypted } from '@/utils/crypto'; // Added Encrypted import
+import { decrypt, encrypt, Encrypted } from '@/utils/crypto';
 import { useEncryptionKey } from './use-encryption-key';
 
 export const useFeedingInProgress = () => {

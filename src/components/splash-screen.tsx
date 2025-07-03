@@ -7,7 +7,7 @@ export function SplashScreen() {
 		<div
 			style={{
 				alignItems: 'center',
-				backgroundColor: '#faf7ee', // From manifest.json
+				backgroundColor: '#faf7ee',
 				display: 'flex',
 				flexDirection: 'column',
 				height: '100vh',
@@ -16,7 +16,7 @@ export function SplashScreen() {
 				position: 'fixed',
 				top: 0,
 				width: '100vw',
-				zIndex: 9999, // Ensure it's on top
+				zIndex: 9999,
 			}}
 		>
 			<Image

@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useTheme } from 'next-themes';
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/button'; // Example component to show theme effects
+import { Button } from '@/components/ui/button';
 import { ThemeProvider } from './theme-provider';
 
-// Helper component to demonstrate theme switching
 const ThemeSwitcherDemo = () => {
 	const { setTheme, theme } = useTheme();
 
@@ -49,8 +48,6 @@ const meta: Meta<typeof ThemeProvider> = {
 	component: ThemeProvider,
 	decorators: [
 		(Story, context) => {
-			// Ensure that when a story re-renders (e.g. args change), the theme is reset if needed.
-			// This is a bit of a workaround for Storybook's iframe context.
 			const { setTheme } = useTheme();
 			useEffect(() => {
 				if (context.args.defaultTheme) {
@@ -77,7 +74,7 @@ export const DefaultLight: Story = {
 		children: <ThemeSwitcherDemo />,
 		defaultTheme: 'light',
 		enableSystem: true,
-		storageKey: 'storybook-theme', // Use a different storage key for storybook to avoid conflicts
+		storageKey: 'storybook-theme',
 	},
 };
 
@@ -94,16 +91,6 @@ export const SystemTheme: Story = {
 		...DefaultLight.args,
 		children: <ThemeSwitcherDemo />,
 		defaultTheme: 'system',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					"The 'system' theme will attempt to match the user's operating system preference. " +
-					"In Storybook's isolated environment, this might default to light or dark based on Storybook's own or browser settings. " +
-					'Test on a live page for true system theme behavior.',
-			},
-		},
 	},
 };
 
@@ -136,7 +123,7 @@ export const WithoutSystemPreference: Story = {
 				<ThemeSwitcherDemo />
 			</div>
 		),
-		defaultTheme: 'light', // System will not be an option if enableSystem is false
+		defaultTheme: 'light',
 		enableSystem: false,
 	},
 };
