@@ -1,6 +1,6 @@
 import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
-// @ts-expect-error Cannot find module './translations.json' or its corresponding type declarations.
+// @ts-ignore Cannot find module './translations.json' or its corresponding type declarations.
 import translations from './translations.json';
 
 export const DEFAULT_LOCALE = 'en_US';
@@ -29,7 +29,6 @@ let viewerContext: ViewerContext = {
 };
 
 setupFbtee({
-	// @ts-expect-error Call signature return types 'ViewerContext' and '{ GENDER: IntlVariations; locale: string; }' are incompatible.
 	hooks: { getViewerContext: () => viewerContext },
 	translations,
 });
@@ -44,7 +43,6 @@ export async function setLocale(locale: Locale): Promise<void> {
 	}
 
 	// @TODO(localStorage): Move all local storage access to dedicated module
-	// @ts-expect-error Argument of type 'Locale' is not assignable to parameter of type 'string'.
 	localStorage.setItem(LOCAL_STORAGE_KEY, locale);
 	viewerContext = { ...viewerContext, locale };
 

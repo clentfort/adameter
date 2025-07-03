@@ -44,11 +44,8 @@ export default function DiaperPage() {
 		<>
 			{showConfetti && (
 				<ReactConfetti
-					numberOfPieces={200}
 					onConfettiComplete={handleConfettiComplete}
 					recycle={false}
-					style={{ pointerEvents: 'none', zIndex: 1000 }} // Ensure it's on top and non-interactive
-					tweenDuration={10_000}
 				/>
 			)}
 			<div className="w-full">
