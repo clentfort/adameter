@@ -71,6 +71,12 @@ const meta: Meta<typeof EventsList> = {
 		},
 	],
 	parameters: {
+		docs: {
+			story: {
+				height: '100vh',
+				inline: false, // Explicitly set for clarity
+			},
+		},
 		layout: 'padded',
 	},
 	tags: ['autodocs'],

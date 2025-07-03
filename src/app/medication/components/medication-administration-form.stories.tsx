@@ -71,18 +71,15 @@ const meta: Meta<typeof MedicationAdministrationForm> = {
 		regimens: { control: 'object' },
 	},
 	component: MedicationAdministrationForm,
-	decorators: [
-		(Story, { args }) => (
-			args.isOpen ? <Story /> : null
-		),
-	],
+	decorators: [(Story, { args }) => (args.isOpen ? <Story /> : null)],
 	parameters: {
-		layout: 'centered',
 		docs: {
 			story: {
+				height: '100vh',
 				inline: false,
 			},
 		},
+		layout: 'centered',
 	},
 	tags: ['autodocs'],
 	title: 'App/Medication/MedicationAdministrationForm',
