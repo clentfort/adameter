@@ -24,12 +24,13 @@ const meta: Meta<typeof DiaperForm> = {
 	},
 	component: DiaperForm,
 	parameters: {
-		layout: 'centered',
 		docs: {
 			story: {
+				height: '100vh',
 				inline: false,
 			},
 		},
+		layout: 'centered',
 	},
 	tags: ['autodocs'],
 	title: 'App/Diaper/DiaperForm',

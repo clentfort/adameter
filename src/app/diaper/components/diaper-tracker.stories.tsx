@@ -42,6 +42,12 @@ const meta: Meta<typeof DiaperTracker> = {
 		},
 	],
 	parameters: {
+		docs: {
+			story: {
+				height: '100vh',
+				inline: false, // Explicitly set for clarity, though default for docs
+			},
+		},
 		layout: 'centered',
 	},
 	tags: ['autodocs'],

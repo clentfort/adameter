@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { waitFor, within } from '@testing-library/react';
+import { within } from '@testing-library/react';
 // import { action } from '@storybook/addon-actions'; // Removed
 import userEvent from '@testing-library/user-event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
@@ -30,12 +30,13 @@ const meta: Meta<typeof EventForm> = {
 	},
 	component: EventForm,
 	parameters: {
-		layout: 'centered',
 		docs: {
 			story: {
+				height: '100vh',
 				inline: false,
 			},
 		},
+		layout: 'centered',
 	},
 	tags: ['autodocs'],
 	title: 'App/Events/EventForm',
