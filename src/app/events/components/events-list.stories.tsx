@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { within } from '@testing-library/react';
 // import { action } from '@storybook/addon-actions'; // Removed
 // import { vi } from 'vitest'; // Removed
 // import { useEvents } from '@/hooks/use-events'; // Actual hook will be used
