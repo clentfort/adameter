@@ -81,6 +81,7 @@ export const WithEvents: Story = {
 					return date.toISOString();
 				})(),
 				title: 'Vaccination',
+				type: 'point',
 			},
 			{
 				color: 'hsl(var(--destructive))',
@@ -96,6 +97,7 @@ export const WithEvents: Story = {
 					return date.toISOString();
 				})(),
 				title: 'Fever Spike',
+				type: 'point',
 			},
 		],
 		title: 'Weight Over Time with Events',
@@ -144,8 +146,8 @@ export const WithCustomTooltipFormatters: Story = {
 		datasetLabel: 'Formatted Tooltip Data',
 		emptyStateMessage: 'No data.',
 		title: 'Chart with Custom Tooltips',
-		tooltipLabelFormatter: (context) => {
-			return `Value: ${context.parsed.y} ${context.dataset.label || ''}`;
+		tooltipLabelFormatter: (context: { dataset?: { label?: string }; parsed: { y: unknown }; }) => {
+			return `Value: ${context.parsed.y} ${context.dataset?.label || ''}`;
 		},
 		tooltipTitleFormatter: (context) => {
 			const date = new Date(context[0].parsed.x);

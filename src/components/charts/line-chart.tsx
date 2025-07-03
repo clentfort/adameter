@@ -7,6 +7,9 @@ import 'chartjs-adapter-date-fns';
 import type { Event } from '@/types/event';
 
 interface ChartDataContext {
+	dataset: {
+		label?: string;
+	};
 	parsed: {
 		x: number;
 		y: number;

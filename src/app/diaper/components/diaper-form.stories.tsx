@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 // import { action } from '@storybook/addon-actions'; // Removed
 import { DIAPER_BRANDS } from '../utils/diaper-brands'; // Required for default props
-import DiaperForm from './diaper-form';
+import DiaperForm, { AddDiaperProps, EditDiaperProps } from './diaper-form';
 
 const now = new Date();
 const yesterday = new Date(now);
@@ -12,15 +12,6 @@ const meta: Meta<typeof DiaperForm> = {
 		onClose: { action: 'closed' },
 		onSave: { action: 'saved' },
 		title: { control: 'text' },
-		// For AddDiaperProps
-		presetDiaperBrand: {
-			control: 'select',
-			options: [...DIAPER_BRANDS.map((b) => b.value), undefined],
-		},
-		presetType: { control: 'radio', options: ['urine', 'stool', undefined] },
-		reducedOptions: { control: 'boolean' },
-		// For EditDiaperProps
-		// 'change' prop is complex and better handled by distinct stories for Add vs Edit modes
 	},
 	component: DiaperForm,
 	parameters: {
@@ -37,9 +28,10 @@ const meta: Meta<typeof DiaperForm> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof DiaperForm>;
+type AddStory = StoryObj<AddDiaperProps>;
+type EditStory = StoryObj<EditDiaperProps>;
 
-export const AddMode: Story = {
+export const AddMode: AddStory = {
 	args: {
 		onClose: () => {},
 		onSave: () => {},
@@ -50,7 +42,7 @@ export const AddMode: Story = {
 	},
 };
 
-export const AddModeReducedOptions: Story = {
+export const AddModeReducedOptions: AddStory = {
 	args: {
 		...AddMode.args,
 		reducedOptions: true,
@@ -58,7 +50,7 @@ export const AddModeReducedOptions: Story = {
 	},
 };
 
-export const AddModeWithPresetStool: Story = {
+export const AddModeWithPresetStool: AddStory = {
 	args: {
 		...AddMode.args,
 		presetType: 'stool',
@@ -66,7 +58,7 @@ export const AddModeWithPresetStool: Story = {
 	},
 };
 
-export const EditMode: Story = {
+export const EditMode: EditStory = {
 	args: {
 		change: {
 			abnormalities: 'Slight rash noted.',
@@ -85,9 +77,9 @@ export const EditMode: Story = {
 	},
 };
 
-export const EditModeUrineOnly: Story = {
+export const EditModeUrineOnly: EditStory = {
 	args: {
-		...EditMode.args,
+		...EditMode.args!,
 		change: {
 			abnormalities: '',
 			containsStool: false,
@@ -102,11 +94,11 @@ export const EditModeUrineOnly: Story = {
 	},
 };
 
-export const WithAbnormalTemperature: Story = {
+export const WithAbnormalTemperature: EditStory = {
 	args: {
-		...EditMode.args,
+		...EditMode.args!,
 		change: {
-			...EditMode.args.change!,
+			...EditMode.args!.change!,
 			id: 'diaper-125',
 			temperature: 38.5, // Abnormal high
 		},
@@ -114,11 +106,11 @@ export const WithAbnormalTemperature: Story = {
 	},
 };
 
-export const WithLowTemperature: Story = {
+export const WithLowTemperature: EditStory = {
 	args: {
-		...EditMode.args,
+		...EditMode.args!,
 		change: {
-			...EditMode.args.change!,
+			...EditMode.args!.change!,
 			id: 'diaper-126',
 			temperature: 35.0, // Abnormal low
 		},

@@ -9,22 +9,28 @@ yesterday.setDate(now.getDate() - 1);
 
 const sampleRegimens: MedicationRegimen[] = [
 	{
-		dayOfWeek: 0,
 		dosageAmount: 1,
 		dosageUnit: 'drop',
 		id: 'reg1',
-		intervalDays: 0,
 		name: 'Vitamin D Drops',
-		scheduleType: 'daily',
-		specificTimes: ['08:00'],
-		timesPerDay: 1,
+		prescriber: 'Doctor',
+		schedule: {
+			times: ['08:00'],
+			type: 'daily',
+		},
+		startDate: new Date().toISOString(),
 	},
 	{
 		dosageAmount: 5,
 		dosageUnit: 'ml',
 		id: 'reg2',
 		name: 'Pain Reliever X',
-		scheduleType: 'asNeeded',
+		prescriber: 'Doctor',
+		schedule: {
+			details: 'For pain',
+			type: 'asNeeded',
+		},
+		startDate: new Date().toISOString(),
 	},
 ];
 
@@ -66,7 +72,7 @@ const meta: Meta<typeof MedicationAdministrationForm> = {
 		regimens: { control: 'object' },
 	},
 	component: MedicationAdministrationForm,
-	decorators: [(Story, { args }) => (args.isOpen ? <Story /> : null)],
+	decorators: [(Story) => <Story />],
 	parameters: {
 		docs: {
 			story: {

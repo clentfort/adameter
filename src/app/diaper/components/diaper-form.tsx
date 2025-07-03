@@ -26,7 +26,7 @@ import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 import { DIAPER_BRANDS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
-interface AddDiaperProps {
+export interface AddDiaperProps {
 	onClose: () => void;
 	onSave: (change: DiaperChange) => void;
 	presetDiaperBrand?: string;
@@ -35,7 +35,7 @@ interface AddDiaperProps {
 	title: ReactNode;
 }
 
-interface EditDiaperProps {
+export interface EditDiaperProps {
 	change: DiaperChange;
 	onClose: () => void;
 	onSave: (change: DiaperChange) => void;
@@ -121,6 +121,7 @@ export default function DiaperForm({
 			...change,
 			abnormalities: abnormalities || undefined,
 			containsStool: diaperType === 'stool',
+			// Always true, as stool usually comes with urine
 			containsUrine: true,
 			diaperBrand: diaperBrand || undefined,
 			id: change?.id || Date.now().toString(),

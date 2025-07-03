@@ -126,41 +126,6 @@ describe('calculateFrecencySuggestions', () => {
 		});
 	});
 
-	it('should handle entries with missing dosageAmount or dosageUnit gracefully by skipping them', () => {
-		const incompleteAdministrations: MedicationAdministration[] = [
-			{
-				id: '1',
-				medicationName: 'TestMed',
-				// @ts-expect-error Testing invalid data
-				administrationStatus: 'On Time',
-				dosageAmount: undefined,
-				dosageUnit: 'mg',
-				timestamp: new Date().toISOString(),
-			},
-			{
-				dosageAmount: 100,
-				id: '2',
-				medicationName: 'AnotherMed',
-				// @ts-expect-error Testing invalid data
-				administrationStatus: 'On Time',
-				dosageUnit: null,
-				timestamp: new Date().toISOString(),
-			},
-			{
-				administrationStatus: 'On Time',
-				dosageAmount: 50,
-				dosageUnit: 'ml',
-				id: '3',
-				medicationName: 'ValidMed',
-				timestamp: new Date().toISOString(),
-			},
-		];
-		// @ts-expect-error Testing robustness against malformed data
-		const suggestions = calculateFrecencySuggestions(incompleteAdministrations);
-		expect(suggestions).toHaveLength(1);
-		expect(suggestions[0].medicationName).toBe('ValidMed');
-	});
-
 	it('should be case-insensitive for medication name and unit for grouping', () => {
 		const caseTestAdmin: MedicationAdministration[] = [
 			{

@@ -78,8 +78,8 @@ export const MissedWithDetails: Story = {
 export const AdjustedAndLinkedToRegimen: Story = {
 	args: {
 		med: sampleAdminAdjustedLinkedToRegimen,
-		onDeleteAdministration: action('onDeleteAdministration'),
-		onEditAdministration: action('onEditAdministration'),
+		onDeleteAdministration: () => {},
+		onEditAdministration: () => {},
 	},
 };
 
@@ -108,7 +108,7 @@ export const LongMedicationNameAndDetails: Story = {
 				'Supercalifragilisticexpialidocious Compound RX Plus Ultra Mega Strength',
 			timestamp: now.toISOString(),
 		},
-		onDeleteAdministration: action('onDeleteAdministration'),
-		onEditAdministration: action('onEditAdministration'),
+		onDeleteAdministration: () => {},
+		onEditAdministration: () => {},
 	},
 };

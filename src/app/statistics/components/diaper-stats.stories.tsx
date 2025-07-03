@@ -210,6 +210,7 @@ export const NotEnoughDataForLeakageStats: Story = {
 	args: {
 		diaperChanges: [
 			{
+				containsStool: false,
 				containsUrine: true,
 				diaperBrand: 'BrandA',
 				id: 'dc1',
@@ -217,6 +218,7 @@ export const NotEnoughDataForLeakageStats: Story = {
 				timestamp: createTimestamp(0, 9),
 			},
 			{
+				containsStool: true,
 				containsUrine: true,
 				diaperBrand: 'BrandA',
 				id: 'dc2',
@@ -224,6 +226,7 @@ export const NotEnoughDataForLeakageStats: Story = {
 				timestamp: createTimestamp(0, 13),
 			},
 			{
+				containsStool: false,
 				containsUrine: true,
 				diaperBrand: 'BrandB',
 				id: 'dc3',
@@ -231,6 +234,7 @@ export const NotEnoughDataForLeakageStats: Story = {
 				timestamp: createTimestamp(0, 17),
 			},
 			{
+				containsStool: false,
 				containsUrine: true,
 				diaperBrand: 'BrandB',
 				id: 'dc4',
