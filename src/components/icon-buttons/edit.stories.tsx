@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { action } from '@storybook/addon-actions'; // Removed
 import EditIconButton from './edit';
 
 const meta: Meta<typeof EditIconButton> = {

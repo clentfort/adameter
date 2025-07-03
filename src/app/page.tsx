@@ -41,7 +41,6 @@ export default function HomePage() {
 				try {
 					data = await loadDataFromUrl(window.location.href);
 				} catch (error) {
-					// console.error('Error importing data:', error); // Removed for linting
 				}
 			} else if (
 				localStorage.length > 0 &&

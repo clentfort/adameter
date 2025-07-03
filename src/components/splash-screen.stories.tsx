@@ -4,7 +4,6 @@ import { SplashScreen } from './splash-screen';
 const meta: Meta<typeof SplashScreen> = {
 	component: SplashScreen,
 	parameters: {
-		// Using 'fullscreen' layout because the splash screen is designed to take up the whole viewport.
 		layout: 'fullscreen',
 	},
 	tags: ['autodocs'],
@@ -25,7 +24,3 @@ export const Default: Story = {
 	},
 	render: () => <SplashScreen />,
 };
-
-// Since the component is quite simple and doesn't take props,
-// there aren't many variations to showcase beyond its default appearance.
-// If it had props for different logos, background colors, etc., those would be additional stories.

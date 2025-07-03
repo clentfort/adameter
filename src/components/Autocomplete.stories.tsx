@@ -1,34 +1,25 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { action } from '@storybook/addon-actions'; // Removed
-// import { expect, userEvent, within } from '@storybook/test'; // Removed due to unavailability
-import React from 'react'; // Added React import
+import React from 'react';
 
 import { Autocomplete } from './autocomplete';
 
-// More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
 	component: Autocomplete,
 	parameters: {
-		// Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
 		layout: 'centered',
 	},
 	title: 'Components/Autocomplete',
-	// This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
 	tags: ['autodocs'],
-	// More on argTypes: https://storybook.js.org/docs/api/argtypes
 	argTypes: {
-		// Define argTypes for props if needed, for example, to control them in Storybook UI
 		onOptionSelect: { action: 'onOptionSelect' },
 		onValueChange: { action: 'onValueChange' },
 	},
-	// Using no-op functions for callbacks
 	args: { onOptionSelect: () => {}, onValueChange: () => {} },
 } satisfies Meta<typeof Autocomplete>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 export const BasicUsage: Story = {
 	args: {
 		options: [
@@ -91,29 +82,21 @@ export const AllowsArbitraryTextInput: Story = {
 export const WithSelection: Story = {
 	args: {
 		...BasicUsage.args,
-		// To demonstrate selection, we can pre-fill the value or let the user interact
-		// Storybook actions will show onOptionSelect and onValueChange calls
 	},
 	play: async ({ args, canvasElement }) => {
-		// This is an example of how to interact with the component in a story
-		// For actual selection demonstration, user interaction in Storybook canvas is primary
-		// You could simulate typing and clicking if needed with @storybook/testing-library
 	},
 };
 
-// Story for controlled component
-// We need a wrapper to manage state for this story
 const ControlledAutocomplete = (args: Story['args']) => {
 	const [value, setValue] = React.useState(args?.value || '');
 
 	React.useEffect(() => {
-		// Update internal state if args.value changes (e.g., from Storybook controls)
 		setValue(args?.value || '');
 	}, [args?.value]);
 
 	const handleValueChange = (newValue: string) => {
 		setValue(newValue);
-		args?.onValueChange?.(newValue); // Call the mocked action
+		args?.onValueChange?.(newValue);
 	};
 
 	return (
@@ -128,7 +111,7 @@ export const ControlledState: Story = {
 			{ id: 'ctrl2', label: 'Controlled Option 2' },
 		],
 		placeholder: 'Type to see controlled behavior...',
-		value: 'Initial controlled text', // Initial value
+		value: 'Initial controlled text',
 	},
 	render: ControlledAutocomplete,
 };
@@ -151,7 +134,6 @@ export const EmptyOptionsWithInput: Story = {
 
 export const HidesWhenNoResultsAfterTyping: Story = {
 	args: {
-		// Reuse options and placeholder from BasicUsage or define specific ones
 		options: [
 			{ id: '1', label: 'Apple' },
 			{ id: '2', label: 'Banana' },
@@ -159,10 +141,5 @@ export const HidesWhenNoResultsAfterTyping: Story = {
 		],
 		placeholder: 'Search here...',
 		value: '',
-		// Note: The play function was removed because @storybook/test is not available.
-		// Manual testing steps for this scenario:
-		// 1. Type "App" - popover opens with "Apple".
-		// 2. Clear input.
-		// 3. Type "xyz123" - popover should close and "No results found." should not be visible.
 	},
 };

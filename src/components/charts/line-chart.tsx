@@ -6,8 +6,6 @@ import { useCallback, useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns';
 import type { Event } from '@/types/event';
 
-type FbtFunction = (text: string, description: string) => React.ReactNode;
-
 interface ChartDataContext {
 	parsed: {
 		x: number;

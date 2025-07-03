@@ -18,22 +18,15 @@ import { MedicationAdministrationForm } from './components/medication-administra
 import { MedicationAdministrationItem } from './components/medication-administration-item';
 import { RegimenAccordionContent } from './components/regimen-accordion-content';
 import { MedicationAdministrationFormData } from './validation/medication-administration-schema';
-import '@/i18n'; // Ensure i18n is loaded
+import '@/i18n';
 
-// Placeholder functions for regimen edit/delete actions (if needed for this page)
 const handleEditRegimen = (regimenId: string) => {
-	// console.log('Edit regimen:', regimenId); // Removed console.log
-	/* Placeholder for actual edit logic */
 };
 const handleDeleteRegimen = (regimenId: string) => {
-	// console.log('Delete regimen:', regimenId); // Removed console.log
-	/* Placeholder for actual edit logic */
 };
 
 export default function MedicationPage() {
 	const {
-		// remove: removeRegimen, // Not used directly in this version for regimen deletion
-		// update: updateRegimen, // Not used directly in this version for regimen update
 		value: medicationRegimens,
 	} = useMedicationRegimens();
 
@@ -118,14 +111,6 @@ export default function MedicationPage() {
 		);
 	}, [medicationRegimens]);
 
-	// This function will be deprecated for direct display once history list is updated,
-	// but might still be useful for other logic if needed.
-	const getRegimenNameById = (regimenId?: string) => {
-		if (!regimenId) return 'N/A (One-off)';
-		const regimen = (medicationRegimens || []).find((r) => r.id === regimenId);
-		return regimen ? regimen.name : 'Unknown Regimen';
-	};
-
 	return (
 		<div className="w-full">
 			<section className="mb-8">
@@ -203,7 +188,6 @@ export default function MedicationPage() {
 				>
 					{(med) => (
 						<MedicationAdministrationItem
-							// getRegimenNameById prop removed
 							key={med.id}
 							med={med}
 							onDeleteAdministration={handleDeleteAdministration}

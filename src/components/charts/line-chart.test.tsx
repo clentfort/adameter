@@ -2,7 +2,6 @@ import { render, screen, cleanup } from '@testing-library/react';
 import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest';
 import LineChart from './line-chart';
 
-// Hoist the mock implementations for Chart.js
 const { mockChart, mockDestroy } = vi.hoisted(() => {
   const mockDestroyFn = vi.fn();
   const mockChartInstance = {
@@ -18,23 +17,13 @@ vi.mock('chart.js/auto', () => ({
   default: mockChart,
 }));
 
-// Mock chartjs-adapter-date-fns
-vi.mock('chartjs-adapter-date-fns', () => ({
-  // This adapter doesn't export anything, it just registers itself with Chart.js
-}));
+vi.mock('chartjs-adapter-date-fns', () => ({}));
 
 describe('LineChart', () => {
   let mockCanvasContext: CanvasRenderingContext2D;
 
   beforeEach(() => {
-    // Mock getContext for HTMLCanvasElement
-    mockCanvasContext = {
-      // Add any properties/methods that Chart.js might use from the context if necessary
-      // For now, an empty object might suffice if Chart.js mock doesn't rely on it.
-      // If Chart.js itself (not the mock) tries to use methods on this, they'd need to be mocked.
-      // However, our Chart constructor is already mocked, so it *shouldn't* use the context.
-    } as unknown as CanvasRenderingContext2D;
-
+    mockCanvasContext = {} as unknown as CanvasRenderingContext2D;
     HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCanvasContext as any);
   });
 
@@ -59,7 +48,7 @@ describe('LineChart', () => {
     expect(screen.getByRole('graphics-document')).toBeInTheDocument();
     expect(mockChart).toHaveBeenCalledTimes(1);
     expect(mockChart).toHaveBeenCalledWith(
-      expect.any(Object), // First argument is the canvas context (mocked)
+      expect.any(Object),
       expect.objectContaining({
         type: 'line',
         data: expect.objectContaining({

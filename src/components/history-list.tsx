@@ -1,6 +1,5 @@
 import { format, parseISO } from 'date-fns';
 import React, { Fragment } from 'react';
-// No longer import Event directly, T will be generic
 import { useSortedEvents } from '@/hooks/use-sorted-events';
 
 export interface ItemWithId {
@@ -9,16 +8,16 @@ export interface ItemWithId {
 
 interface HistoryListProps<T extends ItemWithId> {
 	children: (entry: T) => React.ReactNode;
-	dateAccessor: (entry: T) => string; // Add dateAccessor prop
+	dateAccessor: (entry: T) => string;
 	entries: ReadonlyArray<T>;
 }
 
 export default function HistoryList<T extends ItemWithId>({
 	children,
-	dateAccessor, // Destructure dateAccessor
+	dateAccessor,
 	entries,
 }: HistoryListProps<T>) {
-	const groupedEvents = useSortedEvents(entries, dateAccessor); // Pass dateAccessor to the hook
+	const groupedEvents = useSortedEvents(entries, dateAccessor);
 
 	if (Object.keys(groupedEvents).length === 0) {
 		return (
@@ -40,7 +39,6 @@ export default function HistoryList<T extends ItemWithId>({
 			{sortedDates.map((date) => (
 				<div className="space-y-2" key={date}>
 					<div className="bg-muted/50 px-4 py-2 rounded-md text-sm font-medium">
-						{/* Date is already 'yyyy-MM-dd', parseISO is needed for format */}
 						{format(parseISO(date), 'EEEE, d. MMMM yyyy')}
 					</div>
 

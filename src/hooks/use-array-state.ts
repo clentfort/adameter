@@ -18,7 +18,6 @@ export function useArrayState<S extends ObjectWithId>(array: S[]) {
 			(id: string) => {
 				const index = array.findIndex((item) => item.id === id);
 				if (index === -1) {
-					// console.log('could not find item with id', id); // Removed for linting
 					return;
 				}
 				array.splice(index, 1);
@@ -46,8 +45,6 @@ export function useArrayState<S extends ObjectWithId>(array: S[]) {
 }
 
 function normalize<T extends ObjectWithId>(item: T) {
-	// Using JSON.stringify + parse as a quick way to get rid of any
-	// `undefined` values as this causes a render freeze with valtio/yjs
 	// eslint-disable-next-line unicorn/prefer-structured-clone
 	return JSON.parse(JSON.stringify(item));
 }

@@ -38,10 +38,7 @@ export function Footer() {
 						className="inline-flex items-center hover:underline"
 						href="https://github.com/clentfort/adameter"
 						onClick={(e) => {
-							// Check if running as a PWA
 							if (!window.matchMedia('(display-mode: standalone)').matches) {
-								// Not a PWA, or display-mode is not standalone,
-								// let the default target="_blank" behavior apply.
 								return;
 							}
 
