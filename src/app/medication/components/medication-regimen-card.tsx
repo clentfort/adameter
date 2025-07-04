@@ -42,21 +42,22 @@ export function MedicationRegimenCard({
 	regimen,
 }: MedicationRegimenCardProps) {
 	return (
-		<Card className="py-4 gap-3" key={regimen.id}>
-			<CardHeader className="pb-3 px-4">
-				<div className="flex justify-between items-start">
-					<div>
-						<h3 className="text-lg font-medium">{regimen.name}</h3>
+		<Card className="mb-4" key={regimen.id}>
+			<CardHeader className="pb-2 pt-4 px-4">
+				<div className="flex justify-between items-start gap-2">
+					<div className="flex-grow">
+						<h3 className="text-xl font-semibold">{regimen.name}</h3>
 						<p className="text-sm text-muted-foreground">
 							<fbt desc="Label for dosage">Dosage:</fbt> {regimen.dosageAmount}{' '}
 							{regimen.dosageUnit}
 						</p>
 					</div>
-					<div className="flex gap-1">
+					<div className="flex flex-shrink-0 gap-1">
 						<Button
 							onClick={() => onEditRegimen(regimen.id)}
 							size="icon"
 							variant="ghost"
+							className="h-8 w-8"
 						>
 							<Edit className="h-4 w-4" />
 							<span className="sr-only">
@@ -67,6 +68,7 @@ export function MedicationRegimenCard({
 							onClick={() => onDeleteRegimen(regimen.id)}
 							size="icon"
 							variant="ghost"
+							className="h-8 w-8"
 						>
 							<Trash2 className="h-4 w-4" />
 							<span className="sr-only">
@@ -76,22 +78,22 @@ export function MedicationRegimenCard({
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent className="pb-3 px-4">
+			<CardContent className="px-4 pb-3 space-y-3">
 				{!isPast && nextDueText && (
-					<p className="text-sm font-medium">
+					<p className="text-sm font-medium text-blue-600 dark:text-blue-400">
 						<fbt desc="Label for next due time">Next Due:</fbt> {nextDueText}
 					</p>
 				)}
 				{isPast && (
-					<>
-						<p className="text-sm">
+					<div className="space-y-1 text-sm">
+						<p>
 							<strong>
 								<fbt desc="Label for start date">Start Date:</fbt>
 							</strong>{' '}
 							{formatDateDisplay(regimen.startDate)}
 						</p>
 						{regimen.endDate && (
-							<p className="text-sm">
+							<p>
 								<strong>
 									<fbt desc="Label for end date">End Date:</fbt>
 								</strong>{' '}
@@ -105,10 +107,22 @@ export function MedicationRegimenCard({
 								</fbt>
 							</p>
 						)}
-					</>
+					</div>
 				)}
+
+				{regimen.notes && (
+					<div className="text-sm pt-1">
+						<p className="font-medium text-gray-700 dark:text-gray-300">
+							<fbt desc="Label for notes">Notes:</fbt>
+						</p>
+						<p className="text-muted-foreground whitespace-pre-wrap">
+							{regimen.notes}
+						</p>
+					</div>
+				)}
+
 				{isExpanded && (
-					<div className="mt-3 space-y-1 text-sm">
+					<div className="pt-2 space-y-2 text-sm border-t border-border/40">
 						<p>
 							<strong>
 								<fbt desc="Label for schedule">Schedule:</fbt>
@@ -140,32 +154,24 @@ export function MedicationRegimenCard({
 							{regimen.prescriber}{' '}
 							{regimen.prescriberName && `(${regimen.prescriberName})`}
 						</p>
-						{regimen.notes && (
-							<p>
-								<strong>
-									<fbt desc="Label for notes">Notes:</fbt>
-								</strong>{' '}
-								{regimen.notes}
-							</p>
-						)}
 					</div>
 				)}
 			</CardContent>
-			<CardFooter className="pt-0 px-4">
+			<CardFooter className="px-4 pb-4 pt-0">
 				<Button
-					className="text-xs p-0 h-auto"
+					className="text-xs p-0 h-auto text-muted-foreground hover:text-foreground"
 					onClick={onToggleExpansion}
 					size="sm"
 					variant="link"
 				>
 					{isExpanded ? (
 						<>
-							<ChevronUp className="h-3 w-3 mr-1" />
+							<ChevronUp className="h-3.5 w-3.5 mr-1" />
 							<fbt desc="Button to collapse regimen details">Show Less</fbt>
 						</>
 					) : (
 						<>
-							<ChevronDown className="h-3 w-3 mr-1" />
+							<ChevronDown className="h-3.5 w-3.5 mr-1" />
 							<fbt desc="Button to expand regimen details">Show More</fbt>
 						</>
 					)}
