@@ -1,15 +1,14 @@
 import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
-// @ts-ignore Cannot find module './translations.json' or its corresponding type declarations.
-import translations from './translations.json';
+import german from '../translations/de_DE.json';
 
 export const DEFAULT_LOCALE = 'en_US';
-export type Locale = typeof DEFAULT_LOCALE | keyof typeof translations;
+export type Locale = typeof DEFAULT_LOCALE | keyof typeof german;
 const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
 function isSupportedLocale(locale: string): locale is Locale {
 	return (
-		locale === DEFAULT_LOCALE || Object.keys(translations).includes(locale)
+		locale === DEFAULT_LOCALE || Object.keys(german).includes(locale)
 	);
 }
 
@@ -30,7 +29,7 @@ let viewerContext: ViewerContext = {
 
 setupFbtee({
 	hooks: { getViewerContext: () => viewerContext },
-	translations,
+	translations: {...german},
 });
 
 export async function setLocale(locale: Locale): Promise<void> {

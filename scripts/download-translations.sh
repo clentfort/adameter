@@ -6,7 +6,6 @@
 
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 
-pnpm run fbtee:manifest
 pnpm run fbtee:collect
 
 if [ -z "$CROWDIN_API_TOKEN" ]; then
@@ -22,5 +21,4 @@ else
   pnpm exec crowdin pull -b ${BRANCH_NAME} --plain translations
 fi
 
-mkdir -p src/i18n
 pnpm run fbtee:translate
