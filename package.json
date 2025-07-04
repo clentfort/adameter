@@ -13,7 +13,7 @@
 		"lint": "next lint",
 		"test": "vitest",
 		"fbtee:collect": "fbtee collect --fbt-common-path ./common_strings.json --src src",
-		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins -o src/translations",
+		"fbtee:translate": "fbtee translate --translations translations/*.json -o src/translations",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build"
 	},
