@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/nextjs';
-import { LocaleContext } from 'fbtee'; // Removed unused IntlVariations
+import { createLocaleContext } from 'fbtee';
 import React from 'react';
 import '../src/app/globals.css';
 
@@ -7,7 +7,10 @@ import '../src/app/globals.css';
 const availableLanguages = new Map([['en_US', 'English']]);
 
 // Web:
-const clientLocalesWeb = typeof navigator !== 'undefined' ? [navigator.language, ...navigator.languages] : ['en_US'];
+const clientLocalesWeb =
+	typeof navigator !== 'undefined'
+		? [navigator.language, ...navigator.languages]
+		: ['en_US'];
 
 // A loader function to fetch translations for a given locale:
 // For Storybook, we assume en_US uses source strings and doesn't require loading translations.
@@ -18,6 +21,12 @@ const loadLocale = async (locale: string) => {
 	}
 	return {};
 };
+
+const LocaleContext = createLocaleContext({
+	availableLanguages,
+	clientLocales: clientLocalesWeb,
+	loadLocale,
+});
 
 const preview: Preview = {
 	parameters: {
@@ -30,12 +39,7 @@ const preview: Preview = {
 	},
 	decorators: [
 		(Story) => (
-			<LocaleContext
-				availableLanguages={availableLanguages}
-				clientLocales={clientLocalesWeb}
-				loadLocale={loadLocale}
-				defaultLocale="en_US" // Explicitly set default locale for Storybook
-			>
+			<LocaleContext>
 				<Story />
 			</LocaleContext>
 		),
