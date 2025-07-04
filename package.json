@@ -12,9 +12,8 @@
 		"start": "next start",
 		"lint": "next lint",
 		"test": "vitest",
-		"fbtee:manifest": "fbtee manifest --src src",
-		"fbtee:collect": "fbtee collect --fbt-common-path ./common_strings.json --pretty --manifest < .src_manifest.json > source_strings.json",
-		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins > src/i18n/translations.json",
+		"fbtee:collect": "fbtee collect --fbt-common-path ./common_strings.json --src src",
+		"fbtee:translate": "fbtee translate --translations translations/*.json --jenkins -o src/translations",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build"
 	},
