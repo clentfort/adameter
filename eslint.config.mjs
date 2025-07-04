@@ -18,16 +18,13 @@ const extended = compat.config({
 
 export default defineConfig(
 	nkzw.map((rules) => {
-		if (rules.plugins?.import != null) {
-			delete rules.plugins.import;
-		}
 		if (rules.plugins?.['react-hooks'] != null) {
 			delete rules.plugins['react-hooks'];
 		}
 		if (rules.rules?.['react-hooks/react-compiler']) {
 			delete rules.rules['react-hooks/react-compiler'];
 		}
-		return rules;
+    return rules;
 	}),
 	extended,
 	{ ignores: ['.next/', 'src/components/ui'] },
