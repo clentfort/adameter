@@ -1,5 +1,9 @@
 import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
-import { IntlVariations, setupFbtee } from 'fbtee';
+export enum IntlVariations {
+	GENDER_UNKNOWN = 0,
+	GENDER_FEMALE = 1,
+	GENDER_MALE = 2,
+}
 // @ts-ignore Cannot find module './translations.json' or its corresponding type declarations.
 import translations from './translations.json';
 
@@ -23,15 +27,10 @@ interface ViewerContext {
 	locale: Locale;
 }
 
-let viewerContext: ViewerContext = {
+export let viewerContext: ViewerContext = {
 	GENDER: IntlVariations.GENDER_UNKNOWN,
 	locale: DEFAULT_LOCALE,
 };
-
-setupFbtee({
-	hooks: { getViewerContext: () => viewerContext },
-	translations,
-});
 
 export async function setLocale(locale: Locale): Promise<void> {
 	if (typeof window === 'undefined') {

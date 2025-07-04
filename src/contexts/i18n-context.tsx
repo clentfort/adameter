@@ -13,6 +13,12 @@ import {
 	Locale,
 	setLocale as setAppLocale,
 } from '@/i18n';
+import dynamic from 'next/dynamic';
+
+const LocaleContext = dynamic(() => import('@/lib/fbtee-client').then((mod) => mod.LocaleContext), {
+	ssr: false,
+	loading: () => null,
+});
 
 type I18nContextType = {
 	locale: Locale;
@@ -42,9 +48,11 @@ export const I18nProvider = ({ children }: I18nProviderProps) => {
 	};
 
 	return (
-		<I18nContext.Provider value={{ locale, setLocale }}>
-			{children}
-		</I18nContext.Provider>
+		<LocaleContext>
+			<I18nContext.Provider value={{ locale, setLocale }}>
+				{children}
+			</I18nContext.Provider>
+		</LocaleContext>
 	);
 };
 
