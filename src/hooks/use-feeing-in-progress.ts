@@ -19,11 +19,7 @@ export const useFeedingInProgress = () => {
 	}, [current, secret]);
 	const set = useCallback(
 		(nextFeedingInProgress: FeedingInProgress | null) => {
-			if (nextFeedingInProgress === null || secret === undefined) {
-				feedingInProgress.current = null;
-			} else {
-				feedingInProgress.current = encrypt(nextFeedingInProgress, secret);
-			}
+			feedingInProgress.current = nextFeedingInProgress === null || secret === undefined ? null : encrypt(nextFeedingInProgress, secret);
 			localStorage.setItem(
 				'feedingInProgress-backup',
 				JSON.stringify(nextFeedingInProgress),

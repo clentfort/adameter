@@ -5,8 +5,8 @@ import LineChart from './line-chart';
 const { mockChart, mockDestroy } = vi.hoisted(() => {
   const mockDestroyFn = vi.fn();
   const mockChartInstance = {
+    data: { datasets: [], labels: [] },
     destroy: mockDestroyFn,
-    data: { labels: [], datasets: [] },
     options: {},
     update: vi.fn(),
   };
@@ -50,12 +50,11 @@ describe('LineChart', () => {
     expect(mockChart).toHaveBeenCalledWith(
       expect.any(Object),
       expect.objectContaining({
-        type: 'line',
         data: expect.objectContaining({
           datasets: expect.arrayContaining([
             expect.objectContaining({
-              label: 'Test Dataset',
               data: mockData,
+              label: 'Test Dataset',
             }),
           ]),
         }),
@@ -69,6 +68,7 @@ describe('LineChart', () => {
             }),
           }),
         }),
+        type: 'line',
       }),
     );
   });

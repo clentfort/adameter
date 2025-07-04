@@ -65,10 +65,10 @@ const mockEvents: Event[] = [
 		// name: 'First Smile', // Removed name property
 		// notes: '', // Removed notes property
 		// timestamp: new Date('2024-01-10T00:00:00Z').toISOString(), // Removed timestamp property
-		type: 'milestone' as Event['type'],
-		title: 'First Smile', // Added title property
-		startDate: new Date('2024-01-10T00:00:00Z').toISOString(), // Added startDate property
 		color: '#000000', // Added color property
+		startDate: new Date('2024-01-10T00:00:00Z').toISOString(), // Added startDate property
+		title: 'First Smile', // Added title property
+		type: 'milestone' as Event['type'],
 	},
 ];
 

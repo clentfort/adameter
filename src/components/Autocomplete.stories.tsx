@@ -4,17 +4,17 @@ import React from 'react';
 import { Autocomplete } from './autocomplete';
 
 const meta = {
-	component: Autocomplete,
-	parameters: {
-		layout: 'centered',
-	},
-	title: 'Components/Autocomplete',
-	tags: ['autodocs'],
+	args: { onOptionSelect: () => {}, onValueChange: () => {} },
 	argTypes: {
 		onOptionSelect: { action: 'onOptionSelect' },
 		onValueChange: { action: 'onValueChange' },
 	},
-	args: { onOptionSelect: () => {}, onValueChange: () => {} },
+	component: Autocomplete,
+	parameters: {
+		layout: 'centered',
+	},
+	tags: ['autodocs'],
+	title: 'Components/Autocomplete',
 } satisfies Meta<typeof Autocomplete>;
 
 export default meta;

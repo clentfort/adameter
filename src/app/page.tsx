@@ -40,7 +40,7 @@ export default function HomePage() {
 			if (hash) {
 				try {
 					data = await loadDataFromUrl(window.location.href);
-				} catch (error) {
+				} catch {
 				}
 			} else if (
 				localStorage.length > 0 &&
