@@ -54,10 +54,10 @@ export function MedicationRegimenCard({
 					</div>
 					<div className="flex flex-shrink-0 gap-1">
 						<Button
+							className="h-8 w-8"
 							onClick={() => onEditRegimen(regimen.id)}
 							size="icon"
 							variant="ghost"
-							className="h-8 w-8"
 						>
 							<Edit className="h-4 w-4" />
 							<span className="sr-only">
@@ -65,10 +65,10 @@ export function MedicationRegimenCard({
 							</span>
 						</Button>
 						<Button
+							className="h-8 w-8"
 							onClick={() => onDeleteRegimen(regimen.id)}
 							size="icon"
 							variant="ghost"
-							className="h-8 w-8"
 						>
 							<Trash2 className="h-4 w-4" />
 							<span className="sr-only">
