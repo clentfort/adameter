@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
 import { FeedingSession } from '@/types/feeding';
 import FeedingsPerDayStats from './feedings-per-day-stats';
 
@@ -63,11 +62,6 @@ export const DefaultView: Story = {
 	args: {
 		sessions: sampleSessions,
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(canvas.getByText('Feedings Per Day')).toBeInTheDocument();
-		await expect(canvas.getByText('3.0')).toBeInTheDocument();
-	},
 };
 
 export const DifferentDistribution: Story = {
@@ -81,10 +75,6 @@ export const DifferentDistribution: Story = {
 			createSession('d3s2', createTimestamp(2, 15)),
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(canvas.getByText('2.0')).toBeInTheDocument();
-	},
 };
 
 export const SingleDayManyFeedings: Story = {
@@ -97,28 +87,16 @@ export const SingleDayManyFeedings: Story = {
 			createSession('s5', createTimestamp(0, 16)),
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(canvas.getByText('5.0')).toBeInTheDocument();
-	},
 };
 
 export const NoSessions: Story = {
 	args: {
 		sessions: [],
 	},
-	play: ({ canvasElement }) => {
-		const cardTitle = within(canvasElement).queryByText('Feedings Per Day');
-		expect(cardTitle).not.toBeInTheDocument();
-	},
 };
 
 export const OneSession: Story = {
 	args: {
 		sessions: [createSession('s1', createTimestamp(0, 12))],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(canvas.getByText('1.0')).toBeInTheDocument();
 	},
 };

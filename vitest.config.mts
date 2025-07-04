@@ -27,5 +27,8 @@ export default defineConfig({
 		environment: 'jsdom',
     root: './src',
 		setupFiles: ['./src/vitest.setup.ts'],
+		env: {
+			TZ: 'UTC',
+		},
 	},
 });

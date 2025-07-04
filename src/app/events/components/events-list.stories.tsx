@@ -1,11 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-// import { action } from '@storybook/addon-actions'; // Removed
-// import { vi } from 'vitest'; // Removed
-// import { useEvents } from '@/hooks/use-events'; // Actual hook will be used
 import { Event } from '@/types/event';
 import EventsList from './events-list';
-
-// vi.mock('@/hooks/use-events'); // Removed
 
 const now = new Date();
 const anHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
@@ -96,12 +91,6 @@ export const Empty: Story = {
 	args: {
 		// mockedEvents: [], // Removed
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect( // Assertion removed
-		// 	canvas.getByText(/no events recorded yet./i),
-		// ).toBeInTheDocument();
-	},
 };
 
 export const SinglePointEvent: Story = {
@@ -119,11 +108,6 @@ export const SinglePeriodEvent: Story = {
 export const SingleOngoingEvent: Story = {
 	args: {
 		// mockedEvents: [sampleEvents[3]], // Removed
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect(canvas.getByText(sampleEvents[3].title)).toBeInTheDocument(); // Assertion removed
-		// await expect(canvas.getByText(/ongoing/i)).toBeInTheDocument(); // Assertion removed
 	},
 };
 

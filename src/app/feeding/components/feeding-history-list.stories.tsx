@@ -1,7 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { waitFor, within } from '@testing-library/react';
-// import { action } from '@storybook/addon-actions'; // Removed
-import userEvent from '@testing-library/user-event';
 import { FeedingSession } from '@/types/feeding';
 import HistoryList from './feeding-history-list';
 
@@ -103,12 +100,6 @@ export const SessionCrossingMidnight: Story = {
 			),
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		// await expect( // Assertion removed
-		// 	canvas.getByText(/this session crosses midnight/i),
-		// ).toBeInTheDocument();
-	},
 };
 
 export const DeleteSessionInteraction: Story = {
@@ -117,27 +108,6 @@ export const DeleteSessionInteraction: Story = {
 		onSessionUpdate: () => {},
 		sessions: [sampleSessions[0], sampleSessions[1]],
 	},
-	play: async ({ args, canvasElement }) => {
-		const canvas = within(canvasElement);
-		// const sessionToDelete = args.sessions![0]; // No longer needed without assertion
-
-		const allDeleteButtons = canvas.getAllByRole('button', { name: /delete/i });
-		await userEvent.click(allDeleteButtons[0]);
-
-		const dialog = await waitFor(() =>
-			within(document.body).getByRole('alertdialog'),
-		);
-		// await expect(dialog).toBeVisible(); // Assertion removed
-
-		const confirmDeleteButton = within(dialog).getByRole('button', {
-			name: /delete/i,
-		});
-		await userEvent.click(confirmDeleteButton);
-
-		// await waitFor(() => // Assertion removed
-		// 	expect(args.onSessionDelete).toHaveBeenCalledWith(sessionToDelete.id),
-		// );
-	},
 };
 
 export const EditSessionInteraction: Story = {
@@ -145,35 +115,5 @@ export const EditSessionInteraction: Story = {
 		onSessionDelete: () => {},
 		onSessionUpdate: () => {},
 		sessions: [sampleSessions[0]],
-	},
-	play: async ({ args, canvasElement }) => {
-		const canvas = within(canvasElement);
-		// const sessionToEdit = args.sessions![0]; // No longer needed without assertion
-
-		const editButton = canvas.getByRole('button', { name: /edit/i });
-		await userEvent.click(editButton);
-
-		const dialog = await waitFor(() =>
-			within(document.body).getByRole('dialog', {
-				name: /edit feeding session/i,
-			}),
-		);
-		// await expect(dialog).toBeVisible(); // Assertion removed
-
-		const durationInput = within(dialog).getByLabelText(/minutes/i);
-		await userEvent.clear(durationInput);
-		await userEvent.type(durationInput, '25');
-
-		const saveButton = within(dialog).getByRole('button', { name: /save/i });
-		await userEvent.click(saveButton);
-
-		// await waitFor(() => // Assertion removed
-		// 	expect(args.onSessionUpdate).toHaveBeenCalledWith(
-		// 		expect.objectContaining({
-		// 			durationInSeconds: 25 * 60,
-		// 			id: sessionToEdit.id,
-		// 		}),
-		// 	),
-		// );
 	},
 };

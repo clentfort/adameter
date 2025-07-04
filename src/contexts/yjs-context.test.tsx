@@ -32,7 +32,7 @@ describe('YjsProvider', () => {
 	it('should show SplashScreen initially and then render children after sync', async () => {
 		const InlineTestConsumer = () => {
 			const { doc } = useContext(yjsContext);
-			return <div data-testid="doc-id">{doc.guid}</div>;
+			return <div data-testid="doc-id">{doc ? doc.guid : 'loading'}</div>;
 		};
 
 		const { getByAltText, queryByRole, queryByTestId } = render(
@@ -62,7 +62,11 @@ describe('YjsProvider', () => {
 			useEffect(() => {
 				receivedDoc = doc;
 			}, [doc]);
-			return <div data-testid="doc-captured">{doc?.guid}</div>;
+			return (
+				<div data-testid="doc-captured">
+					{receivedDoc ? receivedDoc.guid : 'loading'}
+				</div>
+			);
 		};
 
 		render(
@@ -78,7 +82,7 @@ describe('YjsProvider', () => {
 		expect(screen.getByTestId('doc-captured')).toBeInTheDocument();
 		expect(receivedDoc).not.toBeNull();
 		expect(receivedDoc).toBeInstanceOf(YDoc);
-		expect(receivedDoc?.guid).toBeTruthy();
+		expect(receivedDoc!.guid).toBeTruthy();
 	});
 
 	it('should call bind for all data stores', async () => {

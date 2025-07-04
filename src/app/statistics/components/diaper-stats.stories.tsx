@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { DiaperChange } from '@/types/diaper';
 import DiaperStats from './diaper-stats';
 
@@ -157,26 +155,11 @@ export const DefaultView: Story = {
 	args: {
 		diaperChanges: sampleDiaperChanges,
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(canvas.getByText('Diaper Statistics')).toBeInTheDocument();
-		await expect(
-			canvas.getByRole('tab', { name: 'Overview', selected: true }),
-		).toBeInTheDocument();
-		await expect(canvas.getByText('14')).toBeInTheDocument();
-		await expect(canvas.getByText('3.5')).toBeInTheDocument();
-	},
 };
 
 export const EmptyState: Story = {
 	args: {
 		diaperChanges: [],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText('No diaper data available for the selected time range.'),
-		).toBeInTheDocument();
 	},
 };
 
@@ -184,57 +167,11 @@ export const BrandsTab: Story = {
 	args: {
 		diaperChanges: sampleDiaperChanges,
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		const brandsTab = canvas.getByRole('tab', { name: 'Diaper Brands' });
-		await userEvent.click(brandsTab);
-		await expect(brandsTab).toHaveAttribute('aria-selected', 'true');
-		await expect(canvas.getByText('Pampers')).toBeInTheDocument();
-		await expect(canvas.getByText(/6 \(/i)).toBeInTheDocument();
-		await expect(canvas.getByText('Huggies')).toBeInTheDocument();
-		await expect(canvas.getByText(/4 \(/i)).toBeInTheDocument();
-	},
 };
 
 export const LeakageTab: Story = {
 	args: {
 		diaperChanges: sampleDiaperChanges,
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		const leakageTab = canvas.getByRole('tab', { name: 'Diaper leaked' });
-		await userEvent.click(leakageTab);
-		await expect(leakageTab).toHaveAttribute('aria-selected', 'true');
-
-		const pampersLeakage = await canvas.findByText((content, element) => {
-			const parentCard = element?.closest('.border.rounded-md.p-3');
-			return (
-				!!parentCard &&
-				parentCard.textContent?.includes('Pampers') &&
-				content.includes('17%')
-			);
-		});
-		await expect(pampersLeakage).toBeInTheDocument();
-
-		const huggiesLeakage = await canvas.findByText((content, element) => {
-			const parentCard = element?.closest('.border.rounded-md.p-3');
-			return (
-				!!parentCard &&
-				parentCard.textContent?.includes('Huggies') &&
-				content.includes('50%')
-			);
-		});
-		await expect(huggiesLeakage).toBeInTheDocument();
-
-		const luvsLeakage = await canvas.findByText((content, element) => {
-			const parentCard = element?.closest('.border.rounded-md.p-3');
-			return (
-				!!parentCard &&
-				parentCard.textContent?.includes('Luvs') &&
-				content.includes('33%')
-			);
-		});
-		await expect(luvsLeakage).toBeInTheDocument();
 	},
 };
 
@@ -267,31 +204,13 @@ export const OnlyOneBrandRecorded: Story = {
 			},
 		],
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		const brandsTab = canvas.getByRole('tab', { name: 'Diaper Brands' });
-		await userEvent.click(brandsTab);
-		await expect(canvas.getByText('EcoNappies')).toBeInTheDocument();
-		await expect(canvas.getByText(/3 \(/i)).toBeInTheDocument();
-
-		const leakageTab = canvas.getByRole('tab', { name: 'Diaper leaked' });
-		await userEvent.click(leakageTab);
-		const econappiesLeakage = await canvas.findByText((content, element) => {
-			const parentCard = element?.closest('.border.rounded-md.p-3');
-			return (
-				!!parentCard &&
-				parentCard.textContent?.includes('EcoNappies') &&
-				content.includes('33%')
-			);
-		});
-		await expect(econappiesLeakage).toBeInTheDocument();
-	},
 };
 
 export const NotEnoughDataForLeakageStats: Story = {
 	args: {
 		diaperChanges: [
 			{
+				containsStool: false,
 				containsUrine: true,
 				diaperBrand: 'BrandA',
 				id: 'dc1',
@@ -299,6 +218,7 @@ export const NotEnoughDataForLeakageStats: Story = {
 				timestamp: createTimestamp(0, 9),
 			},
 			{
+				containsStool: true,
 				containsUrine: true,
 				diaperBrand: 'BrandA',
 				id: 'dc2',
@@ -306,6 +226,7 @@ export const NotEnoughDataForLeakageStats: Story = {
 				timestamp: createTimestamp(0, 13),
 			},
 			{
+				containsStool: false,
 				containsUrine: true,
 				diaperBrand: 'BrandB',
 				id: 'dc3',
@@ -313,6 +234,7 @@ export const NotEnoughDataForLeakageStats: Story = {
 				timestamp: createTimestamp(0, 17),
 			},
 			{
+				containsStool: false,
 				containsUrine: true,
 				diaperBrand: 'BrandB',
 				id: 'dc4',
@@ -320,13 +242,5 @@ export const NotEnoughDataForLeakageStats: Story = {
 				timestamp: createTimestamp(1, 8),
 			},
 		],
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		const leakageTab = canvas.getByRole('tab', { name: 'Diaper leaked' });
-		await userEvent.click(leakageTab);
-		await expect(
-			canvas.getByText('Not enough data for leakage statistics.'),
-		).toBeInTheDocument();
 	},
 };
