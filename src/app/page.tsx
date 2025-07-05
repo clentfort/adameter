@@ -1,89 +1,51 @@
 'use client';
 
-import { redirect } from 'next/navigation';
-import { useContext, useEffect, useState } from 'react';
-import { SplashScreen } from '@/components/splash-screen';
-import { I18nContext } from '@/contexts/i18n-context';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useEvents } from '@/hooks/use-events';
-import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
-import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
-import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
-import {
-	loadDataFromLocalStorage,
-	loadDataFromUrl,
-} from '@/utils/load-data-from-legacy-storage';
+import { fbt } from 'fbtee';
+import { format } from 'date-fns';
+import { useLocale } from '@/i18n/locale-context'; // This will be created later
+import React from 'react';
 
 export default function HomePage() {
-	const [shouldRedirect, setShouldRedirect] = useState(false);
-	const { replace: diaperChangesReplace } = useDiaperChanges();
-	const { replace: eventsReplace } = useEvents();
-	const { replace: feedingSessionsReplace } = useFeedingSessions();
-	const [, setFeedingInProgress] = useFeedingInProgress();
-	const { replace: growthMeasurementsReplace } = useGrowthMeasurements();
+  const { locale, setLocale } = useLocale();
 
-	const { setLocale } = useContext(I18nContext);
+  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLocale = event.target.value as 'en' | 'de'; // Assuming 'en' and 'de'
+    setLocale(newLocale);
+  };
 
-	useEffect(() => {
-		let active = true;
+  return (
+    <div className="container mx-auto p-4">
+      <header className="mb-8">
+        <h1 className="text-2xl font-bold">
+          <fbt desc="Homepage main title">Minimal Next.js App</fbt>
+        </h1>
+      </header>
 
-		const enableRedirect = () => {
-			if (!active) {
-				return;
-			}
-			setShouldRedirect(true);
-		};
+      <section className="mb-8">
+        <p>
+          <fbt desc="Static text example">
+            This is a static internationalized text string.
+          </fbt>
+        </p>
+        <p>
+          <fbt desc="Current date label">Current date</fbt>: {format(new Date(), 'PPP', { locale: locale === 'de' ? require('date-fns/locale/de') : require('date-fns/locale/en-US') })}
+        </p>
+      </section>
 
-		(async () => {
-			const hash = window.location.hash;
-			let data: ReturnType<typeof loadDataFromLocalStorage> | undefined;
-			if (hash) {
-				try {
-					data = await loadDataFromUrl(window.location.href);
-				} catch {
-				}
-			} else if (
-				localStorage.length > 0 &&
-				[
-					'diaperChanges',
-					'events',
-					'feedingSessions',
-					'growthMeasurements',
-					'activeBreast',
-					'startTime',
-				].some((key) => key in localStorage) &&
-				localStorage.getItem('importedVersionFromLocalStorage') == null
-			) {
-				data = loadDataFromLocalStorage();
-				localStorage.setItem('importedVersionFromLocalStorage', '2025-05-06');
-			}
-
-			if (data) {
-				diaperChangesReplace(data.diaperChanges);
-				eventsReplace(data.events);
-				growthMeasurementsReplace(data.measurements);
-				feedingSessionsReplace(data.sessions);
-				setFeedingInProgress(data.feedingInProgress ?? null);
-				setLocale(data.preferredLanguage);
-			}
-			enableRedirect();
-		})();
-
-		return () => {
-			active = false;
-		};
-	}, [
-		diaperChangesReplace,
-		eventsReplace,
-		feedingSessionsReplace,
-		growthMeasurementsReplace,
-		setFeedingInProgress,
-		setLocale,
-	]);
-
-	if (shouldRedirect) {
-		redirect('/feeding');
-	}
-
-	return <SplashScreen />;
+      <section>
+        <label htmlFor="language-select" className="mr-2">
+          <fbt desc="Language selection label">Select Language</fbt>:
+        </label>
+        <select
+          id="language-select"
+          value={locale}
+          onChange={handleLanguageChange}
+          className="p-2 border rounded"
+        >
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </section>
+    </div>
+  );
 }

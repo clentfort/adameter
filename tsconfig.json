@@ -2,16 +2,15 @@
 	"compilerOptions": {
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"allowJs": true,
-		"target": "ES6",
 		"skipLibCheck": true,
 		"strict": true,
 		"noEmit": true,
 		"esModuleInterop": true,
 		"module": "esnext",
-		"moduleResolution": "bundler",
+		"moduleResolution": "bundler", // Or "node" if "bundler" causes issues with older tools
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"jsx": "preserve",
+		"jsx": "preserve", // Next.js handles the JSX transform, 'preserve' is standard
 		"incremental": true,
 		"plugins": [
 			{
@@ -23,5 +22,5 @@
 		}
 	},
 	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules", ".next", "out", "storybook-static"]
 }
