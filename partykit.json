@@ -1,6 +1,0 @@
-{
-	"$schema": "https://www.partykit.io/schema.json",
-	"name": "adameter-party",
-	"main": "party/index.ts",
-	"compatibilityDate": "2025-04-26"
-}
