@@ -1,8 +1,9 @@
-import fbtCommon from './common_strings.json' with { type: 'json' };
+// Use require for compatibility, as babel.config.js is often treated as CommonJS
+const fbtCommon = require('./common_strings.json');
 
 const config = {
 	plugins: [],
 	presets: [['@nkzw/babel-preset-fbtee', { fbtCommon }], 'next/babel'],
 };
 
-export default config;
+module.exports = config; // Use module.exports for CommonJS
