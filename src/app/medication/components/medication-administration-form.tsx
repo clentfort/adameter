@@ -31,7 +31,7 @@ import {
 
 interface MedicationAdministrationFormProps {
 	allAdministrations: readonly MedicationAdministration[];
-	initialData?: MedicationAdministration;
+	initialData?: Partial<MedicationAdministration>; // Changed to Partial
 	isOpen: boolean;
 	onClose: () => void;
 	onSubmit: (data: MedicationAdministrationFormData, id?: string) => void;

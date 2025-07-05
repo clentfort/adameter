@@ -14,21 +14,21 @@ import { useMedicationRegimens } from '@/hooks/use-medication-regimens';
 import { useMedications } from '@/hooks/use-medications';
 import { MedicationAdministration } from '@/types/medication';
 import { MedicationRegimen } from '@/types/medication-regimen';
+import {
+	DueMedicationsDisplay,
+	QuickSubmitData,
+} from './components/due-medications-display';
 import { MedicationAdministrationForm } from './components/medication-administration-form';
 import { MedicationAdministrationItem } from './components/medication-administration-item';
 import { RegimenAccordionContent } from './components/regimen-accordion-content';
 import { MedicationAdministrationFormData } from './validation/medication-administration-schema';
 import '@/i18n';
 
-const handleEditRegimen = (regimenId: string) => {
-};
-const handleDeleteRegimen = (regimenId: string) => {
-};
+const handleEditRegimen = (regimenId: string) => {};
+const handleDeleteRegimen = (regimenId: string) => {};
 
 export default function MedicationPage() {
-	const {
-		value: medicationRegimens,
-	} = useMedicationRegimens();
+	const { value: medicationRegimens } = useMedicationRegimens();
 
 	const {
 		add: addMedication,
@@ -39,7 +39,7 @@ export default function MedicationPage() {
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingAdministration, setEditingAdministration] = useState<
-		MedicationAdministration | undefined
+		Partial<MedicationAdministration> | undefined // Allow partial for pre-filling
 	>(undefined);
 
 	const [expandedRegimens, setExpandedRegimens] = useState<
@@ -55,6 +55,21 @@ export default function MedicationPage() {
 		setIsFormOpen(true);
 	};
 
+	const handleOpenFormForQuickSubmit = (quickSubmitData: QuickSubmitData) => {
+		// Construct a partial MedicationAdministration object for pre-filling the form
+		// The ID will be generated upon actual save. Timestamp will be current time by form default.
+		const prefillData: Partial<MedicationAdministration> = {
+			administrationStatus: quickSubmitData.administrationStatus,
+			dosageAmount: quickSubmitData.dosageAmount,
+			dosageUnit: quickSubmitData.dosageUnit,
+			medicationName: quickSubmitData.medicationName,
+			regimenId: quickSubmitData.regimenId,
+			timestamp: new Date().toISOString(), // Explicitly set current time for prefill
+		};
+		setEditingAdministration(prefillData);
+		setIsFormOpen(true);
+	};
+
 	const handleOpenFormForEdit = (adminId: string) => {
 		const administrationToEdit = (medications || []).find(
 			(med) => med.id === adminId,
@@ -67,7 +82,7 @@ export default function MedicationPage() {
 
 	const handleSaveAdministration = (
 		data: MedicationAdministrationFormData,
-		id?: string,
+		id?: string, // This id comes from editingAdministration.id
 	) => {
 		if (id) {
 			// Editing existing
@@ -113,6 +128,10 @@ export default function MedicationPage() {
 
 	return (
 		<div className="w-full">
+			<DueMedicationsDisplay
+				onSelectDueMedication={handleOpenFormForQuickSubmit}
+			/>
+
 			<section className="mb-8">
 				<Accordion
 					className="w-full"
