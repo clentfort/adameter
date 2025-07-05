@@ -31,10 +31,18 @@ let viewerContext: ViewerContext = {
 
 // Minimal translations, assuming fbtee:translate will populate these later via .fbtee/translated-esm/
 // For now, fbtee will use the source strings if translations are missing.
+
+// Import the generated translations
+// Make sure your tsconfig.json has "resolveJsonModule": true and "esModuleInterop": true (or similar)
+// and that the Next.js build process handles JSON imports correctly.
+import deJsonTranslations from '../../.fbtee/translated-esm/de_DE.json';
+
 setupFbtee({
 	hooks: { getViewerContext: () => viewerContext },
 	translations: {
-		// de_DE: {} // This structure might change based on fbtee:translate output
+		// The key here should match the runtime locale identifier, e.g., 'de'
+		// The value is the actual map of { hash: translation_string }
+		de: deJsonTranslations.de_DE,
 	},
 });
 

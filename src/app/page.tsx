@@ -1,17 +1,25 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { format } from 'date-fns';
-import { useLocale } from '@/i18n/locale-context'; // This will be created later
+import { format, Locale as DateFnsLocaleType } from 'date-fns';
+import { de as deLocale, enUS as enUSLocale } from 'date-fns/locale'; // Static imports
+import { useLocale } from '@/i18n/locale-context';
 import React from 'react';
+
+const dateLocales: Record<string, DateFnsLocaleType> = {
+  de: deLocale,
+  en: enUSLocale,
+};
 
 export default function HomePage() {
   const { locale, setLocale } = useLocale();
 
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLocale = event.target.value as 'en' | 'de'; // Assuming 'en' and 'de'
+    const newLocale = event.target.value as 'en' | 'de';
     setLocale(newLocale);
   };
+
+  const currentDateFormatLocale = dateLocales[locale] || enUSLocale;
 
   return (
     <div className="container mx-auto p-4">
@@ -28,7 +36,7 @@ export default function HomePage() {
           </fbt>
         </p>
         <p>
-          <fbt desc="Current date label">Current date</fbt>: {format(new Date(), 'PPP', { locale: locale === 'de' ? require('date-fns/locale/de') : require('date-fns/locale/en-US') })}
+          <fbt desc="Current date label">Current date</fbt>: {format(new Date(), 'PPP', { locale: currentDateFormatLocale })}
         </p>
       </section>
 

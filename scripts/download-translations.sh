@@ -14,6 +14,10 @@ if [ -z "$CROWDIN_API_TOKEN" ]; then
   echo '{
  "fb-locale": "de_DE",
  "translations": {
+  "Minimal Next.js App": "Minimale Next.js App",
+  "This is a static internationalized text string.": "Dies ist ein statischer internationalisierter Textstring.",
+  "Current date": "Aktuelles Datum",
+  "Select Language": "Sprache auswählen"
  }
 }' > translations/de_DE.json
 else
