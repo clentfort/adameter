@@ -136,7 +136,7 @@ importers:
         version: 13.6.27
       zod:
         specifier: ^3.25.67
-        version: 3.25.75
+        version: 3.25.76
     devDependencies:
       '@babel/runtime':
         specifier: ^7.27.0
@@ -6245,8 +6245,8 @@ packages:
     peerDependencies:
       zod: ^3.25.0
 
-  zod@3.25.75:
-    resolution: {integrity: sha512-OhpzAmVzabPOL6C3A3gpAifqr9MqihV/Msx3gor2b2kviCgcb+HM9SEOpMWwwNp9MRunWnhtAKUoo0AHhjyPPg==}
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
 snapshots:
 
@@ -10073,8 +10073,8 @@ snapshots:
       '@babel/plugin-transform-private-methods': 7.27.1(@babel/core@7.28.0)
       eslint: 9.30.1(jiti@2.4.2)
       hermes-parser: 0.25.1
-      zod: 3.25.75
-      zod-validation-error: 3.5.2(zod@3.25.75)
+      zod: 3.25.76
+      zod-validation-error: 3.5.2(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -11114,7 +11114,7 @@ snapshots:
       workerd: 1.20240718.0
       ws: 8.18.3
       youch: 3.3.4
-      zod: 3.25.75
+      zod: 3.25.76
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -12846,8 +12846,8 @@ snapshots:
       mustache: 4.2.0
       stacktracey: 2.1.8
 
-  zod-validation-error@3.5.2(zod@3.25.75):
+  zod-validation-error@3.5.2(zod@3.25.76):
     dependencies:
-      zod: 3.25.75
+      zod: 3.25.76
 
-  zod@3.25.75: {}
+  zod@3.25.76: {}
