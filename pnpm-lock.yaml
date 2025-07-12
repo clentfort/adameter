@@ -20,6 +20,9 @@ importers:
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.11
         version: 1.1.14(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-checkbox':
+        specifier: ^1.3.2
+        version: 1.3.2(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-dialog':
         specifier: ^1.1.11
         version: 1.1.14(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -81,8 +84,8 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3
       fbtee:
-        specifier: ^1.0.0
-        version: 1.2.7(@nkzw/babel-plugin-fbtee-runtime@1.2.7(@nkzw/babel-plugin-fbtee@1.2.7))(@nkzw/babel-plugin-fbtee@1.2.7)(react@19.1.0)
+        specifier: 1.2.2
+        version: 1.2.2(@nkzw/babel-plugin-fbtee-runtime@1.2.7(@nkzw/babel-plugin-fbtee@1.2.7))(@nkzw/babel-plugin-fbtee@1.2.7)(react@19.1.0)
       jszip:
         specifier: latest
         version: 3.10.1
@@ -1655,6 +1658,19 @@ packages:
 
   '@radix-ui/react-arrow@1.1.7':
     resolution: {integrity: sha512-F+M1tLhO+mlQaOWspE8Wstg+z6PwxwRd8oQ8IXceWz92kfAmalTRf0EjrouQeo7QssEPfCn05B4Ihs1K9WQ/7w==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-checkbox@1.3.2':
+    resolution: {integrity: sha512-yd+dI56KZqawxKZrJ31eENUwqc1QSqg4OZ15rybGjF2ZNwMO+wCyHzAVLRp9qoYJf7kYy0YpZ2b0JCzJ42HZpA==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -3823,11 +3839,11 @@ packages:
   fastq@1.19.1:
     resolution: {integrity: sha512-GwLTyxkCXjXbxqIhTsMI2Nui8huMPtnxg7krajPJAjnEG/iiOS7i+zCtWGZR9G0NBKbXKh6X9m9UIsYX/N6vvQ==}
 
-  fbtee@1.2.7:
-    resolution: {integrity: sha512-ZhKW/IAsKSr75eNZfbADqOJzlOWFDo/pXJvoh/BPTE3PRbZsKdeyAsqPGOIq+5rM1fZfgX8tU0nj9rbYHNBwkA==}
+  fbtee@1.2.2:
+    resolution: {integrity: sha512-fRMFDl56g25Zqo0bsktNfyQcBZ3dbDzbvDV7BnRpen14q2jVBaYmND42xrvw2QAWbl3ktm8U3WtCxaxcdFVRLg==}
     peerDependencies:
-      '@nkzw/babel-plugin-fbtee': ^1.2.7
-      '@nkzw/babel-plugin-fbtee-runtime': ^1.2.7
+      '@nkzw/babel-plugin-fbtee': ^1.2.2
+      '@nkzw/babel-plugin-fbtee-runtime': ^1.2.2
       react: ^19.0.0
 
   fdir@6.4.6:
@@ -7698,6 +7714,22 @@ snapshots:
       '@types/react': 19.1.8
       '@types/react-dom': 19.1.6(@types/react@19.1.8)
 
+  '@radix-ui/react-checkbox@1.3.2(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.8)(react@19.1.0)
+      '@radix-ui/react-context': 1.1.2(@types/react@19.1.8)(react@19.1.0)
+      '@radix-ui/react-presence': 1.1.4(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.1.8)(react@19.1.0)
+      '@radix-ui/react-use-previous': 1.1.1(@types/react@19.1.8)(react@19.1.0)
+      '@radix-ui/react-use-size': 1.1.1(@types/react@19.1.8)(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+    optionalDependencies:
+      '@types/react': 19.1.8
+      '@types/react-dom': 19.1.6(@types/react@19.1.8)
+
   '@radix-ui/react-collapsible@1.1.11(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
@@ -10314,7 +10346,7 @@ snapshots:
     dependencies:
       reusify: 1.1.0
 
-  fbtee@1.2.7(@nkzw/babel-plugin-fbtee-runtime@1.2.7(@nkzw/babel-plugin-fbtee@1.2.7))(@nkzw/babel-plugin-fbtee@1.2.7)(react@19.1.0):
+  fbtee@1.2.2(@nkzw/babel-plugin-fbtee-runtime@1.2.7(@nkzw/babel-plugin-fbtee@1.2.7))(@nkzw/babel-plugin-fbtee@1.2.7)(react@19.1.0):
     dependencies:
       '@nkzw/babel-plugin-fbtee': 1.2.7
       '@nkzw/babel-plugin-fbtee-runtime': 1.2.7(@nkzw/babel-plugin-fbtee@1.2.7)
