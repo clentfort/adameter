@@ -22,7 +22,8 @@ export default function Feedings() {
 				<BreastfeedingTracker
 					latestFeedingSession={latestFeedingSession}
 					nextBreast={nextBreast}
-					onSessionComplete={add}
+					onCreateSession={add}
+					onUpdateSession={update}
 				/>
 
 				<div className="w-full mt-8">

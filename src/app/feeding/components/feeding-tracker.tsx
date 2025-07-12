@@ -23,13 +23,15 @@ import { formatDurationShort } from '@/utils/format-duration-short';
 interface BreastfeedingTrackerProps {
 	latestFeedingSession?: FeedingSession;
 	nextBreast: 'left' | 'right';
-	onSessionComplete: (session: FeedingSession) => void;
+	onCreateSession: (session: FeedingSession) => void;
+	onUpdateSession: (session: FeedingSession) => void;
 }
 
 export default function BreastfeedingTracker({
 	latestFeedingSession,
 	nextBreast,
-	onSessionComplete,
+	onCreateSession,
+	onUpdateSession,
 }: BreastfeedingTrackerProps) {
 	const [elapsedTime, setElapsedTime] = useState<null | Duration>(null);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -38,6 +40,10 @@ export default function BreastfeedingTracker({
 	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
 	const [resumeableSession, setResumeableSession] =
 		useState<FeedingSession | null>(null);
+	const [isResumedSession, setIsResumedSession] = useState(false);
+	const [resumedSessionOriginalId, setResumedSessionOriginalId] = useState<
+		string | null
+	>(null);
 
 	useEffect(() => {
 		if (
@@ -82,6 +88,8 @@ export default function BreastfeedingTracker({
 
 	const startFeeding = (breast: 'left' | 'right') => {
 		const now = new Date();
+		setIsResumedSession(false);
+		setResumedSessionOriginalId(null);
 		setFeedingInProgress({
 			breast,
 			startTime: now.toISOString(),
@@ -90,6 +98,8 @@ export default function BreastfeedingTracker({
 	};
 
 	const resumeFeeding = (sessionToResume: FeedingSession) => {
+		setIsResumedSession(true);
+		setResumedSessionOriginalId(sessionToResume.id);
 		setFeedingInProgress({
 			breast: sessionToResume.breast,
 			startTime: sessionToResume.startTime,
@@ -111,11 +121,18 @@ export default function BreastfeedingTracker({
 			breast,
 			durationInSeconds,
 			endTime: endTime.toISOString(),
-			id: Date.now().toString(),
+			id:
+				isResumedSession && resumedSessionOriginalId
+					? resumedSessionOriginalId
+					: Date.now().toString(),
 			startTime,
 		};
 
-		onSessionComplete(session);
+		if (isResumedSession) {
+			onUpdateSession(session);
+		} else {
+			onCreateSession(session);
+		}
 		resetTracker();
 	};
 
@@ -135,11 +152,18 @@ export default function BreastfeedingTracker({
 			breast: feedingInProgress.breast,
 			durationInSeconds: minutes * 60,
 			endTime: now.toISOString(),
-			id: Date.now().toString(),
+			id:
+				isResumedSession && resumedSessionOriginalId
+					? resumedSessionOriginalId
+					: Date.now().toString(),
 			startTime: calculatedStartTime.toISOString(),
 		};
 
-		onSessionComplete(session);
+		if (isResumedSession) {
+			onUpdateSession(session);
+		} else {
+			onCreateSession(session);
+		}
 		setIsDialogOpen(false);
 		resetTracker();
 	};
@@ -148,6 +172,8 @@ export default function BreastfeedingTracker({
 		setFeedingInProgress(null);
 		setElapsedTime(null);
 		setManualMinutes('');
+		setIsResumedSession(false);
+		setResumedSessionOriginalId(null);
 
 		if (timerRef.current) {
 			clearInterval(timerRef.current);
