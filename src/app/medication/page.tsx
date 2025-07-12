@@ -16,17 +16,19 @@ import { MedicationAdministration } from '@/types/medication';
 import { MedicationRegimen } from '@/types/medication-regimen';
 import { MedicationAdministrationForm } from './components/medication-administration-form';
 import { MedicationAdministrationItem } from './components/medication-administration-item';
+import { MedicationRegimenForm } from './components/medication-regimen-form';
 import { RegimenAccordionContent } from './components/regimen-accordion-content';
 import { MedicationAdministrationFormData } from './validation/medication-administration-schema';
 import '@/i18n';
 
-const handleEditRegimen = (regimenId: string) => {
-};
 const handleDeleteRegimen = (regimenId: string) => {
 };
 
 export default function MedicationPage() {
 	const {
+		add: addRegimen,
+		remove: removeRegimen,
+		update: updateRegimen,
 		value: medicationRegimens,
 	} = useMedicationRegimens();
 
@@ -37,9 +39,13 @@ export default function MedicationPage() {
 		value: medications,
 	} = useMedications();
 
-	const [isFormOpen, setIsFormOpen] = useState(false);
+	const [isAdministrationFormOpen, setAdministrationFormOpen] = useState(false);
+	const [isRegimenFormOpen, setRegimenFormOpen] = useState(false);
 	const [editingAdministration, setEditingAdministration] = useState<
 		MedicationAdministration | undefined
+	>(undefined);
+	const [editingRegimen, setEditingRegimen] = useState<
+		MedicationRegimen | undefined
 	>(undefined);
 
 	const [expandedRegimens, setExpandedRegimens] = useState<
@@ -52,7 +58,7 @@ export default function MedicationPage() {
 
 	const handleOpenFormForAdd = () => {
 		setEditingAdministration(undefined);
-		setIsFormOpen(true);
+		setAdministrationFormOpen(true);
 	};
 
 	const handleOpenFormForEdit = (adminId: string) => {
@@ -61,8 +67,32 @@ export default function MedicationPage() {
 		);
 		if (administrationToEdit) {
 			setEditingAdministration(administrationToEdit);
-			setIsFormOpen(true);
+			setAdministrationFormOpen(true);
 		}
+	};
+
+	const handleEditRegimen = (regimenId: string) => {
+		const regimenToEdit = (medicationRegimens || []).find(
+			(reg) => reg.id === regimenId,
+		);
+		if (regimenToEdit) {
+			setEditingRegimen(regimenToEdit);
+			setRegimenFormOpen(true);
+		}
+	};
+
+	const handleOpenRegimenFormForAdd = () => {
+		setEditingRegimen(undefined);
+		setRegimenFormOpen(true);
+	};
+
+	const handleSaveRegimen = (regimen: MedicationRegimen) => {
+		if (editingRegimen) {
+			updateRegimen(regimen); // Assuming updateRegimen handles finding and updating
+		} else {
+			addRegimen(regimen);
+		}
+		setRegimenFormOpen(false);
 	};
 
 	const handleSaveAdministration = (
@@ -83,7 +113,7 @@ export default function MedicationPage() {
 			};
 			addMedication(newAdministration);
 		}
-		setIsFormOpen(false); // Close form after save
+		setAdministrationFormOpen(false); // Close form after save
 	};
 
 	const handleDeleteAdministration = (adminId: string) => {
@@ -114,36 +144,42 @@ export default function MedicationPage() {
 	return (
 		<div className="w-full">
 			<section className="mb-8">
+				<div className="flex justify-between items-center mb-4">
+					<h2 className="text-xl font-semibold">
+						<fbt desc="Section heading for current medication regimens">
+							Current Regimens
+						</fbt>
+					</h2>
+					<Button onClick={handleOpenRegimenFormForAdd} size="sm" variant="outline">
+						<PlusCircle className="h-4 w-4 mr-1" />
+						<fbt desc="Button text to add a new medication regimen">
+							Add Regimen
+						</fbt>
+					</Button>
+				</div>
+				<div>
+					<RegimenAccordionContent
+						expandedRegimens={expandedRegimens}
+						handleDeleteRegimen={handleDeleteRegimen} // Keep if regimen management is on this page
+						handleEditRegimen={handleEditRegimen} // Keep if regimen management is on this page
+						isPastSection={false}
+						noItemsMessage={
+							<p>
+								<fbt desc="Message when there are no active regimens">
+									No active regimens. Add a new regimen to get started.
+								</fbt>
+							</p>
+						}
+						regimens={activeRegimens}
+						toggleRegimenExpansion={toggleRegimenExpansion}
+					/>
+				</div>
 				<Accordion
-					className="w-full"
-					defaultValue={['active-regimens']}
+					className="w-full mt-4"
+					// defaultValue={['active-regimens']}
 					type="multiple"
 				>
-					<AccordionItem className="border-none" value="active-regimens">
-						<AccordionTrigger className="text-xl font-semibold mb-2 hover:no-underline py-2">
-							<fbt desc="Accordion title for current medication regimens">
-								Current Regimens
-							</fbt>
-						</AccordionTrigger>
-						<AccordionContent>
-							<RegimenAccordionContent
-								expandedRegimens={expandedRegimens}
-								handleDeleteRegimen={handleDeleteRegimen} // Keep if regimen management is on this page
-								handleEditRegimen={handleEditRegimen} // Keep if regimen management is on this page
-								isPastSection={false}
-								noItemsMessage={
-									<p>
-										<fbt desc="Message when there are no active regimens">
-											No active regimens. Add a new regimen to get started.
-										</fbt>
-									</p>
-								}
-								regimens={activeRegimens}
-								toggleRegimenExpansion={toggleRegimenExpansion}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-					<AccordionItem className="border-none mt-4" value="past-regimens">
+					<AccordionItem className="border-none" value="past-regimens">
 						<AccordionTrigger className="text-xl font-semibold mb-2 hover:no-underline py-2">
 							<fbt desc="Accordion title for archived medication regimens">
 								Archived
@@ -197,14 +233,20 @@ export default function MedicationPage() {
 				</HistoryListInternal>
 			</section>
 
-			{isFormOpen && (
+			{isAdministrationFormOpen && (
 				<MedicationAdministrationForm
 					allAdministrations={medications || []}
 					initialData={editingAdministration}
-					isOpen={isFormOpen}
-					onClose={() => setIsFormOpen(false)}
+					onClose={() => setAdministrationFormOpen(false)}
 					onSubmit={handleSaveAdministration}
 					regimens={medicationRegimens || []}
+				/>
+			)}
+			{isRegimenFormOpen && (
+				<MedicationRegimenForm
+					initialData={editingRegimen}
+					onClose={() => setRegimenFormOpen(false)}
+					onSubmit={handleSaveRegimen}
 				/>
 			)}
 		</div>
