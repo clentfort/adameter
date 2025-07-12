@@ -1,5 +1,10 @@
 import type { FeedingSession } from '@/types/feeding';
-import { Duration, format, intervalToDuration } from 'date-fns';
+import {
+	differenceInMinutes,
+	Duration,
+	format,
+	intervalToDuration,
+} from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,19 +21,41 @@ import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
 import { formatDurationShort } from '@/utils/format-duration-short';
 
 interface BreastfeedingTrackerProps {
+	latestFeedingSession?: FeedingSession;
 	nextBreast: 'left' | 'right';
-	onSessionComplete: (session: FeedingSession) => void;
+	onCreateSession: (session: FeedingSession) => void;
+	onUpdateSession: (session: FeedingSession) => void;
 }
 
 export default function BreastfeedingTracker({
+	latestFeedingSession,
 	nextBreast,
-	onSessionComplete,
+	onCreateSession,
+	onUpdateSession,
 }: BreastfeedingTrackerProps) {
 	const [elapsedTime, setElapsedTime] = useState<null | Duration>(null);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [manualMinutes, setManualMinutes] = useState('');
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
+	const [resumeableSession, setResumeableSession] =
+		useState<FeedingSession | null>(null);
+	const [isResumedSession, setIsResumedSession] = useState(false);
+	const [resumedSessionOriginalId, setResumedSessionOriginalId] = useState<
+		string | null
+	>(null);
+
+	useEffect(() => {
+		if (
+			latestFeedingSession &&
+			differenceInMinutes(new Date(), new Date(latestFeedingSession.endTime)) <
+				5
+		) {
+			setResumeableSession(latestFeedingSession);
+		} else {
+			setResumeableSession(null);
+		}
+	}, [latestFeedingSession]);
 
 	// Check for active session on component mount
 	useEffect(() => {
@@ -61,11 +88,23 @@ export default function BreastfeedingTracker({
 
 	const startFeeding = (breast: 'left' | 'right') => {
 		const now = new Date();
+		setIsResumedSession(false);
+		setResumedSessionOriginalId(null);
 		setFeedingInProgress({
 			breast,
 			startTime: now.toISOString(),
 		});
 		setElapsedTime({ seconds: 0 });
+	};
+
+	const resumeFeeding = (sessionToResume: FeedingSession) => {
+		setIsResumedSession(true);
+		setResumedSessionOriginalId(sessionToResume.id);
+		setFeedingInProgress({
+			breast: sessionToResume.breast,
+			startTime: sessionToResume.startTime,
+		});
+		setResumeableSession(null); // Clear resumeable session after resuming
 	};
 
 	const endFeeding = () => {
@@ -82,11 +121,18 @@ export default function BreastfeedingTracker({
 			breast,
 			durationInSeconds,
 			endTime: endTime.toISOString(),
-			id: Date.now().toString(),
+			id:
+				isResumedSession && resumedSessionOriginalId
+					? resumedSessionOriginalId
+					: Date.now().toString(),
 			startTime,
 		};
 
-		onSessionComplete(session);
+		if (isResumedSession) {
+			onUpdateSession(session);
+		} else {
+			onCreateSession(session);
+		}
 		resetTracker();
 	};
 
@@ -106,11 +152,18 @@ export default function BreastfeedingTracker({
 			breast: feedingInProgress.breast,
 			durationInSeconds: minutes * 60,
 			endTime: now.toISOString(),
-			id: Date.now().toString(),
+			id:
+				isResumedSession && resumedSessionOriginalId
+					? resumedSessionOriginalId
+					: Date.now().toString(),
 			startTime: calculatedStartTime.toISOString(),
 		};
 
-		onSessionComplete(session);
+		if (isResumedSession) {
+			onUpdateSession(session);
+		} else {
+			onCreateSession(session);
+		}
 		setIsDialogOpen(false);
 		resetTracker();
 	};
@@ -119,6 +172,8 @@ export default function BreastfeedingTracker({
 		setFeedingInProgress(null);
 		setElapsedTime(null);
 		setManualMinutes('');
+		setIsResumedSession(false);
+		setResumedSessionOriginalId(null);
 
 		if (timerRef.current) {
 			clearInterval(timerRef.current);
@@ -132,26 +187,44 @@ export default function BreastfeedingTracker({
 					<div className="relative">
 						<Button
 							className="h-24 text-lg w-full bg-left-breast hover:bg-left-breast-dark text-white"
-							onClick={() => startFeeding('left')}
+							onClick={() =>
+								resumeableSession && resumeableSession.breast === 'left'
+									? resumeFeeding(resumeableSession)
+									: startFeeding('left')
+							}
 							size="lg"
 						>
 							<fbt desc="Label on a button that starts a feeding session with the left breast">
 								Left Breast
 							</fbt>
 						</Button>
-						{nextBreast === 'left' && <NextBreastBadge breast="left" />}
+						{resumeableSession && resumeableSession.breast === 'left' ? (
+							<ResumeBadge breast="left" />
+						) : (
+							!resumeableSession &&
+							nextBreast === 'left' && <NextBreastBadge breast="left" />
+						)}
 					</div>
 					<div className="relative">
 						<Button
 							className="h-24 text-lg w-full bg-right-breast hover:bg-right-breast-dark text-white"
-							onClick={() => startFeeding('right')}
+							onClick={() =>
+								resumeableSession && resumeableSession.breast === 'right'
+									? resumeFeeding(resumeableSession)
+									: startFeeding('right')
+							}
 							size="lg"
 						>
 							<fbt desc="Label on a button that starts a feeding session with the right breast">
 								Right Breast
 							</fbt>
 						</Button>
-						{nextBreast === 'right' && <NextBreastBadge breast="right" />}
+						{resumeableSession && resumeableSession.breast === 'right' ? (
+							<ResumeBadge breast="right" />
+						) : (
+							!resumeableSession &&
+							nextBreast === 'right' && <NextBreastBadge breast="right" />
+						)}
 					</div>
 				</div>
 			) : (
@@ -276,6 +349,22 @@ function NextBreastBadge({ breast }: NextBreastBadgeProps) {
 		<Badge className={`absolute -top-2 -right-2 ${bg}`}>
 			<fbt desc="Badge on a button that tells the user that they should use this breast for the next feeding session">
 				Next
+			</fbt>
+		</Badge>
+	);
+}
+
+interface ResumeBadgeProps {
+	breast: 'left' | 'right';
+}
+function ResumeBadge({ breast }: ResumeBadgeProps) {
+	const bg = breast === 'left' ? 'bg-left-breast' : 'bg-right-breast';
+	// Consider a different color or style for Resume badge if desired
+	// For now, using the same styling as NextBreastBadge but with "Resume" text
+	return (
+		<Badge className={`absolute -top-2 -right-2 ${bg}`}>
+			<fbt desc="Badge on a button that tells the user that they can resume the last feeding session on this breast">
+				Resume
 			</fbt>
 		</Badge>
 	);

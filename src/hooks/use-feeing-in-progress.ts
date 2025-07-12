@@ -29,3 +29,5 @@ export const useFeedingInProgress = () => {
 	);
 	return [decryptedCurrent, set] as const;
 };
+
+export type UseFeedingInProgressType = typeof useFeedingInProgress;
