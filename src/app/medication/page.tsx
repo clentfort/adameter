@@ -237,18 +237,18 @@ export default function MedicationPage() {
 				<MedicationAdministrationForm
 					allAdministrations={medications || []}
 					initialData={editingAdministration}
-					isOpen={isAdministrationFormOpen}
 					onClose={() => setAdministrationFormOpen(false)}
 					onSubmit={handleSaveAdministration}
 					regimens={medicationRegimens || []}
 				/>
 			)}
-			<MedicationRegimenForm
-				initialData={editingRegimen}
-				isOpen={isRegimenFormOpen}
-				onClose={() => setRegimenFormOpen(false)}
-				onSubmit={handleSaveRegimen}
-			/>
+			{isRegimenFormOpen && (
+				<MedicationRegimenForm
+					initialData={editingRegimen}
+					onClose={() => setRegimenFormOpen(false)}
+					onSubmit={handleSaveRegimen}
+				/>
+			)}
 		</div>
 	);
 }

@@ -35,14 +35,12 @@ import {
 
 interface MedicationRegimenFormProps {
 	initialData?: MedicationRegimen; // For potential future edit functionality
-	isOpen: boolean;
 	onClose: () => void;
 	onSubmit: (data: MedicationRegimen) => void;
 }
 
 export const MedicationRegimenForm: React.FC<MedicationRegimenFormProps> = ({
 	initialData,
-	isOpen,
 	onClose,
 	onSubmit,
 }) => {
@@ -123,10 +121,6 @@ export const MedicationRegimenForm: React.FC<MedicationRegimenFormProps> = ({
 		onClose();
 	};
 
-	if (!isOpen) {
-		return null;
-	}
-
 	const daysOfWeekOptions: MedicationRegimenFormData['weeklyDaysOfWeek'] = [
 		'Monday',
 		'Tuesday',
@@ -138,7 +132,7 @@ export const MedicationRegimenForm: React.FC<MedicationRegimenFormProps> = ({
 	];
 
 	return (
-		<Dialog onOpenChange={(open) => !open && onClose()} open={isOpen}>
+		<Dialog onOpenChange={(open) => !open && onClose()} open>
 			<DialogContent className="sm:max-w-2xl">
 				{' '}
 				{/* Increased width for complex form */}

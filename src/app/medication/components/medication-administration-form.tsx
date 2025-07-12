@@ -32,7 +32,6 @@ import {
 interface MedicationAdministrationFormProps {
 	allAdministrations: readonly MedicationAdministration[];
 	initialData?: MedicationAdministration;
-	isOpen: boolean;
 	onClose: () => void;
 	onSubmit: (data: MedicationAdministrationFormData, id?: string) => void;
 	regimens: readonly MedicationRegimen[];
@@ -43,7 +42,6 @@ export const MedicationAdministrationForm: React.FC<
 > = ({
 	allAdministrations,
 	initialData,
-	isOpen,
 	onClose,
 	onSubmit,
 	regimens,
@@ -82,25 +80,6 @@ export const MedicationAdministrationForm: React.FC<
 		});
 	}, [datePart, timePart, form]);
 
-	useEffect(() => {
-		if (isOpen) {
-			const initialTimestamp = initialData?.timestamp
-				? new Date(initialData.timestamp)
-				: new Date();
-			setDatePart(dateToDateInputValue(initialTimestamp));
-			setTimePart(dateToTimeInputValue(initialTimestamp));
-
-			form.reset({
-				administrationStatus: initialData?.administrationStatus || 'On Time',
-				details: initialData?.details || '',
-				dosageAmount: initialData?.dosageAmount ?? Number.NaN,
-				dosageUnit: initialData?.dosageUnit || '',
-				medicationName: initialData?.medicationName || '',
-				regimenId: initialData?.regimenId || undefined,
-				timestamp: initialTimestamp.toISOString(),
-			});
-		}
-	}, [initialData, form, isOpen]);
 
 	const medicationOptions = useMemo(() => {
 		const regimenOptions: MedicationAutocompleteOptionData[] = regimens.map(
@@ -137,12 +116,8 @@ export const MedicationAdministrationForm: React.FC<
 		onClose();
 	};
 
-	if (!isOpen) {
-		return null;
-	}
-
 	return (
-		<Dialog onOpenChange={(open) => !open && onClose()} open={isOpen}>
+		<Dialog onOpenChange={(open) => !open && onClose()} open>
 			<DialogContent className="sm:max-w-lg">
 				<DialogHeader>
 					<DialogTitle>
