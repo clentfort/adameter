@@ -23,4 +23,16 @@ describe('crypto', () => {
 		const encrypted = encrypt(object, 'secret');
 		expect(decrypt(encrypted, 'secret')).toEqual(object);
 	});
+
+	it('handles empty objects', () => {
+		const object = {};
+		const encrypted = encrypt(object, 'secret');
+		expect(decrypt(encrypted, 'secret')).toEqual(object);
+	});
+
+	it('handles arrays', () => {
+		const arr = [1, 'two', { three: 3 }];
+		const encrypted = encrypt(arr, 'secret');
+		expect(decrypt(encrypted, 'secret')).toEqual(arr);
+	});
 });
