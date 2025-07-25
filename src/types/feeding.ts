@@ -1,7 +1,10 @@
+export type FeedingSource = 'left' | 'right' | 'bottle' | 'pump';
+
 export interface FeedingSession {
-	breast: 'left' | 'right';
-	durationInSeconds: number;
+	source: FeedingSource;
+	amountInMl?: number;
+	durationInSeconds?: number;
 	endTime: string;
 	id: string;
-	startTime: string;
+	startTime:string;
 }
