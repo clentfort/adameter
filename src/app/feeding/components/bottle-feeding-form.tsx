@@ -1,4 +1,4 @@
-import type { FeedingSession, FeedingSource } from '@/types/feeding';
+import type { FeedingSession } from '@/types/feeding';
 import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,36 +10,30 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 
-interface FeedingFormProps {
+interface BottleFeedingFormProps {
 	feeding?: FeedingSession;
 	onClose: () => void;
 	onSave: (session: FeedingSession) => void;
 	title: ReactNode;
 }
 
-export default function FeedingForm({
+export default function BottleFeedingForm({
 	feeding,
 	onClose,
 	onSave,
 	title,
-}: FeedingFormProps) {
-	const [breast, setBreast] = useState<FeedingSource>(
-		feeding?.breast ?? 'left',
-	);
+}: BottleFeedingFormProps) {
 	const [date, setDate] = useState(
 		dateToDateInputValue(feeding?.startTime ?? new Date()),
 	);
 	const [time, setTime] = useState(
 		dateToTimeInputValue(feeding?.startTime ?? new Date()),
 	);
-	const [duration, setDuration] = useState(
-		feeding?.durationInSeconds
-			? Math.round(feeding.durationInSeconds / 60).toString()
-			: '',
+	const [amount, setAmount] = useState(
+		feeding?.amountInMl ? feeding.amountInMl.toString() : '',
 	);
 
 	useEffect(() => {
@@ -52,30 +46,25 @@ export default function FeedingForm({
 		setDate(dateToDateInputValue(startDate));
 		setTime(dateToTimeInputValue(startDate));
 
-		const durationInMinutes = Math.round(
-			(feeding.durationInSeconds ?? 0) / 60,
-		);
-		setDuration(durationInMinutes.toString());
+		setAmount(feeding.amountInMl ? feeding.amountInMl.toString() : '');
 	}, [feeding]);
 
 	const handleSubmit = () => {
-		if (!date || !time || !duration || Number.isNaN(Number(duration))) {
+		if (!date || !time || !amount || Number.isNaN(Number(amount))) {
 			return;
 		}
 
-		const durationInMinutes = Number(duration);
+		const amountInMl = Number(amount);
 		const [year, month, day] = date.split('-').map(Number);
 		const [hours, minutes] = time.split(':').map(Number);
 
 		const startTime = new Date(year, month - 1, day, hours, minutes);
-		const endTime = new Date(
-			startTime.getTime() + durationInMinutes * 60 * 1000,
-		);
+		const endTime = new Date(startTime.getTime());
 
 		const updatedSession: FeedingSession = {
 			...feeding,
-			breast,
-			durationInSeconds: durationInMinutes * 60,
+			amountInMl,
+			breast: 'bottle',
 			endTime: endTime.toISOString(),
 			id: feeding?.id ?? Date.now().toString(),
 			startTime: startTime.toISOString(),
@@ -92,44 +81,6 @@ export default function FeedingForm({
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
-					<div className="space-y-2">
-						<Label>
-							<fbt desc="Label for a radio group that allows the user to select which breat was used to feed">
-								Breast
-							</fbt>
-						</Label>
-						<RadioGroup
-							className="flex gap-4"
-							onValueChange={(value) => setBreast(value as FeedingSource)}
-							value={breast}
-						>
-							<div className="flex items-center space-x-2">
-								<RadioGroupItem
-									className="text-left-breast border-left-breast"
-									id="edit-left"
-									value="left"
-								/>
-								<Label className="text-left-breast-dark" htmlFor="edit-left">
-									<fbt desc="Label for a radio button that indicates the left breast was used to feed">
-										Left Breast
-									</fbt>
-								</Label>
-							</div>
-							<div className="flex items-center space-x-2">
-								<RadioGroupItem
-									className="text-right-breast border-right-breast"
-									id="edit-right"
-									value="right"
-								/>
-								<Label className="text-right-breast-dark" htmlFor="edit-right">
-									<fbt desc="Label for a radio button that indicates the right breast was used to feed">
-										Right Breast
-									</fbt>
-								</Label>
-							</div>
-						</RadioGroup>
-					</div>
-
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
 							<Label htmlFor="edit-date">
@@ -159,29 +110,21 @@ export default function FeedingForm({
 
 					<div className="space-y-2">
 						<Label htmlFor="edit-duration">
-							<fbt desc="Label for a number input that sets the duration of a feeding session in minutes">
-								minutes
+							<fbt desc="Label for a number input that sets the amount of a feeding session in ml">
+								ml
 							</fbt>
 						</Label>
 						<Input
-							id="edit-duration"
+							id="edit-amount"
 							min="1"
-							onChange={(e) => setDuration(e.target.value)}
+							onChange={(e) => setAmount(e.target.value)}
 							type="number"
-							value={duration}
+							value={amount}
 						/>
 					</div>
 				</div>
 				<DialogFooter>
-					<Button
-						className={
-							breast === 'left'
-								? 'bg-left-breast hover:bg-left-breast-dark'
-								: 'bg-right-breast hover:bg-right-breast-dark'
-						}
-						onClick={handleSubmit}
-						type="submit"
-					>
+					<Button onClick={handleSubmit} type="submit">
 						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>

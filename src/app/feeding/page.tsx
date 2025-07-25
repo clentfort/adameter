@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useNextBreast } from '@/hooks/use-next-breast';
+import BottleFeedingForm from './components/bottle-feeding-form';
 import FeedingForm from './components/feeding-form';
 import HistoryList from './components/feeding-history-list';
 import BreastfeedingTracker from './components/feeding-tracker';
@@ -12,6 +13,8 @@ import { useResumableSession } from './hooks/use-resumable-session';
 
 export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
+	const [isBottleFeedingDialogOpen, setIsBottleFeedingDialogOpen] =
+		useState(false);
 	const { add, remove, update, value: sessions } = useFeedingSessions();
 	const nextBreast = useNextBreast();
 	const resumableSession = useResumableSession();
@@ -33,14 +36,28 @@ export default function Feedings() {
 								History
 							</fbt>
 						</h2>
-						<Button
-							onClick={() => setIsAddEntryDialogOpen(true)}
-							size="sm"
-							variant="outline"
-						>
-							<PlusCircle className="h-4 w-4 mr-1" />
-							<fbt common>Add Entry</fbt>
-						</Button>
+						<div className="flex gap-2">
+							<Button
+								onClick={() => setIsAddEntryDialogOpen(true)}
+								size="sm"
+								variant="outline"
+							>
+								<PlusCircle className="h-4 w-4 mr-1" />
+								<fbt desc="Button to add a breast feeding entry">
+									Add Breast Feeding
+								</fbt>
+							</Button>
+							<Button
+								onClick={() => setIsBottleFeedingDialogOpen(true)}
+								size="sm"
+								variant="outline"
+							>
+								<PlusCircle className="h-4 w-4 mr-1" />
+								<fbt desc="Button to add a bottle feeding entry">
+									Add Bottle Feeding
+								</fbt>
+							</Button>
+						</div>
 					</div>
 					<HistoryList
 						onSessionDelete={remove}
@@ -60,6 +77,20 @@ export default function Feedings() {
 					title={
 						<fbt desc="Title of the dialog to manually add a previous feeding session">
 							Add Feeding
+						</fbt>
+					}
+				/>
+			)}
+			{isBottleFeedingDialogOpen && (
+				<BottleFeedingForm
+					onClose={() => setIsBottleFeedingDialogOpen(false)}
+					onSave={(change) => {
+						add(change);
+						setIsBottleFeedingDialogOpen(false);
+					}}
+					title={
+						<fbt desc="Title of the dialog to manually add a previous bottle feeding session">
+							Add Bottle Feeding
 						</fbt>
 					}
 				/>

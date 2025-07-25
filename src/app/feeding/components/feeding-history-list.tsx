@@ -6,6 +6,7 @@ import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
+import BottleFeedingForm from './bottle-feeding-form';
 import FeedingForm from './feeding-form';
 
 interface HistoryListProps {
@@ -32,15 +33,23 @@ export default function HistoryList({
 			>
 				{(session) => {
 					const isLeftBreast = session.breast === 'left';
-					const borderColor = isLeftBreast
-						? 'border-left-breast/30'
-						: 'border-right-breast/30';
-					const bgColor = isLeftBreast
-						? 'bg-left-breast/5'
-						: 'bg-right-breast/5';
-					const textColor = isLeftBreast
-						? 'text-left-breast-dark'
-						: 'text-right-breast-dark';
+					const isBottle = session.breast === 'bottle';
+
+					const borderColor = isBottle
+						? 'border-gray-200'
+						: isLeftBreast
+							? 'border-left-breast/30'
+							: 'border-right-breast/30';
+					const bgColor = isBottle
+						? 'bg-gray-50'
+						: isLeftBreast
+							? 'bg-left-breast/5'
+							: 'bg-right-breast/5';
+					const textColor = isBottle
+						? 'text-gray-800'
+						: isLeftBreast
+							? 'text-left-breast-dark'
+							: 'text-right-breast-dark';
 
 					// Check if session crosses midnight
 					const startDate = new Date(session.startTime);
@@ -55,7 +64,11 @@ export default function HistoryList({
 							<div className="flex justify-between items-start">
 								<div>
 									<p className={`font-medium ${textColor}`}>
-										{isLeftBreast ? (
+										{isBottle ? (
+											<fbt desc="Label indicating a feeding was done with a bottle">
+												Bottle
+											</fbt>
+										) : isLeftBreast ? (
 											<fbt desc="Label indicating a feeding was done with the left breast">
 												Left Breast
 											</fbt>
@@ -78,7 +91,16 @@ export default function HistoryList({
 								</div>
 								<div className="text-right flex flex-col items-end">
 									<p className="font-bold">
-										{formatDurationAbbreviated(session.durationInSeconds)}
+										{isBottle ? (
+											<fbt desc="Amount of milk in ml">
+												<fbt:param name="amount">
+													{session.amountInMl}
+												</fbt:param>{' '}
+												ml
+											</fbt>
+										) : (
+											formatDurationAbbreviated(session.durationInSeconds ?? 0)
+										)}
 									</p>
 									<p className="text-xs text-muted-foreground">
 										<fbt desc="Label indicating when a feeding session started">
@@ -105,18 +127,30 @@ export default function HistoryList({
 					onDelete={onSessionDelete}
 				/>
 			)}
-			{sessionToEdit && (
-				<FeedingForm
-					feeding={sessionToEdit}
-					onClose={() => setSessionToEdit(null)}
-					onSave={onSessionUpdate}
-					title={
-						<fbt desc="Title of a dialog that allows the user to edit a feeding session">
-							Edit Feeding Session
-						</fbt>
-					}
-				/>
-			)}
+			{sessionToEdit &&
+				(sessionToEdit.breast === 'bottle' ? (
+					<BottleFeedingForm
+						feeding={sessionToEdit}
+						onClose={() => setSessionToEdit(null)}
+						onSave={onSessionUpdate}
+						title={
+							<fbt desc="Title of a dialog that allows the user to edit a feeding session">
+								Edit Feeding Session
+							</fbt>
+						}
+					/>
+				) : (
+					<FeedingForm
+						feeding={sessionToEdit}
+						onClose={() => setSessionToEdit(null)}
+						onSave={onSessionUpdate}
+						title={
+							<fbt desc="Title of a dialog that allows the user to edit a feeding session">
+								Edit Feeding Session
+							</fbt>
+						}
+					/>
+				))}
 		</>
 	);
 }

@@ -15,11 +15,11 @@ const escapeCSV = (field: string): string => {
 
 export const feedingSessionsToCsv = (sessions: FeedingSession[]): string => {
 	if (sessions.length === 0) {
-		return 'Brust,Startzeit,Endzeit,Dauer (Sekunden),Dauer (formatiert)\n';
+		return 'Quelle,Startzeit,Endzeit,Dauer (Sekunden),Menge (ml),Dauer (formatiert)\n';
 	}
 
 	const header =
-		'Brust,Startzeit,Endzeit,Dauer (Sekunden),Dauer (formatiert)\n';
+		'Quelle,Startzeit,Endzeit,Dauer (Sekunden),Menge (ml),Dauer (formatiert)\n';
 
 	const rows = sessions
 		.map((session) => {
@@ -31,13 +31,19 @@ export const feedingSessionsToCsv = (sessions: FeedingSession[]): string => {
 			const endTime = format(new Date(session.endTime), 'dd.MM.yyyy HH:mm:ss', {
 				locale: de,
 			});
-			const breast = session.breast === 'left' ? 'Links' : 'Rechts';
+			const source =
+				session.breast === 'left'
+					? 'Links'
+					: session.breast === 'right'
+						? 'Rechts'
+						: 'Flasche';
 
-			const minutes = Math.floor(session.durationInSeconds / 60);
-			const seconds = session.durationInSeconds % 60;
+			const durationInSeconds = session.durationInSeconds ?? 0;
+			const minutes = Math.floor(durationInSeconds / 60);
+			const seconds = durationInSeconds % 60;
 			const formattedDuration = `${minutes} Min. ${seconds} Sek.`;
 
-			return `${breast},${escapeCSV(startTime)},${escapeCSV(endTime)},${session.durationInSeconds},${escapeCSV(formattedDuration)}`;
+			return `${source},${escapeCSV(startTime)},${escapeCSV(endTime)},${durationInSeconds},${session.amountInMl ?? ''},${escapeCSV(formattedDuration)}`;
 		})
 		.join('\n');
 

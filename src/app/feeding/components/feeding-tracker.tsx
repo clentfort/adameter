@@ -1,4 +1,4 @@
-import type { FeedingSession } from '@/types/feeding';
+import type { FeedingSession, FeedingSource } from '@/types/feeding';
 import { Duration, format, intervalToDuration } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -67,7 +67,7 @@ export default function BreastfeedingTracker({
 		};
 	}, [feedingInProgress]);
 
-	const startFeeding = (breast: 'left' | 'right') => {
+	const startFeeding = (breast: FeedingSource) => {
 		const now = new Date();
 		setResumedSessionOriginalId(null);
 		setFeedingInProgress({
@@ -79,6 +79,7 @@ export default function BreastfeedingTracker({
 
 	const resumeFeeding = (sessionToResume: FeedingSession) => {
 		setResumedSessionOriginalId(sessionToResume.id);
+		if (sessionToResume.breast === 'bottle') return;
 		setFeedingInProgress({
 			breast: sessionToResume.breast,
 			startTime: sessionToResume.startTime,
@@ -154,7 +155,7 @@ export default function BreastfeedingTracker({
 	return (
 		<div className="w-full">
 			{!feedingInProgress ? (
-				<div className="grid grid-cols-2 gap-4">
+				<div className="grid grid-cols-3 gap-4">
 					<div className="relative">
 						<Button
 							className="h-24 text-lg w-full bg-left-breast hover:bg-left-breast-dark text-white"
@@ -197,6 +198,18 @@ export default function BreastfeedingTracker({
 							nextBreast === 'right' && <NextBreastBadge breast="right" />
 						)}
 					</div>
+					<div className="relative">
+						<Button
+							className="h-24 text-lg w-full"
+							onClick={() => startFeeding('bottle')}
+							size="lg"
+							variant="outline"
+						>
+							<fbt desc="Label on a button that starts a feeding session with a bottle">
+								Bottle
+							</fbt>
+						</Button>
+					</div>
 				</div>
 			) : (
 				<div className="flex flex-col items-center gap-4">
@@ -205,23 +218,31 @@ export default function BreastfeedingTracker({
 							className={`p-3 rounded-lg ${
 								feedingInProgress.breast === 'left'
 									? 'bg-left-breast/10 border border-left-breast/30'
-									: 'bg-right-breast/10 border border-right-breast/30'
+									: feedingInProgress.breast === 'right'
+										? 'bg-right-breast/10 border border-right-breast/30'
+										: 'bg-gray-100 border border-gray-200'
 							}`}
 						>
 							<p
 								className={`text-lg font-medium ${
 									feedingInProgress.breast === 'left'
 										? 'text-left-breast-dark'
-										: 'text-right-breast-dark'
+										: feedingInProgress.breast === 'right'
+											? 'text-right-breast-dark'
+											: 'text-gray-800'
 								}`}
 							>
 								{feedingInProgress.breast === 'left' ? (
 									<fbt desc="Label that shows that there is a feeding session in progress with the left breast">
 										Left Breast
 									</fbt>
-								) : (
+								) : feedingInProgress.breast === 'right' ? (
 									<fbt desc="Label that shows that there is a feeding session in progress with the right breast">
 										Right Breast
+									</fbt>
+								) : (
+									<fbt desc="Label that shows that there is a feeding session in progress with a bottle">
+										Bottle
 									</fbt>
 								)}
 							</p>
@@ -246,7 +267,9 @@ export default function BreastfeedingTracker({
 							className={`h-16 ${
 								feedingInProgress.breast === 'left'
 									? 'bg-left-breast hover:bg-left-breast-dark'
-									: 'bg-right-breast hover:bg-right-breast-dark'
+									: feedingInProgress.breast === 'right'
+										? 'bg-right-breast hover:bg-right-breast-dark'
+										: 'bg-gray-200 hover:bg-gray-300'
 							}`}
 							onClick={endFeeding}
 							size="lg"
@@ -297,7 +320,9 @@ export default function BreastfeedingTracker({
 							className={
 								feedingInProgress?.breast === 'left'
 									? 'bg-left-breast hover:bg-left-breast-dark'
-									: 'bg-right-breast hover:bg-right-breast-dark'
+									: feedingInProgress?.breast === 'right'
+										? 'bg-right-breast hover:bg-right-breast-dark'
+										: 'bg-gray-200 hover:bg-gray-300'
 							}
 							onClick={handleManualEntry}
 							type="submit"

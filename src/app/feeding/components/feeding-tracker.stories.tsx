@@ -13,7 +13,6 @@ const mockSetFeedingInProgress = (newState: typeof mockFeedingInProgressState) =
 const meta: Meta<typeof BreastfeedingTracker> = {
 	argTypes: {
 		nextBreast: { control: 'radio', options: ['left', 'right'] },
-		onSessionComplete: { action: 'sessionCompleted' },
 	},
 	component: BreastfeedingTracker,
 	parameters: {
@@ -42,28 +41,24 @@ type Story = StoryObj<
 export const InitialScreenNextLeft: Story = {
 	args: {
 		nextBreast: 'left',
-		onSessionComplete: () => {},
 	},
 };
 
 export const InitialScreenNextRight: Story = {
 	args: {
 		nextBreast: 'right',
-		onSessionComplete: () => {},
 	},
 };
 
 export const StartLeftFeeding: Story = {
 	args: {
 		nextBreast: 'left',
-		onSessionComplete: () => {},
 	},
 };
 
 export const FeedingInProgressView: Story = {
 	args: {
 		nextBreast: 'right',
-		onSessionComplete: () => {},
 		// @ts-ignore: Forcing initial state via args for story setup
 		initialFeedingState: {
 			breast: 'right',
@@ -74,7 +69,7 @@ export const FeedingInProgressView: Story = {
 
 export const EndFeedingAction: Story = {
 	args: {
-		...FeedingInProgressView.args,
+		nextBreast: 'right',
 		// @ts-ignore: Forcing initial state
 		initialFeedingState: {
 			breast: 'left',
@@ -85,7 +80,7 @@ export const EndFeedingAction: Story = {
 
 export const EnterTimeManuallyDialog: Story = {
 	args: {
-		...FeedingInProgressView.args,
+		nextBreast: 'right',
 		// @ts-ignore: Forcing initial state
 		initialFeedingState: {
 			breast: 'right',
@@ -96,7 +91,7 @@ export const EnterTimeManuallyDialog: Story = {
 
 export const SaveManualTimeEntry: Story = {
 	args: {
-		...FeedingInProgressView.args,
+		nextBreast: 'right',
 		// @ts-ignore: Forcing initial state
 		initialFeedingState: {
 			breast: 'left',
