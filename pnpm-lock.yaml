@@ -84,8 +84,8 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3
       fbtee:
-        specifier: 1.3.1
-        version: 1.3.1(@nkzw/babel-plugin-fbtee-runtime@1.3.1(@nkzw/babel-plugin-fbtee@1.3.1))(@nkzw/babel-plugin-fbtee@1.3.1)(react@19.1.0)
+        specifier: 1.3.2
+        version: 1.3.2(@nkzw/babel-plugin-fbtee-runtime@1.3.2(@nkzw/babel-plugin-fbtee@1.3.2))(@nkzw/babel-plugin-fbtee@1.3.2)(react@19.1.0)
       jszip:
         specifier: latest
         version: 3.10.1
@@ -158,7 +158,7 @@ importers:
         version: 15.4.3
       '@nkzw/babel-preset-fbtee':
         specifier: ^1.0.0
-        version: 1.3.1
+        version: 1.3.2
       '@nkzw/eslint-config':
         specifier: ^3.0.0
         version: 3.0.2(@typescript-eslint/eslint-plugin@8.38.0(@typescript-eslint/parser@8.38.0(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3))(@typescript-eslint/utils@8.38.0(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.32.0)(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3)
@@ -841,6 +841,10 @@ packages:
 
   '@babel/types@7.28.1':
     resolution: {integrity: sha512-x0LvFTekgSX+83TI28Y9wYPUfzrnl2aT5+5QLnO6v7mSJYtEEevuDRN0F0uSHRk1G1IWZC43o00Y0xDDrpBGPQ==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/types@7.28.2':
+    resolution: {integrity: sha512-ruv7Ae4J5dUYULmeXw1gmb7rYRz57OWCPM57pHojnLq/3Z1CK2lNSLTCVjxVk1F/TZHwOZZrOWi0ur95BbLxNQ==}
     engines: {node: '>=6.9.0'}
 
   '@bcoe/v8-coverage@1.0.2':
@@ -1544,20 +1548,20 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@nkzw/babel-plugin-fbtee-auto-import@1.3.1':
-    resolution: {integrity: sha512-D+g2Ms8LVSgg7XrtqEg0uvI6EFOS9i1u/3gjmU/i5d8tbau18ht1x1bwP4okGDuIqb900LGv+rqdmC9WbYT3eQ==}
+  '@nkzw/babel-plugin-fbtee-auto-import@1.3.2':
+    resolution: {integrity: sha512-MrhQ8RcLc7B7rmuvDOKirqYg5CAH+Str0kl2m71+UXkne7UX7uWLxs6S3R+nuMrTupz52WCflcpS0rumknAZ1w==}
 
-  '@nkzw/babel-plugin-fbtee-runtime@1.3.1':
-    resolution: {integrity: sha512-p0/7TF3Zy+IA/vlzHoLpRLrks24sp31CZE7CW9AD4TUnjf0Vs+DPMDm5k+ZpeSjHyquQPec7Kzu96gGOaxJsvg==}
+  '@nkzw/babel-plugin-fbtee-runtime@1.3.2':
+    resolution: {integrity: sha512-1MTFi6fn2xRj/kEh+GrAYSmlZ8y4woNTa7vA21RLOanIClsSp4zUa7PP/W+Rp21B8UIpKoaVnBZJtwRLUl7FhQ==}
     peerDependencies:
-      '@nkzw/babel-plugin-fbtee': ^1.3.1
+      '@nkzw/babel-plugin-fbtee': 1.3.2
 
-  '@nkzw/babel-plugin-fbtee@1.3.1':
-    resolution: {integrity: sha512-3RzT4LT4uTkhu3kGeTkNKGLHdm282mQDCLbfUwNkitfaxi/MGFoqzZlTgib4if8gAWv8/0927LAV31tOdxtLvA==}
+  '@nkzw/babel-plugin-fbtee@1.3.2':
+    resolution: {integrity: sha512-lyjRvSlDmhjNcmeqk2hrD/I9RFWNBxpsuRvaaTv2+6w5mn1KfSvE7XT4FXmcDY27VFE0QDk0vScW30/jkI/Zjg==}
     hasBin: true
 
-  '@nkzw/babel-preset-fbtee@1.3.1':
-    resolution: {integrity: sha512-1kQ9EB1uYk7eu18koMIV/zGJWLPM+4W7USgDodx4p/laqhpYRFVnn3uJHMobozsSy9/xDRwFl7m7lciBKK7RhA==}
+  '@nkzw/babel-preset-fbtee@1.3.2':
+    resolution: {integrity: sha512-oDhVe7wtwlho7uXrmRovhlRLQAeEAj+VehnfezWuu05dCRblSc9AzpA4Y7Ea+fFDDN+xyzlQlsTEaCY0XjgECQ==}
     hasBin: true
 
   '@nkzw/core@1.3.0':
@@ -3773,11 +3777,11 @@ packages:
   fastq@1.19.1:
     resolution: {integrity: sha512-GwLTyxkCXjXbxqIhTsMI2Nui8huMPtnxg7krajPJAjnEG/iiOS7i+zCtWGZR9G0NBKbXKh6X9m9UIsYX/N6vvQ==}
 
-  fbtee@1.3.1:
-    resolution: {integrity: sha512-MAAquHdGJlCX/Ycm4qHc40FMEsGyvWnjJphyw4e8I/ypRLOENzqI8ReA7SC936pvXSzOSbHSfKUCCFjteL79cw==}
+  fbtee@1.3.2:
+    resolution: {integrity: sha512-Fy5fRH0K6rzHdx9DgpthWr49+gujlas3/TCb1TKq1H+PYbJHnH2yvIhqzKToOXC+5eil1ud+39TD96SQWr/FCg==}
     peerDependencies:
-      '@nkzw/babel-plugin-fbtee': ^1.3.1
-      '@nkzw/babel-plugin-fbtee-runtime': ^1.3.1
+      '@nkzw/babel-plugin-fbtee': 1.3.2
+      '@nkzw/babel-plugin-fbtee-runtime': 1.3.2
       react: ^19.0.0
 
   fdir@6.4.6:
@@ -6276,7 +6280,7 @@ snapshots:
 
   '@babel/helper-annotate-as-pure@7.27.3':
     dependencies:
-      '@babel/types': 7.28.1
+      '@babel/types': 7.28.2
 
   '@babel/helper-compilation-targets@7.27.2':
     dependencies:
@@ -6322,14 +6326,14 @@ snapshots:
   '@babel/helper-member-expression-to-functions@7.27.1':
     dependencies:
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.1
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-module-imports@7.27.1':
     dependencies:
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.1
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
@@ -6344,7 +6348,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.27.1':
     dependencies:
-      '@babel/types': 7.28.1
+      '@babel/types': 7.28.2
 
   '@babel/helper-plugin-utils@7.27.1': {}
 
@@ -6369,7 +6373,7 @@ snapshots:
   '@babel/helper-skip-transparent-expression-wrappers@7.27.1':
     dependencies:
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.1
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
@@ -6383,7 +6387,7 @@ snapshots:
     dependencies:
       '@babel/template': 7.27.2
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.1
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
@@ -6766,7 +6770,7 @@ snapshots:
       '@babel/helper-module-imports': 7.27.1
       '@babel/helper-plugin-utils': 7.27.1
       '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.28.0)
-      '@babel/types': 7.28.1
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
@@ -6946,7 +6950,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.0
       '@babel/helper-plugin-utils': 7.27.1
-      '@babel/types': 7.28.1
+      '@babel/types': 7.28.2
       esutils: 2.0.3
 
   '@babel/preset-react@7.27.1(@babel/core@7.28.0)':
@@ -6993,6 +6997,11 @@ snapshots:
       - supports-color
 
   '@babel/types@7.28.1':
+    dependencies:
+      '@babel/helper-string-parser': 7.27.1
+      '@babel/helper-validator-identifier': 7.27.1
+
+  '@babel/types@7.28.2':
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
@@ -7486,34 +7495,34 @@ snapshots:
   '@next/swc-win32-x64-msvc@15.4.3':
     optional: true
 
-  '@nkzw/babel-plugin-fbtee-auto-import@1.3.1':
+  '@nkzw/babel-plugin-fbtee-auto-import@1.3.2':
     dependencies:
       '@babel/core': 7.28.0
-      '@babel/types': 7.28.1
-      '@nkzw/babel-plugin-fbtee': 1.3.1
+      '@babel/types': 7.28.2
+      '@nkzw/babel-plugin-fbtee': 1.3.2
     transitivePeerDependencies:
       - supports-color
 
-  '@nkzw/babel-plugin-fbtee-runtime@1.3.1(@nkzw/babel-plugin-fbtee@1.3.1)':
+  '@nkzw/babel-plugin-fbtee-runtime@1.3.2(@nkzw/babel-plugin-fbtee@1.3.2)':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/preset-react': 7.27.1(@babel/core@7.28.0)
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.1
-      '@nkzw/babel-plugin-fbtee': 1.3.1
+      '@babel/types': 7.28.2
+      '@nkzw/babel-plugin-fbtee': 1.3.2
       invariant: 2.2.4
     transitivePeerDependencies:
       - supports-color
 
-  '@nkzw/babel-plugin-fbtee@1.3.1':
+  '@nkzw/babel-plugin-fbtee@1.3.2':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/generator': 7.28.0
       '@babel/preset-react': 7.27.1(@babel/core@7.28.0)
       '@babel/preset-typescript': 7.27.1(@babel/core@7.28.0)
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.1
-      '@nkzw/babel-plugin-fbtee-auto-import': 1.3.1
+      '@babel/types': 7.28.2
+      '@nkzw/babel-plugin-fbtee-auto-import': 1.3.2
       invariant: 2.2.4
       jest-docblock: 30.0.1
       nullthrows: 1.1.1
@@ -7521,11 +7530,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nkzw/babel-preset-fbtee@1.3.1':
+  '@nkzw/babel-preset-fbtee@1.3.2':
     dependencies:
-      '@nkzw/babel-plugin-fbtee': 1.3.1
-      '@nkzw/babel-plugin-fbtee-auto-import': 1.3.1
-      '@nkzw/babel-plugin-fbtee-runtime': 1.3.1(@nkzw/babel-plugin-fbtee@1.3.1)
+      '@nkzw/babel-plugin-fbtee': 1.3.2
+      '@nkzw/babel-plugin-fbtee-auto-import': 1.3.2
+      '@nkzw/babel-plugin-fbtee-runtime': 1.3.2(@nkzw/babel-plugin-fbtee@1.3.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -10173,10 +10182,10 @@ snapshots:
     dependencies:
       reusify: 1.1.0
 
-  fbtee@1.3.1(@nkzw/babel-plugin-fbtee-runtime@1.3.1(@nkzw/babel-plugin-fbtee@1.3.1))(@nkzw/babel-plugin-fbtee@1.3.1)(react@19.1.0):
+  fbtee@1.3.2(@nkzw/babel-plugin-fbtee-runtime@1.3.2(@nkzw/babel-plugin-fbtee@1.3.2))(@nkzw/babel-plugin-fbtee@1.3.2)(react@19.1.0):
     dependencies:
-      '@nkzw/babel-plugin-fbtee': 1.3.1
-      '@nkzw/babel-plugin-fbtee-runtime': 1.3.1(@nkzw/babel-plugin-fbtee@1.3.1)
+      '@nkzw/babel-plugin-fbtee': 1.3.2
+      '@nkzw/babel-plugin-fbtee-runtime': 1.3.2(@nkzw/babel-plugin-fbtee@1.3.2)
       invariant: 2.2.4
       react: 19.1.0
 
@@ -11508,7 +11517,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.0
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.1
+      '@babel/types': 7.28.2
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.20.7
       '@types/doctrine': 0.0.9
