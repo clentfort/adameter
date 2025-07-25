@@ -6,7 +6,6 @@ import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
-import BottleFeedingForm from './bottle-feeding-form';
 import FeedingForm from './feeding-form';
 
 interface HistoryListProps {
@@ -25,6 +24,19 @@ export default function HistoryList({
 		null,
 	);
 
+	const getSessionName = (session: FeedingSession) => {
+		switch (session.source) {
+			case 'left':
+				return <fbt desc="Left breast">Left Breast</fbt>;
+			case 'right':
+				return <fbt desc="Right breast">Right Breast</fbt>;
+			case 'bottle':
+				return <fbt desc="Bottle">Bottle</fbt>;
+			case 'pump':
+				return <fbt desc="Pump">Pump</fbt>;
+		}
+	};
+
 	return (
 		<>
 			<HistoryListInternal
@@ -32,29 +44,36 @@ export default function HistoryList({
 				entries={sessions}
 			>
 				{(session) => {
-					const isLeftBreast = session.breast === 'left';
-					const isBottle = session.breast === 'bottle';
+					const isLeftBreast = session.source === 'left';
+					const isBottle = session.source === 'bottle';
+					const isPump = session.source === 'pump';
 
 					const borderColor = isBottle
-						? 'border-gray-200'
-						: isLeftBreast
-							? 'border-left-breast/30'
-							: 'border-right-breast/30';
+						? 'border-yellow-200'
+						: isPump
+							? 'border-gray-200'
+							: isLeftBreast
+								? 'border-left-breast/30'
+								: 'border-right-breast/30';
 					const bgColor = isBottle
-						? 'bg-gray-50'
-						: isLeftBreast
-							? 'bg-left-breast/5'
-							: 'bg-right-breast/5';
+						? 'bg-yellow-50'
+						: isPump
+							? 'bg-gray-50'
+							: isLeftBreast
+								? 'bg-left-breast/5'
+								: 'bg-right-breast/5';
 					const textColor = isBottle
-						? 'text-gray-800'
-						: isLeftBreast
-							? 'text-left-breast-dark'
-							: 'text-right-breast-dark';
+						? 'text-yellow-800'
+						: isPump
+							? 'text-gray-800'
+							: isLeftBreast
+								? 'text-left-breast-dark'
+								: 'text-right-breast-dark';
 
-					// Check if session crosses midnight
-					const startDate = new Date(session.startTime);
-					const endDate = new Date(session.endTime);
-					const crossesMidnight = !isSameDay(startDate, endDate);
+					const crossesMidnight = !isSameDay(
+						new Date(session.startTime),
+						new Date(session.endTime),
+					);
 
 					return (
 						<div
@@ -64,19 +83,7 @@ export default function HistoryList({
 							<div className="flex justify-between items-start">
 								<div>
 									<p className={`font-medium ${textColor}`}>
-										{isBottle ? (
-											<fbt desc="Label indicating a feeding was done with a bottle">
-												Bottle
-											</fbt>
-										) : isLeftBreast ? (
-											<fbt desc="Label indicating a feeding was done with the left breast">
-												Left Breast
-											</fbt>
-										) : (
-											<fbt desc="Label indicating a feeding was done with the right breast">
-												Right Breast
-											</fbt>
-										)}
+										{getSessionName(session)}
 									</p>
 									{crossesMidnight && (
 										<p className="text-xs text-muted-foreground">
@@ -91,7 +98,7 @@ export default function HistoryList({
 								</div>
 								<div className="text-right flex flex-col items-end">
 									<p className="font-bold">
-										{isBottle ? (
+										{session.amountInMl ? (
 											<fbt desc="Amount of milk in ml">
 												<fbt:param name="amount">
 													{session.amountInMl}
@@ -127,30 +134,18 @@ export default function HistoryList({
 					onDelete={onSessionDelete}
 				/>
 			)}
-			{sessionToEdit &&
-				(sessionToEdit.breast === 'bottle' ? (
-					<BottleFeedingForm
-						feeding={sessionToEdit}
-						onClose={() => setSessionToEdit(null)}
-						onSave={onSessionUpdate}
-						title={
-							<fbt desc="Title of a dialog that allows the user to edit a feeding session">
-								Edit Feeding Session
-							</fbt>
-						}
-					/>
-				) : (
-					<FeedingForm
-						feeding={sessionToEdit}
-						onClose={() => setSessionToEdit(null)}
-						onSave={onSessionUpdate}
-						title={
-							<fbt desc="Title of a dialog that allows the user to edit a feeding session">
-								Edit Feeding Session
-							</fbt>
-						}
-					/>
-				))}
+			{sessionToEdit && (
+				<FeedingForm
+					feeding={sessionToEdit}
+					onClose={() => setSessionToEdit(null)}
+					onSave={onSessionUpdate}
+					title={
+						<fbt desc="Title of a dialog that allows the user to edit a feeding session">
+							Edit Feeding Session
+						</fbt>
+					}
+				/>
+			)}
 		</>
 	);
 }

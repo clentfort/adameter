@@ -27,8 +27,8 @@ export default function FeedingForm({
 	onSave,
 	title,
 }: FeedingFormProps) {
-	const [breast, setBreast] = useState<FeedingSource>(
-		feeding?.breast ?? 'left',
+	const [source, setSource] = useState<FeedingSource>(
+		feeding?.source ?? 'left',
 	);
 	const [date, setDate] = useState(
 		dateToDateInputValue(feeding?.startTime ?? new Date()),
@@ -41,6 +41,9 @@ export default function FeedingForm({
 			? Math.round(feeding.durationInSeconds / 60).toString()
 			: '',
 	);
+	const [amount, setAmount] = useState(
+		feeding?.amountInMl ? feeding.amountInMl.toString() : '',
+	);
 
 	useEffect(() => {
 		if (!feeding) {
@@ -51,31 +54,49 @@ export default function FeedingForm({
 
 		setDate(dateToDateInputValue(startDate));
 		setTime(dateToTimeInputValue(startDate));
+		setSource(feeding.source);
 
-		const durationInMinutes = Math.round(
-			(feeding.durationInSeconds ?? 0) / 60,
-		);
-		setDuration(durationInMinutes.toString());
+		if (feeding.durationInSeconds) {
+			const durationInMinutes = Math.round(feeding.durationInSeconds / 60);
+			setDuration(durationInMinutes.toString());
+		}
+		if (feeding.amountInMl) {
+			setAmount(feeding.amountInMl.toString());
+		}
 	}, [feeding]);
 
 	const handleSubmit = () => {
-		if (!date || !time || !duration || Number.isNaN(Number(duration))) {
+		const isBreastFeeding = source === 'left' || source === 'right';
+		if (
+			!date ||
+			!time ||
+			(isBreastFeeding && !duration) ||
+			(!isBreastFeeding && !amount)
+		) {
 			return;
 		}
 
-		const durationInMinutes = Number(duration);
 		const [year, month, day] = date.split('-').map(Number);
 		const [hours, minutes] = time.split(':').map(Number);
-
 		const startTime = new Date(year, month - 1, day, hours, minutes);
-		const endTime = new Date(
-			startTime.getTime() + durationInMinutes * 60 * 1000,
-		);
+
+		let endTime = startTime;
+		let durationInSeconds;
+		let amountInMl;
+
+		if (isBreastFeeding) {
+			const durationInMinutes = Number(duration);
+			durationInSeconds = durationInMinutes * 60;
+			endTime = new Date(startTime.getTime() + durationInSeconds * 1000);
+		} else {
+			amountInMl = Number(amount);
+		}
 
 		const updatedSession: FeedingSession = {
 			...feeding,
-			breast,
-			durationInSeconds: durationInMinutes * 60,
+			source,
+			durationInSeconds,
+			amountInMl,
 			endTime: endTime.toISOString(),
 			id: feeding?.id ?? Date.now().toString(),
 			startTime: startTime.toISOString(),
@@ -94,14 +115,14 @@ export default function FeedingForm({
 				<div className="grid gap-4 py-4">
 					<div className="space-y-2">
 						<Label>
-							<fbt desc="Label for a radio group that allows the user to select which breat was used to feed">
-								Breast
+							<fbt desc="Label for a radio group that allows the user to select the source of the feeding">
+								Source
 							</fbt>
 						</Label>
 						<RadioGroup
 							className="flex gap-4"
-							onValueChange={(value) => setBreast(value as FeedingSource)}
-							value={breast}
+							onValueChange={(value) => setSource(value as FeedingSource)}
+							value={source}
 						>
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
@@ -124,6 +145,22 @@ export default function FeedingForm({
 								<Label className="text-right-breast-dark" htmlFor="edit-right">
 									<fbt desc="Label for a radio button that indicates the right breast was used to feed">
 										Right Breast
+									</fbt>
+								</Label>
+							</div>
+							<div className="flex items-center space-x-2">
+								<RadioGroupItem id="edit-bottle" value="bottle" />
+								<Label htmlFor="edit-bottle">
+									<fbt desc="Label for a radio button that indicates a bottle was used to feed">
+										Bottle
+									</fbt>
+								</Label>
+							</div>
+							<div className="flex items-center space-x-2">
+								<RadioGroupItem id="edit-pump" value="pump" />
+								<Label htmlFor="edit-pump">
+									<fbt desc="Label for a radio button that indicates milk was pumped">
+										Pump
 									</fbt>
 								</Label>
 							</div>
@@ -157,31 +194,42 @@ export default function FeedingForm({
 						</div>
 					</div>
 
-					<div className="space-y-2">
-						<Label htmlFor="edit-duration">
-							<fbt desc="Label for a number input that sets the duration of a feeding session in minutes">
-								minutes
-							</fbt>
-						</Label>
-						<Input
-							id="edit-duration"
-							min="1"
-							onChange={(e) => setDuration(e.target.value)}
-							type="number"
-							value={duration}
-						/>
-					</div>
+					{(source === 'left' || source === 'right') && (
+						<div className="space-y-2">
+							<Label htmlFor="edit-duration">
+								<fbt desc="Label for a number input that sets the duration of a feeding session in minutes">
+									minutes
+								</fbt>
+							</Label>
+							<Input
+								id="edit-duration"
+								min="1"
+								onChange={(e) => setDuration(e.target.value)}
+								type="number"
+								value={duration}
+							/>
+						</div>
+					)}
+
+					{(source === 'bottle' || source === 'pump') && (
+						<div className="space-y-2">
+							<Label htmlFor="edit-amount">
+								<fbt desc="Label for a number input that sets the amount of a feeding session in ml">
+									ml
+								</fbt>
+							</Label>
+							<Input
+								id="edit-amount"
+								min="1"
+								onChange={(e) => setAmount(e.target.value)}
+								type="number"
+								value={amount}
+							/>
+						</div>
+					)}
 				</div>
 				<DialogFooter>
-					<Button
-						className={
-							breast === 'left'
-								? 'bg-left-breast hover:bg-left-breast-dark'
-								: 'bg-right-breast hover:bg-right-breast-dark'
-						}
-						onClick={handleSubmit}
-						type="submit"
-					>
+					<Button onClick={handleSubmit} type="submit">
 						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>
