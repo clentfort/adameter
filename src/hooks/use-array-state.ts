@@ -10,7 +10,7 @@ export function useArrayState<S extends ObjectWithId>(array: S[]) {
 	return {
 		add: useCallback(
 			(item: S) => {
-				array.unshift(normalize(item));
+				array.push(normalize(item));
 			},
 			[array],
 		),
