@@ -127,7 +127,7 @@ importers:
         version: 2.1.5(@types/react@19.1.8)(react@19.1.1)
       valtio-yjs:
         specifier: ^0.6.0
-        version: 0.6.1(valtio@2.1.5(@types/react@19.1.8)(react@19.1.1))
+        version: 0.6.4(valtio@2.1.5(@types/react@19.1.8)(react@19.1.1))
       y-indexeddb:
         specifier: ^9.0.12
         version: 9.0.12(yjs@13.6.27)
@@ -829,6 +829,10 @@ packages:
 
   '@babel/runtime@7.28.2':
     resolution: {integrity: sha512-KHp2IflsnGywDjBWDkR9iEqiWSpc8GIi0lgTT3mOElT0PP1tG26P4tmFI2YvAdzgq9RGyoHZQEIEdZy6Ec5xCA==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.28.3':
+    resolution: {integrity: sha512-9uIQ10o0WGdpP6GDhXcdOJPJuDgFtIDtN/9+ArJQ2NAfAmiuhTQdzkaTGR33v43GYS2UrSA0eX2pPPHoFVvpxA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
@@ -5967,8 +5971,8 @@ packages:
   utila@0.4.0:
     resolution: {integrity: sha512-Z0DbgELS9/L/75wZbro8xAnT50pBVFQZ+hUEueGDU5FN51YSCYM+jdxsfCiHjwNP/4LCDD0i/graKpeBnOXKRA==}
 
-  valtio-yjs@0.6.1:
-    resolution: {integrity: sha512-JJnbPIF99deVzr1oUKDZKwR1MXW3sN66yiEHDjuCQZ9W22PTyzlw9e+0nJqrV2fHyJt8D/tiramHlWLCftY0pA==}
+  valtio-yjs@0.6.4:
+    resolution: {integrity: sha512-WnunORleWNELQtIeDk6AWZz/HckBG24haxETSL454vcTGmMkBekDIZTeKXn+1jcpz471wHDITJSkzt/eJMm4iA==}
     peerDependencies:
       valtio: '>=2.0.0-rc.0'
 
@@ -7041,6 +7045,8 @@ snapshots:
       - supports-color
 
   '@babel/runtime@7.28.2': {}
+
+  '@babel/runtime@7.28.3': {}
 
   '@babel/template@7.27.2':
     dependencies:
@@ -8478,7 +8484,7 @@ snapshots:
   '@testing-library/dom@10.4.1':
     dependencies:
       '@babel/code-frame': 7.27.1
-      '@babel/runtime': 7.28.2
+      '@babel/runtime': 7.28.3
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       dom-accessibility-api: 0.5.16
@@ -12564,7 +12570,7 @@ snapshots:
 
   utila@0.4.0: {}
 
-  valtio-yjs@0.6.1(valtio@2.1.5(@types/react@19.1.8)(react@19.1.1)):
+  valtio-yjs@0.6.4(valtio@2.1.5(@types/react@19.1.8)(react@19.1.1)):
     dependencies:
       valtio: 2.1.5(@types/react@19.1.8)(react@19.1.1)
 
