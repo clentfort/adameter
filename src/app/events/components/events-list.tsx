@@ -4,6 +4,7 @@ import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import DeleteIconButton from '@/components/icon-buttons/delete';
+import Markdown from '@/components/markdown';
 import EditIconButton from '@/components/icon-buttons/edit';
 import { useEvents } from '@/hooks/use-events';
 import AddEventDialog from './event-form';
@@ -50,9 +51,9 @@ export default function EventsList() {
 								<div>
 									<p className="font-medium text-lg">{event.title}</p>
 									{event.description && (
-										<p className="text-sm text-muted-foreground mt-1">
-											{event.description}
-										</p>
+										<div className="text-sm text-muted-foreground mt-1">
+											<Markdown>{event.description}</Markdown>
+										</div>
 									)}
 									<div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
 										<Calendar className="h-4 w-4" />
