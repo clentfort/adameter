@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import DeleteIconButton from '@/components/icon-buttons/delete';
+import Markdown from '@/components/markdown';
 import EditIconButton from '@/components/icon-buttons/edit';
 import MeasurementForm from './growth-form';
 
@@ -87,9 +88,9 @@ export default function GrowthMeasurementsList({
 											</p>
 										)}
 										{measurement.notes && (
-											<p className="text-sm text-muted-foreground mt-2">
-												{measurement.notes}
-											</p>
+											<div className="text-sm text-muted-foreground mt-2">
+												<Markdown>{measurement.notes}</Markdown>
+											</div>
 										)}
 									</div>
 								</div>

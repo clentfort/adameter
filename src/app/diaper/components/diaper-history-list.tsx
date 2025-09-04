@@ -5,6 +5,7 @@ import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import Markdown from '@/components/markdown';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { DIAPER_BRAND_LABELS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
@@ -87,15 +88,17 @@ export default function DiaperHistoryList() {
 											</p>
 										)}
 										{change.abnormalities && (
-											<p>
-												<fbt desc="Prefix to a user defined text on notes on a diaper change (i.e. rashes, redness.)">
-													Notes
-												</fbt>
-												:{' '}
-												<span className="font-medium">
-													{change.abnormalities}
-												</span>
-											</p>
+											<div>
+												<p>
+													<fbt desc="Prefix to a user defined text on notes on a diaper change (i.e. rashes, redness.)">
+														Notes
+													</fbt>
+													:
+												</p>
+												<div className="font-medium">
+													<Markdown>{change.abnormalities}</Markdown>
+												</div>
+											</div>
 										)}
 									</div>
 								</div>
