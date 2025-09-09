@@ -20,6 +20,8 @@ import { MedicationRegimenForm } from './components/medication-regimen-form';
 import { RegimenAccordionContent } from './components/regimen-accordion-content';
 import { MedicationAdministrationFormData } from './validation/medication-administration-schema';
 import '@/i18n';
+import { useDueMedications } from '@/hooks/use-due-medications';
+import { DueMedications } from './components/due-medications';
 
 const handleDeleteRegimen = (regimenId: string) => {
 };
@@ -51,6 +53,8 @@ export default function MedicationPage() {
 	const [expandedRegimens, setExpandedRegimens] = useState<
 		Record<string, boolean>
 	>({});
+
+	const dueMedications = useDueMedications();
 
 	const toggleRegimenExpansion = (regimenId: string) => {
 		setExpandedRegimens((prev) => ({ ...prev, [regimenId]: !prev[regimenId] }));
@@ -120,6 +124,19 @@ export default function MedicationPage() {
 		removeMedication(adminId);
 	};
 
+	const handleAdministerDueMedication = (regimen: MedicationRegimen) => {
+		const newAdministration: Partial<MedicationAdministration> = {
+			regimenId: regimen.id,
+			name: regimen.name,
+			dosageAmount: regimen.dosageAmount,
+			dosageUnit: regimen.dosageUnit,
+			timestamp: new Date().toISOString(),
+			administrationStatus: 'On Time',
+		};
+		setEditingAdministration(newAdministration as MedicationAdministration);
+		setAdministrationFormOpen(true);
+	};
+
 	const { activeRegimens, pastRegimens } = useMemo(() => {
 		const now = new Date().toISOString();
 		return (medicationRegimens || []).reduce(
@@ -143,6 +160,10 @@ export default function MedicationPage() {
 
 	return (
 		<div className="w-full">
+			<DueMedications
+				dueMedications={dueMedications}
+				onAdminister={handleAdministerDueMedication}
+			/>
 			<section className="mb-8">
 				<div className="flex justify-between items-center mb-4">
 					<h2 className="text-xl font-semibold">
@@ -219,7 +240,7 @@ export default function MedicationPage() {
 					</Button>
 				</div>
 				<HistoryListInternal
-					dateAccessor={(med) => med.timestamp}
+					dateAccessor={(med) => new Date(med.timestamp).toISOString()}
 					entries={medications || []}
 				>
 					{(med) => (
