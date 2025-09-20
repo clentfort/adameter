@@ -1,18 +1,13 @@
 'use client';
 
-import { addDays } from 'date-fns';
+import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { useState } from 'react';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+import type { DateRange } from 'react-day-picker';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import DateRangePicker from './components/date-range-picker';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
@@ -22,24 +17,35 @@ import TimeBetweenStats from './components/time-between-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
 
+type TimeRangePreset = '7' | '14' | '30' | 'all';
+
 export default function StatisticsPage() {
 	const { value: diaperChanges } = useDiaperChanges();
 	const { value: events } = useEvents();
 	const { value: measurements } = useGrowthMeasurements();
 	const { value: sessions } = useFeedingSessions();
 
-	const [timeRange, setTimeRange] = useState<'7' | '14' | '30' | 'all'>('7');
+	const [timeRange, setTimeRange] = useState<TimeRangePreset | DateRange>('7');
 
 	// Filter sessions based on selected time range
 	const filteredSessions = (() => {
 		if (timeRange === 'all') return [...sessions];
 
 		const now = new Date();
-		const daysToLookBack = Number.parseInt(timeRange);
-		const cutoffDate = addDays(now, -daysToLookBack);
-		return [...sessions].filter(
-			(session) => new Date(session.startTime) >= cutoffDate,
-		);
+		let startDate: Date;
+		const endDate = endOfDay(now);
+
+		if (typeof timeRange === 'string') {
+			const daysToLookBack = Number.parseInt(timeRange);
+			startDate = startOfDay(addDays(now, -daysToLookBack));
+		} else {
+			startDate = startOfDay(timeRange.from ?? now);
+		}
+
+		return [...sessions].filter((session) => {
+			const sessionDate = new Date(session.startTime);
+			return sessionDate >= startDate && sessionDate <= endDate;
+		});
 	})();
 
 	// Filter diaper changes based on selected time range
@@ -47,11 +53,20 @@ export default function StatisticsPage() {
 		if (timeRange === 'all') return [...diaperChanges];
 
 		const now = new Date();
-		const daysToLookBack = Number.parseInt(timeRange);
-		const cutoffDate = addDays(now, -daysToLookBack);
-		return [...diaperChanges].filter(
-			(change) => new Date(change.timestamp) >= cutoffDate,
-		);
+		let startDate: Date;
+		const endDate = endOfDay(now);
+
+		if (typeof timeRange === 'string') {
+			const daysToLookBack = Number.parseInt(timeRange);
+			startDate = startOfDay(addDays(now, -daysToLookBack));
+		} else {
+			startDate = startOfDay(timeRange.from ?? now);
+		}
+
+		return [...diaperChanges].filter((change) => {
+			const changeDate = new Date(change.timestamp);
+			return changeDate >= startDate && changeDate <= endDate;
+		});
 	})();
 
 	return (
@@ -60,44 +75,7 @@ export default function StatisticsPage() {
 				<h2 className="text-xl font-semibold">
 					<fbt desc="Title for the statistics page">Statistics</fbt>
 				</h2>
-				<Select
-					onValueChange={(value) =>
-						setTimeRange(value as '7' | '14' | '30' | 'all')
-					}
-					value={timeRange}
-				>
-					<SelectTrigger className="w-[140px]">
-						<SelectValue
-							placeholder={
-								<fbt desc="Placeholder text for the time range select input on the statistics page">
-									Time Range
-								</fbt>
-							}
-						/>
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="7">
-							<fbt desc="Option to display data for the last 7 days in statistics">
-								Last 7 Days
-							</fbt>
-						</SelectItem>
-						<SelectItem value="14">
-							<fbt desc="Option to display data for the last 14 days in statistics">
-								Last 14 Days
-							</fbt>
-						</SelectItem>
-						<SelectItem value="30">
-							<fbt desc="Option to display data for the last 30 days in statistics">
-								Last 30 Days
-							</fbt>
-						</SelectItem>
-						<SelectItem value="all">
-							<fbt desc="Option to display all data in statistics">
-								All Data
-							</fbt>
-						</SelectItem>
-					</SelectContent>
-				</Select>
+				<DateRangePicker value={timeRange} onValueChange={setTimeRange} />
 			</div>
 			{filteredSessions.length === 0 &&
 			filteredDiaperChanges.length === 0 &&
