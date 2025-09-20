@@ -139,7 +139,7 @@ importers:
         version: 13.6.27
       zod:
         specifier: ^4.0.0
-        version: 4.1.9
+        version: 4.1.10
     devDependencies:
       '@babel/runtime':
         specifier: ^7.27.0
@@ -6302,8 +6302,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.1.9:
-    resolution: {integrity: sha512-HI32jTq0AUAC125z30E8bQNz0RQ+9Uc+4J7V97gLYjZVKRjeydPgGt6dvQzFrav7MYOUGFqqOGiHpA/fdbd0cQ==}
+  zod@4.1.10:
+    resolution: {integrity: sha512-XuQhz4bDMHS66VWMD/ZQI+BT4DYbOYGjhV/sIlSA4vAzMuxjLT31Oa7m6Z7lEdCGDkt1VCt0x4Ro2PHonEdKFA==}
 
 snapshots:
 
@@ -12944,4 +12944,4 @@ snapshots:
 
   zod@3.25.76: {}
 
-  zod@4.1.9: {}
+  zod@4.1.10: {}
