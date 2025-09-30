@@ -32,7 +32,7 @@ export function YjsProvider({ children }: YjsProviderProps) {
 	useBindValtioToYjs(medicationsProxy, doc.getArray('medications'));
 
 	if (!isSynced) {
-		return <SplashScreen />;
+		//return <SplashScreen />;
 	}
 
 	return <yjsContext.Provider value={{ doc }}>{children}</yjsContext.Provider>;
