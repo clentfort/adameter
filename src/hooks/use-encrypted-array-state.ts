@@ -33,13 +33,30 @@ export function useEncryptedArrayState<T extends ObjectWithId>(
 	const [value, setValue] = useState<ReadonlyArray<T>>([]);
 	const secret = useEncryptionKey();
 
+
+  const bypass = (window.localStorage.getItem('has-decrypted') === 'true') 
+
 	useEffect(() => {
+    if (bypass) {
+      return;
+    }
+
 		const decryptedValue = encryptedValue.map((value) =>
 			// @ts-expect-error Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
 			decryptWithoutId(value, secret),
 		);
 		setValue(decryptedValue);
-	}, [encryptedValue, secret]);
+	}, [encryptedValue, secret, bypass]);
+
+
+  if (bypass) {
+    return {
+      add, remove, replace, update, value: encryptedValue}
+    }
+
+
+  
+
 
 	return {
 		add: useCallback(
