@@ -31,7 +31,6 @@ export interface AddDiaperProps {
 	onSave: (change: DiaperChange) => void;
 	presetDiaperBrand?: string;
 	presetType?: 'urine' | 'stool' | undefined;
-	reducedOptions?: boolean;
 	title: ReactNode;
 }
 
@@ -141,76 +140,72 @@ export default function DiaperForm({
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
-					{!('reducedOptions' in props && props.reducedOptions === true) && (
-						<>
-							<div className="space-y-2">
-								<Label>
-									<fbt desc="Label on a radio button to select the type of diaper (urine or stool)">
-										Diaper Type
+					<div className="space-y-2">
+						<Label>
+							<fbt desc="Label on a radio button to select the type of diaper (urine or stool)">
+								Diaper Type
+							</fbt>
+						</Label>
+						<RadioGroup
+							className="flex gap-4"
+							onValueChange={(value) =>
+								setDiaperType(value as 'urine' | 'stool')
+							}
+							value={diaperType}
+						>
+							<div className="flex items-center space-x-2">
+								<RadioGroupItem
+									className="text-yellow-500 border-yellow-500"
+									id="edit-urine"
+									value="urine"
+								/>
+								<Label className="text-yellow-700" htmlFor="edit-urine">
+									<span className="text-lg mr-1">💧</span>{' '}
+									<fbt desc="Label on a radio button that sets the input to urine only">
+										Urine Only
 									</fbt>
 								</Label>
-								<RadioGroup
-									className="flex gap-4"
-									onValueChange={(value) =>
-										setDiaperType(value as 'urine' | 'stool')
-									}
-									value={diaperType}
-								>
-									<div className="flex items-center space-x-2">
-										<RadioGroupItem
-											className="text-yellow-500 border-yellow-500"
-											id="edit-urine"
-											value="urine"
-										/>
-										<Label className="text-yellow-700" htmlFor="edit-urine">
-											<span className="text-lg mr-1">💧</span>{' '}
-											<fbt desc="Label on a radio button that sets the input to urine only">
-												Urine Only
-											</fbt>
-										</Label>
-									</div>
-									<div className="flex items-center space-x-2">
-										<RadioGroupItem
-											className="text-amber-700 border-amber-700"
-											id="edit-stool"
-											value="stool"
-										/>
-										<Label className="text-amber-800" htmlFor="edit-stool">
-											<span className="text-lg mr-1">💩</span>{' '}
-											<fbt desc="Label on a radio button that sets the input to urine and stool">
-												Stool
-											</fbt>
-										</Label>
-									</div>
-								</RadioGroup>
 							</div>
+							<div className="flex items-center space-x-2">
+								<RadioGroupItem
+									className="text-amber-700 border-amber-700"
+									id="edit-stool"
+									value="stool"
+								/>
+								<Label className="text-amber-800" htmlFor="edit-stool">
+									<span className="text-lg mr-1">💩</span>{' '}
+									<fbt desc="Label on a radio button that sets the input to urine and stool">
+										Stool
+									</fbt>
+								</Label>
+							</div>
+						</RadioGroup>
+					</div>
 
-							<div className="grid grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<Label htmlFor="edit-date">
-										<fbt common>Date</fbt>
-									</Label>
-									<Input
-										id="edit-date"
-										onChange={(e) => setDate(e.target.value)}
-										type="date"
-										value={date}
-									/>
-								</div>
-								<div className="space-y-2">
-									<Label htmlFor="edit-time">
-										<fbt common>Time</fbt>
-									</Label>
-									<Input
-										id="edit-time"
-										onChange={(e) => setTime(e.target.value)}
-										type="time"
-										value={time}
-									/>
-								</div>
-							</div>
-						</>
-					)}
+					<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-2">
+							<Label htmlFor="edit-date">
+								<fbt common>Date</fbt>
+							</Label>
+							<Input
+								id="edit-date"
+								onChange={(e) => setDate(e.target.value)}
+								type="date"
+								value={date}
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="edit-time">
+								<fbt common>Time</fbt>
+							</Label>
+							<Input
+								id="edit-time"
+								onChange={(e) => setTime(e.target.value)}
+								type="time"
+								value={time}
+							/>
+						</div>
+					</div>
 
 					<div className="space-y-2">
 						<Label htmlFor="edit-diaper-brand">
