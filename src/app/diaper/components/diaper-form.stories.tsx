@@ -37,16 +37,7 @@ export const AddMode: AddStory = {
 		onSave: () => {},
 		presetDiaperBrand: DIAPER_BRANDS[0].value, // Default to first brand
 		presetType: 'urine',
-		reducedOptions: false,
 		title: 'Add New Diaper Change',
-	},
-};
-
-export const AddModeReducedOptions: AddStory = {
-	args: {
-		...AddMode.args,
-		reducedOptions: true,
-		title: 'Quick Add Diaper',
 	},
 };
 

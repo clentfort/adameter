@@ -60,7 +60,6 @@ export default function DiaperTracker({
 					}}
 					presetDiaperBrand={lastUsedDiaperBrand}
 					presetType={selectedType ?? undefined}
-					reducedOptions
 					title={
 						<fbt desc="Title for the diaper change details dialog">
 							<fbt:param name="diaperType">
