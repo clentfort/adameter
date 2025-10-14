@@ -1,15 +1,28 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { userEvent, within } from '@storybook/test';
 import BreastfeedingTracker from './feeding-tracker';
+
+// Mocking useFeedingInProgress for Storybook
+let mockFeedingInProgressState: {
+	breast: 'left' | 'right';
+	startTime: string;
+} | null = null;
+const mockSetFeedingInProgress = (newState: typeof mockFeedingInProgressState) => {
+	mockFeedingInProgressState = newState;
+};
 
 const meta: Meta<typeof BreastfeedingTracker> = {
 	argTypes: {
 		nextBreast: { control: 'radio', options: ['left', 'right'] },
-		onCreateSession: { action: 'onCreateSession' },
-		onUpdateSession: { action: 'onUpdateSession' },
+		onSessionComplete: { action: 'sessionCompleted' },
 	},
 	component: BreastfeedingTracker,
 	parameters: {
+		docs: {
+			story: {
+				height: '100vh',
+				inline: false,
+			},
+		},
 		layout: 'centered',
 	},
 	tags: ['autodocs'],
@@ -17,37 +30,77 @@ const meta: Meta<typeof BreastfeedingTracker> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof BreastfeedingTracker>;
+type Story = StoryObj<
+	typeof BreastfeedingTracker & {
+		initialFeedingState?: {
+			breast: 'left' | 'right';
+			startTime: string;
+		} | null;
+	}
+>;
 
 export const InitialScreenNextLeft: Story = {
 	args: {
 		nextBreast: 'left',
+		onSessionComplete: () => {},
 	},
 };
 
 export const InitialScreenNextRight: Story = {
 	args: {
 		nextBreast: 'right',
+		onSessionComplete: () => {},
 	},
 };
 
-export const FeedingInProgress: Story = {
+export const StartLeftFeeding: Story = {
 	args: {
-		nextBreast: 'right',
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await userEvent.click(canvas.getByText('Right Breast'));
+		nextBreast: 'left',
+		onSessionComplete: () => {},
 	},
 };
 
-export const EnterTimeManually: Story = {
+export const FeedingInProgressView: Story = {
 	args: {
 		nextBreast: 'right',
+		onSessionComplete: () => {},
+		// @ts-ignore: Forcing initial state via args for story setup
+		initialFeedingState: {
+			breast: 'right',
+			startTime: new Date().toISOString(),
+		},
 	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement);
-		await userEvent.click(canvas.getByText('Right Breast'));
-		await userEvent.click(canvas.getByText('Enter Time Manually'));
+};
+
+export const EndFeedingAction: Story = {
+	args: {
+		...FeedingInProgressView.args,
+		// @ts-ignore: Forcing initial state
+		initialFeedingState: {
+			breast: 'left',
+			startTime: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+		},
+	},
+};
+
+export const EnterTimeManuallyDialog: Story = {
+	args: {
+		...FeedingInProgressView.args,
+		// @ts-ignore: Forcing initial state
+		initialFeedingState: {
+			breast: 'right',
+			startTime: new Date().toISOString(),
+		},
+	},
+};
+
+export const SaveManualTimeEntry: Story = {
+	args: {
+		...FeedingInProgressView.args,
+		// @ts-ignore: Forcing initial state
+		initialFeedingState: {
+			breast: 'left',
+			startTime: new Date().toISOString(),
+		},
 	},
 };
