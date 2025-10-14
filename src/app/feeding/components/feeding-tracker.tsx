@@ -22,7 +22,9 @@ export default function BreastfeedingTracker({
 	resumableSession,
 }: BreastfeedingTrackerProps) {
 	const [elapsedTime, setElapsedTime] = useState<null | Duration>(null);
-	const [isEditingManually, setIsEditingManually] = useState(false);
+	const [manualSession, setManualSession] = useState<FeedingSession | null>(
+		null,
+	);
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
 	const [resumedSessionOriginalId, setResumedSessionOriginalId] = useState<
@@ -108,7 +110,7 @@ export default function BreastfeedingTracker({
 		} else {
 			onCreateSession(session);
 		}
-		setIsEditingManually(false);
+		setManualSession(null);
 		resetTracker();
 	};
 
@@ -228,7 +230,22 @@ export default function BreastfeedingTracker({
 						</Button>
 						<Button
 							className="h-16"
-							onClick={() => setIsEditingManually(true)}
+							onClick={() => {
+								if (!feedingInProgress) {
+									return;
+								}
+								setManualSession({
+									breast: feedingInProgress.breast,
+									durationInSeconds: Math.floor(
+										(new Date().getTime() -
+											new Date(feedingInProgress.startTime).getTime()) /
+											1000,
+									),
+									endTime: new Date().toISOString(),
+									id: resumedSessionOriginalId ?? '',
+									startTime: feedingInProgress.startTime,
+								});
+							}}
 							size="lg"
 							variant="outline"
 						>
@@ -239,20 +256,10 @@ export default function BreastfeedingTracker({
 					</div>
 				</div>
 			)}
-			{isEditingManually && feedingInProgress && (
+			{manualSession && (
 				<FeedingForm
-					feeding={{
-						breast: feedingInProgress.breast,
-						durationInSeconds: Math.floor(
-							(new Date().getTime() -
-								new Date(feedingInProgress.startTime).getTime()) /
-								1000,
-						),
-						endTime: new Date().toISOString(),
-						id: resumedSessionOriginalId ?? '',
-						startTime: feedingInProgress.startTime,
-					}}
-					onClose={() => setIsEditingManually(false)}
+					feeding={manualSession}
+					onClose={() => setManualSession(null)}
 					onSave={handleManualSave}
 					title={
 						<fbt desc="Title of the dialog to enter feeding time manually">
