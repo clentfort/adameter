@@ -1,19 +1,12 @@
 import type { FeedingSession } from '@/types/feeding';
 import { Duration, format, intervalToDuration } from 'date-fns';
+import { fbt } from 'fbtee';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
 import { formatDurationShort } from '@/utils/format-duration-short';
+import FeedingForm from './feeding-form';
 
 interface BreastfeedingTrackerProps {
 	nextBreast: 'left' | 'right';
@@ -29,14 +22,14 @@ export default function BreastfeedingTracker({
 	resumableSession,
 }: BreastfeedingTrackerProps) {
 	const [elapsedTime, setElapsedTime] = useState<null | Duration>(null);
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [manualMinutes, setManualMinutes] = useState('');
+	const [manualSession, setManualSession] = useState<FeedingSession | null>(
+		null,
+	);
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
 	const [resumedSessionOriginalId, setResumedSessionOriginalId] = useState<
 		string | null
 	>(null);
-	const isResumedSession = resumedSessionOriginalId !== null;
 
 	// Check for active session on component mount
 	useEffect(() => {
@@ -111,39 +104,19 @@ export default function BreastfeedingTracker({
 		resetTracker();
 	};
 
-	const handleManualEntry = () => {
-		if (
-			!feedingInProgress ||
-			!manualMinutes ||
-			Number.isNaN(Number(manualMinutes))
-		) {
-			return;
-		}
-		const minutes = Number(manualMinutes);
-		const now = new Date();
-		const calculatedStartTime = new Date(now.getTime() - minutes * 60 * 1000);
-
-		const session: FeedingSession = {
-			breast: feedingInProgress.breast,
-			durationInSeconds: minutes * 60,
-			endTime: now.toISOString(),
-			id: resumedSessionOriginalId ?? Date.now().toString(),
-			startTime: calculatedStartTime.toISOString(),
-		};
-
+	const handleManualSave = (session: FeedingSession) => {
 		if (resumedSessionOriginalId) {
 			onUpdateSession(session);
 		} else {
 			onCreateSession(session);
 		}
-		setIsDialogOpen(false);
+		setManualSession(null);
 		resetTracker();
 	};
 
 	const resetTracker = () => {
 		setFeedingInProgress(null);
 		setElapsedTime(null);
-		setManualMinutes('');
 		setResumedSessionOriginalId(null);
 
 		if (timerRef.current) {
@@ -257,7 +230,22 @@ export default function BreastfeedingTracker({
 						</Button>
 						<Button
 							className="h-16"
-							onClick={() => setIsDialogOpen(true)}
+							onClick={() => {
+								if (!feedingInProgress) {
+									return;
+								}
+								setManualSession({
+									breast: feedingInProgress.breast,
+									durationInSeconds: Math.floor(
+										(new Date().getTime() -
+											new Date(feedingInProgress.startTime).getTime()) /
+											1000,
+									),
+									endTime: new Date().toISOString(),
+									id: resumedSessionOriginalId ?? '',
+									startTime: feedingInProgress.startTime,
+								});
+							}}
 							size="lg"
 							variant="outline"
 						>
@@ -268,45 +256,18 @@ export default function BreastfeedingTracker({
 					</div>
 				</div>
 			)}
-			<Dialog onOpenChange={setIsDialogOpen} open={isDialogOpen}>
-				<DialogContent className="sm:max-w-[425px]">
-					<DialogHeader>
-						<DialogTitle>
-							<fbt desc="Title of the dialog to enter feeding time manually">
-								Enter Feeding Time Manually
-							</fbt>
-						</DialogTitle>
-					</DialogHeader>
-					<div className="grid gap-4 py-4">
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label className="text-right col-span-1" htmlFor="minutes">
-								<fbt desc="Label for an input of minutes">minutes</fbt>
-							</Label>
-							<Input
-								className="col-span-3"
-								id="minutes"
-								min="1"
-								onChange={(e) => setManualMinutes(e.target.value)}
-								type="number"
-								value={manualMinutes}
-							/>
-						</div>
-					</div>
-					<DialogFooter>
-						<Button
-							className={
-								feedingInProgress?.breast === 'left'
-									? 'bg-left-breast hover:bg-left-breast-dark'
-									: 'bg-right-breast hover:bg-right-breast-dark'
-							}
-							onClick={handleManualEntry}
-							type="submit"
-						>
-							<fbt common>Save</fbt>
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
+			{manualSession && (
+				<FeedingForm
+					feeding={manualSession}
+					onClose={() => setManualSession(null)}
+					onSave={handleManualSave}
+					title={
+						<fbt desc="Title of the dialog to enter feeding time manually">
+							Enter Feeding Time Manually
+						</fbt>
+					}
+				/>
+			)}
 		</div>
 	);
 }
