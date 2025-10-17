@@ -1,36 +1,27 @@
 import { differenceInMinutes } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
+import { usePageVisible } from '@/hooks/use-page-visible';
 import type { FeedingSession } from '@/types/feeding';
 
 const RESUME_WINDOW_IN_MINUTES = 5;
 
-const isResumable = (session: FeedingSession) =>
+const getIsResumable = (session: FeedingSession) =>
 	differenceInMinutes(new Date(), new Date(session.endTime)) <
 	RESUME_WINDOW_IN_MINUTES;
 
 export function useResumableSession(): FeedingSession | undefined {
 	const latestFeedingSession = useLatestFeedingSession();
-	const [resumableSession, setResumableSession] = useState<
-		FeedingSession | undefined
-	>();
+	const isPageVisible = usePageVisible();
+	const [isResumable, setIsResumable] = useState(false);
 
 	useEffect(() => {
-		if (!latestFeedingSession || !isResumable(latestFeedingSession)) {
-			setResumableSession(undefined);
+		if (!latestFeedingSession) {
+			setIsResumable(false);
 			return;
 		}
+		setIsResumable(getIsResumable(latestFeedingSession));
+	}, [latestFeedingSession, isPageVisible]);
 
-		setResumableSession(latestFeedingSession);
-
-		const interval = setInterval(() => {
-			if (!isResumable(latestFeedingSession)) {
-				setResumableSession(undefined);
-			}
-		}, 1000);
-
-		return () => clearInterval(interval);
-	}, [latestFeedingSession]);
-
-	return resumableSession;
+	return isResumable ? latestFeedingSession : undefined;
 }
