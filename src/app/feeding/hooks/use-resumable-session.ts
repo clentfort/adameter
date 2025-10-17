@@ -5,6 +5,10 @@ import type { FeedingSession } from '@/types/feeding';
 
 const RESUME_WINDOW_IN_MINUTES = 5;
 
+const isResumable = (session: FeedingSession) =>
+	differenceInMinutes(new Date(), new Date(session.endTime)) <
+	RESUME_WINDOW_IN_MINUTES;
+
 export function useResumableSession(): FeedingSession | undefined {
 	const latestFeedingSession = useLatestFeedingSession();
 	const [resumableSession, setResumableSession] = useState<
@@ -12,26 +16,20 @@ export function useResumableSession(): FeedingSession | undefined {
 	>();
 
 	useEffect(() => {
-		if (
-			!latestFeedingSession ||
-			differenceInMinutes(new Date(), new Date(latestFeedingSession.endTime)) >=
-				RESUME_WINDOW_IN_MINUTES
-		) {
+		if (!latestFeedingSession || !isResumable(latestFeedingSession)) {
 			setResumableSession(undefined);
 			return;
 		}
 
 		setResumableSession(latestFeedingSession);
 
-		const timeUntilExpiry =
-			RESUME_WINDOW_IN_MINUTES * 60 * 1000 -
-			(new Date().getTime() - new Date(latestFeedingSession.endTime).getTime());
+		const interval = setInterval(() => {
+			if (!isResumable(latestFeedingSession)) {
+				setResumableSession(undefined);
+			}
+		}, 1000);
 
-		const timer = setTimeout(() => {
-			setResumableSession(undefined);
-		}, timeUntilExpiry);
-
-		return () => clearTimeout(timer);
+		return () => clearInterval(interval);
 	}, [latestFeedingSession]);
 
 	return resumableSession;
