@@ -5,6 +5,10 @@ import type { FeedingSession } from '@/types/feeding';
 
 const RESUME_WINDOW_IN_MINUTES = 5;
 
+const getIsResumable = (session: FeedingSession) =>
+	differenceInMinutes(new Date(), new Date(session.endTime)) <
+	RESUME_WINDOW_IN_MINUTES;
+
 export function useResumableSession(): FeedingSession | undefined {
 	const latestFeedingSession = useLatestFeedingSession();
 	const [resumableSession, setResumableSession] = useState<
@@ -12,11 +16,7 @@ export function useResumableSession(): FeedingSession | undefined {
 	>();
 
 	useEffect(() => {
-		if (
-			!latestFeedingSession ||
-			differenceInMinutes(new Date(), new Date(latestFeedingSession.endTime)) >=
-				RESUME_WINDOW_IN_MINUTES
-		) {
+		if (!latestFeedingSession || !getIsResumable(latestFeedingSession)) {
 			setResumableSession(undefined);
 			return;
 		}
@@ -31,7 +31,22 @@ export function useResumableSession(): FeedingSession | undefined {
 			setResumableSession(undefined);
 		}, timeUntilExpiry);
 
-		return () => clearTimeout(timer);
+		const handleVisibilityChange = () => {
+			if (
+				document.visibilityState === 'visible' &&
+				!getIsResumable(latestFeedingSession)
+			) {
+				clearTimeout(timer);
+				setResumableSession(undefined);
+			}
+		};
+
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+
+		return () => {
+			clearTimeout(timer);
+			document.removeEventListener('visibilitychange', handleVisibilityChange);
+		};
 	}, [latestFeedingSession]);
 
 	return resumableSession;
