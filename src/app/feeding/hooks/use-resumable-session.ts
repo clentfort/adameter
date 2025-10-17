@@ -36,6 +36,7 @@ export function useResumableSession(): FeedingSession | undefined {
 				document.visibilityState === 'visible' &&
 				!getIsResumable(latestFeedingSession)
 			) {
+				clearTimeout(timer);
 				setResumableSession(undefined);
 			}
 		};
