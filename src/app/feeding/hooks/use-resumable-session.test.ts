@@ -69,7 +69,7 @@ describe('useResumableSession', () => {
 		expect(result.current).toBeUndefined();
 	});
 
-	it('should invalidate the session when the page becomes visible and the time has passed', () => {
+	it('should clear the timeout when the page becomes hidden and reset it when it becomes visible again', () => {
 		const session: FeedingSession = {
 			id: '1',
 			breast: 'left',
@@ -81,9 +81,19 @@ describe('useResumableSession', () => {
 		const { result } = renderHook(() => useResumableSession());
 		expect(result.current).toEqual(session);
 
+		Object.defineProperty(document, 'visibilityState', {
+			value: 'hidden',
+			writable: true,
+		});
+		act(() => {
+			document.dispatchEvent(new Event('visibilitychange'));
+		});
+
 		act(() => {
 			vi.advanceTimersByTime(60 * 1000);
 		});
+
+		expect(result.current).toEqual(session);
 
 		Object.defineProperty(document, 'visibilityState', {
 			value: 'visible',
@@ -91,6 +101,10 @@ describe('useResumableSession', () => {
 		});
 		act(() => {
 			document.dispatchEvent(new Event('visibilitychange'));
+		});
+
+		act(() => {
+			vi.advanceTimersByTime(60 * 1000);
 		});
 
 		expect(result.current).toBeUndefined();

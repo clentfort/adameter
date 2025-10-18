@@ -1,5 +1,5 @@
 import { differenceInMinutes } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
 import type { FeedingSession } from '@/types/feeding';
 
@@ -15,7 +15,7 @@ export function useResumableSession(): FeedingSession | undefined {
 		FeedingSession | undefined
 	>();
 
-	useEffect(() => {
+	const manageTimeout = useCallback(() => {
 		if (!latestFeedingSession || !getIsResumable(latestFeedingSession)) {
 			setResumableSession(undefined);
 			return;
@@ -31,23 +31,27 @@ export function useResumableSession(): FeedingSession | undefined {
 			setResumableSession(undefined);
 		}, timeUntilExpiry);
 
+		return timer;
+	}, [latestFeedingSession]);
+
+	useEffect(() => {
+		let timer = manageTimeout();
+
 		const handleVisibilityChange = () => {
-			if (
-				document.visibilityState === 'visible' &&
-				!getIsResumable(latestFeedingSession)
-			) {
-				clearTimeout(timer);
-				setResumableSession(undefined);
+			if (document.visibilityState === 'hidden') {
+				if (timer) clearTimeout(timer);
+			} else {
+				timer = manageTimeout();
 			}
 		};
 
 		document.addEventListener('visibilitychange', handleVisibilityChange);
 
 		return () => {
-			clearTimeout(timer);
+			if (timer) clearTimeout(timer);
 			document.removeEventListener('visibilitychange', handleVisibilityChange);
 		};
-	}, [latestFeedingSession]);
+	}, [manageTimeout]);
 
 	return resumableSession;
 }
