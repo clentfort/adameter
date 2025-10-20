@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { medicationsProxy } from '@/data/medications';
 import { MedicationAdministration } from '@/types/medication';
-import { useEncryptedArrayState } from './use-encrypted-array-state';
-import { useEncryptionKey } from './use-encryption-key';
+import { useArrayState } from './use-array-state';
 
 const defaultMedications: MedicationAdministration[] = [
 	{
@@ -83,22 +82,20 @@ const defaultMedications: MedicationAdministration[] = [
 ];
 
 export const useMedications = () => {
-	const state = useEncryptedArrayState<MedicationAdministration>(
+	const state = useArrayState<MedicationAdministration>(
 		medicationsProxy,
 		'medications-backup',
 	);
-	const secret = useEncryptionKey();
 
 	useEffect(() => {
 		if (
 			state.value &&
 			state.value.length === 0 &&
-			secret &&
 			defaultMedications.length > 0
 		) {
 			state.replace(defaultMedications);
 		}
-	}, [state, secret]);
+	}, [state]);
 
 	return state;
 };
