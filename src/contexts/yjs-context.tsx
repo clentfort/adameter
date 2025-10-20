@@ -23,16 +23,56 @@ interface YjsProviderProps {
 export function YjsProvider({ children }: YjsProviderProps) {
 	const isSynced = useYjsPersistence(doc);
 
-	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes'));
-	useBindValtioToYjs(events, doc.getArray('events'));
-	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
-	useBindValtioToYjs(growthMeasurements, doc.getArray('growth-measurments'));
-	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
+	// useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes'));
+	// useBindValtioToYjs(events, doc.getArray('events'));
+	// useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
+	// useBindValtioToYjs(growthMeasurements, doc.getArray('growth-measurments'));
+	// useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
+	// useBindValtioToYjs(medicationRegimensProxy, doc.getArray('medication-regimens'));
+	// useBindValtioToYjs(medicationsProxy, doc.getArray('medications'));
+
+	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes-dec'));
+	useBindValtioToYjs(events, doc.getArray('events-dec'));
+	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions-dec'));
+	useBindValtioToYjs(
+		growthMeasurements,
+		doc.getArray('growth-measurments-dec'),
+	);
+	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress-dec'));
 	useBindValtioToYjs(
 		medicationRegimensProxy,
-		doc.getArray('medication-regimens'),
+		doc.getArray('medication-regimens-dec'),
 	);
-	useBindValtioToYjs(medicationsProxy, doc.getArray('medications'));
+	useBindValtioToYjs(medicationsProxy, doc.getArray('medications-dec'));
+
+	useEffect(() => {
+		if (!isSynced) {
+			return;
+		}
+		const hasCleared = window.localStorage.getItem('has-cleared-legacy-data');
+		if (hasCleared === 'true') {
+			return;
+		}
+
+		window.localStorage.setItem('has-cleared-legacy-data', 'true');
+
+		for (const a of [
+			'diaper-changes',
+			'events',
+			'feeding-sessions',
+			'growth-measurments',
+			'medication-regimens',
+			'medications',
+		]) {
+			if (doc.share.has(a)) {
+				doc.share.delete(a);
+			}
+		}
+
+		if (doc.share.has('feeding-in-progress')) {
+			doc.share.delete('feeding-in-progress');
+		}
+	}, [isSynced]);
 
 	if (!isSynced) {
 		return <SplashScreen />;
