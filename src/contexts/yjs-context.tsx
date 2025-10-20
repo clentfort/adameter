@@ -12,8 +12,6 @@ import { feedingSessions } from '@/data/feeding-sessions';
 import { growthMeasurements } from '@/data/growth-measurments';
 import { medicationRegimensProxy } from '@/data/medication-regimens';
 import { medicationsProxy } from '@/data/medications';
-import { useEncryptionKey } from '@/hooks/use-encryption-key';
-import { decrypt, encrypt, Encrypted } from '@/utils/crypto';
 
 const doc = new Doc();
 export const yjsContext = createContext<{ doc: Doc }>({ doc });
@@ -47,18 +45,16 @@ export function YjsProvider({ children }: YjsProviderProps) {
 	);
 	useBindValtioToYjs(medicationsProxy, doc.getArray('medications-dec'));
 
-	const key = useEncryptionKey();
-
 	useEffect(() => {
 		if (!isSynced) {
 			return;
 		}
-		const hasMigrated = window.localStorage.getItem('has-decrypted');
-		if (hasMigrated === 'true') {
+		const hasCleared = window.localStorage.getItem('has-cleared-legacy-data');
+		if (hasCleared === 'true') {
 			return;
 		}
 
-		window.localStorage.setItem('has-decrypted', 'true');
+		window.localStorage.setItem('has-cleared-legacy-data', 'true');
 
 		for (const a of [
 			'diaper-changes',
@@ -68,56 +64,15 @@ export function YjsProvider({ children }: YjsProviderProps) {
 			'medication-regimens',
 			'medications',
 		]) {
-			const yjsArrayEnc = doc.getArray(a);
-			const yjsArrayDec = doc.getArray(`${a}-dec`);
-
-			const backup = [];
-
-			yjsArrayEnc.forEach((ii) => {
-				const item = ii.toJSON();
-				let exists = false;
-				yjsArrayDec.forEach((oi) => {
-					const otherItem = oi;
-					if (otherItem.id === item.id) {
-						exists = true;
-					}
-
-					return false;
-				});
-
-				const { id, ...rest } = item;
-
-				backup.push({
-					id: item.id,
-					...decrypt(rest, key),
-				});
-
-				if (exists) {
-					return;
-				}
-
-				yjsArrayDec.push([
-					{
-						id: item.id,
-						...decrypt(rest, key),
-					},
-				]);
-
-			});
-				window.localStorage.setItem(
-					`${a}-backup-backup`,
-					JSON.stringify(backup),
-				);
+			if (doc.share.has(a)) {
+				doc.share.delete(a);
+			}
 		}
 
-		// useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes'));
-		// useBindValtioToYjs(events, doc.getArray('events'));
-		// useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
-		// useBindValtioToYjs(growthMeasurements, doc.getArray('growth-measurments'));
-		// useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
-		// useBindValtioToYjs(medicationRegimensProxy, doc.getArray('medication-regimens'));
-		// useBindValtioToYjs(medicationsProxy, doc.getArray('medications'));
-	}, [key, isSynced]);
+		if (doc.share.has('feeding-in-progress')) {
+			doc.share.delete('feeding-in-progress');
+		}
+	}, [isSynced]);
 
 	if (!isSynced) {
 		return <SplashScreen />;
