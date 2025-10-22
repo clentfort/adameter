@@ -1,4 +1,4 @@
 import { events } from '@/data/events';
-import { useEncryptedArrayState } from './use-encrypted-array-state';
+import { useArrayState } from './use-array-state';
 
-export const useEvents = () => useEncryptedArrayState(events, 'events-backup');
+export const useEvents = () => useArrayState(events, 'events-backup');

@@ -15,12 +15,9 @@ AdaMeter prioritizes your data security and privacy above all else.
 
 - **On-Device Storage by Default:** All data is stored locally on your device,
   ensuring you have full control.
-- **Encrypted at Rest:** Your sensitive information is always encrypted when
-  stored.
-- **Secure Sharing (Optional):** If you choose to enable data sharing features,
-  all data is end-to-end encrypted during transmission.
 - **No External Tracking:** AdaMeter includes absolutely no external tracking or
   analytics. Your usage is your business.
+- **No Encryption:** This app does not use encryption.
 
 ## How to Use
 

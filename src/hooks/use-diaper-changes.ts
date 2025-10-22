@@ -1,5 +1,5 @@
 import { diaperChanges } from '@/data/diaper-changes';
-import { useEncryptedArrayState } from './use-encrypted-array-state';
+import { useArrayState } from './use-array-state';
 
 export const useDiaperChanges = () =>
-	useEncryptedArrayState(diaperChanges, 'diaperChanges-backup');
+	useArrayState(diaperChanges, 'diaperChanges-backup');

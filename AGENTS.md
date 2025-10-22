@@ -88,9 +88,9 @@ The project is built with the following primary technologies:
     logic or feature-specific code here.
   - `src/types/`: TypeScript type definitions for data structures used
     throughout the application.
-  - `src/utils/`: Specific utility functions for tasks like cryptography
-    (`crypto.ts`), CSV export (`csv-export.ts`), and date/time formatting. These
-    might be more complex or have more dependencies than those in `src/lib/`.
+  - `src/utils/`: Specific utility functions for tasks like CSV export
+    (`csv-export.ts`), and date/time formatting. These might be more complex or
+    have more dependencies than those in `src/lib/`.
 - `vitest.config.mts`: Configuration for the Vitest testing framework.
 - `pnpm-lock.yaml`: pnpm lockfile.
 - `components.json`: Configuration file for `shadcn/ui`.
@@ -188,13 +188,6 @@ User-facing strings must be internationalized using the `fbtee` library.
     `valtio-yjs`.
 - **Synchronization Backend**: PartyKit serves as the backend to relay Yjs
   updates between connected clients. The server logic is in `party/index.ts`.
-- **Encryption**:
-  - Data is encrypted locally before being persisted (e.g., to IndexedDB via
-    `y-indexeddb`).
-  - If data sharing is enabled, it is designed to be end-to-end encrypted.
-  - Encryption logic is primarily handled in `src/utils/crypto.ts`, often
-    involving passphrases managed via `src/data/passphrase.ts` and
-    `src/hooks/use-encryption-key.ts`.
 - **Contexts**:
   - `src/contexts/yjs-context.tsx`: Sets up the Yjs document, provider, and
     connection to PartyKit.
