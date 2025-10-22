@@ -23,16 +23,19 @@ interface YjsProviderProps {
 export function YjsProvider({ children }: YjsProviderProps) {
 	const isSynced = useYjsPersistence(doc);
 
-	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes'));
-	useBindValtioToYjs(events, doc.getArray('events'));
-	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
-	useBindValtioToYjs(growthMeasurements, doc.getArray('growth-measurments'));
-	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
+	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes-dec'));
+	useBindValtioToYjs(events, doc.getArray('events-dec'));
+	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions-dec'));
+	useBindValtioToYjs(
+		growthMeasurements,
+		doc.getArray('growth-measurments-dec'),
+	);
+	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress-dec'));
 	useBindValtioToYjs(
 		medicationRegimensProxy,
-		doc.getArray('medication-regimens'),
+		doc.getArray('medication-regimens-dec'),
 	);
-	useBindValtioToYjs(medicationsProxy, doc.getArray('medications'));
+	useBindValtioToYjs(medicationsProxy, doc.getArray('medications-dec'));
 
 	if (!isSynced) {
 		return <SplashScreen />;
