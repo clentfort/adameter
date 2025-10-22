@@ -1,0 +1,45 @@
+{
+	"fb-locale": "de_DE",
+	"translations": {
+		"MB6OYuvCF1VzjOmqinI42g==": {
+			"tokens": [],
+			"types": [],
+			"translations": [
+				{
+					"translation": "Was kommt jetzt?",
+					"variations": []
+				}
+			]
+		},
+		" Cancel ": {
+			"tokens": [],
+			"types": [],
+			"translations": [
+				{
+					"translation": "Abbrechen",
+					"variations": []
+				}
+			]
+		},
+		" Delete ": {
+			"tokens": [],
+			"types": [],
+			"translations": [
+				{
+					"translation": "Löschen",
+					"variations": []
+				}
+			]
+		},
+		" Save ": {
+			"tokens": [],
+			"types": [],
+			"translations": [
+				{
+					"translation": "Speichern",
+					"variations": []
+				}
+			]
+		}
+	}
+}
