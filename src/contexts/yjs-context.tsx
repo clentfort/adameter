@@ -23,14 +23,6 @@ interface YjsProviderProps {
 export function YjsProvider({ children }: YjsProviderProps) {
 	const isSynced = useYjsPersistence(doc);
 
-	// useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes'));
-	// useBindValtioToYjs(events, doc.getArray('events'));
-	// useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
-	// useBindValtioToYjs(growthMeasurements, doc.getArray('growth-measurments'));
-	// useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress'));
-	// useBindValtioToYjs(medicationRegimensProxy, doc.getArray('medication-regimens'));
-	// useBindValtioToYjs(medicationsProxy, doc.getArray('medications'));
-
 	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes'));
 	useBindValtioToYjs(events, doc.getArray('events'));
 	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions'));
