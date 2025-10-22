@@ -3,11 +3,11 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"predev": "./scripts/download-translations.sh",
+		"predev": "pnpm run fbtee:translate",
 		"dev:next": "next dev",
 		"dev:partykit": "partykit dev",
 		"dev": "concurrently \"pnpm:dev:*\"",
-		"prebuild": "./scripts/download-translations.sh",
+		"prebuild": "pnpm run fbtee:translate",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
