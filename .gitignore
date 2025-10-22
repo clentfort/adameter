@@ -175,7 +175,7 @@ dist
 .src_manifest.json
 source_strings.json
 src/i18n/translations.json
-translations/
+src/translations/
 
 # Partykit
 .partykit/
