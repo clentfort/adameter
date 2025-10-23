@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
+import Markdown from '@/components/markdown';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
@@ -87,15 +88,15 @@ export default function DiaperHistoryList() {
 											</p>
 										)}
 										{change.abnormalities && (
-											<p>
+											<div className="text-sm">
 												<fbt desc="Prefix to a user defined text on notes on a diaper change (i.e. rashes, redness.)">
 													Notes
 												</fbt>
-												:{' '}
-												<span className="font-medium">
+												:
+												<Markdown className="text-sm">
 													{change.abnormalities}
-												</span>
-											</p>
+												</Markdown>
+											</div>
 										)}
 									</div>
 								</div>

@@ -2,6 +2,7 @@ import type { GrowthMeasurement } from '@/types/growth';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
+import Markdown from '@/components/markdown';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
 import MeasurementForm from './growth-form';
@@ -87,9 +88,9 @@ export default function GrowthMeasurementsList({
 											</p>
 										)}
 										{measurement.notes && (
-											<p className="text-sm text-muted-foreground mt-2">
+											<Markdown className="text-sm text-muted-foreground mt-2">
 												{measurement.notes}
-											</p>
+											</Markdown>
 										)}
 									</div>
 								</div>
