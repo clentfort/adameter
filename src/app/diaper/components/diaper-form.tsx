@@ -284,7 +284,7 @@ export default function DiaperForm({
 							<fbt desc="Label for a textbox to note any notes">Notes</fbt>
 						</Label>
 						<Textarea
-							id="edit-abnormalities"
+							id="edit-notes"
 							onChange={(e) => setAbnormalities(e.target.value)}
 							placeholder={fbt(
 								'e.g. redness, rash, etc.',

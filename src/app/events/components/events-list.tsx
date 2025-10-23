@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
+import Markdown from '@/components/markdown';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
 import { useEvents } from '@/hooks/use-events';
@@ -50,9 +51,9 @@ export default function EventsList() {
 								<div>
 									<p className="font-medium text-lg">{event.title}</p>
 									{event.description && (
-										<p className="text-sm text-muted-foreground mt-1">
+										<Markdown className="text-sm text-muted-foreground mt-1">
 											{event.description}
-										</p>
+										</Markdown>
 									)}
 									<div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
 										<Calendar className="h-4 w-4" />
