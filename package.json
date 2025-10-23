@@ -12,7 +12,7 @@
 		"start": "next start",
 		"lint": "next lint",
 		"test": "vitest",
-		"fbtee:collect": "fbtee collect --src src",
+		"fbtee:collect": "fbtee collect --common ./common_strings.json --src src",
 		"fbtee:translate": "fbtee translate --translations translations/*.json -o src/translations",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build"
