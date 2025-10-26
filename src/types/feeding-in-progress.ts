@@ -1,4 +1,6 @@
+import { FeedingSource } from './feeding';
+
 export interface FeedingInProgress {
-	breast: 'left' | 'right';
+	breast: FeedingSource;
 	startTime: string;
 }
