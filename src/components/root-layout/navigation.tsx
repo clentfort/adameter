@@ -32,6 +32,11 @@ const pages = [
 		path: '/events',
 	},
 	{
+		icon: '🦷',
+		label: () => fbt('Teething', 'Title of the Teething tab'),
+		path: '/teething',
+	},
+	{
 		icon: '📊',
 		label: () => fbt('Statistics', 'Title of the Statistics tab'),
 		path: '/statistics',
