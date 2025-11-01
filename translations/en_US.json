@@ -1203,1203 +1203,1203 @@
     },
     "Brmhs1P9/m84QxBP9LBUrg==": {
       "description": "Schedule format for daily medication at specific times",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Daily at {times}",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "ysPfsbUao2kMsvJnRJNwQw==": {
       "description": "Schedule format for interval medication",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Every {intervalValue} {intervalUnit}, first dose at {firstDoseTime}",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "ngpAMEQXijjGgf6AvkSCIQ==": {
       "description": "Schedule format for weekly medication",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Weekly on {daysOfWeek} at {times}",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "SYHSArBkClXtvNwoutvqXw==": {
       "description": "Schedule format for as-needed medication",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "As needed: {details}",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "9i+R3AOjR0HMN0UqGK/UUA==": {
       "description": "Not applicable or not available",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "N/A",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "xu9GJ9byfAkvia9LSYcLkg==": {
       "description": "Dialog title for editing a medication entry",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Edit Medication Entry",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "rR/OJl9H2XXz/39D2uNeCQ==": {
       "description": "Dialog title for adding a new medication entry",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Add Medication Entry",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "uGsMeFKgdzaOmykq0TOYbg==": {
       "description": "Dialog description for editing a medication entry",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Update the details of this medication administration.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "sD/TjPTEdUEaZAdlw95kJA==": {
       "description": "Dialog description for adding a new medication entry",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Log a new medication administration.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "sMqqGgVjoCgWcFGI4Obs8A==": {
       "description": "Label for medication name input",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Medication Name",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "Plr6RLrtVTVbm/ySoOzqIg==": {
       "description": "Placeholder for medication name autocomplete",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Select or type medication...",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "6J6NBngNV2imxIqHuCgMVw==": {
       "description": "Label for dosage amount input",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Dosage Amount",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "FuicQZKyFgqVur3uuFIdyw==": {
       "description": "Label for dosage unit input",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Unit",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "yTLdcPPPL1yPSqeTh1x15g==": {
       "description": "Placeholder for dosage unit input",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "e.g., ml, mg, drops",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "o9/791nq8HNHWZLr+kCpXQ==": {
       "description": "Label for a date field",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Date",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "3MlTgq++hG5xp5v70Cgolw==": {
       "description": "Label for a time field",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Time",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "7FbNcm1Qb5pELYxQdNAOeA==": {
       "description": "Label for administration status radio group",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Administration Status",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "+xnDhKrqJN7xHuyhB9mYvQ==": {
       "description": "Label for optional details/notes textarea",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Details/Notes (Optional)",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "4APp/UGJytKLslN28j92jg==": {
       "description": "Placeholder for medication administration notes",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "e.g., child spit out some, given with food",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "GdD1fPBGM3VEi5e60kt81w==": {
       "description": "Button text to save changes to an existing medication entry",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Save Changes",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "cj2DyOCldld00vHOkeCqHg==": {
       "description": "Button text to save a new medication entry",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Save Entry",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "K+HUj1/mO76sfb5NusyTxQ==": {
       "description": "Label for administration status",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Status:",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "U5pa91t0seGF0scaeTwYoA==": {
       "description": "Indicator that this administration is linked to a regimen",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "(Linked to regimen)",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "kI3XJq4XwJmEPI5QgJKDtQ==": {
       "description": "Edit administration button label",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Edit",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "WVrJvXjg3gZWJ8YOPQu3KQ==": {
       "description": "Delete administration button label",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Delete",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "wdev+QaOnr8dGSP+qxnrNg==": {
       "description": "Error message for an invalid date string",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Invalid Date",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "4hhzG8GaJHxroSvS4/gVSA==": {
       "description": "Label for dosage",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Dosage:",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "Vj4TcJt84xgrTNLYJBUaYA==": {
       "description": "Edit regimen button label",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Edit",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "tGhMqAG8XRVcKMd96m9Mvw==": {
       "description": "Delete regimen button label",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Delete",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "ZwdNX/38iySIGYYb8PkZpQ==": {
       "description": "Label for next due time",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Next Due:",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "UIZiwrg0vtpNGhj1fuwElw==": {
       "description": "Label for start date",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Start Date:",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "qkWJLMUp9OCJjD/5kDuPQQ==": {
       "description": "Label for end date",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "End Date:",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "c+RjI+1cX8ym7cqrIT7ggg==": {
       "description": "Indicator that a regimen is discontinued",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Discontinued",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "owsfbFVdwnOOIla3Amd7AQ==": {
       "description": "Label for notes",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Notes:",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "dfrM7EIk8jieNE6y6p4i9w==": {
       "description": "Label for schedule",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Schedule:",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "Gn859LGLleNnKHdxvjDKhQ==": {
       "description": "Label for prescriber",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Prescriber:",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "eZbRh2755mXHwFkrWye8Ew==": {
       "description": "Button to collapse regimen details",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Show Less",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "RgSDQjqHmlymSMvZhnhq+Q==": {
       "description": "Button to expand regimen details",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Show More",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "mKB7TyTSIclV5AL5vqPZVw==": {
       "description": "Dialog title for editing a medication regimen",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Edit Medication Regimen",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "jDyV6pgehGFHmRBYI1g0Aw==": {
       "description": "Dialog title for adding a new medication regimen",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Add New Medication Regimen",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "gyhi2i55yidTkZUBu/0a4Q==": {
       "description": "Dialog description for editing a medication regimen",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Update the details of this medication regimen.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "5sf/vrOVifr3f31X5+gX+g==": {
       "description": "Dialog description for adding a new medication regimen",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Define a new medication regimen for your baby.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "ljr0RGA4CliycmkyxqdRCA==": {
       "description": "Label for medication name",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Medication Name",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "hShA5MmkAfPivnXT8bFurg==": {
       "description": "Label for dosage amount",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Dosage Amount",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "VQHBMarb76CXhKj8LKWNrg==": {
       "description": "Label for dosage unit",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Unit",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "Enz4Lj6C639v+djAQNvJzQ==": {
       "description": "Placeholder for dosage unit",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "e.g., ml, mg, drops",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "njX1gHCiNrK9FTgbx6hMaQ==": {
       "description": "Label for start date",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Start Date",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "cW2u1TIvjljfjbVewuzRyg==": {
       "description": "Label for end date (optional)",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "End Date (Optional)",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "h0Bot85wZ2q6pJuh4qqoxQ==": {
       "description": "Label for prescriber type",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Prescriber",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "ZPnRI8/XmsK7r2ep4AzKqg==": {
       "description": "Label for prescriber name (optional)",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Prescriber Name (Optional)",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "BWaoAp8wpkO7LMyl2yhoJg==": {
       "description": "Label for schedule type",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Schedule Type",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "Fo2vpNQIluH1upA5cNRX3g==": {
       "description": "Placeholder for schedule type select",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Select schedule type",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "vCEtYU9N1poigje1+v6epQ==": {
       "description": "Daily schedule option",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Daily",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "4Vmxf26eJZ9Lttk0zY+KjQ==": {
       "description": "Interval schedule option",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Interval",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "EckiXu9sF/BErswEpqSEcQ==": {
       "description": "Weekly schedule option",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Weekly",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "wN0pw4jj9bCqjWpgnZOprA==": {
       "description": "As Needed schedule option",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "As Needed (PRN)",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "I0aBqoejWCRfiPzW0/+FYg==": {
       "description": "Section title for daily schedule times",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Times per day",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "s4U53/NUvrfJBgbOEZYl3g==": {
       "description": "Button to add another time for daily schedule",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Add Time",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "LliVlv7ZNRI99GtZpp6Cig==": {
       "description": "Section title for interval schedule",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Interval Details",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "koNHctGEVOTrdVq1va81YQ==": {
       "description": "Label for first dose time in interval schedule",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "First Dose Time (after start date)",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "fkXAzPiUzcA2YtKZT/6N9Q==": {
       "description": "Label for interval value",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Interval Value",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "J/FcxhWOaN0nXYPgkSHIZA==": {
       "description": "Label for interval unit",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Interval Unit",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "lEBkXBhguy2HlbI9ZKFyFw==": {
       "description": "Hours option for interval unit",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Hours",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "hvazvf+XTgFsRHFUC59Dkg==": {
       "description": "Days option for interval unit",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Days",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "542lHQd5vSMx9MtvzQColg==": {
       "description": "Section title for weekly schedule",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Weekly Details",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "w/usjWa0CEZFHeHsh6qZtA==": {
       "description": "Label for days of week selection",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Days of the Week",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "WpGMpXF1rCzR3Dk5/4lSOQ==": {
       "description": "Section title for weekly schedule times",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Times on selected days",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "k6zX7+As4NGr31taWKuZ9Q==": {
       "description": "Button to add another time for weekly schedule",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Add Time",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "VdGLdu5q6JoxKuMz9V4iqg==": {
       "description": "Label for as needed details",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Details (e.g., “When fever above 38C”)",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "aTUt+gGp03rOaRrMzFh49w==": {
       "description": "Label for optional notes about the regimen",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Notes (Optional)",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "IdUkHvYC1DqO5Q9N5iPgVA==": {
       "description": "Placeholder for regimen notes",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "e.g., Take with food, Complete the full course",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "8+NC8L3E1sLBue/QUQ720A==": {
       "description": "Button text to save changes to an existing regimen",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Save Changes",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "7hg0EV8cIhifhq7m+NF8wA==": {
       "description": "Button text to save a new regimen",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Save Regimen",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "PUq00hzcEH1FENLj1yHTRQ==": {
       "description": "No items message for story",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "No regimens in this section.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "32zVs/gIkfbs1wbzYKnc0Q==": {
       "description": "No active regimens message",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "You have no active medication regimens.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "0Te1wWZW4Ctpn808PCoU1Q==": {
       "description": "No past regimens message",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "No past medication regimens found.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "G3J3KMaZ3eYfE5G6ynOomQ==": {
       "description": "Title for the Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Privacy Policy",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "pRYnfVrNgGCBMt02uRVE4w==": {
       "description": "Heading for Introduction section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Introduction",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "5OlNL5ksePBWiMiaeLsbPA==": {
       "description": "Introduction text for Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "We are pleased about your interest in our app. The protection of your privacy is very important to us. Below we inform you in detail about the handling of your data.",
+          "translation": "We’re glad you’re interested in our app. Protecting your privacy is very important to us. Below, we’ll explain how we handle your data in detail.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "D/JTNgOmfI+mhG2nz9wH7A==": {
       "description": "Heading for Data Collection section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Data Collection and Processing",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "bPxgK6IWc6wzjeg32wbCBw==": {
       "description": "Text for Data Collection section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Our app does not collect or store any personal data by default, unless you voluntarily enter it when using certain functions (e.g., when creating an account or entering activity data). This data is used exclusively to provide the app functionalities.",
+          "translation": "By default, our app does not collect or store any personal data unless you choose to provide it when using specific features (for example, creating an account or entering activity data). We use this data only to provide the app’s functionalities.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "roVDyV5E4CYfKkWn9EkZLQ==": {
       "description": "Heading for Data Sharing section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Disclosure of Data to Third Parties",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "HmNptuyZzeg/gZQ6VGrulQ==": {
       "description": "Text for Data Sharing section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Your personal data will not be passed on to third parties unless we are legally obliged to do so or you have given us your express prior consent.",
+          "translation": "Your personal data will never be shared with third parties unless we’re legally required to do so, or you’ve given us your explicit prior consent.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "WceRkBEowo91SuD0yS1kYA==": {
       "description": "Heading for Cookies/Similar Technologies section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Use of Cookies or Similar Technologies",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "q60InR3o0LA/40RsLCAVbQ==": {
       "description": "Text for Cookies/Similar Technologies section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Our app may use local storage technologies (similar to cookies) to store preferences or the state of the application. These are used exclusively for the functionality of the app and are not used for tracking purposes.",
+          "translation": "Our app may use local storage technologies (similar to cookies) to remember your preferences or app state. These are used only for the app’s functionality and are never used for tracking.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "CWg0wZ7QFRdc3Ilc0sdDhg==": {
       "description": "Heading for Your Rights section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Your Rights",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "SkxIAjKoE7A6Ror6Vs1uvA==": {
       "description": "Text for Your Rights section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "You have the right to free information about your stored personal data, its origin and recipients, and the purpose of data processing, as well as a right to correction, blocking, or deletion of this data at any time. For this purpose, as well as for further questions on the subject of personal data, you can contact us at any time at the address given in the imprint.",
+          "translation": "You have the right to access your personal data stored with us—including where it came from, who received it, and why it’s processed—free of charge at any time. You also have the right to request corrections, blocking, or deletion of this data. If you have any questions or requests regarding your personal data, feel free to contact us anytime at the address listed in the imprint.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "LARUBSb09iTySFwjv6knlg==": {
       "description": "Heading for Changes to Privacy Policy section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Changes to this Privacy Policy",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "R+60DcjqXx/1f+j8RU16/w==": {
       "description": "Text for Changes to Privacy Policy section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "We reserve the right to adapt this privacy policy so that it always complies with current legal requirements or to implement changes to our services in the privacy policy, e.g., when introducing new functions. The new privacy policy will then apply to your next visit.",
+          "translation": "We may update this privacy policy from time to time so it always meets current legal requirements or reflects changes to our services, such as new features. The updated privacy policy will apply the next time you use the app.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "VS1bBx+rg1Cmei1ABTrPXQ==": {
       "description": "Heading for Contact for Privacy Questions section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Contact for Privacy Questions",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "4GqeeZYW5JoHoDWMUmm41A==": {
       "description": "Text for Contact for Privacy Questions section in Privacy Policy page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "If you have any questions about data protection, please send us an e-mail or contact the person responsible named in the imprint directly.",
+          "translation": "If you have any questions about data protection, please send us an email or reach out directly to the responsible person listed in the imprint.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "yvqevEAWSTxDyqwpEMC/mQ==": {
       "description": "Title for the Imprint page",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Imprint",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "MRahcT3nu5Zw54r2Kvv/NA==": {
       "description": "Heading for the provider information section in Imprint",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Provider Information",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "HxEywc/EkIPiNS6Q3G2VoA==": {
       "description": "Label for provider name in Imprint",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Provider:",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "0ezhRgpRF4KYsqq3WGqpaw==": {
       "description": "Placeholder for provider name in Imprint",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Max Mustermann",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "ULFqs0EDAh0QyI82bUk5QA==": {
       "description": "Placeholder for provider street address in Imprint",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Musterstraße 1",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "8VR1woA5thGe3fIhdybiOg==": {
       "description": "Placeholder for provider city and postal code in Imprint",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "12345 Musterstadt",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "W/zCAPwzyBf8g1hWxkB8hA==": {
       "description": "Heading for contact information section in Imprint",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Contact",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "m80Gkj0QDkPKOmVe1FdFXQ==": {
       "description": "Placeholder for contact email in Imprint",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "E-Mail: max.mustermann@example.com",
+          "translation": "Email: max.mustermann@example.com",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "YQbozam+vSbYgqiU/GVXsQ==": {
       "description": "Placeholder for contact phone number in Imprint (optional)",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "Phone: 01234 / 567890 (optional)",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "SCl9aZ9er5drjEWO58AQvQ==": {
       "description": "Heading for person responsible for content (e.g., V.i.S.d.P.) in Imprint",
