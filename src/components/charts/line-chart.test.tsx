@@ -2,19 +2,25 @@ import { render, screen, cleanup } from '@testing-library/react';
 import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest';
 import LineChart from './line-chart';
 
-const { mockChart, mockDestroy } = vi.hoisted(() => {
-  const mockDestroyFn = vi.fn();
-  const mockChartInstance = {
-    data: { datasets: [], labels: [] },
-    destroy: mockDestroyFn,
-    options: {},
-    update: vi.fn(),
-  };
-  return { mockChart: vi.fn(() => mockChartInstance), mockDestroy: mockDestroyFn };
-});
+const mockDestroy = vi.fn();
+const mockUpdate = vi.fn();
+const mockChartInstance = {
+	destroy: mockDestroy,
+	data: {
+		datasets: [],
+		labels: [],
+	},
+	options: {},
+	update: mockUpdate,
+};
+const mockChart = vi.fn((...args: unknown[]) => mockChartInstance);
 
 vi.mock('chart.js/auto', () => ({
-  default: mockChart,
+	default: class Chart {
+		constructor(...args: unknown[]) {
+			return mockChart(...args);
+		}
+	},
 }));
 
 vi.mock('chartjs-adapter-date-fns', () => ({}));
