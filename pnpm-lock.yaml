@@ -13,7 +13,7 @@ importers:
         version: 5.2.2(react-hook-form@7.66.0(react@19.2.0))
       '@nkzw/core':
         specifier: ^1.2.0
-        version: 1.3.0
+        version: 1.3.1
       '@radix-ui/react-accordion':
         specifier: ^1.2.11
         version: 1.2.12(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1565,8 +1565,8 @@ packages:
     resolution: {integrity: sha512-mbgTdkuaxNC9lSXYB9VQea/wOJsOuS7M0dVxKe1mYCePgwsFEoBKq2ery7U1LaE+LS55m5Mc3kvMhPBdaSczIQ==}
     hasBin: true
 
-  '@nkzw/core@1.3.0':
-    resolution: {integrity: sha512-4iLkdSgKqbjOPUlaH6mYcBeHplCaykEgwOfplokdZIKRNXTfGhHtgFE620TAxxjnX2fVqpSemiWQbvb8xvVGIQ==}
+  '@nkzw/core@1.3.1':
+    resolution: {integrity: sha512-kzrr6HSiTjBkKOWel337RiPxMRlsNEFkTxJTx8ppYFm63ZhuGTkZ4I0vfzWzcUhhpjeZ+DRxo4pXEeT0AJuBCA==}
 
   '@nkzw/eslint-config@3.2.0':
     resolution: {integrity: sha512-EGuhzSeXY6inGsJ9g2pOGrcrH/9ITUJ997o4VPn2HHaYEZma+LCvTL7KIX81Z+1TxGOFy9csglrO562pNU51tg==}
@@ -7738,7 +7738,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nkzw/core@1.3.0': {}
+  '@nkzw/core@1.3.1': {}
 
   '@nkzw/eslint-config@3.2.0(@typescript-eslint/eslint-plugin@8.46.3(@typescript-eslint/parser@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/utils@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.32.0)(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
