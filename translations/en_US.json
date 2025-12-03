@@ -2403,39 +2403,39 @@
     },
     "SCl9aZ9er5drjEWO58AQvQ==": {
       "description": "Heading for person responsible for content (e.g., V.i.S.d.P.) in Imprint",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Responsible for Content",
-          "variations": {}
+          "variations": {},
+          "translation": "Responsible for Content"
         }
-      ],
-      "types": []
+      ]
     },
     "hmGklhOVqo7ircnhWgxm2A==": {
       "description": "Placeholder for name of person responsible for content in Imprint",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Max Mustermann (Address as above)",
-          "variations": {}
+          "variations": {},
+          "translation": "Max Mustermann (Address as above)"
         }
-      ],
-      "types": []
+      ]
     },
     "Qno/N+2AVAYLoqsiJtnwVA==": {
       "description": "Heading for disclaimer section in Imprint",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Disclaimer",
-          "variations": {}
+          "variations": {},
+          "translation": "Disclaimer"
         }
-      ],
-      "types": []
+      ]
     },
     "nFx+VzwjRv1vtMYbYKTz+w==": {
       "description": "Placeholder text for disclaimer in Imprint",
