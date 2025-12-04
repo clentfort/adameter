@@ -2439,39 +2439,39 @@
     },
     "nFx+VzwjRv1vtMYbYKTz+w==": {
       "description": "Placeholder text for disclaimer in Imprint",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Despite careful content control, we assume no liability for the content of external links. The operators of the linked pages are solely responsible for their content.",
-          "variations": {}
+          "variations": {},
+          "translation": "Despite careful content control, we assume no liability for the content of external links. The operators of the linked pages are solely responsible for their content."
         }
-      ],
-      "types": []
+      ]
     },
     "sJwbdHaeKYrEGDUFV4vmNg==": {
       "description": "growthTab",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Growth",
-          "variations": {}
+          "variations": {},
+          "translation": "Growth"
         }
-      ],
-      "types": []
+      ]
     },
     "sOiViMq1cYfc54ftpG7fPQ==": {
       "description": "Label on a button to add a new entry",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Add Entry",
-          "variations": {}
+          "variations": {},
+          "translation": "Add Entry"
         }
-      ],
-      "types": []
+      ]
     },
     "zNgHNqnHcwNBWUT3BOqKGQ==": {
       "description": "Title of the dialog to manually add a growth measurement",
