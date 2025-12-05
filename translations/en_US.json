@@ -2475,39 +2475,39 @@
     },
     "zNgHNqnHcwNBWUT3BOqKGQ==": {
       "description": "Title of the dialog to manually add a growth measurement",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Add Growth Measurement",
-          "variations": {}
+          "variations": {},
+          "translation": "Add Growth Measurement"
         }
-      ],
-      "types": []
+      ]
     },
     "dnQ9PnHNqabscJZqsD9kdA==": {
       "description": "Message shown when no weight, height, or head circumference is provided. At least one is required",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Please enter at least a weight, height, or head circumference.",
-          "variations": {}
+          "variations": {},
+          "translation": "Please enter at least a weight, height, or head circumference."
         }
-      ],
-      "types": []
+      ]
     },
     "E/8jm0M5Yc4/pq+xiWzhcg==": {
       "description": "Label for a body weight input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Weight (g)",
-          "variations": {}
+          "variations": {},
+          "translation": "Weight (g)"
         }
-      ],
-      "types": []
+      ]
     },
     "I4JLnsD+gc9LL6A24X+GkA==": {
       "description": "Placeholder for a weight input",
