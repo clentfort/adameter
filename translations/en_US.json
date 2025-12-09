@@ -2511,39 +2511,39 @@
     },
     "I4JLnsD+gc9LL6A24X+GkA==": {
       "description": "Placeholder for a weight input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "e.g. 3500",
-          "variations": {}
+          "variations": {},
+          "translation": "e.g. 3500"
         }
-      ],
-      "types": []
+      ]
     },
     "ahi/bJUe1jhQQzBtkdPD/w==": {
       "description": "Label for a body height input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Height (cm)",
-          "variations": {}
+          "variations": {},
+          "translation": "Height (cm)"
         }
-      ],
-      "types": []
+      ]
     },
     "PClK+GAF9vsQqo/clYTY9w==": {
       "description": "Placeholder for a height input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "e.g. 50",
-          "variations": {}
+          "variations": {},
+          "translation": "e.g. 50"
         }
-      ],
-      "types": []
+      ]
     },
     "LPaqtXwOfIL9iGz1EQlfNQ==": {
       "description": "Label for a head circumference input",
