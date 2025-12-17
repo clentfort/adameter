@@ -24,6 +24,19 @@ export default function HistoryList({
 		null,
 	);
 
+	const getSessionName = (session: FeedingSession) => {
+		switch (session.source) {
+			case 'left':
+				return <fbt desc="Left breast">Left Breast</fbt>;
+			case 'right':
+				return <fbt desc="Right breast">Right Breast</fbt>;
+			case 'bottle':
+				return <fbt desc="Bottle">Bottle</fbt>;
+			case 'pump':
+				return <fbt desc="Pump">Pump</fbt>;
+		}
+	};
+
 	return (
 		<>
 			<HistoryListInternal
@@ -31,21 +44,36 @@ export default function HistoryList({
 				entries={sessions}
 			>
 				{(session) => {
-					const isLeftBreast = session.breast === 'left';
-					const borderColor = isLeftBreast
-						? 'border-left-breast/30'
-						: 'border-right-breast/30';
-					const bgColor = isLeftBreast
-						? 'bg-left-breast/5'
-						: 'bg-right-breast/5';
-					const textColor = isLeftBreast
-						? 'text-left-breast-dark'
-						: 'text-right-breast-dark';
+					const isLeftBreast = session.source === 'left';
+					const isBottle = session.source === 'bottle';
+					const isPump = session.source === 'pump';
 
-					// Check if session crosses midnight
-					const startDate = new Date(session.startTime);
-					const endDate = new Date(session.endTime);
-					const crossesMidnight = !isSameDay(startDate, endDate);
+					const borderColor = isBottle
+						? 'border-yellow-200'
+						: isPump
+							? 'border-gray-200'
+							: isLeftBreast
+								? 'border-left-breast/30'
+								: 'border-right-breast/30';
+					const bgColor = isBottle
+						? 'bg-yellow-50'
+						: isPump
+							? 'bg-gray-50'
+							: isLeftBreast
+								? 'bg-left-breast/5'
+								: 'bg-right-breast/5';
+					const textColor = isBottle
+						? 'text-yellow-800'
+						: isPump
+							? 'text-gray-800'
+							: isLeftBreast
+								? 'text-left-breast-dark'
+								: 'text-right-breast-dark';
+
+					const crossesMidnight = !isSameDay(
+						new Date(session.startTime),
+						new Date(session.endTime),
+					);
 
 					return (
 						<div
@@ -55,15 +83,7 @@ export default function HistoryList({
 							<div className="flex justify-between items-start">
 								<div>
 									<p className={`font-medium ${textColor}`}>
-										{isLeftBreast ? (
-											<fbt desc="Label indicating a feeding was done with the left breast">
-												Left Breast
-											</fbt>
-										) : (
-											<fbt desc="Label indicating a feeding was done with the right breast">
-												Right Breast
-											</fbt>
-										)}
+										{getSessionName(session)}
 									</p>
 									{crossesMidnight && (
 										<p className="text-xs text-muted-foreground">
@@ -78,7 +98,16 @@ export default function HistoryList({
 								</div>
 								<div className="text-right flex flex-col items-end">
 									<p className="font-bold">
-										{formatDurationAbbreviated(session.durationInSeconds)}
+										{session.amountInMl ? (
+											<fbt desc="Amount of milk in ml">
+												<fbt:param name="amount">
+													{session.amountInMl}
+												</fbt:param>{' '}
+												ml
+											</fbt>
+										) : (
+											formatDurationAbbreviated(session.durationInSeconds ?? 0)
+										)}
 									</p>
 									<p className="text-xs text-muted-foreground">
 										<fbt desc="Label indicating when a feeding session started">
