@@ -93,8 +93,8 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       partysocket:
-        specifier: 1.1.9
-        version: 1.1.9
+        specifier: 1.1.10
+        version: 1.1.10
       react:
         specifier: ^19
         version: 19.2.3
@@ -5230,8 +5230,8 @@ packages:
     resolution: {integrity: sha512-WHmJIZsAzRWrm1lrtU7wcl0tpD4rg2vgmn4+hXGPjU4mnXgFxyjVq2ZzO547xRXa1IbETOP6J9INl/ergR99bA==}
     hasBin: true
 
-  partysocket@1.1.9:
-    resolution: {integrity: sha512-iUDQN00KDqJHM91ki6qw/KfPdKGjI8HTc+k2j/KoemTC4LmaGlD6D6bxY55PFWc+Lx08OPLhReXyifp6ee8MeQ==}
+  partysocket@1.1.10:
+    resolution: {integrity: sha512-ACfn0P6lQuj8/AqB4L5ZDFcIEbpnIteNNObrlxqV1Ge80GTGhjuJ2sNKwNQlFzhGi4kI7fP/C1Eqh8TR78HjDQ==}
 
   pascal-case@3.1.2:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
@@ -12137,7 +12137,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  partysocket@1.1.9:
+  partysocket@1.1.10:
     dependencies:
       event-target-polyfill: 0.0.4
 
