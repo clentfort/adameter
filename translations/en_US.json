@@ -2547,39 +2547,39 @@
     },
     "LPaqtXwOfIL9iGz1EQlfNQ==": {
       "description": "Label for a head circumference input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Head Circumference (cm)",
-          "variations": {}
+          "variations": {},
+          "translation": "Head Circumference (cm)"
         }
-      ],
-      "types": []
+      ]
     },
     "c5ZPiFze1ZQeOTZTft3Lmw==": {
       "description": "Placeholder for a head circumference input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "e.g. 35",
-          "variations": {}
+          "variations": {},
+          "translation": "e.g. 35"
         }
-      ],
-      "types": []
+      ]
     },
     "fz1rj5/66HoPMzBKAGITGg==": {
       "description": "Label for an optional notes textarea",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Notes (optional)",
-          "variations": {}
+          "variations": {},
+          "translation": "Notes (optional)"
         }
-      ],
-      "types": []
+      ]
     },
     "ry0QIAp75Bg9SEz20iIcfA==": {
       "description": "Placeholder for a text input for notes",
