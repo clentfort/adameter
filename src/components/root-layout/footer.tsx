@@ -23,6 +23,12 @@ export function Footer() {
 							Privacy Policy
 						</fbt>
 					</Link>
+					<span className="mx-2">|</span>
+					<Link className="hover:underline" href="/data" prefetch={false}>
+						<fbt desc="Link text for Data page in footer">
+							Import/Export
+						</fbt>
+					</Link>
 				</div>
 				<div className="mb-2">
 					<fbt desc="Footer message: Made with love in Germany. {heartIcon} is a placeholder for a heart icon.">

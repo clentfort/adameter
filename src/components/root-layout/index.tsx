@@ -5,6 +5,7 @@ import '@/i18n';
 import Link from 'next/link';
 import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
+import { Toaster } from '../ui/toaster';
 import DataSharingSwitcher from './data-sharing-switcher';
 import { Footer } from './footer';
 import LanguageSwitcher from './language-switcher';
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 				<Navigation />
 				{children}
 			</main>
+			<Toaster />
 			<Footer />
 		</div>
 	);
