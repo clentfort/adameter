@@ -18,12 +18,74 @@ const dataStores: { [key: string]: any[] } = {
 	medications,
 };
 
+const columns: { [key: string]: string[] } = {
+	diaperChanges: [
+		'id',
+		'timestamp',
+		'containsUrine',
+		'containsStool',
+		'abnormalities',
+		'diaperBrand',
+		'leakage',
+		'temperature',
+	],
+	events: [
+		'id',
+		'startDate',
+		'endDate',
+		'title',
+		'description',
+		'color',
+		'type',
+	],
+	feedingSessions: ['id', 'startTime', 'endTime', 'durationInSeconds', 'breast'],
+	growthMeasurements: [
+		'id',
+		'date',
+		'weight',
+		'height',
+		'headCircumference',
+		'notes',
+	],
+	medicationRegimens: [
+		'id',
+		'name',
+		'dosageAmount',
+		'dosageUnit',
+		'startDate',
+		'endDate',
+		'isDiscontinued',
+		'notes',
+		'prescriber',
+		'prescriberName',
+		'schedule',
+	],
+	medications: [
+		'id',
+		'timestamp',
+		'medicationName',
+		'dosageAmount',
+		'dosageUnit',
+		'administrationStatus',
+		'details',
+		'regimenId',
+	],
+};
+
 export const exportData = async () => {
 	const zip = new JSZip();
 
 	for (const [name, data] of Object.entries(dataStores)) {
 		if (data.length > 0) {
-			const csv = Papa.unparse(data);
+			const csv = Papa.unparse({
+				fields: columns[name],
+				data: data.map((row) =>
+					columns[name].reduce((acc, key) => {
+						(acc as any)[key] = (row as any)[key];
+						return acc;
+					}, {}),
+				),
+			});
 			zip.file(`${name}.csv`, csv);
 		}
 	}
