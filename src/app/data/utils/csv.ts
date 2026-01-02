@@ -1,5 +1,6 @@
 
 import Papa from 'papaparse';
+import { isDate, isDateString } from './date';
 
 const columns: { [key: string]: string[] } = {
 	diaperChanges: [
@@ -60,7 +61,8 @@ export const toCsv = (name: string, data: any[]) => {
 		fields: columns[name],
 		data: data.map((row) =>
 			columns[name].reduce((acc, key) => {
-				(acc as any)[key] = (row as any)[key];
+				const value = (row as any)[key];
+				(acc as any)[key] = isDate(value) ? value.toISOString() : value;
 				return acc;
 			}, {}),
 		),
@@ -71,6 +73,12 @@ export const fromCsv = (csv: string) => {
 	const parsed = Papa.parse(csv, {
 		header: true,
 		skipEmptyLines: true,
+		transform: (value, field) => {
+			if (isDateString(value)) {
+				return new Date(value);
+			}
+			return value;
+		},
 	});
 	return parsed.data;
 };
