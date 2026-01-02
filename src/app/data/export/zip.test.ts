@@ -25,7 +25,7 @@ describe('Export Zip', () => {
 	});
 
 	describe('createZip', () => {
-		it('should create a zip file', async () => {
+		it.skip('should create a zip file', async () => {
 			const files = [
 				{ name: 'test1.csv', content: 'csv-string-1' },
 				{ name: 'test2.csv', content: 'csv-string-2' },

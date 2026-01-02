@@ -6,10 +6,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
-import { getAll, toCsv } from './export/csv';
+import { toCsv } from './export/csv';
 import { createZip, downloadZip } from './export/zip';
 import { fromCsv, mergeData } from './import/csv';
 import { extractFiles } from './import/zip';
+import { diaperChanges } from '@/data/diaper-changes';
+import { events } from '@/data/events';
+import { feedingSessions } from '@/data/feeding-sessions';
+import { growthMeasurements } from '@/data/growth-measurments';
+import { medicationRegimensProxy as medicationRegimens } from '@/data/medication-regimens';
+import { medicationsProxy as medications } from '@/data/medications';
+
+const dataStores: { [key: string]: any[] } = {
+	diaperChanges,
+	events,
+	feedingSessions,
+	growthMeasurements,
+	medicationRegimens,
+	medications,
+};
 
 export default function DataPage() {
 	const { toast } = useToast();
@@ -18,7 +33,10 @@ export default function DataPage() {
 	const handleExport = async () => {
 		setIsLoading(true);
 		try {
-			const allData = getAll();
+			const allData = Object.entries(dataStores).map(([name, data]) => ({
+				name,
+				data,
+			}));
 			const files = allData
 				.filter(({ data }) => data.length > 0)
 				.map(({ name, data }) => ({
@@ -46,7 +64,7 @@ export default function DataPage() {
 			const files = await extractFiles(file);
 			for (const { name, content } of files) {
 				const data = fromCsv(content);
-				mergeData(name, data);
+				mergeData(dataStores[name], data);
 			}
 			toast.success('Data imported successfully.');
 		} catch (error) {
