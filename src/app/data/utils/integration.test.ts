@@ -11,6 +11,8 @@ describe('CSV Integration', () => {
 				containsStool: 'false',
 				leakage: 'true',
 				temperature: '37.5',
+				abnormalities: 'None',
+				diaperBrand: 'Pampers',
 			},
 			{
 				id: '2', // Empty and invalid values
@@ -19,6 +21,8 @@ describe('CSV Integration', () => {
 				containsStool: 'not-a-boolean', // required boolean -> false
 				leakage: '', // optional boolean -> undefined
 				temperature: 'invalid-temp', // optional numeric -> undefined
+				abnormalities: '',
+				diaperBrand: '',
 			},
 			{
 				id: '3', // Case-insensitivity and different values
@@ -27,6 +31,8 @@ describe('CSV Integration', () => {
 				containsStool: 'FALSE',
 				leakage: 'false',
 				temperature: '', // optional numeric -> undefined
+				abnormalities: 'A bit reddish',
+				diaperBrand: 'Huggies',
 			},
 		];
 
@@ -37,8 +43,8 @@ describe('CSV Integration', () => {
 			{
 				id: '1',
 				timestamp: '',
-				abnormalities: '',
-				diaperBrand: '',
+				abnormalities: 'None',
+				diaperBrand: 'Pampers',
 				containsUrine: true,
 				containsStool: false,
 				leakage: true,
@@ -57,12 +63,67 @@ describe('CSV Integration', () => {
 			{
 				id: '3',
 				timestamp: '2022-01-02',
-				abnormalities: '',
-				diaperBrand: '',
+				abnormalities: 'A bit reddish',
+				diaperBrand: 'Huggies',
 				containsUrine: true,
 				containsStool: false,
 				leakage: false,
 				temperature: undefined,
+			},
+		];
+
+		expect(parsedData).toEqual(expectedData);
+	});
+
+	it('should correctly parse required numeric fields for feeding sessions', () => {
+		const data = [
+			{
+				id: 'fs1',
+				startTime: '2023-01-01T10:00:00Z',
+				endTime: '2023-01-01T10:20:00Z',
+				durationInSeconds: '1200',
+				breast: 'left',
+			},
+			{
+				id: 'fs2',
+				startTime: '2023-01-01T11:00:00Z',
+				endTime: '2023-01-01T11:15:00Z',
+				durationInSeconds: '', // empty value
+				breast: 'right',
+			},
+			{
+				id: 'fs3',
+				startTime: '2023-01-01T12:00:00Z',
+				endTime: '2023-01-01T12:25:00Z',
+				durationInSeconds: 'invalid-duration', // invalid value
+				breast: 'left',
+			},
+		];
+
+		const csv = toCsv('feedingSessions', data);
+		const parsedData = fromCsv(csv);
+
+		const expectedData = [
+			{
+				id: 'fs1',
+				startTime: '2023-01-01T10:00:00Z',
+				endTime: '2023-01-01T10:20:00Z',
+				durationInSeconds: 1200,
+				breast: 'left',
+			},
+			{
+				id: 'fs2',
+				startTime: '2023-01-01T11:00:00Z',
+				endTime: '2023-01-01T11:15:00Z',
+				durationInSeconds: 0,
+				breast: 'right',
+			},
+			{
+				id: 'fs3',
+				startTime: '2023-01-01T12:00:00Z',
+				endTime: '2023-01-01T12:25:00Z',
+				durationInSeconds: 0,
+				breast: 'left',
 			},
 		];
 

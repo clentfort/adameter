@@ -93,7 +93,7 @@ export const fromCsv = (csv: string) => {
 					return requiredNumeric.has(fieldName) ? 0 : undefined;
 				}
 				const num = parseFloat(trimmedValue);
-				if (isNaN(num)) {
+				if (Number.isNaN(num)) {
 					return requiredNumeric.has(fieldName) ? 0 : undefined;
 				}
 				return num;
