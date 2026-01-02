@@ -1,15 +1,15 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { fbt } from 'fbt';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { exportData, importData } from '@/lib/data-utils';
-import { saveAs } from 'file-saver';
-import JSZip from 'jszip';
-import Papa from 'papaparse';
 import { useState } from 'react';
+import { getAll, toCsv } from './export/csv';
+import { createZip, downloadZip } from './export/zip';
+import { fromCsv, mergeData } from './import/csv';
+import { extractFiles } from './import/zip';
 
 export default function DataPage() {
 	const { toast } = useToast();
@@ -18,7 +18,15 @@ export default function DataPage() {
 	const handleExport = async () => {
 		setIsLoading(true);
 		try {
-			await exportData();
+			const allData = getAll();
+			const files = allData
+				.filter(({ data }) => data.length > 0)
+				.map(({ name, data }) => ({
+					name: `${name}.csv`,
+					content: toCsv(name, data),
+				}));
+			const zipBlob = await createZip(files);
+			downloadZip(zipBlob);
 			toast.success('Data exported successfully.');
 		} catch (error) {
 			toast.error('Failed to export data.');
@@ -35,7 +43,11 @@ export default function DataPage() {
 
 		setIsLoading(true);
 		try {
-			await importData(file);
+			const files = await extractFiles(file);
+			for (const { name, content } of files) {
+				const data = fromCsv(content);
+				mergeData(name, data);
+			}
 			toast.success('Data imported successfully.');
 		} catch (error) {
 			toast.error('Failed to import data.');
