@@ -2547,1023 +2547,1035 @@
     },
     "LPaqtXwOfIL9iGz1EQlfNQ==": {
       "description": "Label for a head circumference input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Head Circumference (cm)",
-          "variations": {}
+          "variations": {},
+          "translation": "Head Circumference (cm)"
         }
-      ],
-      "types": []
+      ]
     },
     "c5ZPiFze1ZQeOTZTft3Lmw==": {
       "description": "Placeholder for a head circumference input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "e.g. 35",
-          "variations": {}
+          "variations": {},
+          "translation": "e.g. 35"
         }
-      ],
-      "types": []
+      ]
     },
     "fz1rj5/66HoPMzBKAGITGg==": {
       "description": "Label for an optional notes textarea",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Notes (optional)",
-          "variations": {}
+          "variations": {},
+          "translation": "Notes (optional)"
         }
-      ],
-      "types": []
+      ]
     },
     "ry0QIAp75Bg9SEz20iIcfA==": {
       "description": "Placeholder for a text input for notes",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Additional information",
-          "variations": {}
+          "variations": {},
+          "translation": "Additional information"
         }
-      ],
-      "types": []
+      ]
     },
     "e+FnEDDpEsQVx8O6eEVkbg==": {
       "description": "noMeasurementsRecorded",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "No measurements recorded yet.",
-          "variations": {}
+          "variations": {},
+          "translation": "No measurements recorded yet."
         }
-      ],
-      "types": []
+      ]
     },
     "+L9WgG9P6IVJZg/rzLL8hg==": {
       "description": "Weight of the baby",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Weight",
-          "variations": {}
+          "variations": {},
+          "translation": "Weight"
         }
-      ],
-      "types": []
+      ]
     },
     "f1eSeOB3tGAG1gHfeTjYVQ==": {
       "description": "Height of the baby",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Height",
-          "variations": {}
+          "variations": {},
+          "translation": "Height"
         }
-      ],
-      "types": []
+      ]
     },
     "MfZzIJEHsbjTZmyUU1aoRg==": {
       "description": "Head circumference of the baby",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Head Circumference",
-          "variations": {}
+          "variations": {},
+          "translation": "Head Circumference"
         }
-      ],
-      "types": []
+      ]
     },
     "oWOL7RcGQPwCQ1krqyncvg==": {
       "description": "Title for dialog to edit a growth measurement",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Edit Growth Measurement",
-          "variations": {}
+          "variations": {},
+          "translation": "Edit Growth Measurement"
         }
-      ],
-      "types": []
+      ]
     },
     "XOa5yDd43/4k6SicSknEOA==": {
       "description": "Descedingly ordered history of events (i.e. diaper changes or feeding sessions)",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "History",
-          "variations": {}
+          "variations": {},
+          "translation": "History"
         }
-      ],
-      "types": []
+      ]
     },
     "CxUOdYU7F0H4N8iKAvq39A==": {
       "description": "Title of the dialog to manually add a previous feeding session",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Add Feeding",
-          "variations": {}
+          "variations": {},
+          "translation": "Add Feeding"
         }
-      ],
-      "types": []
+      ]
     },
     "SAV5pQQpFl+bClhlN7e9jQ==": {
       "description": "Label for a radio group that allows the user to select which breat was used to feed",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Breast",
-          "variations": {}
+          "variations": {},
+          "translation": "Breast"
         }
-      ],
-      "types": []
+      ]
     },
     "r19sVcW2W5QMKcNt7U8rig==": {
       "description": "Label for a radio button that indicates the left breast was used to feed",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Left Breast",
-          "variations": {}
+          "variations": {},
+          "translation": "Left Breast"
         }
-      ],
-      "types": []
+      ]
     },
     "KnN83G6cu54a8odinEahNg==": {
       "description": "Label for a radio button that indicates the right breast was used to feed",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Right Breast",
-          "variations": {}
+          "variations": {},
+          "translation": "Right Breast"
         }
-      ],
-      "types": []
+      ]
     },
     "TXCg2gf2w3gFvRZFzSa5sA==": {
       "description": "Label for a date input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Date",
-          "variations": {}
+          "variations": {},
+          "translation": "Date"
         }
-      ],
-      "types": []
+      ]
     },
     "MvTAe4+2dK44NmqhJQps/Q==": {
       "description": "Label for a time input that sets the starting time of a feeding session",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Start Time",
-          "variations": {}
+          "variations": {},
+          "translation": "Start Time"
         }
-      ],
-      "types": []
+      ]
     },
     "MCgjRy2lCa+MB6lT7QOW4A==": {
       "description": "Label for a number input that sets the duration of a feeding session in minutes",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "minutes",
-          "variations": {}
+          "variations": {},
+          "translation": "minutes"
         }
-      ],
-      "types": []
+      ]
     },
     "dGC4MdeweH6mGZRo+OwDMw==": {
       "description": "Label indicating a feeding was done with the left breast",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Left Breast",
-          "variations": {}
+          "variations": {},
+          "translation": "Left Breast"
         }
-      ],
-      "types": []
+      ]
     },
     "NzpsQLsDxGxNrshDC+YUPg==": {
       "description": "Label indicating a feeding was done with the right breast",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Right Breast",
-          "variations": {}
+          "variations": {},
+          "translation": "Right Breast"
         }
-      ],
-      "types": []
+      ]
     },
     "48TFhF5jKj/MAkOdJSIL0w==": {
       "description": "Label for a note",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Note",
-          "variations": {}
+          "variations": {},
+          "translation": "Note"
         }
-      ],
-      "types": []
+      ]
     },
     "wKd4Ggr/UJW1UR/e5Db+Ug==": {
       "description": "A note describing that the feeding session crosses midnight",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "This session crosses midnight",
-          "variations": {}
+          "variations": {},
+          "translation": "This session crosses midnight"
         }
-      ],
-      "types": []
+      ]
     },
     "PFX4d/XVcifWrcjrk+hdBw==": {
       "description": "Label indicating when a feeding session started",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Start",
-          "variations": {}
+          "variations": {},
+          "translation": "Start"
         }
-      ],
-      "types": []
+      ]
     },
     "lEyABWlcYOw5ULR4etSFHw==": {
       "description": "Title of a dialog that allows the user to edit a feeding session",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Edit Feeding Session",
-          "variations": {}
+          "variations": {},
+          "translation": "Edit Feeding Session"
         }
-      ],
-      "types": []
+      ]
     },
     "e6atSd6V6OsSZ3A4txfhBg==": {
       "description": "Label on a button that starts a feeding session with the left breast",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Left Breast",
-          "variations": {}
+          "variations": {},
+          "translation": "Left Breast"
         }
-      ],
-      "types": []
+      ]
     },
     "Had/jciOH8BwtilHk3oxAg==": {
       "description": "Label on a button that starts a feeding session with the right breast",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Right Breast",
-          "variations": {}
+          "variations": {},
+          "translation": "Right Breast"
         }
-      ],
-      "types": []
+      ]
     },
     "oI1A3TSwWphmKoGdSoo7aQ==": {
       "description": "Label that shows that there is a feeding session in progress with the left breast",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Left Breast",
-          "variations": {}
+          "variations": {},
+          "translation": "Left Breast"
         }
-      ],
-      "types": []
+      ]
     },
     "z3IxQm6HQhOCBkOmx2o3ag==": {
       "description": "Label that shows that there is a feeding session in progress with the right breast",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Right Breast",
-          "variations": {}
+          "variations": {},
+          "translation": "Right Breast"
         }
-      ],
-      "types": []
+      ]
     },
     "TDi3YylpxNqy5wpCb0w+6g==": {
       "description": "Label indicating the start time of the current feeding session",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Start",
-          "variations": {}
+          "variations": {},
+          "translation": "Start"
         }
-      ],
-      "types": []
+      ]
     },
     "22sBBPag1Ky2WJKGRBdR2g==": {
       "description": "Label on a button to mark the current feeding session as done",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "End Feeding",
-          "variations": {}
+          "variations": {},
+          "translation": "End Feeding"
         }
-      ],
-      "types": []
+      ]
     },
     "tRZTDi+LQd+N7t+ylHcpYQ==": {
       "description": "Label on a button to mark the current feeding session as done and to enter the duration of the session by manually",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Enter Time Manually",
-          "variations": {}
+          "variations": {},
+          "translation": "Enter Time Manually"
         }
-      ],
-      "types": []
+      ]
     },
     "RM0AC8QIpYLDgKgN1c91lA==": {
       "description": "Title of the dialog to enter feeding time manually",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Enter Feeding Time Manually",
-          "variations": {}
+          "variations": {},
+          "translation": "Enter Feeding Time Manually"
         }
-      ],
-      "types": []
+      ]
     },
     "/inS/3ZxenJMNTjoNKY5Ew==": {
       "description": "Badge on a button that tells the user that they should use this breast for the next feeding session",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Next",
-          "variations": {}
+          "variations": {},
+          "translation": "Next"
         }
-      ],
-      "types": []
+      ]
     },
     "jLTcu4olMc+AWrRF183/lQ==": {
       "description": "Badge on a button that tells the user that they can resume the last feeding session on this breast",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Resume",
-          "variations": {}
+          "variations": {},
+          "translation": "Resume"
         }
-      ],
-      "types": []
+      ]
     },
     "mwtErJHH4PdDkFgLKbYkbA==": {
       "description": "Title of the events page",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Events",
-          "variations": {}
+          "variations": {},
+          "translation": "Events"
         }
-      ],
-      "types": []
+      ]
     },
     "xdjK+9O4yfd69cLNhyL0ew==": {
       "description": "Title of the dialog to add a measurement",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Add Measurement",
-          "variations": {}
+          "variations": {},
+          "translation": "Add Measurement"
         }
-      ],
-      "types": []
+      ]
     },
     "PpD/LO3zLsYX41ijNfIGmQ==": {
       "description": "Label for an input to set an events title",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Title",
-          "variations": {}
+          "variations": {},
+          "translation": "Title"
         }
-      ],
-      "types": []
+      ]
     },
     "JFPU0pvu4BpqHWkS5Kogkg==": {
       "description": "Placeholder for event title input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "e.g. Birth, Vaccination, Illness",
-          "variations": {}
+          "variations": {},
+          "translation": "e.g. Birth, Vaccination, Illness"
         }
-      ],
-      "types": []
+      ]
     },
     "XNg60cJOtgRGp3lM0M6cQA==": {
       "description": "Label for an optional event description input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Description (optional)",
-          "variations": {}
+          "variations": {},
+          "translation": "Description (optional)"
         }
-      ],
-      "types": []
+      ]
     },
     "T4hW2lUwTHVgx3oHhuGOAw==": {
       "description": "Placeholder for event description input",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Additional details about the event",
-          "variations": {}
+          "variations": {},
+          "translation": "Additional details about the event"
         }
-      ],
-      "types": []
+      ]
     },
     "TcYBTg8y33SW4lCYmraFyw==": {
       "description": "Label for a radio input to set the events type (point or period)",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Event Type",
-          "variations": {}
+          "variations": {},
+          "translation": "Event Type"
         }
-      ],
-      "types": []
+      ]
     },
     "nxyeKtztP0wxIGC80MlNEQ==": {
       "description": "Label for a radio input that sets the value to a point in time",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Point in time (e.g. Vaccination)",
-          "variations": {}
+          "variations": {},
+          "translation": "Point in time (e.g. Vaccination)"
         }
-      ],
-      "types": []
+      ]
     },
     "NcTLOx8DCiOoH4V/j3gh+w==": {
       "description": "Label for a radio input that sets the value to a timne period",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Period (e.g. Illness)",
-          "variations": {}
+          "variations": {},
+          "translation": "Period (e.g. Illness)"
         }
-      ],
-      "types": []
+      ]
     },
     "1CZwE9bTZCdo96K1cfcU7w==": {
       "description": "Label for a switch that enables or disable the fields to set an end date for an event",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Set End Date",
-          "variations": {}
+          "variations": {},
+          "translation": "Set End Date"
         }
-      ],
-      "types": []
+      ]
     },
     "jbnKZdp4L/7+EwZ4NAV5TA==": {
       "description": "Label for an input to set the end date of an event",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "End Date",
-          "variations": {}
+          "variations": {},
+          "translation": "End Date"
         }
-      ],
-      "types": []
+      ]
     },
     "R71jS1ju8ZRN4rnlXpOLpQ==": {
       "description": "Label for an input to set the end time of an event",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "End Time",
-          "variations": {}
+          "variations": {},
+          "translation": "End Time"
         }
-      ],
-      "types": []
+      ]
     },
     "S9lPSpqdYLHP2EUPuOvdzw==": {
       "description": "color",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Color",
-          "variations": {}
+          "variations": {},
+          "translation": "Color"
         }
-      ],
-      "types": []
+      ]
     },
     "uqypwmgMTFHUXekxPkCJCA==": {
       "description": "Info message that no event data has been recorded yet",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "No events recorded yet.",
-          "variations": {}
+          "variations": {},
+          "translation": "No events recorded yet."
         }
-      ],
-      "types": []
+      ]
     },
     "Je7hP0iMfI6RuMD5NyZlCA==": {
       "description": "Label on an event that is still ongoing",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "ongoing",
-          "variations": {}
+          "variations": {},
+          "translation": "ongoing"
         }
-      ],
-      "types": []
+      ]
     },
     "ZV50jK8HrEyzr+u7tDFo0g==": {
       "description": "Title of the dialog to edit a measurement",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Edit Measurement",
-          "variations": {}
+          "variations": {},
+          "translation": "Edit Measurement"
         }
-      ],
-      "types": []
+      ]
     },
     "myTl7xkxfQgUCz9MV+cAyg==": {
       "description": "Title of the dialog to manually add a previous diaper change",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Add Diaper Change",
-          "variations": {}
+          "variations": {},
+          "translation": "Add Diaper Change"
         }
-      ],
-      "types": []
+      ]
     },
     "5KGEWjodzCazUm0jC6OldA==": {
       "description": "Label on a radio button to select the type of diaper (urine or stool)",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Diaper Type",
-          "variations": {}
+          "variations": {},
+          "translation": "Diaper Type"
         }
-      ],
-      "types": []
+      ]
     },
     "1+tNkr1iYA+03eMA3LJBcA==": {
       "description": "Label on a radio button that sets the input to urine only",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Urine Only",
-          "variations": {}
+          "variations": {},
+          "translation": "Urine Only"
         }
-      ],
-      "types": []
+      ]
     },
     "Mz55VSaBRTb6zp83h57vRQ==": {
       "description": "Label on a radio button that sets the input to urine and stool",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Stool",
-          "variations": {}
+          "variations": {},
+          "translation": "Stool"
         }
-      ],
-      "types": []
+      ]
     },
     "7D7ziJntCoxQTBesJHrztA==": {
       "description": "Label on a select that allows the user to pick a diaper brand",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Diaper Brand",
-          "variations": {}
+          "variations": {},
+          "translation": "Diaper Brand"
         }
-      ],
-      "types": []
+      ]
     },
     "63qbxN9QNsvm/02G0q+IBQ==": {
       "description": "Placeholder text on a select that allows the user to pick a diaper brand",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Select Diaper Brand",
-          "variations": {}
+          "variations": {},
+          "translation": "Select Diaper Brand"
         }
-      ],
-      "types": []
+      ]
     },
     "94EgjPavoqzLJzpI+OfVwA==": {
       "description": "Label on an input to specificy the body temperature in degree Celsius",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Temperature (°C)",
-          "variations": {}
+          "variations": {},
+          "translation": "Temperature (°C)"
         }
-      ],
-      "types": []
+      ]
     },
     "Zus98nCLBjGApT7TuZlkyQ==": {
       "description": "Placeholder text for an input to set the body temperature in degree Celsius",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "e.g. 37.2",
-          "variations": {}
+          "variations": {},
+          "translation": "e.g. 37.2"
         }
-      ],
-      "types": []
+      ]
     },
     "Da8q8rqrDXU3uEJF3foUXA==": {
       "description": "A warning that the temperature is outside the normal range",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Warning: Temperature outside normal range (36.5°C - 37.5°C)",
-          "variations": {}
+          "variations": {},
+          "translation": "Warning: Temperature outside normal range (36.5°C - 37.5°C)"
         }
-      ],
-      "types": []
+      ]
     },
     "4JomOmheRFWYHDqzrzPwcQ==": {
       "description": "Label for a switch button that indicates that a diaper has leaked",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Diaper leaked",
-          "variations": {}
+          "variations": {},
+          "translation": "Diaper leaked"
         }
-      ],
-      "types": []
+      ]
     },
     "OWzqHWxI4F+21wplgAFosQ==": {
       "description": "Label for a textbox to note any notes",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Notes",
-          "variations": {}
+          "variations": {},
+          "translation": "Notes"
         }
-      ],
-      "types": []
+      ]
     },
     "CcugJ7xv9q2NCkdx3dS5RQ==": {
       "description": "Placeholder text for a textbox to note any notes",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "e.g. redness, rash, etc.",
-          "variations": {}
+          "variations": {},
+          "translation": "e.g. redness, rash, etc."
         }
-      ],
-      "types": []
+      ]
     },
     "v8jIOMoe6DERPgjpGMNg0w==": {
       "description": "Diaper container urine and stool",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Urine and Stool",
-          "variations": {}
+          "variations": {},
+          "translation": "Urine and Stool"
         }
-      ],
-      "types": []
+      ]
     },
     "wDpJf0hr39EZyXan7d6yow==": {
       "description": "Diaper container urine only",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Urine Only",
-          "variations": {}
+          "variations": {},
+          "translation": "Urine Only"
         }
-      ],
-      "types": []
+      ]
     },
     "yclVixtC4QvKnwWEGf8xeQ==": {
       "description": "Label for a measured body temperature in degree Celsius",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Temperature (°C)",
-          "variations": {}
+          "variations": {},
+          "translation": "Temperature (°C)"
         }
-      ],
-      "types": []
+      ]
     },
     "d49BaGzuyPMIZfHhgPleIg==": {
       "description": "Label on a field that informs the user about the diaper brand used",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Diaper Brand",
-          "variations": {}
+          "variations": {},
+          "translation": "Diaper Brand"
         }
-      ],
-      "types": []
+      ]
     },
     "LwNldlcrN5a+Y1rniLvYOw==": {
       "description": "Short information text that a diaper has leaked",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Diaper leaked",
-          "variations": {}
+          "variations": {},
+          "translation": "Diaper leaked"
         }
-      ],
-      "types": []
+      ]
     },
     "vu6/CIaYISNWQsLIDdMq8A==": {
       "description": "Prefix to a user defined text on notes on a diaper change (i.e. rashes, redness.)",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Notes",
-          "variations": {}
+          "variations": {},
+          "translation": "Notes"
         }
-      ],
-      "types": []
+      ]
     },
     "Watqqe4XR3l7IQe6ttJNnw==": {
       "description": "editDiaperEntry",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Edit Diaper Entry",
-          "variations": {}
+          "variations": {},
+          "translation": "Edit Diaper Entry"
         }
-      ],
-      "types": []
+      ]
     },
     "CbEfPkR7inUz8SRue5W0ig==": {
       "description": "Label for a button that tracks a urine only diaper",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Urine Only",
-          "variations": {}
+          "variations": {},
+          "translation": "Urine Only"
         }
-      ],
-      "types": []
+      ]
     },
     "wP8YoQcKLcgvEWjz0zrF1g==": {
       "description": "Label for a button that tracks a urine and stool diaper",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Stool",
-          "variations": {}
+          "variations": {},
+          "translation": "Stool"
         }
-      ],
-      "types": []
+      ]
     },
     "J8lj15YDmpetPlEHC+trKw==": {
       "description": "Title for the diaper change details dialog",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{diaperType} Diaper - Details",
-          "variations": {}
+          "variations": {},
+          "translation": "{diaperType} Diaper - Details"
         }
-      ],
-      "types": []
+      ]
     },
     "FMugYukb3YkOSqYR1I9pvw==": {
       "description": "Urine",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Urine",
-          "variations": {}
+          "variations": {},
+          "translation": "Urine"
         }
-      ],
-      "types": []
+      ]
     },
     "4pSvVOueN5/F3voXnlcVFg==": {
       "description": "Stool",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Stool",
-          "variations": {}
+          "variations": {},
+          "translation": "Stool"
         }
-      ],
-      "types": []
+      ]
     },
     "IYUmtYxQtGdt1MucjXrsVA==": {
       "description": "Label with meaning 'at least number'",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{number}+",
-          "variations": {}
+          "variations": {},
+          "translation": "{number}+"
         }
-      ],
-      "types": []
+      ]
     },
     "ZIF1WhVQwt7WZJvFTEbMWw==": {
       "description": "Label with meaning 'less than number'",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "<{number}",
-          "variations": {}
+          "variations": {},
+          "translation": "<{number}"
         }
-      ],
-      "types": []
+      ]
     },
     "Oc/9PrbjfyLHS60BXceD1A==": {
       "description": "A list of items of various types, for example: \"San Francisco; London; Tokyo\". {previous items} and {following items} are themselves lists that contain one or more items.",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{previous items}; {following items}",
-          "variations": {}
+          "variations": {},
+          "translation": "{previous items}; {following items}"
         }
-      ],
-      "types": []
+      ]
     },
     "AXXbKEUZuc0ji1IClRrOOw==": {
       "description": "A list of items of various types separated by bullets, for example: \"San Francisco \\u2022 London \\u2022 Tokyo\". {previous items} and {following items} are themselves lists that contain one or more items.",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{previous items} • {following items}",
-          "variations": {}
+          "variations": {},
+          "translation": "{previous items} • {following items}"
         }
-      ],
-      "types": []
+      ]
     },
     "89ACgPMtnwlLDSeqhLBx2Q==": {
       "description": "A list of items of various types separated by commas, for example: \"San Francisco, London, Tokyo\". {previous items} and {following items} are themselves lists that contain one or more items.",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{previous items}, {following items}",
-          "variations": {}
+          "variations": {},
+          "translation": "{previous items}, {following items}"
         }
-      ],
-      "types": []
+      ]
     },
     "5hL7VXOBVnetm46YAjpX0g==": {
       "description": "A list of items of various types with a serial comma, for example: \"item1, item2, and item3\"",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{list of items}, and {last item}",
-          "variations": {}
+          "variations": {},
+          "translation": "{list of items}, and {last item}"
         }
-      ],
-      "types": []
+      ]
     },
     "icNetEL/crQv/PS6yhySVQ==": {
       "description": "A list of items of various types, for example: \"item1, item2, item3 and item4\"",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{list of items} and {last item}",
-          "variations": {}
+          "variations": {},
+          "translation": "{list of items} and {last item}"
         }
-      ],
-      "types": []
+      ]
     },
     "8kLAQ3ffiiFnQ/bWPqXfuQ==": {
       "description": "A list of items of various types with a serial comma, for example: \"item1, item2, or item3\"",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{list of items}, or {last item}",
-          "variations": {}
+          "variations": {},
+          "translation": "{list of items}, or {last item}"
         }
-      ],
-      "types": []
+      ]
     },
     "8eSaAzrWtAqn9ktNKfkaEg==": {
       "description": "A list of items of various types, for example: \"item1, item2, item3 or item4\"",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{list of items} or {last item}",
-          "variations": {}
+          "variations": {},
+          "translation": "{list of items} or {last item}"
         }
-      ],
-      "types": []
+      ]
     },
     "+IBI7kr/mMKdzp+3stDvkw==": {
       "description": "A list of items of various types, for example: \"San Francisco; London; Tokyo\". {previous items} itself contains one or more items.",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{previous items}; {last item}",
-          "variations": {}
+          "variations": {},
+          "translation": "{previous items}; {last item}"
         }
-      ],
-      "types": []
+      ]
     },
     "55IeE8c0qqtjTU0lo7q9AA==": {
       "description": "A list of items of various types separated by bullets, for example: \"San Francisco \\u2022 London \\u2022 Tokyo\". {previous items} contains one or more items.",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{list of items} • {last item}",
-          "variations": {}
+          "variations": {},
+          "translation": "{list of items} • {last item}"
         }
-      ],
-      "types": []
+      ]
     },
     "6PRJS0QalZfvaN8CkKCUCw==": {
       "description": "A list of items of various types, for example: \"item1, item2, item3, item4\"",
-      "status": "new",
+      "types": [],
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "{list of items}, {last item}",
-          "variations": {}
+          "variations": {},
+          "translation": "{list of items}, {last item}"
         }
-      ],
-      "types": []
+      ]
+    },
+    "nAukSQY1IhPOltzZGXHMGg==": {
+      "description": "Link text for Data page in footer",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Import/Export"
+        }
+      ]
     }
   }
 }
