@@ -67,21 +67,17 @@ export const toCsv = (name: string, data: any[]) => {
 	});
 };
 
-const numericColumns = new Set([
-	'durationInSeconds',
+// --- Type-safe CSV Parsing ---
+
+const requiredNumeric = new Set(['durationInSeconds', 'dosageAmount']);
+const optionalNumeric = new Set([
 	'temperature',
 	'weight',
 	'height',
 	'headCircumference',
-	'dosageAmount',
 ]);
-
-const booleanColumns = new Set([
-	'containsUrine',
-	'containsStool',
-	'leakage',
-	'isDiscontinued',
-]);
+const requiredBoolean = new Set(['containsUrine', 'containsStool']);
+const optionalBoolean = new Set(['leakage', 'isDiscontinued']);
 
 export const fromCsv = (csv: string) => {
 	const parsed = Papa.parse(csv, {
@@ -89,17 +85,34 @@ export const fromCsv = (csv: string) => {
 		skipEmptyLines: true,
 		transform: (value, field) => {
 			const fieldName = field as string;
-			if (numericColumns.has(fieldName)) {
-				if (value.trim() === '') return null;
-				const num = parseFloat(value);
-				return isNaN(num) ? null : num;
+			const trimmedValue = value.trim();
+
+			// Handle numeric types
+			if (requiredNumeric.has(fieldName) || optionalNumeric.has(fieldName)) {
+				if (trimmedValue === '') {
+					return requiredNumeric.has(fieldName) ? 0 : undefined;
+				}
+				const num = parseFloat(trimmedValue);
+				if (isNaN(num)) {
+					return requiredNumeric.has(fieldName) ? 0 : undefined;
+				}
+				return num;
 			}
-			if (booleanColumns.has(fieldName)) {
-				const lowerValue = value.toLowerCase();
+
+			// Handle boolean types
+			if (requiredBoolean.has(fieldName) || optionalBoolean.has(fieldName)) {
+				const lowerValue = trimmedValue.toLowerCase();
 				if (lowerValue === 'true') return true;
+
+				if (requiredBoolean.has(fieldName)) {
+					return false; // Default for required booleans
+				}
+
+				// Optional booleans
 				if (lowerValue === 'false') return false;
-				return null;
+				return undefined; // Default for optional booleans if not 'true' or 'false'
 			}
+
 			return value;
 		},
 	});
