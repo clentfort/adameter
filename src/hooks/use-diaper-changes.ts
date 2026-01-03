@@ -1,5 +1,5 @@
-import { diaperChanges } from '@/data/diaper-changes';
+import { DiaperChange } from '@/types/diaper';
 import { useArrayState } from './use-array-state';
 
 export const useDiaperChanges = () =>
-	useArrayState(diaperChanges, 'diaperChanges-backup');
+	useArrayState<DiaperChange>('diaper-changes');

@@ -1,81 +1,55 @@
 'use client';
 
-import { createContext, useEffect, useState } from 'react';
-import { bind } from 'valtio-yjs';
-import { IndexeddbPersistence } from 'y-indexeddb';
-import { Array, Doc, Map } from 'yjs';
-import { SplashScreen } from '@/components/splash-screen';
-import { diaperChanges } from '@/data/diaper-changes';
-import { events } from '@/data/events';
-import { feedingInProgress } from '@/data/feeding-in-progress';
-import { feedingSessions } from '@/data/feeding-sessions';
-import { growthMeasurements } from '@/data/growth-measurments';
-import { medicationRegimensProxy } from '@/data/medication-regimens';
-import { medicationsProxy } from '@/data/medications';
-
-const doc = new Doc();
-export const yjsContext = createContext<{ doc: Doc }>({ doc });
+import PartySocket from 'partysocket';
+import { createStore } from 'tinybase';
+import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
+import {
+	Provider,
+	useCreatePersister,
+	useCreateStore,
+} from 'tinybase/ui-react';
 
 interface YjsProviderProps {
 	children: React.ReactNode;
 }
 
 export function YjsProvider({ children }: YjsProviderProps) {
-	const isSynced = useYjsPersistence(doc);
+	const store = useCreateStore(() => {
+		return createStore().setTables({
+			'diaper-changes': {},
+			'events': {},
+			'feeding-sessions': {},
+			'measurements': {},
+		});
+	});
 
-	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes-dec'));
-	useBindValtioToYjs(events, doc.getArray('events-dec'));
-	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions-dec'));
-	useBindValtioToYjs(
-		growthMeasurements,
-		doc.getArray('growth-measurments-dec'),
-	);
-	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress-dec'));
-	useBindValtioToYjs(
-		medicationRegimensProxy,
-		doc.getArray('medication-regimens-dec'),
-	);
-	useBindValtioToYjs(medicationsProxy, doc.getArray('medications-dec'));
+	const roomId = 'test-party';
 
-	if (!isSynced) {
-		return <SplashScreen />;
-	}
+	const PARTYKIT_HOST = '192.168.178.22:1999';
 
-	return <yjsContext.Provider value={{ doc }}>{children}</yjsContext.Provider>;
-}
-
-function useBindValtioToYjs<T>(state: T[], yArray: Array<T>): void;
-function useBindValtioToYjs<T>(state: Record<string, T>, yMap: Map<T>): void;
-function useBindValtioToYjs<T>(
-	state: Record<string, T> | T[],
-	yMap: Map<T> | Array<T>,
-) {
-	useEffect(() => {
-		const unbind = bind(state, yMap);
-		return () => {
-			unbind();
-		};
-	}, [state, yMap]);
-}
-
-function useYjsPersistence(doc: Doc) {
-	const [isSynced, setIsSynced] = useState(false);
-	useEffect(() => {
-		if (typeof window === 'undefined') {
-			return undefined;
-		}
-		const persistence = new IndexeddbPersistence('adameter', doc);
-		let isMounted = true;
-		persistence.whenSynced.then(() => {
-			if (!isMounted) {
+	useCreatePersister(
+		store,
+		(store) => {
+			if (!roomId) {
 				return;
 			}
-			setIsSynced(true);
-		});
-		return () => {
-			isMounted = false;
-		};
-	}, [doc]);
 
-	return isSynced;
+			return createPartyKitPersister(
+				store,
+				new PartySocket({ host: PARTYKIT_HOST, room: roomId }),
+				location.protocol.slice(0, -1) as 'http' | 'https',
+			);
+		},
+		[roomId],
+		async (persister) => {
+			if (!persister) {
+				return;
+			}
+
+			await persister.startAutoSave();
+			await persister.startAutoLoad();
+		},
+	);
+
+	return <Provider store={store}>{children}</Provider>;
 }

@@ -1,5 +1,5 @@
-import { feedingSessions } from '@/data/feeding-sessions';
+import { FeedingSession } from '@/types/feeding';
 import { useArrayState } from './use-array-state';
 
 export const useFeedingSessions = () =>
-	useArrayState(feedingSessions, 'feedingSessions-backup');
+	useArrayState<FeedingSession>('feeding-sessions');

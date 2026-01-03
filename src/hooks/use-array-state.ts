@@ -1,52 +1,40 @@
 import { useCallback } from 'react';
-import { useSnapshot } from 'valtio/react';
+import { useStore, useTable } from 'tinybase/ui-react';
 
 export interface ObjectWithId {
 	id: string;
 }
 
-export function useArrayState<S extends ObjectWithId>(array: S[]) {
-	const value = useSnapshot(array);
+export function useArrayState<S extends ObjectWithId>(table: string) {
+	const value = useTable(table);
+	const store = useStore();
+
 	return {
 		add: useCallback(
 			(item: S) => {
-				array.push(normalize(item));
+				if (store) {
+					store.setRow(table, item.id, item);
+				}
 			},
-			[array],
+			[store, table],
 		),
 		remove: useCallback(
 			(id: string) => {
-				const index = array.findIndex((item) => item.id === id);
-				if (index === -1) {
-					return;
+				if (store) {
+					store.delRow(table, id);
 				}
-				array.splice(index, 1);
 			},
-			[array],
+			[store, table],
 		),
-		replace: useCallback(
-			(next: S[]) => {
-				array.splice(0, array.length, ...next.map((item) => normalize(item)));
-			},
-			[array],
-		),
+		replace: () => {},
 		update: useCallback(
-			(update: S) => {
-				const index = array.findIndex((item) => item.id === update.id);
-				if (index === -1) {
-					return;
+			(item: S) => {
+				if (store) {
+					store.setRow(table, item.id, item);
 				}
-				array[index] = normalize(update);
 			},
-			[array],
+			[store, table],
 		),
-		value,
+		value: Object.values(value) as unknown as S[],
 	} as const;
-}
-
-function normalize<T extends ObjectWithId>(item: T) {
-	// Using JSON.stringify + parse as a quick way to get rid of any
-	// `undefined` values as this causes a render freeze with valtio/yjs
-	// eslint-disable-next-line unicorn/prefer-structured-clone
-	return JSON.parse(JSON.stringify(item));
 }
