@@ -7,10 +7,6 @@
 	},
 	"packageRules": [
 		{
-			"matchPackageNames": ["valtio"],
-			"enabled": false
-		},
-		{
 			"matchPackageNames": ["fbtee", "@nkzw/babel-preset-fbtee", "@nkzw/eslint-plugin-fbtee"],
 			"groupName": "fbtee-monorepo"
 		},
