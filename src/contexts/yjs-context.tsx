@@ -34,11 +34,15 @@ export function YjsProvider({ children }: YjsProviderProps) {
 				return;
 			}
 
-			return createPartyKitPersister(
+			const s = new PartySocket({ host: PARTYKIT_HOST, room: roomId });
+
+			const p = createPartyKitPersister(
 				store,
-				new PartySocket({ host: PARTYKIT_HOST, room: roomId }),
+				s,
 				location.protocol.slice(0, -1) as 'http' | 'https',
 			);
+
+			return p;
 		},
 		[roomId],
 		async (persister) => {

@@ -8,10 +8,10 @@ export default class PartyKitServer extends TinyBasePartyKitServer {
 		return super.onMessage(...params);
 	}
 
-	async onRequest(
-		...params: Parameters<TinyBasePartyKitServer['onRequest']>
-	): Promise<ReturnType<TinyBasePartyKitServer['onRequest']>> {
-		console.log('onRequest', params[0]);
-		return super.onRequest(...params);
-	}
+	// async onRequest(
+	// 	...params: Parameters<TinyBasePartyKitServer['onRequest']>
+	// ): Promise<ReturnType<TinyBasePartyKitServer['onRequest']>> {
+	// 	console.log('onRequest', params[0]);
+	// 	return super.onRequest(...params);
+	// }
 }
