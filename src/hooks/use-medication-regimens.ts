@@ -58,10 +58,7 @@ const defaultMedicationRegimens: MedicationRegimen[] = [
 ];
 
 export const useMedicationRegimens = () => {
-	const state = useArrayState<MedicationRegimen>(
-		medicationRegimensProxy,
-		'medicationRegimens-backup',
-	);
+	const state = useArrayState<MedicationRegimen>(medicationRegimensProxy);
 
 	useEffect(() => {
 		if (state.value && state.value.length === 0 && defaultMedicationRegimens.length > 0) {

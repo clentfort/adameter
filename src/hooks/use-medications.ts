@@ -82,10 +82,7 @@ const defaultMedications: MedicationAdministration[] = [
 ];
 
 export const useMedications = () => {
-	const state = useArrayState<MedicationAdministration>(
-		medicationsProxy,
-		'medications-backup',
-	);
+	const state = useArrayState<MedicationAdministration>(medicationsProxy);
 
 	useEffect(() => {
 		if (
