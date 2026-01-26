@@ -33,13 +33,11 @@ function CommandDialog({
 	description = 'Search for a command to run...',
 	children,
 	className,
-	showCloseButton = true,
 	...props
 }: React.ComponentProps<typeof Dialog> & {
 	title?: string;
 	description?: string;
 	className?: string;
-	// showCloseButton?: boolean; // Removed as it's not a standard prop and caused a type error
 }) {
 	return (
 		<Dialog {...props}>

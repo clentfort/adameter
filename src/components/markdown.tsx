@@ -11,10 +11,8 @@ export default function Markdown({
 	className,
 }: MarkdownProps) {
 	return (
-		<ReactMarkdown
-			className={cn('prose dark:prose-invert', className)}
-		>
-			{children}
-		</ReactMarkdown>
+		<div className={cn('prose dark:prose-invert', className)}>
+			<ReactMarkdown>{children}</ReactMarkdown>
+		</div>
 	);
 }
