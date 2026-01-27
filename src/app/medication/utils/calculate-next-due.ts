@@ -8,7 +8,7 @@ export const calculateNextDue = (regimen: MedicationRegimen): string => {
 		const todayDateStr = now.toISOString().split('T')[0];
 		let nextDueTimeStr = '';
 
-		for (const time of regimen.schedule.times.sort()) {
+		for (const time of [...regimen.schedule.times].sort()) {
 			const [hours, minutes] = time.split(':').map(Number);
 			const potentialNextDue = new Date(todayDateStr);
 			potentialNextDue.setHours(hours, minutes, 0, 0);
@@ -22,7 +22,7 @@ export const calculateNextDue = (regimen: MedicationRegimen): string => {
 			const tomorrow = new Date(now);
 			tomorrow.setDate(now.getDate() + 1);
 			const tomorrowDateStr = tomorrow.toISOString().split('T')[0];
-			const firstTimeTomorrow = regimen.schedule.times.sort()[0];
+			const firstTimeTomorrow = [...regimen.schedule.times].sort()[0];
 			const [hours, minutes] = firstTimeTomorrow.split(':').map(Number);
 			const nextDueTomorrow = new Date(tomorrowDateStr);
 			nextDueTomorrow.setHours(hours, minutes, 0, 0);
