@@ -2,11 +2,11 @@ import { z } from 'zod';
 
 export const medicationAdministrationSchema = z.object({
 	administrationStatus: z.enum(['On Time', 'Missed', 'Adjusted'], {
-		required_error: 'Administration status is required.',
+		message: 'Administration status is required.',
 	}),
 	details: z.string().optional(),
 	dosageAmount: z
-		.number({ invalid_type_error: 'Dosage amount must be a number.' })
+		.number({ message: 'Dosage amount must be a number.' })
 		.positive({ message: 'Dosage amount must be positive.' }),
 	dosageUnit: z.string().min(1, { message: 'Dosage unit is required.' }),
 	medicationName: z

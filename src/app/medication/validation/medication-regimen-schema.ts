@@ -8,9 +8,12 @@ const timeStringSchema = z
 export const medicationRegimenSchema = z
 	.object({
 		asNeededDetails: z.string().optional(),
-		dailyTimes: z.array(z.object({ time: timeStringSchema })).optional(),
+		dailyTimes: z
+			.array(z.object({ time: timeStringSchema }))
+			.readonly()
+			.optional(),
 		dosageAmount: z
-			.number({ invalid_type_error: 'Dosage amount must be a number' })
+			.number({ message: 'Dosage amount must be a number' })
 			.positive({ message: 'Dosage amount must be positive' }),
 		dosageUnit: z.string().min(1, { message: 'Dosage unit is required' }),
 		endDate: z.string().optional(),
@@ -36,8 +39,12 @@ export const medicationRegimenSchema = z
 					'Sunday',
 				]),
 			)
+			.readonly()
 			.optional(),
-		weeklyTimes: z.array(z.object({ time: timeStringSchema })).optional(),
+		weeklyTimes: z
+			.array(z.object({ time: timeStringSchema }))
+			.readonly()
+			.optional(),
 	})
 	.superRefine((data, ctx) => {
 		// Conditional validation based on scheduleType

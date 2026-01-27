@@ -3,7 +3,7 @@ import { IntlVariations, setupFbtee } from 'fbtee';
 import german from '../translations/de_DE.json';
 
 export const DEFAULT_LOCALE = 'en_US';
-export type Locale = typeof DEFAULT_LOCALE | keyof typeof german;
+export type Locale = typeof DEFAULT_LOCALE | (keyof typeof german & string);
 const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
 function isSupportedLocale(locale: string): locale is Locale {
