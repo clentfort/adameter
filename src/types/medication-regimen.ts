@@ -69,7 +69,7 @@ export interface MedicationRegimen {
  */
 export type MedicationSchedule =
 	| {
-			times: string[]; // Array of ISO time strings (e.g., "10:00", "18:30")
+			times: readonly string[]; // Array of ISO time strings (e.g., "10:00", "18:30")
 			type: 'daily'; // e.g., every day at a specific time
 	  }
 	| {
@@ -79,7 +79,7 @@ export type MedicationSchedule =
 			type: 'interval'; // e.g., every X hours/days
 	  }
 	| {
-			daysOfWeek: (
+			daysOfWeek: readonly (
 				| 'Monday'
 				| 'Tuesday'
 				| 'Wednesday'
@@ -88,7 +88,7 @@ export type MedicationSchedule =
 				| 'Saturday'
 				| 'Sunday'
 			)[];
-			times: string[]; // Array of ISO time strings
+			times: readonly string[]; // Array of ISO time strings
 			type: 'weekly'; // e.g., specific days of the week at specific times
 	  }
 	| {
