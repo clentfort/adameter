@@ -1,14 +1,25 @@
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import React, { useContext, useEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as Yjs from 'yjs';
 import { Array as YArray, Doc as YDoc, Map as YMap } from 'yjs';
 import {
+	IndexeddbPersistence as MockPersistence,
 	resetIndexeddbMock,
+	storeState,
 	triggerWhenSynced,
 } from '../__mocks__/y-indexeddb';
 import { yjsContext, YjsProvider } from './yjs-context';
 
 vi.mock('y-indexeddb');
+
+vi.mock('yjs', async (importOriginal) => {
+	const actual = (await importOriginal()) as typeof import('yjs');
+	return {
+		...actual,
+		encodeStateAsUpdate: vi.fn(actual.encodeStateAsUpdate),
+	};
+});
 
 vi.mock('valtio-yjs', () => ({
 	bind: vi.fn(() => vi.fn()),
@@ -22,6 +33,9 @@ describe('YjsProvider', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		resetIndexeddbMock();
+		localStorage.clear();
+		(MockPersistence.prototype as any)._dbsize = 0;
+		vi.mocked(Yjs.encodeStateAsUpdate).mockReturnValue(new Uint8Array(10));
 
 		const ValtioYjsMocked = await import('valtio-yjs');
 		(ValtioYjsMocked.bind as ReturnType<typeof vi.fn>).mockImplementation(() =>
@@ -83,6 +97,101 @@ describe('YjsProvider', () => {
 		expect(receivedDoc).not.toBeNull();
 		expect(receivedDoc).toBeInstanceOf(YDoc);
 		expect(receivedDoc!.guid).toBeTruthy();
+	});
+
+	it('should call storeState when _dbsize > 20', async () => {
+		// Set _dbsize on the prototype so all instances have it
+		(MockPersistence.prototype as any)._dbsize = 21;
+
+		render(
+			<YjsProvider>
+				<div />
+			</YjsProvider>,
+		);
+
+		await act(async () => {
+			triggerWhenSynced();
+		});
+
+		await waitFor(() => {
+			expect(storeState).toHaveBeenCalledWith(expect.any(MockPersistence), true);
+		});
+	});
+
+	it('should initiate migration when document size exceeds threshold', async () => {
+		vi.useFakeTimers();
+		const mockedEncode = vi.mocked(Yjs.encodeStateAsUpdate);
+
+		let currentEpoch = 0;
+		const EpochConsumer = () => {
+			const { epoch } = useContext(yjsContext);
+			currentEpoch = epoch;
+			return null;
+		};
+
+		render(
+			<YjsProvider>
+				<EpochConsumer />
+			</YjsProvider>,
+		);
+
+		await act(async () => {
+			triggerWhenSynced();
+		});
+
+		expect(currentEpoch).toBe(1);
+
+		// Now make it return a large buffer
+		mockedEncode.mockReturnValueOnce(new Uint8Array(600 * 1024));
+
+		await act(async () => {
+			vi.advanceTimersByTime(60000);
+		});
+
+		expect(currentEpoch).toBe(2);
+		expect(localStorage.getItem('adameter-epoch')).toBe('2');
+
+		vi.useRealTimers();
+	});
+
+	it('should follow migration signal from other clients', async () => {
+		let capturedDoc: YDoc | null = null;
+		let currentEpoch = 0;
+
+		const Consumer = () => {
+			const { doc, epoch } = useContext(yjsContext);
+			useEffect(() => {
+				capturedDoc = doc;
+				currentEpoch = epoch;
+			}, [doc, epoch]);
+			return <div data-testid="epoch-display">{epoch}</div>;
+		};
+
+		render(
+			<YjsProvider>
+				<Consumer />
+			</YjsProvider>,
+		);
+
+		await act(async () => {
+			triggerWhenSynced();
+		});
+
+		expect(screen.getByTestId('epoch-display')).toHaveTextContent('1');
+		expect(currentEpoch).toBe(1);
+
+		await act(async () => {
+			capturedDoc!.getMap('meta').set('migratedTo', 2);
+		});
+
+		await waitFor(
+			() => {
+				expect(screen.getByTestId('epoch-display')).toHaveTextContent('2');
+				expect(currentEpoch).toBe(2);
+			},
+			{ timeout: 2000 },
+		);
+		expect(localStorage.getItem('adameter-epoch')).toBe('2');
 	});
 
 	it('should call bind for all data stores', async () => {
