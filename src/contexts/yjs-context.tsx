@@ -13,9 +13,14 @@ import { growthMeasurements } from '@/data/growth-measurments';
 import { medicationRegimensProxy } from '@/data/medication-regimens';
 import { medicationsProxy } from '@/data/medications';
 
-export const yjsContext = createContext<{ doc: Doc; epoch: number }>({
+export const yjsContext = createContext<{
+	doc: Doc;
+	epoch: number;
+	forceNewEpoch: () => void;
+}>({
 	doc: new Doc(),
 	epoch: 1,
+	forceNewEpoch: () => {},
 });
 
 interface YjsProviderProps {
@@ -63,6 +68,12 @@ export function YjsProvider({ children }: YjsProviderProps) {
 		}
 	}, [doc, epoch, handleMigration]);
 
+	const forceNewEpoch = useCallback(() => {
+		const newEpoch = epoch + 1;
+		doc.getMap('meta').set('migratedTo', newEpoch);
+		handleMigration(newEpoch);
+	}, [doc, epoch, handleMigration]);
+
 	const isSynced = useYjsPersistence(doc, epoch, onSynced);
 
 	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes-dec'));
@@ -84,7 +95,9 @@ export function YjsProvider({ children }: YjsProviderProps) {
 	}
 
 	return (
-		<yjsContext.Provider value={{ doc, epoch }}>{children}</yjsContext.Provider>
+		<yjsContext.Provider value={{ doc, epoch, forceNewEpoch }}>
+			{children}
+		</yjsContext.Provider>
 	);
 }
 

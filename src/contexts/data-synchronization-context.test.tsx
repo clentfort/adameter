@@ -27,7 +27,7 @@ describe('DataSynchronizationProvider', () => {
 		localStorage.setItem('room', 'my-room');
 
 		const { rerender } = render(
-			<yjsContext.Provider value={{ doc, epoch: 1 }}>
+			<yjsContext.Provider value={{ doc, epoch: 1, forceNewEpoch: vi.fn() }}>
 				<DataSynchronizationProvider>
 					<div />
 				</DataSynchronizationProvider>
@@ -42,7 +42,7 @@ describe('DataSynchronizationProvider', () => {
 		);
 
 		rerender(
-			<yjsContext.Provider value={{ doc, epoch: 2 }}>
+			<yjsContext.Provider value={{ doc, epoch: 2, forceNewEpoch: vi.fn() }}>
 				<DataSynchronizationProvider>
 					<div />
 				</DataSynchronizationProvider>
