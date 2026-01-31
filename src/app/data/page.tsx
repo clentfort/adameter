@@ -62,7 +62,12 @@ export default function DataPage() {
 			const files = await extractFiles(file);
 			for (const { name, content } of files) {
 				const data = fromCsv(content);
-				mergeData(dataStores[name], data);
+				const store = dataStores[name];
+				if (store) {
+					mergeData(store, data);
+				} else {
+					console.warn(`Unknown data store: ${name}`);
+				}
 			}
 			toast.success('Data imported successfully.');
 		} catch (error) {

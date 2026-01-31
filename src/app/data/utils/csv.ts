@@ -60,7 +60,11 @@ export const toCsv = (name: string, data: any[]) => {
 		fields: columns[name],
 		data: data.map((row) =>
 			columns[name].reduce((acc, key) => {
-				(acc as any)[key] = (row as any)[key];
+				const value = (row as any)[key];
+				(acc as any)[key] =
+					typeof value === 'object' && value !== null
+						? JSON.stringify(value)
+						: value;
 				return acc;
 			}, {}),
 		),
@@ -78,6 +82,7 @@ const optionalNumeric = new Set([
 ]);
 const requiredBoolean = new Set(['containsUrine', 'containsStool']);
 const optionalBoolean = new Set(['leakage', 'isDiscontinued']);
+const jsonFields = new Set(['schedule']);
 
 export const fromCsv = (csv: string) => {
 	const parsed = Papa.parse(csv, {
@@ -86,6 +91,15 @@ export const fromCsv = (csv: string) => {
 		transform: (value, field) => {
 			const fieldName = field as string;
 			const trimmedValue = value.trim();
+
+			// Handle JSON types
+			if (jsonFields.has(fieldName)) {
+				try {
+					return JSON.parse(trimmedValue);
+				} catch (e) {
+					return trimmedValue;
+				}
+			}
 
 			// Handle numeric types
 			if (requiredNumeric.has(fieldName) || optionalNumeric.has(fieldName)) {
