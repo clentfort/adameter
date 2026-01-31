@@ -1,7 +1,7 @@
 import { act, cleanup, render, screen } from '@testing-library/react';
 import React, { useContext, useEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Array as YArray, Doc as YDoc, Map as YMap } from 'yjs';
+import * as Yjs from 'yjs';
 import {
 	resetIndexeddbMock,
 	triggerWhenSynced,
@@ -9,6 +9,14 @@ import {
 import { yjsContext, YjsProvider } from './yjs-context';
 
 vi.mock('y-indexeddb');
+
+vi.mock('yjs', async () => {
+	const actual = await vi.importActual<typeof import('yjs')>('yjs');
+	return {
+		...actual,
+		encodeStateAsUpdate: vi.fn(actual.encodeStateAsUpdate),
+	};
+});
 
 vi.mock('valtio-yjs', () => ({
 	bind: vi.fn(() => vi.fn()),
@@ -22,6 +30,7 @@ describe('YjsProvider', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		resetIndexeddbMock();
+		localStorage.clear();
 
 		const ValtioYjsMocked = await import('valtio-yjs');
 		(ValtioYjsMocked.bind as ReturnType<typeof vi.fn>).mockImplementation(() =>
@@ -55,7 +64,7 @@ describe('YjsProvider', () => {
 	});
 
 	it('should provide a Yjs.Doc instance through context', async () => {
-		let receivedDoc: YDoc | null = null;
+		let receivedDoc: Yjs.Doc | null = null;
 
 		const DocCapturingConsumer = () => {
 			const { doc } = useContext(yjsContext);
@@ -81,8 +90,86 @@ describe('YjsProvider', () => {
 
 		expect(screen.getByTestId('doc-captured')).toBeInTheDocument();
 		expect(receivedDoc).not.toBeNull();
-		expect(receivedDoc).toBeInstanceOf(YDoc);
+		expect(receivedDoc).toBeInstanceOf(Yjs.Doc);
 		expect(receivedDoc!.guid).toBeTruthy();
+	});
+
+	it('should initialize with epoch from localStorage', async () => {
+		localStorage.setItem('adameter-epoch', '3');
+
+		let receivedEpoch: number | null = null;
+		const EpochCapturingConsumer = () => {
+			const { epoch } = useContext(yjsContext);
+			useEffect(() => {
+				receivedEpoch = epoch;
+			}, [epoch]);
+			return null;
+		};
+
+		render(
+			<YjsProvider>
+				<EpochCapturingConsumer />
+			</YjsProvider>,
+		);
+
+		await act(async () => {
+			triggerWhenSynced();
+		});
+
+		expect(receivedEpoch).toBe(3);
+	});
+
+	it('should trigger compaction when size threshold is exceeded', async () => {
+		const { encodeStateAsUpdate } = await import('yjs');
+		(encodeStateAsUpdate as ReturnType<typeof vi.fn>).mockReturnValueOnce(
+			new Uint8Array(600 * 1024),
+		);
+
+		render(
+			<YjsProvider>
+				<div />
+			</YjsProvider>,
+		);
+
+		await act(async () => {
+			triggerWhenSynced();
+		});
+
+		expect(localStorage.getItem('adameter-epoch')).toBe('2');
+		(encodeStateAsUpdate as ReturnType<typeof vi.fn>).mockRestore();
+	});
+
+	it('should migrate when meta map is updated by another client', async () => {
+		let currentDoc: Yjs.Doc | null = null;
+		let currentEpoch: number | null = null;
+
+		const Consumer = () => {
+			const { doc, epoch } = useContext(yjsContext);
+			currentDoc = doc;
+			currentEpoch = epoch;
+			return null;
+		};
+
+		render(
+			<YjsProvider>
+				<Consumer />
+			</YjsProvider>,
+		);
+
+		await act(async () => {
+			triggerWhenSynced();
+		});
+
+		const firstDoc = currentDoc!;
+		expect(currentEpoch).toBe(1);
+
+		await act(async () => {
+			firstDoc.getMap('meta').set('migratedTo', 3);
+		});
+
+		expect(currentEpoch).toBe(3);
+		expect(currentDoc).not.toBe(firstDoc);
+		expect(localStorage.getItem('adameter-epoch')).toBe('3');
 	});
 
 	it('should call bind for all data stores', async () => {
@@ -108,31 +195,31 @@ describe('YjsProvider', () => {
 
 		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(
 			diaperChangesData.diaperChanges,
-			expect.any(YArray),
+			expect.any(Yjs.Array),
 		);
 		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(
 			eventsData.events,
-			expect.any(YArray),
+			expect.any(Yjs.Array),
 		);
 		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(
 			feedingSessionsData.feedingSessions,
-			expect.any(YArray),
+			expect.any(Yjs.Array),
 		);
 		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(
 			growthMeasurementsData.growthMeasurements,
-			expect.any(YArray),
+			expect.any(Yjs.Array),
 		);
 		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(
 			feedingInProgressData.feedingInProgress,
-			expect.any(YMap),
+			expect.any(Yjs.Map),
 		);
 		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(
 			medicationRegimensData.medicationRegimensProxy,
-			expect.any(YArray),
+			expect.any(Yjs.Array),
 		);
 		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(
 			medicationsData.medicationsProxy,
-			expect.any(YArray),
+			expect.any(Yjs.Array),
 		);
 		expect(ValtioYjsMocked.bind).toHaveBeenCalledTimes(7);
 	});

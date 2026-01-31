@@ -1,9 +1,9 @@
 'use client';
 
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useEffect, useState } from 'react';
 import { bind } from 'valtio-yjs';
 import { IndexeddbPersistence, storeState } from 'y-indexeddb';
-import { Array, Doc, Map } from 'yjs';
+import { Array, Doc, encodeStateAsUpdate, Map } from 'yjs';
 import { SplashScreen } from '@/components/splash-screen';
 import { diaperChanges } from '@/data/diaper-changes';
 import { events } from '@/data/events';
@@ -13,15 +13,57 @@ import { growthMeasurements } from '@/data/growth-measurments';
 import { medicationRegimensProxy } from '@/data/medication-regimens';
 import { medicationsProxy } from '@/data/medications';
 
-const doc = new Doc();
-export const yjsContext = createContext<{ doc: Doc }>({ doc });
+export const yjsContext = createContext<{ doc: Doc; epoch: number }>({
+	doc: new Doc(),
+	epoch: 1,
+});
 
 interface YjsProviderProps {
 	children: React.ReactNode;
 }
 
+const EPOCH_KEY = 'adameter-epoch';
+const COMPACTION_THRESHOLD = 500 * 1024; // 500KB
+
 export function YjsProvider({ children }: YjsProviderProps) {
-	const isSynced = useYjsPersistence(doc);
+	const [epoch, setEpoch] = useState(() => {
+		if (typeof window === 'undefined') {
+			return 1;
+		}
+		return Number(localStorage.getItem(EPOCH_KEY) || '1');
+	});
+	const [doc, setDoc] = useState(() => new Doc());
+
+	const handleMigration = useCallback((newEpoch: number) => {
+		localStorage.setItem(EPOCH_KEY, newEpoch.toString());
+		setEpoch(newEpoch);
+		setDoc(new Doc());
+	}, []);
+
+	useEffect(() => {
+		const meta = doc.getMap('meta');
+		const observer = () => {
+			const migratedTo = meta.get('migratedTo') as number | undefined;
+			if (migratedTo && migratedTo > epoch) {
+				handleMigration(migratedTo);
+			}
+		};
+		meta.observe(observer);
+		return () => {
+			meta.unobserve(observer);
+		};
+	}, [doc, epoch, handleMigration]);
+
+	const onSynced = useCallback(() => {
+		const size = encodeStateAsUpdate(doc).length;
+		if (size > COMPACTION_THRESHOLD) {
+			const newEpoch = epoch + 1;
+			doc.getMap('meta').set('migratedTo', newEpoch);
+			handleMigration(newEpoch);
+		}
+	}, [doc, epoch, handleMigration]);
+
+	const isSynced = useYjsPersistence(doc, epoch, onSynced);
 
 	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes-dec'));
 	useBindValtioToYjs(events, doc.getArray('events-dec'));
@@ -41,7 +83,9 @@ export function YjsProvider({ children }: YjsProviderProps) {
 		return <SplashScreen />;
 	}
 
-	return <yjsContext.Provider value={{ doc }}>{children}</yjsContext.Provider>;
+	return (
+		<yjsContext.Provider value={{ doc, epoch }}>{children}</yjsContext.Provider>
+	);
 }
 
 function useBindValtioToYjs<T>(state: T[], yArray: Array<T>): void;
@@ -58,13 +102,14 @@ function useBindValtioToYjs<T>(
 	}, [state, yMap]);
 }
 
-function useYjsPersistence(doc: Doc) {
+function useYjsPersistence(doc: Doc, epoch: number, onSynced?: () => void) {
 	const [isSynced, setIsSynced] = useState(false);
 	useEffect(() => {
 		if (typeof window === 'undefined') {
 			return undefined;
 		}
-		const persistence = new IndexeddbPersistence('adameter', doc);
+		const dbName = epoch === 1 ? 'adameter' : `adameter-v${epoch}`;
+		const persistence = new IndexeddbPersistence(dbName, doc);
 		let isMounted = true;
 		persistence.whenSynced.then(async () => {
 			if (!isMounted) {
@@ -79,11 +124,13 @@ function useYjsPersistence(doc: Doc) {
 			}
 
 			setIsSynced(true);
+			onSynced?.();
 		});
 		return () => {
 			isMounted = false;
+			persistence.destroy();
 		};
-	}, [doc]);
+	}, [doc, epoch, onSynced]);
 
 	return isSynced;
 }

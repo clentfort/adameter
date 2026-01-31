@@ -24,14 +24,14 @@ export function DataSynchronizationProvider({
 	children,
 }: DataSynchronizationProviderProps) {
 	const [room, setRoom] = useState<string | undefined>(undefined);
-	const { doc } = useContext(yjsContext);
+	const { doc, epoch } = useContext(yjsContext);
 	useEffect(() => {
 		const room = localStorage.getItem('room');
 		if (room) {
 			setRoom(room);
 		}
 	}, []);
-	useYPartykitSync(room, doc);
+	useYPartykitSync(room, doc, epoch);
 	useEffect(() => {
 		if (!room) {
 			return;
@@ -49,15 +49,16 @@ export function DataSynchronizationProvider({
 /**
  * Sets up synchronization of Yjs document via PartyKit
  */
-function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
+function useYPartykitSync(room: string | undefined, doc: YjsDoc, epoch: number) {
 	useEffect(() => {
 		if (!room) {
 			return;
 		}
 
+		const roomName = epoch === 1 ? room : `${room}-v${epoch}`;
 		const provider = new YPartyKitProvider(
 			'https://adameter-party.clentfort.partykit.dev',
-			room,
+			roomName,
 			doc,
 			{ connect: true },
 		);
@@ -65,5 +66,5 @@ function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
 		return () => {
 			provider.destroy();
 		};
-	}, [room, doc]);
+	}, [room, doc, epoch]);
 }
