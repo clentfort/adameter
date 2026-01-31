@@ -25,4 +25,8 @@ export class IndexeddbPersistence {
 	constructor(dbName: string, doc: unknown) {
 		this.whenSynced = currentWhenSyncedPromise;
 	}
+
+	public destroy() {
+		return Promise.resolve();
+	}
 }
