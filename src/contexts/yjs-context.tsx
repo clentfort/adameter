@@ -2,7 +2,7 @@
 
 import { createContext, useEffect, useState } from 'react';
 import { bind } from 'valtio-yjs';
-import { IndexeddbPersistence } from 'y-indexeddb';
+import { IndexeddbPersistence, storeState } from 'y-indexeddb';
 import { Array, Doc, Map } from 'yjs';
 import { SplashScreen } from '@/components/splash-screen';
 import { diaperChanges } from '@/data/diaper-changes';
@@ -66,10 +66,18 @@ function useYjsPersistence(doc: Doc) {
 		}
 		const persistence = new IndexeddbPersistence('adameter', doc);
 		let isMounted = true;
-		persistence.whenSynced.then(() => {
+		persistence.whenSynced.then(async () => {
 			if (!isMounted) {
 				return;
 			}
+
+			// Consolidate updates if there are many of them to improve loading times.
+			// The default threshold is 500, but we use a more aggressive threshold
+			// of 20 to keep the number of IndexedDB records low.
+			if (persistence._dbsize > 20) {
+				await storeState(persistence, true);
+			}
+
 			setIsSynced(true);
 		});
 		return () => {
