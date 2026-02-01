@@ -26,14 +26,21 @@ export function DataSynchronizationProvider({
 	const [room, setRoom] = useState<string | undefined>(undefined);
 	const { doc } = useContext(yjsContext);
 	useEffect(() => {
-		const room = localStorage.getItem('room');
-		if (room) {
-			setRoom(room);
+		const urlParams = new URLSearchParams(window.location.search);
+		const roomParam = urlParams.get('room');
+		if (roomParam) {
+			setRoom(roomParam);
+		} else {
+			const room = localStorage.getItem('room');
+			if (room) {
+				setRoom(room);
+			}
 		}
 	}, []);
 	useYPartykitSync(room, doc);
 	useEffect(() => {
 		if (!room) {
+			localStorage.removeItem('room');
 			return;
 		}
 		localStorage.setItem('room', room);
