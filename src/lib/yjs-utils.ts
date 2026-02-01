@@ -10,22 +10,6 @@ export const SHARED_TYPES = [
 	{ name: 'medications-dec', type: 'array' },
 ] as const;
 
-export function clearDoc(doc: Doc) {
-	doc.transact(() => {
-		for (const { name, type } of SHARED_TYPES) {
-			if (type === 'array') {
-				const arr = doc.getArray(name);
-				if (arr.length > 0) {
-					arr.delete(0, arr.length);
-				}
-			} else if (type === 'map') {
-				const map = doc.getMap(name);
-				map.clear();
-			}
-		}
-	});
-}
-
 export function hasData(doc: Doc) {
 	for (const { name, type } of SHARED_TYPES) {
 		if (type === 'array') {

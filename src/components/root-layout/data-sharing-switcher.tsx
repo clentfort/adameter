@@ -6,7 +6,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useContext, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
-import { clearDoc, hasData } from '@/lib/yjs-utils';
+import { hasData } from '@/lib/yjs-utils';
 import { generateRoomName } from '@/utils/room-names';
 import { yjsContext } from '@/contexts/yjs-context';
 import {
@@ -66,10 +66,15 @@ export default function DataSharingSwitcher() {
 
 	const confirmJoin = () => {
 		if (pendingRoomId) {
-			clearDoc(doc);
-			setRoom(pendingRoomId);
-			setPendingRoomId(null);
-			setIsDialogOpen(false);
+			const dbName = 'adameter';
+			if (typeof window !== 'undefined') {
+				const request = indexedDB.deleteDatabase(dbName);
+				const redirectToRoom = () => {
+					window.location.href = `${window.location.origin}${window.location.pathname}?room=${pendingRoomId}`;
+				};
+				request.onsuccess = redirectToRoom;
+				request.onerror = redirectToRoom;
+			}
 		}
 		setIsWarningOpen(false);
 	};
