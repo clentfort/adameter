@@ -22,6 +22,10 @@ vi.mock('valtio-yjs', () => ({
 	bind: vi.fn(() => vi.fn()),
 }));
 
+vi.mock('@/lib/client-id', () => ({
+	getOrCreateClientId: vi.fn(() => 'test-client-id'),
+}));
+
 describe('YjsProvider', () => {
 	afterEach(() => {
 		cleanup();
@@ -164,12 +168,44 @@ describe('YjsProvider', () => {
 		expect(currentEpoch).toBe(1);
 
 		await act(async () => {
-			firstDoc.getMap('meta').set('migratedTo', 3);
+			firstDoc
+				.getMap('meta')
+				.set('migratedTo', { epoch: 3, seederId: 'other-client' });
 		});
 
 		expect(currentEpoch).toBe(3);
 		expect(currentDoc).not.toBe(firstDoc);
 		expect(localStorage.getItem('adameter-epoch')).toBe('3');
+	});
+
+	it('should clear local state when migrating as a follower', async () => {
+		const diaperChangesData = await import('@/data/diaper-changes');
+		diaperChangesData.diaperChanges.push({ id: '1' } as any);
+
+		let currentDoc: Yjs.Doc | null = null;
+		const Consumer = () => {
+			const { doc } = useContext(yjsContext);
+			currentDoc = doc;
+			return null;
+		};
+
+		render(
+			<YjsProvider>
+				<Consumer />
+			</YjsProvider>,
+		);
+
+		await act(async () => {
+			triggerWhenSynced();
+		});
+
+		await act(async () => {
+			currentDoc!
+				.getMap('meta')
+				.set('migratedTo', { epoch: 2, seederId: 'other-client' });
+		});
+
+		expect(diaperChangesData.diaperChanges.length).toBe(0);
 	});
 
 	it('should call bind for all data stores', async () => {
