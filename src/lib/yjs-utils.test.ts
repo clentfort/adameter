@@ -19,13 +19,13 @@ describe('yjs-utils', () => {
 	});
 
 	it('should return true for hasData when a map is not empty', () => {
-		doc.getMap('feeding-in-progress-dec').set('key', 'value');
+		doc.getMap('feeding-in-progress-dec').set('current', { type: 'left' });
 		expect(hasData(doc)).toBe(true);
 	});
 
 	it('should clear all shared types with clearDoc', () => {
 		doc.getArray('diaper-changes-dec').push(['data']);
-		doc.getMap('feeding-in-progress-dec').set('key', 'value');
+		doc.getMap('feeding-in-progress-dec').set('current', { type: 'left' });
 		expect(hasData(doc)).toBe(true);
 
 		clearDoc(doc);
