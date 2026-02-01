@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { yjsContext } from '@/contexts/yjs-context';
+import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { toCsv, fromCsv, mergeData } from './utils/csv';
 import { createZip, downloadZip, extractFiles } from './utils/zip';
 import { diaperChanges } from '@/data/diaper-changes';
@@ -27,6 +29,9 @@ const dataStores: { [key: string]: any[] } = {
 export default function DataPage() {
 	const { toast } = useToast();
 	const [isLoading, setIsLoading] = useState(false);
+	const { forceNewEpoch, epoch } = useContext(yjsContext);
+	const { room, setRoom } = useContext(DataSynchronizationContext);
+	const [newRoom, setNewRoom] = useState(room || '');
 
 	const handleExport = async () => {
 		setIsLoading(true);
@@ -103,6 +108,42 @@ export default function DataPage() {
 						disabled={isLoading}
 						accept=".zip"
 					/>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>Debug Settings</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<div className="space-y-2">
+						<p className="text-sm font-medium">Room Name</p>
+						<div className="flex gap-2">
+							<Input
+								value={newRoom}
+								onChange={(e) => setNewRoom(e.target.value)}
+								placeholder="Enter room name"
+							/>
+							<Button onClick={() => setRoom(newRoom)}>Update Room</Button>
+						</div>
+						<p className="text-xs text-muted-foreground">
+							Current Room: {room || 'None'}
+						</p>
+					</div>
+
+					<div className="space-y-2 pt-4 border-t">
+						<p className="text-sm font-medium">Document Epoch</p>
+						<div className="flex items-center justify-between">
+							<p className="text-sm">Current Epoch: {epoch}</p>
+							<Button variant="destructive" onClick={forceNewEpoch}>
+								Force New Epoch
+							</Button>
+						</div>
+						<p className="text-xs text-muted-foreground">
+							Forcing a new epoch will clear the document history and move all
+							connected clients to a new room and database.
+						</p>
+					</div>
 				</CardContent>
 			</Card>
 		</div>
