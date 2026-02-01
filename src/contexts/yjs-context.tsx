@@ -3,8 +3,7 @@
 import { createContext, useCallback, useEffect, useState } from 'react';
 import { bind } from 'valtio-yjs';
 import { IndexeddbPersistence, storeState } from 'y-indexeddb';
-import { Array, Doc, encodeStateAsUpdate, Map } from 'yjs';
-import { mergeData } from '@/app/data/utils/csv';
+import * as Yjs from 'yjs';
 import { SplashScreen } from '@/components/splash-screen';
 import { diaperChanges } from '@/data/diaper-changes';
 import { events } from '@/data/events';
@@ -16,13 +15,17 @@ import { medicationsProxy } from '@/data/medications';
 import { getOrCreateClientId } from '@/lib/client-id';
 
 export const yjsContext = createContext<{
-	doc: Doc;
+	doc: Yjs.Doc;
 	epoch: number;
 	forceNewEpoch: () => void;
+	isNetworkSynced: boolean;
+	setNetworkSynced: (synced: boolean) => void;
 }>({
-	doc: new Doc(),
+	doc: new Yjs.Doc(),
 	epoch: 1,
 	forceNewEpoch: () => {},
+	isNetworkSynced: false,
+	setNetworkSynced: () => {},
 });
 
 interface YjsProviderProps {
@@ -40,77 +43,15 @@ export function YjsProvider({ children }: YjsProviderProps) {
 		}
 		return Number(localStorage.getItem(EPOCH_KEY) || '1');
 	});
-	const [doc, setDoc] = useState(() => new Doc());
+	const [doc, setDoc] = useState(() => new Yjs.Doc());
+	const [isNetworkSynced, setNetworkSynced] = useState(false);
 
-	const handleMigration = useCallback(
-		(newEpoch: number, seederId?: string) => {
-			const amISeeder = seederId === clientId;
-
-			if (!amISeeder) {
-				// To avoid data duplication when multiple clients migrate at the same
-				// time, followers clear their local state and wait for the seeder
-				// to populate the new document.
-				const diaperChangesBackup = [...diaperChanges];
-				const eventsBackup = [...events];
-				const feedingSessionsBackup = [...feedingSessions];
-				const growthMeasurementsBackup = [...growthMeasurements];
-				const medicationRegimensBackup = [...medicationRegimensProxy];
-				const medicationsBackup = [...medicationsProxy];
-				const feedingInProgressBackup = feedingInProgress.current;
-
-				diaperChanges.length = 0;
-				events.length = 0;
-				feedingSessions.length = 0;
-				growthMeasurements.length = 0;
-				medicationRegimensProxy.length = 0;
-				medicationsProxy.length = 0;
-				feedingInProgress.current = null;
-
-				// Rescue mechanism: if the document remains empty for too long,
-				// assume the seeder failed and restore from backup.
-				setTimeout(() => {
-					if (diaperChanges.length === 0 && diaperChangesBackup.length > 0) {
-						mergeData(diaperChanges, diaperChangesBackup);
-					}
-					if (events.length === 0 && eventsBackup.length > 0) {
-						mergeData(events, eventsBackup);
-					}
-					if (
-						feedingSessions.length === 0 &&
-						feedingSessionsBackup.length > 0
-					) {
-						mergeData(feedingSessions, feedingSessionsBackup);
-					}
-					if (
-						growthMeasurements.length === 0 &&
-						growthMeasurementsBackup.length > 0
-					) {
-						mergeData(growthMeasurements, growthMeasurementsBackup);
-					}
-					if (
-						medicationRegimensProxy.length === 0 &&
-						medicationRegimensBackup.length > 0
-					) {
-						mergeData(medicationRegimensProxy, medicationRegimensBackup);
-					}
-					if (medicationsProxy.length === 0 && medicationsBackup.length > 0) {
-						mergeData(medicationsProxy, medicationsBackup);
-					}
-					if (
-						feedingInProgress.current === null &&
-						feedingInProgressBackup !== null
-					) {
-						feedingInProgress.current = feedingInProgressBackup;
-					}
-				}, 10000);
-			}
-
-			localStorage.setItem(EPOCH_KEY, newEpoch.toString());
-			setEpoch(newEpoch);
-			setDoc(new Doc());
-		},
-		[clientId],
-	);
+	const handleMigration = useCallback((newEpoch: number) => {
+		localStorage.setItem(EPOCH_KEY, newEpoch.toString());
+		setEpoch(newEpoch);
+		setDoc(new Yjs.Doc());
+		setNetworkSynced(false);
+	}, []);
 
 	useEffect(() => {
 		const meta = doc.getMap('meta');
@@ -137,13 +78,13 @@ export function YjsProvider({ children }: YjsProviderProps) {
 	}, [doc, epoch, handleMigration]);
 
 	const onSynced = useCallback(() => {
-		const size = encodeStateAsUpdate(doc).length;
+		const size = Yjs.encodeStateAsUpdate(doc).length;
 		if (size > COMPACTION_THRESHOLD) {
 			const newEpoch = epoch + 1;
 			doc
 				.getMap('meta')
 				.set('migratedTo', { epoch: newEpoch, seederId: clientId });
-			handleMigration(newEpoch, clientId);
+			handleMigration(newEpoch);
 		}
 	}, [doc, epoch, handleMigration, clientId]);
 
@@ -152,51 +93,143 @@ export function YjsProvider({ children }: YjsProviderProps) {
 		doc
 			.getMap('meta')
 			.set('migratedTo', { epoch: newEpoch, seederId: clientId });
-		handleMigration(newEpoch, clientId);
+		handleMigration(newEpoch);
 	}, [doc, epoch, handleMigration, clientId]);
 
 	const isSynced = useYjsPersistence(doc, epoch, onSynced);
 
-	useBindValtioToYjs(diaperChanges, doc.getArray('diaper-changes-dec'));
-	useBindValtioToYjs(events, doc.getArray('events-dec'));
-	useBindValtioToYjs(feedingSessions, doc.getArray('feeding-sessions-dec'));
+	useBindValtioToYjs(
+		diaperChanges,
+		doc.getArray('diaper-changes-dec'),
+		isSynced,
+		isNetworkSynced,
+	);
+	useBindValtioToYjs(
+		events,
+		doc.getArray('events-dec'),
+		isSynced,
+		isNetworkSynced,
+	);
+	useBindValtioToYjs(
+		feedingSessions,
+		doc.getArray('feeding-sessions-dec'),
+		isSynced,
+		isNetworkSynced,
+	);
 	useBindValtioToYjs(
 		growthMeasurements,
 		doc.getArray('growth-measurments-dec'),
+		isSynced,
+		isNetworkSynced,
 	);
-	useBindValtioToYjs(feedingInProgress, doc.getMap('feeding-in-progress-dec'));
+	useBindValtioToYjs(
+		feedingInProgress,
+		doc.getMap('feeding-in-progress-dec'),
+		isSynced,
+		isNetworkSynced,
+	);
 	useBindValtioToYjs(
 		medicationRegimensProxy,
 		doc.getArray('medication-regimens-dec'),
+		isSynced,
+		isNetworkSynced,
 	);
-	useBindValtioToYjs(medicationsProxy, doc.getArray('medications-dec'));
+	useBindValtioToYjs(
+		medicationsProxy,
+		doc.getArray('medications-dec'),
+		isSynced,
+		isNetworkSynced,
+	);
 
 	if (!isSynced) {
 		return <SplashScreen />;
 	}
 
 	return (
-		<yjsContext.Provider value={{ doc, epoch, forceNewEpoch }}>
+		<yjsContext.Provider
+			value={{
+				doc,
+				epoch,
+				forceNewEpoch,
+				isNetworkSynced,
+				setNetworkSynced,
+			}}
+		>
 			{children}
 		</yjsContext.Provider>
 	);
 }
 
-function useBindValtioToYjs<T>(state: T[], yArray: Array<T>): void;
-function useBindValtioToYjs<T>(state: Record<string, T>, yMap: Map<T>): void;
+function useBindValtioToYjs<T>(
+	state: T[],
+	yType: Yjs.Array<T>,
+	isSynced: boolean,
+	isNetworkSynced: boolean,
+): void;
+function useBindValtioToYjs<T>(
+	state: Record<string, T>,
+	yType: Yjs.Map<T>,
+	isSynced: boolean,
+	isNetworkSynced: boolean,
+): void;
 function useBindValtioToYjs<T>(
 	state: Record<string, T> | T[],
-	yMap: Map<T> | Array<T>,
+	yType: Yjs.Map<T> | Yjs.Array<T>,
+	isSynced: boolean,
+	isNetworkSynced: boolean,
 ) {
+	const [hasBound, setHasBound] = useState(false);
+
 	useEffect(() => {
-		const unbind = bind(state, yMap);
+		if (!isSynced) {
+			setHasBound(false);
+			return;
+		}
+
+		// To prevent duplication during migration, we wait for either the network
+		// to sync or a short timeout before binding. This ensures we don't push
+		// local data that might already be in the new epoch room.
+		const timeout = setTimeout(
+			() => {
+				if (!hasBound) {
+					setHasBound(true);
+				}
+			},
+			isNetworkSynced ? 0 : 2000,
+		);
+
+		return () => clearTimeout(timeout);
+	}, [isSynced, isNetworkSynced, hasBound]);
+
+	useEffect(() => {
+		if (!hasBound) {
+			return;
+		}
+
+		if (yType instanceof Yjs.Array && Array.isArray(state)) {
+			// Smart Merge: Remove items from Valtio that are already in Yjs to prevent duplication
+			const yData = yType.toArray();
+			const yIds = new Set(yData.map((item: any) => item.id));
+
+			for (let i = state.length - 1; i >= 0; i--) {
+				if (yIds.has((state[i] as any).id)) {
+					state.splice(i, 1);
+				}
+			}
+		}
+
+		const unbind = bind(state, yType as any);
 		return () => {
 			unbind();
 		};
-	}, [state, yMap]);
+	}, [state, yType, hasBound]);
 }
 
-function useYjsPersistence(doc: Doc, epoch: number, onSynced?: () => void) {
+function useYjsPersistence(
+	doc: Yjs.Doc,
+	epoch: number,
+	onSynced?: () => void,
+) {
 	const [isSynced, setIsSynced] = useState(false);
 	useEffect(() => {
 		if (typeof window === 'undefined') {

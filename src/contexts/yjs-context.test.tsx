@@ -29,12 +29,14 @@ vi.mock('@/lib/client-id', () => ({
 describe('YjsProvider', () => {
 	afterEach(() => {
 		cleanup();
+		vi.useRealTimers();
 	});
 
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		resetIndexeddbMock();
 		localStorage.clear();
+		vi.useFakeTimers();
 
 		const ValtioYjsMocked = await import('valtio-yjs');
 		(ValtioYjsMocked.bind as ReturnType<typeof vi.fn>).mockImplementation(() =>
@@ -178,14 +180,20 @@ describe('YjsProvider', () => {
 		expect(localStorage.getItem('adameter-epoch')).toBe('3');
 	});
 
-	it('should clear local state when migrating as a follower', async () => {
+	it('should preserve unsynced changes and avoid duplicates during migration', async () => {
 		const diaperChangesData = await import('@/data/diaper-changes');
-		diaperChangesData.diaperChanges.push({ id: '1' } as any);
+		diaperChangesData.diaperChanges.length = 0;
+		diaperChangesData.diaperChanges.push({ id: 'unsynced-1' } as any);
+		diaperChangesData.diaperChanges.push({ id: 'already-in-yjs' } as any);
 
 		let currentDoc: Yjs.Doc | null = null;
 		const Consumer = () => {
-			const { doc } = useContext(yjsContext);
+			const { doc, setNetworkSynced } = useContext(yjsContext);
 			currentDoc = doc;
+			useEffect(() => {
+				// Simulate network sync
+				setNetworkSynced(true);
+			}, [setNetworkSynced]);
 			return null;
 		};
 
@@ -199,13 +207,37 @@ describe('YjsProvider', () => {
 			triggerWhenSynced();
 		});
 
+		const firstDoc = currentDoc!;
+
 		await act(async () => {
-			currentDoc!
+			// Simulate another client compacting and seeding the new doc
+			firstDoc
 				.getMap('meta')
 				.set('migratedTo', { epoch: 2, seederId: 'other-client' });
 		});
 
-		expect(diaperChangesData.diaperChanges.length).toBe(0);
+		// At this point we are in Epoch 2, but doc state is empty until sync
+		await act(async () => {
+			currentDoc!.getArray('diaper-changes-dec').push([{ id: 'already-in-yjs' }]);
+			triggerWhenSynced();
+		});
+
+		// Wait for the binding grace period
+		await act(async () => {
+			vi.runAllTimers();
+		});
+
+		// 'already-in-yjs' should be deduplicated (removed from Valtio)
+		// 'unsynced-1' should be preserved
+		expect(diaperChangesData.diaperChanges).toContainEqual({ id: 'unsynced-1' });
+		expect(diaperChangesData.diaperChanges).not.toContainEqual({
+			id: 'already-in-yjs',
+		});
+		expect(diaperChangesData.diaperChanges.length).toBe(1);
+
+		// Verify Yjs still has its item
+		const yItems = currentDoc!.getArray('diaper-changes-dec').toArray();
+		expect(yItems).toContainEqual({ id: 'already-in-yjs' });
 	});
 
 	it('should call bind for all data stores', async () => {
@@ -227,6 +259,10 @@ describe('YjsProvider', () => {
 
 		await act(async () => {
 			triggerWhenSynced();
+		});
+
+		await act(async () => {
+			vi.runAllTimers();
 		});
 
 		expect(ValtioYjsMocked.bind).toHaveBeenCalledWith(

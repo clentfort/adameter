@@ -11,6 +11,7 @@ vi.mock('y-partykit/provider', () => {
 		default: vi.fn().mockImplementation(function () {
 			return {
 				destroy: vi.fn(),
+				on: vi.fn(),
 			};
 		}),
 	};
@@ -27,7 +28,15 @@ describe('DataSynchronizationProvider', () => {
 		localStorage.setItem('room', 'my-room');
 
 		const { rerender } = render(
-			<yjsContext.Provider value={{ doc, epoch: 1, forceNewEpoch: vi.fn() }}>
+			<yjsContext.Provider
+				value={{
+					doc,
+					epoch: 1,
+					forceNewEpoch: vi.fn(),
+					isNetworkSynced: false,
+					setNetworkSynced: vi.fn(),
+				}}
+			>
 				<DataSynchronizationProvider>
 					<div />
 				</DataSynchronizationProvider>
@@ -42,7 +51,15 @@ describe('DataSynchronizationProvider', () => {
 		);
 
 		rerender(
-			<yjsContext.Provider value={{ doc, epoch: 2, forceNewEpoch: vi.fn() }}>
+			<yjsContext.Provider
+				value={{
+					doc,
+					epoch: 2,
+					forceNewEpoch: vi.fn(),
+					isNetworkSynced: false,
+					setNetworkSynced: vi.fn(),
+				}}
+			>
 				<DataSynchronizationProvider>
 					<div />
 				</DataSynchronizationProvider>
