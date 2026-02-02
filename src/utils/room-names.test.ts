@@ -12,4 +12,9 @@ describe('generateRoomName', () => {
 		const name2 = generateRoomName();
 		expect(name1).not.toBe(name2);
 	});
+
+	it('should always return a string', () => {
+		const name = generateRoomName();
+		expect(typeof name).toBe('string');
+	});
 });
