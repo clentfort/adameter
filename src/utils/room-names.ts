@@ -47,6 +47,9 @@ const animals = [
 	'monkey',
 ];
 
+/**
+ * Generates a human-readable room name.
+ */
 export function generateRoomName(): string {
 	const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
 	const color = colors[Math.floor(Math.random() * colors.length)];
