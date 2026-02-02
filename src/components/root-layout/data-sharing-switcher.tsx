@@ -80,7 +80,10 @@ export default function DataSharingSwitcher() {
 	};
 
 	const handleCreate = () => {
-		handleJoin(generatedRoomId);
+		const cleanId = generatedRoomId.trim();
+		if (!cleanId) return;
+		setRoom(cleanId);
+		setIsDialogOpen(false);
 	};
 
 	const handleLeave = () => {
