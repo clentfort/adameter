@@ -26,14 +26,23 @@ export function DataSynchronizationProvider({
 	const [room, setRoom] = useState<string | undefined>(undefined);
 	const { doc } = useContext(yjsContext);
 	useEffect(() => {
-		const room = localStorage.getItem('room');
-		if (room) {
-			setRoom(room);
+		const urlParams = new URLSearchParams(window.location.search);
+		const roomParam = urlParams.get('room');
+		if (roomParam) {
+			setRoom(roomParam);
+			const newUrl = window.location.pathname;
+			window.history.replaceState({}, '', newUrl);
+		} else {
+			const room = localStorage.getItem('room');
+			if (room) {
+				setRoom(room);
+			}
 		}
 	}, []);
 	useYPartykitSync(room, doc);
 	useEffect(() => {
 		if (!room) {
+			localStorage.removeItem('room');
 			return;
 		}
 		localStorage.setItem('room', room);
@@ -55,12 +64,13 @@ function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
 			return;
 		}
 
-		const provider = new YPartyKitProvider(
-			'https://adameter-party.clentfort.partykit.dev',
-			room,
-			doc,
-			{ connect: true },
-		);
+		const host =
+			process.env.NEXT_PUBLIC_PARTYKIT_HOST ||
+			(process.env.NODE_ENV === 'development'
+				? 'localhost:1999'
+				: 'adameter-party.clentfort.partykit.dev');
+
+		const provider = new YPartyKitProvider(host, room, doc, { connect: true });
 
 		return () => {
 			provider.destroy();
