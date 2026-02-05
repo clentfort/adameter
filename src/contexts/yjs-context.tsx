@@ -1,5 +1,6 @@
 'use client';
 
+import type { YjsEpochSnapshot } from '@/data/yjs-epoch-snapshot';
 import { createContext, useEffect, useState } from 'react';
 import { bind } from 'valtio-yjs';
 import { IndexeddbPersistence, storeState } from 'y-indexeddb';
@@ -12,10 +13,7 @@ import { feedingSessions } from '@/data/feeding-sessions';
 import { growthMeasurements } from '@/data/growth-measurments';
 import { medicationRegimensProxy } from '@/data/medication-regimens';
 import { medicationsProxy } from '@/data/medications';
-import {
-	applyYjsEpochSnapshot,
-	consumeYjsEpochSnapshot,
-} from '@/data/yjs-epoch-snapshot';
+import { consumeYjsEpochSnapshot } from '@/data/yjs-epoch-snapshot';
 import {
 	logPerformanceEvent,
 	startPerformanceTimer,
@@ -69,6 +67,40 @@ function useBindValtioToYjs<T>(
 			unbind();
 		};
 	}, [state, yMap]);
+}
+
+function replaceYArray<T>(target: Array<T>, next: ReadonlyArray<T>) {
+	if (target.length > 0) {
+		target.delete(0, target.length);
+	}
+
+	if (next.length > 0) {
+		target.insert(0, [...next]);
+	}
+}
+
+function applyYjsEpochSnapshotToDoc(doc: Doc, snapshot: YjsEpochSnapshot) {
+	doc.transact(() => {
+		replaceYArray(doc.getArray('diaper-changes-dec'), snapshot.diaperChanges);
+		replaceYArray(doc.getArray('events-dec'), snapshot.events);
+		replaceYArray(
+			doc.getArray('feeding-sessions-dec'),
+			snapshot.feedingSessions,
+		);
+		replaceYArray(
+			doc.getArray('growth-measurments-dec'),
+			snapshot.growthMeasurements,
+		);
+		replaceYArray(
+			doc.getArray('medication-regimens-dec'),
+			snapshot.medicationRegimens,
+		);
+		replaceYArray(doc.getArray('medications-dec'), snapshot.medications);
+
+		const feedingInProgressMap = doc.getMap('feeding-in-progress-dec');
+		feedingInProgressMap.clear();
+		feedingInProgressMap.set('current', snapshot.feedingInProgress ?? null);
+	}, 'epoch-snapshot-import');
 }
 
 async function countIndexedDbUpdates(databaseName: string) {
@@ -225,7 +257,7 @@ function useYjsPersistence(doc: Doc) {
 						snapshotCreatedAt: pendingSnapshot.createdAt,
 					},
 				);
-				applyYjsEpochSnapshot(pendingSnapshot);
+				applyYjsEpochSnapshotToDoc(doc, pendingSnapshot);
 
 				const encodedSizeAfterSnapshotApply = encodeStateAsUpdate(doc).length;
 				logPerformanceEvent('yjs.document.encoded-size.bytes', {
@@ -247,43 +279,6 @@ function useYjsPersistence(doc: Doc) {
 						regimenCount: pendingSnapshot.medicationRegimens.length,
 					},
 				});
-
-				const postSnapshotCompactionTimer = startPerformanceTimer(
-					'yjs.persistence.compaction.post-snapshot',
-					{
-						epoch,
-						mode,
-						persistenceName,
-					},
-				);
-				await storeState(persistence, true);
-				postSnapshotCompactionTimer.end();
-
-				const encodedSizeAfterSnapshotCompaction =
-					encodeStateAsUpdate(doc).length;
-				logPerformanceEvent('yjs.document.encoded-size.bytes', {
-					metadata: {
-						epoch,
-						mode,
-						phase: 'after-snapshot-compaction',
-						persistenceName,
-					},
-					value: encodedSizeAfterSnapshotCompaction,
-				});
-
-				const updateCountAfterSnapshotCompaction =
-					await countIndexedDbUpdates(persistenceName);
-				if (typeof updateCountAfterSnapshotCompaction === 'number') {
-					logPerformanceEvent('yjs.persistence.updates.count', {
-						metadata: {
-							epoch,
-							mode,
-							phase: 'after-snapshot-compaction',
-							persistenceName,
-						},
-						value: updateCountAfterSnapshotCompaction,
-					});
-				}
 			}
 
 			const encodedSizeAtHydrationReady = encodeStateAsUpdate(doc).length;
@@ -320,6 +315,53 @@ function useYjsPersistence(doc: Doc) {
 				},
 			});
 			setIsSynced(true);
+
+			if (pendingSnapshot) {
+				setTimeout(() => {
+					void (async () => {
+						if (!isMounted) {
+							return;
+						}
+
+						const postSnapshotCompactionTimer = startPerformanceTimer(
+							'yjs.persistence.compaction.post-snapshot',
+							{
+								epoch,
+								mode,
+								persistenceName,
+							},
+						);
+						await storeState(persistence, true);
+						postSnapshotCompactionTimer.end();
+
+						const encodedSizeAfterSnapshotCompaction =
+							encodeStateAsUpdate(doc).length;
+						logPerformanceEvent('yjs.document.encoded-size.bytes', {
+							metadata: {
+								epoch,
+								mode,
+								phase: 'after-snapshot-compaction',
+								persistenceName,
+							},
+							value: encodedSizeAfterSnapshotCompaction,
+						});
+
+						const updateCountAfterSnapshotCompaction =
+							await countIndexedDbUpdates(persistenceName);
+						if (typeof updateCountAfterSnapshotCompaction === 'number') {
+							logPerformanceEvent('yjs.persistence.updates.count', {
+								metadata: {
+									epoch,
+									mode,
+									phase: 'after-snapshot-compaction',
+									persistenceName,
+								},
+								value: updateCountAfterSnapshotCompaction,
+							});
+						}
+					})();
+				}, 0);
+			}
 		});
 		return () => {
 			isMounted = false;
