@@ -12,6 +12,10 @@ import { feedingSessions } from '@/data/feeding-sessions';
 import { growthMeasurements } from '@/data/growth-measurments';
 import { medicationRegimensProxy } from '@/data/medication-regimens';
 import { medicationsProxy } from '@/data/medications';
+import {
+	logPerformanceEvent,
+	startPerformanceTimer,
+} from '@/lib/performance-logging';
 
 const doc = new Doc();
 export const yjsContext = createContext<{ doc: Doc }>({ doc });
@@ -64,20 +68,51 @@ function useYjsPersistence(doc: Doc) {
 		if (typeof window === 'undefined') {
 			return undefined;
 		}
+
+		const hydrationTimer = startPerformanceTimer('yjs.hydration.total');
+		const persistenceInitTimer = startPerformanceTimer('yjs.persistence.init');
 		const persistence = new IndexeddbPersistence('adameter', doc);
+		persistenceInitTimer.end();
+		logPerformanceEvent('yjs.persistence.created');
 		let isMounted = true;
+		const whenSyncedTimer = startPerformanceTimer('yjs.persistence.whenSynced');
 		persistence.whenSynced.then(async () => {
 			if (!isMounted) {
 				return;
 			}
 
+			const dbSize =
+				typeof persistence._dbsize === 'number'
+					? persistence._dbsize
+					: undefined;
+			whenSyncedTimer.end({
+				metadata: {
+					dbSize: dbSize ?? -1,
+				},
+			});
+			if (dbSize !== undefined) {
+				logPerformanceEvent('yjs.persistence.dbsize', {
+					value: dbSize,
+				});
+			}
+
 			// Consolidate updates if there are many of them to improve loading times.
 			// The default threshold is 500, but we use a more aggressive threshold
 			// of 20 to keep the number of IndexedDB records low.
-			if (persistence._dbsize > 20) {
+			if (dbSize !== undefined && dbSize > 20) {
+				const compactionTimer = startPerformanceTimer(
+					'yjs.persistence.compaction',
+					{ dbSizeBefore: dbSize },
+				);
 				await storeState(persistence, true);
+				compactionTimer.end();
 			}
 
+			hydrationTimer.end({
+				metadata: {
+					dbSize: dbSize ?? -1,
+				},
+			});
 			setIsSynced(true);
 		});
 		return () => {

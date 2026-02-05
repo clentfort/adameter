@@ -3,6 +3,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import YPartyKitProvider from 'y-partykit/provider';
 import { Doc as YjsDoc } from 'yjs';
+import {
+	logPerformanceEvent,
+	setCurrentPerformanceRoom,
+	startPerformanceTimer,
+} from '@/lib/performance-logging';
 import { yjsContext } from './yjs-context';
 
 interface DataSynchronizationContextProps {
@@ -29,11 +34,27 @@ export function DataSynchronizationProvider({
 		const room = localStorage.getItem('room');
 		if (room) {
 			setRoom(room);
+			setCurrentPerformanceRoom(room);
+			logPerformanceEvent('sync.room.restored', {
+				metadata: { room },
+			});
 		}
 	}, []);
 	useYPartykitSync(room, doc);
 	useEffect(() => {
+		setCurrentPerformanceRoom(room);
+		logPerformanceEvent(
+			'sync.room.changed',
+			{
+				metadata: {
+					room: room ?? '',
+				},
+			},
+			{ throttleKey: 'sync.room.changed', throttleMs: 2000 },
+		);
+
 		if (!room) {
+			localStorage.removeItem('room');
 			return;
 		}
 		localStorage.setItem('room', room);
@@ -55,6 +76,10 @@ function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
 			return;
 		}
 
+		const connectTimer = startPerformanceTimer('sync.partykit.connect', {
+			room,
+		});
+
 		const provider = new YPartyKitProvider(
 			'https://adameter-party.clentfort.partykit.dev',
 			room,
@@ -62,7 +87,15 @@ function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
 			{ connect: true },
 		);
 
+		connectTimer.end();
+		logPerformanceEvent('sync.partykit.provider.created', {
+			metadata: { room },
+		});
+
 		return () => {
+			logPerformanceEvent('sync.partykit.provider.destroyed', {
+				metadata: { room },
+			});
 			provider.destroy();
 		};
 	}, [room, doc]);
