@@ -1,311 +1,163 @@
-# AGENTS.md - AdaMeter Project Guide
+# AGENTS.md - AdaMeter Agent Guide
 
-Welcome, AI Agent! This document provides guidance for working effectively with
-the AdaMeter codebase. AdaMeter is a privacy-first application for tracking
-newborn baby development and routines.
+This guide is for coding agents working in this repository. Use it as the
+default source of truth for commands and conventions.
 
-## Core Technologies
+## External Agent Rule Files
 
-The project is built with the following primary technologies:
+- `.cursor/rules/`: not present
+- `.cursorrules`: not present
+- `.github/copilot-instructions.md`: not present
+- Result: this file is the primary in-repo agent instruction set.
 
-- **Frontend Framework**: [Next.js](https://nextjs.org/) (using the App Router)
-  with [React](https://react.dev/) 19.
-- **Language**: [TypeScript](https://www.typescriptlang.org/).
-- **UI Components**: Primarily built using [shadcn/ui](https://ui.shadcn.com/).
-  Components are added to `src/components/ui` via its CLI tool
-  (`npx shadcn-ui@latest add ...`). This directory should be exclusively managed
-  by `shadcn/ui`. Custom, non-`shadcn/ui` components should be placed in other
-  locations within `src/components/` or feature-specific component folders.
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) (v4.x), configured via
-  `tailwind.config.ts` and processed with PostCSS. Utility classes are composed
-  using `clsx` and `tailwind-merge`.
-- **State Management**:
-  - [Valtio](https://valtio.pmnd.rs/) for local client-side state.
-  - [Yjs](https://yjs.dev/) for conflict-free replicated data types (CRDTs)
-    enabling collaborative features.
-  - `valtio-yjs` to bridge Valtio stores with Yjs types.
-- **Real-time Collaboration Backend**: [PartyKit](https://www.partykit.io/) for
-  synchronizing Yjs data across clients.
-- **Testing**: [Vitest](https://vitest.dev/) as the test runner, with
-  [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
-  for component testing and JSDOM for the test environment.
-- **Internationalization (i18n)**: [fbtee](https://github.com/nkzw-tech/fbtee)
-  library for marking and collecting translatable strings, integrated with
-  [Crowdin](https://crowdin.com/project/780494) for the translation process.
-- **Linting & Formatting**:
-  - [ESLint](https://eslint.org/) with custom configurations (see
-    `eslint.config.mjs`).
-  - [Prettier](https://prettier.io/) for code formatting (see `.prettierrc`),
-    including import sorting via `@ianvs/prettier-plugin-sort-imports`.
-- **Package Manager**: [pnpm](https://pnpm.io/) (version >=9 is enforced).
+## Tech Stack
 
-## File Naming Conventions
+- Next.js 16 (App Router), React 19, TypeScript (`strict: true`)
+- Tailwind CSS 4 + shadcn/ui primitives in `src/components/ui`
+- State: Valtio + Yjs + PartyKit (`party/index.ts`)
+- Testing: Vitest + Testing Library + jsdom
+- i18n: `fbtee` with translation files in `translations/*.json`
+- Package manager: `pnpm` (CI uses pnpm 10 and Node 24)
 
-- Prefer `kebab-case` for filenames (e.g., `my-module.ts`, `my-component.tsx`).
-  This is the prevailing convention in the project.
+## Commands
 
-## Project Structure Overview
+Run from repo root: `/Users/lentfortc/Code/adameter`.
 
-- `.github/workflows/`: GitHub Actions workflows for CI/CD (testing, PartyKit
-  deployment, i18n string uploads).
-- `party/`: Contains the PartyKit server-side TypeScript code (`index.ts`) for
-  real-time data synchronization.
-- `public/`: Static assets like favicons and manifest files.
-- `scripts/`: Contains utility shell scripts for various build, development, or
-  operational tasks, including (but not limited to) i18n string management.
-- `src/`: Contains all the core application source code.
-  - `src/app/`: Next.js App Router. Each subdirectory (e.g., `diaper/`,
-    `feeding/`, `growth/`) represents a major feature with its own `page.tsx`
-    and `components/` subdirectory for feature-specific components.
-  - `src/components/`:
-    - `ui/`: Base UI components managed by `shadcn/ui` (see "Core Technologies"
-      and `components.json` at the project root). **Do not manually add or
-      modify files here unless it's part of the `shadcn/ui` tooling process.**
-    - Shared custom components (not from `shadcn/ui`) used across different
-      features (e.g., `example-custom-component.tsx`, `history-list.tsx`).
-    - `root-layout/`: Contains components for the main site layout.
-      - `src/components/root-layout/index.tsx` is the main component responsible
-        for rendering the overall site structure, including common elements like
-        header, main content area, and navigation.
-      - Sub-components like `src/components/root-layout/navigation.tsx` are
-        co-located here as they are specific to the root layout (see "Coding
-        Conventions and Best Practices" on component co-location).
-  - `src/contexts/`: React contexts for managing global concerns like i18n
-    (`i18n-context.tsx`), Yjs setup (`yjs-context.tsx`), and data
-    synchronization logic (`data-synchronization-context.tsx`).
-  - `src/data/`: Modules responsible for defining and managing specific data
-    types/stores (e.g., `diaper-changes.ts`, `feeding-sessions.ts`). These often
-    interact with Valtio and Yjs.
-  - `src/hooks/`: Custom React hooks encapsulating business logic, data access
-    patterns (e.g., `use-diaper-changes.ts`), and interactions with browser APIs
-    or contexts. Existing hook filenames vary; new general files should prefer
-    `kebab-case`.
-  - `src/i18n/`: Internationalization files, including `translations.json`
-    (compiled translations) and potentially source string files.
-  - `src/lib/`: For general-purpose, reusable utility functions that are not
-    specific to any single component, feature, or data type (e.g.,
-    `formatting-helpers.ts`, `constants.ts`). Avoid putting complex business
-    logic or feature-specific code here.
-  - `src/types/`: TypeScript type definitions for data structures used
-    throughout the application.
-  - `src/utils/`: Specific utility functions for tasks like CSV export
-    (`csv-export.ts`), and date/time formatting. These might be more complex or
-    have more dependencies than those in `src/lib/`.
-- `vitest.config.mts`: Configuration for the Vitest testing framework.
-- `pnpm-lock.yaml`: pnpm lockfile.
-- `components.json`: Configuration file for `shadcn/ui`.
+### Setup and Dev
 
-## Development Workflow
+- Install dependencies: `pnpm install`
+- Full dev (Next + PartyKit): `pnpm dev`
+- Next only: `pnpm dev:next`
+- PartyKit only: `pnpm dev:partykit`
+- `predev` runs `fbtee:collect` and `fbtee:translate` automatically
+- `prebuild` runs the same i18n generation before `build`
 
-1.  **Initial Setup**:
-    - Ensure you have Node.js and pnpm (version >=9) installed.
-    - Clone the repository.
-    - Install dependencies: `pnpm install`
+### Build
 
-2.  **Running the Development Server**:
-    - Execute `pnpm run dev`. This concurrently starts:
-      - The Next.js frontend development server.
-      - The PartyKit development server for real-time features.
-    - This command also runs `./scripts/download-translations.sh` first to fetch
-      the latest translations.
+- Production build: `pnpm build`
+- Run production server: `pnpm start`
 
-3.  **Building for Production**:
-    - Execute `pnpm run build`. This also downloads translations before
-      building.
+### Tests (Vitest)
 
-4.  **Testing**:
-    - Run all tests: `pnpm run test`
-    - Test files (e.g., `*.test.ts`, `*.test.tsx`) are co-located with the code
-      they test.
-    - `__mocks__` directories are strictly for mock implementations (e.g., of
-      external modules or APIs), not for test files themselves.
-    - **Testing Philosophy**: Prefer integration tests that cover realistic user
-      flows and component interactions over excessive unit tests with many
-      mocks. Mocking should ideally occur only at the edges of the system (e.g.,
-      external network requests, browser APIs not adequately covered by JSDOM).
-    - Write new tests for any new functionality or bug fixes. Ensure they cover
-      critical paths and edge cases.
+- Watch mode: `pnpm test`
+- Run once: `pnpm exec vitest run`
+- Coverage: `pnpm exec vitest run --coverage`
 
-5.  **Linting and Formatting**:
-    - Run linter: `pnpm run lint`
-    - It's highly recommended to integrate ESLint and Prettier into your IDE for
-      real-time feedback and auto-formatting on save.
-    - Ensure code is formatted with Prettier before committing. The import
-      sorter plugin will automatically organize import statements.
+Single-test execution (important):
 
-## Internationalization (i18n)
+- One file once: `pnpm test src/utils/date-to-date-input-value.test.ts --run`
+- One test by name in one file:
+  `pnpm test src/utils/date-to-date-input-value.test.ts -t "should format date" --run`
+- Name filter across suite: `pnpm test -t "useSortedEvents" --run`
+- Vitest config note: `vitest.config.mts` sets `test.root = './src'`; `src/...`
+  paths are safest for single-file runs.
 
-User-facing strings must be internationalized using the `fbtee` library.
+### Lint
 
-- **Marking Strings**:
-  - In React components (TSX): Use the `<fbt>` component. Example:
-    `<fbt desc="Button text to confirm an action">Confirm</fbt>`
-  - In TypeScript/JavaScript code: Use the `fbt()` function. Example:
-    `fbt('A simple message', 'Description for translators')`
-  - Provide clear and concise descriptions for translators within the `desc`
-    prop or the second argument to `fbt()`.
-  - Commonly reused strings can be defined in `common_strings.json` and
-    referenced.
-- **Workflow**:
-  1.  After adding or modifying translatable strings, collect them by running:
-      ```bash
-      pnpm run fbtee:manifest
-      pnpm run fbtee:collect
-      ```
-      This updates `.source_strings.json`.
-  2.  The `.source_strings.json` file is uploaded to Crowdin (usually automated
-      via GitHub Actions, see `.github/workflows/upload-source-strings.yaml`, or
-      manually using `scripts/upload-source-strings.sh`).
-  3.  Translations are contributed by translators on the Crowdin platform.
-  4.  Translated strings are downloaded into the `translations/` directory
-      (e.g., `translations/de_DE.json`) by the
-      `./scripts/download-translations.sh` script (run automatically during
-      `pnpm run dev` and `pnpm run build`).
-  5.  These downloaded translations are compiled into
-      `src/i18n/translations.json` by `pnpm run fbtee:translate`. This compiled
-      file is what the application uses.
-- **Key Files**:
-  - `common_strings.json`: For shared, reusable translated strings.
-  - `.source_strings.json`: The collected source strings for translation (output
-    of `fbtee:collect`).
-  - `translations/`: Directory containing downloaded translation files from
-    Crowdin.
-  - `src/i18n/translations.json`: The compiled, runtime translations used by the
-    app. **Important: This file is auto-generated by the
-    `pnpm run fbtee:translate` script (which is part of `pnpm run dev` and
-    `pnpm run build`) and should not be edited manually.**
-  - `src/contexts/i18n-context.tsx`: Provides i18n functionality to the
-    component tree.
+- Defined script: `pnpm lint` (currently `next lint` in `package.json`)
+- Current repo status:
+  - `next lint` is unavailable in Next.js 16 CLI and fails
+  - direct `eslint` invocation also fails here due config compatibility
+  - if linting is requested, run and report the failure explicitly
 
-## State Management and Data Synchronization
+### Format
 
-- **Local State**: Valtio is used for managing reactive state within the client.
-  Stores are typically defined in `src/data/` and consumed via custom hooks in
-  `src/hooks/`.
-- **Collaborative State**: Yjs is used to create shared data structures that can
-  be synchronized between multiple clients or devices.
-  - Yjs documents and types are often managed within Valtio proxies using
-    `valtio-yjs`.
-- **Synchronization Backend**: PartyKit serves as the backend to relay Yjs
-  updates between connected clients. The server logic is in `party/index.ts`.
-- **Contexts**:
-  - `src/contexts/yjs-context.tsx`: Sets up the Yjs document, provider, and
-    connection to PartyKit.
-  - `src/contexts/data-synchronization-context.tsx`: Manages higher-level logic
-    for data sharing and synchronization status.
+- Format all: `pnpm exec prettier --write .`
+- Format specific files:
+  `pnpm exec prettier --write src/path/file.ts src/path/file.tsx`
 
-## Coding Conventions and Best Practices
+### Typecheck
 
-- **Follow Existing Style**: Adhere to the coding style, patterns, and
-  conventions already present in the codebase. This includes file naming
-  conventions (see above: prefer `kebab-case`).
-- **TypeScript**: Use TypeScript effectively. Provide types for all variables,
-  function parameters, and return values. Leverage TypeScript's features for
-  robust and maintainable code.
-- **Components**:
-  - Strive for reusable and well-encapsulated components.
-  - Place feature-specific components within the feature's directory in
-    `src/app/`.
-  - Use `src/components/ui/` for `shadcn/ui` components only, added via its CLI.
-    Other shared, custom components go into `src/components/` directly or other
-    subdirectories as appropriate.
-  - **Co-locate sub-components**: If a component is only used by a single parent
-    component, it's good practice to place it in the same directory as its
-    parent. For example, `src/components/root-layout/navigation.tsx` is only
-    used by `src/components/root-layout/index.tsx`, so it resides within the
-    `src/components/root-layout/` directory rather than directly under
-    `src/components/`.
-- **Hooks**: Encapsulate business logic, side effects, and stateful logic within
-  custom hooks (`src/hooks/`).
-- **Immutability**: When working with state, especially Valtio stores, prefer
-  immutable update patterns where possible, or use Valtio's proxy nature
-  correctly to trigger updates.
-- **Early Returns**: Prefer early returns (or "guard clauses") to reduce nesting
-  and improve readability in functions. For example, check for invalid
-  conditions at the beginning of a function and return immediately.
-- **Error Handling**: Implement proper error handling, especially for async
-  operations and user inputs.
-- **Accessibility (a11y)**: Keep accessibility in mind when creating UI
-  components. Use semantic HTML and ARIA attributes where appropriate.
-- **Dependencies**:
-  - Add new dependencies using `pnpm add <package>` or `pnpm add -D <package>`
-    for dev dependencies.
-  - Carefully consider the necessity and impact of adding new dependencies.
-- **Commits**: Write clear and descriptive commit messages.
-- **Data Models**: Do not alter data models (typically found in `src/types/*`
-  and influencing data storage) unless explicitly instructed or confirmed by the
-  human operator. Changes to data models can have significant downstream
-  effects, including data loss or corruption if not handled carefully.
+- `pnpm exec tsc --noEmit`
 
-## Pre-Submission Checklist for Agents
+### Storybook
 
-Before submitting your changes, please perform the following steps on **all
-files you have modified** for the current task:
+- Dev server: `pnpm storybook`
+- Static build: `pnpm build-storybook`
 
-1.  **Format Touched Files with Prettier**: Ensure all files you've changed are
-    formatted correctly. You can typically achieve this by running Prettier
-    directly on the specific files. For example:
+### i18n
 
-    ```bash
-    pnpm prettier --write path/to/your/modified/file1.ts path/to/your/modified/file2.tsx
-    ```
+- Collect source strings: `pnpm run fbtee:collect`
+- Compile translations: `pnpm run fbtee:translate`
 
-    _(Consult Prettier documentation for precise commands if needed, or
-    integrate it with your development environment for auto-formatting on
-    save.)_
+## Code Style Guidelines
 
-2.  **Lint and Fix Touched Files with ESLint**: Run ESLint with the `--fix` flag
-    to automatically correct linting issues in the files you've edited.
+Derived from `.prettierrc`, `tsconfig.json`, `eslint.config.mjs`, and source
+code.
 
-    ```bash
-    pnpm eslint --fix path/to/your/modified/file1.ts path/to/your/modified/file2.tsx
-    ```
+### Imports
 
-3.  **Run All Tests**: Verify that all existing tests pass after your changes.
+- Import sorting is automated by `@ianvs/prettier-plugin-sort-imports`
+- Keep import groups in this order:
+  1. type imports
+  2. built-in modules
+  3. third-party modules
+  4. alias imports (`@/...`)
+  5. relative imports
+- Prefer `import type` for type-only imports
+- Prefer alias imports (`@/*` -> `./src/*`) over deep `../../..` paths
 
-    ```bash
-    pnpm run test
-    ```
+### Formatting
 
-    If tests fail, please investigate and fix them before proceeding.
+- Tabs enabled (`useTabs: true`, width 2)
+- Semicolons required
+- Single quotes for TS/JS
+- Trailing commas enabled
+- Print width 80
+- Run Prettier after each change set
 
-4.  **Run the Build Process**: Ensure the application builds successfully.
+### Types and Type Safety
 
-    ```bash
-    pnpm run build
-    ```
+- Keep TypeScript strict-clean
+- Prefer explicit domain types from `src/types/*`
+- Avoid `any`; use unions, generics, `unknown`, and narrowing
+- Validate untrusted input at boundaries
+- Keep exported API signatures precise
 
-    Address any build errors that arise.
+### Naming Conventions
 
-5.  **Run TypeScript Checker**: Ensure there are no TypeScript errors.
+- File names: prefer `kebab-case`
+- Component identifiers: `PascalCase`
+- Hooks: `useX` naming
+- Variables/functions: `camelCase`
+- Constants: `UPPER_SNAKE_CASE` only for true constants
 
-    ```bash
-    pnpm exec tsc --noEmit
-    ```
+### React and Next.js Conventions
 
-    Address any TypeScript errors that arise.
+- Follow App Router structure and colocate feature code near its route
+- Use `'use client'` only where client behavior is required
+- Prefer composition over large monolith components
+- Do not move/rewrite shadcn primitives in `src/components/ui` unless asked
 
-6.  **Build Storybook (if stories changed)**: If you added or modified any
-    Storybook story files (`*.stories.tsx`), ensure the Storybook static build
-    is successful.
-    ```bash
-    pnpm run build-storybook
-    ```
-    Address any build errors.
+### Error Handling and Control Flow
 
-By following these guidelines, you'll help maintain the quality, consistency,
-and stability of the AdaMeter project.
+- Prefer guard clauses and early returns over nested conditionals
+- Validate form/input data before persisting state
+- Do not silently swallow errors; handle intentionally or rethrow with context
+- For async UI failures, surface clear user feedback
 
-## Storybook Stories
+### i18n Conventions
 
-- **Write Stories**: Agents should write Storybook stories for any new
-  components created.
-- **Update Stories**: Existing stories should be updated when the corresponding
-  components are changed to reflect the new behavior or props.
-- **Limitations**:
-  - The `@storybook/test` package (which provides `userEvent`, `expect`, etc.
-    for `play` functions) is currently not available in this project. Therefore,
-    `play` functions requiring these utilities for automated interaction testing
-    within Storybook cannot be used. Manual testing instructions or descriptions
-    of behavior should be added to stories where complex interactions would
-    normally be automated.
+- Wrap user-visible strings with `<fbt>` or `fbt()`
+- Always provide meaningful translation descriptions (`desc`)
+- Do not add new hardcoded user-facing strings without localization
+
+### Testing Conventions
+
+- Co-locate tests as `*.test.ts`/`*.test.tsx` near source files
+- Prefer behavior-focused tests over implementation-detail tests
+- Mock only hard external boundaries
+- Keep tests deterministic (timezone is set to UTC in Vitest config)
+
+### Storybook Conventions
+
+- Add or update `*.stories.tsx` for reusable component changes
+- `@storybook/test` is not installed; avoid `play` functions that require it
+
+## Quick Pre-PR Checklist
+
+- Prettier on touched files
+- Targeted tests for changed behavior
+- `pnpm exec tsc --noEmit` for TS-impacting changes
+- `pnpm build` for routing/config/build-impacting changes
+- Document lint-command limitations if encountered
