@@ -10,8 +10,8 @@ import type {
 import { Check } from 'lucide-react';
 import {
 	forwardRef,
-	useEffect,
 	useImperativeHandle,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
@@ -31,11 +31,12 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
-export interface AutocompleteProps<T extends { id: string; label: string }>
-	extends Omit<
-		InputHTMLAttributes<HTMLInputElement>,
-		'value' | 'onChange' | 'onSelect'
-	> {
+export interface AutocompleteProps<
+	T extends { id: string; label: string },
+> extends Omit<
+	InputHTMLAttributes<HTMLInputElement>,
+	'value' | 'onChange' | 'onSelect'
+> {
 	inputClassName?: string;
 	onOptionSelect?: (option: T) => void;
 	onValueChange: (value: string) => void;
@@ -64,36 +65,30 @@ function Autocomplete<T extends { id: string; label: string }>(
 	const internalInputRef = useRef<HTMLInputElement>(null);
 	useImperativeHandle(ref, () => internalInputRef.current!);
 
-	const [filteredOptions, setFilteredOptions] = useState<T[]>(options);
-
-	useEffect(() => {
-		let newFilteredOptions: T[];
+	const filteredOptions = useMemo(() => {
 		if (!value) {
-			newFilteredOptions = options;
-			setFilteredOptions(newFilteredOptions);
-		} else {
-			const lowercasedValue = value.toLowerCase();
-			newFilteredOptions = options.filter((option) =>
-				option.label.toLowerCase().includes(lowercasedValue),
-			);
-			setFilteredOptions(newFilteredOptions);
-
-			if (newFilteredOptions.length === 0) {
-				setIsOpen(false);
-			} else {
-				if (!isOpen && internalInputRef.current === document.activeElement) {
-					setIsOpen(true);
-				}
-			}
+			return options;
 		}
-	}, [value, options, isOpen]);
+		const lowercasedValue = value.toLowerCase();
+		return options.filter((option) =>
+			option.label.toLowerCase().includes(lowercasedValue),
+		);
+	}, [options, value]);
+
+	const isPopoverOpen = isOpen && filteredOptions.length > 0;
 
 	const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
 		const newValue = event.target.value;
 		onValueChange(newValue);
-		if (!isOpen && newValue.length > 0 && options.length > 0) {
+		const nextFilteredOptions = newValue
+			? options.filter((option) =>
+					option.label.toLowerCase().includes(newValue.toLowerCase()),
+				)
+			: options;
+		if (!isOpen && nextFilteredOptions.length > 0) {
 			setIsOpen(true);
-		} else if (isOpen && newValue.length === 0 && options.length === 0) {
+		} else if (isOpen && nextFilteredOptions.length === 0) {
+			setIsOpen(false);
 		}
 	};
 
@@ -116,13 +111,13 @@ function Autocomplete<T extends { id: string; label: string }>(
 	};
 
 	return (
-		<Popover onOpenChange={setIsOpen} open={isOpen}>
+		<Popover onOpenChange={setIsOpen} open={isPopoverOpen}>
 			<PopoverTrigger asChild className={cn('w-full', className)}>
 				<div className="w-full">
 					<Input
 						aria-autocomplete="list"
 						aria-controls="autocomplete-list"
-						aria-expanded={isOpen}
+						aria-expanded={isPopoverOpen}
 						className={cn('w-full', inputClassName)}
 						disabled={disabled}
 						onChange={handleInputChange}
@@ -143,15 +138,10 @@ function Autocomplete<T extends { id: string; label: string }>(
 				onOpenAutoFocus={(e) => e.preventDefault()}
 				side="bottom"
 			>
-				<Command
-					shouldFilter={false}
-				>
+				<Command shouldFilter={false}>
 					<CommandList id="autocomplete-list">
 						<CommandEmpty>No results found.</CommandEmpty>
-						<ScrollArea
-							style={{ maxHeight: '300px' }}
-							type="auto"
-						>
+						<ScrollArea style={{ maxHeight: '300px' }} type="auto">
 							<CommandGroup>
 								{filteredOptions.map((option) => (
 									<CommandItem

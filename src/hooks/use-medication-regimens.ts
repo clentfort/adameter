@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { medicationRegimensProxy } from '@/data/medication-regimens';
-import { useArrayState } from './use-array-state';
 import { MedicationRegimen } from '@/types/medication-regimen';
+import { useArrayState } from './use-array-state';
 
 const defaultMedicationRegimens: MedicationRegimen[] = [
 	{
@@ -59,12 +59,13 @@ const defaultMedicationRegimens: MedicationRegimen[] = [
 
 export const useMedicationRegimens = () => {
 	const state = useArrayState<MedicationRegimen>(medicationRegimensProxy);
+	const { replace, value } = state;
 
 	useEffect(() => {
-		if (state.value && state.value.length === 0 && defaultMedicationRegimens.length > 0) {
-			state.replace(defaultMedicationRegimens);
+		if (value && value.length === 0 && defaultMedicationRegimens.length > 0) {
+			replace(defaultMedicationRegimens);
 		}
-	}, [state.value, state.replace]);
+	}, [replace, value]);
 
 	return state;
 };

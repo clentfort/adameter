@@ -1,12 +1,19 @@
 import type { FeedingSession } from '@/types/feeding';
 import { Duration, format, intervalToDuration } from 'date-fns';
-import { fbt } from 'fbtee';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
 import { formatDurationShort } from '@/utils/format-duration-short';
 import FeedingForm from './feeding-form';
+
+const createSessionId = () => {
+	if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+		return crypto.randomUUID();
+	}
+
+	return `session-${Math.random().toString(36).slice(2, 10)}`;
+};
 
 interface BreastfeedingTrackerProps {
 	nextBreast: 'left' | 'right';
@@ -92,7 +99,7 @@ export default function BreastfeedingTracker({
 			breast,
 			durationInSeconds,
 			endTime: endTime.toISOString(),
-			id: resumedSessionOriginalId ?? Date.now().toString(),
+			id: resumedSessionOriginalId ?? createSessionId(),
 			startTime,
 		};
 

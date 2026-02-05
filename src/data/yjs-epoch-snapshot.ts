@@ -80,7 +80,7 @@ function openSnapshotDb() {
 }
 
 function deepClone<T>(value: T): T {
-	return JSON.parse(JSON.stringify(value)) as T;
+	return structuredClone(value);
 }
 
 function replaceArray<T>(target: T[], next: T[]) {

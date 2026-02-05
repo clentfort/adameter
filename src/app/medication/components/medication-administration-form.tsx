@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Autocomplete } from '@/components/autocomplete';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,13 +39,7 @@ interface MedicationAdministrationFormProps {
 
 export const MedicationAdministrationForm: React.FC<
 	MedicationAdministrationFormProps
-> = ({
-	allAdministrations,
-	initialData,
-	onClose,
-	onSubmit,
-	regimens,
-}) => {
+> = ({ allAdministrations, initialData, onClose, onSubmit, regimens }) => {
 	const [datePart, setDatePart] = useState<string>(() =>
 		dateToDateInputValue(
 			initialData?.timestamp ? new Date(initialData.timestamp) : new Date(),
@@ -80,7 +74,6 @@ export const MedicationAdministrationForm: React.FC<
 		});
 	}, [datePart, timePart, form]);
 
-
 	const medicationOptions = useMemo(() => {
 		const regimenOptions: MedicationAutocompleteOptionData[] = regimens.map(
 			(reg) => ({
@@ -110,6 +103,11 @@ export const MedicationAdministrationForm: React.FC<
 
 		return [...regimenOptions, ...frecencyOnlyOptions];
 	}, [regimens, allAdministrations]);
+
+	const dosageAmount = useWatch({
+		control: form.control,
+		name: 'dosageAmount',
+	});
 
 	const handleFormSubmit = (data: MedicationAdministrationFormData) => {
 		onSubmit(data, initialData?.id);
@@ -230,7 +228,7 @@ export const MedicationAdministrationForm: React.FC<
 										{ shouldDirty: true, shouldValidate: true },
 									);
 								}}
-								value={form.watch('dosageAmount') || ''}
+								value={dosageAmount ?? ''}
 							/>
 							{form.formState.errors.dosageAmount && (
 								<p className="text-sm text-red-500">

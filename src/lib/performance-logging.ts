@@ -21,10 +21,10 @@ export interface PerformanceLogEntry {
 export interface PerformanceSummary {
 	averageMs: number;
 	count: number;
+	lastAt: string;
 	maxMs: number;
 	name: string;
 	p95Ms: number;
-	lastAt: string;
 }
 
 interface PerformanceLogOptions {
@@ -37,6 +37,9 @@ const LABEL_STORAGE_KEY = 'adameter-performance-label-v1';
 const ROOM_STORAGE_KEY = 'adameter-performance-room-v1';
 const MAX_LOGS = 1200;
 const UPDATE_EVENT_NAME = 'adameter:performance-log-updated';
+
+const isDate = (value: unknown): value is Date =>
+	Object.prototype.toString.call(value) === '[object Date]';
 
 let cachedLogs: PerformanceLogEntry[] | null = null;
 let flushTimer: ReturnType<typeof setTimeout> | undefined;
@@ -138,7 +141,7 @@ function sanitizeMetadata(
 			continue;
 		}
 
-		if (value instanceof Date) {
+		if (isDate(value)) {
 			result[key] = value.toISOString();
 			continue;
 		}
@@ -355,12 +358,12 @@ export function getPerformanceSummaries(limit = 15): PerformanceSummary[] {
 		const total = values.reduce((sum, value) => sum + value, 0);
 		const averageMs = values.length > 0 ? total / values.length : 0;
 		const p95Ms = getPercentile(values, 95);
-		const maxMs = values[values.length - 1] ?? 0;
+		const maxMs = values.at(-1) ?? 0;
 
 		return {
 			averageMs: Number(averageMs.toFixed(2)),
 			count: entries.length,
-			lastAt: entries[entries.length - 1].at,
+			lastAt: entries.at(-1).at,
 			maxMs: Number(maxMs.toFixed(2)),
 			name,
 			p95Ms: Number(p95Ms.toFixed(2)),
@@ -388,10 +391,10 @@ export function createPerformanceReport() {
 						? `${window.innerWidth}x${window.innerHeight}`
 						: undefined,
 			},
+			epoch: getYjsEpoch(),
 			generatedAt: new Date().toISOString(),
 			logCount: logs.length,
 			logs,
-			epoch: getYjsEpoch(),
 			mode: getYjsEpochMode(),
 			persistenceName: getYjsPersistenceName(getYjsEpoch(), getYjsEpochMode()),
 			room: getCurrentPerformanceRoom(),

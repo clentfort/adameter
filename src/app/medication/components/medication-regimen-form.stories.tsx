@@ -39,8 +39,6 @@ export const Default: Story = {
 
 export const WithInitialDataDaily: Story = {
 	args: {
-		onClose: () => {},
-		onSubmit: () => {},
 		initialData: {
 			dosageAmount: 1,
 			dosageUnit: 'drop',
@@ -55,13 +53,13 @@ export const WithInitialDataDaily: Story = {
 			},
 			startDate: '2024-01-15T00:00:00.000Z',
 		} as MedicationRegimen,
+		onClose: () => {},
+		onSubmit: () => {},
 	},
 };
 
 export const WithInitialDataInterval: Story = {
 	args: {
-		onClose: () => {},
-		onSubmit: () => {},
 		initialData: {
 			dosageAmount: 5,
 			dosageUnit: 'ml',
@@ -78,13 +76,13 @@ export const WithInitialDataInterval: Story = {
 			},
 			startDate: '2024-03-01T00:00:00.000Z',
 		} as MedicationRegimen,
+		onClose: () => {},
+		onSubmit: () => {},
 	},
 };
 
 export const WithInitialDataWeekly: Story = {
 	args: {
-		onClose: () => {},
-		onSubmit: () => {},
 		initialData: {
 			dosageAmount: 400,
 			dosageUnit: 'mcg',
@@ -99,13 +97,13 @@ export const WithInitialDataWeekly: Story = {
 			},
 			startDate: '2023-11-01T00:00:00.000Z',
 		} as MedicationRegimen,
+		onClose: () => {},
+		onSubmit: () => {},
 	},
 };
 
 export const WithInitialDataAsNeeded: Story = {
 	args: {
-		onClose: () => {},
-		onSubmit: () => {},
 		initialData: {
 			dosageAmount: 2.5,
 			dosageUnit: 'ml',
@@ -119,6 +117,8 @@ export const WithInitialDataAsNeeded: Story = {
 			},
 			startDate: '2024-02-01T00:00:00.000Z',
 		} as MedicationRegimen,
+		onClose: () => {},
+		onSubmit: () => {},
 	},
 };
 
@@ -148,16 +148,16 @@ export const NewRegimenIntervalSelected: Story = {
 
 export const NewRegimenWeeklySelected: Story = {
   args: {
+    initialData: { schedule: { type: 'weekly' } } as PartialMedicationRegimenForStory,
     onClose: () => {},
     onSubmit: () => {},
-    initialData: { schedule: { type: 'weekly' } } as PartialMedicationRegimenForStory,
   },
 };
 export const NewRegimenAsNeededSelected: Story = {
   args: {
+    initialData: { schedule: { type: 'asNeeded' } } as PartialMedicationRegimenForStory,
     onClose: () => {},
     onSubmit: () => {},
-    initialData: { schedule: { type: 'asNeeded' } } as PartialMedicationRegimenForStory,
   },
 };
 // Add similar stories for NewRegimenWeeklySelected and NewRegimenAsNeededSelected if needed

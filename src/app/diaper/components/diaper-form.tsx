@@ -1,6 +1,6 @@
 import type { DiaperChange } from '@/types/diaper';
 import { fbt } from 'fbtee';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -45,7 +45,16 @@ type DiaperFormProps = AddDiaperProps | EditDiaperProps;
 
 export default function DiaperForm(props: AddDiaperProps): ReactNode;
 export default function DiaperForm(props: EditDiaperProps): ReactNode;
-export default function DiaperForm({
+export default function DiaperForm(props: DiaperFormProps) {
+	const formKey =
+		'change' in props
+			? props.change.id
+			: `new-${props.presetDiaperBrand ?? 'default'}-${props.presetType ?? 'default'}`;
+
+	return <DiaperFormContent key={formKey} {...props} />;
+}
+
+function DiaperFormContent({
 	onClose,
 	onSave,
 	title,
@@ -68,11 +77,18 @@ export default function DiaperForm({
 				: 'urine'
 			: (props.presetType ?? 'urine'),
 	);
-	const [diaperBrand, setDiaperBrand] = useState(
-		'change' in props
-			? props.change.diaperBrand
-			: (props.presetDiaperBrand ?? 'andere'),
-	);
+	const [diaperBrand, setDiaperBrand] = useState(() => {
+		if ('change' in props) {
+			const isPredefinedBrand = DIAPER_BRANDS.some(
+				(brand) => brand.value === props.change.diaperBrand,
+			);
+			if (props.change.diaperBrand && !isPredefinedBrand) {
+				return 'andere';
+			}
+			return props.change.diaperBrand || '';
+		}
+		return props.presetDiaperBrand ?? 'andere';
+	});
 	const [temperature, setTemperature] = useState(
 		'change' in props ? props.change.temperature?.toString() || '' : '',
 	);
@@ -84,30 +100,6 @@ export default function DiaperForm({
 	);
 
 	const change = 'change' in props ? props.change : undefined;
-
-	useEffect(() => {
-		if (!change) {
-			return;
-		}
-
-		const changeDate = new Date(change.timestamp);
-		setDate(dateToDateInputValue(changeDate));
-		setTime(dateToTimeInputValue(changeDate));
-		setDiaperType(change.containsStool ? 'stool' : 'urine');
-
-		const isPredefinedBrand = DIAPER_BRANDS.some(
-			(brand) => brand.value === change.diaperBrand,
-		);
-		if (change.diaperBrand && !isPredefinedBrand) {
-			setDiaperBrand('andere');
-		} else {
-			setDiaperBrand(change.diaperBrand || '');
-		}
-
-		setTemperature(change.temperature ? change.temperature.toString() : '');
-		setHasLeakage(change.leakage || false);
-		setAbnormalities(change.abnormalities || '');
-	}, [change]);
 
 	const handleSubmit = () => {
 		if (!date || !time) return;

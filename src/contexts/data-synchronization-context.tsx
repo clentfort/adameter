@@ -1,7 +1,7 @@
 'use client';
 
 import type { YjsEpochMode } from '@/lib/yjs-epoch';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import YPartyKitProvider from 'y-partykit/provider';
 import { Doc as YjsDoc } from 'yjs';
 import {
@@ -34,6 +34,10 @@ export const DataSynchronizationContext =
 		setRoom: (_room: string | undefined) => {},
 	});
 
+const getInitialMode = () => getYjsEpochMode();
+const getInitialEpoch = (mode: YjsEpochMode) => getYjsEpoch(mode);
+const getInitialBaseRoom = () => getStoredBaseRoom();
+
 interface DataSynchronizationProviderProps {
 	children: React.ReactNode;
 }
@@ -41,45 +45,34 @@ interface DataSynchronizationProviderProps {
 export function DataSynchronizationProvider({
 	children,
 }: DataSynchronizationProviderProps) {
-	const [baseRoom, setBaseRoom] = useState<string | undefined>(undefined);
-	const [epoch, setEpoch] = useState(0);
-	const [mode, setMode] = useState<YjsEpochMode>('production');
-	const [isRoomStateLoaded, setIsRoomStateLoaded] = useState(false);
+	const [mode, setMode] = useState<YjsEpochMode>(() => getInitialMode());
+	const [epoch, setEpoch] = useState(() => getInitialEpoch(getInitialMode()));
+	const [baseRoom, setBaseRoom] = useState<string | undefined>(() =>
+		getInitialBaseRoom(),
+	);
 	const { doc } = useContext(yjsContext);
 	const room = getEffectiveRoom(baseRoom, epoch, mode);
+	const hasLoggedRestore = useRef(false);
 
 	useEffect(() => {
-		const storedMode = getYjsEpochMode();
-		const storedBaseRoom = getStoredBaseRoom();
-		const storedEpoch = getYjsEpoch(storedMode);
-
-		setMode(storedMode);
-		setEpoch(storedEpoch);
-
-		if (storedBaseRoom) {
-			setBaseRoom(storedBaseRoom);
-			setCurrentPerformanceRoom(
-				getEffectiveRoom(storedBaseRoom, storedEpoch, storedMode),
-			);
-			logPerformanceEvent('sync.room.restored', {
-				metadata: {
-					epoch: storedEpoch,
-					mode: storedMode,
-					room: getEffectiveRoom(storedBaseRoom, storedEpoch, storedMode) ?? '',
-				},
-			});
+		if (hasLoggedRestore.current || !baseRoom) {
+			return;
 		}
-
-		setIsRoomStateLoaded(true);
-	}, []);
+		hasLoggedRestore.current = true;
+		const restoredRoom = getEffectiveRoom(baseRoom, epoch, mode);
+		setCurrentPerformanceRoom(restoredRoom);
+		logPerformanceEvent('sync.room.restored', {
+			metadata: {
+				epoch,
+				mode,
+				room: restoredRoom ?? '',
+			},
+		});
+	}, [baseRoom, epoch, mode]);
 
 	useYPartykitSync(room, doc);
 
 	useEffect(() => {
-		if (!isRoomStateLoaded) {
-			return;
-		}
-
 		setCurrentPerformanceRoom(room);
 		logPerformanceEvent(
 			'sync.room.changed',
@@ -87,8 +80,8 @@ export function DataSynchronizationProvider({
 				metadata: {
 					epoch,
 					mode,
-					roomBase: baseRoom ?? '',
 					room: room ?? '',
+					roomBase: baseRoom ?? '',
 				},
 			},
 			{ throttleKey: 'sync.room.changed', throttleMs: 2000 },
@@ -97,7 +90,7 @@ export function DataSynchronizationProvider({
 		setYjsEpochMode(mode);
 		setYjsEpoch(epoch, mode);
 		setStoredBaseRoom(baseRoom, { epoch, mode });
-	}, [baseRoom, epoch, isRoomStateLoaded, mode, room]);
+	}, [baseRoom, epoch, mode, room]);
 
 	return (
 		<DataSynchronizationContext.Provider

@@ -13,23 +13,16 @@ export function useSortedEvents<T extends ItemWithId>(
 	dateAccessor: (item: T) => string, // Function to get the date string from an item
 ) {
 	return useMemo(() => {
-		const start =
-			typeof performance !== 'undefined' ? performance.now() : Date.now();
-
 		if (!items || items.length === 0) {
-			const durationMs =
-				(typeof performance !== 'undefined' ? performance.now() : Date.now()) -
-				start;
 			logPerformanceEvent(
 				'ui.history.group-and-sort',
 				{
-					durationMs,
 					metadata: {
 						groupCount: 0,
 						itemCount: 0,
 					},
 				},
-				{ throttleKey: 'ui.history.group-and-sort:empty', throttleMs: 10000 },
+				{ throttleKey: 'ui.history.group-and-sort:empty', throttleMs: 10_000 },
 			);
 			return {};
 		}
@@ -52,14 +45,10 @@ export function useSortedEvents<T extends ItemWithId>(
 			result[date] = itemArray;
 		}
 
-		const durationMs =
-			(typeof performance !== 'undefined' ? performance.now() : Date.now()) -
-			start;
-		if (items.length >= 200 || durationMs >= 8) {
+		if (items.length >= 200) {
 			logPerformanceEvent(
 				'ui.history.group-and-sort',
 				{
-					durationMs,
 					metadata: {
 						groupCount: Object.keys(result).length,
 						itemCount: items.length,

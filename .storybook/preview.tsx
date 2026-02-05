@@ -29,6 +29,13 @@ const LocaleContext = createLocaleContext({
 });
 
 const preview: Preview = {
+	decorators: [
+		(Story) => (
+			<LocaleContext>
+				<Story />
+			</LocaleContext>
+		),
+	],
 	parameters: {
 		controls: {
 			matchers: {
@@ -37,13 +44,6 @@ const preview: Preview = {
 			},
 		},
 	},
-	decorators: [
-		(Story) => (
-			<LocaleContext>
-				<Story />
-			</LocaleContext>
-		),
-	],
 };
 
 export default preview;

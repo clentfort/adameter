@@ -7,9 +7,6 @@ export function useLatestDiaperChange(): DiaperChange | undefined {
 	const { value: diaperChanges } = useDiaperChanges();
 
 	return useMemo(() => {
-		const start =
-			typeof performance !== 'undefined' ? performance.now() : Date.now();
-
 		if (!diaperChanges || diaperChanges.length === 0) {
 			return undefined;
 		}
@@ -26,15 +23,10 @@ export function useLatestDiaperChange(): DiaperChange | undefined {
 			return 0;
 		})[0];
 
-		const durationMs =
-			(typeof performance !== 'undefined' ? performance.now() : Date.now()) -
-			start;
-
-		if (diaperChanges.length >= 200 || durationMs >= 3) {
+		if (diaperChanges.length >= 200) {
 			logPerformanceEvent(
 				'ui.latest-diaper.compute',
 				{
-					durationMs,
 					metadata: {
 						itemCount: diaperChanges.length,
 					},

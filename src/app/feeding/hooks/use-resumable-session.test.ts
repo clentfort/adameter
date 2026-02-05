@@ -26,11 +26,11 @@ describe('useResumableSession', () => {
 
 	it('should return a resumable session if the latest session ended less than 5 minutes ago', () => {
 		const session: FeedingSession = {
-			id: '1',
 			breast: 'left',
-			startTime: new Date().toISOString(),
-			endTime: subMinutes(new Date(), 4).toISOString(),
 			durationInSeconds: 240,
+			endTime: subMinutes(new Date(), 4).toISOString(),
+			id: '1',
+			startTime: new Date().toISOString(),
 		};
 		mockUseLatestFeedingSession.mockReturnValue(session);
 		const { result } = renderHook(() => useResumableSession());
@@ -39,11 +39,11 @@ describe('useResumableSession', () => {
 
 	it('should return undefined if the latest session ended more than 5 minutes ago', () => {
 		const session: FeedingSession = {
-			id: '1',
 			breast: 'left',
-			startTime: new Date().toISOString(),
-			endTime: subMinutes(new Date(), 6).toISOString(),
 			durationInSeconds: 360,
+			endTime: subMinutes(new Date(), 6).toISOString(),
+			id: '1',
+			startTime: new Date().toISOString(),
 		};
 		mockUseLatestFeedingSession.mockReturnValue(session);
 		const { result } = renderHook(() => useResumableSession());
@@ -52,11 +52,11 @@ describe('useResumableSession', () => {
 
 	it('should invalidate the session after 5 minutes', () => {
 		const session: FeedingSession = {
-			id: '1',
 			breast: 'left',
-			startTime: new Date().toISOString(),
-			endTime: subMinutes(new Date(), 4).toISOString(),
 			durationInSeconds: 240,
+			endTime: subMinutes(new Date(), 4).toISOString(),
+			id: '1',
+			startTime: new Date().toISOString(),
 		};
 		mockUseLatestFeedingSession.mockReturnValue(session);
 		const { result } = renderHook(() => useResumableSession());
@@ -71,11 +71,11 @@ describe('useResumableSession', () => {
 
 	it('should clear the timeout when the page becomes hidden and reset it when it becomes visible again', () => {
 		const session: FeedingSession = {
-			id: '1',
 			breast: 'left',
-			startTime: new Date().toISOString(),
-			endTime: subMinutes(new Date(), 4).toISOString(),
 			durationInSeconds: 240,
+			endTime: subMinutes(new Date(), 4).toISOString(),
+			id: '1',
+			startTime: new Date().toISOString(),
 		};
 		mockUseLatestFeedingSession.mockReturnValue(session);
 		const { result } = renderHook(() => useResumableSession());

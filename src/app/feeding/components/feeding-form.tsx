@@ -1,5 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -21,7 +21,12 @@ interface FeedingFormProps {
 	title: ReactNode;
 }
 
-export default function FeedingForm({
+export default function FeedingForm(props: FeedingFormProps) {
+	const formKey = props.feeding?.id ?? 'new';
+	return <FeedingFormContent key={formKey} {...props} />;
+}
+
+function FeedingFormContent({
 	feeding,
 	onClose,
 	onSave,
@@ -41,20 +46,6 @@ export default function FeedingForm({
 			? Math.round(feeding.durationInSeconds / 60).toString()
 			: '',
 	);
-
-	useEffect(() => {
-		if (!feeding) {
-			return;
-		}
-
-		const startDate = new Date(feeding.startTime);
-
-		setDate(dateToDateInputValue(startDate));
-		setTime(dateToTimeInputValue(startDate));
-
-		const durationInMinutes = Math.round(feeding.durationInSeconds / 60);
-		setDuration(durationInMinutes.toString());
-	}, [feeding]);
 
 	const handleSubmit = () => {
 		if (!date || !time || !duration || Number.isNaN(Number(duration))) {

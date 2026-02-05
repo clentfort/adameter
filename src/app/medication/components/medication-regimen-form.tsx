@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { PlusCircleIcon, XCircleIcon } from 'lucide-react'; // Using lucide-react for icons
 import React from 'react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -109,8 +109,11 @@ export const MedicationRegimenForm: React.FC<MedicationRegimenFormProps> = ({
 		name: 'weeklyTimes',
 	});
 
-	const scheduleType = form.watch('scheduleType');
-	const prescriber = form.watch('prescriber');
+	const scheduleType = useWatch({
+		control: form.control,
+		name: 'scheduleType',
+	});
+	const prescriber = useWatch({ control: form.control, name: 'prescriber' });
 
 	const handleFormSubmit = (data: MedicationRegimenFormData) => {
 		const newRegimen = transformFormDataToMedicationRegimen(

@@ -78,7 +78,7 @@ export function useArrayState<S extends ObjectWithId>(array: S[]) {
 					});
 					return;
 				}
-				array[index] = normalize(update);
+				array.splice(index, 1, normalize(update));
 				timer.end({
 					metadata: {
 						itemCountAfter: array.length,

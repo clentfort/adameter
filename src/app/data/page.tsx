@@ -5,6 +5,7 @@ import type {
 	PerformanceLogEntry,
 	PerformanceSummary,
 } from '@/lib/performance-logging';
+import type { CsvStoreName } from './utils/csv';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,7 +44,7 @@ import { createZip, downloadZip, extractFiles } from './utils/zip';
 
 const DIAGNOSTICS_REFRESH_INTERVAL_MS = 2500;
 
-const dataStores: Record<string, { id: string }[]> = {
+const dataStores: Record<CsvStoreName, { id: string }[]> = {
 	diaperChanges,
 	events,
 	feedingSessions,
@@ -97,20 +98,22 @@ export default function DataPage() {
 	const roomToShow = room ?? getCurrentPerformanceRoom() ?? '';
 
 	const recentLogs = useMemo(() => logs.slice(-10).reverse(), [logs]);
-	const latestLogAt = logs.length > 0 ? logs[logs.length - 1].at : undefined;
+	const latestLogAt = logs.at(-1)?.at;
 
 	const handleExport = async () => {
 		setIsLoading(true);
 		try {
-			const allData = Object.entries(dataStores).map(([name, data]) => ({
-				name,
+			const allData = (
+				Object.entries(dataStores) as Array<[CsvStoreName, { id: string }[]]>
+			).map(([name, data]) => ({
 				data,
+				name,
 			}));
 			const files = allData
 				.filter(({ data }) => data.length > 0)
-				.map(({ name, data }) => ({
-					name: `${name}.csv`,
+				.map(({ data, name }) => ({
 					content: toCsv(name, data),
+					name: `${name}.csv`,
 				}));
 			const zipBlob = await createZip(files);
 			downloadZip(zipBlob);
@@ -131,9 +134,12 @@ export default function DataPage() {
 		setIsLoading(true);
 		try {
 			const files = await extractFiles(file);
-			for (const { name, content } of files) {
-				const data = fromCsv(content);
-				mergeData(dataStores[name], data);
+			for (const { content, name } of files) {
+				if (!(name in dataStores)) {
+					continue;
+				}
+				const data = fromCsv(content) as { id: string }[];
+				mergeData(dataStores[name as CsvStoreName], data);
 			}
 			toast.success('Data imported successfully.');
 		} catch {
@@ -219,7 +225,6 @@ export default function DataPage() {
 		logPerformanceEvent('yjs.epoch.rotated', {
 			metadata: {
 				nextEpoch,
-				targetMode: 'test',
 				room: roomToShow,
 				snapshotItems:
 					snapshot.diaperChanges.length +
@@ -228,6 +233,7 @@ export default function DataPage() {
 					snapshot.growthMeasurements.length +
 					snapshot.medicationRegimens.length +
 					snapshot.medications.length,
+				targetMode: 'test',
 			},
 		});
 

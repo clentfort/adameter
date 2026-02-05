@@ -3,8 +3,10 @@
 import React, {
 	createContext,
 	ReactNode,
+	useCallback,
 	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from 'react';
 import {
@@ -29,17 +31,21 @@ type I18nProviderProps = {
 };
 
 export const I18nProvider = ({ children }: I18nProviderProps) => {
-	const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
+	const [locale, setLocaleState] = useState<Locale>(() => getPreferredLocale());
+	const hasSyncedLocale = useRef(false);
+	const setLocale = useCallback(async (nextLocale: Locale) => {
+		await setAppLocale(nextLocale);
+		setLocaleState(nextLocale);
+	}, []);
 
 	// Refresh preferred locale on mount, as this happens only on the client
 	useEffect(() => {
-		setLocale(getPreferredLocale());
-	}, []);
-
-	const setLocale = async (locale: Locale) => {
-		await setAppLocale(locale);
-		setLocaleState(locale);
-	};
+		if (hasSyncedLocale.current) {
+			return;
+		}
+		hasSyncedLocale.current = true;
+		void setAppLocale(locale);
+	}, [locale]);
 
 	return (
 		<I18nContext.Provider value={{ locale, setLocale }}>

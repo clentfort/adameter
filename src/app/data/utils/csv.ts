@@ -1,5 +1,6 @@
-
 import Papa from 'papaparse';
+
+type CsvRow = Record<string, unknown>;
 
 const columns: { [key: string]: string[] } = {
 	diaperChanges: [
@@ -21,7 +22,13 @@ const columns: { [key: string]: string[] } = {
 		'color',
 		'type',
 	],
-	feedingSessions: ['id', 'startTime', 'endTime', 'durationInSeconds', 'breast'],
+	feedingSessions: [
+		'id',
+		'startTime',
+		'endTime',
+		'durationInSeconds',
+		'breast',
+	],
 	growthMeasurements: [
 		'id',
 		'date',
@@ -55,15 +62,18 @@ const columns: { [key: string]: string[] } = {
 	],
 };
 
-export const toCsv = (name: string, data: any[]) => {
+export type CsvStoreName = keyof typeof columns;
+
+export const toCsv = (name: CsvStoreName, data: CsvRow[]) => {
+	const fields = columns[name];
 	return Papa.unparse({
-		fields: columns[name],
 		data: data.map((row) =>
-			columns[name].reduce((acc, key) => {
-				(acc as any)[key] = (row as any)[key];
+			fields.reduce<Record<string, unknown>>((acc, key) => {
+				acc[key] = row[key];
 				return acc;
 			}, {}),
 		),
+		fields,
 	});
 };
 
@@ -92,7 +102,7 @@ export const fromCsv = (csv: string) => {
 				if (trimmedValue === '') {
 					return requiredNumeric.has(fieldName) ? 0 : undefined;
 				}
-				const num = parseFloat(trimmedValue);
+				const num = Number.parseFloat(trimmedValue);
 				if (Number.isNaN(num)) {
 					return requiredNumeric.has(fieldName) ? 0 : undefined;
 				}
@@ -119,8 +129,8 @@ export const fromCsv = (csv: string) => {
 	return parsed.data;
 };
 
-export const mergeData = (store: any[], data: any[]) => {
+export const mergeData = <T extends { id: string }>(store: T[], data: T[]) => {
 	const existingIds = new Set(store.map((item) => item.id));
-	const newData = data.filter((item: any) => !existingIds.has(item.id));
+	const newData = data.filter((item) => !existingIds.has(item.id));
 	store.push(...newData);
 };

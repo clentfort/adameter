@@ -1,38 +1,37 @@
-
-import { describe, it, expect } from 'vitest';
-import { toCsv, fromCsv } from './csv';
+import { describe, expect, it } from 'vitest';
+import { fromCsv, toCsv } from './csv';
 
 describe('CSV Integration', () => {
 	it('should correctly import what it exports, respecting type definitions for defaults', () => {
 		const data = [
 			{
-				id: '1', // Valid case
-				containsUrine: 'true',
+				abnormalities: 'None',
 				containsStool: 'false',
+				containsUrine: 'true',
+				diaperBrand: 'Pampers',
+				id: '1', // Valid case
 				leakage: 'true',
 				temperature: '37.5',
-				abnormalities: 'None',
-				diaperBrand: 'Pampers',
 			},
 			{
-				id: '2', // Empty and invalid values
-				timestamp: '2022-01-01',
-				containsUrine: '', // required boolean -> false
+				abnormalities: '',
 				containsStool: 'not-a-boolean', // required boolean -> false
+				containsUrine: '', // required boolean -> false
+				diaperBrand: '',
+				id: '2', // Empty and invalid values
 				leakage: '', // optional boolean -> undefined
 				temperature: 'invalid-temp', // optional numeric -> undefined
-				abnormalities: '',
-				diaperBrand: '',
+				timestamp: '2022-01-01',
 			},
 			{
-				id: '3', // Case-insensitivity and different values
-				timestamp: '2022-01-02',
-				containsUrine: 'TRUE',
+				abnormalities: 'A bit reddish',
 				containsStool: 'FALSE',
+				containsUrine: 'TRUE',
+				diaperBrand: 'Huggies',
+				id: '3', // Case-insensitivity and different values
 				leakage: 'false',
 				temperature: '', // optional numeric -> undefined
-				abnormalities: 'A bit reddish',
-				diaperBrand: 'Huggies',
+				timestamp: '2022-01-02',
 			},
 		];
 
@@ -41,34 +40,34 @@ describe('CSV Integration', () => {
 
 		const expectedData = [
 			{
-				id: '1',
-				timestamp: '',
 				abnormalities: 'None',
-				diaperBrand: 'Pampers',
-				containsUrine: true,
 				containsStool: false,
+				containsUrine: true,
+				diaperBrand: 'Pampers',
+				id: '1',
 				leakage: true,
 				temperature: 37.5,
+				timestamp: '',
 			},
 			{
-				id: '2',
-				timestamp: '2022-01-01',
 				abnormalities: '',
-				diaperBrand: '',
-				containsUrine: false,
 				containsStool: false,
+				containsUrine: false,
+				diaperBrand: '',
+				id: '2',
 				leakage: undefined,
 				temperature: undefined,
+				timestamp: '2022-01-01',
 			},
 			{
-				id: '3',
-				timestamp: '2022-01-02',
 				abnormalities: 'A bit reddish',
-				diaperBrand: 'Huggies',
-				containsUrine: true,
 				containsStool: false,
+				containsUrine: true,
+				diaperBrand: 'Huggies',
+				id: '3',
 				leakage: false,
 				temperature: undefined,
+				timestamp: '2022-01-02',
 			},
 		];
 
@@ -78,25 +77,25 @@ describe('CSV Integration', () => {
 	it('should correctly parse required numeric fields for feeding sessions', () => {
 		const data = [
 			{
+				breast: 'left',
+				durationInSeconds: '1200',
+				endTime: '2023-01-01T10:20:00Z',
 				id: 'fs1',
 				startTime: '2023-01-01T10:00:00Z',
-				endTime: '2023-01-01T10:20:00Z',
-				durationInSeconds: '1200',
-				breast: 'left',
 			},
 			{
+				breast: 'right',
+				durationInSeconds: '', // empty value
+				endTime: '2023-01-01T11:15:00Z',
 				id: 'fs2',
 				startTime: '2023-01-01T11:00:00Z',
-				endTime: '2023-01-01T11:15:00Z',
-				durationInSeconds: '', // empty value
-				breast: 'right',
 			},
 			{
+				breast: 'left',
+				durationInSeconds: 'invalid-duration', // invalid value
+				endTime: '2023-01-01T12:25:00Z',
 				id: 'fs3',
 				startTime: '2023-01-01T12:00:00Z',
-				endTime: '2023-01-01T12:25:00Z',
-				durationInSeconds: 'invalid-duration', // invalid value
-				breast: 'left',
 			},
 		];
 
@@ -105,25 +104,25 @@ describe('CSV Integration', () => {
 
 		const expectedData = [
 			{
+				breast: 'left',
+				durationInSeconds: 1200,
+				endTime: '2023-01-01T10:20:00Z',
 				id: 'fs1',
 				startTime: '2023-01-01T10:00:00Z',
-				endTime: '2023-01-01T10:20:00Z',
-				durationInSeconds: 1200,
-				breast: 'left',
 			},
 			{
+				breast: 'right',
+				durationInSeconds: 0,
+				endTime: '2023-01-01T11:15:00Z',
 				id: 'fs2',
 				startTime: '2023-01-01T11:00:00Z',
-				endTime: '2023-01-01T11:15:00Z',
-				durationInSeconds: 0,
-				breast: 'right',
 			},
 			{
+				breast: 'left',
+				durationInSeconds: 0,
+				endTime: '2023-01-01T12:25:00Z',
 				id: 'fs3',
 				startTime: '2023-01-01T12:00:00Z',
-				endTime: '2023-01-01T12:25:00Z',
-				durationInSeconds: 0,
-				breast: 'left',
 			},
 		];
 
