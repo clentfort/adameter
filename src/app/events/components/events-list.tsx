@@ -1,11 +1,11 @@
 import type { Event } from '@/types/event';
 import { format } from 'date-fns';
 import { ArrowRight, Calendar, Clock } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import Markdown from '@/components/markdown';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import Markdown from '@/components/markdown';
 import { useEvents } from '@/hooks/use-events';
 import AddEventDialog from './event-form';
 
@@ -25,9 +25,18 @@ export default function EventsList() {
 		);
 	}
 
-	// Sort events by start date (newest first)
-	const sortedEvents = [...events].sort(
-		(a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+	const sortedEvents = useMemo(
+		() =>
+			[...events].sort((a, b) => {
+				if (a.startDate < b.startDate) {
+					return 1;
+				}
+				if (a.startDate > b.startDate) {
+					return -1;
+				}
+				return 0;
+			}),
+		[events],
 	);
 
 	return (

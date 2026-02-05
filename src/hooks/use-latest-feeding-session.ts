@@ -14,19 +14,14 @@ export function useLatestFeedingSession(): FeedingSession | undefined {
 			return undefined;
 		}
 
-		// Create a shallow copy before sorting
-		const sortedSessions = [...feedingSessions].sort((a, b) => {
-			// Compare endTime strings directly (ISO format ensures correct chronological sorting)
-			if (a.endTime < b.endTime) {
-				return 1; // b is later
+		let latestSession = feedingSessions[0];
+		for (let index = 1; index < feedingSessions.length; index += 1) {
+			const session = feedingSessions[index];
+			if (session.endTime > latestSession.endTime) {
+				latestSession = session;
 			}
-			if (a.endTime > b.endTime) {
-				return -1; // a is later
-			}
-			return 0;
-		});
+		}
 
-		const latestSession = sortedSessions[0];
 		const durationMs =
 			(typeof performance !== 'undefined' ? performance.now() : Date.now()) -
 			start;

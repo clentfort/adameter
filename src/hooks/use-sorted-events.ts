@@ -1,4 +1,3 @@
-import groupBy from '@nkzw/core/groupBy';
 import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
 import { logPerformanceEvent } from '@/lib/performance-logging';
@@ -6,6 +5,19 @@ import { logPerformanceEvent } from '@/lib/performance-logging';
 // Make the hook generic for any item type T that has an id
 interface ItemWithId {
 	id: string;
+}
+
+function getDateKey(timestamp: string) {
+	if (timestamp.length >= 10 && timestamp[4] === '-' && timestamp[7] === '-') {
+		return timestamp.slice(0, 10);
+	}
+
+	const parsedDate = parseISO(timestamp);
+	if (Number.isNaN(parsedDate.getTime())) {
+		return timestamp;
+	}
+
+	return format(parsedDate, 'yyyy-MM-dd');
 }
 
 export function useSortedEvents<T extends ItemWithId>(
@@ -34,22 +46,47 @@ export function useSortedEvents<T extends ItemWithId>(
 			return {};
 		}
 
-		// Sort all items by date initially, using the dateAccessor
-		const sortedItems = [...items].sort(
-			(a, b) =>
-				parseISO(dateAccessor(b)).getTime() -
-				parseISO(dateAccessor(a)).getTime(),
-		);
+		const preparedItems = items.map((item) => {
+			const timestamp = dateAccessor(item);
+			const sortKey = Date.parse(timestamp);
 
-		// Group items by date string, using the dateAccessor
-		const groupedByDate = groupBy(sortedItems, (item) =>
-			format(parseISO(dateAccessor(item)), 'yyyy-MM-dd'),
-		);
+			return {
+				dateKey: getDateKey(timestamp),
+				item,
+				sortKey: Number.isNaN(sortKey) ? undefined : sortKey,
+				timestamp,
+			};
+		});
 
-		// Convert Map to object
+		preparedItems.sort((a, b) => {
+			if (a.sortKey !== undefined && b.sortKey !== undefined) {
+				return b.sortKey - a.sortKey;
+			}
+
+			if (a.sortKey !== undefined) {
+				return -1;
+			}
+
+			if (b.sortKey !== undefined) {
+				return 1;
+			}
+
+			if (a.timestamp < b.timestamp) {
+				return 1;
+			}
+
+			if (a.timestamp > b.timestamp) {
+				return -1;
+			}
+
+			return 0;
+		});
+
 		const result: Record<string, T[]> = {};
-		for (const [date, itemArray] of groupedByDate.entries()) {
-			result[date] = itemArray;
+		for (const preparedItem of preparedItems) {
+			const existingItems = result[preparedItem.dateKey] ?? [];
+			existingItems.push(preparedItem.item);
+			result[preparedItem.dateKey] = existingItems;
 		}
 
 		const durationMs =

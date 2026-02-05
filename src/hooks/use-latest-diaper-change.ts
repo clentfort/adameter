@@ -14,17 +14,13 @@ export function useLatestDiaperChange(): DiaperChange | undefined {
 			return undefined;
 		}
 
-		// Sort by timestamp in descending order and take the first element
-		// Timestamps are ISO strings, so string comparison works for finding the latest.
-		const latestChange = [...diaperChanges].sort((a, b) => {
-			if (a.timestamp < b.timestamp) {
-				return 1;
+		let latestChange = diaperChanges[0];
+		for (let index = 1; index < diaperChanges.length; index += 1) {
+			const diaperChange = diaperChanges[index];
+			if (diaperChange.timestamp > latestChange.timestamp) {
+				latestChange = diaperChange;
 			}
-			if (a.timestamp > b.timestamp) {
-				return -1;
-			}
-			return 0;
-		})[0];
+		}
 
 		const durationMs =
 			(typeof performance !== 'undefined' ? performance.now() : Date.now()) -
