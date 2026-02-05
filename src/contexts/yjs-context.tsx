@@ -3,7 +3,7 @@
 import { createContext, useEffect, useState } from 'react';
 import { bind } from 'valtio-yjs';
 import { IndexeddbPersistence, storeState } from 'y-indexeddb';
-import { Array, Doc, Map } from 'yjs';
+import { Array, Doc, encodeStateAsUpdate, Map } from 'yjs';
 import { SplashScreen } from '@/components/splash-screen';
 import { diaperChanges } from '@/data/diaper-changes';
 import { events } from '@/data/events';
@@ -71,6 +71,67 @@ function useBindValtioToYjs<T>(
 	}, [state, yMap]);
 }
 
+async function countIndexedDbUpdates(databaseName: string) {
+	if (typeof indexedDB === 'undefined') {
+		return undefined;
+	}
+
+	return await new Promise<number | undefined>((resolve) => {
+		const openRequest = indexedDB.open(databaseName);
+		let isResolved = false;
+
+		const finalize = (value: number | undefined) => {
+			if (isResolved) {
+				return;
+			}
+			isResolved = true;
+			resolve(value);
+		};
+
+		openRequest.onerror = () => {
+			finalize(undefined);
+		};
+
+		openRequest.onsuccess = () => {
+			const database = openRequest.result;
+
+			if (!database.objectStoreNames.contains('updates')) {
+				database.close();
+				finalize(undefined);
+				return;
+			}
+
+			const transaction = database.transaction('updates', 'readonly');
+			const updatesStore = transaction.objectStore('updates');
+			const countRequest = updatesStore.count();
+
+			countRequest.onerror = () => {
+				database.close();
+				finalize(undefined);
+			};
+
+			countRequest.onsuccess = () => {
+				database.close();
+				finalize(
+					typeof countRequest.result === 'number'
+						? countRequest.result
+						: undefined,
+				);
+			};
+
+			transaction.onabort = () => {
+				database.close();
+				finalize(undefined);
+			};
+
+			transaction.onerror = () => {
+				database.close();
+				finalize(undefined);
+			};
+		};
+	});
+}
+
 function useYjsPersistence(doc: Doc) {
 	const [isSynced, setIsSynced] = useState(false);
 	useEffect(() => {
@@ -117,6 +178,31 @@ function useYjsPersistence(doc: Doc) {
 				});
 			}
 
+			const encodedSizeAfterSync = encodeStateAsUpdate(doc).length;
+			logPerformanceEvent('yjs.document.encoded-size.bytes', {
+				metadata: {
+					epoch,
+					mode,
+					phase: 'after-whenSynced',
+					persistenceName,
+				},
+				value: encodedSizeAfterSync,
+			});
+
+			const updateCountAfterSync = await countIndexedDbUpdates(persistenceName);
+			if (typeof updateCountAfterSync === 'number') {
+				logPerformanceEvent('yjs.persistence.updates.count', {
+					metadata: {
+						dbSizeReported: dbSize ?? -1,
+						epoch,
+						mode,
+						phase: 'after-whenSynced',
+						persistenceName,
+					},
+					value: updateCountAfterSync,
+				});
+			}
+
 			// Consolidate updates if there are many of them to improve loading times.
 			// The default threshold is 500, but we use a more aggressive threshold
 			// of 20 to keep the number of IndexedDB records low.
@@ -140,6 +226,17 @@ function useYjsPersistence(doc: Doc) {
 					},
 				);
 				applyYjsEpochSnapshot(pendingSnapshot);
+
+				const encodedSizeAfterSnapshotApply = encodeStateAsUpdate(doc).length;
+				logPerformanceEvent('yjs.document.encoded-size.bytes', {
+					metadata: {
+						epoch,
+						mode,
+						phase: 'after-snapshot-apply',
+						persistenceName,
+					},
+					value: encodedSizeAfterSnapshotApply,
+				});
 				snapshotApplyTimer.end({
 					metadata: {
 						diaperCount: pendingSnapshot.diaperChanges.length,
@@ -149,6 +246,68 @@ function useYjsPersistence(doc: Doc) {
 						medicationCount: pendingSnapshot.medications.length,
 						regimenCount: pendingSnapshot.medicationRegimens.length,
 					},
+				});
+
+				const postSnapshotCompactionTimer = startPerformanceTimer(
+					'yjs.persistence.compaction.post-snapshot',
+					{
+						epoch,
+						mode,
+						persistenceName,
+					},
+				);
+				await storeState(persistence, true);
+				postSnapshotCompactionTimer.end();
+
+				const encodedSizeAfterSnapshotCompaction =
+					encodeStateAsUpdate(doc).length;
+				logPerformanceEvent('yjs.document.encoded-size.bytes', {
+					metadata: {
+						epoch,
+						mode,
+						phase: 'after-snapshot-compaction',
+						persistenceName,
+					},
+					value: encodedSizeAfterSnapshotCompaction,
+				});
+
+				const updateCountAfterSnapshotCompaction =
+					await countIndexedDbUpdates(persistenceName);
+				if (typeof updateCountAfterSnapshotCompaction === 'number') {
+					logPerformanceEvent('yjs.persistence.updates.count', {
+						metadata: {
+							epoch,
+							mode,
+							phase: 'after-snapshot-compaction',
+							persistenceName,
+						},
+						value: updateCountAfterSnapshotCompaction,
+					});
+				}
+			}
+
+			const encodedSizeAtHydrationReady = encodeStateAsUpdate(doc).length;
+			logPerformanceEvent('yjs.document.encoded-size.bytes', {
+				metadata: {
+					epoch,
+					mode,
+					phase: 'hydration-ready',
+					persistenceName,
+				},
+				value: encodedSizeAtHydrationReady,
+			});
+
+			const updateCountAtHydrationReady =
+				await countIndexedDbUpdates(persistenceName);
+			if (typeof updateCountAtHydrationReady === 'number') {
+				logPerformanceEvent('yjs.persistence.updates.count', {
+					metadata: {
+						epoch,
+						mode,
+						phase: 'hydration-ready',
+						persistenceName,
+					},
+					value: updateCountAtHydrationReady,
 				});
 			}
 
