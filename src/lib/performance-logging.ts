@@ -1,9 +1,3 @@
-import {
-	getYjsEpoch,
-	getYjsEpochMode,
-	getYjsPersistenceName,
-} from './yjs-epoch';
-
 type Primitive = boolean | null | number | string;
 
 export interface PerformanceLogEntry {
@@ -391,9 +385,6 @@ export function createPerformanceReport() {
 			generatedAt: new Date().toISOString(),
 			logCount: logs.length,
 			logs,
-			epoch: getYjsEpoch(),
-			mode: getYjsEpochMode(),
-			persistenceName: getYjsPersistenceName(getYjsEpoch(), getYjsEpochMode()),
 			room: getCurrentPerformanceRoom(),
 			sessionId: getSessionId(),
 			summary: getPerformanceSummaries(30),
