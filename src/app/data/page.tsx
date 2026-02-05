@@ -18,15 +18,26 @@ import { growthMeasurements } from '@/data/growth-measurments';
 import { medicationRegimensProxy as medicationRegimens } from '@/data/medication-regimens';
 import { medicationsProxy as medications } from '@/data/medications';
 import {
+	captureYjsEpochSnapshot,
+	saveYjsEpochSnapshot,
+} from '@/data/yjs-epoch-snapshot';
+import {
 	clearPerformanceLogs,
 	createPerformanceReport,
 	getCurrentPerformanceRoom,
 	getPerformanceDeviceLabel,
 	getPerformanceLogs,
 	getPerformanceSummaries,
+	logPerformanceEvent,
 	PERFORMANCE_LOG_UPDATED_EVENT,
 	setPerformanceDeviceLabel,
 } from '@/lib/performance-logging';
+import {
+	getYjsEpoch,
+	getYjsEpochMode,
+	setYjsEpoch,
+	setYjsEpochMode,
+} from '@/lib/yjs-epoch';
 import { fromCsv, mergeData, toCsv } from './utils/csv';
 import { createZip, downloadZip, extractFiles } from './utils/zip';
 
@@ -49,6 +60,8 @@ export default function DataPage() {
 	const { toast } = useToast();
 	const { room } = useContext(DataSynchronizationContext);
 	const [deviceLabel, setDeviceLabel] = useState('');
+	const [mode, setMode] = useState<'production' | 'test'>('production');
+	const [epoch, setEpoch] = useState(0);
 	const [isLoading, setIsLoading] = useState(false);
 	const [logs, setLogs] = useState<PerformanceLogEntry[]>([]);
 	const [summaries, setSummaries] = useState<PerformanceSummary[]>([]);
@@ -60,6 +73,9 @@ export default function DataPage() {
 
 	useEffect(() => {
 		setDeviceLabel(getPerformanceDeviceLabel());
+		const currentMode = getYjsEpochMode();
+		setMode(currentMode);
+		setEpoch(getYjsEpoch(currentMode));
 		refreshDiagnostics();
 
 		const onUpdate = () => {
@@ -181,6 +197,66 @@ export default function DataPage() {
 		toast.success('Diagnostics log cleared.');
 	};
 
+	const handleStartTestEpoch = async () => {
+		const nextEpoch = getYjsEpoch('test') + 1;
+		const snapshot = captureYjsEpochSnapshot();
+
+		try {
+			await saveYjsEpochSnapshot(snapshot, {
+				epoch: nextEpoch,
+				mode: 'test',
+			});
+		} catch {
+			toast.error('Failed to persist epoch snapshot. Aborting epoch rotation.');
+			return;
+		}
+
+		setYjsEpochMode('test');
+		setYjsEpoch(nextEpoch, 'test');
+		setMode('test');
+		setEpoch(nextEpoch);
+
+		logPerformanceEvent('yjs.epoch.rotated', {
+			metadata: {
+				nextEpoch,
+				targetMode: 'test',
+				room: roomToShow,
+				snapshotItems:
+					snapshot.diaperChanges.length +
+					snapshot.events.length +
+					snapshot.feedingSessions.length +
+					snapshot.growthMeasurements.length +
+					snapshot.medicationRegimens.length +
+					snapshot.medications.length,
+			},
+		});
+
+		toast.success('Started new test epoch. Reloading now...');
+		setTimeout(() => {
+			window.location.reload();
+		}, 50);
+	};
+
+	const handleSwitchToProductionRoom = () => {
+		setYjsEpochMode('production');
+		setYjsEpoch(0, 'production');
+		setMode('production');
+		setEpoch(0);
+
+		logPerformanceEvent('yjs.mode.switched', {
+			metadata: {
+				nextEpoch: 0,
+				nextMode: 'production',
+				room: roomToShow,
+			},
+		});
+
+		toast.success('Switched to production room. Reloading now...');
+		setTimeout(() => {
+			window.location.reload();
+		}, 50);
+	};
+
 	return (
 		<div className="space-y-4">
 			<Card>
@@ -192,6 +268,15 @@ export default function DataPage() {
 						Logging is always enabled. Use this section on each phone to capture
 						startup and interaction performance.
 					</p>
+
+					<div className="grid gap-2">
+						<p className="text-sm">
+							<span className="font-medium">Current Yjs mode:</span> {mode}
+						</p>
+						<p className="text-sm">
+							<span className="font-medium">Current Yjs epoch:</span> {epoch}
+						</p>
+					</div>
 
 					<div className="grid gap-2">
 						<p className="text-sm">
@@ -235,6 +320,16 @@ export default function DataPage() {
 					</div>
 
 					<div className="flex flex-wrap gap-2">
+						<Button onClick={handleStartTestEpoch} size="sm" variant="outline">
+							Start New Test Epoch
+						</Button>
+						<Button
+							onClick={handleSwitchToProductionRoom}
+							size="sm"
+							variant="outline"
+						>
+							Switch To Production
+						</Button>
 						<Button onClick={handleCopyDiagnostics} size="sm" variant="outline">
 							Copy Report
 						</Button>
