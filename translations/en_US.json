@@ -3576,6 +3576,30 @@
           "translation": "Import/Export"
         }
       ]
+    },
+    "2zz1QSQn8wJrq7koRI/IkQ==": {
+      "description": "Label showing how many day sections are currently visible in the history list",
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Showing {visibleDaySections} of {totalDaySections} days",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "P7tGdRyijbFA5ktygL8PoQ==": {
+      "description": "Button label to load older history entries in the history list",
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Show older entries",
+          "variations": {}
+        }
+      ],
+      "types": []
     }
   }
 }
