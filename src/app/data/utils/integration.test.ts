@@ -129,4 +129,23 @@ describe('CSV Integration', () => {
 
 		expect(parsedData).toEqual(expectedData);
 	});
+
+	it('should correctly import medication regimens with nested schedule', () => {
+		const data = [
+			{
+				id: 'reg1',
+				name: 'Med 1',
+				dosageAmount: 5,
+				dosageUnit: 'ml',
+				startDate: '2023-01-01',
+				prescriber: 'Doctor',
+				schedule: { type: 'daily', times: ['08:00', '20:00'] },
+			},
+		];
+
+		const csv = toCsv('medicationRegimens', data);
+		const parsedData = fromCsv(csv);
+
+		expect(parsedData[0].schedule).toEqual(data[0].schedule);
+	});
 });
