@@ -59,6 +59,14 @@ feature, or improving translations, your help is appreciated.
 6.  **Commit your changes** and **push to your fork.**
 7.  **Open a Pull Request** against the main AdaMeter repository.
 
+### Preview Environments
+
+- Branch previews deploy to PartyKit using the name `branch-<slug>`.
+- Vercel preview builds automatically target
+  `branch-<slug>.adameter-party.clentfort.partykit.dev`.
+- You can override the PartyKit target manually by setting
+  `NEXT_PUBLIC_PARTYKIT_HOST`.
+
 ### Translations
 
 AdaMeter uses `fbtee` for internationalization, making it easy to mark strings
