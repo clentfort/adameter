@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import YPartyKitProvider from 'y-partykit/provider';
 import { Doc as YjsDoc } from 'yjs';
+import { PARTYKIT_URL } from '@/lib/partykit-host';
 import {
 	logPerformanceEvent,
 	setCurrentPerformanceRoom,
@@ -80,12 +81,9 @@ function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
 			room,
 		});
 
-		const provider = new YPartyKitProvider(
-			'https://adameter-party.clentfort.partykit.dev',
-			room,
-			doc,
-			{ connect: true },
-		);
+		const provider = new YPartyKitProvider(PARTYKIT_URL, room, doc, {
+			connect: true,
+		});
 
 		connectTimer.end();
 		logPerformanceEvent('sync.partykit.provider.created', {
