@@ -13,8 +13,10 @@ import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import DiaperRecords from './components/diaper-records';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
+import FeedingRecords from './components/feeding-records';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
@@ -123,6 +125,7 @@ export default function StatisticsPage() {
 								<TimeBetweenStats sessions={filteredSessions} />
 								<FeedingsPerDayStats sessions={filteredSessions} />
 								<TotalFeedingsStats sessions={filteredSessions} />
+								<FeedingRecords sessions={filteredSessions} />
 								<HeatMap className="col-span-2" sessions={filteredSessions} />
 							</div>
 							<YearlyActivityHeatMap
@@ -155,6 +158,9 @@ export default function StatisticsPage() {
 					{filteredDiaperChanges.length > 0 ? (
 						<>
 							<DiaperStats diaperChanges={filteredDiaperChanges} />
+							<div className="grid grid-cols-2 gap-4 mt-4">
+								<DiaperRecords diaperChanges={filteredDiaperChanges} />
+							</div>
 							<YearlyActivityHeatMap
 								className="mt-4"
 								dates={diaperChanges.map((change) => change.timestamp)}
