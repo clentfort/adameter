@@ -15,111 +15,15 @@ concurrency:
 jobs:
   deploy-preview:
     if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    env:
-      PARTYKIT_ACCOUNT: clentfort
-      PARTYKIT_PROJECT_NAME: adameter-party
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Compute preview URLs
-        id: preview_meta
-        run: |
-          PREVIEW_NAME="pr-${{ github.event.pull_request.number }}"
-          echo "preview_name=${PREVIEW_NAME}" >> "$GITHUB_OUTPUT"
-          echo "preview_url=https://${PREVIEW_NAME}.${PARTYKIT_PROJECT_NAME}.${PARTYKIT_ACCOUNT}.partykit.dev" >> "$GITHUB_OUTPUT"
-
-      - name: Create GitHub deployment
-        id: create_deployment
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const deployment = await github.rest.repos.createDeployment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: context.sha,
-              environment: 'partykit-preview',
-              auto_merge: false,
-              required_contexts: [],
-              transient_environment: true,
-              production_environment: false,
-              description: 'PartyKit preview deployment',
-            });
-            return deployment.data.id;
-
-      - name: Mark deployment in progress
-        uses: actions/github-script@v7
-        env:
-          DEPLOYMENT_ID: ${{ steps.create_deployment.outputs.result }}
-          PREVIEW_URL: ${{ steps.preview_meta.outputs.preview_url }}
-        with:
-          script: |
-            await github.rest.repos.createDeploymentStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              deployment_id: Number(process.env.DEPLOYMENT_ID),
-              state: 'in_progress',
-              environment_url: process.env.PREVIEW_URL,
-              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              description: 'PartyKit preview deployment in progress',
-            });
-
-      - name: Deploy PartyKit preview environment
-        id: deploy_partykit
-        env:
-          PREVIEW_NAME: ${{ steps.preview_meta.outputs.preview_name }}
-          PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}
-          PARTYKIT_LOGIN: ${{ secrets.PARTYKIT_LOGIN  }}
-        run: pnpm exec partykit deploy --preview "$PREVIEW_NAME"
-
-      - name: Mark deployment successful
-        if: always() && steps.deploy_partykit.outcome == 'success'
-        uses: actions/github-script@v7
-        env:
-          DEPLOYMENT_ID: ${{ steps.create_deployment.outputs.result }}
-          PREVIEW_URL: ${{ steps.preview_meta.outputs.preview_url }}
-        with:
-          script: |
-            await github.rest.repos.createDeploymentStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              deployment_id: Number(process.env.DEPLOYMENT_ID),
-              state: 'success',
-              environment_url: process.env.PREVIEW_URL,
-              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              description: 'PartyKit preview is ready',
-            });
-
-      - name: Mark deployment failed
-        if: always() && steps.deploy_partykit.outcome != 'success'
-        uses: actions/github-script@v7
-        env:
-          DEPLOYMENT_ID: ${{ steps.create_deployment.outputs.result }}
-          PREVIEW_URL: ${{ steps.preview_meta.outputs.preview_url }}
-        with:
-          script: |
-            await github.rest.repos.createDeploymentStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              deployment_id: Number(process.env.DEPLOYMENT_ID),
-              state: 'failure',
-              environment_url: process.env.PREVIEW_URL,
-              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              description: 'PartyKit preview deployment failed',
-            });
+    uses: ./.github/workflows/partykit-deploy-reusable.yaml
+    with:
+      deployment_environment: partykit-preview
+      deployment_url: https://pr-${{ github.event.pull_request.number }}.adameter-party.clentfort.partykit.dev
+      deploy_command: pnpm exec partykit deploy --preview "pr-${{ github.event.pull_request.number }}"
+      deployment_description: PartyKit preview deployment
+      in_progress_description: PartyKit preview deployment in progress
+      success_description: PartyKit preview is ready
+      failure_description: PartyKit preview deployment failed
+      transient_environment: true
+      production_environment: false
+    secrets: inherit
