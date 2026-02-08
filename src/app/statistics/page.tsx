@@ -128,9 +128,11 @@ export default function StatisticsPage() {
 								dates={sessions.map((session) => session.startTime)}
 								description={
 									<fbt desc="Description for the feeding yearly activity heat map chart">
-										Each square shows how many feedings were logged on that day this year.
+										Each square shows how many feedings were logged on that day
+										this year.
 									</fbt>
 								}
+								palette="feeding"
 								title={
 									<fbt desc="Title for the feeding yearly activity heat map chart">
 										Feeding Activity This Year
@@ -157,9 +159,11 @@ export default function StatisticsPage() {
 								dates={diaperChanges.map((change) => change.timestamp)}
 								description={
 									<fbt desc="Description for the diaper yearly activity heat map chart">
-										Each square shows how many diaper changes were logged on that day this year.
+										Each square shows how many diaper changes were logged on
+										that day this year.
 									</fbt>
 								}
+								palette="diaper"
 								title={
 									<fbt desc="Title for the diaper yearly activity heat map chart">
 										Diaper Activity This Year
@@ -179,7 +183,10 @@ export default function StatisticsPage() {
 						<fbt desc="Subtitle for the growth statistics section">Growth</fbt>
 					</h3>
 					{measurements.length > 0 ? (
-						<GrowthChart events={[...events]} measurements={[...measurements]} />
+						<GrowthChart
+							events={[...events]}
+							measurements={[...measurements]}
+						/>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
 							<fbt desc="Message shown when no growth data is available">

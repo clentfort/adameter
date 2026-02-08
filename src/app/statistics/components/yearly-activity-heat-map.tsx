@@ -8,7 +8,6 @@ import {
 	startOfWeek,
 	startOfYear,
 } from 'date-fns';
-import { cn } from '@/lib/utils';
 import {
 	Card,
 	CardContent,
@@ -16,21 +15,39 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface YearlyActivityHeatMapProps {
 	className?: string;
 	dates: string[];
 	description: ReactNode;
+	palette?: 'diaper' | 'feeding';
 	title: ReactNode;
 }
 
-const CONTRIBUTION_LEVEL_CLASSES = [
-	'bg-muted border-border/50',
-	'bg-emerald-100 border-emerald-200/70 dark:bg-emerald-950 dark:border-emerald-900',
-	'bg-emerald-200 border-emerald-300/70 dark:bg-emerald-800 dark:border-emerald-700',
-	'bg-emerald-400 border-emerald-500/70 dark:bg-emerald-700 dark:border-emerald-600',
-	'bg-emerald-600 border-emerald-700/70 dark:bg-emerald-500 dark:border-emerald-400',
-] as const;
+const CONTRIBUTION_PALETTES = {
+	diaper: {
+		levelClasses: [
+			'bg-muted border-border/50',
+			'bg-amber-100 border-amber-200/70 dark:bg-amber-950 dark:border-amber-900',
+			'bg-amber-200 border-amber-300/70 dark:bg-amber-800 dark:border-amber-700',
+			'bg-amber-400 border-amber-500/70 dark:bg-amber-700 dark:border-amber-600',
+			'bg-amber-600 border-amber-700/70 dark:bg-amber-500 dark:border-amber-400',
+		] as const,
+		todayRingClass: 'ring-1 ring-amber-700/80 dark:ring-amber-400/80',
+	},
+	feeding: {
+		levelClasses: [
+			'bg-muted border-border/50',
+			'bg-left-breast/15 border-left-breast/25 dark:bg-left-breast/20 dark:border-left-breast/30',
+			'bg-left-breast/30 border-left-breast/35 dark:bg-left-breast/35 dark:border-left-breast/40',
+			'bg-left-breast/55 border-left-breast/60 dark:bg-left-breast/55 dark:border-left-breast/60',
+			'bg-left-breast border-left-breast-dark dark:bg-left-breast dark:border-left-breast',
+		] as const,
+		todayRingClass:
+			'ring-1 ring-left-breast-dark/80 dark:ring-left-breast-light/80',
+	},
+} as const;
 
 function getContributionLevel(count: number, maxCount: number) {
 	if (count === 0 || maxCount === 0) {
@@ -58,8 +75,10 @@ export default function YearlyActivityHeatMap({
 	className,
 	dates,
 	description,
+	palette = 'feeding',
 	title,
 }: YearlyActivityHeatMapProps) {
+	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
 	const now = new Date();
 	const currentYear = now.getFullYear();
 	const yearStart = startOfYear(new Date(currentYear, 0, 1));
@@ -98,20 +117,22 @@ export default function YearlyActivityHeatMap({
 	});
 
 	const todayKey = format(now, 'yyyy-MM-dd');
-	const cells = eachDayOfInterval({ start: gridStart, end: gridEnd }).map((day) => {
-		const key = format(day, 'yyyy-MM-dd');
-		const inCurrentYear = day.getFullYear() === currentYear;
-		const count = inCurrentYear ? (countsByDate.get(key) ?? 0) : 0;
+	const cells = eachDayOfInterval({ start: gridStart, end: gridEnd }).map(
+		(day) => {
+			const key = format(day, 'yyyy-MM-dd');
+			const inCurrentYear = day.getFullYear() === currentYear;
+			const count = inCurrentYear ? (countsByDate.get(key) ?? 0) : 0;
 
-		return {
-			count,
-			inCurrentYear,
-			isToday: key === todayKey,
-			key,
-			level: getContributionLevel(count, maxCount),
-			title: `${format(day, 'PPP')}: ${count}`,
-		};
-	});
+			return {
+				count,
+				inCurrentYear,
+				isToday: key === todayKey,
+				key,
+				level: getContributionLevel(count, maxCount),
+				title: `${format(day, 'PPP')}: ${count}`,
+			};
+		},
+	);
 
 	return (
 		<Card className={className}>
@@ -124,7 +145,9 @@ export default function YearlyActivityHeatMap({
 					<div className="inline-block min-w-full">
 						<div
 							className="mb-1 grid gap-1 text-[11px] text-muted-foreground"
-							style={{ gridTemplateColumns: `repeat(${weekCount}, minmax(0, 1fr))` }}
+							style={{
+								gridTemplateColumns: `repeat(${weekCount}, minmax(0, 1fr))`,
+							}}
 						>
 							{monthLabels.map(({ label, monthIndex, weekIndex }) => (
 								<span
@@ -152,8 +175,8 @@ export default function YearlyActivityHeatMap({
 									<div
 										className={cn(
 											'h-3 w-3 rounded-[3px] border transition-colors',
-											CONTRIBUTION_LEVEL_CLASSES[cell.level],
-											cell.isToday && 'ring-1 ring-emerald-700/80 dark:ring-emerald-400/80',
+											levelClasses[cell.level],
+											cell.isToday && todayRingClass,
 										)}
 										data-testid={`yearly-cell-${cell.key}`}
 										key={cell.key}
@@ -169,7 +192,7 @@ export default function YearlyActivityHeatMap({
 					<span>
 						<fbt desc="Legend minimum activity label">Less</fbt>
 					</span>
-					{CONTRIBUTION_LEVEL_CLASSES.map((levelClass, index) => (
+					{levelClasses.map((levelClass, index) => (
 						<div
 							className={cn('h-3 w-3 rounded-[3px] border', levelClass)}
 							key={index}

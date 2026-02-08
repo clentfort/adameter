@@ -45,7 +45,21 @@ describe('YearlyActivityHeatMap', () => {
 
 		expect(busyDayCell).toHaveAttribute('title', 'January 2nd, 2024: 2');
 		expect(lightDayCell).toHaveAttribute('title', 'January 3rd, 2024: 1');
-		expect(busyDayCell).toHaveClass('bg-emerald-600');
-		expect(lightDayCell).toHaveClass('bg-emerald-200');
+		expect(busyDayCell).toHaveClass('bg-left-breast');
+		expect(lightDayCell).toHaveClass('bg-left-breast/30');
+	});
+
+	it('uses amber palette for diaper heat map', () => {
+		render(
+			<YearlyActivityHeatMap
+				dates={['2024-01-02T09:00:00Z']}
+				description="Description"
+				palette="diaper"
+				title="Title"
+			/>,
+		);
+
+		const diaperDayCell = screen.getByTestId('yearly-cell-2024-01-02');
+		expect(diaperDayCell).toHaveClass('bg-amber-600');
 	});
 });
