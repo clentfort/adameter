@@ -9,12 +9,12 @@ export const TINYBASE_MIGRATION_VERSION = 1;
 export const STORE_VALUE_MIGRATION_VERSION = 'migrationVersion';
 export const STORE_VALUE_MIGRATION_SOURCE = 'migrationSource';
 export const STORE_VALUE_MIGRATED_AT = 'migratedAt';
+export const STORE_VALUE_FEEDING_IN_PROGRESS = 'feedingInProgress';
 
 export const TABLE_IDS = {
 	DIAPER_CHANGES: 'diaperChanges',
 	EVENTS: 'events',
 	FEEDING_SESSIONS: 'feedingSessions',
-	FEEDING_IN_PROGRESS: 'feedingInProgress',
 	GROWTH_MEASUREMENTS: 'growthMeasurements',
 	MEDICATION_REGIMENS: 'medicationRegimens',
 	MEDICATIONS: 'medications',
@@ -22,7 +22,6 @@ export const TABLE_IDS = {
 
 export const ROW_JSON_CELL = 'json';
 export const ROW_ORDER_CELL = 'order';
-export const FEEDING_IN_PROGRESS_ROW_ID = 'current';
 
 export const LEGACY_YJS_ARRAYS = {
 	[TABLE_IDS.DIAPER_CHANGES]: 'diaper-changes-dec',

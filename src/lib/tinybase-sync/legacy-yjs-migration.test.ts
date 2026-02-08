@@ -5,6 +5,7 @@ import {
 	LEGACY_YJS_MIGRATION_PENDING,
 	ROW_JSON_CELL,
 	ROW_ORDER_CELL,
+	STORE_VALUE_FEEDING_IN_PROGRESS,
 	TABLE_IDS,
 	TINYBASE_MIGRATION_VERSION,
 } from './constants';
@@ -43,9 +44,7 @@ describe('legacy-yjs-migration', () => {
 		expect(
 			typeof tables[TABLE_IDS.DIAPER_CHANGES].diaper_1[ROW_JSON_CELL],
 		).toBe('string');
-		expect(tables[TABLE_IDS.FEEDING_IN_PROGRESS].current[ROW_ORDER_CELL]).toBe(
-			0,
-		);
+		expect(typeof values[STORE_VALUE_FEEDING_IN_PROGRESS]).toBe('string');
 		expect(values.migrationVersion).toBe(TINYBASE_MIGRATION_VERSION);
 		expect(values.migrationSource).toBe('yjs-party');
 		expect(values.migratedAt).toBe('2026-02-07T12:00:00.000Z');

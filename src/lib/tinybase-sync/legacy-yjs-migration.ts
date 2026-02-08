@@ -8,7 +8,6 @@ import type { MedicationAdministration } from '@/types/medication';
 import type { MedicationRegimen } from '@/types/medication-regimen';
 import { Doc, Map as YMap } from 'yjs';
 import {
-	FEEDING_IN_PROGRESS_ROW_ID,
 	LEGACY_YJS_ARRAYS,
 	LEGACY_YJS_FEEDING_IN_PROGRESS_MAP,
 	LEGACY_YJS_MIGRATION_COMPLETED,
@@ -17,6 +16,7 @@ import {
 	LEGACY_YJS_MIGRATION_STATUS_KEY,
 	ROW_JSON_CELL,
 	ROW_ORDER_CELL,
+	STORE_VALUE_FEEDING_IN_PROGRESS,
 	STORE_VALUE_MIGRATED_AT,
 	STORE_VALUE_MIGRATION_SOURCE,
 	STORE_VALUE_MIGRATION_VERSION,
@@ -130,12 +130,16 @@ export function legacyStateToTinybaseContent(
 		[TABLE_IDS.GROWTH_MEASUREMENTS]: toArrayTable(state.growthMeasurements),
 		[TABLE_IDS.MEDICATION_REGIMENS]: toArrayTable(state.medicationRegimens),
 		[TABLE_IDS.MEDICATIONS]: toArrayTable(state.medications),
-		[TABLE_IDS.FEEDING_IN_PROGRESS]: toFeedingInProgressTable(
-			state.feedingInProgress.current,
-		),
 	};
 
 	const values: Values = {
+		...(state.feedingInProgress.current
+			? {
+					[STORE_VALUE_FEEDING_IN_PROGRESS]: JSON.stringify(
+						normalizeForSync(state.feedingInProgress.current),
+					),
+				}
+			: {}),
 		[STORE_VALUE_MIGRATED_AT]: atIso,
 		[STORE_VALUE_MIGRATION_SOURCE]: source,
 		[STORE_VALUE_MIGRATION_VERSION]: TINYBASE_MIGRATION_VERSION,
@@ -152,13 +156,16 @@ export function isStoreDataEmpty(store: Store) {
 		TABLE_IDS.GROWTH_MEASUREMENTS,
 		TABLE_IDS.MEDICATION_REGIMENS,
 		TABLE_IDS.MEDICATIONS,
-		TABLE_IDS.FEEDING_IN_PROGRESS,
 	] as const;
 
 	for (const tableId of tableIds) {
 		if (store.getRowCount(tableId) > 0) {
 			return false;
 		}
+	}
+
+	if (typeof store.getValue(STORE_VALUE_FEEDING_IN_PROGRESS) === 'string') {
+		return false;
 	}
 
 	return true;
@@ -270,21 +277,5 @@ function toArrayTable<T extends ObjectWithId>(items: T[]) {
 			[ROW_ORDER_CELL]: order,
 		};
 	}
-	return table;
-}
-
-function toFeedingInProgressTable(current: FeedingInProgress | null) {
-	const table: Tables[string] = {};
-
-	if (current === null) {
-		return table;
-	}
-
-	const normalized = normalizeForSync(current);
-	table[FEEDING_IN_PROGRESS_ROW_ID] = {
-		[ROW_JSON_CELL]: JSON.stringify(normalized),
-		[ROW_ORDER_CELL]: 0,
-	};
-
 	return table;
 }

@@ -1,5 +1,6 @@
 import type { Store } from 'tinybase';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
+import { useTable } from 'tinybase/ui-react';
 import { tinybaseContext } from '@/contexts/tinybase-context';
 import { startPerformanceTimer } from '@/lib/performance-logging';
 import { ROW_JSON_CELL, ROW_ORDER_CELL } from '@/lib/tinybase-sync/constants';
@@ -10,20 +11,9 @@ export interface ObjectWithId {
 
 export function useArrayState<S extends ObjectWithId>(tableId: string) {
 	const { store } = useContext(tinybaseContext);
-	const [value, setValue] = useState<S[]>(() =>
-		readArrayFromStoreTable<S>(store, tableId),
-	);
+	const table = useTable(tableId, store);
 
-	useEffect(() => {
-		setValue(readArrayFromStoreTable<S>(store, tableId));
-		const listenerId = store.addTableListener(tableId, () => {
-			setValue(readArrayFromStoreTable<S>(store, tableId));
-		});
-
-		return () => {
-			store.delListener(listenerId);
-		};
-	}, [store, tableId]);
+	const value = useMemo(() => readArrayFromTable<S>(table), [table]);
 
 	return {
 		add: useCallback(
@@ -81,10 +71,7 @@ export function useArrayState<S extends ObjectWithId>(tableId: string) {
 
 				const normalized = next.map((item) => normalize(item));
 				store.transaction(() => {
-					for (const rowId of store.getRowIds(tableId)) {
-						store.delRow(tableId, rowId);
-					}
-
+					store.delTable(tableId);
 					for (const [order, item] of normalized.entries()) {
 						store.setRow(tableId, item.id, {
 							[ROW_JSON_CELL]: JSON.stringify(item),
@@ -118,15 +105,13 @@ export function useArrayState<S extends ObjectWithId>(tableId: string) {
 				}
 
 				const normalized = normalize(update);
-				const orderCell = store.getCell(tableId, update.id, ROW_ORDER_CELL);
-				const order =
-					typeof orderCell === 'number'
-						? orderCell
-						: getNextOrder(store, tableId);
-
+				const existingOrder = store.getCell(tableId, update.id, ROW_ORDER_CELL);
 				store.setRow(tableId, update.id, {
 					[ROW_JSON_CELL]: JSON.stringify(normalized),
-					[ROW_ORDER_CELL]: order,
+					[ROW_ORDER_CELL]:
+						typeof existingOrder === 'number'
+							? existingOrder
+							: getNextOrder(store, tableId),
 				});
 
 				timer.end({
@@ -142,14 +127,12 @@ export function useArrayState<S extends ObjectWithId>(tableId: string) {
 	} as const;
 }
 
-function readArrayFromStoreTable<S extends ObjectWithId>(
-	store: Store,
-	tableId: string,
+function readArrayFromTable<S extends ObjectWithId>(
+	table: ReturnType<typeof useTable>,
 ) {
-	return store
-		.getRowIds(tableId)
-		.map((rowId: string) => {
-			const jsonCell = store.getCell(tableId, rowId, ROW_JSON_CELL);
+	return Object.entries(table)
+		.map(([rowId, row]) => {
+			const jsonCell = row[ROW_JSON_CELL];
 			if (typeof jsonCell !== 'string') {
 				return undefined;
 			}
@@ -159,7 +142,7 @@ function readArrayFromStoreTable<S extends ObjectWithId>(
 				return undefined;
 			}
 
-			const orderCell = store.getCell(tableId, rowId, ROW_ORDER_CELL);
+			const orderCell = row[ROW_ORDER_CELL];
 			const order =
 				typeof orderCell === 'number' ? orderCell : Number.MAX_SAFE_INTEGER;
 
@@ -170,24 +153,17 @@ function readArrayFromStoreTable<S extends ObjectWithId>(
 			};
 		})
 		.filter(
-			(
-				entry: { item: S; order: number; rowId: string } | undefined,
-			): entry is { item: S; order: number; rowId: string } =>
+			(entry): entry is { item: S; order: number; rowId: string } =>
 				entry !== undefined,
 		)
-		.sort(
-			(
-				left: { item: S; order: number; rowId: string },
-				right: { item: S; order: number; rowId: string },
-			) => {
-				if (left.order !== right.order) {
-					return left.order - right.order;
-				}
+		.sort((left, right) => {
+			if (left.order !== right.order) {
+				return left.order - right.order;
+			}
 
-				return left.rowId.localeCompare(right.rowId);
-			},
-		)
-		.map((entry: { item: S; order: number; rowId: string }) => entry.item);
+			return left.rowId.localeCompare(right.rowId);
+		})
+		.map((entry) => entry.item);
 }
 
 function getNextOrder(store: Store, tableId: string) {
