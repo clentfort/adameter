@@ -128,14 +128,13 @@ export default function StatisticsPage() {
 								dates={sessions.map((session) => session.startTime)}
 								description={
 									<fbt desc="Description for the feeding yearly activity heat map chart">
-										Each square shows how many feedings were logged on that day
-										this year.
+										Each square shows how many feedings were logged on that day.
 									</fbt>
 								}
 								palette="feeding"
 								title={
 									<fbt desc="Title for the feeding yearly activity heat map chart">
-										Feeding Activity This Year
+										Feeding Activity (Last 365 Days)
 									</fbt>
 								}
 							/>
@@ -160,13 +159,13 @@ export default function StatisticsPage() {
 								description={
 									<fbt desc="Description for the diaper yearly activity heat map chart">
 										Each square shows how many diaper changes were logged on
-										that day this year.
+										that day.
 									</fbt>
 								}
 								palette="diaper"
 								title={
 									<fbt desc="Title for the diaper yearly activity heat map chart">
-										Diaper Activity This Year
+										Diaper Activity (Last 365 Days)
 									</fbt>
 								}
 							/>
