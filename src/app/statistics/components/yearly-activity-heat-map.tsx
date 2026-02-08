@@ -2,11 +2,14 @@ import type { ReactNode } from 'react';
 import {
 	differenceInCalendarWeeks,
 	eachDayOfInterval,
+	eachMonthOfInterval,
+	endOfDay,
 	endOfWeek,
-	endOfYear,
 	format,
+	isWithinInterval,
+	startOfDay,
 	startOfWeek,
-	startOfYear,
+	subYears,
 } from 'date-fns';
 import {
 	Card,
@@ -80,18 +83,19 @@ export default function YearlyActivityHeatMap({
 }: YearlyActivityHeatMapProps) {
 	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
 	const now = new Date();
-	const currentYear = now.getFullYear();
-	const yearStart = startOfYear(new Date(currentYear, 0, 1));
-	const yearEnd = endOfYear(new Date(currentYear, 0, 1));
-	const gridStart = startOfWeek(yearStart, { weekStartsOn: 0 });
-	const gridEnd = endOfWeek(yearEnd, { weekStartsOn: 0 });
+	const startDate = subYears(startOfDay(now), 1);
+	const gridStart = startOfWeek(startDate, { weekStartsOn: 0 });
+	const gridEnd = endOfWeek(now, { weekStartsOn: 0 });
 
 	const countsByDate = dates
 		.map((value) => new Date(value))
-		.filter(
-			(date) =>
-				!Number.isNaN(date.getTime()) && date.getFullYear() === currentYear,
-		)
+		.filter((date) => {
+			if (Number.isNaN(date.getTime())) return false;
+			return isWithinInterval(date, {
+				start: startDate,
+				end: endOfDay(now),
+			});
+		})
 		.reduce<Map<string, number>>((accumulator, date) => {
 			const key = format(date, 'yyyy-MM-dd');
 			const current = accumulator.get(key) ?? 0;
@@ -103,16 +107,18 @@ export default function YearlyActivityHeatMap({
 	const weekCount =
 		differenceInCalendarWeeks(gridEnd, gridStart, { weekStartsOn: 0 }) + 1;
 
-	const monthLabels = Array.from({ length: 12 }, (_, monthIndex) => {
-		const monthStart = new Date(currentYear, monthIndex, 1);
+	const monthLabels = eachMonthOfInterval({
+		start: gridStart,
+		end: gridEnd,
+	}).map((monthStart, index) => {
 		const weekIndex = differenceInCalendarWeeks(monthStart, gridStart, {
 			weekStartsOn: 0,
 		});
 
 		return {
 			label: format(monthStart, 'MMM'),
-			monthIndex,
-			weekIndex,
+			monthIndex: index,
+			weekIndex: Math.max(0, weekIndex),
 		};
 	});
 
@@ -120,12 +126,10 @@ export default function YearlyActivityHeatMap({
 	const cells = eachDayOfInterval({ end: gridEnd, start: gridStart }).map(
 		(day) => {
 			const key = format(day, 'yyyy-MM-dd');
-			const inCurrentYear = day.getFullYear() === currentYear;
-			const count = inCurrentYear ? (countsByDate.get(key) ?? 0) : 0;
+			const count = countsByDate.get(key) ?? 0;
 
 			return {
 				count,
-				inCurrentYear,
 				isToday: key === todayKey,
 				key,
 				level: getContributionLevel(count, maxCount),
@@ -161,29 +165,18 @@ export default function YearlyActivityHeatMap({
 						</div>
 
 						<div className="grid grid-flow-col grid-rows-7 gap-1">
-							{cells.map((cell) => {
-								if (!cell.inCurrentYear) {
-									return (
-										<div
-											className="h-3 w-3 rounded-[3px] border border-transparent bg-transparent"
-											key={cell.key}
-										/>
-									);
-								}
-
-								return (
-									<div
-										className={cn(
-											'h-3 w-3 rounded-[3px] border transition-colors',
-											levelClasses[cell.level],
-											cell.isToday && todayRingClass,
-										)}
-										data-testid={`yearly-cell-${cell.key}`}
-										key={cell.key}
-										title={cell.title}
-									/>
-								);
-							})}
+							{cells.map((cell) => (
+								<div
+									className={cn(
+										'h-3 w-3 rounded-[3px] border transition-colors',
+										levelClasses[cell.level],
+										cell.isToday && todayRingClass,
+									)}
+									data-testid={`yearly-cell-${cell.key}`}
+									key={cell.key}
+									title={cell.title}
+								/>
+							))}
 						</div>
 					</div>
 				</div>
