@@ -141,9 +141,9 @@ describe('HeatMap', () => {
 		const heatMapCard = container.firstChild as HTMLElement;
 
 		// maxCount will be 2 for mockSessions
-		// Interval 0 (count 2): intensity 1.0 -> bg-pink-600
-		// Interval 2 (count 1): intensity 0.5 -> bg-purple-400 (0.4 <= intensity < 0.6)
-		// Interval 3 (count 0): intensity 0 -> bg-gray-100
+		// Interval 0 (count 2): intensity 1.0 -> bg-right-breast
+		// Interval 2 (count 1): intensity 0.5 -> bg-right-breast/45 (0.4 <= intensity < 0.6)
+		// Interval 3 (count 0): intensity 0 -> bg-muted/60
 
 		const intervalElementsContainer = within(heatMapCard).getByTitle(
 			'00:00 Uhr: 2 Mahlzeiten',
@@ -151,12 +151,16 @@ describe('HeatMap', () => {
 
 		expect(intervalElementsContainer).not.toBeNull();
 		if (intervalElementsContainer) {
-			expect(intervalElementsContainer.children[0]).toHaveClass('bg-pink-600');
-			expect(intervalElementsContainer.children[1]).toHaveClass('bg-pink-600'); // count 2
+			expect(intervalElementsContainer.children[0]).toHaveClass(
+				'bg-right-breast',
+			);
+			expect(intervalElementsContainer.children[1]).toHaveClass(
+				'bg-right-breast',
+			); // count 2
 			expect(intervalElementsContainer.children[2]).toHaveClass(
-				'bg-purple-400',
+				'bg-right-breast/45',
 			); // count 1
-			expect(intervalElementsContainer.children[3]).toHaveClass('bg-gray-100'); // count 0
+			expect(intervalElementsContainer.children[3]).toHaveClass('bg-muted/60'); // count 0
 		}
 	});
 
