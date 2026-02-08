@@ -25,6 +25,10 @@ import {
 	ensureLegacyMigrationMarker,
 	migrateStoreFromLegacyYjsDoc,
 } from '@/lib/tinybase-sync/legacy-yjs-migration';
+import {
+	reconcileRemoteLoadResult,
+	snapshotStoreContentIfNonEmpty,
+} from '@/lib/tinybase-sync/remote-bootstrap';
 import { DataSynchronizationContext } from './data-synchronization-context';
 
 const defaultStore = createStore();
@@ -129,10 +133,27 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				},
 			);
 
+			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+			await remotePersister.load();
+			const bootstrapResult = reconcileRemoteLoadResult(store, localSnapshot);
+
+			if (bootstrapResult.decision === 'restore-local') {
+				await remotePersister.save();
+			}
+
+			logPerformanceEvent('tinybase.persistence.remote.bootstrap', {
+				metadata: {
+					decision: bootstrapResult.decision,
+					localHadData: bootstrapResult.localHadData,
+					remoteHadData: bootstrapResult.remoteHadData,
+					room,
+				},
+			});
+
 			const connectTimer = startPerformanceTimer('sync.partykit.connect', {
 				room,
 			});
-			await remotePersister.startAutoPersisting(undefined, true);
+			await remotePersister.startAutoPersisting(undefined, false);
 			connectTimer.end();
 
 			logPerformanceEvent('sync.partykit.provider.created', {
