@@ -1,6 +1,5 @@
 import type { DiaperChange } from '@/types/diaper';
 import { format, parseISO } from 'date-fns';
-import { fbt } from 'fbtee';
 import StatsCard from './stats-card';
 
 interface DiaperRecordsProps {
