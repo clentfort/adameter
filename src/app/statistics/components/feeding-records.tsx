@@ -24,7 +24,9 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 	const days = Array.from(sessionsByDay.entries());
 	if (days.length === 0) return null;
 
-	const mostSessions = days.reduce((a, b) => (a[1].count >= b[1].count ? a : b));
+	const mostSessions = days.reduce((a, b) =>
+		a[1].count >= b[1].count ? a : b,
+	);
 	const fewestSessions = days.reduce((a, b) =>
 		a[1].count <= b[1].count ? a : b,
 	);

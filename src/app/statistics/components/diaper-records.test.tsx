@@ -45,7 +45,9 @@ describe('DiaperRecords', () => {
 	it('calculates and displays records correctly', () => {
 		render(<DiaperRecords diaperChanges={mockDiaperChanges} />);
 
-		expect(screen.getByText('Most diaper changes in a day')).toBeInTheDocument();
+		expect(
+			screen.getByText('Most diaper changes in a day'),
+		).toBeInTheDocument();
 		expect(
 			screen.getByText('Fewest diaper changes in a day'),
 		).toBeInTheDocument();
