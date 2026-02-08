@@ -1,100 +1,71 @@
-import { useCallback } from 'react';
-import { useSnapshot } from 'valtio/react';
-import { startPerformanceTimer } from '@/lib/performance-logging';
+import { useCallback, useContext, useMemo } from 'react';
+import { useTable } from 'tinybase/ui-react';
+import { tinybaseContext } from '@/contexts/tinybase-context';
+import { ROW_JSON_CELL } from '@/lib/tinybase-sync/constants';
 
 export interface ObjectWithId {
 	id: string;
 }
 
-export function useArrayState<S extends ObjectWithId>(array: S[]) {
-	const value = useSnapshot(array);
+export function useArrayState<S extends ObjectWithId>(tableId: string) {
+	const { store } = useContext(tinybaseContext);
+	const table = useTable(tableId, store);
+
+	const value = useMemo(
+		() =>
+			Object.values(table)
+				.map((row) => safeParse<S>(row[ROW_JSON_CELL]))
+				.filter((item): item is S => item !== undefined),
+		[table],
+	);
+
 	return {
 		add: useCallback(
 			(item: S) => {
-				const timer = startPerformanceTimer('state.array.add', {
-					itemCountBefore: array.length,
-				});
-				array.push(normalize(item));
-				timer.end({
-					metadata: {
-						itemCountAfter: array.length,
-					},
+				store.setRow(tableId, item.id, {
+					[ROW_JSON_CELL]: JSON.stringify(item),
 				});
 			},
-			[array],
+			[store, tableId],
 		),
 		remove: useCallback(
 			(id: string) => {
-				const timer = startPerformanceTimer('state.array.remove', {
-					itemCountBefore: array.length,
-				});
-				const index = array.findIndex((item) => item.id === id);
-				if (index === -1) {
-					timer.end({
-						metadata: {
-							itemCountAfter: array.length,
-							removed: false,
-						},
-					});
-					return;
-				}
-				array.splice(index, 1);
-				timer.end({
-					metadata: {
-						itemCountAfter: array.length,
-						removed: true,
-					},
-				});
+				store.delRow(tableId, id);
 			},
-			[array],
+			[store, tableId],
 		),
 		replace: useCallback(
 			(next: S[]) => {
-				const timer = startPerformanceTimer('state.array.replace', {
-					incomingItemCount: next.length,
-					itemCountBefore: array.length,
-				});
-				array.splice(0, array.length, ...next.map((item) => normalize(item)));
-				timer.end({
-					metadata: {
-						itemCountAfter: array.length,
-					},
-				});
+				const nextTable = Object.fromEntries(
+					next.map((item) => [
+						item.id,
+						{ [ROW_JSON_CELL]: JSON.stringify(item) },
+					]),
+				);
+				store.setTable(tableId, nextTable);
 			},
-			[array],
+			[store, tableId],
 		),
 		update: useCallback(
-			(update: S) => {
-				const timer = startPerformanceTimer('state.array.update', {
-					itemCountBefore: array.length,
-				});
-				const index = array.findIndex((item) => item.id === update.id);
-				if (index === -1) {
-					timer.end({
-						metadata: {
-							itemCountAfter: array.length,
-							updated: false,
-						},
-					});
-					return;
-				}
-				array[index] = normalize(update);
-				timer.end({
-					metadata: {
-						itemCountAfter: array.length,
-						updated: true,
-					},
+			(item: S) => {
+				store.setRow(tableId, item.id, {
+					[ROW_JSON_CELL]: JSON.stringify(item),
 				});
 			},
-			[array],
+			[store, tableId],
 		),
 		value,
 	} as const;
 }
 
-function normalize<T extends ObjectWithId>(item: T) {
-	// Using JSON.stringify + parse as a quick way to get rid of any
-	// `undefined` values as this causes a render freeze with valtio/yjs
-	// eslint-disable-next-line unicorn/prefer-structured-clone
-	return JSON.parse(JSON.stringify(item));
+function safeParse<T>(value: unknown): T | undefined {
+	if (typeof value !== 'string') {
+		return undefined;
+	}
+
+	try {
+		return JSON.parse(value) as T;
+	} catch {
+		return undefined;
+	}
 }

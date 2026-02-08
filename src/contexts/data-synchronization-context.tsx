@@ -1,15 +1,10 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import YPartyKitProvider from 'y-partykit/provider';
-import { Doc as YjsDoc } from 'yjs';
-import { PARTYKIT_URL } from '@/lib/partykit-host';
+import { createContext, useEffect, useState } from 'react';
 import {
 	logPerformanceEvent,
 	setCurrentPerformanceRoom,
-	startPerformanceTimer,
 } from '@/lib/performance-logging';
-import { yjsContext } from './yjs-context';
 
 interface DataSynchronizationContextProps {
 	room: string | undefined;
@@ -30,7 +25,6 @@ export function DataSynchronizationProvider({
 	children,
 }: DataSynchronizationProviderProps) {
 	const [room, setRoom] = useState<string | undefined>(undefined);
-	const { doc } = useContext(yjsContext);
 	useEffect(() => {
 		const room = localStorage.getItem('room');
 		if (room) {
@@ -41,7 +35,7 @@ export function DataSynchronizationProvider({
 			});
 		}
 	}, []);
-	useYPartykitSync(room, doc);
+
 	useEffect(() => {
 		setCurrentPerformanceRoom(room);
 		logPerformanceEvent(
@@ -66,35 +60,4 @@ export function DataSynchronizationProvider({
 			{children}
 		</DataSynchronizationContext.Provider>
 	);
-}
-
-/**
- * Sets up synchronization of Yjs document via PartyKit
- */
-function useYPartykitSync(room: string | undefined, doc: YjsDoc) {
-	useEffect(() => {
-		if (!room) {
-			return;
-		}
-
-		const connectTimer = startPerformanceTimer('sync.partykit.connect', {
-			room,
-		});
-
-		const provider = new YPartyKitProvider(PARTYKIT_URL, room, doc, {
-			connect: true,
-		});
-
-		connectTimer.end();
-		logPerformanceEvent('sync.partykit.provider.created', {
-			metadata: { room },
-		});
-
-		return () => {
-			logPerformanceEvent('sync.partykit.provider.destroyed', {
-				metadata: { room },
-			});
-			provider.destroy();
-		};
-	}, [room, doc]);
 }

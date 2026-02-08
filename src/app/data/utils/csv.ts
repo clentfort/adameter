@@ -1,4 +1,3 @@
-
 import Papa from 'papaparse';
 
 const columns: { [key: string]: string[] } = {
@@ -21,7 +20,13 @@ const columns: { [key: string]: string[] } = {
 		'color',
 		'type',
 	],
-	feedingSessions: ['id', 'startTime', 'endTime', 'durationInSeconds', 'breast'],
+	feedingSessions: [
+		'id',
+		'startTime',
+		'endTime',
+		'durationInSeconds',
+		'breast',
+	],
 	growthMeasurements: [
 		'id',
 		'date',
@@ -119,8 +124,8 @@ export const fromCsv = (csv: string) => {
 	return parsed.data;
 };
 
-export const mergeData = (store: any[], data: any[]) => {
+export const mergeData = <T extends { id: string }>(store: T[], data: T[]) => {
 	const existingIds = new Set(store.map((item) => item.id));
-	const newData = data.filter((item: any) => !existingIds.has(item.id));
-	store.push(...newData);
+	const newData = data.filter((item) => !existingIds.has(item.id));
+	return [...store, ...newData];
 };

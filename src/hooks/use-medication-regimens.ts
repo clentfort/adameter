@@ -1,7 +1,14 @@
-import { useEffect } from 'react';
-import { medicationRegimensProxy } from '@/data/medication-regimens';
-import { useArrayState } from './use-array-state';
-import { MedicationRegimen } from '@/types/medication-regimen';
+import type { MedicationRegimen } from '@/types/medication-regimen';
+import { useContext, useEffect, useMemo } from 'react';
+import { useTable } from 'tinybase/ui-react';
+import { tinybaseContext } from '@/contexts/tinybase-context';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import {
+	getNextOrder,
+	medicationRegimenFromRow,
+	medicationRegimenToRow,
+	tableToOrderedRows,
+} from '@/lib/tinybase-sync/medication-table';
 
 const defaultMedicationRegimens: MedicationRegimen[] = [
 	{
@@ -58,13 +65,50 @@ const defaultMedicationRegimens: MedicationRegimen[] = [
 ];
 
 export const useMedicationRegimens = () => {
-	const state = useArrayState<MedicationRegimen>(medicationRegimensProxy);
+	const { store } = useContext(tinybaseContext);
+	const table = useTable(TABLE_IDS.MEDICATION_REGIMENS, store);
+
+	const value = useMemo(
+		() =>
+			tableToOrderedRows<MedicationRegimen>(table, medicationRegimenFromRow),
+		[table],
+	);
+
+	const add = (item: MedicationRegimen) => {
+		store.setRow(
+			TABLE_IDS.MEDICATION_REGIMENS,
+			item.id,
+			medicationRegimenToRow(item, getNextOrder(table)),
+		);
+	};
+
+	const remove = (id: string) => {
+		store.delRow(TABLE_IDS.MEDICATION_REGIMENS, id);
+	};
+
+	const update = (item: MedicationRegimen) => {
+		const existingOrder = table[item.id]?.order;
+		const order =
+			typeof existingOrder === 'number' ? existingOrder : getNextOrder(table);
+		store.setRow(
+			TABLE_IDS.MEDICATION_REGIMENS,
+			item.id,
+			medicationRegimenToRow(item, order),
+		);
+	};
+
+	const replace = (next: MedicationRegimen[]) => {
+		const nextTable = Object.fromEntries(
+			next.map((item, order) => [item.id, medicationRegimenToRow(item, order)]),
+		);
+		store.setTable(TABLE_IDS.MEDICATION_REGIMENS, nextTable);
+	};
 
 	useEffect(() => {
-		if (state.value && state.value.length === 0 && defaultMedicationRegimens.length > 0) {
-			state.replace(defaultMedicationRegimens);
+		if (value.length === 0 && defaultMedicationRegimens.length > 0) {
+			replace(defaultMedicationRegimens);
 		}
-	}, [state.value, state.replace]);
+	}, [value]);
 
-	return state;
+	return { add, remove, replace, update, value } as const;
 };

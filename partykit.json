@@ -1,6 +1,9 @@
 {
 	"$schema": "https://www.partykit.io/schema.json",
 	"name": "adameter-party",
-	"main": "party/index.ts",
+	"main": "party/main.ts",
+	"parties": {
+		"tinybase": "party/tinybase.ts"
+	},
 	"compatibilityDate": "2025-04-26"
 }
