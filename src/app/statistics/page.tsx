@@ -17,10 +17,10 @@ import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
-import HeatMap from './components/heat-map';
 import TimeBetweenStats from './components/time-between-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
+import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
 export default function StatisticsPage() {
 	const { value: diaperChanges } = useDiaperChanges();
@@ -122,8 +122,23 @@ export default function StatisticsPage() {
 								<TimeBetweenStats sessions={filteredSessions} />
 								<FeedingsPerDayStats sessions={filteredSessions} />
 								<TotalFeedingsStats sessions={filteredSessions} />
-								<HeatMap className="col-span-2" sessions={filteredSessions} />
 							</div>
+							<YearlyActivityHeatMap
+								className="mt-4"
+								dates={sessions.map((session) => session.startTime)}
+								description={
+									<fbt desc="Description for the feeding yearly activity heat map chart">
+										Each square shows how many feedings were logged on that day
+										this year.
+									</fbt>
+								}
+								palette="feeding"
+								title={
+									<fbt desc="Title for the feeding yearly activity heat map chart">
+										Feeding Activity This Year
+									</fbt>
+								}
+							/>
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
@@ -137,7 +152,25 @@ export default function StatisticsPage() {
 						<fbt desc="Subtitle for the diaper statistics section">Diaper</fbt>
 					</h3>
 					{filteredDiaperChanges.length > 0 ? (
-						<DiaperStats diaperChanges={filteredDiaperChanges} />
+						<>
+							<DiaperStats diaperChanges={filteredDiaperChanges} />
+							<YearlyActivityHeatMap
+								className="mt-4"
+								dates={diaperChanges.map((change) => change.timestamp)}
+								description={
+									<fbt desc="Description for the diaper yearly activity heat map chart">
+										Each square shows how many diaper changes were logged on
+										that day this year.
+									</fbt>
+								}
+								palette="diaper"
+								title={
+									<fbt desc="Title for the diaper yearly activity heat map chart">
+										Diaper Activity This Year
+									</fbt>
+								}
+							/>
+						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
 							<fbt desc="Message shown when no diaper data is available for the selected time range">
@@ -150,7 +183,10 @@ export default function StatisticsPage() {
 						<fbt desc="Subtitle for the growth statistics section">Growth</fbt>
 					</h3>
 					{measurements.length > 0 ? (
-						<GrowthChart events={[...events]} measurements={[...measurements]} />
+						<GrowthChart
+							events={[...events]}
+							measurements={[...measurements]}
+						/>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
 							<fbt desc="Message shown when no growth data is available">
