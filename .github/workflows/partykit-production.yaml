@@ -1,0 +1,29 @@
+name: Deploy PartyKit Production
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: partykit-production-main
+  cancel-in-progress: true
+
+jobs:
+  deploy-production:
+    uses: ./.github/workflows/partykit-deploy-reusable.yaml
+    with:
+      deployment_environment: partykit-production
+      deployment_url: https://adameter-party.clentfort.partykit.dev
+      deploy_command: pnpm exec partykit deploy
+      deployment_description: PartyKit production deployment
+      in_progress_description: PartyKit production deployment in progress
+      success_description: PartyKit production deployment is ready
+      failure_description: PartyKit production deployment failed
+      transient_environment: false
+      production_environment: true
+    secrets: inherit

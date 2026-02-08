@@ -1,0 +1,29 @@
+name: Deploy PartyKit Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: partykit-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    uses: ./.github/workflows/partykit-deploy-reusable.yaml
+    with:
+      deployment_environment: partykit-preview
+      deployment_url: https://pr-${{ github.event.pull_request.number }}.adameter-party.clentfort.partykit.dev
+      deploy_command: pnpm exec partykit deploy --preview "pr-${{ github.event.pull_request.number }}"
+      deployment_description: PartyKit preview deployment
+      in_progress_description: PartyKit preview deployment in progress
+      success_description: PartyKit preview is ready
+      failure_description: PartyKit preview deployment failed
+      transient_environment: true
+      production_environment: false
+    secrets: inherit
