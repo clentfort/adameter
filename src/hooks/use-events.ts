@@ -1,4 +1,4 @@
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { useTableArrayState } from './use-table-array-state';
+import { useArrayState } from './use-array-state';
 
-export const useEvents = () => useTableArrayState(TABLE_IDS.EVENTS);
+export const useEvents = () => useArrayState(TABLE_IDS.EVENTS);

@@ -1,5 +1,4 @@
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { useTableArrayState } from './use-table-array-state';
+import { useArrayState } from './use-array-state';
 
-export const useDiaperChanges = () =>
-	useTableArrayState(TABLE_IDS.DIAPER_CHANGES);
+export const useDiaperChanges = () => useArrayState(TABLE_IDS.DIAPER_CHANGES);
