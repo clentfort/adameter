@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { MedicationAdministration } from '@/types/medication';
-import { useArrayState } from './use-array-state';
+import { useTableArrayState } from './use-table-array-state';
 
 const defaultMedications: MedicationAdministration[] = [
 	{
@@ -82,7 +82,9 @@ const defaultMedications: MedicationAdministration[] = [
 ];
 
 export const useMedications = () => {
-	const state = useArrayState<MedicationAdministration>(TABLE_IDS.MEDICATIONS);
+	const state = useTableArrayState<MedicationAdministration>(
+		TABLE_IDS.MEDICATIONS,
+	);
 
 	useEffect(() => {
 		if (

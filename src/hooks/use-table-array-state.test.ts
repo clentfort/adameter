@@ -5,16 +5,16 @@ import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
 import { tinybaseContext } from '@/contexts/tinybase-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { useArrayState } from './use-array-state';
+import { useTableArrayState } from './use-table-array-state';
 
-describe('useArrayState', () => {
-	it('adds an item to a Tinybase-backed array table', async () => {
+describe('useTableArrayState', () => {
+	it('adds an item to a Tinybase table-backed array', async () => {
 		const store = createStore();
 		const wrapper = ({ children }: { children: ReactNode }) =>
 			createElement(tinybaseContext.Provider, { value: { store } }, children);
 
 		const { result } = renderHook(
-			() => useArrayState<{ id: string; name: string }>(TABLE_IDS.EVENTS),
+			() => useTableArrayState<{ id: string; name: string }>(TABLE_IDS.EVENTS),
 			{ wrapper },
 		);
 

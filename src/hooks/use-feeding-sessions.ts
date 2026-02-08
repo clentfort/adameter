@@ -1,5 +1,5 @@
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { useArrayState } from './use-array-state';
+import { useTableArrayState } from './use-table-array-state';
 
 export const useFeedingSessions = () =>
-	useArrayState(TABLE_IDS.FEEDING_SESSIONS);
+	useTableArrayState(TABLE_IDS.FEEDING_SESSIONS);
