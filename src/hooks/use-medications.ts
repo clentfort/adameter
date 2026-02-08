@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { medicationsProxy } from '@/data/medications';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { MedicationAdministration } from '@/types/medication';
 import { useArrayState } from './use-array-state';
 
@@ -82,7 +82,7 @@ const defaultMedications: MedicationAdministration[] = [
 ];
 
 export const useMedications = () => {
-	const state = useArrayState<MedicationAdministration>(medicationsProxy);
+	const state = useArrayState<MedicationAdministration>(TABLE_IDS.MEDICATIONS);
 
 	useEffect(() => {
 		if (
@@ -92,7 +92,7 @@ export const useMedications = () => {
 		) {
 			state.replace(defaultMedications);
 		}
-	}, [state]);
+	}, [state.replace, state.value]);
 
 	return state;
 };

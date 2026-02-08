@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { medicationRegimensProxy } from '@/data/medication-regimens';
-import { useArrayState } from './use-array-state';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { MedicationRegimen } from '@/types/medication-regimen';
+import { useArrayState } from './use-array-state';
 
 const defaultMedicationRegimens: MedicationRegimen[] = [
 	{
@@ -58,10 +58,14 @@ const defaultMedicationRegimens: MedicationRegimen[] = [
 ];
 
 export const useMedicationRegimens = () => {
-	const state = useArrayState<MedicationRegimen>(medicationRegimensProxy);
+	const state = useArrayState<MedicationRegimen>(TABLE_IDS.MEDICATION_REGIMENS);
 
 	useEffect(() => {
-		if (state.value && state.value.length === 0 && defaultMedicationRegimens.length > 0) {
+		if (
+			state.value &&
+			state.value.length === 0 &&
+			defaultMedicationRegimens.length > 0
+		) {
 			state.replace(defaultMedicationRegimens);
 		}
 	}, [state.value, state.replace]);

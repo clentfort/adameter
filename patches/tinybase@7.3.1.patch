@@ -1,0 +1,214 @@
+diff --git a/persisters/persister-partykit-client/index.js b/persisters/persister-partykit-client/index.js
+index 189b7650229b1519bf85cf88f450c91534a2acbd..e8b619b0e70a1344a6620c393ad9668358ac9621 100644
+--- a/persisters/persister-partykit-client/index.js
++++ b/persisters/persister-partykit-client/index.js
+@@ -54,10 +54,28 @@ const objIsEmpty = (obj) => isObject(obj) && objSize(obj) == 0;
+ 
+ const jsonString = JSON.stringify;
+ const jsonParse = JSON.parse;
++const UNDEFINED = 'tinybase_UNDEFINED';
+ const jsonStringWithMap = (obj) =>
+   jsonString(obj, (_key, value) =>
+     isInstanceOf(value, Map) ? object.fromEntries([...value]) : value,
+   );
++const jsonStringWithUndefined = (obj) =>
++  jsonString(obj, (_key, value) => (isUndefined(value) ? UNDEFINED : value));
++const replaceUndefinedString = (obj) => {
++  if (obj === UNDEFINED) {
++    return void 0;
++  }
++  if (isArray(obj)) {
++    return obj.map(replaceUndefinedString);
++  }
++  if (isInstanceOf(obj, Object)) {
++    object
++      .entries(obj)
++      .forEach(([key, value]) => (obj[key] = replaceUndefinedString(value)));
++  }
++  return obj;
++};
++const jsonParseWithUndefined = (str) => replaceUndefinedString(jsonParse(str));
+ 
+ const collSize = (coll) => coll?.size ?? 0;
+ const collHas = (coll, keyOrValue) => coll?.has(keyOrValue) ?? false;
+@@ -435,13 +453,17 @@ const SET_CHANGES = 's';
+ const STORE_PATH = '/store';
+ const PUT = 'PUT';
+ const construct = (prefix, type, payload) =>
+-  prefix + type + (isString(payload) ? payload : jsonStringWithMap(payload));
++  prefix +
++  type +
++  (isString(payload) ? payload : jsonStringWithUndefined(payload));
+ const deconstruct = (prefix, message, stringified) => {
+   const prefixSize = size(prefix);
+   return strStartsWith(message, prefix)
+     ? [
+         message[prefixSize],
+-        (stringified ? jsonParse : String)(slice(message, prefixSize + 1)),
++        (stringified ? jsonParseWithUndefined : String)(
++          slice(message, prefixSize + 1),
++        ),
+       ]
+     : void 0;
+ };
+diff --git a/persisters/persister-partykit-client/with-schemas/index.js b/persisters/persister-partykit-client/with-schemas/index.js
+index 189b7650229b1519bf85cf88f450c91534a2acbd..e8b619b0e70a1344a6620c393ad9668358ac9621 100644
+--- a/persisters/persister-partykit-client/with-schemas/index.js
++++ b/persisters/persister-partykit-client/with-schemas/index.js
+@@ -54,10 +54,28 @@ const objIsEmpty = (obj) => isObject(obj) && objSize(obj) == 0;
+ 
+ const jsonString = JSON.stringify;
+ const jsonParse = JSON.parse;
++const UNDEFINED = 'tinybase_UNDEFINED';
+ const jsonStringWithMap = (obj) =>
+   jsonString(obj, (_key, value) =>
+     isInstanceOf(value, Map) ? object.fromEntries([...value]) : value,
+   );
++const jsonStringWithUndefined = (obj) =>
++  jsonString(obj, (_key, value) => (isUndefined(value) ? UNDEFINED : value));
++const replaceUndefinedString = (obj) => {
++  if (obj === UNDEFINED) {
++    return void 0;
++  }
++  if (isArray(obj)) {
++    return obj.map(replaceUndefinedString);
++  }
++  if (isInstanceOf(obj, Object)) {
++    object
++      .entries(obj)
++      .forEach(([key, value]) => (obj[key] = replaceUndefinedString(value)));
++  }
++  return obj;
++};
++const jsonParseWithUndefined = (str) => replaceUndefinedString(jsonParse(str));
+ 
+ const collSize = (coll) => coll?.size ?? 0;
+ const collHas = (coll, keyOrValue) => coll?.has(keyOrValue) ?? false;
+@@ -435,13 +453,17 @@ const SET_CHANGES = 's';
+ const STORE_PATH = '/store';
+ const PUT = 'PUT';
+ const construct = (prefix, type, payload) =>
+-  prefix + type + (isString(payload) ? payload : jsonStringWithMap(payload));
++  prefix +
++  type +
++  (isString(payload) ? payload : jsonStringWithUndefined(payload));
+ const deconstruct = (prefix, message, stringified) => {
+   const prefixSize = size(prefix);
+   return strStartsWith(message, prefix)
+     ? [
+         message[prefixSize],
+-        (stringified ? jsonParse : String)(slice(message, prefixSize + 1)),
++        (stringified ? jsonParseWithUndefined : String)(
++          slice(message, prefixSize + 1),
++        ),
+       ]
+     : void 0;
+ };
+diff --git a/persisters/persister-partykit-server/index.js b/persisters/persister-partykit-server/index.js
+index e0c2d7b402595dc181ae3a8b017660f58f26d90b..e187f24182ea22bac4e214be0ad2ebbcf087b3da 100644
+--- a/persisters/persister-partykit-server/index.js
++++ b/persisters/persister-partykit-server/index.js
+@@ -37,10 +37,29 @@ const objEnsure = (obj, id, getDefaultValue) => {
+ 
+ const jsonString = JSON.stringify;
+ const jsonParse = JSON.parse;
++const isArray = Array.isArray;
++const UNDEFINED = 'tinybase_UNDEFINED';
+ const jsonStringWithMap = (obj) =>
+   jsonString(obj, (_key, value) =>
+     isInstanceOf(value, Map) ? object.fromEntries([...value]) : value,
+   );
++const jsonStringWithUndefined = (obj) =>
++  jsonString(obj, (_key, value) => (isUndefined(value) ? UNDEFINED : value));
++const replaceUndefinedString = (obj) => {
++  if (obj === UNDEFINED) {
++    return void 0;
++  }
++  if (isArray(obj)) {
++    return obj.map(replaceUndefinedString);
++  }
++  if (isInstanceOf(obj, Object)) {
++    object
++      .entries(obj)
++      .forEach(([key, value]) => (obj[key] = replaceUndefinedString(value)));
++  }
++  return obj;
++};
++const jsonParseWithUndefined = (str) => replaceUndefinedString(jsonParse(str));
+ 
+ const collForEach = (coll, cb) => coll?.forEach(cb);
+ 
+@@ -51,13 +70,17 @@ const SET_CHANGES = 's';
+ const STORE_PATH = '/store';
+ const PUT = 'PUT';
+ const construct = (prefix, type, payload) =>
+-  prefix + type + (isString(payload) ? payload : jsonStringWithMap(payload));
++  prefix +
++  type +
++  (isString(payload) ? payload : jsonStringWithUndefined(payload));
+ const deconstruct = (prefix, message, stringified) => {
+   const prefixSize = size(prefix);
+   return strStartsWith(message, prefix)
+     ? [
+         message[prefixSize],
+-        (stringified ? jsonParse : String)(slice(message, prefixSize + 1)),
++        (stringified ? jsonParseWithUndefined : String)(
++          slice(message, prefixSize + 1),
++        ),
+       ]
+     : void 0;
+ };
+diff --git a/persisters/persister-partykit-server/with-schemas/index.js b/persisters/persister-partykit-server/with-schemas/index.js
+index e0c2d7b402595dc181ae3a8b017660f58f26d90b..e187f24182ea22bac4e214be0ad2ebbcf087b3da 100644
+--- a/persisters/persister-partykit-server/with-schemas/index.js
++++ b/persisters/persister-partykit-server/with-schemas/index.js
+@@ -37,10 +37,29 @@ const objEnsure = (obj, id, getDefaultValue) => {
+ 
+ const jsonString = JSON.stringify;
+ const jsonParse = JSON.parse;
++const isArray = Array.isArray;
++const UNDEFINED = 'tinybase_UNDEFINED';
+ const jsonStringWithMap = (obj) =>
+   jsonString(obj, (_key, value) =>
+     isInstanceOf(value, Map) ? object.fromEntries([...value]) : value,
+   );
++const jsonStringWithUndefined = (obj) =>
++  jsonString(obj, (_key, value) => (isUndefined(value) ? UNDEFINED : value));
++const replaceUndefinedString = (obj) => {
++  if (obj === UNDEFINED) {
++    return void 0;
++  }
++  if (isArray(obj)) {
++    return obj.map(replaceUndefinedString);
++  }
++  if (isInstanceOf(obj, Object)) {
++    object
++      .entries(obj)
++      .forEach(([key, value]) => (obj[key] = replaceUndefinedString(value)));
++  }
++  return obj;
++};
++const jsonParseWithUndefined = (str) => replaceUndefinedString(jsonParse(str));
+ 
+ const collForEach = (coll, cb) => coll?.forEach(cb);
+ 
+@@ -51,13 +70,17 @@ const SET_CHANGES = 's';
+ const STORE_PATH = '/store';
+ const PUT = 'PUT';
+ const construct = (prefix, type, payload) =>
+-  prefix + type + (isString(payload) ? payload : jsonStringWithMap(payload));
++  prefix +
++  type +
++  (isString(payload) ? payload : jsonStringWithUndefined(payload));
+ const deconstruct = (prefix, message, stringified) => {
+   const prefixSize = size(prefix);
+   return strStartsWith(message, prefix)
+     ? [
+         message[prefixSize],
+-        (stringified ? jsonParse : String)(slice(message, prefixSize + 1)),
++        (stringified ? jsonParseWithUndefined : String)(
++          slice(message, prefixSize + 1),
++        ),
+       ]
+     : void 0;
+ };

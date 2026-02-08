@@ -11,12 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
-import { diaperChanges } from '@/data/diaper-changes';
-import { events } from '@/data/events';
-import { feedingSessions } from '@/data/feeding-sessions';
-import { growthMeasurements } from '@/data/growth-measurments';
-import { medicationRegimensProxy as medicationRegimens } from '@/data/medication-regimens';
-import { medicationsProxy as medications } from '@/data/medications';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useEvents } from '@/hooks/use-events';
+import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import { useMedicationRegimens } from '@/hooks/use-medication-regimens';
+import { useMedications } from '@/hooks/use-medications';
 import {
 	clearPerformanceLogs,
 	createPerformanceReport,
@@ -32,15 +32,6 @@ import { createZip, downloadZip, extractFiles } from './utils/zip';
 
 const DIAGNOSTICS_REFRESH_INTERVAL_MS = 2500;
 
-const dataStores: Record<string, { id: string }[]> = {
-	diaperChanges,
-	events,
-	feedingSessions,
-	growthMeasurements,
-	medicationRegimens,
-	medications,
-};
-
 function formatDuration(durationMs: number) {
 	return `${durationMs.toFixed(2)} ms`;
 }
@@ -52,6 +43,32 @@ export default function DataPage() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [logs, setLogs] = useState<PerformanceLogEntry[]>([]);
 	const [summaries, setSummaries] = useState<PerformanceSummary[]>([]);
+
+	const diaperChangesState = useDiaperChanges();
+	const eventsState = useEvents();
+	const feedingSessionsState = useFeedingSessions();
+	const growthMeasurementsState = useGrowthMeasurements();
+	const medicationRegimensState = useMedicationRegimens();
+	const medicationsState = useMedications();
+
+	const dataStores = useMemo(
+		() => ({
+			diaperChanges: diaperChangesState,
+			events: eventsState,
+			feedingSessions: feedingSessionsState,
+			growthMeasurements: growthMeasurementsState,
+			medicationRegimens: medicationRegimensState,
+			medications: medicationsState,
+		}),
+		[
+			diaperChangesState,
+			eventsState,
+			feedingSessionsState,
+			growthMeasurementsState,
+			medicationRegimensState,
+			medicationsState,
+		],
+	);
 
 	const refreshDiagnostics = useCallback(() => {
 		setLogs(getPerformanceLogs());
@@ -88,7 +105,7 @@ export default function DataPage() {
 		try {
 			const allData = Object.entries(dataStores).map(([name, data]) => ({
 				name,
-				data,
+				data: data.value,
 			}));
 			const files = allData
 				.filter(({ data }) => data.length > 0)
@@ -116,8 +133,14 @@ export default function DataPage() {
 		try {
 			const files = await extractFiles(file);
 			for (const { name, content } of files) {
-				const data = fromCsv(content);
-				mergeData(dataStores[name], data);
+				const dataStore = dataStores[name as keyof typeof dataStores];
+				if (!dataStore) {
+					continue;
+				}
+
+				const data = fromCsv(content) as { id: string }[];
+				const merged = mergeData(dataStore.value, data);
+				dataStore.replace(merged as never);
 			}
 			toast.success('Data imported successfully.');
 		} catch {

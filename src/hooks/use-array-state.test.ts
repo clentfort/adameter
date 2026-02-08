@@ -1,23 +1,32 @@
+import type { ReactNode } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { proxy } from 'valtio';
+import { createElement } from 'react';
+import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
+import { tinybaseContext } from '@/contexts/tinybase-context';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { useArrayState } from './use-array-state';
 
 describe('useArrayState', () => {
-	it('should add an item to the array', async () => {
-		const array = proxy<{ id: string; name: string }[]>([]);
-		const { result } = renderHook(() => useArrayState(array));
+	it('adds an item to a Tinybase-backed array table', async () => {
+		const store = createStore();
+		const wrapper = ({ children }: { children: ReactNode }) =>
+			createElement(tinybaseContext.Provider, { value: { store } }, children);
+
+		const { result } = renderHook(
+			() => useArrayState<{ id: string; name: string }>(TABLE_IDS.EVENTS),
+			{ wrapper },
+		);
 
 		act(() => {
 			result.current.add({ id: '1', name: 'Test' });
 		});
 
-		expect(array).toHaveLength(1);
 		await waitFor(() => {
 			expect(result.current.value).toHaveLength(1);
 		});
+
 		expect(result.current.value[0]).toEqual({ id: '1', name: 'Test' });
-		expect(array).toHaveLength(1);
-		expect(array[0]).toEqual({ id: '1', name: 'Test' });
+		expect(store.getRowCount(TABLE_IDS.EVENTS)).toBe(1);
 	});
 });
