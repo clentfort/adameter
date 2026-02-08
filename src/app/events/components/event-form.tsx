@@ -259,7 +259,7 @@ export default function EventForm({
 
 					<div className="space-y-2">
 						<Label htmlFor="color">
-							<fbt desc="color">Color</fbt>
+							<fbt desc="Label for color swatch picker">Color</fbt>
 						</Label>
 						<div className="flex gap-2">
 							{COLORS.map((colorOption) => (

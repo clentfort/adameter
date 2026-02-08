@@ -24,11 +24,11 @@ export default defineConfig({
 			reporter: ['text', 'json-summary', 'json'],
 			reportsDirectory: './coverage',
 		},
-		environment: 'jsdom',
-    root: './src',
-		setupFiles: ['./src/vitest.setup.ts'],
 		env: {
 			TZ: 'UTC',
 		},
+    environment: 'jsdom',
+		root: './src',
+		setupFiles: ['./src/vitest.setup.ts'],
 	},
 });

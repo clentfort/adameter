@@ -25,7 +25,7 @@ describe('resolvePartykitHost', () => {
 		});
 
 		expect(host).toMatch(
-			/^branch-[a-z0-9-]+\.adameter-party\.clentfort\.partykit\.dev$/,
+			/^branch-[\da-z-]+\.adameter-party\.clentfort\.partykit\.dev$/,
 		);
 		expect(host.length).toBeLessThanOrEqual(110);
 	});

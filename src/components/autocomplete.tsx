@@ -31,11 +31,12 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
-export interface AutocompleteProps<T extends { id: string; label: string }>
-	extends Omit<
-		InputHTMLAttributes<HTMLInputElement>,
-		'value' | 'onChange' | 'onSelect'
-	> {
+export interface AutocompleteProps<
+	T extends { id: string; label: string },
+> extends Omit<
+	InputHTMLAttributes<HTMLInputElement>,
+	'value' | 'onChange' | 'onSelect'
+> {
 	inputClassName?: string;
 	onOptionSelect?: (option: T) => void;
 	onValueChange: (value: string) => void;
@@ -93,7 +94,6 @@ function Autocomplete<T extends { id: string; label: string }>(
 		onValueChange(newValue);
 		if (!isOpen && newValue.length > 0 && options.length > 0) {
 			setIsOpen(true);
-		} else if (isOpen && newValue.length === 0 && options.length === 0) {
 		}
 	};
 
@@ -143,15 +143,10 @@ function Autocomplete<T extends { id: string; label: string }>(
 				onOpenAutoFocus={(e) => e.preventDefault()}
 				side="bottom"
 			>
-				<Command
-					shouldFilter={false}
-				>
+				<Command shouldFilter={false}>
 					<CommandList id="autocomplete-list">
 						<CommandEmpty>No results found.</CommandEmpty>
-						<ScrollArea
-							style={{ maxHeight: '300px' }}
-							type="auto"
-						>
+						<ScrollArea style={{ maxHeight: '300px' }} type="auto">
 							<CommandGroup>
 								{filteredOptions.map((option) => (
 									<CommandItem

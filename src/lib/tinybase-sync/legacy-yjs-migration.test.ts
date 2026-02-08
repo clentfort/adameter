@@ -83,8 +83,8 @@ describe('legacy-yjs-migration', () => {
 
 		expect(isStoreDataEmpty(store)).toBe(true);
 		const result = migrateStoreFromLegacyYjsDoc(store, doc, {
-			source: 'yjs-party',
 			atIso: '2026-02-07T14:00:00.000Z',
+			source: 'yjs-party',
 		});
 
 		expect(result).toEqual({ migrated: true, reason: 'migrated' });

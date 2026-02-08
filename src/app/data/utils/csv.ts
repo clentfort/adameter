@@ -60,15 +60,18 @@ const columns: { [key: string]: string[] } = {
 	],
 };
 
-export const toCsv = (name: string, data: any[]) => {
+export const toCsv = (
+	name: keyof typeof columns,
+	data: Array<Record<string, unknown>>,
+) => {
 	return Papa.unparse({
-		fields: columns[name],
 		data: data.map((row) =>
-			columns[name].reduce((acc, key) => {
-				(acc as any)[key] = (row as any)[key];
+			columns[name].reduce<Record<string, unknown>>((acc, key) => {
+				acc[key] = row[key];
 				return acc;
 			}, {}),
 		),
+		fields: columns[name],
 	});
 };
 
@@ -97,7 +100,7 @@ export const fromCsv = (csv: string) => {
 				if (trimmedValue === '') {
 					return requiredNumeric.has(fieldName) ? 0 : undefined;
 				}
-				const num = parseFloat(trimmedValue);
+				const num = Number.parseFloat(trimmedValue);
 				if (Number.isNaN(num)) {
 					return requiredNumeric.has(fieldName) ? 0 : undefined;
 				}

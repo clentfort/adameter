@@ -41,7 +41,7 @@ export function useSortedEvents<T extends ItemWithId>(
 						itemCount: 0,
 					},
 				},
-				{ throttleKey: 'ui.history.group-and-sort:empty', throttleMs: 10000 },
+				{ throttleKey: 'ui.history.group-and-sort:empty', throttleMs: 10_000 },
 			);
 			return {};
 		}

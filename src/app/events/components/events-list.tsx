@@ -14,17 +14,6 @@ export default function EventsList() {
 	const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
 
 	const { remove, update, value: events } = useEvents();
-
-	if (events.length === 0) {
-		return (
-			<p className="text-muted-foreground text-center py-4">
-				<fbt desc="Info message that no event data has been recorded yet">
-					No events recorded yet.
-				</fbt>
-			</p>
-		);
-	}
-
 	const sortedEvents = useMemo(
 		() =>
 			[...events].sort((a, b) => {
@@ -38,6 +27,16 @@ export default function EventsList() {
 			}),
 		[events],
 	);
+
+	if (events.length === 0) {
+		return (
+			<p className="text-muted-foreground text-center py-4">
+				<fbt desc="Info message that no event data has been recorded yet">
+					No events recorded yet.
+				</fbt>
+			</p>
+		);
+	}
 
 	return (
 		<>

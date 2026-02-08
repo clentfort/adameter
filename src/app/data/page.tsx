@@ -98,20 +98,20 @@ export default function DataPage() {
 	const roomToShow = room ?? getCurrentPerformanceRoom() ?? '';
 
 	const recentLogs = useMemo(() => logs.slice(-10).reverse(), [logs]);
-	const latestLogAt = logs.length > 0 ? logs[logs.length - 1].at : undefined;
+	const latestLogAt = logs.length > 0 ? logs.at(-1).at : undefined;
 
 	const handleExport = async () => {
 		setIsLoading(true);
 		try {
 			const allData = Object.entries(dataStores).map(([name, data]) => ({
-				name,
 				data: data.value,
+				name,
 			}));
 			const files = allData
 				.filter(({ data }) => data.length > 0)
-				.map(({ name, data }) => ({
-					name: `${name}.csv`,
+				.map(({ data, name }) => ({
 					content: toCsv(name, data),
+					name: `${name}.csv`,
 				}));
 			const zipBlob = await createZip(files);
 			downloadZip(zipBlob);
@@ -132,7 +132,7 @@ export default function DataPage() {
 		setIsLoading(true);
 		try {
 			const files = await extractFiles(file);
-			for (const { name, content } of files) {
+			for (const { content, name } of files) {
 				const dataStore = dataStores[name as keyof typeof dataStores];
 				if (!dataStore) {
 					continue;

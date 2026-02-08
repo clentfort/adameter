@@ -10,12 +10,21 @@
 		"prebuild": "pnpm run fbtee:collect && pnpm run fbtee:translate",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
 		"test": "vitest",
 		"fbtee:collect": "fbtee collect --common ./common_strings.json --src src",
 		"fbtee:translate": "fbtee translate --translations translations/*.json -o src/translations",
 		"storybook": "storybook dev -p 6006",
-		"build-storybook": "storybook build"
+		"build-storybook": "storybook build",
+		"prepare": "husky"
+	},
+	"lint-staged": {
+		"*.{cjs,js,mjs,jsx,ts,tsx}": [
+			"pnpm exec eslint --fix --max-warnings=0",
+			"pnpm exec prettier --write"
+		],
+		"*.{css,json,md,yaml,yml}": "pnpm exec prettier --write"
 	},
 	"devEngines": {
 		"packageManager": {
@@ -76,12 +85,12 @@
 	},
 	"devDependencies": {
 		"@babel/runtime": "^7.27.0",
-		"@eslint/eslintrc": "^3.3.1",
+		"@eslint/eslintrc": "^3.3.3",
 		"@ianvs/prettier-plugin-sort-imports": "^4.4.1",
-		"@next/eslint-plugin-next": "^16.0.0",
+		"@next/eslint-plugin-next": "^16.1.6",
 		"@nkzw/babel-preset-fbtee": "^1.7.0",
-		"@nkzw/eslint-config": "^3.0.0",
-		"@nkzw/eslint-plugin-fbtee": "^1.0.0",
+		"@nkzw/eslint-config": "^3.3.0",
+		"@nkzw/eslint-plugin-fbtee": "^1.7.1",
 		"@storybook/addon-docs": "^9.0.15",
 		"@storybook/nextjs": "^9.0.15",
 		"@storybook/react": "^9.0.15",
@@ -95,19 +104,21 @@
 		"@vitejs/plugin-react": "^5.0.0",
 		"@vitest/coverage-v8": "4.0.18",
 		"concurrently": "^9.2.0",
-		"eslint": "^9.24.0",
-		"eslint-config-next": "^16.0.0",
-		"eslint-config-prettier": "^10.1.1",
-		"eslint-plugin-react-hooks": "^7.0.0",
+		"eslint": "^10.0.0",
+		"eslint-config-next": "^16.1.6",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-react-hooks": "^7.0.1",
 		"eslint-plugin-storybook": "^9.0.15",
+		"husky": "^9.1.7",
 		"jsdom": "^27.0.0",
+		"lint-staged": "^16.2.7",
 		"partykit": "0.0.115",
 		"postcss": "^8",
 		"prettier": "^3.5.3",
 		"prettier-plugin-tailwindcss": "^0.7.0",
 		"storybook": "^9.0.15",
 		"typescript": "^5",
-		"typescript-eslint": "^8.29.1",
+		"typescript-eslint": "^8.54.0",
 		"vite-tsconfig-paths": "^6.0.0",
 		"vitest": "^4.0.0"
 	}

@@ -18,9 +18,7 @@ export const useFeedingInProgress = () => {
 				return;
 			}
 
-			const normalized = JSON.parse(
-				JSON.stringify(nextFeedingInProgress),
-			) as FeedingInProgress;
+			const normalized = structuredClone(nextFeedingInProgress);
 			store.setValue(
 				STORE_VALUE_FEEDING_IN_PROGRESS,
 				JSON.stringify(normalized),

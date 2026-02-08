@@ -53,7 +53,7 @@ interface MigrateStoreFromLegacyYjsDocOptions {
 }
 
 export function normalizeForSync<T>(value: T): T {
-	return JSON.parse(JSON.stringify(value)) as T;
+	return structuredClone(value);
 }
 
 export function readLegacyYjsState(doc: Doc): LegacyYjsState {

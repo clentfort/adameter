@@ -1,6 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
 import { Duration, format, intervalToDuration } from 'date-fns';
-import { fbt } from 'fbtee';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

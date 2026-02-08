@@ -31,15 +31,15 @@ const getPreviewName = (vercelGitCommitRef?: string) => {
 const normalizePreviewId = (value: string, maxLength: number) => {
 	const normalized = value
 		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/^-+|-+$/g, '')
-		.replace(/-+/g, '-');
+		.replaceAll(/[^\da-z]+/g, '-')
+		.replaceAll(/^-+|-+$/g, '')
+		.replaceAll(/-+/g, '-');
 
 	if (!normalized) {
 		return 'preview';
 	}
 
-	return normalized.slice(0, maxLength).replace(/-+$/g, '') || 'preview';
+	return normalized.slice(0, maxLength).replaceAll(/-+$/g, '') || 'preview';
 };
 
 const nextConfig: NextConfig = {

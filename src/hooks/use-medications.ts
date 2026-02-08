@@ -1,5 +1,5 @@
 import type { MedicationAdministration } from '@/types/medication';
-import { useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useTable } from 'tinybase/ui-react';
 import { tinybaseContext } from '@/contexts/tinybase-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -124,21 +124,24 @@ export const useMedications = () => {
 		);
 	};
 
-	const replace = (next: MedicationAdministration[]) => {
-		const nextTable = Object.fromEntries(
-			next.map((item, order) => [
-				item.id,
-				medicationAdministrationToRow(item, order),
-			]),
-		);
-		store.setTable(TABLE_IDS.MEDICATIONS, nextTable);
-	};
+	const replace = useCallback(
+		(next: MedicationAdministration[]) => {
+			const nextTable = Object.fromEntries(
+				next.map((item, order) => [
+					item.id,
+					medicationAdministrationToRow(item, order),
+				]),
+			);
+			store.setTable(TABLE_IDS.MEDICATIONS, nextTable);
+		},
+		[store],
+	);
 
 	useEffect(() => {
 		if (value.length === 0 && defaultMedications.length > 0) {
 			replace(defaultMedications);
 		}
-	}, [value]);
+	}, [replace, value]);
 
 	return { add, remove, replace, update, value } as const;
 };

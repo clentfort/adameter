@@ -15,7 +15,7 @@ export default function DeleteIconButton({ onClick }: DeleteIconButtonProps) {
 		>
 			<Trash2 className="h-4 w-4" />
 			<span className="sr-only">
-				<fbt desc="delete">Delete</fbt>
+				<fbt desc="Screen reader text for delete button">Delete</fbt>
 			</span>
 		</Button>
 	);
