@@ -23,6 +23,10 @@ import {
 	TABLE_IDS,
 	TINYBASE_MIGRATION_VERSION,
 } from './constants';
+import {
+	medicationAdministrationToRow,
+	medicationRegimenToRow,
+} from './medication-table';
 
 type ObjectWithId = {
 	id: string;
@@ -128,8 +132,10 @@ export function legacyStateToTinybaseContent(
 		[TABLE_IDS.EVENTS]: toArrayTable(state.events),
 		[TABLE_IDS.FEEDING_SESSIONS]: toArrayTable(state.feedingSessions),
 		[TABLE_IDS.GROWTH_MEASUREMENTS]: toArrayTable(state.growthMeasurements),
-		[TABLE_IDS.MEDICATION_REGIMENS]: toArrayTable(state.medicationRegimens),
-		[TABLE_IDS.MEDICATIONS]: toArrayTable(state.medications),
+		[TABLE_IDS.MEDICATION_REGIMENS]: toMedicationRegimensTable(
+			state.medicationRegimens,
+		),
+		[TABLE_IDS.MEDICATIONS]: toMedicationsTable(state.medications),
 	};
 
 	const values: Values = {
@@ -276,6 +282,24 @@ function toArrayTable<T extends ObjectWithId>(items: T[]) {
 			[ROW_JSON_CELL]: JSON.stringify(normalized),
 			[ROW_ORDER_CELL]: order,
 		};
+	}
+	return table;
+}
+
+function toMedicationRegimensTable(items: MedicationRegimen[]) {
+	const table: Tables[string] = {};
+	for (const [order, item] of items.entries()) {
+		const normalized = normalizeForSync(item);
+		table[normalized.id] = medicationRegimenToRow(normalized, order);
+	}
+	return table;
+}
+
+function toMedicationsTable(items: MedicationAdministration[]) {
+	const table: Tables[string] = {};
+	for (const [order, item] of items.entries()) {
+		const normalized = normalizeForSync(item);
+		table[normalized.id] = medicationAdministrationToRow(normalized, order);
 	}
 	return table;
 }
