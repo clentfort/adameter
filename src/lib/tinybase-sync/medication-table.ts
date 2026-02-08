@@ -28,9 +28,9 @@ export function medicationAdministrationToRow(
 		[CELL_DOSAGE_AMOUNT]: item.dosageAmount,
 		[CELL_DOSAGE_UNIT]: item.dosageUnit,
 		[CELL_MEDICATION_NAME]: item.medicationName,
-		[ROW_ORDER_CELL]: order,
 		[CELL_REGIMEN_ID]: item.regimenId ?? null,
 		[CELL_TIMESTAMP]: item.timestamp,
+		[ROW_ORDER_CELL]: order,
 	};
 }
 
@@ -82,11 +82,11 @@ export function medicationRegimenToRow(
 		[CELL_IS_DISCONTINUED]: item.isDiscontinued ?? null,
 		[CELL_MEDICATION_NAME]: item.name,
 		[CELL_NOTES]: item.notes ?? null,
-		[ROW_ORDER_CELL]: order,
 		[CELL_PRESCRIBER]: item.prescriber,
 		[CELL_PRESCRIBER_NAME]: item.prescriberName ?? null,
 		[CELL_SCHEDULE]: JSON.stringify(item.schedule),
 		[CELL_START_DATE]: item.startDate,
+		[ROW_ORDER_CELL]: order,
 	};
 }
 

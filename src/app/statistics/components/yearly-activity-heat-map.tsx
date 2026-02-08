@@ -117,7 +117,7 @@ export default function YearlyActivityHeatMap({
 	});
 
 	const todayKey = format(now, 'yyyy-MM-dd');
-	const cells = eachDayOfInterval({ start: gridStart, end: gridEnd }).map(
+	const cells = eachDayOfInterval({ end: gridEnd, start: gridStart }).map(
 		(day) => {
 			const key = format(day, 'yyyy-MM-dd');
 			const inCurrentYear = day.getFullYear() === currentYear;

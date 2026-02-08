@@ -1,10 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { MedicationRegimen, MedicationSchedule } from '@/types/medication-regimen';
+import {
+	MedicationRegimen,
+	MedicationSchedule,
+} from '@/types/medication-regimen';
 import { MedicationRegimenForm } from './medication-regimen-form';
 
 // Minimal type for story demonstration
 type PartialMedicationRegimenForStory = {
-  schedule: Pick<MedicationSchedule, 'type'>;
+	schedule: Pick<MedicationSchedule, 'type'>;
 };
 
 const meta = {
@@ -39,8 +42,6 @@ export const Default: Story = {
 
 export const WithInitialDataDaily: Story = {
 	args: {
-		onClose: () => {},
-		onSubmit: () => {},
 		initialData: {
 			dosageAmount: 1,
 			dosageUnit: 'drop',
@@ -55,13 +56,13 @@ export const WithInitialDataDaily: Story = {
 			},
 			startDate: '2024-01-15T00:00:00.000Z',
 		} as MedicationRegimen,
+		onClose: () => {},
+		onSubmit: () => {},
 	},
 };
 
 export const WithInitialDataInterval: Story = {
 	args: {
-		onClose: () => {},
-		onSubmit: () => {},
 		initialData: {
 			dosageAmount: 5,
 			dosageUnit: 'ml',
@@ -78,13 +79,13 @@ export const WithInitialDataInterval: Story = {
 			},
 			startDate: '2024-03-01T00:00:00.000Z',
 		} as MedicationRegimen,
+		onClose: () => {},
+		onSubmit: () => {},
 	},
 };
 
 export const WithInitialDataWeekly: Story = {
 	args: {
-		onClose: () => {},
-		onSubmit: () => {},
 		initialData: {
 			dosageAmount: 400,
 			dosageUnit: 'mcg',
@@ -99,13 +100,13 @@ export const WithInitialDataWeekly: Story = {
 			},
 			startDate: '2023-11-01T00:00:00.000Z',
 		} as MedicationRegimen,
+		onClose: () => {},
+		onSubmit: () => {},
 	},
 };
 
 export const WithInitialDataAsNeeded: Story = {
 	args: {
-		onClose: () => {},
-		onSubmit: () => {},
 		initialData: {
 			dosageAmount: 2.5,
 			dosageUnit: 'ml',
@@ -119,6 +120,8 @@ export const WithInitialDataAsNeeded: Story = {
 			},
 			startDate: '2024-02-01T00:00:00.000Z',
 		} as MedicationRegimen,
+		onClose: () => {},
+		onSubmit: () => {},
 	},
 };
 
@@ -147,18 +150,22 @@ export const NewRegimenIntervalSelected: Story = {
 };
 
 export const NewRegimenWeeklySelected: Story = {
-  args: {
-    onClose: () => {},
-    onSubmit: () => {},
-    initialData: { schedule: { type: 'weekly' } } as PartialMedicationRegimenForStory,
-  },
+	args: {
+		initialData: {
+			schedule: { type: 'weekly' },
+		} as PartialMedicationRegimenForStory,
+		onClose: () => {},
+		onSubmit: () => {},
+	},
 };
 export const NewRegimenAsNeededSelected: Story = {
-  args: {
-    onClose: () => {},
-    onSubmit: () => {},
-    initialData: { schedule: { type: 'asNeeded' } } as PartialMedicationRegimenForStory,
-  },
+	args: {
+		initialData: {
+			schedule: { type: 'asNeeded' },
+		} as PartialMedicationRegimenForStory,
+		onClose: () => {},
+		onSubmit: () => {},
+	},
 };
 // Add similar stories for NewRegimenWeeklySelected and NewRegimenAsNeededSelected if needed
 // by providing minimal initialData to set the scheduleType in the form's defaultValues.

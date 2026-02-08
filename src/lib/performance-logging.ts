@@ -15,10 +15,10 @@ export interface PerformanceLogEntry {
 export interface PerformanceSummary {
 	averageMs: number;
 	count: number;
+	lastAt: string;
 	maxMs: number;
 	name: string;
 	p95Ms: number;
-	lastAt: string;
 }
 
 interface PerformanceLogOptions {
@@ -132,9 +132,12 @@ function sanitizeMetadata(
 			continue;
 		}
 
-		if (value instanceof Date) {
-			result[key] = value.toISOString();
-			continue;
+		if (Object.prototype.toString.call(value) === '[object Date]') {
+			const dateValue = value as Date;
+			if (!Number.isNaN(dateValue.getTime())) {
+				result[key] = dateValue.toISOString();
+				continue;
+			}
 		}
 
 		result[key] = String(value);
@@ -349,12 +352,12 @@ export function getPerformanceSummaries(limit = 15): PerformanceSummary[] {
 		const total = values.reduce((sum, value) => sum + value, 0);
 		const averageMs = values.length > 0 ? total / values.length : 0;
 		const p95Ms = getPercentile(values, 95);
-		const maxMs = values[values.length - 1] ?? 0;
+		const maxMs = values.at(-1) ?? 0;
 
 		return {
 			averageMs: Number(averageMs.toFixed(2)),
 			count: entries.length,
-			lastAt: entries[entries.length - 1].at,
+			lastAt: entries.at(-1)?.at ?? '',
 			maxMs: Number(maxMs.toFixed(2)),
 			name,
 			p95Ms: Number(p95Ms.toFixed(2)),

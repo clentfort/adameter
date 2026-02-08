@@ -1,8 +1,7 @@
-
-import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import JSZip from 'jszip';
 
-export const createZip = (files: { name: string; content: string }[]) => {
+export const createZip = (files: { content: string; name: string }[]) => {
 	const zip = new JSZip();
 	for (const file of files) {
 		zip.file(file.name, file.content);
@@ -20,8 +19,8 @@ export const extractFiles = async (file: File) => {
 	for (const [name, file] of Object.entries(zip.files)) {
 		if (!file.dir) {
 			files.push({
-				name: name.replace('.csv', ''),
 				content: await file.async('string'),
+				name: name.replace('.csv', ''),
 			});
 		}
 	}

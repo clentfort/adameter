@@ -1,31 +1,47 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import { FlatCompat } from '@eslint/eslintrc';
 import nkzw from '@nkzw/eslint-config';
-import { defineConfig } from 'eslint/config';
+import fbtee from '@nkzw/eslint-plugin-fbtee';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+import prettier from 'eslint-config-prettier/flat';
+import { defineConfig, globalIgnores } from 'eslint/config';
 
-const compat = new FlatCompat({
-	// import.meta.dirname is available after Node.js v20.11.0
-	baseDirectory: import.meta.dirname,
-});
+const eslintConfig = defineConfig([
+	...nextVitals,
+	...nextTs,
+	...nkzw,
+	prettier,
+	fbtee.configs.recommended,
+	{
+		plugins: {
+			'@nkzw/fbtee': fbtee,
+		},
+	},
+	{
+		rules: {
+			'react-hooks/immutability': 'off',
+			'react-hooks/incompatible-library': 'off',
+			'react-hooks/purity': 'off',
+			'react-hooks/react-compiler': 'off',
+			'react-hooks/refs': 'off',
+			'react-hooks/set-state-in-effect': 'off',
+		},
+	},
+	{
+		files: ['src/i18n/index.ts'],
+		rules: {
+			'import-x/no-unresolved': 'off',
+			'import/no-unresolved': 'off',
+		},
+	},
+	// Override default ignores of eslint-config-next.
+	globalIgnores([
+		// Default ignores of eslint-config-next:
+		'.next/**',
+		'out/**',
+		'build/**',
+		'next-env.d.ts',
+		'src/components/ui',
+	]),
+]);
 
-const extended = compat.config({
-	extends: [
-		/* 'plugin:@nkzw/eslint-plugin-fbtee/recommended', */ 'next',
-		'prettier',
-	],
-	plugins: ['@nkzw/eslint-plugin-fbtee'],
-});
-
-export default defineConfig(
-	nkzw.map((rules) => {
-		if (rules.plugins?.['react-hooks'] != null) {
-			delete rules.plugins['react-hooks'];
-		}
-		if (rules.rules?.['react-hooks/react-compiler']) {
-			delete rules.rules['react-hooks/react-compiler'];
-		}
-    return rules;
-	}),
-	extended,
-	{ ignores: ['.next/', 'src/components/ui'] },
-);
+export default eslintConfig;
