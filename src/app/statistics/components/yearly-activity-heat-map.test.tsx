@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import YearlyActivityHeatMap from './yearly-activity-heat-map';
 
@@ -9,6 +9,7 @@ describe('YearlyActivityHeatMap', () => {
 	});
 
 	afterEach(() => {
+		cleanup();
 		vi.useRealTimers();
 	});
 
