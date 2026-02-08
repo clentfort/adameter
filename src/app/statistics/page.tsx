@@ -17,6 +17,7 @@ import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
+import HeatMap from './components/heat-map';
 import TimeBetweenStats from './components/time-between-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
@@ -122,6 +123,7 @@ export default function StatisticsPage() {
 								<TimeBetweenStats sessions={filteredSessions} />
 								<FeedingsPerDayStats sessions={filteredSessions} />
 								<TotalFeedingsStats sessions={filteredSessions} />
+								<HeatMap className="col-span-2" sessions={filteredSessions} />
 							</div>
 							<YearlyActivityHeatMap
 								className="mt-4"
