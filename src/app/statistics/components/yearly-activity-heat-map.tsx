@@ -9,7 +9,7 @@ import {
 	isWithinInterval,
 	startOfDay,
 	startOfWeek,
-	subDays,
+	subYears,
 } from 'date-fns';
 import {
 	Card,
@@ -83,7 +83,7 @@ export default function YearlyActivityHeatMap({
 }: YearlyActivityHeatMapProps) {
 	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
 	const now = new Date();
-	const startDate = subDays(startOfDay(now), 364);
+	const startDate = subYears(startOfDay(now), 1);
 	const gridStart = startOfWeek(startDate, { weekStartsOn: 0 });
 	const gridEnd = endOfWeek(now, { weekStartsOn: 0 });
 

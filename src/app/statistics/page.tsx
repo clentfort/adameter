@@ -134,7 +134,7 @@ export default function StatisticsPage() {
 								palette="feeding"
 								title={
 									<fbt desc="Title for the feeding yearly activity heat map chart">
-										Feeding Activity (Last 365 Days)
+										Feeding Activity (Past Year)
 									</fbt>
 								}
 							/>
@@ -165,7 +165,7 @@ export default function StatisticsPage() {
 								palette="diaper"
 								title={
 									<fbt desc="Title for the diaper yearly activity heat map chart">
-										Diaper Activity (Last 365 Days)
+										Diaper Activity (Past Year)
 									</fbt>
 								}
 							/>
