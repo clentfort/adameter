@@ -92,8 +92,8 @@ export default function YearlyActivityHeatMap({
 		.filter((date) => {
 			if (Number.isNaN(date.getTime())) return false;
 			return isWithinInterval(date, {
-				start: startDate,
 				end: endOfDay(now),
+				start: startDate,
 			});
 		})
 		.reduce<Map<string, number>>((accumulator, date) => {
@@ -108,8 +108,8 @@ export default function YearlyActivityHeatMap({
 		differenceInCalendarWeeks(gridEnd, gridStart, { weekStartsOn: 0 }) + 1;
 
 	const monthLabels = eachMonthOfInterval({
-		start: gridStart,
 		end: gridEnd,
+		start: gridStart,
 	}).map((monthStart, index) => {
 		const weekIndex = differenceInCalendarWeeks(monthStart, gridStart, {
 			weekStartsOn: 0,
