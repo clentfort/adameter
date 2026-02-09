@@ -82,7 +82,9 @@ export default function DiaperForm({
 	const [temperature, setTemperature] = useState(() => {
 		const val = 'change' in props ? props.change.temperature : undefined;
 		if (val === undefined) return '';
-		return unitSystem === 'metric' ? val.toString() : celsiusToFahrenheit(val).toString();
+		return unitSystem === 'metric'
+			? val.toString()
+			: celsiusToFahrenheit(val).toString();
 	});
 	const [hasLeakage, setHasLeakage] = useState(
 		'change' in props ? (props.change.leakage ?? false) : false,

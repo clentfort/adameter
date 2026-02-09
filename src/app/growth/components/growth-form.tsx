@@ -72,15 +72,17 @@ export default function MeasurementForm({
 	const [height, setHeight] = useState(() => {
 		const val = 'measurement' in props ? props.measurement.height : undefined;
 		if (val === undefined) return '';
-		return unitSystem === 'metric' ? val.toString() : cmToInches(val).toString();
+		return unitSystem === 'metric'
+			? val.toString()
+			: cmToInches(val).toString();
 	});
 	const [headCircumference, setHeadCircumference] = useState(() => {
 		const val =
-			'measurement' in props
-				? props.measurement.headCircumference
-				: undefined;
+			'measurement' in props ? props.measurement.headCircumference : undefined;
 		if (val === undefined) return '';
-		return unitSystem === 'metric' ? val.toString() : cmToInches(val).toString();
+		return unitSystem === 'metric'
+			? val.toString()
+			: cmToInches(val).toString();
 	});
 	const [notes, setNotes] = useState(
 		'measurement' in props ? props.measurement.notes : '',
@@ -246,8 +248,14 @@ export default function MeasurementForm({
 								onChange={(e) => setHeadCircumference(e.target.value)}
 								placeholder={
 									unitSystem === 'metric'
-										? fbt('e.g. 35', 'Placeholder for a head circumference input')
-										: fbt('e.g. 14', 'Placeholder for a head circumference input')
+										? fbt(
+												'e.g. 35',
+												'Placeholder for a head circumference input',
+											)
+										: fbt(
+												'e.g. 14',
+												'Placeholder for a head circumference input',
+											)
 								}
 								step="0.1"
 								type="number"
