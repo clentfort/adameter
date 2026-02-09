@@ -143,7 +143,7 @@ export default function StatisticsPage() {
 								}
 							/>
 							<div className="grid grid-cols-2 gap-4 mt-4">
-								<FeedingRecords sessions={[...sessions]} />
+								<FeedingRecords sessions={sessions} />
 							</div>
 						</>
 					) : (
@@ -177,7 +177,7 @@ export default function StatisticsPage() {
 								}
 							/>
 							<div className="grid grid-cols-2 gap-4 mt-4">
-								<DiaperRecords diaperChanges={[...diaperChanges]} />
+								<DiaperRecords diaperChanges={diaperChanges} />
 							</div>
 						</>
 					) : (

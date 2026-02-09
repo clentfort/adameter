@@ -4,10 +4,12 @@ import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import StatsCard from './stats-card';
 
 interface FeedingRecordsProps {
-	sessions: FeedingSession[];
+	sessions: readonly FeedingSession[];
 }
 
-export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
+export default function FeedingRecords({
+	sessions = [],
+}: FeedingRecordsProps) {
 	if (sessions.length === 0) return null;
 
 	const todayKey = format(new Date(), 'yyyy-MM-dd');

@@ -3,7 +3,7 @@ import { format, parseISO } from 'date-fns';
 import StatsCard from './stats-card';
 
 interface DiaperRecordsProps {
-	diaperChanges: DiaperChange[];
+	diaperChanges: readonly DiaperChange[];
 }
 
 export default function DiaperRecords({
