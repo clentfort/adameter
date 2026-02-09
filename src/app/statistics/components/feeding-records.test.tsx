@@ -1,6 +1,6 @@
 import type { FeedingSession } from '@/types/feeding';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import FeedingRecords from './feeding-records';
 
 const mockSessions: FeedingSession[] = [
@@ -42,12 +42,22 @@ const mockSessions: FeedingSession[] = [
 ];
 
 describe('FeedingRecords', () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		cleanup();
+		vi.useRealTimers();
+	});
+
 	it('renders null when no sessions are provided', () => {
 		const { container } = render(<FeedingRecords sessions={[]} />);
 		expect(container.firstChild).toBeNull();
 	});
 
 	it('calculates and displays records correctly', () => {
+		vi.setSystemTime(new Date('2024-01-04T12:00:00Z'));
 		render(<FeedingRecords sessions={mockSessions} />);
 
 		expect(screen.getByText('Most feedings in a day')).toBeInTheDocument();
@@ -55,16 +65,24 @@ describe('FeedingRecords', () => {
 		expect(screen.getByText('Longest feeding day')).toBeInTheDocument();
 		expect(screen.getByText('Shortest feeding day')).toBeInTheDocument();
 
-		// Values:
-		// Most: 2
-		// Fewest: 1
-		// Longest: 40 min
-		// Shortest: 5 min
-
-		// We check for presence of these values. 2 appears once as most feedings.
-		expect(screen.getByText('2')).toBeInTheDocument();
-		expect(screen.getByText('1')).toBeInTheDocument();
+		expect(screen.getByText('2', { selector: '.text-2xl' })).toBeInTheDocument();
+		expect(screen.getByText('1', { selector: '.text-2xl' })).toBeInTheDocument();
 		expect(screen.getByText('40 min')).toBeInTheDocument();
+		expect(screen.getByText('5 min')).toBeInTheDocument();
+	});
+
+	it('excludes sessions from today', () => {
+		vi.setSystemTime(new Date('2024-01-03T12:00:00Z'));
+		render(<FeedingRecords sessions={mockSessions} />);
+
+		// Jan 3rd has 2 feedings (40min). If excluded:
+		// Most: 2 (from Jan 1st)
+		// Fewest: 1 (from Jan 2nd)
+		// Longest: 25 min (from Jan 1st)
+		// Shortest: 5 min (from Jan 2nd)
+
+		expect(screen.queryByText('40 min')).not.toBeInTheDocument();
+		expect(screen.getByText('25 min')).toBeInTheDocument();
 		expect(screen.getByText('5 min')).toBeInTheDocument();
 	});
 });

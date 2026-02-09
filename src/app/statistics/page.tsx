@@ -125,7 +125,6 @@ export default function StatisticsPage() {
 								<TimeBetweenStats sessions={filteredSessions} />
 								<FeedingsPerDayStats sessions={filteredSessions} />
 								<TotalFeedingsStats sessions={filteredSessions} />
-								<FeedingRecords sessions={filteredSessions} />
 								<HeatMap className="col-span-2" sessions={filteredSessions} />
 							</div>
 							<YearlyActivityHeatMap
@@ -143,6 +142,9 @@ export default function StatisticsPage() {
 									</fbt>
 								}
 							/>
+							<div className="grid grid-cols-2 gap-4 mt-4">
+								<FeedingRecords sessions={[...sessions]} />
+							</div>
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
@@ -158,9 +160,6 @@ export default function StatisticsPage() {
 					{filteredDiaperChanges.length > 0 ? (
 						<>
 							<DiaperStats diaperChanges={filteredDiaperChanges} />
-							<div className="grid grid-cols-2 gap-4 mt-4">
-								<DiaperRecords diaperChanges={filteredDiaperChanges} />
-							</div>
 							<YearlyActivityHeatMap
 								className="mt-4"
 								dates={diaperChanges.map((change) => change.timestamp)}
@@ -177,6 +176,9 @@ export default function StatisticsPage() {
 									</fbt>
 								}
 							/>
+							<div className="grid grid-cols-2 gap-4 mt-4">
+								<DiaperRecords diaperChanges={[...diaperChanges]} />
+							</div>
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">

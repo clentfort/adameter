@@ -1,5 +1,6 @@
 import type { FeedingSession } from '@/types/feeding';
 import { format, parseISO } from 'date-fns';
+import { fbt } from 'fbtee';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import StatsCard from './stats-card';
 
@@ -10,10 +11,14 @@ interface FeedingRecordsProps {
 export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 	if (sessions.length === 0) return null;
 
+	const todayKey = format(new Date(), 'yyyy-MM-dd');
+
 	// Group sessions by day
 	const sessionsByDay = new Map<string, { count: number; duration: number }>();
 	for (const session of sessions) {
 		const day = format(new Date(session.startTime), 'yyyy-MM-dd');
+		if (day === todayKey) continue;
+
 		const current = sessionsByDay.get(day) || { count: 0, duration: 0 };
 		sessionsByDay.set(day, {
 			count: current.count + 1,
@@ -24,9 +29,7 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 	const days = Array.from(sessionsByDay.entries());
 	if (days.length === 0) return null;
 
-	const mostSessions = days.reduce((a, b) =>
-		a[1].count >= b[1].count ? a : b,
-	);
+	const mostSessions = days.reduce((a, b) => (a[1].count >= b[1].count ? a : b));
 	const fewestSessions = days.reduce((a, b) =>
 		a[1].count <= b[1].count ? a : b,
 	);
