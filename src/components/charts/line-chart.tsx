@@ -132,10 +132,15 @@ export default function LineChart({
 					y: {
 						beginAtZero: false,
 						ticks: {
-							callback:
-								yAxisUnit && typeof yAxisUnit === 'string'
-									? (value) => `${value} ${yAxisUnit}`
-									: undefined,
+							callback: (value) => {
+								const roundedValue =
+									typeof value === 'number'
+										? Math.round(value * 100) / 100
+										: value;
+								return yAxisUnit && typeof yAxisUnit === 'string'
+									? `${roundedValue} ${yAxisUnit}`
+									: roundedValue;
+							},
 						},
 						title: {
 							display: true,
