@@ -1,6 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
 import { format, parseISO } from 'date-fns';
-import { fbt } from 'fbtee';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import StatsCard from './stats-card';
 
