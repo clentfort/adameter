@@ -1,8 +1,8 @@
 /**
  * Weight conversions
  */
-const GRAMS_PER_LB = 453.59237;
-const GRAMS_PER_OZ = 28.3495231;
+const GRAMS_PER_LB = 453.592_37;
+const GRAMS_PER_OZ = 28.349_523_1;
 
 export function gramsToLbs(grams: number): number {
 	return grams / GRAMS_PER_LB;

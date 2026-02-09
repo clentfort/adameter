@@ -13,12 +13,12 @@ import {
 describe('unit-conversions', () => {
 	describe('weight', () => {
 		it('converts grams to lbs', () => {
-			expect(gramsToLbs(453.59237)).toBe(1);
+			expect(gramsToLbs(453.592_37)).toBe(1);
 			expect(gramsToLbs(3000)).toBeCloseTo(6.61, 2);
 		});
 
 		it('converts lbs to grams', () => {
-			expect(lbsToGrams(1)).toBe(453.59237);
+			expect(lbsToGrams(1)).toBe(453.592_37);
 		});
 
 		it('converts grams to lbs and oz', () => {

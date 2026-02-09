@@ -81,7 +81,10 @@ const mockEvents: Event[] = [
 describe('GrowthChart', () => {
 	beforeEach(() => {
 		mockLineChart.mockClear();
-		(useLanguage as any).mockReturnValue({ locale: 'de_DE' }); // Default to metric for tests
+		vi.mocked(useLanguage).mockReturnValue({
+			locale: 'de_DE',
+			setLocale: vi.fn(),
+		}); // Default to metric for tests
 	});
 
 	it('renders no data message when no measurements are provided', () => {
@@ -101,7 +104,10 @@ describe('GrowthChart', () => {
 	});
 
 	it('passes sorted and filtered weight data to LineChart (Metric)', () => {
-		(useLanguage as any).mockReturnValue({ locale: 'de_DE' });
+		vi.mocked(useLanguage).mockReturnValue({
+			locale: 'de_DE',
+			setLocale: vi.fn(),
+		});
 		render(<GrowthChart events={mockEvents} measurements={mockMeasurements} />);
 		const weightChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Weight',
@@ -117,7 +123,10 @@ describe('GrowthChart', () => {
 	});
 
 	it('passes sorted and filtered weight data to LineChart (Imperial)', () => {
-		(useLanguage as any).mockReturnValue({ locale: 'en_US' });
+		vi.mocked(useLanguage).mockReturnValue({
+			locale: 'en_US',
+			setLocale: vi.fn(),
+		});
 		render(<GrowthChart events={mockEvents} measurements={mockMeasurements} />);
 		const weightChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Weight',
@@ -141,7 +150,10 @@ describe('GrowthChart', () => {
 	});
 
 	it('passes sorted and filtered height data to LineChart (Metric)', () => {
-		(useLanguage as any).mockReturnValue({ locale: 'de_DE' });
+		vi.mocked(useLanguage).mockReturnValue({
+			locale: 'de_DE',
+			setLocale: vi.fn(),
+		});
 		const { container } = render(
 			<GrowthChart events={[]} measurements={mockMeasurements} />,
 		);
@@ -162,7 +174,10 @@ describe('GrowthChart', () => {
 	});
 
 	it('passes sorted and filtered height data to LineChart (Imperial)', () => {
-		(useLanguage as any).mockReturnValue({ locale: 'en_US' });
+		vi.mocked(useLanguage).mockReturnValue({
+			locale: 'en_US',
+			setLocale: vi.fn(),
+		});
 		render(<GrowthChart events={[]} measurements={mockMeasurements} />);
 		const heightChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Height',
@@ -176,7 +191,10 @@ describe('GrowthChart', () => {
 	});
 
 	it('passes sorted and filtered head circumference data to LineChart (Metric)', () => {
-		(useLanguage as any).mockReturnValue({ locale: 'de_DE' });
+		vi.mocked(useLanguage).mockReturnValue({
+			locale: 'de_DE',
+			setLocale: vi.fn(),
+		});
 		const { container } = render(
 			<GrowthChart events={[]} measurements={mockMeasurements} />,
 		);
@@ -197,7 +215,10 @@ describe('GrowthChart', () => {
 	});
 
 	it('passes sorted and filtered head circumference data to LineChart (Imperial)', () => {
-		(useLanguage as any).mockReturnValue({ locale: 'en_US' });
+		vi.mocked(useLanguage).mockReturnValue({
+			locale: 'en_US',
+			setLocale: vi.fn(),
+		});
 		render(<GrowthChart events={[]} measurements={mockMeasurements} />);
 		const headChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Head Circumference',
