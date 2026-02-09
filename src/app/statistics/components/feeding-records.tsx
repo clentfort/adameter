@@ -7,9 +7,7 @@ interface FeedingRecordsProps {
 	sessions: readonly FeedingSession[];
 }
 
-export default function FeedingRecords({
-	sessions = [],
-}: FeedingRecordsProps) {
+export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 	if (sessions.length === 0) return null;
 
 	const todayKey = format(new Date(), 'yyyy-MM-dd');
