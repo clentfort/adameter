@@ -65,8 +65,12 @@ describe('FeedingRecords', () => {
 		expect(screen.getByText('Longest feeding day')).toBeInTheDocument();
 		expect(screen.getByText('Shortest feeding day')).toBeInTheDocument();
 
-		expect(screen.getByText('2', { selector: '.text-2xl' })).toBeInTheDocument();
-		expect(screen.getByText('1', { selector: '.text-2xl' })).toBeInTheDocument();
+		expect(
+			screen.getByText('2', { selector: '.text-2xl' }),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText('1', { selector: '.text-2xl' }),
+		).toBeInTheDocument();
 		expect(screen.getByText('40 min')).toBeInTheDocument();
 		expect(screen.getByText('5 min')).toBeInTheDocument();
 	});

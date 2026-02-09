@@ -55,14 +55,20 @@ describe('DiaperRecords', () => {
 		vi.setSystemTime(new Date('2024-01-04T12:00:00Z'));
 		render(<DiaperRecords diaperChanges={mockDiaperChanges} />);
 
-		expect(screen.getByText('Most diaper changes in a day')).toBeInTheDocument();
+		expect(
+			screen.getByText('Most diaper changes in a day'),
+		).toBeInTheDocument();
 		expect(
 			screen.getByText('Fewest diaper changes in a day'),
 		).toBeInTheDocument();
 
 		// Most: 2, Fewest: 1
-		expect(screen.getByText('2', { selector: '.text-2xl' })).toBeInTheDocument();
-		expect(screen.getByText('1', { selector: '.text-2xl' })).toBeInTheDocument();
+		expect(
+			screen.getByText('2', { selector: '.text-2xl' }),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText('1', { selector: '.text-2xl' }),
+		).toBeInTheDocument();
 	});
 
 	it('excludes diaper changes from today', () => {
@@ -80,7 +86,9 @@ describe('DiaperRecords', () => {
 
 		render(<DiaperRecords diaperChanges={customMock} />);
 		expect(screen.queryByText('3')).not.toBeInTheDocument();
-		expect(screen.getByText('2', { selector: '.text-2xl' })).toBeInTheDocument();
+		expect(
+			screen.getByText('2', { selector: '.text-2xl' }),
+		).toBeInTheDocument();
 
 		cleanup();
 		vi.setSystemTime(new Date('2024-01-05T12:00:00Z'));
