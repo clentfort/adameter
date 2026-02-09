@@ -13,8 +13,10 @@ import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import DiaperRecords from './components/diaper-records';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
+import FeedingRecords from './components/feeding-records';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
@@ -140,6 +142,9 @@ export default function StatisticsPage() {
 									</fbt>
 								}
 							/>
+							<div className="grid grid-cols-2 gap-4 mt-4">
+								<FeedingRecords sessions={sessions} />
+							</div>
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
@@ -171,6 +176,9 @@ export default function StatisticsPage() {
 									</fbt>
 								}
 							/>
+							<div className="grid grid-cols-2 gap-4 mt-4">
+								<DiaperRecords diaperChanges={diaperChanges} />
+							</div>
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
