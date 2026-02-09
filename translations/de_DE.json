@@ -321,16 +321,6 @@
         }
       ]
     },
-    "TkyxGV2k45V5e8RZ1mKzZA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Löschen",
-          "variations": []
-        }
-      ]
-    },
     "a76EbCnlAOF3msEO3exPqg==": {
       "tokens": [],
       "types": [],
@@ -2571,16 +2561,6 @@
         }
       ]
     },
-    "S9lPSpqdYLHP2EUPuOvdzw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Farbe",
-          "variations": []
-        }
-      ]
-    },
     "uqypwmgMTFHUXekxPkCJCA==": {
       "tokens": [],
       "types": [],
@@ -3006,6 +2986,174 @@
         }
       ],
       "types": []
+    },
+    "FkUCSbSb8ICE9CJr/ffoIg==": {
+      "description": "Screen reader text for delete button",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Löschen"
+        }
+      ]
+    },
+    "a8NvjNNBda1/CkhBz4nmzQ==": {
+      "description": "Description for the feeding yearly activity heat map chart",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Jedes Kästchen zeigt, wie viele Fütterungen an diesem Tag eingetragen wurden."
+        }
+      ]
+    },
+    "IE1hoPKF3yqIBosjaADRbA==": {
+      "description": "Title for the feeding yearly activity heat map chart",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Fütterung-Aktivität (letztes Jahr)"
+        }
+      ]
+    },
+    "xu0mtamVArjmxcbgqizhKw==": {
+      "description": "Description for the diaper yearly activity heat map chart",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Jedes Kästchen zeigt, wie viele Windelwechsel an diesem Tag eingetragen wurden."
+        }
+      ]
+    },
+    "3c9Cr1tmiXgvSxN4YKk7Yg==": {
+      "description": "Title for the diaper yearly activity heat map chart",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Windelwechsel-Aktivität (letztes Jahr)"
+        }
+      ]
+    },
+    "91CqvraaqBTS0Lz/zZ7Tgg==": {
+      "description": "Title for the day with the most diaper changes",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Die meisten Windelwechsel an einem Tag",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "D1DMWbw1m72EIAvMB34AOw==": {
+      "description": "Title for the day with the fewest diaper changes",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Die wenigsten Windelwechsel an einem Tag",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "/7g3wvxTt2WT0+N23eZiEQ==": {
+      "description": "Title for the day with the most feeding sessions",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Die meisten Fütterungen an einem Tag",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "OEuDsTOoW+DIja2IwxGl+Q==": {
+      "description": "Title for the day with the fewest feeding sessions",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Die wenigsten Fütterungen an einem Tag",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "UJ/hc4IjiEb575R7QqQOHQ==": {
+      "description": "Title for the day with the longest total feeding duration",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Längster Fütterungstag",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "mVY6b6uf4VaegRr9dfFUIQ==": {
+      "description": "Title for the day with the shortest total feeding duration",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Kürzester Fütterungstag",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "l6OsLNy0XYXCEcwovEXTrQ==": {
+      "description": "Legend minimum activity label",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Weniger"
+        }
+      ]
+    },
+    "4FwzSt9PJO6TZAhapY4arg==": {
+      "description": "Legend maximum activity label",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Mehr"
+        }
+      ]
+    },
+    "oPn7zx0DTu6isgrjKoJwNA==": {
+      "description": "Label for color swatch picker",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Farbe"
+        }
+      ]
     }
   }
 }

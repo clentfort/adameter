@@ -385,18 +385,6 @@
       ],
       "types": []
     },
-    "TkyxGV2k45V5e8RZ1mKzZA==": {
-      "description": "delete",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Delete",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
     "a76EbCnlAOF3msEO3exPqg==": {
       "description": "Label on an edit button",
       "tokens": [],
@@ -3085,18 +3073,6 @@
         }
       ]
     },
-    "S9lPSpqdYLHP2EUPuOvdzw==": {
-      "description": "color",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Color"
-        }
-      ]
-    },
     "uqypwmgMTFHUXekxPkCJCA==": {
       "description": "Info message that no event data has been recorded yet",
       "types": [],
@@ -3600,6 +3576,174 @@
         }
       ],
       "types": []
+    },
+    "FkUCSbSb8ICE9CJr/ffoIg==": {
+      "description": "Screen reader text for delete button",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Delete"
+        }
+      ]
+    },
+    "a8NvjNNBda1/CkhBz4nmzQ==": {
+      "description": "Description for the feeding yearly activity heat map chart",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Each square shows how many feedings were logged on that day."
+        }
+      ]
+    },
+    "IE1hoPKF3yqIBosjaADRbA==": {
+      "description": "Title for the feeding yearly activity heat map chart",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Feeding Activity (Past Year)"
+        }
+      ]
+    },
+    "xu0mtamVArjmxcbgqizhKw==": {
+      "description": "Description for the diaper yearly activity heat map chart",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Each square shows how many diaper changes were logged on that day."
+        }
+      ]
+    },
+    "3c9Cr1tmiXgvSxN4YKk7Yg==": {
+      "description": "Title for the diaper yearly activity heat map chart",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Diaper Activity (Past Year)"
+        }
+      ]
+    },
+    "91CqvraaqBTS0Lz/zZ7Tgg==": {
+      "description": "Title for the day with the most diaper changes",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Most diaper changes in a day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "D1DMWbw1m72EIAvMB34AOw==": {
+      "description": "Title for the day with the fewest diaper changes",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Fewest diaper changes in a day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "/7g3wvxTt2WT0+N23eZiEQ==": {
+      "description": "Title for the day with the most feeding sessions",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Most feedings in a day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "OEuDsTOoW+DIja2IwxGl+Q==": {
+      "description": "Title for the day with the fewest feeding sessions",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Fewest feedings in a day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "UJ/hc4IjiEb575R7QqQOHQ==": {
+      "description": "Title for the day with the longest total feeding duration",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Longest feeding day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "mVY6b6uf4VaegRr9dfFUIQ==": {
+      "description": "Title for the day with the shortest total feeding duration",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Shortest feeding day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "l6OsLNy0XYXCEcwovEXTrQ==": {
+      "description": "Legend minimum activity label",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Less"
+        }
+      ]
+    },
+    "4FwzSt9PJO6TZAhapY4arg==": {
+      "description": "Legend maximum activity label",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "More"
+        }
+      ]
+    },
+    "oPn7zx0DTu6isgrjKoJwNA==": {
+      "description": "Label for color swatch picker",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Color"
+        }
+      ]
     }
   }
 }
