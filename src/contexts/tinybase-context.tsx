@@ -137,7 +137,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			await remotePersister.load();
 			const bootstrapResult = reconcileRemoteLoadResult(store, localSnapshot);
 
-			if (bootstrapResult.decision === 'restore-local') {
+			if (
+				bootstrapResult.decision === 'restore-local' ||
+				bootstrapResult.decision === 'keep-empty'
+			) {
 				await remotePersister.save();
 			}
 

@@ -1,5 +1,9 @@
-import type { Request, Room, Worker } from 'partykit/server';
-import { TinyBasePartyKitServer } from 'tinybase/persisters/persister-partykit-server';
+import type { Connection, Request, Room, Worker } from 'partykit/server';
+import {
+	broadcastChanges,
+	hasStoreInStorage,
+	TinyBasePartyKitServer,
+} from 'tinybase/persisters/persister-partykit-server';
 
 const TINYBASE_CORS_HEADERS = {
 	'Access-Control-Allow-Headers': '*',
@@ -21,45 +25,52 @@ export default class TinybasePartyServer extends TinyBasePartyKitServer {
 			});
 		}
 
-		try {
-			const response = await super.onRequest(request);
+		if (request.method === 'PUT') {
+			const body = await request.text();
+			const response = await super.onRequest(
+				new Request(request.url, {
+					body,
+					headers: request.headers,
+					method: 'PUT',
+				}),
+			);
+
+			if (response.ok) {
+				try {
+					const changes = JSON.parse(body);
+					await broadcastChanges(this, changes);
+				} catch {
+					// Ignore parse errors for broadcasting
+				}
+			}
+
 			const headers = new Headers(response.headers);
 			for (const [name, value] of Object.entries(TINYBASE_CORS_HEADERS)) {
 				headers.set(name, value);
 			}
-			headers.set('Content-Type', 'application/json');
-
-			if (request.method === 'PUT') {
-				return new Response('null', {
-					headers,
-					status: 200,
-				});
-			}
-
-			const bodyText = await response.text();
-			if (bodyText.length > 0) {
-				return new Response(bodyText, {
-					headers,
-					status: response.status,
-				});
-			}
-
-			return new Response('[{}, {}]', {
-				headers,
-				status: 200,
-			});
-		} catch (error) {
-			return new Response(
-				JSON.stringify({ error: String(error) }),
-				{
-					headers: {
-						...TINYBASE_CORS_HEADERS,
-						'Content-Type': 'application/json',
-					},
-					status: 500,
-				},
-			);
+			return new Response(null, { headers, status: response.status });
 		}
+
+		const response = await super.onRequest(request);
+		const headers = new Headers(response.headers);
+		for (const [name, value] of Object.entries(TINYBASE_CORS_HEADERS)) {
+			headers.set(name, value);
+		}
+
+		return new Response(response.body, {
+			headers,
+			status: response.status,
+		});
+	}
+
+	async onMessage(message: string, connection: Connection) {
+		const {
+			config: { storagePrefix = '' },
+		} = this;
+		if (!(await hasStoreInStorage(this.party.storage, storagePrefix))) {
+			await this.party.storage.put(storagePrefix + 'hasStore', 1);
+		}
+		await super.onMessage(message, connection);
 	}
 }
 
