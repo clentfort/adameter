@@ -1,8 +1,5 @@
 import type { Request, Room, Worker } from 'partykit/server';
-import {
-	broadcastChanges,
-	TinyBasePartyKitServer,
-} from 'tinybase/persisters/persister-partykit-server';
+import { TinyBasePartyKitServer } from 'tinybase/persisters/persister-partykit-server';
 
 const TINYBASE_CORS_HEADERS = {
 	'Access-Control-Allow-Headers': '*',
@@ -25,46 +22,43 @@ export default class TinybasePartyServer extends TinyBasePartyKitServer {
 		}
 
 		try {
-			const headers = new Headers(TINYBASE_CORS_HEADERS);
+			const response = await super.onRequest(request);
+			const headers = new Headers(response.headers);
+			for (const [name, value] of Object.entries(TINYBASE_CORS_HEADERS)) {
+				headers.set(name, value);
+			}
 			headers.set('Content-Type', 'application/json');
 
 			if (request.method === 'PUT') {
-				const body = await request.text();
-				const response = await super.onRequest(
-					new Request(request.url, {
-						body,
-						headers: request.headers,
-						method: 'PUT',
-					}),
-				);
-
-				if (response.ok) {
-					try {
-						const changes = JSON.parse(body);
-						await broadcastChanges(this, changes);
-					} catch {
-						// Ignore parse errors for broadcasting
-					}
-				}
-
-				return new Response('null', { headers, status: response.status });
+				return new Response('null', {
+					headers,
+					status: 200,
+				});
 			}
 
-			const response = await super.onRequest(request);
 			const bodyText = await response.text();
+			if (bodyText.length > 0) {
+				return new Response(bodyText, {
+					headers,
+					status: response.status,
+				});
+			}
 
-			return new Response(bodyText.length > 0 ? bodyText : '[{}, {}]', {
+			return new Response('[{}, {}]', {
 				headers,
-				status: response.status,
+				status: 200,
 			});
 		} catch (error) {
-			return new Response(JSON.stringify({ error: String(error) }), {
-				headers: {
-					...TINYBASE_CORS_HEADERS,
-					'Content-Type': 'application/json',
+			return new Response(
+				JSON.stringify({ error: String(error) }),
+				{
+					headers: {
+						...TINYBASE_CORS_HEADERS,
+						'Content-Type': 'application/json',
+					},
+					status: 500,
 				},
-				status: 500,
-			});
+			);
 		}
 	}
 }
