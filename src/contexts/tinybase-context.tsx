@@ -101,6 +101,20 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		let isDisposed = false;
 		const store = storeRef.current;
 		let remotePersister: ReturnType<typeof createPartyKitPersister> | undefined;
+		let connection: PartySocket | undefined;
+
+		const onOpen = () => {
+			logPerformanceEvent('sync.partykit.reconnected', {
+				metadata: { room },
+			});
+			void remotePersister?.load();
+		};
+
+		const onVisibilityChange = () => {
+			if (document.visibilityState === 'visible') {
+				connection?.reconnect();
+			}
+		};
 
 		const connectRoomSync = async () => {
 			const migrationTimer = startPerformanceTimer('tinybase.migration.party', {
@@ -113,11 +127,13 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
-			const connection = new PartySocket({
+			connection = new PartySocket({
 				host: PARTYKIT_HOST,
 				party: TINYBASE_PARTYKIT_PARTY,
 				room,
 			});
+			connection.addEventListener('open', onOpen);
+			document.addEventListener('visibilitychange', onVisibilityChange);
 
 			remotePersister = createPartyKitPersister(
 				store,
@@ -175,6 +191,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 		return () => {
 			isDisposed = true;
+			connection?.removeEventListener('open', onOpen);
+			document.removeEventListener('visibilitychange', onVisibilityChange);
+
 			if (!remotePersister) {
 				return;
 			}

@@ -48,16 +48,20 @@ export default class TinybasePartyServer extends TinyBasePartyKitServer {
 			for (const [name, value] of Object.entries(TINYBASE_CORS_HEADERS)) {
 				headers.set(name, value);
 			}
-			return new Response(null, { headers, status: response.status });
+			headers.set('Content-Type', 'application/json');
+
+			return new Response('null', { headers, status: response.status });
 		}
 
 		const response = await super.onRequest(request);
+		const bodyText = await response.text();
 		const headers = new Headers(response.headers);
 		for (const [name, value] of Object.entries(TINYBASE_CORS_HEADERS)) {
 			headers.set(name, value);
 		}
+		headers.set('Content-Type', 'application/json');
 
-		return new Response(response.body, {
+		return new Response(bodyText.length > 0 ? bodyText : '[{}, {}]', {
 			headers,
 			status: response.status,
 		});
