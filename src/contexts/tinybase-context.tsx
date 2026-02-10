@@ -112,7 +112,11 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 		const onVisibilityChange = () => {
 			if (document.visibilityState === 'visible') {
+				logPerformanceEvent('sync.partykit.visibility_visible', {
+					metadata: { room },
+				});
 				connection?.reconnect();
+				void remotePersister?.load();
 			}
 		};
 
@@ -134,6 +138,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			});
 			connection.addEventListener('open', onOpen);
 			document.addEventListener('visibilitychange', onVisibilityChange);
+			window.addEventListener('focus', onVisibilityChange);
 
 			remotePersister = createPartyKitPersister(
 				store,
@@ -193,6 +198,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			isDisposed = true;
 			connection?.removeEventListener('open', onOpen);
 			document.removeEventListener('visibilitychange', onVisibilityChange);
+			window.removeEventListener('focus', onVisibilityChange);
 
 			if (!remotePersister) {
 				return;
