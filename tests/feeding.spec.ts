@@ -20,9 +20,11 @@ test.describe('Feeding Page', () => {
 		await page.getByRole('button', { name: 'End Feeding' }).click();
 
 		// Verify it appears in history
-		// Use a more specific locator for the history section
-		const history = page.locator('div.space-y-4').filter({ has: page.locator('div.bg-muted\\/50') });
-		await expect(history.getByText('Left Breast', { exact: true }).first()).toBeVisible();
+		await expect(
+			page.locator('div.border.rounded-lg').getByText('Left Breast', {
+				exact: true,
+			}),
+		).toBeVisible();
 	});
 
 	test('should manually add a feeding entry', async ({ page }) => {
@@ -37,8 +39,14 @@ test.describe('Feeding Page', () => {
 		await page.getByRole('button', { name: 'Save' }).click();
 
 		// Verify in history
-		await expect(page.getByText('Right Breast', { exact: true }).first()).toBeVisible();
-		await expect(page.getByText('15 min', { exact: true })).toBeVisible();
+		await expect(
+			page.locator('div.border.rounded-lg').getByText('Right Breast', {
+				exact: true,
+			}),
+		).toBeVisible();
+		await expect(
+			page.locator('div.border.rounded-lg').getByText('15 min', { exact: true }),
+		).toBeVisible();
 	});
 
 	test('should edit a feeding entry', async ({ page }) => {
@@ -74,7 +82,10 @@ test.describe('Feeding Page', () => {
 		await page.getByRole('button', { name: 'Delete' }).first().click();
 
 		// Confirm deletion
-		await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
+		await page
+			.getByRole('alertdialog')
+			.getByRole('button', { name: 'Delete' })
+			.click();
 
 		// Verify removal
 		await expect(page.getByText('5 min', { exact: true })).not.toBeVisible();
