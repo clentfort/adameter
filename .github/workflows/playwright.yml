@@ -1,4 +1,5 @@
 name: Playwright Tests
+# Trigger CI retry
 on:
   push:
     branches: [main, master]
