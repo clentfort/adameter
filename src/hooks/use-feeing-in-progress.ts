@@ -1,5 +1,5 @@
 import type { FeedingInProgress } from '@/types/feeding-in-progress';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useValue } from 'tinybase/ui-react';
 import { tinybaseContext } from '@/contexts/tinybase-context';
 import { STORE_VALUE_FEEDING_IN_PROGRESS } from '@/lib/tinybase-sync/constants';
@@ -7,7 +7,10 @@ import { STORE_VALUE_FEEDING_IN_PROGRESS } from '@/lib/tinybase-sync/constants';
 export const useFeedingInProgress = () => {
 	const { store } = useContext(tinybaseContext);
 	const currentJson = useValue(STORE_VALUE_FEEDING_IN_PROGRESS, store);
-	const current = parseFeedingInProgress(currentJson);
+	const current = useMemo(
+		() => parseFeedingInProgress(currentJson),
+		[currentJson],
+	);
 
 	const set = useCallback(
 		(nextFeedingInProgress: FeedingInProgress | null) => {
