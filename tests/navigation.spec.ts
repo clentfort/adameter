@@ -12,7 +12,7 @@ test.describe('Navigation', () => {
     await expect(page.locator('button:has-text("End Feeding")')).toBeVisible();
 
     // Verify the timer is running (at least showing 00:00 or more)
-    await expect(page.locator('text=/\\d{2}:\\d{2}/')).toBeVisible();
+    await expect(page.locator(String.raw`text=/\d{2}:\d{2}/`)).toBeVisible();
 
     // Attempt to navigate to the Diaper page via the navigation bar
     await page.click('a:has-text("Diaper")');
