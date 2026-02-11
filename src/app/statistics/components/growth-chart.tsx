@@ -5,6 +5,8 @@ import type { GrowthMeasurement } from '@/types/growth';
 import { useMemo } from 'react';
 import LineChart from '@/components/charts/line-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useUnitSystem } from '@/hooks/use-unit-system';
+import { cmToInches, gramsToLbs } from '@/utils/unit-conversions';
 
 interface GrowthChartProps {
 	events?: Event[];
@@ -15,6 +17,7 @@ export default function GrowthChart({
 	events = [],
 	measurements = [],
 }: GrowthChartProps) {
+	const unitSystem = useUnitSystem();
 	const sortedMeasurements = useMemo(
 		() =>
 			[...measurements].sort(
@@ -29,9 +32,12 @@ export default function GrowthChart({
 				.filter((m) => m.weight !== undefined && m.weight !== null)
 				.map((m) => ({
 					x: new Date(m.date),
-					y: m.weight!,
+					y:
+						unitSystem === 'metric'
+							? m.weight!
+							: Math.round(gramsToLbs(m.weight!) * 100) / 100,
 				})),
-		[sortedMeasurements],
+		[sortedMeasurements, unitSystem],
 	);
 
 	const heightData = useMemo(
@@ -40,9 +46,9 @@ export default function GrowthChart({
 				.filter((m) => m.height !== undefined && m.height !== null)
 				.map((m) => ({
 					x: new Date(m.date),
-					y: m.height!,
+					y: unitSystem === 'metric' ? m.height! : cmToInches(m.height!),
 				})),
-		[sortedMeasurements],
+		[sortedMeasurements, unitSystem],
 	);
 
 	const headCircumferenceData = useMemo(
@@ -54,9 +60,12 @@ export default function GrowthChart({
 				)
 				.map((m) => ({
 					x: new Date(m.date),
-					y: m.headCircumference!,
+					y:
+						unitSystem === 'metric'
+							? m.headCircumference!
+							: cmToInches(m.headCircumference!),
 				})),
-		[sortedMeasurements],
+		[sortedMeasurements, unitSystem],
 	);
 
 	if (measurements.length === 0) {
@@ -98,9 +107,15 @@ export default function GrowthChart({
 			<CardContent className="p-4 pt-0 space-y-6">
 				<div>
 					<h3 className="font-medium mb-2">
-						<fbt desc="Title for the weight section in the growth chart">
-							Weight (g)
-						</fbt>
+						{unitSystem === 'metric' ? (
+							<fbt desc="Title for the weight section in the growth chart in grams">
+								Weight (g)
+							</fbt>
+						) : (
+							<fbt desc="Title for the weight section in the growth chart in pounds">
+								Weight (lb)
+							</fbt>
+						)}
 					</h3>
 					<LineChart
 						backgroundColor="rgba(99, 102, 241, 0.1)"
@@ -116,19 +131,31 @@ export default function GrowthChart({
 						title={<fbt desc="Chart title for weight">Weight</fbt>}
 						xAxisLabel={commonXAxisLabel}
 						yAxisLabel={
-							<fbt desc="Label for the Y-axis showing weight in grams">
-								Weight (g)
-							</fbt>
+							unitSystem === 'metric' ? (
+								<fbt desc="Label for the Y-axis showing weight in grams">
+									Weight (g)
+								</fbt>
+							) : (
+								<fbt desc="Label for the Y-axis showing weight in pounds">
+									Weight (lb)
+								</fbt>
+							)
 						}
-						yAxisUnit="g"
+						yAxisUnit={unitSystem === 'metric' ? 'g' : 'lb'}
 					/>
 				</div>
 
 				<div>
 					<h3 className="font-medium mb-2">
-						<fbt desc="Title for the height section in the growth chart">
-							Height (cm)
-						</fbt>
+						{unitSystem === 'metric' ? (
+							<fbt desc="Title for the height section in the growth chart in centimeters">
+								Height (cm)
+							</fbt>
+						) : (
+							<fbt desc="Title for the height section in the growth chart in inches">
+								Height (in)
+							</fbt>
+						)}
 					</h3>
 					<LineChart
 						backgroundColor="rgba(236, 72, 153, 0.1)"
@@ -144,19 +171,31 @@ export default function GrowthChart({
 						title={<fbt desc="Chart title for height">Height</fbt>}
 						xAxisLabel={commonXAxisLabel}
 						yAxisLabel={
-							<fbt desc="Label for the Y-axis showing height in centimeters">
-								Height (cm)
-							</fbt>
+							unitSystem === 'metric' ? (
+								<fbt desc="Label for the Y-axis showing height in centimeters">
+									Height (cm)
+								</fbt>
+							) : (
+								<fbt desc="Label for the Y-axis showing height in inches">
+									Height (in)
+								</fbt>
+							)
 						}
-						yAxisUnit="cm"
+						yAxisUnit={unitSystem === 'metric' ? 'cm' : 'in'}
 					/>
 				</div>
 
 				<div>
 					<h3 className="font-medium mb-2">
-						<fbt desc="Title for the head circumference section in the growth chart">
-							Head Circumference (cm)
-						</fbt>
+						{unitSystem === 'metric' ? (
+							<fbt desc="Title for the head circumference section in the growth chart in centimeters">
+								Head Circumference (cm)
+							</fbt>
+						) : (
+							<fbt desc="Title for the head circumference section in the growth chart in inches">
+								Head Circumference (in)
+							</fbt>
+						)}
 					</h3>
 					<LineChart
 						backgroundColor="rgba(59, 130, 246, 0.1)"
@@ -176,11 +215,17 @@ export default function GrowthChart({
 						}
 						xAxisLabel={commonXAxisLabel}
 						yAxisLabel={
-							<fbt desc="Label for the Y-axis showing head circumference in centimeters">
-								Head Circumference (cm)
-							</fbt>
+							unitSystem === 'metric' ? (
+								<fbt desc="Label for the Y-axis showing head circumference in centimeters">
+									Head Circumference (cm)
+								</fbt>
+							) : (
+								<fbt desc="Label for the Y-axis showing head circumference in inches">
+									Head Circumference (in)
+								</fbt>
+							)
 						}
-						yAxisUnit="cm"
+						yAxisUnit={unitSystem === 'metric' ? 'cm' : 'in'}
 					/>
 				</div>
 

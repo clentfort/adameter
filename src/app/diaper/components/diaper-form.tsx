@@ -21,8 +21,13 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import {
+	celsiusToFahrenheit,
+	fahrenheitToCelsius,
+} from '@/utils/unit-conversions';
 import { DIAPER_BRANDS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
@@ -51,6 +56,7 @@ export default function DiaperForm({
 	title,
 	...props
 }: DiaperFormProps) {
+	const unitSystem = useUnitSystem();
 	const [date, setDate] = useState(
 		'change' in props
 			? dateToDateInputValue(props.change.timestamp)
@@ -73,9 +79,13 @@ export default function DiaperForm({
 			? props.change.diaperBrand
 			: (props.presetDiaperBrand ?? 'andere'),
 	);
-	const [temperature, setTemperature] = useState(
-		'change' in props ? props.change.temperature?.toString() || '' : '',
-	);
+	const [temperature, setTemperature] = useState(() => {
+		const val = 'change' in props ? props.change.temperature : undefined;
+		if (val === undefined) return '';
+		return unitSystem === 'metric'
+			? val.toString()
+			: celsiusToFahrenheit(val).toString();
+	});
 	const [hasLeakage, setHasLeakage] = useState(
 		'change' in props ? (props.change.leakage ?? false) : false,
 	);
@@ -104,10 +114,18 @@ export default function DiaperForm({
 			setDiaperBrand(change.diaperBrand || '');
 		}
 
-		setTemperature(change.temperature ? change.temperature.toString() : '');
+		if (change.temperature !== undefined) {
+			setTemperature(
+				unitSystem === 'metric'
+					? change.temperature.toString()
+					: celsiusToFahrenheit(change.temperature).toString(),
+			);
+		} else {
+			setTemperature('');
+		}
 		setHasLeakage(change.leakage || false);
 		setAbnormalities(change.abnormalities || '');
-	}, [change]);
+	}, [change, unitSystem]);
 
 	const handleSubmit = () => {
 		if (!date || !time) return;
@@ -115,6 +133,13 @@ export default function DiaperForm({
 		const [year, month, day] = date.split('-').map(Number);
 		const [hours, minutes] = time.split(':').map(Number);
 		const timestamp = new Date(year, month - 1, day, hours, minutes);
+
+		const tempInCelsius =
+			temperature && !Number.isNaN(Number.parseFloat(temperature))
+				? unitSystem === 'metric'
+					? Number.parseFloat(temperature)
+					: fahrenheitToCelsius(Number.parseFloat(temperature))
+				: undefined;
 
 		const updatedChange: DiaperChange = {
 			...change,
@@ -125,7 +150,7 @@ export default function DiaperForm({
 			diaperBrand: diaperBrand || undefined,
 			id: change?.id || Date.now().toString(),
 			leakage: hasLeakage || undefined,
-			temperature: temperature ? Number.parseFloat(temperature) : undefined,
+			temperature: tempInCelsius,
 			timestamp: timestamp.toISOString(),
 		};
 
@@ -235,33 +260,62 @@ export default function DiaperForm({
 
 					<div className="space-y-2">
 						<Label htmlFor="edit-temperature">
-							<fbt desc="Label on an input to specificy the body temperature in degree Celsius">
-								Temperature (°C)
-							</fbt>
+							{unitSystem === 'metric' ? (
+								<fbt desc="Label on an input to specify the body temperature in degree Celsius">
+									Temperature (°C)
+								</fbt>
+							) : (
+								<fbt desc="Label on an input to specify the body temperature in degree Fahrenheit">
+									Temperature (°F)
+								</fbt>
+							)}
 						</Label>
 						<Input
 							className={
 								temperature &&
-								isAbnormalTemperature(Number.parseFloat(temperature))
+								isAbnormalTemperature(
+									unitSystem === 'metric'
+										? Number.parseFloat(temperature)
+										: fahrenheitToCelsius(Number.parseFloat(temperature)),
+								)
 									? 'border-red-500'
 									: ''
 							}
 							id="edit-temperature"
 							onChange={(e) => setTemperature(e.target.value)}
-							placeholder={fbt(
-								'e.g. 37.2',
-								'Placeholder text for an input to set the body temperature in degree Celsius',
-							)}
+							placeholder={
+								unitSystem === 'metric'
+									? fbt(
+											'e.g. 37.2',
+											'Placeholder text for an input to set the body temperature in degree Celsius',
+										)
+									: fbt(
+											'e.g. 99.0',
+											'Placeholder text for an input to set the body temperature in degree Fahrenheit',
+										)
+							}
 							step="0.1"
 							type="number"
 							value={temperature}
 						/>
 						{temperature &&
-							isAbnormalTemperature(Number.parseFloat(temperature)) && (
+							isAbnormalTemperature(
+								unitSystem === 'metric'
+									? Number.parseFloat(temperature)
+									: fahrenheitToCelsius(Number.parseFloat(temperature)),
+							) && (
 								<p className="text-xs text-red-500 mt-1">
-									<fbt desc="A warning that the temperature is outside the normal range">
-										Warning: Temperature outside normal range (36.5°C - 37.5°C)
-									</fbt>
+									{unitSystem === 'metric' ? (
+										<fbt desc="A warning that the temperature is outside the normal range in Celsius">
+											Warning: Temperature outside normal range (36.5°C -
+											37.5°C)
+										</fbt>
+									) : (
+										<fbt desc="A warning that the temperature is outside the normal range in Fahrenheit">
+											Warning: Temperature outside normal range (97.7°F -
+											99.5°F)
+										</fbt>
+									)}
 								</p>
 							)}
 					</div>

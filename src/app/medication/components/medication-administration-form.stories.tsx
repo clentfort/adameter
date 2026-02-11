@@ -66,7 +66,6 @@ const meta: Meta<typeof MedicationAdministrationForm> = {
 	argTypes: {
 		allAdministrations: { control: 'object' },
 		initialData: { control: 'object' },
-		isOpen: { control: 'boolean' },
 		onClose: { action: 'closed' },
 		onSubmit: { action: 'submitted' },
 		regimens: { control: 'object' },
@@ -93,7 +92,6 @@ export const AddMode: Story = {
 	args: {
 		allAdministrations: samplePastAdministrations,
 		initialData: undefined,
-		isOpen: true,
 		onClose: () => {},
 		onSubmit: () => {},
 		regimens: sampleRegimens,
@@ -110,7 +108,6 @@ export const EditMode: Story = {
 	args: {
 		allAdministrations: samplePastAdministrations,
 		initialData: samplePastAdministrations[0],
-		isOpen: true,
 		onClose: () => {},
 		onSubmit: () => {},
 		regimens: sampleRegimens,
@@ -120,6 +117,5 @@ export const EditMode: Story = {
 export const ValidationErrors: Story = {
 	args: {
 		...AddMode.args,
-		isOpen: true,
 	},
 };

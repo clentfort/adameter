@@ -98,7 +98,7 @@ export default function DataPage() {
 	const roomToShow = room ?? getCurrentPerformanceRoom() ?? '';
 
 	const recentLogs = useMemo(() => logs.slice(-10).reverse(), [logs]);
-	const latestLogAt = logs.length > 0 ? logs.at(-1).at : undefined;
+	const latestLogAt = logs.length > 0 ? logs.at(-1)?.at : undefined;
 
 	const handleExport = async () => {
 		setIsLoading(true);
@@ -110,7 +110,10 @@ export default function DataPage() {
 			const files = allData
 				.filter(({ data }) => data.length > 0)
 				.map(({ data, name }) => ({
-					content: toCsv(name, data),
+					content: toCsv(
+						name as Parameters<typeof toCsv>[0],
+						data as Parameters<typeof toCsv>[1],
+					),
 					name: `${name}.csv`,
 				}));
 			const zipBlob = await createZip(files);
@@ -139,7 +142,10 @@ export default function DataPage() {
 				}
 
 				const data = fromCsv(content) as { id: string }[];
-				const merged = mergeData(dataStore.value, data);
+				const merged = mergeData(
+					dataStore.value as Parameters<typeof mergeData>[0],
+					data,
+				);
 				dataStore.replace(merged as never);
 			}
 			toast.success('Data imported successfully.');

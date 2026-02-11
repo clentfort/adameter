@@ -12,7 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
+import {
+	cmToInches,
+	gramsToLbsOz,
+	inchesToCm,
+	lbsOzToGrams,
+} from '@/utils/unit-conversions';
 
 interface EditGrowthFormProps {
 	measurement: GrowthMeasurement;
@@ -37,22 +44,46 @@ export default function MeasurementForm({
 	title,
 	...props
 }: MeasurementFormProps) {
+	const unitSystem = useUnitSystem();
 	const [date, setDate] = useState(
 		dateToDateInputValue(
 			'measurement' in props ? props.measurement.date : new Date(),
 		),
 	);
-	const [weight, setWeight] = useState(
-		'measurement' in props ? props.measurement.weight?.toString() : '',
-	);
-	const [height, setHeight] = useState(
-		'measurement' in props ? props.measurement.height?.toString() : '',
-	);
-	const [headCircumference, setHeadCircumference] = useState(
-		'measurement' in props
-			? props.measurement.headCircumference?.toString()
-			: '',
-	);
+
+	// Weight state
+	const [weight, setWeight] = useState(() => {
+		const val = 'measurement' in props ? props.measurement.weight : undefined;
+		if (val === undefined) return '';
+		return unitSystem === 'metric' ? val.toString() : '';
+	});
+	const [weightLbs, setWeightLbs] = useState(() => {
+		const val = 'measurement' in props ? props.measurement.weight : undefined;
+		if (val === undefined || unitSystem === 'metric') return '';
+		return gramsToLbsOz(val).lbs.toString();
+	});
+	const [weightOz, setWeightOz] = useState(() => {
+		const val = 'measurement' in props ? props.measurement.weight : undefined;
+		if (val === undefined || unitSystem === 'metric') return '';
+		return gramsToLbsOz(val).oz.toString();
+	});
+
+	// Height/Length state
+	const [height, setHeight] = useState(() => {
+		const val = 'measurement' in props ? props.measurement.height : undefined;
+		if (val === undefined) return '';
+		return unitSystem === 'metric'
+			? val.toString()
+			: cmToInches(val).toString();
+	});
+	const [headCircumference, setHeadCircumference] = useState(() => {
+		const val =
+			'measurement' in props ? props.measurement.headCircumference : undefined;
+		if (val === undefined) return '';
+		return unitSystem === 'metric'
+			? val.toString()
+			: cmToInches(val).toString();
+	});
 	const [notes, setNotes] = useState(
 		'measurement' in props ? props.measurement.notes : '',
 	);
@@ -60,7 +91,9 @@ export default function MeasurementForm({
 
 	const handleSave = () => {
 		// Validate that at least one of weight or height is provided
-		if (!weight && !height && !headCircumference) {
+		const hasWeight =
+			unitSystem === 'metric' ? !!weight : !!weightLbs || !!weightOz;
+		if (!hasWeight && !height && !headCircumference) {
 			setError(
 				fbt(
 					'Please enter at least a weight, height, or head circumference.',
@@ -74,18 +107,42 @@ export default function MeasurementForm({
 
 		const measurement = 'measurement' in props ? props.measurement : undefined;
 
+		const weightInGrams =
+			unitSystem === 'metric'
+				? weight
+					? Number.parseFloat(weight)
+					: undefined
+				: weightLbs || weightOz
+					? lbsOzToGrams(
+							Number.parseFloat(weightLbs || '0'),
+							Number.parseFloat(weightOz || '0'),
+						)
+					: undefined;
+
+		const heightInCm =
+			height && !Number.isNaN(Number.parseFloat(height))
+				? unitSystem === 'metric'
+					? Number.parseFloat(height)
+					: inchesToCm(Number.parseFloat(height))
+				: undefined;
+
+		const headCircumferenceInCm =
+			headCircumference && !Number.isNaN(Number.parseFloat(headCircumference))
+				? unitSystem === 'metric'
+					? Number.parseFloat(headCircumference)
+					: inchesToCm(Number.parseFloat(headCircumference))
+				: undefined;
+
 		const newMeasurement: GrowthMeasurement = {
 			...measurement,
 			date: new Date(`${date}T12:00:00`).toISOString(),
-			headCircumference: headCircumference
-				? Number.parseFloat(headCircumference)
-				: undefined,
-			height: height ? Number.parseFloat(height) : undefined,
+			headCircumference: headCircumferenceInCm,
+			height: heightInCm,
 			id: measurement?.id || Date.now().toString(),
 
 			notes: notes || undefined,
 			// Use noon to avoid timezone issues
-			weight: weight ? Number.parseFloat(weight) : undefined,
+			weight: weightInGrams,
 		};
 
 		onSave(newMeasurement);
@@ -112,26 +169,63 @@ export default function MeasurementForm({
 					</div>
 
 					<div className="grid grid-cols-1 gap-4">
-						<div className="space-y-2">
-							<Label htmlFor="weight">
-								<fbt desc="Label for a body weight input">Weight (g)</fbt>
-							</Label>
-							<Input
-								id="weight"
-								onChange={(e) => setWeight(e.target.value)}
-								placeholder={fbt('e.g. 3500', 'Placeholder for a weight input')}
-								type="number"
-								value={weight}
-							/>
-						</div>
+						{unitSystem === 'metric' ? (
+							<div className="space-y-2">
+								<Label htmlFor="weight">
+									<fbt desc="Label for a body weight input">Weight (g)</fbt>
+								</Label>
+								<Input
+									id="weight"
+									onChange={(e) => setWeight(e.target.value)}
+									placeholder={fbt(
+										'e.g. 3500',
+										'Placeholder for a weight input',
+									)}
+									type="number"
+									value={weight}
+								/>
+							</div>
+						) : (
+							<div className="space-y-2">
+								<Label>
+									<fbt desc="Label for a body weight input in lbs and oz">
+										Weight (lb oz)
+									</fbt>
+								</Label>
+								<div className="grid grid-cols-2 gap-2">
+									<Input
+										id="weight-lbs"
+										onChange={(e) => setWeightLbs(e.target.value)}
+										placeholder={fbt('lb', 'Abbreviation for pounds')}
+										type="number"
+										value={weightLbs}
+									/>
+									<Input
+										id="weight-oz"
+										onChange={(e) => setWeightOz(e.target.value)}
+										placeholder={fbt('oz', 'Abbreviation for ounces')}
+										type="number"
+										value={weightOz}
+									/>
+								</div>
+							</div>
+						)}
 						<div className="space-y-2">
 							<Label htmlFor="height">
-								<fbt desc="Label for a body height input">Height (cm)</fbt>
+								{unitSystem === 'metric' ? (
+									<fbt desc="Label for a body height input">Height (cm)</fbt>
+								) : (
+									<fbt desc="Label for a body height input">Height (in)</fbt>
+								)}
 							</Label>
 							<Input
 								id="height"
 								onChange={(e) => setHeight(e.target.value)}
-								placeholder={fbt('e.g. 50', 'Placeholder for a height input')}
+								placeholder={
+									unitSystem === 'metric'
+										? fbt('e.g. 50', 'Placeholder for a height input')
+										: fbt('e.g. 20', 'Placeholder for a height input')
+								}
 								step="0.1"
 								type="number"
 								value={height}
@@ -139,17 +233,30 @@ export default function MeasurementForm({
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="headCircumference">
-								<fbt desc="Label for a head circumference input">
-									Head Circumference (cm)
-								</fbt>
+								{unitSystem === 'metric' ? (
+									<fbt desc="Label for a head circumference input">
+										Head Circumference (cm)
+									</fbt>
+								) : (
+									<fbt desc="Label for a head circumference input">
+										Head Circumference (in)
+									</fbt>
+								)}
 							</Label>
 							<Input
 								id="headCircumference"
 								onChange={(e) => setHeadCircumference(e.target.value)}
-								placeholder={fbt(
-									'e.g. 35',
-									'Placeholder for a head circumference input',
-								)}
+								placeholder={
+									unitSystem === 'metric'
+										? fbt(
+												'e.g. 35',
+												'Placeholder for a head circumference input',
+											)
+										: fbt(
+												'e.g. 14',
+												'Placeholder for a head circumference input',
+											)
+								}
 								step="0.1"
 								type="number"
 								value={headCircumference}

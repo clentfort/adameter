@@ -3,15 +3,18 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
-import Markdown from '@/components/markdown';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import Markdown from '@/components/markdown';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useUnitSystem } from '@/hooks/use-unit-system';
+import { celsiusToFahrenheit } from '@/utils/unit-conversions';
 import { DIAPER_BRAND_LABELS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
 
 export default function DiaperHistoryList() {
+	const unitSystem = useUnitSystem();
 	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
 	const [changeToEdit, setChangeToEdit] = useState<DiaperChange | null>(null);
 	const { remove, update, value: changes } = useDiaperChanges();
@@ -59,13 +62,27 @@ export default function DiaperHistoryList() {
 														: ''
 												}
 											>
-												<fbt desc="Label for a measured body temperature in degree Celsius">
-													Temperature (°C)
-												</fbt>
-												:{' '}
-												<span className="font-medium">
-													{change.temperature} °C
-												</span>
+												{unitSystem === 'metric' ? (
+													<>
+														<fbt desc="Label for a measured body temperature in degree Celsius">
+															Temperature (°C)
+														</fbt>
+														:{' '}
+														<span className="font-medium">
+															{change.temperature} °C
+														</span>
+													</>
+												) : (
+													<>
+														<fbt desc="Label for a measured body temperature in degree Fahrenheit">
+															Temperature (°F)
+														</fbt>
+														:{' '}
+														<span className="font-medium">
+															{celsiusToFahrenheit(change.temperature)} °F
+														</span>
+													</>
+												)}
 												{isAbnormalTemperature(change.temperature) && ' (!)'}
 											</p>
 										)}

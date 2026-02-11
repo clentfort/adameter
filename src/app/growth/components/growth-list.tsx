@@ -2,9 +2,11 @@ import type { GrowthMeasurement } from '@/types/growth';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import Markdown from '@/components/markdown';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import Markdown from '@/components/markdown';
+import { useUnitSystem } from '@/hooks/use-unit-system';
+import { cmToInches, gramsToLbsOz } from '@/utils/unit-conversions';
 import MeasurementForm from './growth-form';
 
 interface GrowthMeasurementsListProps {
@@ -18,6 +20,7 @@ export default function GrowthMeasurementsList({
 	onMeasurementDelete,
 	onMeasurementUpdate,
 }: GrowthMeasurementsListProps) {
+	const unitSystem = useUnitSystem();
 	const [measurementToDelete, setMeasurementToDelete] = useState<string | null>(
 		null,
 	);
@@ -66,7 +69,14 @@ export default function GrowthMeasurementsList({
 												<span className="font-medium">
 													<fbt desc="Weight of the baby">Weight</fbt>
 												</span>{' '}
-												{measurement.weight} g
+												{unitSystem === 'metric' ? (
+													<>{measurement.weight} g</>
+												) : (
+													<>
+														{gramsToLbsOz(measurement.weight).lbs} lb{' '}
+														{gramsToLbsOz(measurement.weight).oz} oz
+													</>
+												)}
 											</p>
 										)}
 										{measurement.height && (
@@ -74,7 +84,11 @@ export default function GrowthMeasurementsList({
 												<span className="font-medium">
 													{<fbt desc="Height of the baby">Height</fbt>}
 												</span>{' '}
-												{measurement.height} cm
+												{unitSystem === 'metric' ? (
+													<>{measurement.height} cm</>
+												) : (
+													<>{cmToInches(measurement.height)} in</>
+												)}
 											</p>
 										)}
 										{measurement.headCircumference && (
@@ -84,7 +98,11 @@ export default function GrowthMeasurementsList({
 														Head Circumference
 													</fbt>
 												</span>{' '}
-												{measurement.headCircumference} cm
+												{unitSystem === 'metric' ? (
+													<>{measurement.headCircumference} cm</>
+												) : (
+													<>{cmToInches(measurement.headCircumference)} in</>
+												)}
 											</p>
 										)}
 										{measurement.notes && (
