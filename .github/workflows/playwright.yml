@@ -25,10 +25,31 @@ jobs:
       - name: Run Playwright tests
         run: pnpm exec playwright test
       - name: Playwright Report Summary
-        uses: shlinkio/playwright-report-summary@v3
+        uses: actions/github-script@v8
         if: always()
         with:
-          report-file: playwright-report/results.json
+          script: |
+            const fs = require('fs');
+            const path = 'playwright-report/results.json';
+            if (fs.existsSync(path)) {
+              const results = JSON.parse(fs.readFileSync(path, 'utf8'));
+              const summary = results.stats;
+              const table = [
+                [{data: 'Stat', header: true}, {data: 'Value', header: true}],
+                ['Total', (summary.expected + summary.unexpected + summary.skipped + summary.flaky).toString()],
+                ['Passed', summary.expected.toString()],
+                ['Failed', summary.unexpected.toString()],
+                ['Flaky', summary.flaky.toString()],
+                ['Skipped', summary.skipped.toString()],
+                ['Duration', `${(summary.duration / 1000).toFixed(2)}s`]
+              ];
+              await core.summary
+                .addHeading('Playwright Test Results')
+                .addTable(table)
+                .write();
+            } else {
+              core.warning('Playwright results JSON not found, skipping summary.');
+            }
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
