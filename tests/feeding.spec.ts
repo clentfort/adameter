@@ -12,7 +12,9 @@ test.describe('Feeding Page', () => {
 		await page.getByRole('button', { name: 'Left Breast' }).click();
 
 		// Verify timer is visible
-		await expect(page.getByRole('button', { name: 'End Feeding' })).toBeVisible();
+		await expect(
+			page.getByRole('button', { name: 'End Feeding' }),
+		).toBeVisible();
 		// The timer itself has class text-3xl
 		await expect(page.locator('.text-3xl.font-bold')).toBeVisible();
 
@@ -45,7 +47,9 @@ test.describe('Feeding Page', () => {
 			}),
 		).toBeVisible();
 		await expect(
-			page.locator('div.border.rounded-lg').getByText('15 min', { exact: true }),
+			page
+				.locator('div.border.rounded-lg')
+				.getByText('15 min', { exact: true }),
 		).toBeVisible();
 	});
 
