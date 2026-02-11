@@ -13,7 +13,8 @@ const mockSetFeedingInProgress = (newState: typeof mockFeedingInProgressState) =
 const meta: Meta<typeof BreastfeedingTracker> = {
 	argTypes: {
 		nextBreast: { control: 'radio', options: ['left', 'right'] },
-		onSessionComplete: { action: 'sessionCompleted' },
+		onCreateSession: { action: 'created' },
+		onUpdateSession: { action: 'updated' },
 	},
 	component: BreastfeedingTracker,
 	parameters: {
@@ -42,28 +43,32 @@ type Story = StoryObj<
 export const InitialScreenNextLeft: Story = {
 	args: {
 		nextBreast: 'left',
-		onSessionComplete: () => {},
+		onCreateSession: () => {},
+		onUpdateSession: () => {},
 	},
 };
 
 export const InitialScreenNextRight: Story = {
 	args: {
 		nextBreast: 'right',
-		onSessionComplete: () => {},
+		onCreateSession: () => {},
+		onUpdateSession: () => {},
 	},
 };
 
 export const StartLeftFeeding: Story = {
 	args: {
 		nextBreast: 'left',
-		onSessionComplete: () => {},
+		onCreateSession: () => {},
+		onUpdateSession: () => {},
 	},
 };
 
 export const FeedingInProgressView: Story = {
 	args: {
 		nextBreast: 'right',
-		onSessionComplete: () => {},
+		onCreateSession: () => {},
+		onUpdateSession: () => {},
 		// @ts-ignore: Forcing initial state via args for story setup
 		initialFeedingState: {
 			breast: 'right',

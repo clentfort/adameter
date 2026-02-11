@@ -1,20 +1,10 @@
 'use client';
 
-import Chart from 'chart.js/auto';
+import Chart, { TooltipItem } from 'chart.js/auto';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns';
 import type { Event } from '@/types/event';
-
-interface ChartDataContext {
-	dataset: {
-		label?: string;
-	};
-	parsed: {
-		x: number;
-		y: number;
-	};
-}
 
 interface PointData {
 	x: Date | number;
@@ -29,8 +19,8 @@ interface LineChartProps {
 	emptyStateMessage: React.ReactNode;
 	events?: Event[];
 	title: React.ReactNode;
-	tooltipLabelFormatter?: (context: ChartDataContext) => string;
-	tooltipTitleFormatter?: (context: ChartDataContext[]) => string;
+	tooltipLabelFormatter?: (context: TooltipItem<'line'>) => string;
+	tooltipTitleFormatter?: (context: TooltipItem<'line'>[]) => string;
 	xAxisLabel: React.ReactNode;
 	yAxisLabel: React.ReactNode;
 	yAxisUnit?: string;
@@ -105,7 +95,11 @@ export default function LineChart({
 							title: tooltipTitleFormatter
 								? tooltipTitleFormatter
 								: (context) => {
-										const date = new Date(context[0].parsed.x);
+										const parsedX = context[0].parsed.x;
+										if (parsedX === null || parsedX === undefined) {
+											return '';
+										}
+										const date = new Date(parsedX);
 										return format(date, 'dd. MMMM yyyy');
 									},
 						},
