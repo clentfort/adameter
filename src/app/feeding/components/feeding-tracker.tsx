@@ -198,7 +198,7 @@ export default function BreastfeedingTracker({
 								)}
 							</p>
 							<div className="mt-2">
-								<p className="text-3xl font-bold">
+								<p className="text-3xl font-bold" data-testid="feeding-timer">
 									{formatDurationShort(elapsedTime ?? { seconds: 0 })}
 								</p>
 								{feedingInProgress.startTime && (

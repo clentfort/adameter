@@ -3,9 +3,9 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
-import Markdown from '@/components/markdown';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import Markdown from '@/components/markdown';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { DIAPER_BRAND_LABELS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
@@ -33,6 +33,7 @@ export default function DiaperHistoryList() {
 					return (
 						<div
 							className={`border rounded-lg p-4 shadow-xs ${borderColor} ${bgColor}`}
+							data-testid="diaper-history-entry"
 							key={change.id}
 						>
 							<div className="flex justify-between items-start">

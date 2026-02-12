@@ -8,24 +8,35 @@ test.describe('Navigation', () => {
 		await page.goto('/feeding');
 
 		// Start a feeding session on the left breast
-		await page.click('button:has-text("Left Breast")');
+		await page.getByRole('button', { name: 'Left Breast' }).click();
 
 		// Verify that the session is in progress by checking for the "End Feeding" button
-		await expect(page.locator('button:has-text("End Feeding")')).toBeVisible();
+		await expect(
+			page.getByRole('button', { name: 'End Feeding' }),
+		).toBeVisible();
 
 		// Verify the timer is running (at least showing 00:00 or more)
-		await expect(page.locator(String.raw`text=/\d{2}:\d{2}/`)).toBeVisible();
+		await expect(page.getByTestId('feeding-timer')).toBeVisible();
 
 		// Attempt to navigate to the Diaper page via the navigation bar
-		await page.click('a:has-text("Diaper")');
+		// Use a more robust selector for the navigation link
+		await page
+			.locator('a')
+			.filter({ hasText: /Diaper/ })
+			.click();
 
 		// Check if the navigation was successful
 		await expect(page).toHaveURL(/\/diaper/);
-		await expect(page.locator('h1, h2:has-text("Diaper")')).toBeVisible();
+		await expect(page.getByText('Urine Only')).toBeVisible();
 
 		// Navigate back to feeding to ensure the session is still active (state persistence)
-		await page.click('a:has-text("Feeding")');
+		await page
+			.locator('a')
+			.filter({ hasText: /Feeding/ })
+			.click();
 		await expect(page).toHaveURL(/\/feeding/);
-		await expect(page.locator('button:has-text("End Feeding")')).toBeVisible();
+		await expect(
+			page.getByRole('button', { name: 'End Feeding' }),
+		).toBeVisible();
 	});
 });

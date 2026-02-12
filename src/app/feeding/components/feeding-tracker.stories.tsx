@@ -6,7 +6,9 @@ let mockFeedingInProgressState: {
 	breast: 'left' | 'right';
 	startTime: string;
 } | null = null;
-const mockSetFeedingInProgress = (newState: typeof mockFeedingInProgressState) => {
+const mockSetFeedingInProgress = (
+	newState: typeof mockFeedingInProgressState,
+) => {
 	mockFeedingInProgressState = newState;
 };
 
