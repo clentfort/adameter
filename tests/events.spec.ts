@@ -10,7 +10,9 @@ test.describe('Events Page', () => {
 
 		// Fill the form
 		await page.getByLabel('Title').fill('Vaccination');
-		await page.getByLabel('Description (optional)').fill('First round of shots');
+		await page
+			.getByLabel('Description (optional)')
+			.fill('First round of shots');
 		await page.getByLabel('Point in time (e.g. Vaccination)').check();
 
 		// Save
