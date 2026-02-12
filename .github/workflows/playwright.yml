@@ -25,7 +25,7 @@ jobs:
         run: echo "version=$(pnpm exec playwright --version | cut -d' ' -f2)" >> $GITHUB_OUTPUT
       - name: Cache Playwright Browsers
         id: cache-playwright-browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ steps.playwright-version.outputs.version }}
