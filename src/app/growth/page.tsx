@@ -1,6 +1,5 @@
 'use client';
 
-import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
@@ -18,28 +17,32 @@ export default function GrowthPage() {
 	return (
 		<>
 			<div className="w-full space-y-8">
+				<div className="grid grid-cols-2 gap-4">
+					<Button
+						className="h-24 text-lg w-full bg-sky-600 hover:bg-sky-700 text-white"
+						data-testid="tooth-button"
+						onClick={() => setIsTeethingDialogOpen(true)}
+						size="lg"
+					>
+						<span className="text-2xl mr-2">🦷</span>{' '}
+						<fbt desc="Tooth button label">Tooth</fbt>
+					</Button>
+					<Button
+						className="h-24 text-lg w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+						data-testid="growth-button"
+						onClick={() => setIsAddEntryDialogOpen(true)}
+						size="lg"
+					>
+						<span className="text-2xl mr-2">📏</span>{' '}
+						<fbt desc="Growth button label">Growth</fbt>
+					</Button>
+				</div>
+
 				<div>
 					<div className="flex justify-between items-center mb-4">
 						<h2 className="text-xl font-semibold">
 							<fbt desc="historyTitle">History</fbt>
 						</h2>
-						<div className="flex gap-2">
-							<Button
-								onClick={() => setIsTeethingDialogOpen(true)}
-								size="sm"
-								variant="outline"
-							>
-								🦷 <fbt desc="Add tooth button">Add Tooth</fbt>
-							</Button>
-							<Button
-								onClick={() => setIsAddEntryDialogOpen(true)}
-								size="sm"
-								variant="outline"
-							>
-								<PlusCircle className="h-4 w-4 mr-1" />
-								<fbt common>Add Entry</fbt>
-							</Button>
-						</div>
 					</div>
 
 					<GrowthHistoryList
