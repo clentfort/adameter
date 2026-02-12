@@ -28,10 +28,10 @@ test.describe('Statistics Page', () => {
 
 		// Feeding and Diaper sections should be visible
 		await expect(
-			page.getByRole('heading', { name: 'Feeding', exact: true }),
+			page.getByRole('heading', { exact: true, name: 'Feeding' }),
 		).toBeVisible();
 		await expect(
-			page.getByRole('heading', { name: 'Diaper', exact: true }),
+			page.getByRole('heading', { exact: true, name: 'Diaper' }),
 		).toBeVisible();
 
 		// Stats cards should be present
@@ -47,7 +47,7 @@ test.describe('Statistics Page', () => {
 
 		await page.goto('/statistics');
 		await expect(
-			page.getByRole('heading', { name: 'Diaper', exact: true }),
+			page.getByRole('heading', { exact: true, name: 'Diaper' }),
 		).toBeVisible();
 
 		// Change time range to "Last 7 Days" (which is default, but let's re-select or change to something else)
@@ -56,7 +56,7 @@ test.describe('Statistics Page', () => {
 		await page.getByRole('option', { name: 'All Data' }).click();
 
 		await expect(
-			page.getByRole('heading', { name: 'Diaper', exact: true }),
+			page.getByRole('heading', { exact: true, name: 'Diaper' }),
 		).toBeVisible();
 	});
 });
