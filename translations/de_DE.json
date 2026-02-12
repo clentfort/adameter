@@ -791,76 +791,6 @@
         }
       ]
     },
-    "67jGfWnLXz7iLy9AlQqJ5w==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Tägliche Stillverteilung",
-          "variations": []
-        }
-      ]
-    },
-    "ZsyCrv/5i09WAZn+ADNn9A==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Verteilung der Stillzeiten über den Tag",
-          "variations": []
-        }
-      ]
-    },
-    "5iI489zNpAmgwom+DkfbZg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Sehr hohe Aktivität",
-          "variations": []
-        }
-      ]
-    },
-    "eH7bIrF8i0Qcw00xdeVhWg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Hohe Aktivität",
-          "variations": []
-        }
-      ]
-    },
-    "6+JCk/8VI2Qu6jyvQ1QSow==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Mittlere Aktivität",
-          "variations": []
-        }
-      ]
-    },
-    "KkaDiSYm65O2KeTxLzGErg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Geringe Aktivität",
-          "variations": []
-        }
-      ]
-    },
-    "hfj+LGLPWHZfgjyHWMKZIg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Sehr geringe Aktivität",
-          "variations": []
-        }
-      ]
-    },
     "qws1JRtHcgxWtSfHV4pbzQ==": {
       "tokens": [],
       "types": [],
@@ -2751,16 +2681,6 @@
         }
       ]
     },
-    "Watqqe4XR3l7IQe6ttJNnw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Wickeleintrag bearbeiten",
-          "variations": []
-        }
-      ]
-    },
     "CbEfPkR7inUz8SRue5W0ig==": {
       "tokens": [],
       "types": [],
@@ -3135,18 +3055,6 @@
         }
       ]
     },
-    "pyKMn+img3Yd2hEjhy2j4Q==": {
-      "description": "historyTitle",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Verlauf",
-          "variations": {}
-        }
-      ]
-    },
     "Nvftm2sylc+bljn5CwVb1A==": {
       "description": "Add tooth button",
       "tokens": [],
@@ -3267,18 +3175,6 @@
         }
       ]
     },
-    "0e7iju9U38L2wt8NRUcVjA==": {
-      "description": "noHistoryRecorded",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Bisher kein Verlauf eingetragen.",
-          "variations": {}
-        }
-      ]
-    },
     "2uyrs2R7wIzt7rvHkuvH8g==": {
       "description": "Tooth erupted message",
       "tokens": [],
@@ -3287,18 +3183,6 @@
       "translations": [
         {
           "translation": "{label}: {toothName} ({fdi})",
-          "variations": {}
-        }
-      ]
-    },
-    "xUvK4Sz5pNHFto+hv2VDPw==": {
-      "description": "teethingTitle",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Zahnungsfortschritt",
           "variations": {}
         }
       ]
@@ -3422,6 +3306,141 @@
           "variations": {}
         }
       ]
+    },
+    "Rm60flfdyy03vRNPbxkF0w==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Tägliche Stillverteilung",
+          "variations": []
+        }
+      ],
+      "description": "Title for the feeding distribution heat map"
+    },
+    "AvlO4JWYpkErvIVKbXy70Q==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Verteilung der Stillzeiten über den Tag",
+          "variations": []
+        }
+      ],
+      "description": "Description for the feeding distribution heat map"
+    },
+    "nk8ijfQq5HeEL3phToymDA==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Sehr hohe Aktivität",
+          "variations": []
+        }
+      ],
+      "description": "Heat map legend label for very high activity"
+    },
+    "bf8gtYK7YSDphPu7d93wPA==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Hohe Aktivität",
+          "variations": []
+        }
+      ],
+      "description": "Heat map legend label for high activity"
+    },
+    "02wpugASVXUcOza/T85C0A==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Mittlere Aktivität",
+          "variations": []
+        }
+      ],
+      "description": "Heat map legend label for medium activity"
+    },
+    "hMxrMqD51Oc8xBFiTlBYYA==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Geringe Aktivität",
+          "variations": []
+        }
+      ],
+      "description": "Heat map legend label for low activity"
+    },
+    "HoHl1IJneDDVVw0/TQBKiQ==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Sehr geringe Aktivität",
+          "variations": []
+        }
+      ],
+      "description": "Heat map legend label for very low activity"
+    },
+    "ZYUeOyQOrf7y34AIkp0Y1w==": {
+      "description": "Title for the Growth History section",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Verlauf",
+          "variations": {}
+        }
+      ]
+    },
+    "+q/bGlqw1q7khGHHQ5g28A==": {
+      "description": "Empty state message when no growth history is recorded",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Bisher kein Verlauf eingetragen.",
+          "variations": {}
+        }
+      ]
+    },
+    "cOxZMxiLdvj4PVUlmFqEcw==": {
+      "description": "Title for the Teething Progress Dialog",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Zahnungsfortschritt",
+          "variations": {}
+        }
+      ]
+    },
+    "ztzAo/QFXIVR0a0knlD6mA==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Wickeleintrag bearbeiten",
+          "variations": []
+        }
+      ],
+      "description": "Title for the edit diaper entry dialog"
+    },
+    "rB+n7zcgMFIrBLdSqqtcCQ==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Teilen",
+          "variations": []
+        }
+      ],
+      "description": "Label for the sharing switcher button"
     }
   }
 }

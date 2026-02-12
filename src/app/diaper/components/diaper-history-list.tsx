@@ -124,7 +124,11 @@ export default function DiaperHistoryList() {
 					change={changeToEdit}
 					onClose={() => setChangeToEdit(null)}
 					onSave={update}
-					title={<fbt desc="editDiaperEntry">Edit Diaper Entry</fbt>}
+					title={
+						<fbt desc="Title for the edit diaper entry dialog">
+							Edit Diaper Entry
+						</fbt>
+					}
 				/>
 			)}
 		</>

@@ -58,7 +58,9 @@ export default function GrowthHistoryList({
 	if (interleavedEntries.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
-				<fbt desc="noHistoryRecorded">No history recorded yet.</fbt>
+				<fbt desc="Empty state message when no growth history is recorded">
+					No history recorded yet.
+				</fbt>
 			</p>
 		);
 	}

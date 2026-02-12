@@ -16,7 +16,9 @@ export default function TeethingDialog({ onClose }: TeethingDialogProps) {
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle>
-						<fbt desc="teethingTitle">Teething Progress</fbt>
+						<fbt desc="Title for the Teething Progress Dialog">
+							Teething Progress
+						</fbt>
 					</DialogTitle>
 				</DialogHeader>
 				<TeethingProgress />
