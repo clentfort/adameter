@@ -25,13 +25,13 @@ export default function DataSharingSwitcher() {
 			<DialogTrigger asChild>
 				<Button
 					size="icon"
-					title={fbt('Language', 'Label for the language switcher')}
+					title={fbt('Sharing', 'Label for the sharing switcher button')}
 					type="button"
 					variant="outline"
 				>
 					<Icon className="h-4 w-4" />
 					<span className="sr-only">
-						<fbt desc="Label for the language switcher">Language</fbt>
+						<fbt desc="Label for the sharing switcher button">Sharing</fbt>
 					</span>
 				</Button>
 			</DialogTrigger>

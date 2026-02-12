@@ -949,90 +949,6 @@
         }
       ]
     },
-    "67jGfWnLXz7iLy9AlQqJ5w==": {
-      "description": "feedingDistribution",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Daily Feeding Distribution",
-          "variations": {}
-        }
-      ]
-    },
-    "ZsyCrv/5i09WAZn+ADNn9A==": {
-      "description": "feedingDistributionDescription",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Distribution of feeding times throughout the day",
-          "variations": {}
-        }
-      ]
-    },
-    "5iI489zNpAmgwom+DkfbZg==": {
-      "description": "veryHighActivity",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Very High Activity",
-          "variations": {}
-        }
-      ]
-    },
-    "eH7bIrF8i0Qcw00xdeVhWg==": {
-      "description": "highActivity",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "High Activity",
-          "variations": {}
-        }
-      ]
-    },
-    "6+JCk/8VI2Qu6jyvQ1QSow==": {
-      "description": "mediumActivity",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Medium Activity",
-          "variations": {}
-        }
-      ]
-    },
-    "KkaDiSYm65O2KeTxLzGErg==": {
-      "description": "lowActivity",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Low Activity",
-          "variations": {}
-        }
-      ]
-    },
-    "hfj+LGLPWHZfgjyHWMKZIg==": {
-      "description": "veryLowActivity",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Very Low Activity",
-          "variations": {}
-        }
-      ]
-    },
     "qws1JRtHcgxWtSfHV4pbzQ==": {
       "description": "Title for the average time between feedings statistics card",
       "tokens": [],
@@ -3301,18 +3217,6 @@
         }
       ]
     },
-    "Watqqe4XR3l7IQe6ttJNnw==": {
-      "description": "editDiaperEntry",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Edit Diaper Entry"
-        }
-      ]
-    },
     "CbEfPkR7inUz8SRue5W0ig==": {
       "description": "Label for a button that tracks a urine only diaper",
       "types": [],
@@ -3721,18 +3625,6 @@
         }
       ]
     },
-    "pyKMn+img3Yd2hEjhy2j4Q==": {
-      "description": "historyTitle",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "History",
-          "variations": {}
-        }
-      ]
-    },
     "Nvftm2sylc+bljn5CwVb1A==": {
       "description": "Add tooth button",
       "tokens": [],
@@ -3853,18 +3745,6 @@
         }
       ]
     },
-    "0e7iju9U38L2wt8NRUcVjA==": {
-      "description": "noHistoryRecorded",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "No history recorded yet.",
-          "variations": {}
-        }
-      ]
-    },
     "2uyrs2R7wIzt7rvHkuvH8g==": {
       "description": "Tooth erupted message",
       "tokens": [],
@@ -3873,18 +3753,6 @@
       "translations": [
         {
           "translation": "{label} : {toothName} ({fdi})",
-          "variations": {}
-        }
-      ]
-    },
-    "xUvK4Sz5pNHFto+hv2VDPw==": {
-      "description": "teethingTitle",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Teething Progress",
           "variations": {}
         }
       ]
@@ -4008,6 +3876,149 @@
           "variations": {}
         }
       ]
+    },
+    "Rm60flfdyy03vRNPbxkF0w==": {
+      "description": "Title for the feeding distribution heat map",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Daily Feeding Distribution",
+          "variations": {}
+        }
+      ]
+    },
+    "AvlO4JWYpkErvIVKbXy70Q==": {
+      "description": "Description for the feeding distribution heat map",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Distribution of feeding times throughout the day",
+          "variations": {}
+        }
+      ]
+    },
+    "nk8ijfQq5HeEL3phToymDA==": {
+      "description": "Heat map legend label for very high activity",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Very High Activity",
+          "variations": {}
+        }
+      ]
+    },
+    "bf8gtYK7YSDphPu7d93wPA==": {
+      "description": "Heat map legend label for high activity",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "High Activity",
+          "variations": {}
+        }
+      ]
+    },
+    "02wpugASVXUcOza/T85C0A==": {
+      "description": "Heat map legend label for medium activity",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Medium Activity",
+          "variations": {}
+        }
+      ]
+    },
+    "hMxrMqD51Oc8xBFiTlBYYA==": {
+      "description": "Heat map legend label for low activity",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Low Activity",
+          "variations": {}
+        }
+      ]
+    },
+    "HoHl1IJneDDVVw0/TQBKiQ==": {
+      "description": "Heat map legend label for very low activity",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Very Low Activity",
+          "variations": {}
+        }
+      ]
+    },
+    "ZYUeOyQOrf7y34AIkp0Y1w==": {
+      "description": "Title for the Growth History section",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "History",
+          "variations": {}
+        }
+      ]
+    },
+    "+q/bGlqw1q7khGHHQ5g28A==": {
+      "description": "Empty state message when no growth history is recorded",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "No history recorded yet.",
+          "variations": {}
+        }
+      ]
+    },
+    "cOxZMxiLdvj4PVUlmFqEcw==": {
+      "description": "Title for the Teething Progress Dialog",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Teething Progress",
+          "variations": {}
+        }
+      ]
+    },
+    "ztzAo/QFXIVR0a0knlD6mA==": {
+      "description": "Title for the edit diaper entry dialog",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Edit Diaper Entry"
+        }
+      ]
+    },
+    "rB+n7zcgMFIrBLdSqqtcCQ==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Sharing",
+          "variations": []
+        }
+      ],
+      "description": "Label for the sharing switcher button"
     }
   }
 }

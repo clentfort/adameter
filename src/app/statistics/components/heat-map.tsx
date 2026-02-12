@@ -79,10 +79,10 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 		<Card className={className}>
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
-					<fbt desc="feedingDistribution">Daily Feeding Distribution</fbt>
+					<fbt desc="Title for the feeding distribution heat map">Daily Feeding Distribution</fbt>
 				</CardTitle>
 				<CardDescription>
-					<fbt desc="feedingDistributionDescription">
+					<fbt desc="Description for the feeding distribution heat map">
 						Distribution of feeding times throughout the day
 					</fbt>
 				</CardDescription>
@@ -149,31 +149,31 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 						<div className="flex items-center gap-1">
 							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast dark:border-white/10 dark:bg-right-breast-light"></div>
 							<span>
-								<fbt desc="veryHighActivity">Very High Activity</fbt>
+								<fbt desc="Heat map legend label for very high activity">Very High Activity</fbt>
 							</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast/65 dark:border-white/10 dark:bg-right-breast/70"></div>
 							<span>
-								<fbt desc="highActivity">High Activity</fbt>
+								<fbt desc="Heat map legend label for high activity">High Activity</fbt>
 							</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast/45 dark:border-white/10 dark:bg-right-breast/55"></div>
 							<span>
-								<fbt desc="mediumActivity">Medium Activity</fbt>
+								<fbt desc="Heat map legend label for medium activity">Medium Activity</fbt>
 							</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-left-breast/45 dark:border-white/10 dark:bg-left-breast/55"></div>
 							<span>
-								<fbt desc="lowActivity">Low Activity</fbt>
+								<fbt desc="Heat map legend label for low activity">Low Activity</fbt>
 							</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-left-breast/20 dark:border-white/10 dark:bg-left-breast/35"></div>
 							<span>
-								<fbt desc="veryLowActivity">Very Low Activity</fbt>
+								<fbt desc="Heat map legend label for very low activity">Very Low Activity</fbt>
 							</span>
 						</div>
 					</div>
