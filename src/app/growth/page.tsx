@@ -1,6 +1,5 @@
 'use client';
 
-import { fbt } from 'fbtee';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';

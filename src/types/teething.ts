@@ -1,6 +1,6 @@
 export interface Tooth {
-	id: string; // FDI number as string
-	toothId: number; // FDI number
 	date?: string; // ISO date of eruption
+	id: string; // FDI number as string
 	notes?: string;
+	toothId: number; // FDI number
 }
