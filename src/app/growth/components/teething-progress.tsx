@@ -1,7 +1,7 @@
+import type { Tooth } from '@/types/teething';
 import { fbt } from 'fbtee';
 import { useState } from 'react';
 import { useTeething } from '@/hooks/use-teething';
-import type { Tooth } from '@/types/teething';
 import { cn } from '@/lib/utils';
 import TeethingForm from './teething-form';
 

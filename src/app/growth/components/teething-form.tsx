@@ -56,7 +56,8 @@ export default function TeethingForm({
 				<DialogHeader>
 					<DialogTitle>
 						<fbt desc="Edit teething progress title">
-							Edit Teething: <fbt:param name="toothName">{toothName}</fbt:param> (
+							Edit Teething: <fbt:param name="toothName">{toothName}</fbt:param>{' '}
+							(
 							<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
 						</fbt>
 					</DialogTitle>
