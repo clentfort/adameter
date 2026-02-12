@@ -146,7 +146,10 @@ export const WithCustomTooltipFormatters: Story = {
 		datasetLabel: 'Formatted Tooltip Data',
 		emptyStateMessage: 'No data.',
 		title: 'Chart with Custom Tooltips',
-		tooltipLabelFormatter: (context: { dataset?: { label?: string }; parsed: { y: unknown }; }) => {
+		tooltipLabelFormatter: (context: {
+			dataset?: { label?: string };
+			parsed: { y: unknown };
+		}) => {
 			return `Value: ${context.parsed.y} ${context.dataset?.label || ''}`;
 		},
 		tooltipTitleFormatter: (context) => {

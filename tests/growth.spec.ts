@@ -20,15 +20,23 @@ test.describe('Growth Page', () => {
 		await expect(growthButton).toHaveClass(/h-24/);
 	});
 
-	test('should open teething dialog when clicking tooth button', async ({ page }) => {
+	test('should open teething dialog when clicking tooth button', async ({
+		page,
+	}) => {
 		await page.getByTestId('tooth-button').click();
 		// Match either English or German text to be robust
-		await expect(page.getByText(/Teething Progress|Zahnungsfortschritt/)).toBeVisible();
+		await expect(
+			page.getByText(/Teething Progress|Zahnungsfortschritt/),
+		).toBeVisible();
 	});
 
-	test('should open growth measurement form when clicking growth button', async ({ page }) => {
+	test('should open growth measurement form when clicking growth button', async ({
+		page,
+	}) => {
 		await page.getByTestId('growth-button').click();
 		// Match either English or German text to be robust
-		await expect(page.getByText(/Add Growth Measurement|Wachstumsmessung hinzufügen/)).toBeVisible();
+		await expect(
+			page.getByText(/Add Growth Measurement|Wachstumsmessung hinzufügen/),
+		).toBeVisible();
 	});
 });

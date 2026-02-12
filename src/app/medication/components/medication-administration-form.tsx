@@ -39,13 +39,7 @@ interface MedicationAdministrationFormProps {
 
 export const MedicationAdministrationForm: React.FC<
 	MedicationAdministrationFormProps
-> = ({
-	allAdministrations,
-	initialData,
-	onClose,
-	onSubmit,
-	regimens,
-}) => {
+> = ({ allAdministrations, initialData, onClose, onSubmit, regimens }) => {
 	const [datePart, setDatePart] = useState<string>(() =>
 		dateToDateInputValue(
 			initialData?.timestamp ? new Date(initialData.timestamp) : new Date(),
@@ -79,7 +73,6 @@ export const MedicationAdministrationForm: React.FC<
 			shouldValidate: true,
 		});
 	}, [datePart, timePart, form]);
-
 
 	const medicationOptions = useMemo(() => {
 		const regimenOptions: MedicationAutocompleteOptionData[] = regimens.map(

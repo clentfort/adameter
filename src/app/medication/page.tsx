@@ -21,8 +21,7 @@ import { RegimenAccordionContent } from './components/regimen-accordion-content'
 import { MedicationAdministrationFormData } from './validation/medication-administration-schema';
 import '@/i18n';
 
-const handleDeleteRegimen = (regimenId: string) => {
-};
+const handleDeleteRegimen = (regimenId: string) => {};
 
 export default function MedicationPage() {
 	const {
@@ -150,7 +149,11 @@ export default function MedicationPage() {
 							Current Regimens
 						</fbt>
 					</h2>
-					<Button onClick={handleOpenRegimenFormForAdd} size="sm" variant="outline">
+					<Button
+						onClick={handleOpenRegimenFormForAdd}
+						size="sm"
+						variant="outline"
+					>
 						<PlusCircle className="h-4 w-4 mr-1" />
 						<fbt desc="Button text to add a new medication regimen">
 							Add Regimen

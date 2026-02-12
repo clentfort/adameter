@@ -23,7 +23,9 @@ vi.mock('@/components/charts/line-chart', () => ({
 	default: (props: MockLineChartProps) => {
 		mockLineChart(props);
 		const titleString =
-			typeof props.title === 'string' ? props.title : (props.title as string).toString();
+			typeof props.title === 'string'
+				? props.title
+				: (props.title as string).toString();
 		return (
 			<div data-testid={`mock-line-chart-${titleString.toLowerCase()}`}>
 				{props.title} Chart - Data Length: {props.data.length}
