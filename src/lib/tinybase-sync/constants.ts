@@ -18,6 +18,7 @@ export const TABLE_IDS = {
 	GROWTH_MEASUREMENTS: 'growthMeasurements',
 	MEDICATION_REGIMENS: 'medicationRegimens',
 	MEDICATIONS: 'medications',
+	TEETHING: 'teething',
 } as const;
 
 export const ROW_JSON_CELL = 'json';
@@ -30,6 +31,7 @@ export const LEGACY_YJS_ARRAYS = {
 	[TABLE_IDS.GROWTH_MEASUREMENTS]: 'growth-measurments-dec',
 	[TABLE_IDS.MEDICATION_REGIMENS]: 'medication-regimens-dec',
 	[TABLE_IDS.MEDICATIONS]: 'medications-dec',
+	[TABLE_IDS.TEETHING]: 'teething-dec',
 } as const;
 
 export const LEGACY_YJS_FEEDING_IN_PROGRESS_MAP = 'feeding-in-progress-dec';
