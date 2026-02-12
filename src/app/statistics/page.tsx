@@ -105,7 +105,10 @@ export default function StatisticsPage() {
 			{filteredSessions.length === 0 &&
 			filteredDiaperChanges.length === 0 &&
 			measurements.length === 0 ? (
-				<div className="text-center py-8 text-muted-foreground">
+				<div
+					className="text-center py-8 text-muted-foreground"
+					data-testid="no-data-message"
+				>
 					<fbt desc="Message shown when no data is available for the selected time range on the statistics page">
 						No data available for the selected time range.
 					</fbt>

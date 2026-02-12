@@ -49,6 +49,7 @@ export default function EventsList() {
 					return (
 						<div
 							className="border rounded-lg p-4 shadow-xs"
+							data-testid="event-entry"
 							key={event.id}
 							style={{
 								borderLeftColor: event.color || '#6366f1',
