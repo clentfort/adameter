@@ -1,6 +1,5 @@
 'use client';
 
-import { Ruler } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
@@ -34,7 +33,7 @@ export default function GrowthPage() {
 						onClick={() => setIsAddEntryDialogOpen(true)}
 						size="lg"
 					>
-						<Ruler className="h-6 w-6 mr-2" />
+						<span className="text-2xl mr-2">📏</span>{' '}
 						<fbt desc="Growth button label">Growth</fbt>
 					</Button>
 				</div>
