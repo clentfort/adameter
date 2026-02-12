@@ -2031,16 +2031,6 @@
         }
       ]
     },
-    "sJwbdHaeKYrEGDUFV4vmNg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Wachstum",
-          "variations": []
-        }
-      ]
-    },
     "sOiViMq1cYfc54ftpG7fPQ==": {
       "tokens": [],
       "types": [],
@@ -2147,16 +2137,6 @@
       "translations": [
         {
           "translation": "Zusätzliche Informationen",
-          "variations": []
-        }
-      ]
-    },
-    "e+FnEDDpEsQVx8O6eEVkbg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Noch keine Messungen erfasst.",
           "variations": []
         }
       ]
@@ -3152,6 +3132,294 @@
         {
           "variations": {},
           "translation": "Farbe"
+        }
+      ]
+    },
+    "pyKMn+img3Yd2hEjhy2j4Q==": {
+      "description": "historyTitle",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Verlauf",
+          "variations": {}
+        }
+      ]
+    },
+    "Nvftm2sylc+bljn5CwVb1A==": {
+      "description": "Add tooth button",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Zahn hinzufügen",
+          "variations": {}
+        }
+      ]
+    },
+    "8Un650Tu4xPpZ0wFdFN10g==": {
+      "description": "Quadrant name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Oben rechts",
+          "variations": {}
+        }
+      ]
+    },
+    "8CfPHVbBUTSIoY29WBEWcQ==": {
+      "description": "Quadrant name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Oben links",
+          "variations": {}
+        }
+      ]
+    },
+    "Xtnkue+9MzrpiIKIHy+Kpw==": {
+      "description": "Quadrant name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Unten links",
+          "variations": {}
+        }
+      ]
+    },
+    "cqKOalad8mxYJjR307fn+g==": {
+      "description": "Quadrant name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Unten rechts",
+          "variations": {}
+        }
+      ]
+    },
+    "It2UQH9LiClbbHs8AzmDXw==": {
+      "description": "Tooth position name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Mittlerer Schneidezahn",
+          "variations": {}
+        }
+      ]
+    },
+    "84zCLEAEjdmTImpCnT3R1A==": {
+      "description": "Tooth position name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Seitlicher Schneidezahn",
+          "variations": {}
+        }
+      ]
+    },
+    "Vs194Xapj00v6yxawR5ZrA==": {
+      "description": "Tooth position name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Eckzahn",
+          "variations": {}
+        }
+      ]
+    },
+    "qc7OLzo8BbSRBR/2Lp1Cgg==": {
+      "description": "Tooth position name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Erster Backenzahn",
+          "variations": {}
+        }
+      ]
+    },
+    "63uUiA6VJH3n4Zb+BhiYtg==": {
+      "description": "Tooth position name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Zweiter Backenzahn",
+          "variations": {}
+        }
+      ]
+    },
+    "0e7iju9U38L2wt8NRUcVjA==": {
+      "description": "noHistoryRecorded",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Bisher kein Verlauf eingetragen.",
+          "variations": {}
+        }
+      ]
+    },
+    "2uyrs2R7wIzt7rvHkuvH8g==": {
+      "description": "Tooth erupted message",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "{label}: {toothName} ({fdi})",
+          "variations": {}
+        }
+      ]
+    },
+    "xUvK4Sz5pNHFto+hv2VDPw==": {
+      "description": "teethingTitle",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Zahnungsfortschritt",
+          "variations": {}
+        }
+      ]
+    },
+    "lnaQ4EhOWMO5OwEYa9H2bw==": {
+      "description": "Edit teething progress title",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Zahn bearbeiten: {toothName} ({fdi})",
+          "variations": {}
+        }
+      ]
+    },
+    "hB8oP6f9m2MA4Z3Eik0EKg==": {
+      "description": "Date of eruption",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Durchbruchsdatum",
+          "variations": {}
+        }
+      ]
+    },
+    "Q/16ibN9RlpLtjlanD2ugg==": {
+      "description": "Label for an optional notes textarea",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Notizen",
+          "variations": {}
+        }
+      ]
+    },
+    "XzyeMadb30TFEuRT7kD/hA==": {
+      "description": "Clear teething data",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Zurücksetzen",
+          "variations": {}
+        }
+      ]
+    },
+    "F/HDLgskcVXMm/zq1JtCXg==": {
+      "description": "Help text for teething map",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Blick in den Mund (aus Sicht der Zahnärztin oder des Zahnarztes). Klicke auf einen Zahn, um das Durchbruchsdatum einzutragen und Notizen hinzuzufügen.",
+          "variations": {}
+        }
+      ]
+    },
+    "dzHSUG8ykZekVSYhUFXC7Q==": {
+      "description": "Upper jaw label",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Oberkiefer",
+          "variations": {}
+        }
+      ]
+    },
+    "TWdZPJqsr6kw0wS00agEnQ==": {
+      "description": "Lower jaw label",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Unterkiefer",
+          "variations": {}
+        }
+      ]
+    },
+    "vhhVosG7uMwDX8qJlWdAQQ==": {
+      "description": "Legend title",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Legende",
+          "variations": {}
+        }
+      ]
+    },
+    "F1RrwBd9poKRYgRq9rGz4w==": {
+      "description": "Not erupted status",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Noch nicht durchgebrochen",
+          "variations": {}
+        }
+      ]
+    },
+    "1f1XrYUoDKAlUaXd0hPLFQ==": {
+      "description": "Erupted status",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Durchgebrochen",
+          "variations": {}
         }
       ]
     }
