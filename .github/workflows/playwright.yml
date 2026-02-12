@@ -63,7 +63,7 @@ jobs:
             } else {
               core.warning('Playwright results JSON not found, skipping summary.');
             }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
