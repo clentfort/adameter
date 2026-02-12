@@ -3055,18 +3055,6 @@
         }
       ]
     },
-    "Nvftm2sylc+bljn5CwVb1A==": {
-      "description": "Add tooth button",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Zahn hinzufügen",
-          "variations": {}
-        }
-      ]
-    },
     "8Un650Tu4xPpZ0wFdFN10g==": {
       "description": "Quadrant name",
       "tokens": [],
@@ -3441,6 +3429,30 @@
         }
       ],
       "description": "Label for the sharing switcher button"
+    },
+    "f7oz0xfWFY8X7do9Oq1V9A==": {
+      "description": "Tooth button label",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Zahn"
+        }
+      ]
+    },
+    "zk82dtHTW5gixnVk8uh8Tw==": {
+      "description": "Growth button label",
+      "types": [],
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "variations": {},
+          "translation": "Wachstum"
+        }
+      ]
     }
   }
 }
