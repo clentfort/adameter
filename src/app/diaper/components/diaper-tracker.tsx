@@ -30,6 +30,7 @@ export default function DiaperTracker({
 			<div className="grid grid-cols-2 gap-4">
 				<Button
 					className="h-24 text-lg w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900"
+					data-testid="quick-urine-button"
 					onClick={() => handleQuickChange('urine')}
 					size="lg"
 				>
@@ -40,6 +41,7 @@ export default function DiaperTracker({
 				</Button>
 				<Button
 					className="h-24 text-lg w-full bg-amber-700 hover:bg-amber-800 text-white"
+					data-testid="quick-stool-button"
 					onClick={() => handleQuickChange('stool')}
 					size="lg"
 				>
