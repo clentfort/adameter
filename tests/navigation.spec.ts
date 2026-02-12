@@ -16,7 +16,7 @@ test.describe('Navigation', () => {
 		).toBeVisible();
 
 		// Verify the timer is running (at least showing 00:00 or more)
-		await expect(page.locator('.text-3xl.font-bold')).toBeVisible();
+		await expect(page.getByTestId('feeding-timer')).toBeVisible();
 
 		// Attempt to navigate to the Diaper page via the navigation bar
 		// Use a more robust selector for the navigation link

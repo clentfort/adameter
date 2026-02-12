@@ -15,15 +15,14 @@ test.describe('Feeding Page', () => {
 		await expect(
 			page.getByRole('button', { name: 'End Feeding' }),
 		).toBeVisible();
-		// The timer itself has class text-3xl
-		await expect(page.locator('.text-3xl.font-bold')).toBeVisible();
+		await expect(page.getByTestId('feeding-timer')).toBeVisible();
 
 		// End feeding
 		await page.getByRole('button', { name: 'End Feeding' }).click();
 
 		// Verify it appears in history
 		await expect(
-			page.locator('div.border.rounded-lg').getByText('Left Breast', {
+			page.getByTestId('feeding-history-entry').getByText('Left Breast', {
 				exact: true,
 			}),
 		).toBeVisible();
@@ -42,13 +41,13 @@ test.describe('Feeding Page', () => {
 
 		// Verify in history
 		await expect(
-			page.locator('div.border.rounded-lg').getByText('Right Breast', {
+			page.getByTestId('feeding-history-entry').getByText('Right Breast', {
 				exact: true,
 			}),
 		).toBeVisible();
 		await expect(
 			page
-				.locator('div.border.rounded-lg')
+				.getByTestId('feeding-history-entry')
 				.getByText('15 min', { exact: true }),
 		).toBeVisible();
 	});

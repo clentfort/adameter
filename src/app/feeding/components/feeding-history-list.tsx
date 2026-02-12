@@ -50,6 +50,7 @@ export default function HistoryList({
 					return (
 						<div
 							className={`border rounded-lg p-4 shadow-xs ${borderColor} ${bgColor}`}
+							data-testid="feeding-history-entry"
 							key={session.id}
 						>
 							<div className="flex justify-between items-start">
