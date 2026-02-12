@@ -8,7 +8,7 @@ interface StatsCardProps {
 
 export default function StatsCard({ children, title }: StatsCardProps) {
 	return (
-		<Card>
+		<Card data-testid="stats-card">
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">{title}</CardTitle>
 			</CardHeader>
