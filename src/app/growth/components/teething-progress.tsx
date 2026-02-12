@@ -31,6 +31,15 @@ export default function TeethingProgress() {
 
 	return (
 		<div className="flex flex-col items-center space-y-8 py-4">
+			<div className="w-full max-w-md text-center space-y-2">
+				<p className="text-sm text-muted-foreground">
+					<fbt desc="Help text for teething map">
+						Looking into the mouth (Dentist&apos;s perspective). Click on a
+						tooth to record its eruption date and add notes.
+					</fbt>
+				</p>
+			</div>
+
 			<div className="w-full max-w-md">
 				<h3 className="text-center mb-4 font-medium text-muted-foreground">
 					<fbt desc="Upper jaw label">Upper Jaw</fbt>

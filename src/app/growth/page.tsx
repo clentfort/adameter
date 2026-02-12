@@ -7,10 +7,11 @@ import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { useTeething } from '@/hooks/use-teething';
 import MeasurementForm from './components/growth-form';
 import GrowthHistoryList from './components/growth-history-list';
-import TeethingProgress from './components/teething-progress';
+import TeethingDialog from './components/teething-dialog';
 
 export default function GrowthPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
+	const [isTeethingDialogOpen, setIsTeethingDialogOpen] = useState(false);
 	const { add, remove, update, value: measurements } = useGrowthMeasurements();
 	const { update: updateTooth, value: teeth } = useTeething();
 
@@ -18,27 +19,27 @@ export default function GrowthPage() {
 		<>
 			<div className="w-full space-y-8">
 				<div>
-					<h2 className="text-xl font-semibold mb-4 text-center">
-						<fbt desc="teethingTitle">Teething Progress</fbt>
-					</h2>
-					<TeethingProgress />
-				</div>
-
-				<hr className="border-t" />
-
-				<div>
 					<div className="flex justify-between items-center mb-4">
 						<h2 className="text-xl font-semibold">
 							<fbt desc="historyTitle">History</fbt>
 						</h2>
-						<Button
-							onClick={() => setIsAddEntryDialogOpen(true)}
-							size="sm"
-							variant="outline"
-						>
-							<PlusCircle className="h-4 w-4 mr-1" />
-							<fbt common>Add Entry</fbt>
-						</Button>
+						<div className="flex gap-2">
+							<Button
+								onClick={() => setIsTeethingDialogOpen(true)}
+								size="sm"
+								variant="outline"
+							>
+								🦷 <fbt desc="Add tooth button">Add Tooth</fbt>
+							</Button>
+							<Button
+								onClick={() => setIsAddEntryDialogOpen(true)}
+								size="sm"
+								variant="outline"
+							>
+								<PlusCircle className="h-4 w-4 mr-1" />
+								<fbt common>Add Entry</fbt>
+							</Button>
+						</div>
 					</div>
 
 					<GrowthHistoryList
@@ -50,6 +51,10 @@ export default function GrowthPage() {
 					/>
 				</div>
 			</div>
+
+			{isTeethingDialogOpen && (
+				<TeethingDialog onClose={() => setIsTeethingDialogOpen(false)} />
+			)}
 
 			{isAddEntryDialogOpen && (
 				<MeasurementForm
