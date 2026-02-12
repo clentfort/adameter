@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle } from 'lucide-react';
+import { Ruler } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
@@ -21,21 +21,21 @@ export default function GrowthPage() {
 				<div className="grid grid-cols-2 gap-4">
 					<Button
 						className="h-24 text-lg w-full bg-sky-600 hover:bg-sky-700 text-white"
-						data-testid="add-tooth-button"
+						data-testid="tooth-button"
 						onClick={() => setIsTeethingDialogOpen(true)}
 						size="lg"
 					>
 						<span className="text-2xl mr-2">🦷</span>{' '}
-						<fbt desc="Add tooth button">Add Tooth</fbt>
+						<fbt desc="Tooth button label">Tooth</fbt>
 					</Button>
 					<Button
 						className="h-24 text-lg w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-						data-testid="add-growth-entry-button"
+						data-testid="growth-button"
 						onClick={() => setIsAddEntryDialogOpen(true)}
 						size="lg"
 					>
-						<PlusCircle className="h-6 w-6 mr-2" />
-						<fbt common>Add Entry</fbt>
+						<Ruler className="h-6 w-6 mr-2" />
+						<fbt desc="Growth button label">Growth</fbt>
 					</Button>
 				</div>
 
