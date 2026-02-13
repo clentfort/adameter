@@ -12,10 +12,13 @@
 		"start": "next start",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
+		"pretest": "pnpm run fbtee:collect && pnpm run fbtee:translate",
 		"test": "vitest",
 		"fbtee:collect": "fbtee collect --common ./common_strings.json --src src",
 		"fbtee:translate": "fbtee translate --translations translations/*.json -o src/translations",
+		"prestorybook": "pnpm run fbtee:collect && pnpm run fbtee:translate",
 		"storybook": "storybook dev -p 6006",
+		"prebuild-storybook": "pnpm run fbtee:collect && pnpm run fbtee:translate",
 		"build-storybook": "storybook build",
 		"prepare": "husky"
 	},
