@@ -5,6 +5,3 @@ onlyBuiltDependencies:
   - sharp
   - unrs-resolver
   - workerd
-
-patchedDependencies:
-  tinybase@7.3.1: patches/tinybase@7.3.1.patch
