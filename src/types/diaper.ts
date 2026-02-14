@@ -5,6 +5,8 @@ export interface DiaperChange {
 	containsStool: boolean;
 	/** Whether the diaper contains urine. */
 	containsUrine: boolean;
+	/** Unique identifier for the device that added/updated this item. */
+	deviceId?: string;
 	/** Optional diaper brand. */
 	diaperBrand?: string;
 	/** Unique identifier for the diaper change. */
