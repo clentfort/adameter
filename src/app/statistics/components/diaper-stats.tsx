@@ -4,12 +4,56 @@ import type { DiaperChange } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ComparisonValue from './comparison-value';
 
 interface DiaperStatsProps {
+	comparisonDiaperChanges?: DiaperChange[];
 	diaperChanges: DiaperChange[];
 }
 
-export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
+function calculateDiaperMetrics(diaperChanges: DiaperChange[]) {
+	if (diaperChanges.length === 0) {
+		return {
+			changesPerDay: '0',
+			totalChanges: 0,
+			urineOnly: 0,
+			withLeakage: 0,
+			withStool: 0,
+		};
+	}
+
+	const totalChanges = diaperChanges.length;
+	const urineOnly = diaperChanges.filter(
+		(c) => c.containsUrine && !c.containsStool,
+	).length;
+	const withStool = diaperChanges.filter((c) => c.containsStool).length;
+	const withLeakage = diaperChanges.filter((c) => c.leakage).length;
+
+	const oldestChange = new Date(
+		Math.min(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
+	);
+	const newestChange = new Date(
+		Math.max(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
+	);
+	const daysDiff = Math.max(
+		1,
+		differenceInDays(newestChange, oldestChange) + 1,
+	);
+	const changesPerDay = (totalChanges / daysDiff).toFixed(1);
+
+	return {
+		changesPerDay,
+		totalChanges,
+		urineOnly,
+		withLeakage,
+		withStool,
+	};
+}
+
+export default function DiaperStats({
+	comparisonDiaperChanges,
+	diaperChanges = [],
+}: DiaperStatsProps) {
 	if (diaperChanges.length === 0) {
 		return (
 			<Card>
@@ -31,24 +75,18 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 		);
 	}
 
-	const totalChanges = diaperChanges.length;
-	const urineOnly = diaperChanges.filter(
-		(c) => c.containsUrine && !c.containsStool,
-	).length;
-	const withStool = diaperChanges.filter((c) => c.containsStool).length;
-	const withLeakage = diaperChanges.filter((c) => c.leakage).length;
+	const metrics = calculateDiaperMetrics(diaperChanges);
+	const prevMetrics = comparisonDiaperChanges
+		? calculateDiaperMetrics(comparisonDiaperChanges)
+		: null;
 
-	const oldestChange = new Date(
-		Math.min(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
-	);
-	const newestChange = new Date(
-		Math.max(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
-	);
-	const daysDiff = Math.max(
-		1,
-		differenceInDays(newestChange, oldestChange) + 1,
-	);
-	const changesPerDay = (totalChanges / daysDiff).toFixed(1);
+	const {
+		changesPerDay,
+		totalChanges,
+		urineOnly,
+		withLeakage,
+		withStool,
+	} = metrics;
 
 	const brandCounts: Record<string, { leakage: number; total: number }> = {};
 	diaperChanges.forEach((change) => {
@@ -112,7 +150,15 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 										Total
 									</fbt>
 								</p>
-								<p className="text-2xl font-bold">{totalChanges}</p>
+								<div className="flex items-baseline">
+									<p className="text-2xl font-bold">{totalChanges}</p>
+									{prevMetrics && (
+										<ComparisonValue
+											current={totalChanges}
+											previous={prevMetrics.totalChanges}
+										/>
+									)}
+								</div>
 							</div>
 							<div className="border rounded-md p-3">
 								<p className="text-sm text-muted-foreground">
@@ -120,7 +166,15 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 										Per Day
 									</fbt>
 								</p>
-								<p className="text-2xl font-bold">{changesPerDay}</p>
+								<div className="flex items-baseline">
+									<p className="text-2xl font-bold">{changesPerDay}</p>
+									{prevMetrics && (
+										<ComparisonValue
+											current={Number.parseFloat(changesPerDay)}
+											previous={Number.parseFloat(prevMetrics.changesPerDay)}
+										/>
+									)}
+								</div>
 							</div>
 						</div>
 
@@ -131,9 +185,17 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 										Urine Only
 									</fbt>
 								</p>
-								<p className="text-xl font-bold text-yellow-800 dark:text-yellow-300">
-									{urineOnly}
-								</p>
+								<div className="flex items-baseline">
+									<p className="text-xl font-bold text-yellow-800 dark:text-yellow-300">
+										{urineOnly}
+									</p>
+									{prevMetrics && (
+										<ComparisonValue
+											current={urineOnly}
+											previous={prevMetrics.urineOnly}
+										/>
+									)}
+								</div>
 								<p className="text-xs text-yellow-600 dark:text-yellow-400">
 									{Math.round((urineOnly / totalChanges) * 100)}%
 								</p>
@@ -144,9 +206,17 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 										With Stool
 									</fbt>
 								</p>
-								<p className="text-xl font-bold text-amber-800 dark:text-amber-300">
-									{withStool}
-								</p>
+								<div className="flex items-baseline">
+									<p className="text-xl font-bold text-amber-800 dark:text-amber-300">
+										{withStool}
+									</p>
+									{prevMetrics && (
+										<ComparisonValue
+											current={withStool}
+											previous={prevMetrics.withStool}
+										/>
+									)}
+								</div>
 								<p className="text-xs text-amber-600 dark:text-amber-400">
 									{Math.round((withStool / totalChanges) * 100)}%
 								</p>
@@ -157,9 +227,18 @@ export default function DiaperStats({ diaperChanges = [] }: DiaperStatsProps) {
 										With Leakage
 									</fbt>
 								</p>
-								<p className="text-xl font-bold text-red-800 dark:text-red-300">
-									{withLeakage}
-								</p>
+								<div className="flex items-baseline">
+									<p className="text-xl font-bold text-red-800 dark:text-red-300">
+										{withLeakage}
+									</p>
+									{prevMetrics && (
+										<ComparisonValue
+											current={withLeakage}
+											inverse={true}
+											previous={prevMetrics.withLeakage}
+										/>
+									)}
+								</div>
 								<p className="text-xs text-red-600 dark:text-red-400">
 									{Math.round((withLeakage / totalChanges) * 100)}%
 								</p>

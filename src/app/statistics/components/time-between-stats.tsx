@@ -1,16 +1,16 @@
 import type { FeedingSession } from '@/types/feeding';
 import { differenceInSeconds } from 'date-fns';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
+import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
 interface TimeBetweenStatsProps {
+	comparisonSessions?: FeedingSession[];
 	sessions: FeedingSession[];
 }
 
-export default function TimeBetweenStats({
-	sessions = [],
-}: TimeBetweenStatsProps) {
-	if (sessions.length <= 1) return null;
+function calculateAvgTimeBetween(sessions: FeedingSession[]) {
+	if (sessions.length <= 1) return 0;
 
 	// Sort sessions by start time (newest first)
 	const sortedSessions = [...sessions].sort(
@@ -35,8 +35,19 @@ export default function TimeBetweenStats({
 		}
 	}
 
-	const avgTime =
-		timeBetweenCount > 0 ? Math.abs(totalTimeBetween / timeBetweenCount) : 0;
+	return timeBetweenCount > 0 ? Math.abs(totalTimeBetween / timeBetweenCount) : 0;
+}
+
+export default function TimeBetweenStats({
+	comparisonSessions,
+	sessions = [],
+}: TimeBetweenStatsProps) {
+	if (sessions.length <= 1) return null;
+
+	const avgTime = calculateAvgTimeBetween(sessions);
+	const prevAvgTime = comparisonSessions
+		? calculateAvgTimeBetween(comparisonSessions)
+		: null;
 
 	return (
 		<StatsCard
@@ -46,8 +57,13 @@ export default function TimeBetweenStats({
 				</fbt>
 			}
 		>
-			<div className="text-2xl font-bold">
-				{formatDurationAbbreviated(avgTime)}
+			<div className="flex items-baseline">
+				<div className="text-2xl font-bold">
+					{formatDurationAbbreviated(avgTime)}
+				</div>
+				{prevAvgTime ? (
+					<ComparisonValue current={avgTime} inverse={true} previous={prevAvgTime} />
+				) : null}
 			</div>
 		</StatsCard>
 	);
