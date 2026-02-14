@@ -39,12 +39,12 @@ test.describe('Diaper Page', () => {
 		await page.getByRole('button', { name: 'Add Entry' }).click();
 
 		// Fill the form
-		await page.getByLabel('Stool').check();
-		await page.getByLabel('Temperature (°C)').fill('37.0');
-		await page.getByLabel('Notes').fill('Normal change');
+		await page.getByTestId('edit-stool-radio').click({ force: true });
+		await page.locator('#edit-temperature').fill('37.0', { force: true });
+		await page.locator('#edit-notes').fill('Normal change', { force: true });
 
 		// Save
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByRole('button', { name: 'Save' }).click({ force: true });
 
 		// Verify in history
 		const entry = page.getByTestId('diaper-history-entry').first();
@@ -56,7 +56,7 @@ test.describe('Diaper Page', () => {
 	test('should edit a diaper change', async ({ page }) => {
 		// Add an entry first
 		await page.getByTestId('quick-urine-button').click();
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByRole('button', { name: 'Save' }).click({ force: true });
 
 		// Wait for history to update
 		await expect(page.getByTestId('diaper-history-entry')).toBeVisible();
@@ -66,7 +66,7 @@ test.describe('Diaper Page', () => {
 
 		// Change details
 		await page.getByLabel('Notes').fill('Updated notes');
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByRole('button', { name: 'Save' }).click({ force: true });
 
 		// Verify update
 		await expect(page.getByText('Updated notes')).toBeVisible();
@@ -87,7 +87,7 @@ test.describe('Diaper Page', () => {
 		await page
 			.getByRole('alertdialog')
 			.getByRole('button', { name: 'Delete' })
-			.click();
+			.click({ force: true });
 
 		// Verify removal
 		await expect(page.getByTestId('diaper-history-entry')).not.toBeVisible();

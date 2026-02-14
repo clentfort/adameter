@@ -104,6 +104,7 @@ export default function FeedingForm({
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
 									className="text-left-breast border-left-breast"
+									data-testid="left-breast-radio"
 									id="edit-left"
 									value="left"
 								/>
@@ -116,6 +117,7 @@ export default function FeedingForm({
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
 									className="text-right-breast border-right-breast"
+									data-testid="right-breast-radio"
 									id="edit-right"
 									value="right"
 								/>

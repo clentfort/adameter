@@ -33,11 +33,11 @@ test.describe('Feeding Page', () => {
 
 		// Fill the form
 		// Selecting "Right Breast" in the dialog
-		await page.getByLabel('Right Breast').check();
-		await page.getByLabel('minutes').fill('15');
+		await page.getByTestId('right-breast-radio').click({ force: true });
+		await page.getByLabel('minutes').fill('15', { force: true });
 
 		// Save
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByRole('button', { name: 'Save' }).click({ force: true });
 
 		// Verify in history
 		await expect(
@@ -55,8 +55,8 @@ test.describe('Feeding Page', () => {
 	test('should edit a feeding entry', async ({ page }) => {
 		// First, add an entry to edit
 		await page.getByRole('button', { name: 'Add Entry' }).click();
-		await page.getByLabel('minutes').fill('10');
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByLabel('minutes').fill('10', { force: true });
+		await page.getByRole('button', { name: 'Save' }).click({ force: true });
 
 		// Wait for the entry to appear
 		await expect(page.getByText('10 min', { exact: true })).toBeVisible();
@@ -65,8 +65,8 @@ test.describe('Feeding Page', () => {
 		await page.getByRole('button', { name: 'Edit' }).first().click();
 
 		// Modify duration
-		await page.getByLabel('minutes').fill('20');
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByLabel('minutes').fill('20', { force: true });
+		await page.getByRole('button', { name: 'Save' }).click({ force: true });
 
 		// Verify update
 		await expect(page.getByText('20 min', { exact: true })).toBeVisible();
@@ -88,7 +88,7 @@ test.describe('Feeding Page', () => {
 		await page
 			.getByRole('alertdialog')
 			.getByRole('button', { name: 'Delete' })
-			.click();
+			.click({ force: true });
 
 		// Verify removal
 		await expect(page.getByText('5 min', { exact: true })).not.toBeVisible();

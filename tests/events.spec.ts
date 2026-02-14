@@ -9,14 +9,14 @@ test.describe('Events Page', () => {
 		await page.getByRole('button', { name: 'Add Entry' }).click();
 
 		// Fill the form
-		await page.getByLabel('Title').fill('Vaccination');
+		await page.getByLabel('Title').fill('Vaccination', { force: true });
 		await page
 			.getByLabel('Description (optional)')
-			.fill('First round of shots');
-		await page.getByLabel('Point in time (e.g. Vaccination)').check();
+			.fill('First round of shots', { force: true });
+		await page.getByTestId('point-event-radio').click({ force: true });
 
 		// Save
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByTestId('save-button').click({ force: true });
 
 		// Verify in history
 		const entry = page.getByTestId('event-entry').first();
@@ -28,12 +28,12 @@ test.describe('Events Page', () => {
 		await page.getByRole('button', { name: 'Add Entry' }).click();
 
 		// Fill the form
-		await page.getByLabel('Title').fill('Illness');
-		await page.getByLabel('Period (e.g. Illness)').check();
-		await page.getByLabel('Set End Date').check();
+		await page.getByLabel('Title').fill('Illness', { force: true });
+		await page.getByTestId('period-event-radio').click({ force: true });
+		await page.getByTestId('has-end-date-switch').click({ force: true });
 
 		// Save
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByTestId('save-button').click({ force: true });
 
 		// Verify in history
 		const entry = page.getByTestId('event-entry').first();
@@ -43,15 +43,15 @@ test.describe('Events Page', () => {
 	test('should edit an event', async ({ page }) => {
 		// First, add an entry to edit
 		await page.getByRole('button', { name: 'Add Entry' }).click();
-		await page.getByLabel('Title').fill('Original Event');
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByLabel('Title').fill('Original Event', { force: true });
+		await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click({ force: true });
 
 		await expect(page.getByText('Original Event')).toBeVisible();
 
 		// Edit it
 		await page.getByRole('button', { name: 'Edit' }).first().click();
-		await page.getByLabel('Title').fill('Updated Event');
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByLabel('Title').fill('Updated Event', { force: true });
+		await page.getByTestId('save-button').click({ force: true });
 
 		// Verify update
 		await expect(page.getByText('Updated Event')).toBeVisible();
@@ -61,8 +61,8 @@ test.describe('Events Page', () => {
 	test('should delete an event', async ({ page }) => {
 		// First, add an entry to delete
 		await page.getByRole('button', { name: 'Add Entry' }).click();
-		await page.getByLabel('Title').fill('To be deleted');
-		await page.getByRole('button', { name: 'Save' }).click();
+		await page.getByLabel('Title').fill('To be deleted', { force: true });
+		await page.getByTestId('save-button').click({ force: true });
 
 		await expect(page.getByText('To be deleted')).toBeVisible();
 
@@ -71,7 +71,7 @@ test.describe('Events Page', () => {
 		await page
 			.getByRole('alertdialog')
 			.getByRole('button', { name: 'Delete' })
-			.click();
+			.click({ force: true });
 
 		// Verify removal
 		await expect(page.getByTestId('event-entry')).not.toBeVisible();

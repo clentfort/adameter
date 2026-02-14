@@ -1,10 +1,10 @@
-import { NavigationMenuLink } from '@radix-ui/react-navigation-menu';
 import { fbt } from 'fbtee';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
 	NavigationMenu,
 	NavigationMenuItem,
+	NavigationMenuLink,
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
@@ -50,13 +50,11 @@ export default function Navigation() {
 							<NavigationMenuItem key={page.path}>
 								<NavigationMenuLink
 									active={isActive}
-									asChild
+									render={<Link href={page.path} />}
 									className={`${navigationMenuTriggerStyle()} flex flex-col xs:flex-row items-center xs:gap-1 px-1 sm:px-2 py-2 text-xs sm:text-sm`}
 								>
-									<Link href={page.path}>
-										<span className="h-4 w-4">{page.icon}</span>
-										<span className="hidden xs:inline">{page.label()}</span>
-									</Link>
+									<span className="h-4 w-4">{page.icon}</span>
+									<span className="hidden xs:inline">{page.label()}</span>
 								</NavigationMenuLink>
 							</NavigationMenuItem>
 						);

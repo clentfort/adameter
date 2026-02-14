@@ -166,7 +166,11 @@ export default function EventForm({
 							value={eventType}
 						>
 							<div className="flex items-center space-x-2">
-								<RadioGroupItem id="point" value="point" />
+								<RadioGroupItem
+									data-testid="point-event-radio"
+									id="point"
+									value="point"
+								/>
 								<Label htmlFor="point">
 									<fbt desc="Label for a radio input that sets the value to a point in time">
 										Point in time (e.g. Vaccination)
@@ -174,7 +178,11 @@ export default function EventForm({
 								</Label>
 							</div>
 							<div className="flex items-center space-x-2">
-								<RadioGroupItem id="period" value="period" />
+								<RadioGroupItem
+									data-testid="period-event-radio"
+									id="period"
+									value="period"
+								/>
 								<Label htmlFor="period">
 									<fbt desc="Label for a radio input that sets the value to a timne period">
 										Period (e.g. Illness)
@@ -214,6 +222,7 @@ export default function EventForm({
 							<div className="flex items-center space-x-2">
 								<Switch
 									checked={hasEndDate}
+									data-testid="has-end-date-switch"
 									id="has-end-date"
 									onCheckedChange={setHasEndDate}
 								/>
@@ -276,7 +285,7 @@ export default function EventForm({
 					</div>
 				</div>
 				<DialogFooter>
-					<Button onClick={handleSave} type="submit">
+					<Button data-testid="save-button" onClick={handleSave} type="submit">
 						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>
