@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import '@/i18n';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
 import { Toaster } from '../ui/toaster';
@@ -10,6 +11,7 @@ import DataSharingSwitcher from './data-sharing-switcher';
 import { Footer } from './footer';
 import LanguageSwitcher from './language-switcher';
 import Navigation from './navigation';
+import { RoomInviteHandler } from './room-invite-handler';
 import ThemeSwitcher from './theme-switcher';
 import TimeSince from './time-since';
 
@@ -64,6 +66,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					</TimeSince>
 				</div>
 				<Navigation />
+				<Suspense fallback={null}>
+					<RoomInviteHandler />
+				</Suspense>
 				{children}
 			</main>
 			<Toaster />

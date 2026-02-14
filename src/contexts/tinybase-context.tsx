@@ -29,6 +29,7 @@ import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
 } from '@/lib/tinybase-sync/remote-bootstrap';
+import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
 
 const defaultStore = createStore();
@@ -42,7 +43,7 @@ interface TinybaseProviderProps {
 }
 
 export function TinybaseProvider({ children }: TinybaseProviderProps) {
-	const { room } = useContext(DataSynchronizationContext);
+	const { joinStrategy, room } = useContext(DataSynchronizationContext);
 	const storeRef = useRef<Store>(defaultStore);
 	const [isReady, setIsReady] = useState(false);
 
@@ -156,11 +157,17 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 			await remotePersister.load();
-			const bootstrapResult = reconcileRemoteLoadResult(store, localSnapshot);
+			const bootstrapResult = reconcileRemoteLoadResult(
+				store,
+				localSnapshot,
+				joinStrategy,
+				getDeviceId(),
+			);
 
 			if (
 				bootstrapResult.decision === 'restore-local' ||
-				bootstrapResult.decision === 'keep-empty'
+				bootstrapResult.decision === 'keep-empty' ||
+				bootstrapResult.decision === 'merge'
 			) {
 				await remotePersister.save();
 			}
@@ -210,7 +217,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			void remotePersister.stopAutoPersisting(true);
 			void remotePersister.destroy();
 		};
-	}, [isReady, room]);
+	}, [isReady, room, joinStrategy]);
 
 	if (!isReady) {
 		return <SplashScreen />;
