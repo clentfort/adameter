@@ -1,10 +1,10 @@
-import { NavigationMenuLink } from '@radix-ui/react-navigation-menu';
 import { fbt } from 'fbtee';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
 	NavigationMenu,
 	NavigationMenuItem,
+	NavigationMenuLink,
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
