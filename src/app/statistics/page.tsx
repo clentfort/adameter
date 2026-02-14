@@ -2,7 +2,7 @@
 
 import type { TimeRange } from '@/utils/get-range-dates';
 import { addDays, format, isWithinInterval } from 'date-fns';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -42,44 +42,64 @@ export default function StatisticsPage() {
 		to: dateToDateInputValue(new Date()),
 	});
 
-	const { primary, secondary } = getRangeDates(
-		timeRange,
-		timeRange === 'custom' ? customRange : undefined,
+	const { primary, secondary } = useMemo(
+		() =>
+			getRangeDates(
+				timeRange,
+				timeRange === 'custom' ? customRange : undefined,
+			),
+		[timeRange, customRange],
 	);
 
 	// Filter sessions based on selected time range
-	const filteredSessions = sessions.filter((session) =>
-		isWithinInterval(new Date(session.startTime), {
-			end: primary.to,
-			start: primary.from,
-		}),
+	const filteredSessions = useMemo(
+		() =>
+			sessions.filter((session) =>
+				isWithinInterval(new Date(session.startTime), {
+					end: primary.to,
+					start: primary.from,
+				}),
+			),
+		[sessions, primary],
 	);
 
-	const comparisonSessions = secondary
-		? sessions.filter((session) =>
-				isWithinInterval(new Date(session.startTime), {
-					end: secondary.to,
-					start: secondary.from,
-				}),
-			)
-		: undefined;
+	const comparisonSessions = useMemo(
+		() =>
+			secondary
+				? sessions.filter((session) =>
+						isWithinInterval(new Date(session.startTime), {
+							end: secondary.to,
+							start: secondary.from,
+						}),
+					)
+				: undefined,
+		[sessions, secondary],
+	);
 
 	// Filter diaper changes based on selected time range
-	const filteredDiaperChanges = diaperChanges.filter((change) =>
-		isWithinInterval(new Date(change.timestamp), {
-			end: primary.to,
-			start: primary.from,
-		}),
+	const filteredDiaperChanges = useMemo(
+		() =>
+			diaperChanges.filter((change) =>
+				isWithinInterval(new Date(change.timestamp), {
+					end: primary.to,
+					start: primary.from,
+				}),
+			),
+		[diaperChanges, primary],
 	);
 
-	const comparisonDiaperChanges = secondary
-		? diaperChanges.filter((change) =>
-				isWithinInterval(new Date(change.timestamp), {
-					end: secondary.to,
-					start: secondary.from,
-				}),
-			)
-		: undefined;
+	const comparisonDiaperChanges = useMemo(
+		() =>
+			secondary
+				? diaperChanges.filter((change) =>
+						isWithinInterval(new Date(change.timestamp), {
+							end: secondary.to,
+							start: secondary.from,
+						}),
+					)
+				: undefined,
+		[diaperChanges, secondary],
+	);
 
 	return (
 		<div className="w-full">
