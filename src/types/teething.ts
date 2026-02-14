@@ -1,7 +1,7 @@
-export interface Tooth {
+import type { BaseEntity } from './base-entity';
+
+export interface Tooth extends BaseEntity {
 	date?: string; // ISO date of eruption
-	deviceId?: string;
-	id: string; // FDI number as string
 	notes?: string;
 	toothId: number; // FDI number
 }
