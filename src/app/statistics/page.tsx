@@ -1,7 +1,7 @@
 'use client';
 
 import type { TimeRange } from '@/utils/get-range-dates';
-import { addDays, isWithinInterval } from 'date-fns';
+import { addDays, format, isWithinInterval } from 'date-fns';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
@@ -42,7 +41,6 @@ export default function StatisticsPage() {
 		from: dateToDateInputValue(addDays(new Date(), -7)),
 		to: dateToDateInputValue(new Date()),
 	});
-	const [compare, setCompare] = useState(false);
 
 	const { primary, secondary } = getRangeDates(
 		timeRange,
@@ -57,15 +55,14 @@ export default function StatisticsPage() {
 		}),
 	);
 
-	const comparisonSessions =
-		compare && secondary
-			? sessions.filter((session) =>
-					isWithinInterval(new Date(session.startTime), {
-						end: secondary.to,
-						start: secondary.from,
-					}),
-				)
-			: undefined;
+	const comparisonSessions = secondary
+		? sessions.filter((session) =>
+				isWithinInterval(new Date(session.startTime), {
+					end: secondary.to,
+					start: secondary.from,
+				}),
+			)
+		: undefined;
 
 	// Filter diaper changes based on selected time range
 	const filteredDiaperChanges = diaperChanges.filter((change) =>
@@ -75,15 +72,14 @@ export default function StatisticsPage() {
 		}),
 	);
 
-	const comparisonDiaperChanges =
-		compare && secondary
-			? diaperChanges.filter((change) =>
-					isWithinInterval(new Date(change.timestamp), {
-						end: secondary.to,
-						start: secondary.from,
-					}),
-				)
-			: undefined;
+	const comparisonDiaperChanges = secondary
+		? diaperChanges.filter((change) =>
+				isWithinInterval(new Date(change.timestamp), {
+					end: secondary.to,
+					start: secondary.from,
+				}),
+			)
+		: undefined;
 
 	return (
 		<div className="w-full">
@@ -92,24 +88,7 @@ export default function StatisticsPage() {
 					<h2 className="text-xl font-semibold">
 						<fbt desc="Title for the statistics page">Statistics</fbt>
 					</h2>
-					<div className="flex items-center gap-4">
-						{timeRange !== 'all' && (
-							<div className="flex items-center space-x-2">
-								<Switch
-									checked={compare}
-									id="compare-mode"
-									onCheckedChange={setCompare}
-								/>
-								<Label
-									className="text-sm cursor-pointer"
-									htmlFor="compare-mode"
-								>
-									<fbt desc="Label for the comparison mode toggle on the statistics page">
-										Compare
-									</fbt>
-								</Label>
-							</div>
-						)}
+					<div className="flex flex-col items-end gap-1">
 						<Select
 							onValueChange={(value) => setTimeRange(value as TimeRange)}
 							value={timeRange}
@@ -151,6 +130,18 @@ export default function StatisticsPage() {
 								</SelectItem>
 							</SelectContent>
 						</Select>
+						{secondary && (
+							<div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+								<fbt desc="Label for the comparison date range in statistics">
+									Comparing to:{' '}
+									<fbt:param name="from">
+										{format(secondary.from, 'MMM d')}
+									</fbt:param>{' '}
+									-{' '}
+									<fbt:param name="to">{format(secondary.to, 'MMM d')}</fbt:param>
+								</fbt>
+							</div>
+						)}
 					</div>
 				</div>
 
