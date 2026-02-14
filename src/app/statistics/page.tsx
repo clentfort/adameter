@@ -1,7 +1,10 @@
 'use client';
 
-import { addDays } from 'date-fns';
-import { useState } from 'react';
+import type { TimeRange } from '@/utils/get-range-dates';
+import { addDays, format, isWithinInterval } from 'date-fns';
+import { useMemo, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
@@ -13,6 +16,8 @@ import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
+import { getRangeDates } from '@/utils/get-range-dates';
 import DiaperRecords from './components/diaper-records';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
@@ -31,76 +36,173 @@ export default function StatisticsPage() {
 	const { value: measurements } = useGrowthMeasurements();
 	const { value: sessions } = useFeedingSessions();
 
-	const [timeRange, setTimeRange] = useState<'7' | '14' | '30' | 'all'>('7');
+	const [timeRange, setTimeRange] = useState<TimeRange>('7');
+	const [customRange, setCustomRange] = useState({
+		from: dateToDateInputValue(addDays(new Date(), -7)),
+		to: dateToDateInputValue(new Date()),
+	});
+
+	const { primary, secondary } = useMemo(
+		() =>
+			getRangeDates(
+				timeRange,
+				timeRange === 'custom' ? customRange : undefined,
+			),
+		[timeRange, customRange],
+	);
 
 	// Filter sessions based on selected time range
-	const filteredSessions = (() => {
-		if (timeRange === 'all') return [...sessions];
+	const filteredSessions = useMemo(
+		() =>
+			sessions.filter((session) =>
+				isWithinInterval(new Date(session.startTime), {
+					end: primary.to,
+					start: primary.from,
+				}),
+			),
+		[sessions, primary],
+	);
 
-		const now = new Date();
-		const daysToLookBack = Number.parseInt(timeRange);
-		const cutoffDate = addDays(now, -daysToLookBack);
-		return [...sessions].filter(
-			(session) => new Date(session.startTime) >= cutoffDate,
-		);
-	})();
+	const comparisonSessions = useMemo(
+		() =>
+			secondary
+				? sessions.filter((session) =>
+						isWithinInterval(new Date(session.startTime), {
+							end: secondary.to,
+							start: secondary.from,
+						}),
+					)
+				: undefined,
+		[sessions, secondary],
+	);
 
 	// Filter diaper changes based on selected time range
-	const filteredDiaperChanges = (() => {
-		if (timeRange === 'all') return [...diaperChanges];
+	const filteredDiaperChanges = useMemo(
+		() =>
+			diaperChanges.filter((change) =>
+				isWithinInterval(new Date(change.timestamp), {
+					end: primary.to,
+					start: primary.from,
+				}),
+			),
+		[diaperChanges, primary],
+	);
 
-		const now = new Date();
-		const daysToLookBack = Number.parseInt(timeRange);
-		const cutoffDate = addDays(now, -daysToLookBack);
-		return [...diaperChanges].filter(
-			(change) => new Date(change.timestamp) >= cutoffDate,
-		);
-	})();
+	const comparisonDiaperChanges = useMemo(
+		() =>
+			secondary
+				? diaperChanges.filter((change) =>
+						isWithinInterval(new Date(change.timestamp), {
+							end: secondary.to,
+							start: secondary.from,
+						}),
+					)
+				: undefined,
+		[diaperChanges, secondary],
+	);
 
 	return (
 		<div className="w-full">
-			<div className="flex justify-between items-center mb-4">
-				<h2 className="text-xl font-semibold">
-					<fbt desc="Title for the statistics page">Statistics</fbt>
-				</h2>
-				<Select
-					onValueChange={(value) =>
-						setTimeRange(value as '7' | '14' | '30' | 'all')
-					}
-					value={timeRange}
-				>
-					<SelectTrigger className="w-[140px]">
-						<SelectValue
-							placeholder={
-								<fbt desc="Placeholder text for the time range select input on the statistics page">
-									Time Range
+			<div className="flex flex-col gap-4 mb-6">
+				<div className="flex justify-between items-center">
+					<h2 className="text-xl font-semibold">
+						<fbt desc="Title for the statistics page">Statistics</fbt>
+					</h2>
+					<div className="flex flex-col items-end gap-1">
+						<Select
+							onValueChange={(value) => setTimeRange(value as TimeRange)}
+							value={timeRange}
+						>
+							<SelectTrigger className="w-[140px]">
+								<SelectValue
+									placeholder={
+										<fbt desc="Placeholder text for the time range select input on the statistics page">
+											Time Range
+										</fbt>
+									}
+								/>
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="7">
+									<fbt desc="Option to display data for the last 7 days in statistics">
+										Last 7 Days
+									</fbt>
+								</SelectItem>
+								<SelectItem value="14">
+									<fbt desc="Option to display data for the last 14 days in statistics">
+										Last 14 Days
+									</fbt>
+								</SelectItem>
+								<SelectItem value="30">
+									<fbt desc="Option to display data for the last 30 days in statistics">
+										Last 30 Days
+									</fbt>
+								</SelectItem>
+								<SelectItem value="custom">
+									<fbt desc="Option to display data for a custom time range in statistics">
+										Custom Range
+									</fbt>
+								</SelectItem>
+								<SelectItem value="all">
+									<fbt desc="Option to display all data in statistics">
+										All Data
+									</fbt>
+								</SelectItem>
+							</SelectContent>
+						</Select>
+						{secondary && (
+							<div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+								<fbt desc="Label for the comparison date range in statistics">
+									Comparing to:{' '}
+									<fbt:param name="from">
+										{format(secondary.from, 'MMM d')}
+									</fbt:param>{' '}
+									-{' '}
+									<fbt:param name="to">
+										{format(secondary.to, 'MMM d')}
+									</fbt:param>
 								</fbt>
-							}
-						/>
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="7">
-							<fbt desc="Option to display data for the last 7 days in statistics">
-								Last 7 Days
-							</fbt>
-						</SelectItem>
-						<SelectItem value="14">
-							<fbt desc="Option to display data for the last 14 days in statistics">
-								Last 14 Days
-							</fbt>
-						</SelectItem>
-						<SelectItem value="30">
-							<fbt desc="Option to display data for the last 30 days in statistics">
-								Last 30 Days
-							</fbt>
-						</SelectItem>
-						<SelectItem value="all">
-							<fbt desc="Option to display all data in statistics">
-								All Data
-							</fbt>
-						</SelectItem>
-					</SelectContent>
-				</Select>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{timeRange === 'custom' && (
+					<div className="flex items-center gap-4 justify-end">
+						<div className="flex items-center gap-2">
+							<Label className="text-xs text-muted-foreground" htmlFor="from">
+								<fbt desc="Label for the start date of a custom time range">
+									From
+								</fbt>
+							</Label>
+							<Input
+								className="w-[140px]"
+								id="from"
+								onChange={(e) =>
+									setCustomRange((prev) => ({ ...prev, from: e.target.value }))
+								}
+								type="date"
+								value={customRange.from}
+							/>
+						</div>
+						<div className="flex items-center gap-2">
+							<Label className="text-xs text-muted-foreground" htmlFor="to">
+								<fbt desc="Label for the end date of a custom time range">
+									To
+								</fbt>
+							</Label>
+							<Input
+								className="w-[140px]"
+								id="to"
+								onChange={(e) =>
+									setCustomRange((prev) => ({ ...prev, to: e.target.value }))
+								}
+								type="date"
+								value={customRange.to}
+							/>
+						</div>
+					</div>
+				)}
 			</div>
 			{filteredSessions.length === 0 &&
 			filteredDiaperChanges.length === 0 &&
@@ -123,11 +225,26 @@ export default function StatisticsPage() {
 					{filteredSessions.length > 0 ? (
 						<>
 							<div className="grid grid-cols-2 gap-4">
-								<DurationStats sessions={filteredSessions} />
-								<TotalDurationStats sessions={filteredSessions} />
-								<TimeBetweenStats sessions={filteredSessions} />
-								<FeedingsPerDayStats sessions={filteredSessions} />
-								<TotalFeedingsStats sessions={filteredSessions} />
+								<DurationStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<TotalDurationStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<TimeBetweenStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<FeedingsPerDayStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<TotalFeedingsStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
 								<HeatMap className="col-span-2" sessions={filteredSessions} />
 							</div>
 							<YearlyActivityHeatMap
@@ -162,7 +279,10 @@ export default function StatisticsPage() {
 					</h3>
 					{filteredDiaperChanges.length > 0 ? (
 						<>
-							<DiaperStats diaperChanges={filteredDiaperChanges} />
+							<DiaperStats
+								comparisonDiaperChanges={comparisonDiaperChanges}
+								diaperChanges={filteredDiaperChanges}
+							/>
 							<YearlyActivityHeatMap
 								className="mt-4"
 								dates={diaperChanges.map((change) => change.timestamp)}
