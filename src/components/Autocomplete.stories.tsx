@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-
 import { Autocomplete } from './autocomplete';
 
 const meta = {
@@ -134,7 +133,7 @@ export const HidesWhenNoResultsAfterTyping: Story = {
 	args: {
 		options: [
 			{ id: '1', label: 'Apple' },
-			{ id: '2', label: 'Banana' },	
+			{ id: '2', label: 'Banana' },
 			{ id: '3', label: 'Cherry' },
 		],
 		placeholder: 'Search here...',

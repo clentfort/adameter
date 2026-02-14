@@ -255,4 +255,3 @@ function toArrayTable<T extends ObjectWithId>(items: T[]) {
 	}
 	return table;
 }
-

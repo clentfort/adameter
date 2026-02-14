@@ -197,7 +197,6 @@ function createSeededLegacyDoc() {
 		},
 	]);
 
-
 	doc.getMap('feeding-in-progress-dec').set('current', {
 		breast: 'right',
 		startTime: '2026-02-07T10:30:00.000Z',
