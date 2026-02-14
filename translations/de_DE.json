@@ -121,16 +121,6 @@
         }
       ]
     },
-    "DuQUfnk+/YGVZ8E3Tx0PDg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Raum",
-          "variations": []
-        }
-      ]
-    },
     "92jFti+9ZpStiIsAlSLJVA==": {
       "tokens": [],
       "types": [],
@@ -841,226 +831,6 @@
         }
       ]
     },
-    "vhoG28xr063H50/5GT+bIg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Aktuelle Verordnungen",
-          "variations": []
-        }
-      ]
-    },
-    "mbCAhjr6orGgbbb7MaPvgA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Verordnung hinzufügen",
-          "variations": []
-        }
-      ]
-    },
-    "V+aCesT96qjVV4IEUm3Pfg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Keine aktiven Verordnungen. Fügen Sie eine neue Verordnung hinzu, um zu beginnen.",
-          "variations": []
-        }
-      ]
-    },
-    "ktysW8dZVcoAqS1hoK4aag==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Archiviert",
-          "variations": []
-        }
-      ]
-    },
-    "aPrKnho/bwScOk0vZB4t6g==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Keine vergangenen oder abgesetzten Verordnungen.",
-          "variations": []
-        }
-      ]
-    },
-    "LlZORtXX6slkdUSIoiWdXg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Verlauf",
-          "variations": []
-        }
-      ]
-    },
-    "rlHalIN0Ym/c/+t1gBXUuA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Eintrag hinzufügen",
-          "variations": []
-        }
-      ]
-    },
-    "2xdSjIF4n1iAEVnryy7OBg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Berechnung ausstehend",
-          "variations": []
-        }
-      ]
-    },
-    "Brmhs1P9/m84QxBP9LBUrg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Täglich um {times}",
-          "variations": []
-        }
-      ]
-    },
-    "ysPfsbUao2kMsvJnRJNwQw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Alle {intervalValue} {intervalUnit}, erste Dosis um {firstDoseTime}",
-          "variations": []
-        }
-      ]
-    },
-    "ngpAMEQXijjGgf6AvkSCIQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Wöchentlich am {daysOfWeek} um {times}",
-          "variations": []
-        }
-      ]
-    },
-    "SYHSArBkClXtvNwoutvqXw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Bei Bedarf: {details}",
-          "variations": []
-        }
-      ]
-    },
-    "9i+R3AOjR0HMN0UqGK/UUA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "N/A",
-          "variations": []
-        }
-      ]
-    },
-    "xu9GJ9byfAkvia9LSYcLkg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Medikamenteneintrag bearbeiten",
-          "variations": []
-        }
-      ]
-    },
-    "rR/OJl9H2XXz/39D2uNeCQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Medikamenteneintrag hinzufügen",
-          "variations": []
-        }
-      ]
-    },
-    "uGsMeFKgdzaOmykq0TOYbg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Aktualisieren Sie die Details dieser Medikamentengabe.",
-          "variations": []
-        }
-      ]
-    },
-    "sD/TjPTEdUEaZAdlw95kJA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Protokollieren Sie eine neue Medikamentengabe.",
-          "variations": []
-        }
-      ]
-    },
-    "sMqqGgVjoCgWcFGI4Obs8A==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Medikamentenname",
-          "variations": []
-        }
-      ]
-    },
-    "Plr6RLrtVTVbm/ySoOzqIg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Medikament auswählen oder eingeben...",
-          "variations": []
-        }
-      ]
-    },
-    "6J6NBngNV2imxIqHuCgMVw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Dosierungsmenge",
-          "variations": []
-        }
-      ]
-    },
-    "FuicQZKyFgqVur3uuFIdyw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Einheit",
-          "variations": []
-        }
-      ]
-    },
-    "yTLdcPPPL1yPSqeTh1x15g==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "z.B. ml, mg, Tropfen",
-          "variations": []
-        }
-      ]
-    },
     "o9/791nq8HNHWZLr+kCpXQ==": {
       "tokens": [],
       "types": [],
@@ -1077,606 +847,6 @@
       "translations": [
         {
           "translation": "Uhrzeit",
-          "variations": []
-        }
-      ]
-    },
-    "7FbNcm1Qb5pELYxQdNAOeA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Verabreichungsstatus",
-          "variations": []
-        }
-      ]
-    },
-    "+xnDhKrqJN7xHuyhB9mYvQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Details/Notizen (Optional)",
-          "variations": []
-        }
-      ]
-    },
-    "4APp/UGJytKLslN28j92jg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "z.B. Kind hat etwas ausgespuckt, mit Essen gegeben",
-          "variations": []
-        }
-      ]
-    },
-    "GdD1fPBGM3VEi5e60kt81w==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Änderungen speichern",
-          "variations": []
-        }
-      ]
-    },
-    "cj2DyOCldld00vHOkeCqHg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Eintrag speichern",
-          "variations": []
-        }
-      ]
-    },
-    "K+HUj1/mO76sfb5NusyTxQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Status:",
-          "variations": []
-        }
-      ]
-    },
-    "U5pa91t0seGF0scaeTwYoA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "(Mit Verordnung verknüpft)",
-          "variations": []
-        }
-      ]
-    },
-    "kI3XJq4XwJmEPI5QgJKDtQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Bearbeiten",
-          "variations": []
-        }
-      ]
-    },
-    "WVrJvXjg3gZWJ8YOPQu3KQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Löschen",
-          "variations": []
-        }
-      ]
-    },
-    "wdev+QaOnr8dGSP+qxnrNg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Ungültiges Datum",
-          "variations": []
-        }
-      ]
-    },
-    "4hhzG8GaJHxroSvS4/gVSA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Dosierung:",
-          "variations": []
-        }
-      ]
-    },
-    "Vj4TcJt84xgrTNLYJBUaYA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Bearbeiten",
-          "variations": []
-        }
-      ]
-    },
-    "tGhMqAG8XRVcKMd96m9Mvw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Löschen",
-          "variations": []
-        }
-      ]
-    },
-    "ZwdNX/38iySIGYYb8PkZpQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Nächste Fälligkeit:",
-          "variations": []
-        }
-      ]
-    },
-    "UIZiwrg0vtpNGhj1fuwElw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Startdatum:",
-          "variations": []
-        }
-      ]
-    },
-    "qkWJLMUp9OCJjD/5kDuPQQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Enddatum:",
-          "variations": []
-        }
-      ]
-    },
-    "c+RjI+1cX8ym7cqrIT7ggg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Abgesetzt",
-          "variations": []
-        }
-      ]
-    },
-    "owsfbFVdwnOOIla3Amd7AQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Notizen:",
-          "variations": []
-        }
-      ]
-    },
-    "dfrM7EIk8jieNE6y6p4i9w==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Zeitplan:",
-          "variations": []
-        }
-      ]
-    },
-    "Gn859LGLleNnKHdxvjDKhQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Verordner:",
-          "variations": []
-        }
-      ]
-    },
-    "eZbRh2755mXHwFkrWye8Ew==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Weniger anzeigen",
-          "variations": []
-        }
-      ]
-    },
-    "RgSDQjqHmlymSMvZhnhq+Q==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Mehr anzeigen",
-          "variations": []
-        }
-      ]
-    },
-    "mKB7TyTSIclV5AL5vqPZVw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Medikamentenverordnung bearbeiten",
-          "variations": []
-        }
-      ]
-    },
-    "jDyV6pgehGFHmRBYI1g0Aw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Neue Medikamentenverordnung hinzufügen",
-          "variations": []
-        }
-      ]
-    },
-    "gyhi2i55yidTkZUBu/0a4Q==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Aktualisieren Sie die Details dieser Medikamentenverordnung.",
-          "variations": []
-        }
-      ]
-    },
-    "5sf/vrOVifr3f31X5+gX+g==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Definieren Sie eine neue Medikamentenverordnung für Ihr Baby.",
-          "variations": []
-        }
-      ]
-    },
-    "ljr0RGA4CliycmkyxqdRCA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Medikamentenname",
-          "variations": []
-        }
-      ]
-    },
-    "hShA5MmkAfPivnXT8bFurg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Dosierungsmenge",
-          "variations": []
-        }
-      ]
-    },
-    "VQHBMarb76CXhKj8LKWNrg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Einheit",
-          "variations": []
-        }
-      ]
-    },
-    "Enz4Lj6C639v+djAQNvJzQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "z.B. ml, mg, Tropfen",
-          "variations": []
-        }
-      ]
-    },
-    "njX1gHCiNrK9FTgbx6hMaQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Startdatum",
-          "variations": []
-        }
-      ]
-    },
-    "cW2u1TIvjljfjbVewuzRyg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Enddatum (Optional)",
-          "variations": []
-        }
-      ]
-    },
-    "h0Bot85wZ2q6pJuh4qqoxQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Verordner",
-          "variations": []
-        }
-      ]
-    },
-    "ZPnRI8/XmsK7r2ep4AzKqg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Name des Verordners (Optional)",
-          "variations": []
-        }
-      ]
-    },
-    "BWaoAp8wpkO7LMyl2yhoJg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Zeitplantyp",
-          "variations": []
-        }
-      ]
-    },
-    "Fo2vpNQIluH1upA5cNRX3g==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Zeitplantyp auswählen",
-          "variations": []
-        }
-      ]
-    },
-    "vCEtYU9N1poigje1+v6epQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Täglich",
-          "variations": []
-        }
-      ]
-    },
-    "4Vmxf26eJZ9Lttk0zY+KjQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Intervall",
-          "variations": []
-        }
-      ]
-    },
-    "EckiXu9sF/BErswEpqSEcQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Wöchentlich",
-          "variations": []
-        }
-      ]
-    },
-    "wN0pw4jj9bCqjWpgnZOprA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Bei Bedarf (PRN)",
-          "variations": []
-        }
-      ]
-    },
-    "I0aBqoejWCRfiPzW0/+FYg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Zeiten pro Tag",
-          "variations": []
-        }
-      ]
-    },
-    "s4U53/NUvrfJBgbOEZYl3g==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Zeit hinzufügen",
-          "variations": []
-        }
-      ]
-    },
-    "LliVlv7ZNRI99GtZpp6Cig==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Intervalldetails",
-          "variations": []
-        }
-      ]
-    },
-    "koNHctGEVOTrdVq1va81YQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Erste Dosiszeit (nach Startdatum)",
-          "variations": []
-        }
-      ]
-    },
-    "fkXAzPiUzcA2YtKZT/6N9Q==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Intervallwert",
-          "variations": []
-        }
-      ]
-    },
-    "J/FcxhWOaN0nXYPgkSHIZA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Intervalleinheit",
-          "variations": []
-        }
-      ]
-    },
-    "lEBkXBhguy2HlbI9ZKFyFw==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Stunden",
-          "variations": []
-        }
-      ]
-    },
-    "hvazvf+XTgFsRHFUC59Dkg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Tage",
-          "variations": []
-        }
-      ]
-    },
-    "542lHQd5vSMx9MtvzQColg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Wöchentliche Details",
-          "variations": []
-        }
-      ]
-    },
-    "w/usjWa0CEZFHeHsh6qZtA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Wochentage",
-          "variations": []
-        }
-      ]
-    },
-    "WpGMpXF1rCzR3Dk5/4lSOQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Zeiten an ausgewählten Tagen",
-          "variations": []
-        }
-      ]
-    },
-    "k6zX7+As4NGr31taWKuZ9Q==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Zeit hinzufügen",
-          "variations": []
-        }
-      ]
-    },
-    "VdGLdu5q6JoxKuMz9V4iqg==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Details (z.B. „Wenn Fieber über 38C“)",
-          "variations": []
-        }
-      ]
-    },
-    "aTUt+gGp03rOaRrMzFh49w==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Notizen (Optional)",
-          "variations": []
-        }
-      ]
-    },
-    "IdUkHvYC1DqO5Q9N5iPgVA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "z.B. Mit Essen einnehmen, Den gesamten Kurs abschließen",
-          "variations": []
-        }
-      ]
-    },
-    "8+NC8L3E1sLBue/QUQ720A==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Änderungen speichern",
-          "variations": []
-        }
-      ]
-    },
-    "7hg0EV8cIhifhq7m+NF8wA==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Verordnung speichern",
-          "variations": []
-        }
-      ]
-    },
-    "PUq00hzcEH1FENLj1yHTRQ==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Keine Verordnungen in diesem Abschnitt.",
-          "variations": []
-        }
-      ]
-    },
-    "32zVs/gIkfbs1wbzYKnc0Q==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Sie haben keine aktiven Medikamentenverordnungen.",
-          "variations": []
-        }
-      ]
-    },
-    "0Te1wWZW4Ctpn808PCoU1Q==": {
-      "tokens": [],
-      "types": [],
-      "translations": [
-        {
-          "translation": "Keine vergangenen Medikamentenverordnungen gefunden.",
           "variations": []
         }
       ]
@@ -3453,6 +2623,210 @@
           "translation": "Wachstum"
         }
       ]
+    },
+    "ryVI66mHL1TSjZgJx2lAvw==": {
+      "description": "Toast message",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Einladungslink wurde in die Zwischenablage kopiert",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "1tLbt7/db3Lk4aP7/jvrwA==": {
+      "description": "Text indicating the current room",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Aktuell verbunden mit:",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "IO52WS92jI69+k6HfzAPUg==": {
+      "description": "Button to copy invite link",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Einladungslink kopieren",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "5BMvj8Kso/HGKQ74M3/e5w==": {
+      "description": "Button to leave current room",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Raum verlassen",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "AqaPZv1okB8OWSHQ7uskxQ==": {
+      "description": "Label for an input to set the id of a shared room",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Raumname",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "J8D42floCxEbQ2eUmauStA==": {
+      "description": "Label on a join button",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Beitreten",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "1ZakotB/ZptZRNDOmbnH/A==": {
+      "description": "Separator text between manual input and QR scanner",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Oder QR scannen",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "QnSPv4rbLcjz7bAoYfSOYw==": {
+      "description": "Description for creating a room",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Mit dem Erstellen eines Raums kannst du deine Daten mit anderen Geräten synchronisieren. Deine aktuellen Daten werden in den neuen Raum übernommen.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "a7/F+iZ8Cy0K0DtUZXhPJw==": {
+      "description": "Button to create a new room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Create New Room",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "c4UaGWBOLoxn/Nr4aVFpew==": {
+      "description": "Label on a close button",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Close",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "DwAbZhai/ZEWqxHz4xlZUQ==": {
+      "description": "Title for joining a room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Join Room",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "kQchqJgVVWK/biFUt6RPYw==": {
+      "description": "Description for joining a room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "You are about to join room {roomId}. Would you like to merge your existing data into this room, or clear it before joining?",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "crSyxRni2yHRHX5Pl92RnA==": {
+      "description": "Button to clear data and join room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Clear & Join",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "xFIaLoUpKN10xSyMLkWT5Q==": {
+      "description": "Button to merge data and join room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Merge & Join",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "rprnI3w+XRb6+8O5XfSVnQ==": {
+      "description": "Title for leaving a room warning",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Leave current room?",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "/en3ThCRbtx+gDP3mq4umQ==": {
+      "description": "Description for leaving a room warning",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "You are currently in a shared room. If you proceed, you will leave the current room to join another one.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "dW8DduhY8NK2ijO1MHPDLg==": {
+      "description": "Button to confirm leaving room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Leave Room",
+          "variations": {}
+        }
+      ],
+      "types": []
     }
   }
 }
