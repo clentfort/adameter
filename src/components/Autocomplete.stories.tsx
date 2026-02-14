@@ -43,15 +43,15 @@ interface CustomOption {
 export const WithCustomRenderOption: Story = {
 	args: {
 		options: [
-			{ description: '250mg, every 8 hours', id: 'med1', label: 'Amoxicillin' },
+			{ description: 'Capital of France', id: 'city1', label: 'Paris' },
 			{
-				description: '400mg, as needed for pain',
-				id: 'med2',
-				label: 'Ibuprofen',
+				description: 'Capital of Germany',
+				id: 'city2',
+				label: 'Berlin',
 			},
-			{ description: '10mg, once daily', id: 'med3', label: 'Loratadine' },
+			{ description: 'Capital of Japan', id: 'city3', label: 'Tokyo' },
 		] as CustomOption[],
-		placeholder: 'Search for medication...',
+		placeholder: 'Search for a city...',
 		renderOption: (option: CustomOption | { id: string; label: string }) => {
 			// Type guard to handle both CustomOption and the base option type
 			if ('description' in option) {

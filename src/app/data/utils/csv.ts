@@ -35,29 +35,6 @@ const columns: { [key: string]: string[] } = {
 		'headCircumference',
 		'notes',
 	],
-	medicationRegimens: [
-		'id',
-		'name',
-		'dosageAmount',
-		'dosageUnit',
-		'startDate',
-		'endDate',
-		'isDiscontinued',
-		'notes',
-		'prescriber',
-		'prescriberName',
-		'schedule',
-	],
-	medications: [
-		'id',
-		'timestamp',
-		'medicationName',
-		'dosageAmount',
-		'dosageUnit',
-		'administrationStatus',
-		'details',
-		'regimenId',
-	],
 };
 
 export const toCsv = (
@@ -77,7 +54,7 @@ export const toCsv = (
 
 // --- Type-safe CSV Parsing ---
 
-const requiredNumeric = new Set(['durationInSeconds', 'dosageAmount']);
+const requiredNumeric = new Set(['durationInSeconds']);
 const optionalNumeric = new Set([
 	'temperature',
 	'weight',
@@ -85,7 +62,7 @@ const optionalNumeric = new Set([
 	'headCircumference',
 ]);
 const requiredBoolean = new Set(['containsUrine', 'containsStool']);
-const optionalBoolean = new Set(['leakage', 'isDiscontinued']);
+const optionalBoolean = new Set(['leakage']);
 
 export const fromCsv = (csv: string) => {
 	const parsed = Papa.parse(csv, {

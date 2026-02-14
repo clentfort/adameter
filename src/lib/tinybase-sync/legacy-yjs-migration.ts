@@ -4,8 +4,6 @@ import type { Event } from '@/types/event';
 import type { FeedingSession } from '@/types/feeding';
 import type { FeedingInProgress } from '@/types/feeding-in-progress';
 import type { GrowthMeasurement } from '@/types/growth';
-import type { MedicationAdministration } from '@/types/medication';
-import type { MedicationRegimen } from '@/types/medication-regimen';
 import { Doc, Map as YMap } from 'yjs';
 import {
 	LEGACY_YJS_ARRAYS,
@@ -23,10 +21,6 @@ import {
 	TABLE_IDS,
 	TINYBASE_MIGRATION_VERSION,
 } from './constants';
-import {
-	medicationAdministrationToRow,
-	medicationRegimenToRow,
-} from './medication-table';
 
 type ObjectWithId = {
 	id: string;
@@ -42,8 +36,6 @@ export interface LegacyYjsState {
 	};
 	feedingSessions: FeedingSession[];
 	growthMeasurements: GrowthMeasurement[];
-	medicationRegimens: MedicationRegimen[];
-	medications: MedicationAdministration[];
 }
 
 interface MigrateStoreFromLegacyYjsDocOptions {
@@ -88,20 +80,6 @@ export function readLegacyYjsState(doc: Doc): LegacyYjsState {
 				)
 				.toJSON(),
 		),
-		medicationRegimens: normalizeForSync(
-			doc
-				.getArray<MedicationRegimen>(
-					LEGACY_YJS_ARRAYS[TABLE_IDS.MEDICATION_REGIMENS],
-				)
-				.toJSON(),
-		),
-		medications: normalizeForSync(
-			doc
-				.getArray<MedicationAdministration>(
-					LEGACY_YJS_ARRAYS[TABLE_IDS.MEDICATIONS],
-				)
-				.toJSON(),
-		),
 	};
 }
 
@@ -111,8 +89,6 @@ export function legacyStateHasAnyData(state: LegacyYjsState) {
 		state.events.length > 0 ||
 		state.feedingSessions.length > 0 ||
 		state.growthMeasurements.length > 0 ||
-		state.medicationRegimens.length > 0 ||
-		state.medications.length > 0 ||
 		state.feedingInProgress.current !== null
 	);
 }
@@ -132,10 +108,6 @@ export function legacyStateToTinybaseContent(
 		[TABLE_IDS.EVENTS]: toArrayTable(state.events),
 		[TABLE_IDS.FEEDING_SESSIONS]: toArrayTable(state.feedingSessions),
 		[TABLE_IDS.GROWTH_MEASUREMENTS]: toArrayTable(state.growthMeasurements),
-		[TABLE_IDS.MEDICATION_REGIMENS]: toMedicationRegimensTable(
-			state.medicationRegimens,
-		),
-		[TABLE_IDS.MEDICATIONS]: toMedicationsTable(state.medications),
 	};
 
 	const values: Values = {
@@ -160,8 +132,6 @@ export function isStoreDataEmpty(store: Store) {
 		TABLE_IDS.EVENTS,
 		TABLE_IDS.FEEDING_SESSIONS,
 		TABLE_IDS.GROWTH_MEASUREMENTS,
-		TABLE_IDS.MEDICATION_REGIMENS,
-		TABLE_IDS.MEDICATIONS,
 	] as const;
 
 	for (const tableId of tableIds) {
@@ -286,20 +256,3 @@ function toArrayTable<T extends ObjectWithId>(items: T[]) {
 	return table;
 }
 
-function toMedicationRegimensTable(items: MedicationRegimen[]) {
-	const table: Tables[string] = {};
-	for (const [order, item] of items.entries()) {
-		const normalized = normalizeForSync(item);
-		table[normalized.id] = medicationRegimenToRow(normalized, order);
-	}
-	return table;
-}
-
-function toMedicationsTable(items: MedicationAdministration[]) {
-	const table: Tables[string] = {};
-	for (const [order, item] of items.entries()) {
-		const normalized = normalizeForSync(item);
-		table[normalized.id] = medicationAdministrationToRow(normalized, order);
-	}
-	return table;
-}

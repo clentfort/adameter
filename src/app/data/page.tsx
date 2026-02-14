@@ -15,8 +15,6 @@ import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
-import { useMedicationRegimens } from '@/hooks/use-medication-regimens';
-import { useMedications } from '@/hooks/use-medications';
 import {
 	clearPerformanceLogs,
 	createPerformanceReport,
@@ -48,8 +46,6 @@ export default function DataPage() {
 	const eventsState = useEvents();
 	const feedingSessionsState = useFeedingSessions();
 	const growthMeasurementsState = useGrowthMeasurements();
-	const medicationRegimensState = useMedicationRegimens();
-	const medicationsState = useMedications();
 
 	const dataStores = useMemo(
 		() => ({
@@ -57,16 +53,12 @@ export default function DataPage() {
 			events: eventsState,
 			feedingSessions: feedingSessionsState,
 			growthMeasurements: growthMeasurementsState,
-			medicationRegimens: medicationRegimensState,
-			medications: medicationsState,
 		}),
 		[
 			diaperChangesState,
 			eventsState,
 			feedingSessionsState,
 			growthMeasurementsState,
-			medicationRegimensState,
-			medicationsState,
 		],
 	);
 

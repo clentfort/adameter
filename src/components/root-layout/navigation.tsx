@@ -43,7 +43,7 @@ export default function Navigation() {
 	return (
 		<div className="mb-6">
 			<NavigationMenu>
-				<NavigationMenuList className="grid grid-cols-6">
+				<NavigationMenuList className="grid grid-cols-5">
 					{pages.map((page) => {
 						const isActive = pathname === page.path;
 						return (
