@@ -43,6 +43,7 @@ describe('CSV Integration', () => {
 				abnormalities: 'None',
 				containsStool: false,
 				containsUrine: true,
+				deviceId: '',
 				diaperBrand: 'Pampers',
 				id: '1',
 				leakage: true,
@@ -53,6 +54,7 @@ describe('CSV Integration', () => {
 				abnormalities: '',
 				containsStool: false,
 				containsUrine: false,
+				deviceId: '',
 				diaperBrand: '',
 				id: '2',
 				leakage: undefined,
@@ -63,6 +65,7 @@ describe('CSV Integration', () => {
 				abnormalities: 'A bit reddish',
 				containsStool: false,
 				containsUrine: true,
+				deviceId: '',
 				diaperBrand: 'Huggies',
 				id: '3',
 				leakage: false,
@@ -105,6 +108,7 @@ describe('CSV Integration', () => {
 		const expectedData = [
 			{
 				breast: 'left',
+				deviceId: '',
 				durationInSeconds: 1200,
 				endTime: '2023-01-01T10:20:00Z',
 				id: 'fs1',
@@ -112,6 +116,7 @@ describe('CSV Integration', () => {
 			},
 			{
 				breast: 'right',
+				deviceId: '',
 				durationInSeconds: 0,
 				endTime: '2023-01-01T11:15:00Z',
 				id: 'fs2',
@@ -119,6 +124,7 @@ describe('CSV Integration', () => {
 			},
 			{
 				breast: 'left',
+				deviceId: '',
 				durationInSeconds: 0,
 				endTime: '2023-01-01T12:25:00Z',
 				id: 'fs3',

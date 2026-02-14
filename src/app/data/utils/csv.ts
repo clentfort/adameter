@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 const columns: { [key: string]: string[] } = {
 	diaperChanges: [
 		'id',
+		'deviceId',
 		'timestamp',
 		'containsUrine',
 		'containsStool',
@@ -13,6 +14,7 @@ const columns: { [key: string]: string[] } = {
 	],
 	events: [
 		'id',
+		'deviceId',
 		'startDate',
 		'endDate',
 		'title',
@@ -22,6 +24,7 @@ const columns: { [key: string]: string[] } = {
 	],
 	feedingSessions: [
 		'id',
+		'deviceId',
 		'startTime',
 		'endTime',
 		'durationInSeconds',
@@ -29,34 +32,12 @@ const columns: { [key: string]: string[] } = {
 	],
 	growthMeasurements: [
 		'id',
+		'deviceId',
 		'date',
 		'weight',
 		'height',
 		'headCircumference',
 		'notes',
-	],
-	medicationRegimens: [
-		'id',
-		'name',
-		'dosageAmount',
-		'dosageUnit',
-		'startDate',
-		'endDate',
-		'isDiscontinued',
-		'notes',
-		'prescriber',
-		'prescriberName',
-		'schedule',
-	],
-	medications: [
-		'id',
-		'timestamp',
-		'medicationName',
-		'dosageAmount',
-		'dosageUnit',
-		'administrationStatus',
-		'details',
-		'regimenId',
 	],
 };
 
@@ -77,7 +58,7 @@ export const toCsv = (
 
 // --- Type-safe CSV Parsing ---
 
-const requiredNumeric = new Set(['durationInSeconds', 'dosageAmount']);
+const requiredNumeric = new Set(['durationInSeconds']);
 const optionalNumeric = new Set([
 	'temperature',
 	'weight',
@@ -85,7 +66,7 @@ const optionalNumeric = new Set([
 	'headCircumference',
 ]);
 const requiredBoolean = new Set(['containsUrine', 'containsStool']);
-const optionalBoolean = new Set(['leakage', 'isDiscontinued']);
+const optionalBoolean = new Set(['leakage']);
 
 export const fromCsv = (csv: string) => {
 	const parsed = Papa.parse(csv, {

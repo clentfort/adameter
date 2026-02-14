@@ -1009,90 +1009,6 @@
         }
       ]
     },
-    "vhoG28xr063H50/5GT+bIg==": {
-      "description": "Section heading for current medication regimens",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Current Regimens",
-          "variations": {}
-        }
-      ]
-    },
-    "mbCAhjr6orGgbbb7MaPvgA==": {
-      "description": "Button text to add a new medication regimen",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Add Regimen",
-          "variations": {}
-        }
-      ]
-    },
-    "V+aCesT96qjVV4IEUm3Pfg==": {
-      "description": "Message when there are no active regimens",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "No active regimens. Add a new regimen to get started.",
-          "variations": {}
-        }
-      ]
-    },
-    "ktysW8dZVcoAqS1hoK4aag==": {
-      "description": "Accordion title for archived medication regimens",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Archived",
-          "variations": {}
-        }
-      ]
-    },
-    "aPrKnho/bwScOk0vZB4t6g==": {
-      "description": "Message when there are no past regimens",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "No past or discontinued regimens.",
-          "variations": {}
-        }
-      ]
-    },
-    "LlZORtXX6slkdUSIoiWdXg==": {
-      "description": "Section heading for Medication History",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "History",
-          "variations": {}
-        }
-      ]
-    },
-    "rlHalIN0Ym/c/+t1gBXUuA==": {
-      "description": "Button text to add a new medication administration entry",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Add Entry",
-          "variations": {}
-        }
-      ]
-    },
     "2xdSjIF4n1iAEVnryy7OBg==": {
       "description": "Placeholder text when next due time calculation is not yet available or supported for the schedule type",
       "tokens": [],
@@ -1105,54 +1021,6 @@
         }
       ]
     },
-    "Brmhs1P9/m84QxBP9LBUrg==": {
-      "description": "Schedule format for daily medication at specific times",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Daily at {times}",
-          "variations": {}
-        }
-      ]
-    },
-    "ysPfsbUao2kMsvJnRJNwQw==": {
-      "description": "Schedule format for interval medication",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Every {intervalValue} {intervalUnit}, first dose at {firstDoseTime}",
-          "variations": {}
-        }
-      ]
-    },
-    "ngpAMEQXijjGgf6AvkSCIQ==": {
-      "description": "Schedule format for weekly medication",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Weekly on {daysOfWeek} at {times}",
-          "variations": {}
-        }
-      ]
-    },
-    "SYHSArBkClXtvNwoutvqXw==": {
-      "description": "Schedule format for as-needed medication",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "As needed: {details}",
-          "variations": {}
-        }
-      ]
-    },
     "9i+R3AOjR0HMN0UqGK/UUA==": {
       "description": "Not applicable or not available",
       "tokens": [],
@@ -1161,78 +1029,6 @@
       "translations": [
         {
           "translation": "N/A",
-          "variations": {}
-        }
-      ]
-    },
-    "xu9GJ9byfAkvia9LSYcLkg==": {
-      "description": "Dialog title for editing a medication entry",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Edit Medication Entry",
-          "variations": {}
-        }
-      ]
-    },
-    "rR/OJl9H2XXz/39D2uNeCQ==": {
-      "description": "Dialog title for adding a new medication entry",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Add Medication Entry",
-          "variations": {}
-        }
-      ]
-    },
-    "uGsMeFKgdzaOmykq0TOYbg==": {
-      "description": "Dialog description for editing a medication entry",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Update the details of this medication administration.",
-          "variations": {}
-        }
-      ]
-    },
-    "sD/TjPTEdUEaZAdlw95kJA==": {
-      "description": "Dialog description for adding a new medication entry",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Log a new medication administration.",
-          "variations": {}
-        }
-      ]
-    },
-    "sMqqGgVjoCgWcFGI4Obs8A==": {
-      "description": "Label for medication name input",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Medication Name",
-          "variations": {}
-        }
-      ]
-    },
-    "Plr6RLrtVTVbm/ySoOzqIg==": {
-      "description": "Placeholder for medication name autocomplete",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Select or type medication...",
           "variations": {}
         }
       ]
@@ -1297,18 +1093,6 @@
         }
       ]
     },
-    "7FbNcm1Qb5pELYxQdNAOeA==": {
-      "description": "Label for administration status radio group",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Administration Status",
-          "variations": {}
-        }
-      ]
-    },
     "+xnDhKrqJN7xHuyhB9mYvQ==": {
       "description": "Label for optional details/notes textarea",
       "tokens": [],
@@ -1317,90 +1101,6 @@
       "translations": [
         {
           "translation": "Details/Notes (Optional)",
-          "variations": {}
-        }
-      ]
-    },
-    "4APp/UGJytKLslN28j92jg==": {
-      "description": "Placeholder for medication administration notes",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "e.g., child spit out some, given with food",
-          "variations": {}
-        }
-      ]
-    },
-    "GdD1fPBGM3VEi5e60kt81w==": {
-      "description": "Button text to save changes to an existing medication entry",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Save Changes",
-          "variations": {}
-        }
-      ]
-    },
-    "cj2DyOCldld00vHOkeCqHg==": {
-      "description": "Button text to save a new medication entry",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Save Entry",
-          "variations": {}
-        }
-      ]
-    },
-    "K+HUj1/mO76sfb5NusyTxQ==": {
-      "description": "Label for administration status",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Status:",
-          "variations": {}
-        }
-      ]
-    },
-    "U5pa91t0seGF0scaeTwYoA==": {
-      "description": "Indicator that this administration is linked to a regimen",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "(Linked to regimen)",
-          "variations": {}
-        }
-      ]
-    },
-    "kI3XJq4XwJmEPI5QgJKDtQ==": {
-      "description": "Edit administration button label",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Edit",
-          "variations": {}
-        }
-      ]
-    },
-    "WVrJvXjg3gZWJ8YOPQu3KQ==": {
-      "description": "Delete administration button label",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Delete",
           "variations": {}
         }
       ]
@@ -1425,30 +1125,6 @@
       "translations": [
         {
           "translation": "Dosage:",
-          "variations": {}
-        }
-      ]
-    },
-    "Vj4TcJt84xgrTNLYJBUaYA==": {
-      "description": "Edit regimen button label",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Edit",
-          "variations": {}
-        }
-      ]
-    },
-    "tGhMqAG8XRVcKMd96m9Mvw==": {
-      "description": "Delete regimen button label",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Delete",
           "variations": {}
         }
       ]
@@ -1489,18 +1165,6 @@
         }
       ]
     },
-    "c+RjI+1cX8ym7cqrIT7ggg==": {
-      "description": "Indicator that a regimen is discontinued",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Discontinued",
-          "variations": {}
-        }
-      ]
-    },
     "owsfbFVdwnOOIla3Amd7AQ==": {
       "description": "Label for notes",
       "tokens": [],
@@ -1533,90 +1197,6 @@
       "translations": [
         {
           "translation": "Prescriber:",
-          "variations": {}
-        }
-      ]
-    },
-    "eZbRh2755mXHwFkrWye8Ew==": {
-      "description": "Button to collapse regimen details",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Show Less",
-          "variations": {}
-        }
-      ]
-    },
-    "RgSDQjqHmlymSMvZhnhq+Q==": {
-      "description": "Button to expand regimen details",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Show More",
-          "variations": {}
-        }
-      ]
-    },
-    "mKB7TyTSIclV5AL5vqPZVw==": {
-      "description": "Dialog title for editing a medication regimen",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Edit Medication Regimen",
-          "variations": {}
-        }
-      ]
-    },
-    "jDyV6pgehGFHmRBYI1g0Aw==": {
-      "description": "Dialog title for adding a new medication regimen",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Add New Medication Regimen",
-          "variations": {}
-        }
-      ]
-    },
-    "gyhi2i55yidTkZUBu/0a4Q==": {
-      "description": "Dialog description for editing a medication regimen",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Update the details of this medication regimen.",
-          "variations": {}
-        }
-      ]
-    },
-    "5sf/vrOVifr3f31X5+gX+g==": {
-      "description": "Dialog description for adding a new medication regimen",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Define a new medication regimen for your baby.",
-          "variations": {}
-        }
-      ]
-    },
-    "ljr0RGA4CliycmkyxqdRCA==": {
-      "description": "Label for medication name",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Medication Name",
           "variations": {}
         }
       ]
@@ -1929,90 +1509,6 @@
       "translations": [
         {
           "translation": "Details (e.g., “When fever above 38C”)",
-          "variations": {}
-        }
-      ]
-    },
-    "aTUt+gGp03rOaRrMzFh49w==": {
-      "description": "Label for optional notes about the regimen",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Notes (Optional)",
-          "variations": {}
-        }
-      ]
-    },
-    "IdUkHvYC1DqO5Q9N5iPgVA==": {
-      "description": "Placeholder for regimen notes",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "e.g., Take with food, Complete the full course",
-          "variations": {}
-        }
-      ]
-    },
-    "8+NC8L3E1sLBue/QUQ720A==": {
-      "description": "Button text to save changes to an existing regimen",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Save Changes",
-          "variations": {}
-        }
-      ]
-    },
-    "7hg0EV8cIhifhq7m+NF8wA==": {
-      "description": "Button text to save a new regimen",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Save Regimen",
-          "variations": {}
-        }
-      ]
-    },
-    "PUq00hzcEH1FENLj1yHTRQ==": {
-      "description": "No items message for story",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "No regimens in this section.",
-          "variations": {}
-        }
-      ]
-    },
-    "32zVs/gIkfbs1wbzYKnc0Q==": {
-      "description": "No active regimens message",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "You have no active medication regimens.",
-          "variations": {}
-        }
-      ]
-    },
-    "0Te1wWZW4Ctpn808PCoU1Q==": {
-      "description": "No past regimens message",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "No past medication regimens found.",
           "variations": {}
         }
       ]
