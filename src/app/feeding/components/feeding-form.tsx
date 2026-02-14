@@ -179,6 +179,7 @@ export default function FeedingForm({
 								? 'bg-left-breast hover:bg-left-breast-dark'
 								: 'bg-right-breast hover:bg-right-breast-dark'
 						}
+						data-testid="save-button"
 						onClick={handleSubmit}
 						type="submit"
 					>

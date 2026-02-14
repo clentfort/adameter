@@ -300,7 +300,7 @@ export default function DiaperForm({
 					<Button onClick={onClose} variant="outline">
 						<fbt common>Cancel</fbt>
 					</Button>
-					<Button onClick={handleSubmit}>
+					<Button data-testid="save-button" onClick={handleSubmit}>
 						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>

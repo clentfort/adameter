@@ -42,16 +42,16 @@ export default function Navigation() {
 	const pathname = usePathname();
 	return (
 		<div className="mb-6">
-			<NavigationMenu>
-				<NavigationMenuList className="grid grid-cols-5">
+			<NavigationMenu className="w-full max-w-none">
+				<NavigationMenuList className="w-full grid grid-cols-5">
 					{pages.map((page) => {
 						const isActive = pathname === page.path;
 						return (
 							<NavigationMenuItem key={page.path}>
 								<NavigationMenuLink
 									active={isActive}
+									className={`${navigationMenuTriggerStyle()} flex w-full flex-col items-center py-2 text-xs sm:flex-row sm:gap-1 sm:px-2 sm:text-sm`}
 									render={<Link href={page.path} />}
-									className={`${navigationMenuTriggerStyle()} flex flex-col xs:flex-row items-center xs:gap-1 px-1 sm:px-2 py-2 text-xs sm:text-sm`}
 								>
 									<span className="h-4 w-4">{page.icon}</span>
 									<span className="hidden xs:inline">{page.label()}</span>
