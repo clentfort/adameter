@@ -1,5 +1,6 @@
 'use client';
 
+import type { TimeRange } from '@/utils/get-range-dates';
 import { addDays, isWithinInterval } from 'date-fns';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
@@ -17,7 +18,7 @@ import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
-import { getRangeDates, type TimeRange } from '@/utils/get-range-dates';
+import { getRangeDates } from '@/utils/get-range-dates';
 import DiaperRecords from './components/diaper-records';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
@@ -99,7 +100,10 @@ export default function StatisticsPage() {
 									id="compare-mode"
 									onCheckedChange={setCompare}
 								/>
-								<Label className="text-sm cursor-pointer" htmlFor="compare-mode">
+								<Label
+									className="text-sm cursor-pointer"
+									htmlFor="compare-mode"
+								>
 									<fbt desc="Label for the comparison mode toggle on the statistics page">
 										Compare
 									</fbt>
@@ -170,7 +174,9 @@ export default function StatisticsPage() {
 						</div>
 						<div className="flex items-center gap-2">
 							<Label className="text-xs text-muted-foreground" htmlFor="to">
-								<fbt desc="Label for the end date of a custom time range">To</fbt>
+								<fbt desc="Label for the end date of a custom time range">
+									To
+								</fbt>
 							</Label>
 							<Input
 								className="w-[140px]"

@@ -16,8 +16,9 @@ export default function TotalFeedingsStats({
 	const leftCount = sessions.filter((s) => s.breast === 'left').length;
 	const rightCount = sessions.filter((s) => s.breast === 'right').length;
 
-	const prevLeftCount = comparisonSessions?.filter((s) => s.breast === 'left')
-		.length;
+	const prevLeftCount = comparisonSessions?.filter(
+		(s) => s.breast === 'left',
+	).length;
 	const prevRightCount = comparisonSessions?.filter(
 		(s) => s.breast === 'right',
 	).length;

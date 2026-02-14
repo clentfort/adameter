@@ -35,7 +35,9 @@ function calculateAvgTimeBetween(sessions: FeedingSession[]) {
 		}
 	}
 
-	return timeBetweenCount > 0 ? Math.abs(totalTimeBetween / timeBetweenCount) : 0;
+	return timeBetweenCount > 0
+		? Math.abs(totalTimeBetween / timeBetweenCount)
+		: 0;
 }
 
 export default function TimeBetweenStats({
@@ -62,7 +64,11 @@ export default function TimeBetweenStats({
 					{formatDurationAbbreviated(avgTime)}
 				</div>
 				{prevAvgTime ? (
-					<ComparisonValue current={avgTime} inverse={true} previous={prevAvgTime} />
+					<ComparisonValue
+						current={avgTime}
+						inverse={true}
+						previous={prevAvgTime}
+					/>
 				) : null}
 			</div>
 		</StatsCard>

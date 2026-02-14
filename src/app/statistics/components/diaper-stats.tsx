@@ -80,13 +80,8 @@ export default function DiaperStats({
 		? calculateDiaperMetrics(comparisonDiaperChanges)
 		: null;
 
-	const {
-		changesPerDay,
-		totalChanges,
-		urineOnly,
-		withLeakage,
-		withStool,
-	} = metrics;
+	const { changesPerDay, totalChanges, urineOnly, withLeakage, withStool } =
+		metrics;
 
 	const brandCounts: Record<string, { leakage: number; total: number }> = {};
 	diaperChanges.forEach((change) => {
