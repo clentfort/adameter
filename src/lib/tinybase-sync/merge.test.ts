@@ -11,7 +11,11 @@ describe('mergeStoreContent', () => {
 
 		// Store has one item
 		store.setRow(tableId, '1', {
-			[ROW_JSON_CELL]: JSON.stringify({ deviceId: 'old', id: '1', note: 'keep' }),
+			[ROW_JSON_CELL]: JSON.stringify({
+				deviceId: 'old',
+				id: '1',
+				note: 'keep',
+			}),
 		});
 
 		// Snapshot has another item
@@ -35,12 +39,16 @@ describe('mergeStoreContent', () => {
 		mergeStoreContent(store, snapshot, deviceId);
 
 		// Item 1 should remain unchanged
-		const row1 = JSON.parse(store.getRow(tableId, '1')[ROW_JSON_CELL] as string);
+		const row1 = JSON.parse(
+			store.getRow(tableId, '1')[ROW_JSON_CELL] as string,
+		);
 		expect(row1.note).toBe('keep');
 		expect(row1.deviceId).toBe('old');
 
 		// Item 2 should be added with new deviceId
-		const row2 = JSON.parse(store.getRow(tableId, '2')[ROW_JSON_CELL] as string);
+		const row2 = JSON.parse(
+			store.getRow(tableId, '2')[ROW_JSON_CELL] as string,
+		);
 		expect(row2.note).toBe('merge');
 		expect(row2.deviceId).toBe(deviceId);
 	});

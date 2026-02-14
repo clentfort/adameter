@@ -94,7 +94,10 @@ export default function DataSharingSwitcher() {
 									<Copy className="mr-2 h-4 w-4" />
 									<fbt desc="Button to copy invite link">Copy Invite Link</fbt>
 								</Button>
-								<Button onClick={() => setRoom(undefined)} variant="destructive">
+								<Button
+									onClick={() => setRoom(undefined)}
+									variant="destructive"
+								>
 									<fbt desc="Button to leave current room">Leave Room</fbt>
 								</Button>
 							</div>

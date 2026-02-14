@@ -25,7 +25,9 @@ export function LeaveRoomWarningDialog({
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>
-						<fbt desc="Title for leaving a room warning">Leave current room?</fbt>
+						<fbt desc="Title for leaving a room warning">
+							Leave current room?
+						</fbt>
 					</AlertDialogTitle>
 					<AlertDialogDescription>
 						<fbt desc="Description for leaving a room warning">

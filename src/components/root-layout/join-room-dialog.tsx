@@ -41,9 +41,10 @@ export function JoinRoomDialog({
 					</AlertDialogTitle>
 					<AlertDialogDescription>
 						<fbt desc="Description for joining a room">
-							You are about to join room <fbt:param name="roomId">{roomId}</fbt:param>.
-							Would you like to merge your existing data into this room, or
-							clear it before joining?
+							You are about to join room{' '}
+							<fbt:param name="roomId">{roomId}</fbt:param>. Would you like to
+							merge your existing data into this room, or clear it before
+							joining?
 						</fbt>
 					</AlertDialogDescription>
 				</AlertDialogHeader>

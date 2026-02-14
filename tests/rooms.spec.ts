@@ -36,7 +36,9 @@ test.describe('Room management', () => {
 		await expect(page.locator('p.text-xl.font-bold')).toHaveText(testRoom);
 	});
 
-	test('should handle invite link with warning if already in a room', async ({ page }) => {
+	test('should handle invite link with warning if already in a room', async ({
+		page,
+	}) => {
 		// Join a room first
 		await page.getByRole('button', { name: /sharing/i }).click();
 		await page.getByRole('tab', { name: /create room/i }).click();
