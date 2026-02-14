@@ -30,7 +30,7 @@ milestones:
 - **Growth Measurements:** Record weight, height, and head circumference to
   monitor your baby's growth over time.
 - **Custom Events:** Log any other notable events, milestones, or observations,
-  such as sleep patterns, medication, or first smiles.
+  such as sleep patterns or first smiles.
 - **Statistics:** Visualize trends and gain insights into your baby's patterns
   through clear charts and summaries.
 

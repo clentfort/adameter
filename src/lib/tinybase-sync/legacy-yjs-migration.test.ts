@@ -197,33 +197,6 @@ function createSeededLegacyDoc() {
 		},
 	]);
 
-	doc.getArray('medication-regimens-dec').push([
-		{
-			dosageAmount: 1,
-			dosageUnit: 'ml',
-			id: 'regimen_1',
-			name: 'Vitamin D',
-			prescriber: 'Doctor',
-			schedule: {
-				times: ['10:00'],
-				type: 'daily',
-			},
-			startDate: '2026-02-01T00:00:00.000Z',
-		},
-	]);
-
-	doc.getArray('medications-dec').push([
-		{
-			administrationStatus: 'On Time',
-			dosageAmount: 1,
-			dosageUnit: 'ml',
-			id: 'med_1',
-			medicationName: 'Vitamin D',
-			regimenId: 'regimen_1',
-			timestamp: '2026-02-07T10:00:00.000Z',
-		},
-	]);
-
 	doc.getMap('feeding-in-progress-dec').set('current', {
 		breast: 'right',
 		startTime: '2026-02-07T10:30:00.000Z',
