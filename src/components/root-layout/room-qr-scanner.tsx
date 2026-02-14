@@ -44,8 +44,8 @@ export function RoomQRScanner({ onScan }: RoomQRScannerProps) {
 					// Failure callback, ignored to avoid noise
 				},
 			);
-		} catch (err) {
-			setError(String(err));
+		} catch (error_) {
+			setError(String(error_));
 			setIsScanning(false);
 		}
 	};
@@ -55,8 +55,8 @@ export function RoomQRScanner({ onScan }: RoomQRScannerProps) {
 			try {
 				await scannerRef.current.stop();
 				scannerRef.current = null;
-			} catch (err) {
-				console.error('Failed to stop scanner', err);
+			} catch {
+				// Failed to stop scanner
 			}
 		}
 		setIsScanning(false);

@@ -23,7 +23,7 @@ test.describe('Room management', () => {
 		const testRoom = 'test-room-name';
 		await page.getByRole('button', { name: /sharing/i }).click();
 		await page.getByRole('tab', { name: /join room/i }).click();
-		await page.getByPlaceholder(/predicate-predicate-object/i).fill(testRoom);
+		await page.getByPlaceholder(/(?:predicate-){2}object/i).fill(testRoom);
 		await page.getByRole('button', { name: /join/i }).first().click();
 
 		// Should show join dialog

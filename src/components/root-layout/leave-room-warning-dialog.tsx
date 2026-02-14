@@ -1,6 +1,5 @@
 'use client';
 
-import { fbt } from 'fbtee';
 import {
 	AlertDialog,
 	AlertDialogAction,
