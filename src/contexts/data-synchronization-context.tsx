@@ -6,13 +6,21 @@ import {
 	setCurrentPerformanceRoom,
 } from '@/lib/performance-logging';
 
+export type JoinStrategy = 'merge' | 'overwrite' | 'clear';
+
 interface DataSynchronizationContextProps {
+	joinRoom: (roomId: string, strategy: JoinStrategy) => void;
+	joinStrategy: JoinStrategy;
+	leaveRoom: () => void;
 	room: string | undefined;
 	setRoom: (room: string | undefined) => void;
 }
 
 export const DataSynchronizationContext =
 	createContext<DataSynchronizationContextProps>({
+		joinRoom: () => {},
+		joinStrategy: 'overwrite',
+		leaveRoom: () => {},
 		room: undefined,
 		setRoom: (_room: string | undefined) => {},
 	});
@@ -25,6 +33,18 @@ export function DataSynchronizationProvider({
 	children,
 }: DataSynchronizationProviderProps) {
 	const [room, setRoom] = useState<string | undefined>(undefined);
+	const [joinStrategy, setJoinStrategy] = useState<JoinStrategy>('overwrite');
+
+	const joinRoom = (roomId: string, strategy: JoinStrategy) => {
+		setJoinStrategy(strategy);
+		setRoom(roomId);
+	};
+
+	const leaveRoom = () => {
+		setRoom(undefined);
+		setJoinStrategy('overwrite');
+	};
+
 	useEffect(() => {
 		const room = localStorage.getItem('room');
 		if (room) {
@@ -56,7 +76,9 @@ export function DataSynchronizationProvider({
 	}, [room]);
 
 	return (
-		<DataSynchronizationContext.Provider value={{ room, setRoom }}>
+		<DataSynchronizationContext.Provider
+			value={{ joinRoom, joinStrategy, leaveRoom, room, setRoom }}
+		>
 			{children}
 		</DataSynchronizationContext.Provider>
 	);
