@@ -1,4 +1,6 @@
-export interface DiaperChange {
+import type { BaseEntity } from './base-entity';
+
+export interface DiaperChange extends BaseEntity {
 	/** Optional notes about abnormalities, displayed as "Notes" in the UI. */
 	abnormalities?: string;
 	/** Whether the diaper contains stool. ISO string. */
@@ -7,8 +9,6 @@ export interface DiaperChange {
 	containsUrine: boolean;
 	/** Optional diaper brand. */
 	diaperBrand?: string;
-	/** Unique identifier for the diaper change. */
-	id: string;
 	/** Optional leakage indicator. */
 	leakage?: boolean;
 	/** Optional temperature in Celsius. */

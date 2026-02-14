@@ -2,10 +2,10 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useTable } from 'tinybase/ui-react';
 import { tinybaseContext } from '@/contexts/tinybase-context';
 import { ROW_JSON_CELL } from '@/lib/tinybase-sync/constants';
+import { BaseEntity } from '@/types/base-entity';
+import { getDeviceId } from '@/utils/device-id';
 
-export interface ObjectWithId {
-	id: string;
-}
+export type ObjectWithId = BaseEntity;
 
 export function useArrayState<S extends ObjectWithId>(tableId: string) {
 	const { store } = useContext(tinybaseContext);
@@ -22,8 +22,9 @@ export function useArrayState<S extends ObjectWithId>(tableId: string) {
 	return {
 		add: useCallback(
 			(item: S) => {
+				const itemWithDeviceId = { ...item, deviceId: getDeviceId() };
 				store.setRow(tableId, item.id, {
-					[ROW_JSON_CELL]: JSON.stringify(item),
+					[ROW_JSON_CELL]: JSON.stringify(itemWithDeviceId),
 				});
 			},
 			[store, tableId],
@@ -48,8 +49,9 @@ export function useArrayState<S extends ObjectWithId>(tableId: string) {
 		),
 		update: useCallback(
 			(item: S) => {
+				const itemWithDeviceId = { ...item, deviceId: getDeviceId() };
 				store.setRow(tableId, item.id, {
-					[ROW_JSON_CELL]: JSON.stringify(item),
+					[ROW_JSON_CELL]: JSON.stringify(itemWithDeviceId),
 				});
 			},
 			[store, tableId],
