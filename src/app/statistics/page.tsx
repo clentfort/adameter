@@ -138,7 +138,9 @@ export default function StatisticsPage() {
 										{format(secondary.from, 'MMM d')}
 									</fbt:param>{' '}
 									-{' '}
-									<fbt:param name="to">{format(secondary.to, 'MMM d')}</fbt:param>
+									<fbt:param name="to">
+										{format(secondary.to, 'MMM d')}
+									</fbt:param>
 								</fbt>
 							</div>
 						)}

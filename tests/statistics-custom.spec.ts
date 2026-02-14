@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { addDays, format } from 'date-fns';
 
 test.describe('Statistics Custom Range and Comparison', () => {
@@ -6,7 +6,9 @@ test.describe('Statistics Custom Range and Comparison', () => {
 		await page.goto('/');
 	});
 
-	test('should allow selecting a custom range and show comparison automatically', async ({ page }) => {
+	test('should allow selecting a custom range and show comparison automatically', async ({
+		page,
+	}) => {
 		// Add some feeding data for today (Primary period)
 		await page.goto('/feeding');
 		await page.click('text=Add Entry');
@@ -18,7 +20,10 @@ test.describe('Statistics Custom Range and Comparison', () => {
 		// Add 2 feedings in the comparison period (8-14 days ago for "Last 7 Days")
 		for (const days of [9, 10]) {
 			await page.click('text=Add Entry');
-			await page.fill('input[type="date"]', format(addDays(new Date(), -days), 'yyyy-MM-dd'));
+			await page.fill(
+				'input[type="date"]',
+				format(addDays(new Date(), -days), 'yyyy-MM-dd'),
+			);
 			await page.fill('input[type="number"]', '15');
 			await page.click('button:has-text("Save")');
 			await expect(page.locator('role=dialog')).not.toBeVisible();
@@ -31,7 +36,9 @@ test.describe('Statistics Custom Range and Comparison', () => {
 		// Comparison range (previous 7 days): 2 feedings
 		// Change = (1-2)/2 = -50%
 
-		const totalFeedingsCard = page.locator('[data-testid="stats-card"]:has-text("Total Feedings")');
+		const totalFeedingsCard = page.locator(
+			'[data-testid="stats-card"]:has-text("Total Feedings")',
+		);
 		await expect(totalFeedingsCard.locator('.text-2xl')).toHaveText('1');
 		await expect(totalFeedingsCard.locator('text=↓50%').first()).toBeVisible();
 
@@ -53,8 +60,8 @@ test.describe('Statistics Custom Range and Comparison', () => {
 		// Now should see 3 feedings in primary range
 		await expect(totalFeedingsCard.locator('.text-2xl')).toHaveText('3');
 
-        // The comparison period for a 15-day range will be the 15 days before that.
-        // We have no data there, so comparison should not show percentage change.
-        await expect(totalFeedingsCard.locator('text=↓50%')).not.toBeVisible();
+		// The comparison period for a 15-day range will be the 15 days before that.
+		// We have no data there, so comparison should not show percentage change.
+		await expect(totalFeedingsCard.locator('text=↓50%')).not.toBeVisible();
 	});
 });
