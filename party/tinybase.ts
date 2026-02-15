@@ -49,16 +49,13 @@ export default class TinybasePartyServer extends TinyBasePartyKitServer {
 				status: 200,
 			});
 		} catch (error) {
-			return new Response(
-				JSON.stringify({ error: String(error) }),
-				{
-					headers: {
-						...TINYBASE_CORS_HEADERS,
-						'Content-Type': 'application/json',
-					},
-					status: 500,
+			return new Response(JSON.stringify({ error: String(error) }), {
+				headers: {
+					...TINYBASE_CORS_HEADERS,
+					'Content-Type': 'application/json',
 				},
-			);
+				status: 500,
+			});
 		}
 	}
 }

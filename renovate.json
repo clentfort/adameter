@@ -7,7 +7,11 @@
 	},
 	"packageRules": [
 		{
-			"matchPackageNames": ["fbtee", "@nkzw/babel-preset-fbtee", "@nkzw/eslint-plugin-fbtee"],
+			"matchPackageNames": [
+				"fbtee",
+				"@nkzw/babel-preset-fbtee",
+				"@nkzw/eslint-plugin-fbtee"
+			],
 			"groupName": "fbtee-monorepo"
 		},
 		{

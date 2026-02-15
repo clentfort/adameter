@@ -44,7 +44,10 @@ test.describe('Events Page', () => {
 		// First, add an entry to edit
 		await page.getByRole('button', { name: 'Add Entry' }).click();
 		await page.getByLabel('Title').fill('Original Event', { force: true });
-		await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click({ force: true });
+		await page
+			.getByRole('dialog')
+			.getByRole('button', { name: 'Save' })
+			.click({ force: true });
 
 		await expect(page.getByText('Original Event')).toBeVisible();
 

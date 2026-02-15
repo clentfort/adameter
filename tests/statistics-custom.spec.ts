@@ -11,7 +11,9 @@ test.describe('Statistics Custom Range and Comparison', () => {
 	}) => {
 		// Add some feeding data for today (Primary period)
 		await page.goto('/feeding');
-		await page.getByRole('button', { name: 'Add Entry' }).click({ force: true });
+		await page
+			.getByRole('button', { name: 'Add Entry' })
+			.click({ force: true });
 		await page
 			.locator('input[type="date"]')
 			.fill(format(new Date(), 'yyyy-MM-dd'), { force: true });
@@ -21,10 +23,14 @@ test.describe('Statistics Custom Range and Comparison', () => {
 
 		// Add 2 feedings in the comparison period (8-14 days ago for "Last 7 Days")
 		for (const days of [9, 10]) {
-			await page.getByRole('button', { name: 'Add Entry' }).click({ force: true });
+			await page
+				.getByRole('button', { name: 'Add Entry' })
+				.click({ force: true });
 			await page
 				.locator('input[type="date"]')
-				.fill(format(addDays(new Date(), -days), 'yyyy-MM-dd'), { force: true });
+				.fill(format(addDays(new Date(), -days), 'yyyy-MM-dd'), {
+					force: true,
+				});
 			await page.locator('input[type="number"]').fill('15', { force: true });
 			await page.getByTestId('save-button').click({ force: true });
 			await expect(page.getByRole('dialog')).not.toBeVisible();

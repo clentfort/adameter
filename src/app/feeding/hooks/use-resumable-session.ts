@@ -1,7 +1,7 @@
+import type { FeedingSession } from '@/types/feeding';
 import { differenceInMinutes } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
-import type { FeedingSession } from '@/types/feeding';
 
 const RESUME_WINDOW_IN_MINUTES = 5;
 

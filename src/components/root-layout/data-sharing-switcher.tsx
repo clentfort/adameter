@@ -55,7 +55,10 @@ export default function DataSharingSwitcher() {
 				<DialogTrigger
 					render={
 						<Button
-							aria-label={fbt('Sharing', 'Label for the sharing switcher button')}
+							aria-label={fbt(
+								'Sharing',
+								'Label for the sharing switcher button',
+							)}
 							size="icon"
 							title={fbt('Sharing', 'Label for the sharing switcher button')}
 							type="button"
