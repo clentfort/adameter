@@ -52,18 +52,21 @@ export default function DataSharingSwitcher() {
 	return (
 		<>
 			<Dialog onOpenChange={setIsDialogOpen} open={isDialogOpen}>
-				<DialogTrigger asChild>
-					<Button
-						size="icon"
-						title={fbt('Sharing', 'Label for the sharing switcher button')}
-						type="button"
-						variant="outline"
-					>
-						<Icon className="h-4 w-4" />
-						<span className="sr-only">
-							<fbt desc="Label for the sharing switcher button">Sharing</fbt>
-						</span>
-					</Button>
+				<DialogTrigger
+					render={
+						<Button
+							aria-label={fbt(
+								'Sharing',
+								'Label for the sharing switcher button',
+							)}
+							size="icon"
+							title={fbt('Sharing', 'Label for the sharing switcher button')}
+							type="button"
+							variant="outline"
+						/>
+					}
+				>
+					<Icon className="h-4 w-4" />
 				</DialogTrigger>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>

@@ -156,6 +156,7 @@ export default function DiaperForm({
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
 									className="text-yellow-500 border-yellow-500"
+									data-testid="edit-urine-radio"
 									id="edit-urine"
 									value="urine"
 								/>
@@ -169,6 +170,7 @@ export default function DiaperForm({
 							<div className="flex items-center space-x-2">
 								<RadioGroupItem
 									className="text-amber-700 border-amber-700"
+									data-testid="edit-stool-radio"
 									id="edit-stool"
 									value="stool"
 								/>
@@ -298,7 +300,7 @@ export default function DiaperForm({
 					<Button onClick={onClose} variant="outline">
 						<fbt common>Cancel</fbt>
 					</Button>
-					<Button onClick={handleSubmit}>
+					<Button data-testid="save-button" onClick={handleSubmit}>
 						<fbt common>Save</fbt>
 					</Button>
 				</DialogFooter>

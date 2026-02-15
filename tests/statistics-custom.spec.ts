@@ -11,22 +11,29 @@ test.describe('Statistics Custom Range and Comparison', () => {
 	}) => {
 		// Add some feeding data for today (Primary period)
 		await page.goto('/feeding');
-		await page.click('text=Add Entry');
-		await page.fill('input[type="date"]', format(new Date(), 'yyyy-MM-dd'));
-		await page.fill('input[type="number"]', '10');
-		await page.click('button:has-text("Save")');
-		await expect(page.locator('role=dialog')).not.toBeVisible();
+		await page
+			.getByRole('button', { name: 'Add Entry' })
+			.click({ force: true });
+		await page
+			.locator('input[type="date"]')
+			.fill(format(new Date(), 'yyyy-MM-dd'), { force: true });
+		await page.locator('input[type="number"]').fill('10', { force: true });
+		await page.getByTestId('save-button').click({ force: true });
+		await expect(page.getByRole('dialog')).not.toBeVisible();
 
 		// Add 2 feedings in the comparison period (8-14 days ago for "Last 7 Days")
 		for (const days of [9, 10]) {
-			await page.click('text=Add Entry');
-			await page.fill(
-				'input[type="date"]',
-				format(addDays(new Date(), -days), 'yyyy-MM-dd'),
-			);
-			await page.fill('input[type="number"]', '15');
-			await page.click('button:has-text("Save")');
-			await expect(page.locator('role=dialog')).not.toBeVisible();
+			await page
+				.getByRole('button', { name: 'Add Entry' })
+				.click({ force: true });
+			await page
+				.locator('input[type="date"]')
+				.fill(format(addDays(new Date(), -days), 'yyyy-MM-dd'), {
+					force: true,
+				});
+			await page.locator('input[type="number"]').fill('15', { force: true });
+			await page.getByTestId('save-button').click({ force: true });
+			await expect(page.getByRole('dialog')).not.toBeVisible();
 		}
 
 		await page.goto('/statistics');
@@ -47,15 +54,17 @@ test.describe('Statistics Custom Range and Comparison', () => {
 		await expect(comparisonLabel).toBeVisible();
 
 		// Select Custom Range
-		await page.click('button:has-text("Last 7 Days")');
-		await page.click('role=option[name="Custom Range"]');
+		await page.getByRole('combobox').click({ force: true });
+		await page
+			.getByRole('option', { name: 'Custom Range' })
+			.click({ force: true });
 
 		// Set range to include all 3 (last 15 days)
 		const fromDate = format(addDays(new Date(), -14), 'yyyy-MM-dd');
 		const toDate = format(new Date(), 'yyyy-MM-dd');
 
-		await page.fill('input#from', fromDate);
-		await page.fill('input#to', toDate);
+		await page.locator('input#from').fill(fromDate, { force: true });
+		await page.locator('input#to').fill(toDate, { force: true });
 
 		// Now should see 3 feedings in primary range
 		await expect(totalFeedingsCard.locator('.text-2xl')).toHaveText('3');

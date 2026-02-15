@@ -39,18 +39,20 @@ export default function LanguageSwitcher() {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button
-					size="icon"
-					title={fbt('Language', 'Label for the language switcher')}
-					type="button"
-					variant="outline"
-				>
-					<Globe className="h-4 w-4" />
-					<span className="sr-only">
-						<fbt desc="Label for the language switcher">Language</fbt>
-					</span>
-				</Button>
+			<DropdownMenuTrigger
+				render={
+					<Button
+						size="icon"
+						title={fbt('Language', 'Label for the language switcher')}
+						type="button"
+						variant="outline"
+					/>
+				}
+			>
+				<Globe className="h-4 w-4" />
+				<span className="sr-only">
+					<fbt desc="Label for the language switcher">Language</fbt>
+				</span>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				{locales.map(({ code, flag, label }) => (

@@ -7,9 +7,7 @@ export type Locale = typeof DEFAULT_LOCALE | (keyof typeof german & string);
 const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
 function isSupportedLocale(locale: string): locale is Locale {
-	return (
-		locale === DEFAULT_LOCALE || Object.keys(german).includes(locale)
-	);
+	return locale === DEFAULT_LOCALE || Object.keys(german).includes(locale);
 }
 
 const localeToDateFnsLocale: Record<Locale, () => Promise<DateFnsLocale>> = {
@@ -29,7 +27,7 @@ let viewerContext: ViewerContext = {
 
 setupFbtee({
 	hooks: { getViewerContext: () => viewerContext },
-	translations: {...german},
+	translations: { ...german },
 });
 
 export async function setLocale(locale: Locale): Promise<void> {

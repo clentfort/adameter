@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { describe, expect, it, vi, MockedFunction } from 'vitest';
+import { describe, expect, it, MockedFunction, vi } from 'vitest';
 import { FeedingSession } from '@/types/feeding';
 import { useFeedingSessions } from './use-feeding-sessions';
 import { useLatestFeedingSession } from './use-latest-feeding-session';
