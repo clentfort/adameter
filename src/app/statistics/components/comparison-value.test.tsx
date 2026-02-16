@@ -27,12 +27,12 @@ describe('ComparisonValue', () => {
 		expect(decreaseElement).toHaveClass('text-rose-600');
 
 		// 5. Render inverse increase (rose color)
-		rerender(<ComparisonValue current={120} previous={100} inverse />);
+		rerender(<ComparisonValue current={120} inverse previous={100} />);
 		const inverseIncreaseElement = screen.getByText('↑20%');
 		expect(inverseIncreaseElement).toHaveClass('text-rose-600');
 
 		// 6. Render inverse decrease (emerald color)
-		rerender(<ComparisonValue current={80} previous={100} inverse />);
+		rerender(<ComparisonValue current={80} inverse previous={100} />);
 		const inverseDecreaseElement = screen.getByText('↓20%');
 		expect(inverseDecreaseElement).toHaveClass('text-emerald-600');
 	});
