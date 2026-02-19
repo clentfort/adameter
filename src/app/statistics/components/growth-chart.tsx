@@ -1,20 +1,31 @@
 'use client';
 
-import type { Event } from '@/types/event';
 import type { GrowthMeasurement } from '@/types/growth';
-import { useMemo } from 'react';
+import { addDays, differenceInDays, isAfter, min, startOfDay } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
 import LineChart from '@/components/charts/line-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useProfile } from '@/hooks/use-profile';
+import { getGrowthRange } from '@/utils/growth-standards';
 
 interface GrowthChartProps {
-	events?: Event[];
 	measurements: GrowthMeasurement[];
 }
 
+interface RangePoint {
+	x: Date;
+	yMax: number;
+	yMin: number;
+}
+
 export default function GrowthChart({
-	events = [],
 	measurements = [],
 }: GrowthChartProps) {
+	const [profile] = useProfile();
+	const [weightRange, setWeightRange] = useState<RangePoint[]>([]);
+	const [heightRange, setHeightRange] = useState<RangePoint[]>([]);
+	const [headRange, setHeadRange] = useState<RangePoint[]>([]);
+
 	const sortedMeasurements = useMemo(
 		() =>
 			[...measurements].sort(
@@ -22,6 +33,71 @@ export default function GrowthChart({
 			),
 		[measurements],
 	);
+
+	const forecastDate = useMemo(() => {
+		if (sortedMeasurements.length === 0) return undefined;
+		const lastDate = new Date(sortedMeasurements.at(-1).date);
+		return addDays(lastDate, 30);
+	}, [sortedMeasurements]);
+
+	useEffect(() => {
+		async function loadRanges() {
+			if (!profile?.dob || !profile?.sex || profile.optedOut) {
+				setWeightRange([]);
+				setHeightRange([]);
+				setHeadRange([]);
+				return;
+			}
+
+			const dob = startOfDay(new Date(profile.dob));
+			const firstMeasureDate = sortedMeasurements.length > 0
+				? startOfDay(new Date(sortedMeasurements[0].date))
+				: dob;
+			const lastMeasureDate = sortedMeasurements.length > 0
+				? startOfDay(new Date(sortedMeasurements.at(-1).date))
+				: dob;
+
+			const startDate = min([dob, firstMeasureDate]);
+			const endDate = addDays(lastMeasureDate, 30);
+
+			const points: Date[] = [];
+			let current = startDate;
+			while (!isAfter(current, endDate)) {
+				points.push(current);
+				// Sample every 7 days for a smoother curve, especially for infants.
+				current = addDays(current, 7);
+			}
+			// Always include the very end
+			if (differenceInDays(endDate, points.at(-1)) > 0) {
+				points.push(endDate);
+			}
+
+			const wRange: RangePoint[] = [];
+			const hRange: RangePoint[] = [];
+			const hcRange: RangePoint[] = [];
+
+			for (const date of points) {
+				const ageInDays = differenceInDays(date, dob);
+				if (ageInDays < 0) continue;
+
+				const [w, h, hc] = await Promise.all([
+					getGrowthRange('weight-for-age', profile.sex, ageInDays),
+					getGrowthRange('length-height-for-age', profile.sex, ageInDays),
+					getGrowthRange('head-circumference-for-age', profile.sex, ageInDays),
+				]);
+
+				if (w) wRange.push({ x: date, yMax: w.max, yMin: w.min });
+				if (h) hRange.push({ x: date, yMax: h.max, yMin: h.min });
+				if (hc) hcRange.push({ x: date, yMax: hc.max, yMin: hc.min });
+			}
+
+			setWeightRange(wRange);
+			setHeightRange(hRange);
+			setHeadRange(hcRange);
+		}
+
+		loadRanges();
+	}, [profile, sortedMeasurements]);
 
 	const weightData = useMemo(
 		() =>
@@ -88,6 +164,8 @@ export default function GrowthChart({
 		</fbt>
 	);
 
+	const rangeLabel = <fbt desc="Label for the expected growth range">Expected Range (3rd-97th percentile)</fbt>;
+
 	return (
 		<Card>
 			<CardHeader className="p-4 pb-2">
@@ -112,7 +190,9 @@ export default function GrowthChart({
 							</fbt>
 						}
 						emptyStateMessage={commonEmptyState}
-						events={events}
+						forecastDate={forecastDate}
+						rangeData={weightRange}
+						rangeLabel={rangeLabel}
 						title={<fbt desc="Chart title for weight">Weight</fbt>}
 						xAxisLabel={commonXAxisLabel}
 						yAxisLabel={
@@ -140,7 +220,9 @@ export default function GrowthChart({
 							</fbt>
 						}
 						emptyStateMessage={commonEmptyState}
-						events={events}
+						forecastDate={forecastDate}
+						rangeData={heightRange}
+						rangeLabel={rangeLabel}
 						title={<fbt desc="Chart title for height">Height</fbt>}
 						xAxisLabel={commonXAxisLabel}
 						yAxisLabel={
@@ -168,7 +250,9 @@ export default function GrowthChart({
 							</fbt>
 						}
 						emptyStateMessage={commonEmptyState}
-						events={events}
+						forecastDate={forecastDate}
+						rangeData={headRange}
+						rangeLabel={rangeLabel}
 						title={
 							<fbt desc="Chart title for head circumference">
 								Head Circumference
@@ -183,16 +267,6 @@ export default function GrowthChart({
 						yAxisUnit="cm"
 					/>
 				</div>
-
-				{events.length > 0 && (
-					<div className="mt-4 text-xs text-muted-foreground">
-						<p>
-							<fbt desc="Note explaining that vertical lines on the chart indicate important events">
-								* Vertical lines indicate important events.
-							</fbt>
-						</p>
-					</div>
-				)}
 			</CardContent>
 		</Card>
 	);

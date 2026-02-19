@@ -316,7 +316,6 @@ export default function StatisticsPage() {
 					</h3>
 					{measurements.length > 0 ? (
 						<GrowthChart
-							events={[...events]}
 							measurements={[...measurements]}
 						/>
 					) : (
