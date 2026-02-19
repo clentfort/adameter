@@ -49,6 +49,7 @@ export default function ProfileForm({ onOptOut, onSave }: ProfileFormProps) {
 					<Select onValueChange={(value) => setSex(value as Sex)} value={sex}>
 						<SelectTrigger id="sex">
 							<SelectValue
+								className="capitalize"
 								placeholder={
 									<fbt desc="Placeholder for sex selection">Select sex</fbt>
 								}

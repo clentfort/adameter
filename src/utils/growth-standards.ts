@@ -1,15 +1,19 @@
 import type { Sex } from '@/types/profile';
-import { loadTable, lookupLms } from '@pedi-growth/core';
 
 // Z-scores for 3rd and 97th percentiles
-const Z_3RD = -1.880_79;
-const Z_97TH = 1.880_79;
+export const Z_3RD = -1.880_79;
+export const Z_97TH = 1.880_79;
 
 /**
  * Calculates the value for a given L, M, S and Z-score.
  * Formula: X = M * (1 + L * S * Z)^(1/L)
  */
-function calculateValue(L: number, M: number, S: number, Z: number): number {
+export function calculateValue(
+	L: number,
+	M: number,
+	S: number,
+	Z: number,
+): number {
 	if (L === 0) {
 		return M * Math.exp(S * Z);
 	}
@@ -21,6 +25,90 @@ export interface GrowthRange {
 	min: number;
 }
 
+export interface LmsData {
+	L: number;
+	M: number;
+	S: number;
+	age: number;
+}
+
+/**
+ * Finds the closest LMS values for a given age.
+ * WHO data is typically daily (0-5y) or monthly (5-19y).
+ */
+export function lookupLms(table: LmsData[], age: number): LmsData | null {
+	if (!table || table.length === 0) return null;
+
+	// Simple binary search for the closest age
+	let low = 0;
+	let high = table.length - 1;
+
+	while (low <= high) {
+		const mid = Math.floor((low + high) / 2);
+		if (table[mid].age === age) return table[mid];
+		if (table[mid].age < age) low = mid + 1;
+		else high = mid - 1;
+	}
+
+	// Return the closest one
+	if (low >= table.length) return table[table.length - 1];
+	if (high < 0) return table[0];
+
+	const d1 = Math.abs(table[low].age - age);
+	const d2 = Math.abs(table[high].age - age);
+
+	return d1 < d2 ? table[low] : table[high];
+}
+
+export async function getGrowthTable(
+	indicator:
+		| 'weight-for-age'
+		| 'length-height-for-age'
+		| 'head-circumference-for-age',
+	sex: Sex,
+	ageInDays: number,
+): Promise<{ index: number; table: LmsData[] } | null> {
+	const sexKey = sex === 'boy' ? 'boys' : 'girls';
+	let tableKey = '';
+	let index = ageInDays;
+
+	switch (indicator) {
+		case 'weight-for-age':
+			if (ageInDays <= 1856) {
+				tableKey = `wfa-${sexKey}-0-5`;
+			} else {
+				tableKey = `wfa-${sexKey}-5-10`;
+				index = ageInDays / 30.4375; // WHO uses months for 5-10
+			}
+			break;
+		case 'length-height-for-age':
+			if (ageInDays <= 1856) {
+				tableKey = `lhfa-${sexKey}-0-5`;
+			} else {
+				tableKey = `hfa-${sexKey}-5-19`;
+				index = ageInDays / 30.4375;
+			}
+			break;
+		case 'head-circumference-for-age':
+			if (ageInDays <= 1856) {
+				tableKey = `hcfa-${sexKey}-0-5`;
+			} else {
+				return null; // HC only for 0-5
+			}
+			break;
+	}
+
+	if (!tableKey) return null;
+
+	try {
+		const module = await import(`../data/growth-standards/${tableKey}.json`);
+		return { index, table: module.default as LmsData[] };
+	} catch (error) {
+		console.error(`Error loading growth standard table ${tableKey}:`, error);
+		return null;
+	}
+}
+
 export async function getGrowthRange(
 	indicator:
 		| 'weight-for-age'
@@ -29,43 +117,11 @@ export async function getGrowthRange(
 	sex: Sex,
 	ageInDays: number,
 ): Promise<GrowthRange | null> {
-	const sexKey = sex === 'boy' ? 'boys' : 'girls';
-
 	try {
-		let tableKey = '';
-		let index = ageInDays;
+		const result = await getGrowthTable(indicator, sex, ageInDays);
+		if (!result) return null;
 
-		switch (indicator) {
-			case 'weight-for-age':
-				if (ageInDays <= 1856) {
-					tableKey = `wfa-${sexKey}-0-5`;
-				} else {
-					tableKey = `wfa-${sexKey}-5-10`;
-					index = ageInDays / 30.4375; // WHO uses months for 5-10
-				}
-				break;
-			case 'length-height-for-age':
-				if (ageInDays <= 1856) {
-					tableKey = `lhfa-${sexKey}-0-5`;
-				} else {
-					tableKey = `hfa-${sexKey}-5-19`;
-					index = ageInDays / 30.4375;
-				}
-				break;
-			case 'head-circumference-for-age':
-				if (ageInDays <= 1856) {
-					tableKey = `hcfa-${sexKey}-0-5`;
-				} else {
-					return null; // HC only for 0-5
-				}
-				break;
-		}
-
-		if (!tableKey) return null;
-
-		const table = await loadTable(tableKey as Parameters<typeof loadTable>[0]);
-		if (!table) return null;
-
+		const { index, table } = result;
 		const lms = lookupLms(table, index);
 		if (!lms) return null;
 
@@ -81,8 +137,8 @@ export async function getGrowthRange(
 		}
 
 		return { max, min };
-	} catch {
-		// Silent error
+	} catch (error) {
+		console.error(`Error loading growth standard range ${indicator}:`, error);
 		return null;
 	}
 }

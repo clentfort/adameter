@@ -162,7 +162,7 @@ export default function LineChart({
 								? tooltipTitleFormatter
 								: (context) => {
 										if (xAxisType === 'linear') {
-											return `${context[0].parsed.x} mo`;
+											return `${Number(context[0].parsed.x).toFixed(1)} mo`;
 										}
 										const date = new Date(context[0].parsed.x);
 										return format(date, 'dd. MMMM yyyy');

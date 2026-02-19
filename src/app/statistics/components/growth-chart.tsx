@@ -6,7 +6,13 @@ import { useEffect, useMemo, useState } from 'react';
 import LineChart from '@/components/charts/line-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProfile } from '@/hooks/use-profile';
-import { getGrowthRange } from '@/utils/growth-standards';
+import {
+	calculateValue,
+	getGrowthTable,
+	lookupLms,
+	Z_3RD,
+	Z_97TH,
+} from '@/utils/growth-standards';
 
 interface GrowthChartProps {
 	measurements: GrowthMeasurement[];
@@ -69,6 +75,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 
 			const startDate = min([dob, firstMeasureDate]);
 			const endDate = addDays(lastMeasureDate, 30);
+			const maxAgeInDays = differenceInDays(endDate, dob);
 
 			const points: Date[] = [];
 			let current = startDate;
@@ -82,6 +89,13 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				points.push(endDate);
 			}
 
+			// Load tables once per indicator based on the maximum age in the range
+			const [wTableRes, hTableRes, hcTableRes] = await Promise.all([
+				getGrowthTable('weight-for-age', profile.sex, maxAgeInDays),
+				getGrowthTable('length-height-for-age', profile.sex, maxAgeInDays),
+				getGrowthTable('head-circumference-for-age', profile.sex, maxAgeInDays),
+			]);
+
 			const wRange: RangePoint[] = [];
 			const hRange: RangePoint[] = [];
 			const hcRange: RangePoint[] = [];
@@ -90,17 +104,40 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				const ageInDays = differenceInDays(date, dob);
 				if (ageInDays < 0) continue;
 
-				const [w, h, hc] = await Promise.all([
-					getGrowthRange('weight-for-age', profile.sex, ageInDays),
-					getGrowthRange('length-height-for-age', profile.sex, ageInDays),
-					getGrowthRange('head-circumference-for-age', profile.sex, ageInDays),
-				]);
-
 				const ageInMonths = ageInDays / DAYS_PER_MONTH;
 
-				if (w) wRange.push({ x: ageInMonths, yMax: w.max, yMin: w.min });
-				if (h) hRange.push({ x: ageInMonths, yMax: h.max, yMin: h.min });
-				if (hc) hcRange.push({ x: ageInMonths, yMax: hc.max, yMin: hc.min });
+				if (wTableRes) {
+					const lms = lookupLms(wTableRes.table, ageInDays);
+					if (lms) {
+						wRange.push({
+							x: ageInMonths,
+							yMax: calculateValue(lms.L, lms.M, lms.S, Z_97TH) * 1000,
+							yMin: calculateValue(lms.L, lms.M, lms.S, Z_3RD) * 1000,
+						});
+					}
+				}
+
+				if (hTableRes) {
+					const lms = lookupLms(hTableRes.table, ageInDays);
+					if (lms) {
+						hRange.push({
+							x: ageInMonths,
+							yMax: calculateValue(lms.L, lms.M, lms.S, Z_97TH),
+							yMin: calculateValue(lms.L, lms.M, lms.S, Z_3RD),
+						});
+					}
+				}
+
+				if (hcTableRes) {
+					const lms = lookupLms(hcTableRes.table, ageInDays);
+					if (lms) {
+						hcRange.push({
+							x: ageInMonths,
+							yMax: calculateValue(lms.L, lms.M, lms.S, Z_97TH),
+							yMin: calculateValue(lms.L, lms.M, lms.S, Z_3RD),
+						});
+					}
+				}
 			}
 
 			setWeightRange(wRange);
@@ -194,19 +231,16 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	);
 
 	return (
-		<Card>
-			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">
-					<fbt desc="Title for the growth chart card">Growth Chart</fbt>
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="p-4 pt-0 space-y-6">
-				<div>
-					<h3 className="font-medium mb-2">
+		<div className="space-y-4">
+			<Card>
+				<CardHeader className="p-4 pb-2">
+					<CardTitle className="text-base">
 						<fbt desc="Title for the weight section in the growth chart">
 							Weight (g)
 						</fbt>
-					</h3>
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="p-4 pt-0">
 					<LineChart
 						backgroundColor="rgba(99, 102, 241, 0.1)"
 						borderColor="#6366f1"
@@ -230,14 +264,18 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						yAxisUnit="g"
 					/>
-				</div>
+				</CardContent>
+			</Card>
 
-				<div>
-					<h3 className="font-medium mb-2">
+			<Card>
+				<CardHeader className="p-4 pb-2">
+					<CardTitle className="text-base">
 						<fbt desc="Title for the height section in the growth chart">
 							Height (cm)
 						</fbt>
-					</h3>
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="p-4 pt-0">
 					<LineChart
 						backgroundColor="rgba(236, 72, 153, 0.1)"
 						borderColor="#ec4899"
@@ -261,14 +299,18 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						yAxisUnit="cm"
 					/>
-				</div>
+				</CardContent>
+			</Card>
 
-				<div>
-					<h3 className="font-medium mb-2">
+			<Card>
+				<CardHeader className="p-4 pb-2">
+					<CardTitle className="text-base">
 						<fbt desc="Title for the head circumference section in the growth chart">
 							Head Circumference (cm)
 						</fbt>
-					</h3>
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="p-4 pt-0">
 					<LineChart
 						backgroundColor="rgba(59, 130, 246, 0.1)"
 						borderColor="#3b82f6"
@@ -296,8 +338,8 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						yAxisUnit="cm"
 					/>
-				</div>
-			</CardContent>
-		</Card>
+				</CardContent>
+			</Card>
+		</div>
 	);
 }
