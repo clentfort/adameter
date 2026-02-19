@@ -101,7 +101,9 @@ export async function getGrowthTable(
 	if (!tableKey) return null;
 
 	try {
-		const dataModule = await import(`../data/growth-standards/${tableKey}.json`);
+		const dataModule = await import(
+			`../data/growth-standards/${tableKey}.json`
+		);
 		return { index, table: dataModule.default as LmsData[] };
 	} catch {
 		return null;
