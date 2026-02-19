@@ -104,8 +104,8 @@ export default function StatisticsPage() {
 	return (
 		<div className="w-full">
 			<div className="flex flex-col gap-4 mb-6">
-				<div className="flex justify-between items-center">
-					<h2 className="text-xl font-semibold">
+				<div className="flex justify-between items-start">
+					<h2 className="text-xl font-semibold pt-1">
 						<fbt desc="Title for the statistics page">Statistics</fbt>
 					</h2>
 					<div className="flex flex-col items-end gap-1">
@@ -139,7 +139,7 @@ export default function StatisticsPage() {
 									</fbt>
 								</SelectItem>
 								<SelectItem value="custom">
-									<fbt desc="Option to display data for a custom time range in statistics">
+									<fbt desc="Option to display a custom time range in statistics">
 										Custom Range
 									</fbt>
 								</SelectItem>

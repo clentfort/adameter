@@ -5,7 +5,39 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-const Select = SelectPrimitive.Root;
+function getItemsFromChildren(children: React.ReactNode): any[] {
+	const items: any[] = [];
+	React.Children.forEach(children, (child) => {
+		if (!React.isValidElement(child)) return;
+
+		if (child.type === SelectItem) {
+			items.push({
+				value: child.props.value,
+				label: child.props.children,
+			});
+		} else if (child.props && 'children' in child.props) {
+			items.push(...getItemsFromChildren(child.props.children));
+		}
+	});
+	return items;
+}
+
+function Select({
+	children,
+	items: providedItems,
+	...props
+}: SelectPrimitive.Root.Props) {
+	const extractedItems = React.useMemo(
+		() => (providedItems ? undefined : getItemsFromChildren(children)),
+		[children, providedItems],
+	);
+
+	return (
+		<SelectPrimitive.Root items={providedItems ?? extractedItems} {...props}>
+			{children}
+		</SelectPrimitive.Root>
+	);
+}
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
 	return (
