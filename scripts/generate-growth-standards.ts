@@ -103,7 +103,7 @@ async function downloadAndProcess() {
 const arg = process.argv[2];
 
 if (arg === '--download') {
-	downloadAndProcess();
+	await downloadAndProcess();
 } else if (arg) {
 	for (const { input, output } of filesToProcess) {
 		const inputPath = path.join(arg, input);
