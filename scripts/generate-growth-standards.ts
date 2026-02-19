@@ -4,17 +4,25 @@ import path from 'node:path';
 import Papa from 'papaparse';
 
 /**
- * This script generates the WHO growth standard JSON files from TXT files.
- * You can download the TXT files from the WHO website:
- * https://www.who.int/toolkits/child-growth-standards/standards
+ * This script generates or downloads the WHO growth standard JSON files.
+ *
+ * Official WHO Toolkit pages (Excel format):
+ * - Weight-for-age: https://www.who.int/toolkits/child-growth-standards/standards/weight-for-age
+ * - Length/height-for-age: https://www.who.int/toolkits/child-growth-standards/standards/length-height-for-age
+ * - Head circumference-for-age: https://www.who.int/toolkits/child-growth-standards/standards/head-circumference-for-age
  *
  * Usage:
- * 1. Download the TXT files (e.g. wfa-boys-0-5-zscores.txt)
- * 2. Place them in a temporary directory.
- * 3. Run: npx tsx scripts/generate-growth-standards.ts /path/to/txt/files
+ * 1. To download data from a mirror (easiest):
+ *    npx tsx scripts/generate-growth-standards.ts --download
+ *
+ * 2. To process local TXT files:
+ *    npx tsx scripts/generate-growth-standards.ts /path/to/txt/files
  */
 
 const outputDir = path.join(process.cwd(), 'src/data/growth-standards');
+
+const MIRROR_BASE_URL =
+	'https://raw.githubusercontent.com/clentfort/pediatric-growth/main/data/who';
 
 const filesToProcess = [
 	// Weight for age
@@ -74,13 +82,42 @@ if (!inputDir) {
 	process.exit(1);
 }
 
-for (const { input, output } of filesToProcess) {
-	const inputPath = path.join(inputDir, input);
-	const outputPath = path.join(outputDir, output);
+async function downloadAndProcess() {
+	console.log('Downloading growth standards from mirror...');
+	for (const { output } of filesToProcess) {
+		const url = `${MIRROR_BASE_URL}/${output}`;
+		const outputPath = path.join(outputDir, output);
 
-	if (fs.existsSync(inputPath)) {
-		processFile(inputPath, outputPath);
-	} else {
-		console.warn(`Skipping ${input}: File not found`);
+		try {
+			const response = await fetch(url);
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			const data = await response.json();
+			fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
+			console.log(`Downloaded and saved ${output}`);
+		} catch (error_) {
+			console.error(`Failed to download ${output}:`, error_);
+		}
 	}
+}
+
+const arg = process.argv[2];
+
+if (arg === '--download') {
+	downloadAndProcess();
+} else if (arg) {
+	for (const { input, output } of filesToProcess) {
+		const inputPath = path.join(arg, input);
+		const outputPath = path.join(outputDir, output);
+
+		if (fs.existsSync(inputPath)) {
+			processFile(inputPath, outputPath);
+		} else {
+			console.warn(`Skipping ${input}: File not found in ${arg}`);
+		}
+	}
+} else {
+	console.error(
+		'Please provide an input directory containing the TXT files or use --download flag.',
+	);
+	process.exit(1);
 }
