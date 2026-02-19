@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import fs from 'node:fs';
 import path from 'node:path';
 import Papa from 'papaparse';
@@ -48,12 +49,15 @@ function processFile(inputPath: string, outputPath: string) {
 
 			const data = results.data
 				.slice(1)
-				.map((row: any) => ({
-					age: Number.parseFloat(row[ageIdx]),
-					L: Number.parseFloat(row[lIdx]),
-					M: Number.parseFloat(row[mIdx]),
-					S: Number.parseFloat(row[sIdx]),
-				}))
+				.map((row) => {
+					const r = row as string[];
+					return {
+						age: Number.parseFloat(r[ageIdx]),
+						L: Number.parseFloat(r[lIdx]),
+						M: Number.parseFloat(r[mIdx]),
+						S: Number.parseFloat(r[sIdx]),
+					};
+				})
 				.filter((row) => !Number.isNaN(row.age));
 
 			fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
