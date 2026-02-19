@@ -31,6 +31,50 @@ import TotalFeedingsStats from './components/total-feedings-stats';
 import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
 export default function StatisticsPage() {
+	const timeRangeItems = useMemo(
+		() => [
+			{
+				label: (
+					<fbt desc="Option to display data for the last 7 days in statistics">
+						Last 7 Days
+					</fbt>
+				),
+				value: '7',
+			},
+			{
+				label: (
+					<fbt desc="Option to display data for the last 14 days in statistics">
+						Last 14 Days
+					</fbt>
+				),
+				value: '14',
+			},
+			{
+				label: (
+					<fbt desc="Option to display data for the last 30 days in statistics">
+						Last 30 Days
+					</fbt>
+				),
+				value: '30',
+			},
+			{
+				label: (
+					<fbt desc="Option to display data for a custom time range in statistics">
+						Custom Range
+					</fbt>
+				),
+				value: 'custom',
+			},
+			{
+				label: (
+					<fbt desc="Option to display all data in statistics">All Data</fbt>
+				),
+				value: 'all',
+			},
+		],
+		[],
+	);
+
 	const { value: diaperChanges } = useDiaperChanges();
 	const { value: events } = useEvents();
 	const { value: measurements } = useGrowthMeasurements();
@@ -110,6 +154,7 @@ export default function StatisticsPage() {
 					</h2>
 					<div className="flex flex-col items-end gap-1">
 						<Select
+							items={timeRangeItems}
 							onValueChange={(value) => setTimeRange(value as TimeRange)}
 							value={timeRange}
 						>
@@ -123,31 +168,11 @@ export default function StatisticsPage() {
 								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="7">
-									<fbt desc="Option to display data for the last 7 days in statistics">
-										Last 7 Days
-									</fbt>
-								</SelectItem>
-								<SelectItem value="14">
-									<fbt desc="Option to display data for the last 14 days in statistics">
-										Last 14 Days
-									</fbt>
-								</SelectItem>
-								<SelectItem value="30">
-									<fbt desc="Option to display data for the last 30 days in statistics">
-										Last 30 Days
-									</fbt>
-								</SelectItem>
-								<SelectItem value="custom">
-									<fbt desc="Option to display data for a custom time range in statistics">
-										Custom Range
-									</fbt>
-								</SelectItem>
-								<SelectItem value="all">
-									<fbt desc="Option to display all data in statistics">
-										All Data
-									</fbt>
-								</SelectItem>
+								{timeRangeItems.map((item) => (
+									<SelectItem key={item.value} value={item.value}>
+										{item.label}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 						{secondary && (
