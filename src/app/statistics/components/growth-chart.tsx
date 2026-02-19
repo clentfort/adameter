@@ -18,9 +18,7 @@ interface RangePoint {
 	yMin: number;
 }
 
-export default function GrowthChart({
-	measurements = [],
-}: GrowthChartProps) {
+export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [profile] = useProfile();
 	const [weightRange, setWeightRange] = useState<RangePoint[]>([]);
 	const [heightRange, setHeightRange] = useState<RangePoint[]>([]);
@@ -50,12 +48,14 @@ export default function GrowthChart({
 			}
 
 			const dob = startOfDay(new Date(profile.dob));
-			const firstMeasureDate = sortedMeasurements.length > 0
-				? startOfDay(new Date(sortedMeasurements[0].date))
-				: dob;
-			const lastMeasureDate = sortedMeasurements.length > 0
-				? startOfDay(new Date(sortedMeasurements.at(-1).date))
-				: dob;
+			const firstMeasureDate =
+				sortedMeasurements.length > 0
+					? startOfDay(new Date(sortedMeasurements[0].date))
+					: dob;
+			const lastMeasureDate =
+				sortedMeasurements.length > 0
+					? startOfDay(new Date(sortedMeasurements.at(-1).date))
+					: dob;
 
 			const startDate = min([dob, firstMeasureDate]);
 			const endDate = addDays(lastMeasureDate, 30);
@@ -164,7 +164,11 @@ export default function GrowthChart({
 		</fbt>
 	);
 
-	const rangeLabel = <fbt desc="Label for the expected growth range">Expected Range (3rd-97th percentile)</fbt>;
+	const rangeLabel = (
+		<fbt desc="Label for the expected growth range">
+			Expected Range (3rd-97th percentile)
+		</fbt>
+	);
 
 	return (
 		<Card>

@@ -70,7 +70,11 @@ export default function ProfileForm({ onOptOut, onSave }: ProfileFormProps) {
 				<Button className="w-full" disabled={!dob || !sex} onClick={handleSave}>
 					<fbt desc="Button to save profile information">Save Profile</fbt>
 				</Button>
-				<Button className="w-full text-muted-foreground text-xs" onClick={onOptOut} variant="ghost">
+				<Button
+					className="w-full text-muted-foreground text-xs"
+					onClick={onOptOut}
+					variant="ghost"
+				>
 					<fbt desc="Button to opt out of providing profile information">
 						I don&apos;t want to provide this information
 					</fbt>

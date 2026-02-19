@@ -1,5 +1,5 @@
-import { loadTable, lookupLms } from '@pedi-growth/core';
 import type { Sex } from '@/types/profile';
+import { loadTable, lookupLms } from '@pedi-growth/core';
 
 // Z-scores for 3rd and 97th percentiles
 const Z_3RD = -1.880_79;

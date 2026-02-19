@@ -1,7 +1,7 @@
-import { describe, expect, it, vi } from 'vitest';
-import { getGrowthRange } from './growth-standards';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { describe, expect, it, vi } from 'vitest';
+import { getGrowthRange } from './growth-standards';
 
 vi.mock('@pedi-growth/core', async (importOriginal) => {
 	const original = await importOriginal<typeof import('@pedi-growth/core')>();

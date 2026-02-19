@@ -315,9 +315,7 @@ export default function StatisticsPage() {
 						<fbt desc="Subtitle for the growth statistics section">Growth</fbt>
 					</h3>
 					{measurements.length > 0 ? (
-						<GrowthChart
-							measurements={[...measurements]}
-						/>
+						<GrowthChart measurements={[...measurements]} />
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
 							<fbt desc="Message shown when no growth data is available">

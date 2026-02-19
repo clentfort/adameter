@@ -76,8 +76,7 @@ export default function LineChart({
 		const ctx = chartRef.current.getContext('2d');
 		if (!ctx) return;
 
-		const datasets: import('chart.js').ChartDataset<'line', PointData[]>[] =
-			[];
+		const datasets: import('chart.js').ChartDataset<'line', PointData[]>[] = [];
 
 		if (rangeData.length > 0) {
 			datasets.push(
@@ -157,7 +156,8 @@ export default function LineChart({
 						filter: (tooltipItem) => {
 							// Don't show tooltips for range datasets
 							return (
-								tooltipItem.dataset.label !== String(rangeLabel || 'Range Min') &&
+								tooltipItem.dataset.label !==
+									String(rangeLabel || 'Range Min') &&
 								tooltipItem.dataset.label !== String(rangeLabel || 'Range Max')
 							);
 						},
