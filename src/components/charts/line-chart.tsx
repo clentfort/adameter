@@ -32,13 +32,14 @@ interface LineChartProps {
 	data: PointData[];
 	datasetLabel: React.ReactNode;
 	emptyStateMessage: React.ReactNode;
-	forecastDate?: Date;
+	forecastDate?: Date | number;
 	rangeData?: RangePoint[];
 	rangeLabel?: React.ReactNode;
 	title: React.ReactNode;
 	tooltipLabelFormatter?: (context: ChartDataContext) => string;
 	tooltipTitleFormatter?: (context: ChartDataContext[]) => string;
 	xAxisLabel: React.ReactNode;
+	xAxisType?: 'time' | 'linear';
 	yAxisLabel: React.ReactNode;
 	yAxisUnit?: string;
 }
@@ -56,6 +57,7 @@ export default function LineChart({
 	tooltipLabelFormatter,
 	tooltipTitleFormatter,
 	xAxisLabel,
+	xAxisType = 'time',
 	yAxisLabel,
 	yAxisUnit = '',
 }: LineChartProps) {
@@ -78,6 +80,16 @@ export default function LineChart({
 
 		const datasets: import('chart.js').ChartDataset<'line', PointData[]>[] = [];
 
+		const isDark =
+			typeof window !== 'undefined' &&
+			document.documentElement.classList.contains('dark');
+		const rangeFillColor = isDark
+			? 'rgba(255, 255, 255, 0.1)'
+			: 'rgba(0, 0, 0, 0.05)';
+		const rangeBorderColor = isDark
+			? 'rgba(255, 255, 255, 0.2)'
+			: 'rgba(0, 0, 0, 0.1)';
+
 		if (rangeData.length > 0) {
 			datasets.push(
 				{
@@ -89,8 +101,8 @@ export default function LineChart({
 					pointRadius: 0,
 				},
 				{
-					backgroundColor: 'rgba(0, 0, 0, 0.05)',
-					borderColor: 'rgba(0, 0, 0, 0.1)',
+					backgroundColor: rangeFillColor,
+					borderColor: rangeBorderColor,
 					borderWidth: 1,
 					data: rangeData.map((d) => ({ x: d.x, y: d.yMax })),
 					fill: 0, // Fill to the first dataset (Range Min)
@@ -149,6 +161,9 @@ export default function LineChart({
 							title: tooltipTitleFormatter
 								? tooltipTitleFormatter
 								: (context) => {
+										if (xAxisType === 'linear') {
+											return `${context[0].parsed.x} mo`;
+										}
 										const date = new Date(context[0].parsed.x);
 										return format(date, 'dd. MMMM yyyy');
 									},
@@ -172,19 +187,32 @@ export default function LineChart({
 						grid: {
 							display: true,
 						},
-						max: forecastDate ? forecastDate.getTime() : undefined,
-						time: {
-							displayFormats: {
-								day: 'dd.MM',
-								month: 'MMM yyyy',
-							},
-							unit: 'month', // Monthly grid lines
-						},
+						max:
+							forecastDate && typeof forecastDate === 'object'
+								? (forecastDate as Date).getTime()
+								: forecastDate,
+						ticks:
+							xAxisType === 'linear'
+								? {
+										callback: (value) => `${Math.round(Number(value))} mo`,
+										stepSize: 3,
+									}
+								: undefined,
+						time:
+							xAxisType === 'time'
+								? {
+										displayFormats: {
+											day: 'dd.MM',
+											month: 'MMM yyyy',
+										},
+										unit: 'month', // Monthly grid lines
+									}
+								: undefined,
 						title: {
 							display: true,
 							text: String(xAxisLabel),
 						},
-						type: 'time',
+						type: xAxisType,
 					},
 					y: {
 						beginAtZero: false,
@@ -212,6 +240,7 @@ export default function LineChart({
 		borderColor,
 		datasetLabel,
 		xAxisLabel,
+		xAxisType,
 		yAxisLabel,
 		yAxisUnit,
 		tooltipTitleFormatter,

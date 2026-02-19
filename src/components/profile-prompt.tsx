@@ -1,8 +1,6 @@
 'use client';
 
-import { fbt } from 'fbtee';
 import { useEffect, useState } from 'react';
-import { useProfile } from '@/hooks/use-profile';
 import {
 	Dialog,
 	DialogContent,
@@ -10,6 +8,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
+import { useProfile } from '@/hooks/use-profile';
 import ProfileForm from './profile-form';
 
 export default function ProfilePrompt() {
@@ -37,7 +36,9 @@ export default function ProfilePrompt() {
 			<DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
 				<DialogHeader>
 					<DialogTitle>
-						<fbt desc="Title for the profile setup dialog">Welcome to AdaMeter!</fbt>
+						<fbt desc="Title for the profile setup dialog">
+							Welcome to AdaMeter!
+						</fbt>
 					</DialogTitle>
 					<DialogDescription>
 						<fbt desc="Description for the profile setup dialog">

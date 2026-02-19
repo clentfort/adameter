@@ -13,10 +13,12 @@ interface GrowthChartProps {
 }
 
 interface RangePoint {
-	x: Date;
+	x: number; // Age in months
 	yMax: number;
 	yMin: number;
 }
+
+const DAYS_PER_MONTH = 30.4375;
 
 export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [profile] = useProfile();
@@ -32,22 +34,30 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 		[measurements],
 	);
 
-	const forecastDate = useMemo(() => {
-		if (sortedMeasurements.length === 0) return undefined;
-		const lastDate = new Date(sortedMeasurements.at(-1).date);
-		return addDays(lastDate, 30);
-	}, [sortedMeasurements]);
+	const dob = useMemo(
+		() => (profile?.dob ? startOfDay(new Date(profile.dob)) : null),
+		[profile],
+	);
+
+	const forecastAge = useMemo(() => {
+		if (!dob) return undefined;
+		const lastMeasureDate =
+			sortedMeasurements.length > 0
+				? startOfDay(new Date(sortedMeasurements.at(-1).date))
+				: dob;
+		const endDate = addDays(lastMeasureDate, 30);
+		return differenceInDays(endDate, dob) / DAYS_PER_MONTH;
+	}, [dob, sortedMeasurements]);
 
 	useEffect(() => {
 		async function loadRanges() {
-			if (!profile?.dob || !profile?.sex || profile.optedOut) {
+			if (!dob || !profile?.sex || profile.optedOut) {
 				setWeightRange([]);
 				setHeightRange([]);
 				setHeadRange([]);
 				return;
 			}
 
-			const dob = startOfDay(new Date(profile.dob));
 			const firstMeasureDate =
 				sortedMeasurements.length > 0
 					? startOfDay(new Date(sortedMeasurements[0].date))
@@ -86,9 +96,11 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					getGrowthRange('head-circumference-for-age', profile.sex, ageInDays),
 				]);
 
-				if (w) wRange.push({ x: date, yMax: w.max, yMin: w.min });
-				if (h) hRange.push({ x: date, yMax: h.max, yMin: h.min });
-				if (hc) hcRange.push({ x: date, yMax: hc.max, yMin: hc.min });
+				const ageInMonths = ageInDays / DAYS_PER_MONTH;
+
+				if (w) wRange.push({ x: ageInMonths, yMax: w.max, yMin: w.min });
+				if (h) hRange.push({ x: ageInMonths, yMax: h.max, yMin: h.min });
+				if (hc) hcRange.push({ x: ageInMonths, yMax: hc.max, yMin: hc.min });
 			}
 
 			setWeightRange(wRange);
@@ -97,17 +109,20 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 		}
 
 		loadRanges();
-	}, [profile, sortedMeasurements]);
+	}, [dob, profile?.sex, profile?.optedOut, sortedMeasurements]);
 
 	const weightData = useMemo(
 		() =>
 			sortedMeasurements
 				.filter((m) => m.weight !== undefined && m.weight !== null)
 				.map((m) => ({
-					x: new Date(m.date),
+					x: dob
+						? differenceInDays(startOfDay(new Date(m.date)), dob) /
+							DAYS_PER_MONTH
+						: new Date(m.date).getTime(),
 					y: m.weight!,
 				})),
-		[sortedMeasurements],
+		[sortedMeasurements, dob],
 	);
 
 	const heightData = useMemo(
@@ -115,10 +130,13 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			sortedMeasurements
 				.filter((m) => m.height !== undefined && m.height !== null)
 				.map((m) => ({
-					x: new Date(m.date),
+					x: dob
+						? differenceInDays(startOfDay(new Date(m.date)), dob) /
+							DAYS_PER_MONTH
+						: new Date(m.date).getTime(),
 					y: m.height!,
 				})),
-		[sortedMeasurements],
+		[sortedMeasurements, dob],
 	);
 
 	const headCircumferenceData = useMemo(
@@ -129,10 +147,13 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						m.headCircumference !== undefined && m.headCircumference !== null,
 				)
 				.map((m) => ({
-					x: new Date(m.date),
+					x: dob
+						? differenceInDays(startOfDay(new Date(m.date)), dob) /
+							DAYS_PER_MONTH
+						: new Date(m.date).getTime(),
 					y: m.headCircumference!,
 				})),
-		[sortedMeasurements],
+		[sortedMeasurements, dob],
 	);
 
 	if (measurements.length === 0) {
@@ -155,8 +176,10 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 		);
 	}
 
-	const commonXAxisLabel = (
-		<fbt desc="Label for the date axis on charts">Datum</fbt>
+	const commonXAxisLabel = dob ? (
+		<fbt desc="Label for the age axis on growth charts">Age (months)</fbt>
+	) : (
+		<fbt desc="Label for the date axis on charts">Date</fbt>
 	);
 	const commonEmptyState = (
 		<fbt desc="Message shown when no data is available for a specific growth chart (e.g. no weight data)">
@@ -194,11 +217,12 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							</fbt>
 						}
 						emptyStateMessage={commonEmptyState}
-						forecastDate={forecastDate}
+						forecastDate={dob ? forecastAge : undefined}
 						rangeData={weightRange}
 						rangeLabel={rangeLabel}
 						title={<fbt desc="Chart title for weight">Weight</fbt>}
 						xAxisLabel={commonXAxisLabel}
+						xAxisType={dob ? 'linear' : 'time'}
 						yAxisLabel={
 							<fbt desc="Label for the Y-axis showing weight in grams">
 								Weight (g)
@@ -224,11 +248,12 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							</fbt>
 						}
 						emptyStateMessage={commonEmptyState}
-						forecastDate={forecastDate}
+						forecastDate={dob ? forecastAge : undefined}
 						rangeData={heightRange}
 						rangeLabel={rangeLabel}
 						title={<fbt desc="Chart title for height">Height</fbt>}
 						xAxisLabel={commonXAxisLabel}
+						xAxisType={dob ? 'linear' : 'time'}
 						yAxisLabel={
 							<fbt desc="Label for the Y-axis showing height in centimeters">
 								Height (cm)
@@ -254,7 +279,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							</fbt>
 						}
 						emptyStateMessage={commonEmptyState}
-						forecastDate={forecastDate}
+						forecastDate={dob ? forecastAge : undefined}
 						rangeData={headRange}
 						rangeLabel={rangeLabel}
 						title={
@@ -263,6 +288,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							</fbt>
 						}
 						xAxisLabel={commonXAxisLabel}
+						xAxisType={dob ? 'linear' : 'time'}
 						yAxisLabel={
 							<fbt desc="Label for the Y-axis showing head circumference in centimeters">
 								Head Circumference (cm)
