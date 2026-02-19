@@ -132,6 +132,8 @@ export function isStoreDataEmpty(store: Store) {
 		TABLE_IDS.EVENTS,
 		TABLE_IDS.FEEDING_SESSIONS,
 		TABLE_IDS.GROWTH_MEASUREMENTS,
+		TABLE_IDS.MEDICATION_ADMINISTRATIONS,
+		TABLE_IDS.MEDICATION_REGIMENS,
 	] as const;
 
 	for (const tableId of tableIds) {
