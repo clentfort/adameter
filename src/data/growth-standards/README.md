@@ -25,23 +25,22 @@ The current implementation uses the 3rd and 97th percentiles to define the
 
 You can regenerate or update the JSON files using the provided script.
 
-### Easiest: Download from Mirror
+### Option 1: Download from WHO
 
-The script can automatically download the latest data from a reliable mirror:
+The script can automatically download the latest XLSX data directly from the
+official WHO servers:
 
 ```bash
-npx tsx scripts/generate-growth-standards.ts --download
+pnpm exec tsx scripts/generate-growth-standards.ts --download
 ```
 
-### From Official WHO Source
+The original XLSX files will be stored in the `raw/` directory as a backup.
 
-1. Download the "z-scores" tables (Excel format) from the official WHO Toolkit pages:
-   - [Weight-for-age](https://www.who.int/toolkits/child-growth-standards/standards/weight-for-age)
-   - [Length/height-for-age](https://www.who.int/toolkits/child-growth-standards/standards/length-height-for-age)
-   - [Head circumference-for-age](https://www.who.int/toolkits/child-growth-standards/standards/head-circumference-for-age)
-2. Open the Excel files and save the data as tab-separated TXT or CSV files.
-3. Place the TXT files in a directory.
-4. Run the script pointing to that directory:
-   ```bash
-   npx tsx scripts/generate-growth-standards.ts /path/to/directory
-   ```
+### Option 2: Convert Local XLSX Files
+
+If you already have the XLSX files in the `raw/` directory, you can convert them
+to JSON:
+
+```bash
+pnpm exec tsx scripts/generate-growth-standards.ts --convert-local
+```
