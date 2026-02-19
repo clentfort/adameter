@@ -16,7 +16,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useMedicationAdministrations } from '@/hooks/use-medication-administrations';
 import { useMedicationRegimens } from '@/hooks/use-medication-regimens';
-import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getDeviceId } from '@/utils/device-id';
 
 interface MedicationAdministrationFormProps {

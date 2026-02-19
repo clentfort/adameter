@@ -4,13 +4,11 @@ import type {
 	MedicationAdministration,
 	MedicationRegimen,
 } from '@/types/medication';
-import { fbt } from 'fbtee';
-import { Check, Clock, Edit2, MoreVertical, StopCircle, X } from 'lucide-react';
+import { Check, Edit2, MoreVertical, StopCircle, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
-	CardAction,
 	CardContent,
 	CardHeader,
 	CardTitle,
@@ -53,14 +51,10 @@ export default function ActiveRegimens({
 			let status: 'upcoming' | 'due' | 'overdue' = 'upcoming';
 
 			if (regimen.type === 'interval' && regimen.intervalHours) {
-				if (!lastAdmin) {
-					nextDue = new Date(regimen.startDate);
-				} else {
-					nextDue = new Date(
+				nextDue = !lastAdmin ? new Date(regimen.startDate) : new Date(
 						new Date(lastAdmin.timestamp).getTime() +
 							regimen.intervalHours * 60 * 60 * 1000,
 					);
-				}
 			} else if (regimen.type === 'fixed' && regimen.times) {
 				// Find the next scheduled time
 				const today = new Date();
@@ -94,11 +88,7 @@ export default function ActiveRegimens({
 
 			if (nextDue) {
 				const diffMinutes = (nextDue.getTime() - now.getTime()) / (1000 * 60);
-				if (diffMinutes < 0) {
-					status = 'overdue';
-				} else if (diffMinutes < 60) {
-					status = 'due';
-				}
+				status = diffMinutes < 0 ? 'overdue' : diffMinutes < 60 ? 'due' : 'upcoming';
 			}
 
 			return { lastAdmin, nextDue, regimen, status };

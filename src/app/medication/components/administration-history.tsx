@@ -2,7 +2,6 @@
 
 import type { MedicationAdministration } from '@/types/medication';
 import { format } from 'date-fns';
-import { fbt } from 'fbtee';
 import { Ban, CheckCircle2, Clock } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';

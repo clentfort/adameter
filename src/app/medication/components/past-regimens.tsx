@@ -1,5 +1,4 @@
 import type { MedicationRegimen } from '@/types/medication';
-import { fbt } from 'fbtee';
 import {
 	Accordion,
 	AccordionContent,
