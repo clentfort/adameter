@@ -20,3 +20,12 @@ calculate Z-scores and percentiles using the LMS method.
 
 The current implementation uses the 3rd and 97th percentiles to define the
 "expected" growth range.
+
+## Updating Data
+
+You can regenerate the JSON files from the WHO TXT files using the provided
+script:
+
+1. Download the TXT files from the WHO website (z-score tables).
+2. Place them in a directory.
+3. Run `npx tsx scripts/generate-growth-standards.ts /path/to/directory`
