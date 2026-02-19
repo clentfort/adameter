@@ -26,10 +26,10 @@ export interface GrowthRange {
 }
 
 export interface LmsData {
+	age: number;
 	L: number;
 	M: number;
 	S: number;
-	age: number;
 }
 
 /**
@@ -51,7 +51,7 @@ export function lookupLms(table: LmsData[], age: number): LmsData | null {
 	}
 
 	// Return the closest one
-	if (low >= table.length) return table[table.length - 1];
+	if (low >= table.length) return table.at(-1) || null;
 	if (high < 0) return table[0];
 
 	const d1 = Math.abs(table[low].age - age);
@@ -101,10 +101,9 @@ export async function getGrowthTable(
 	if (!tableKey) return null;
 
 	try {
-		const module = await import(`../data/growth-standards/${tableKey}.json`);
-		return { index, table: module.default as LmsData[] };
-	} catch (error) {
-		console.error(`Error loading growth standard table ${tableKey}:`, error);
+		const dataModule = await import(`../data/growth-standards/${tableKey}.json`);
+		return { index, table: dataModule.default as LmsData[] };
+	} catch {
 		return null;
 	}
 }
@@ -137,8 +136,7 @@ export async function getGrowthRange(
 		}
 
 		return { max, min };
-	} catch (error) {
-		console.error(`Error loading growth standard range ${indicator}:`, error);
+	} catch {
 		return null;
 	}
 }

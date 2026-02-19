@@ -39,7 +39,15 @@ vi.mock('@/hooks/use-profile', () => ({
 }));
 
 vi.mock('@/utils/growth-standards', () => ({
+	calculateValue: vi.fn((L, M, S, Z) => M * (1 + L * S * Z)),
 	getGrowthRange: vi.fn(async () => ({ max: 4000, min: 2000 })),
+	getGrowthTable: vi.fn(async () => ({
+		index: 0,
+		table: [{ age: 0, L: 1, M: 1, S: 1 }],
+	})),
+	lookupLms: vi.fn(() => ({ age: 0, L: 1, M: 1, S: 1 })),
+	Z_3RD: -1.88,
+	Z_97TH: 1.88,
 }));
 
 const mockMeasurements: GrowthMeasurement[] = [
