@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Events Page', () => {
+	test.beforeEach(async ({ context }) => {
+		await context.addInitScript(() => {
+			window.localStorage.setItem('adameter-skip-profile', 'true');
+		});
+	});
+
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/events');
 	});

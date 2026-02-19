@@ -13,7 +13,12 @@ import ProfileForm from './profile-form';
 export default function ProfilePrompt() {
 	const [profile, setProfile] = useProfile();
 
-	if (profile?.dob || profile?.optedOut) {
+	if (
+		profile?.dob ||
+		profile?.optedOut ||
+		(typeof window !== 'undefined' &&
+			window.localStorage.getItem('adameter-skip-profile') === 'true')
+	) {
 		return null;
 	}
 

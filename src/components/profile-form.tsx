@@ -72,6 +72,7 @@ export default function ProfileForm({ onOptOut, onSave }: ProfileFormProps) {
 				</Button>
 				<Button
 					className="w-full text-muted-foreground text-xs"
+					data-testid="profile-opt-out-button"
 					onClick={onOptOut}
 					variant="ghost"
 				>
