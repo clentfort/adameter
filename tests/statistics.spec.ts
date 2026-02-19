@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Statistics Page', () => {
+	test.beforeEach(async ({ context }) => {
+		await context.addInitScript(() => {
+			window.localStorage.setItem('adameter-skip-profile', 'true');
+		});
+	});
+
 	test('should show no data message when app is empty', async ({ page }) => {
 		await page.goto('/statistics');
 		await expect(page.getByTestId('no-data-message')).toBeVisible();

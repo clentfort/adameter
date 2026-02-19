@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Navigation', () => {
+	test.beforeEach(async ({ context }) => {
+		await context.addInitScript(() => {
+			window.localStorage.setItem('adameter-skip-profile', 'true');
+		});
+	});
+
 	test('should allow navigation while a feeding session is in progress', async ({
 		page,
 	}) => {

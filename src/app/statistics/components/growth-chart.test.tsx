@@ -1,4 +1,3 @@
-import type { Event } from '@/types/event';
 import type { GrowthMeasurement } from '@/types/growth';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,7 +10,8 @@ interface MockLineChartProps {
 	data: Array<{ x: Date; y: number }>;
 	datasetLabel: string;
 	emptyStateMessage: string;
-	events: Event[];
+	forecastDate?: Date;
+	rangeData?: Array<{ x: Date; yMax: number; yMin: number }>;
 	title: string;
 	xAxisLabel: string;
 	yAxisLabel: string;
@@ -22,19 +22,32 @@ const mockLineChart = vi.fn();
 vi.mock('@/components/charts/line-chart', () => ({
 	default: (props: MockLineChartProps) => {
 		mockLineChart(props);
-		const titleString =
-			typeof props.title === 'string'
-				? props.title
-				: (props.title as string).toString();
+		const titleString = String(props.title);
 		return (
 			<div data-testid={`mock-line-chart-${titleString.toLowerCase()}`}>
 				{props.title} Chart - Data Length: {props.data.length}
 				{props.emptyStateMessage && props.data.length === 0
-					? (props.emptyStateMessage as string).toString()
+					? String(props.emptyStateMessage)
 					: null}
 			</div>
 		);
 	},
+}));
+
+vi.mock('@/hooks/use-profile', () => ({
+	useProfile: () => [{ dob: '2024-01-01', sex: 'boy' }, vi.fn()],
+}));
+
+vi.mock('@/utils/growth-standards', () => ({
+	calculateValue: vi.fn((L, M, S, Z) => M * (1 + L * S * Z)),
+	getGrowthRange: vi.fn(async () => ({ max: 4000, min: 2000 })),
+	getGrowthTable: vi.fn(async () => ({
+		index: 0,
+		table: [{ age: 0, L: 1, M: 1, S: 1 }],
+	})),
+	lookupLms: vi.fn(() => ({ age: 0, L: 1, M: 1, S: 1 })),
+	Z_3RD: -1.88,
+	Z_97TH: 1.88,
 }));
 
 const mockMeasurements: GrowthMeasurement[] = [
@@ -61,26 +74,13 @@ const mockMeasurements: GrowthMeasurement[] = [
 	},
 ];
 
-const mockEvents: Event[] = [
-	{
-		id: 'e1',
-		// name: 'First Smile', // Removed name property
-		// notes: '', // Removed notes property
-		// timestamp: new Date('2024-01-10T00:00:00Z').toISOString(), // Removed timestamp property
-		color: '#000000', // Added color property
-		startDate: new Date('2024-01-10T00:00:00Z').toISOString(), // Added startDate property
-		title: 'First Smile', // Added title property
-		type: 'milestone' as Event['type'],
-	},
-];
-
 describe('GrowthChart', () => {
 	beforeEach(() => {
 		mockLineChart.mockClear();
 	});
 
 	it('renders no data message when no measurements are provided', () => {
-		render(<GrowthChart events={[]} measurements={[]} />);
+		render(<GrowthChart measurements={[]} />);
 		expect(
 			screen.getByText(
 				'No measurements available. Add measurements to see the growth chart.',
@@ -89,14 +89,16 @@ describe('GrowthChart', () => {
 	});
 
 	it('renders titles for weight, height, and head circumference sections', () => {
-		render(<GrowthChart events={[]} measurements={mockMeasurements} />);
+		render(<GrowthChart measurements={mockMeasurements} />);
 		expect(screen.getByText('Weight (g)')).toBeInTheDocument();
 		expect(screen.getByText('Height (cm)')).toBeInTheDocument();
 		expect(screen.getByText('Head Circumference (cm)')).toBeInTheDocument();
 	});
 
 	it('passes sorted and filtered weight data to LineChart', () => {
-		render(<GrowthChart events={mockEvents} measurements={mockMeasurements} />);
+		const { container } = render(
+			<GrowthChart measurements={mockMeasurements} />,
+		);
 		const weightChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Weight',
 		);
@@ -108,11 +110,8 @@ describe('GrowthChart', () => {
 		expect(weightChartCall[0].data[2].y).toBe(3500); // 2024-01-15
 		expect(weightChartCall[0].datasetLabel.toString()).toBe('Weight');
 		expect(weightChartCall[0].yAxisUnit).toBe('g');
-		expect(weightChartCall[0].events).toEqual(mockEvents);
-		const { container } = render(
-			<GrowthChart events={mockEvents} measurements={mockMeasurements} />,
-		);
-		const growthCard = container.firstChild as HTMLElement; // Assuming the card is the first child
+
+		const growthCard = container.firstChild as HTMLElement;
 		expect(
 			within(growthCard).getByTestId('mock-line-chart-weight'),
 		).toHaveTextContent('Weight Chart - Data Length: 3');
@@ -120,7 +119,7 @@ describe('GrowthChart', () => {
 
 	it('passes sorted and filtered height data to LineChart', () => {
 		const { container } = render(
-			<GrowthChart events={[]} measurements={mockMeasurements} />,
+			<GrowthChart measurements={mockMeasurements} />,
 		);
 		const growthCard = container.firstChild as HTMLElement;
 		const heightChartCall = mockLineChart.mock.calls.find(
@@ -140,7 +139,7 @@ describe('GrowthChart', () => {
 
 	it('passes sorted and filtered head circumference data to LineChart', () => {
 		const { container } = render(
-			<GrowthChart events={[]} measurements={mockMeasurements} />,
+			<GrowthChart measurements={mockMeasurements} />,
 		);
 		const growthCard = container.firstChild as HTMLElement;
 		const headChartCall = mockLineChart.mock.calls.find(
@@ -167,7 +166,7 @@ describe('GrowthChart', () => {
 			},
 		];
 		const { container } = render(
-			<GrowthChart events={[]} measurements={singleMeasurement} />,
+			<GrowthChart measurements={singleMeasurement} />,
 		);
 		const growthCard = container.firstChild as HTMLElement;
 
@@ -200,30 +199,6 @@ describe('GrowthChart', () => {
 		expect(
 			within(growthCard).getByTestId('mock-line-chart-head circumference'),
 		).toHaveTextContent('No data available.');
-	});
-
-	it('displays note about events when events are provided', () => {
-		const { container } = render(
-			<GrowthChart events={mockEvents} measurements={mockMeasurements} />,
-		);
-		const growthCard = container.firstChild as HTMLElement;
-		expect(
-			within(growthCard).getByText(
-				'* Vertical lines indicate important events.',
-			),
-		).toBeInTheDocument();
-	});
-
-	it('does not display note about events when no events are provided', () => {
-		const { container } = render(
-			<GrowthChart events={[]} measurements={mockMeasurements} />,
-		);
-		const growthCard = container.firstChild as HTMLElement;
-		expect(
-			within(growthCard).queryByText(
-				'* Vertical lines indicate important events.',
-			),
-		).not.toBeInTheDocument();
 	});
 
 	afterEach(() => {

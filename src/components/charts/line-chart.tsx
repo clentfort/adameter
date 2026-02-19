@@ -4,7 +4,6 @@ import Chart from 'chart.js/auto';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns';
-import type { Event } from '@/types/event';
 
 interface ChartDataContext {
 	dataset: {
@@ -21,17 +20,26 @@ interface PointData {
 	y: number;
 }
 
+interface RangePoint {
+	x: Date | number;
+	yMax: number;
+	yMin: number;
+}
+
 interface LineChartProps {
 	backgroundColor?: string;
 	borderColor?: string;
 	data: PointData[];
 	datasetLabel: React.ReactNode;
 	emptyStateMessage: React.ReactNode;
-	events?: Event[];
+	forecastDate?: Date | number;
+	rangeData?: RangePoint[];
+	rangeLabel?: React.ReactNode;
 	title: React.ReactNode;
 	tooltipLabelFormatter?: (context: ChartDataContext) => string;
 	tooltipTitleFormatter?: (context: ChartDataContext[]) => string;
 	xAxisLabel: React.ReactNode;
+	xAxisType?: 'time' | 'linear';
 	yAxisLabel: React.ReactNode;
 	yAxisUnit?: string;
 }
@@ -42,11 +50,14 @@ export default function LineChart({
 	data,
 	datasetLabel,
 	emptyStateMessage,
-	events = [],
+	forecastDate,
+	rangeData = [],
+	rangeLabel,
 	title,
 	tooltipLabelFormatter,
 	tooltipTitleFormatter,
 	xAxisLabel,
+	xAxisType = 'time',
 	yAxisLabel,
 	yAxisUnit = '',
 }: LineChartProps) {
@@ -56,7 +67,7 @@ export default function LineChart({
 	const createChart = useCallback(() => {
 		if (!chartRef.current) return;
 
-		if (data.length === 0) {
+		if (data.length === 0 && rangeData.length === 0) {
 			return;
 		}
 
@@ -67,26 +78,65 @@ export default function LineChart({
 		const ctx = chartRef.current.getContext('2d');
 		if (!ctx) return;
 
-		// @ts-expect-error Type 'Chart<keyof ChartTypeRegistry, (number | Point | [number, number] | BubbleDataPoint | null)[], unknown>' is not assignable to type 'Chart<"line", PointData[], unknown>'.
+		const datasets: import('chart.js').ChartDataset<'line', PointData[]>[] = [];
+
+		const isDark =
+			typeof window !== 'undefined' &&
+			document.documentElement.classList.contains('dark');
+		const rangeFillColor = isDark
+			? 'rgba(255, 255, 255, 0.1)'
+			: 'rgba(0, 0, 0, 0.05)';
+		const rangeBorderColor = isDark
+			? 'rgba(255, 255, 255, 0.2)'
+			: 'rgba(0, 0, 0, 0.1)';
+
+		if (rangeData.length > 0) {
+			datasets.push(
+				{
+					backgroundColor: 'transparent',
+					borderColor: 'transparent',
+					data: rangeData.map((d) => ({ x: d.x, y: d.yMin })),
+					fill: false,
+					label: String(rangeLabel || 'Range Min'),
+					pointRadius: 0,
+				},
+				{
+					backgroundColor: rangeFillColor,
+					borderColor: rangeBorderColor,
+					borderWidth: 1,
+					data: rangeData.map((d) => ({ x: d.x, y: d.yMax })),
+					fill: 0, // Fill to the first dataset (Range Min)
+					label: String(rangeLabel || 'Range Max'),
+					pointRadius: 0,
+				},
+			);
+		}
+
+		datasets.push({
+			backgroundColor,
+			borderColor,
+			data,
+			label: String(datasetLabel),
+			pointHoverRadius: 7,
+			pointRadius: 5,
+			tension: 0.3,
+		});
+
 		chartInstance.current = new Chart(ctx, {
 			data: {
-				datasets: [
-					{
-						backgroundColor,
-						borderColor,
-						data,
-						label: String(datasetLabel),
-						pointHoverRadius: 7,
-						pointRadius: 5,
-						tension: 0.3,
-					},
-				],
+				datasets,
 			},
 			options: {
 				maintainAspectRatio: false,
 				plugins: {
 					legend: {
 						display: !!datasetLabel,
+						labels: {
+							filter: (item) => {
+								// Hide the range min/max from legend, just show the main dataset
+								return item.text === String(datasetLabel);
+							},
+						},
 					},
 					tooltip: {
 						callbacks: {
@@ -94,6 +144,12 @@ export default function LineChart({
 								? tooltipLabelFormatter
 								: (context) => {
 										let label = context.dataset.label || '';
+										if (
+											label === String(rangeLabel || 'Range Min') ||
+											label === String(rangeLabel || 'Range Max')
+										) {
+											return '';
+										}
 										if (label) {
 											label += ': ';
 										}
@@ -105,9 +161,20 @@ export default function LineChart({
 							title: tooltipTitleFormatter
 								? tooltipTitleFormatter
 								: (context) => {
+										if (xAxisType === 'linear') {
+											return `${Number(context[0].parsed.x).toFixed(1)} mo`;
+										}
 										const date = new Date(context[0].parsed.x);
 										return format(date, 'dd. MMMM yyyy');
 									},
+						},
+						filter: (tooltipItem) => {
+							// Don't show tooltips for range datasets
+							return (
+								tooltipItem.dataset.label !==
+									String(rangeLabel || 'Range Min') &&
+								tooltipItem.dataset.label !== String(rangeLabel || 'Range Max')
+							);
 						},
 					},
 				},
@@ -117,17 +184,35 @@ export default function LineChart({
 						adapters: {
 							date: {},
 						},
-						time: {
-							displayFormats: {
-								day: 'dd.MM',
-							},
-							unit: 'day',
+						grid: {
+							display: true,
 						},
+						max:
+							forecastDate && typeof forecastDate === 'object'
+								? (forecastDate as Date).getTime()
+								: forecastDate,
+						ticks:
+							xAxisType === 'linear'
+								? {
+										callback: (value) => `${Math.round(Number(value))} mo`,
+										stepSize: 3,
+									}
+								: undefined,
+						time:
+							xAxisType === 'time'
+								? {
+										displayFormats: {
+											day: 'dd.MM',
+											month: 'MMM yyyy',
+										},
+										unit: 'month', // Monthly grid lines
+									}
+								: undefined,
 						title: {
 							display: true,
 							text: String(xAxisLabel),
 						},
-						type: 'time',
+						type: xAxisType,
 					},
 					y: {
 						beginAtZero: false,
@@ -144,48 +229,18 @@ export default function LineChart({
 					},
 				},
 			},
-			plugins: [
-				{
-					afterDraw: (chart) => {
-						if (events.length === 0) return;
-						const chartCtx = chart.ctx;
-						const xAxis = chart.scales.x;
-						const yAxis = chart.scales.y;
-
-						events.forEach((event) => {
-							const eventDate = new Date(event.startDate);
-							const xPosition = xAxis.getPixelForValue(eventDate.getTime());
-
-							if (xPosition >= xAxis.left && xPosition <= xAxis.right) {
-								chartCtx.save();
-								chartCtx.beginPath();
-								chartCtx.moveTo(xPosition, yAxis.top);
-								chartCtx.lineTo(xPosition, yAxis.bottom);
-								chartCtx.lineWidth = 2;
-								chartCtx.strokeStyle = event.color || '#6366f1';
-								chartCtx.setLineDash([5, 5]);
-								chartCtx.stroke();
-
-								chartCtx.textAlign = 'center';
-								chartCtx.fillStyle = event.color || '#6366f1';
-								chartCtx.font = '10px Arial';
-								chartCtx.fillText(event.title, xPosition, yAxis.top - 5);
-								chartCtx.restore();
-							}
-						});
-					},
-					id: 'eventLines',
-				},
-			],
 			type: 'line',
 		});
 	}, [
 		data,
-		events,
+		rangeData,
+		rangeLabel,
+		forecastDate,
 		backgroundColor,
 		borderColor,
 		datasetLabel,
 		xAxisLabel,
+		xAxisType,
 		yAxisLabel,
 		yAxisUnit,
 		tooltipTitleFormatter,
@@ -202,7 +257,7 @@ export default function LineChart({
 		};
 	}, [createChart]);
 
-	if (data.length === 0) {
+	if (data.length === 0 && rangeData.length === 0) {
 		return (
 			<div className="text-muted-foreground text-center py-8">
 				{emptyStateMessage}

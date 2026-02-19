@@ -10,6 +10,7 @@ export const STORE_VALUE_MIGRATION_VERSION = 'migrationVersion';
 export const STORE_VALUE_MIGRATION_SOURCE = 'migrationSource';
 export const STORE_VALUE_MIGRATED_AT = 'migratedAt';
 export const STORE_VALUE_FEEDING_IN_PROGRESS = 'feedingInProgress';
+export const STORE_VALUE_PROFILE = 'profile';
 
 export const TABLE_IDS = {
 	DIAPER_CHANGES: 'diaperChanges',

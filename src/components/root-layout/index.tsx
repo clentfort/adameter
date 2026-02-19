@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
+import ProfilePrompt from '../profile-prompt';
 import { Toaster } from '../ui/toaster';
 import DataSharingSwitcher from './data-sharing-switcher';
 import { Footer } from './footer';
@@ -69,6 +70,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 				<Suspense fallback={null}>
 					<RoomInviteHandler />
 				</Suspense>
+				<ProfilePrompt />
 				{children}
 			</main>
 			<Toaster />
