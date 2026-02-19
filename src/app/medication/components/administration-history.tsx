@@ -13,15 +13,10 @@ import { useMedicationAdministrations } from '@/hooks/use-medication-administrat
 import MedicationAdministrationForm from './medication-administration-form';
 
 export default function AdministrationHistory() {
-	const {
-		remove,
-		update,
-		value: history,
-	} = useMedicationAdministrations();
+	const { remove, update, value: history } = useMedicationAdministrations();
 	const [adminToDelete, setAdminToDelete] = useState<string | null>(null);
-	const [adminToEdit, setAdminToEdit] = useState<MedicationAdministration | null>(
-		null,
-	);
+	const [adminToEdit, setAdminToEdit] =
+		useState<MedicationAdministration | null>(null);
 
 	return (
 		<>
@@ -81,7 +76,9 @@ export default function AdministrationHistory() {
 								</div>
 								<div className="flex gap-1 ml-2">
 									<EditIconButton onClick={() => setAdminToEdit(entry)} />
-									<DeleteIconButton onClick={() => setAdminToDelete(entry.id)} />
+									<DeleteIconButton
+										onClick={() => setAdminToDelete(entry.id)}
+									/>
 								</div>
 							</div>
 						</div>

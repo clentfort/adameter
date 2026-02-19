@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { MedicationAdministration, MedicationRegimen } from '@/types/medication';
+import {
+	MedicationAdministration,
+	MedicationRegimen,
+} from '@/types/medication';
 import { checkMissedDoses } from './check-missed-doses';
 
 vi.mock('../device-id', () => ({

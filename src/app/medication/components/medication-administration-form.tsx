@@ -46,10 +46,7 @@ export default function MedicationAdministrationForm({
 	const [note, setNote] = useState(admin?.note ?? '');
 
 	const medicationNames = Array.from(
-		new Set([
-			...regimens.map((r) => r.name),
-			...history.map((h) => h.name),
-		]),
+		new Set([...regimens.map((r) => r.name), ...history.map((h) => h.name)]),
 	);
 
 	const units = Array.from(
@@ -189,7 +186,10 @@ export default function MedicationAdministrationForm({
 						<Textarea
 							id="note"
 							onChange={(e) => setNote(e.target.value)}
-							placeholder={fbt('Reason for giving, symptoms, etc.', 'Placeholder for medication note')}
+							placeholder={fbt(
+								'Reason for giving, symptoms, etc.',
+								'Placeholder for medication note',
+							)}
 							value={note}
 						/>
 					</div>

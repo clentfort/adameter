@@ -15,7 +15,8 @@ export default function PastRegimens({
 		<Accordion collapsible type="single">
 			<AccordionItem value="past-regimens">
 				<AccordionTrigger>
-					<fbt desc="Label for past medication regimens">Past Regimens</fbt> ({regimens.length})
+					<fbt desc="Label for past medication regimens">Past Regimens</fbt> (
+					{regimens.length})
 				</AccordionTrigger>
 				<AccordionContent>
 					<div className="space-y-2">

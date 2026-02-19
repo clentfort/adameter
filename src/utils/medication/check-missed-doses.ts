@@ -12,7 +12,11 @@ export function checkMissedDoses(
 	const newSkips: MedicationAdministration[] = [];
 
 	for (const regimen of regimens) {
-		if (regimen.status !== 'active' || regimen.type !== 'fixed' || !regimen.times) {
+		if (
+			regimen.status !== 'active' ||
+			regimen.type !== 'fixed' ||
+			!regimen.times
+		) {
 			continue;
 		}
 

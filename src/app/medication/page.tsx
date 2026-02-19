@@ -68,11 +68,15 @@ export default function MedicationPage() {
 				<div className="flex justify-between items-center mb-4">
 					<h2 className="text-xl font-semibold flex items-center gap-2">
 						<Pill className="h-5 w-5" />
-						<fbt desc="Title for active medication regimens">Active Regimens</fbt>
+						<fbt desc="Title for active medication regimens">
+							Active Regimens
+						</fbt>
 					</h2>
 					<Button onClick={() => setIsAddRegimenDialogOpen(true)} size="sm">
 						<PlusCircle className="h-4 w-4 mr-1" />
-						<fbt desc="Button to start a new medication course">New Regimen</fbt>
+						<fbt desc="Button to start a new medication course">
+							New Regimen
+						</fbt>
 					</Button>
 				</div>
 				<ActiveRegimens regimens={activeRegimens} />
@@ -87,7 +91,9 @@ export default function MedicationPage() {
 			<section>
 				<div className="flex justify-between items-center mb-4">
 					<h2 className="text-xl font-semibold">
-						<fbt desc="Title for medication administration history">History</fbt>
+						<fbt desc="Title for medication administration history">
+							History
+						</fbt>
 					</h2>
 					<Button
 						onClick={() => setIsAddEntryDialogOpen(true)}

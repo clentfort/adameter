@@ -1,4 +1,7 @@
-import type { MedicationRegimen, MedicationRegimenType } from '@/types/medication';
+import type {
+	MedicationRegimen,
+	MedicationRegimenType,
+} from '@/types/medication';
 import { fbt } from 'fbtee';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -40,7 +43,9 @@ export default function MedicationRegimenForm({
 		regimen?.intervalHours?.toString() ?? '8',
 	);
 	const [startDate, setStartDate] = useState(
-		dateToDateInputValue(regimen?.startDate ? new Date(regimen.startDate) : new Date()),
+		dateToDateInputValue(
+			regimen?.startDate ? new Date(regimen.startDate) : new Date(),
+		),
 	);
 	const [endDate, setEndDate] = useState(
 		regimen?.endDate ? dateToDateInputValue(new Date(regimen.endDate)) : '',

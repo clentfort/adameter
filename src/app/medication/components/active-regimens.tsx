@@ -7,12 +7,7 @@ import type {
 import { Check, Edit2, MoreVertical, StopCircle, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -21,8 +16,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useMedicationAdministrations } from '@/hooks/use-medication-administrations';
 import { useMedicationRegimens } from '@/hooks/use-medication-regimens';
-import MedicationRegimenForm from './medication-regimen-form';
 import { getDeviceId } from '@/utils/device-id';
+import MedicationRegimenForm from './medication-regimen-form';
 
 export default function ActiveRegimens({
 	regimens,
@@ -51,10 +46,12 @@ export default function ActiveRegimens({
 			let status: 'upcoming' | 'due' | 'overdue' = 'upcoming';
 
 			if (regimen.type === 'interval' && regimen.intervalHours) {
-				nextDue = !lastAdmin ? new Date(regimen.startDate) : new Date(
-						new Date(lastAdmin.timestamp).getTime() +
-							regimen.intervalHours * 60 * 60 * 1000,
-					);
+				nextDue = !lastAdmin
+					? new Date(regimen.startDate)
+					: new Date(
+							new Date(lastAdmin.timestamp).getTime() +
+								regimen.intervalHours * 60 * 60 * 1000,
+						);
 			} else if (regimen.type === 'fixed' && regimen.times) {
 				// Find the next scheduled time
 				const today = new Date();
@@ -88,7 +85,8 @@ export default function ActiveRegimens({
 
 			if (nextDue) {
 				const diffMinutes = (nextDue.getTime() - now.getTime()) / (1000 * 60);
-				status = diffMinutes < 0 ? 'overdue' : diffMinutes < 60 ? 'due' : 'upcoming';
+				status =
+					diffMinutes < 0 ? 'overdue' : diffMinutes < 60 ? 'due' : 'upcoming';
 			}
 
 			return { lastAdmin, nextDue, regimen, status };
@@ -144,11 +142,15 @@ export default function ActiveRegimens({
 							<div className="flex items-center gap-1 min-w-0">
 								<CardTitle className="truncate">{regimen.name}</CardTitle>
 								<DropdownMenu>
-									<DropdownMenuTrigger render={<Button size="icon" variant="ghost" />}>
+									<DropdownMenuTrigger
+										render={<Button size="icon" variant="ghost" />}
+									>
 										<MoreVertical className="h-4 w-4" />
 									</DropdownMenuTrigger>
 									<DropdownMenuContent>
-										<DropdownMenuItem onClick={() => setEditingRegimen(regimen)}>
+										<DropdownMenuItem
+											onClick={() => setEditingRegimen(regimen)}
+										>
 											<Edit2 className="h-4 w-4 mr-2" />
 											<fbt common>Edit</fbt>
 										</DropdownMenuItem>
@@ -205,7 +207,8 @@ export default function ActiveRegimens({
 								</fbt>
 							) : (
 								<fbt desc="Description of interval regimen">
-									Every <fbt:param name="hours">{regimen.intervalHours}</fbt:param>{' '}
+									Every{' '}
+									<fbt:param name="hours">{regimen.intervalHours}</fbt:param>{' '}
 									hours
 								</fbt>
 							)}

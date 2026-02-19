@@ -3,7 +3,11 @@
 import { fbt } from 'fbtee';
 import { AlertCircle } from 'lucide-react';
 
-export default function ReminderBanner({ overdueCount }: { overdueCount: number }) {
+export default function ReminderBanner({
+	overdueCount,
+}: {
+	overdueCount: number;
+}) {
 	if (overdueCount === 0) {
 		return null;
 	}
