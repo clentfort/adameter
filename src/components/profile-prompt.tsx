@@ -1,5 +1,8 @@
 'use client';
 
+import { fbt } from 'fbtee';
+import { useEffect, useState } from 'react';
+import { useProfile } from '@/hooks/use-profile';
 import {
 	Dialog,
 	DialogContent,
@@ -7,17 +10,24 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { useProfile } from '@/hooks/use-profile';
 import ProfileForm from './profile-form';
 
 export default function ProfilePrompt() {
 	const [profile, setProfile] = useProfile();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	if (!mounted) {
+		return null;
+	}
 
 	if (
 		profile?.dob ||
 		profile?.optedOut ||
-		(typeof window !== 'undefined' &&
-			window.localStorage.getItem('adameter-skip-profile') === 'true')
+		window.localStorage.getItem('adameter-skip-profile') === 'true'
 	) {
 		return null;
 	}
@@ -27,9 +37,7 @@ export default function ProfilePrompt() {
 			<DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
 				<DialogHeader>
 					<DialogTitle>
-						<fbt desc="Title for the profile setup dialog">
-							Welcome to AdaMeter!
-						</fbt>
+						<fbt desc="Title for the profile setup dialog">Welcome to AdaMeter!</fbt>
 					</DialogTitle>
 					<DialogDescription>
 						<fbt desc="Description for the profile setup dialog">
