@@ -215,11 +215,7 @@ export default function DiaperForm({
 								Diaper Brand
 							</fbt>
 						</Label>
-						<Select
-							items={DIAPER_BRANDS}
-							onValueChange={setDiaperBrand}
-							value={diaperBrand}
-						>
+						<Select onValueChange={setDiaperBrand} value={diaperBrand}>
 							<SelectTrigger>
 								<SelectValue
 									placeholder={

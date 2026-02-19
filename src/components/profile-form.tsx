@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,20 +19,6 @@ interface ProfileFormProps {
 }
 
 export default function ProfileForm({ onOptOut, onSave }: ProfileFormProps) {
-	const sexItems = useMemo(
-		() => [
-			{
-				label: <fbt desc="Option for boy in sex selection">Boy</fbt>,
-				value: 'boy',
-			},
-			{
-				label: <fbt desc="Option for girl in sex selection">Girl</fbt>,
-				value: 'girl',
-			},
-		],
-		[],
-	);
-
 	const [dob, setDob] = useState('');
 	const [sex, setSex] = useState<Sex | ''>('');
 
@@ -60,11 +46,7 @@ export default function ProfileForm({ onOptOut, onSave }: ProfileFormProps) {
 					<Label htmlFor="sex">
 						<fbt desc="Label for biological sex select">Sex</fbt>
 					</Label>
-					<Select
-						items={sexItems}
-						onValueChange={(value) => setSex(value as Sex)}
-						value={sex}
-					>
+					<Select onValueChange={(value) => setSex(value as Sex)} value={sex}>
 						<SelectTrigger id="sex">
 							<SelectValue
 								placeholder={
@@ -73,11 +55,12 @@ export default function ProfileForm({ onOptOut, onSave }: ProfileFormProps) {
 							/>
 						</SelectTrigger>
 						<SelectContent>
-							{sexItems.map((item) => (
-								<SelectItem key={item.value} value={item.value}>
-									{item.label}
-								</SelectItem>
-							))}
+							<SelectItem value="boy">
+								<fbt desc="Option for boy in sex selection">Boy</fbt>
+							</SelectItem>
+							<SelectItem value="girl">
+								<fbt desc="Option for girl in sex selection">Girl</fbt>
+							</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>
