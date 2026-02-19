@@ -8,10 +8,12 @@
 	"Edit": "Label on an edit button",
 	"Join": "Label on a join button",
 	"Left": "Left direction",
+	"Log Dose": "Action to log a dose of medication",
 	"Notes": "Label for an optional notes textarea",
 	"Right": "Right direction",
 	"Save": "Label on a save button",
 	"Stool": "Stool",
 	"Time": "Label for a time field",
+	"Unit": "Label for a unit field",
 	"Urine": "Urine"
 }

@@ -17,6 +17,8 @@ export const TABLE_IDS = {
 	EVENTS: 'events',
 	FEEDING_SESSIONS: 'feedingSessions',
 	GROWTH_MEASUREMENTS: 'growthMeasurements',
+	MEDICATION_ADMINISTRATIONS: 'medicationAdministrations',
+	MEDICATION_REGIMENS: 'medicationRegimens',
 	TEETHING: 'teething',
 } as const;
 
@@ -28,6 +30,8 @@ export const LEGACY_YJS_ARRAYS = {
 	[TABLE_IDS.EVENTS]: 'events-dec',
 	[TABLE_IDS.FEEDING_SESSIONS]: 'feeding-sessions-dec',
 	[TABLE_IDS.GROWTH_MEASUREMENTS]: 'growth-measurments-dec',
+	[TABLE_IDS.MEDICATION_ADMINISTRATIONS]: 'medication-administrations-dec',
+	[TABLE_IDS.MEDICATION_REGIMENS]: 'medication-regimens-dec',
 	[TABLE_IDS.TEETHING]: 'teething-dec',
 } as const;
 

@@ -27,6 +27,11 @@ const pages = [
 		path: '/growth',
 	},
 	{
+		icon: '💊',
+		label: () => fbt('Medication', 'Title of the Medication tab'),
+		path: '/medication',
+	},
+	{
 		icon: '📅',
 		label: () => fbt('Events', 'Title of the Events tab'),
 		path: '/events',
@@ -43,7 +48,7 @@ export default function Navigation() {
 	return (
 		<div className="mb-6">
 			<NavigationMenu className="w-full max-w-none">
-				<NavigationMenuList className="w-full grid grid-cols-5">
+				<NavigationMenuList className="w-full grid grid-cols-6">
 					{pages.map((page) => {
 						const isActive = pathname === page.path;
 						return (
