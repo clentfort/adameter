@@ -16,7 +16,8 @@ const hasPartykitChanges = () => {
 				(file) =>
 					file.startsWith('party/') ||
 					file === 'package.json' ||
-					file === 'partykit.json',
+					file === 'partykit.json' ||
+					file === 'pnpm-lock.yaml',
 			);
 	} catch {
 		return false;
