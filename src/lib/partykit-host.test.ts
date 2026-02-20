@@ -6,7 +6,16 @@ describe('resolvePartykitHost', () => {
 		expect(resolvePartykitHost()).toBe('adameter-party.clentfort.partykit.dev');
 	});
 
-	it('returns per-branch preview host on vercel branch previews', () => {
+	it('returns per-PR preview host when vercelPrId is provided', () => {
+		expect(
+			resolvePartykitHost({
+				vercelEnv: 'preview',
+				vercelPrId: '123',
+			}),
+		).toBe('pr-123.adameter-party.clentfort.partykit.dev');
+	});
+
+	it('returns per-branch preview host on vercel branch previews without PR ID', () => {
 		expect(
 			resolvePartykitHost({
 				vercelEnv: 'preview',
