@@ -209,4 +209,3 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		</tinybaseContext.Provider>
 	);
 }
-
