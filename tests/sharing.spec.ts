@@ -55,6 +55,6 @@ test.describe('Sharing via TinyBase', () => {
 		// It might take a moment to sync via PartyKit
 		await expect(
 			pageB.getByTestId('feeding-history-entry').getByText('Left Breast'),
-		).toBeVisible({ timeout: 15000 });
+		).toBeVisible({ timeout: 15_000 });
 	});
 });
