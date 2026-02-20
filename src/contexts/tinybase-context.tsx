@@ -6,9 +6,6 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { createStore } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
-import { IndexeddbPersistence } from 'y-indexeddb';
-import YPartyKitProvider from 'y-partykit/provider';
-import { Doc } from 'yjs';
 import { SplashScreen } from '@/components/splash-screen';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
@@ -16,15 +13,9 @@ import {
 	startPerformanceTimer,
 } from '@/lib/performance-logging';
 import {
-	LEGACY_YJS_PARTYKIT_PARTY,
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
-import {
-	completeLegacyMigrationMarker,
-	ensureLegacyMigrationMarker,
-	migrateStoreFromLegacyYjsDoc,
-} from '@/lib/tinybase-sync/legacy-yjs-migration';
 import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
@@ -62,11 +53,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			);
 			await localPersister.load();
 			loadTimer.end();
-
-			const migrationResult = await migrateFromLocalLegacyYjs(store);
-			if (migrationResult === 'migrated') {
-				await localPersister.save();
-			}
 
 			await localPersister.startAutoSave();
 
@@ -122,12 +108,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		};
 
 		const connectRoomSync = async () => {
-			const migrationTimer = startPerformanceTimer('tinybase.migration.party', {
-				room,
-			});
-			await migrateRoomFromLegacyYjs(store, room);
-			migrationTimer.end();
-
 			if (isDisposed) {
 				return;
 			}
@@ -228,103 +208,4 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			{children}
 		</tinybaseContext.Provider>
 	);
-}
-
-async function migrateFromLocalLegacyYjs(store: Store) {
-	const doc = new Doc();
-	const persistence = new IndexeddbPersistence('adameter', doc);
-
-	try {
-		await persistence.whenSynced;
-		const migrationResult = migrateStoreFromLegacyYjsDoc(store, doc, {
-			source: 'yjs-local',
-		});
-
-		logPerformanceEvent('tinybase.migration.local.result', {
-			metadata: {
-				reason: migrationResult.reason,
-			},
-		});
-
-		return migrationResult.reason;
-	} finally {
-		await persistence.destroy();
-		doc.destroy();
-	}
-}
-
-async function migrateRoomFromLegacyYjs(store: Store, room: string) {
-	const doc = new Doc();
-	const persistence = new IndexeddbPersistence('adameter', doc);
-	let provider: YPartyKitProvider | undefined;
-
-	try {
-		await persistence.whenSynced;
-
-		provider = new YPartyKitProvider(PARTYKIT_HOST, room, doc, {
-			connect: true,
-			party: LEGACY_YJS_PARTYKIT_PARTY,
-		});
-
-		await waitForYjsProviderSynced(provider);
-
-		ensureLegacyMigrationMarker(doc, {
-			actorId:
-				typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-					? crypto.randomUUID()
-					: `migration-${Date.now().toString(36)}`,
-		});
-
-		const migrationResult = migrateStoreFromLegacyYjsDoc(store, doc, {
-			source: 'yjs-party',
-		});
-
-		completeLegacyMigrationMarker(doc);
-
-		logPerformanceEvent('tinybase.migration.party.result', {
-			metadata: {
-				reason: migrationResult.reason,
-				room,
-			},
-		});
-	} finally {
-		provider?.destroy();
-		await persistence.destroy();
-		doc.destroy();
-	}
-}
-
-function waitForYjsProviderSynced(
-	provider: YPartyKitProvider,
-	timeoutMs = 10_000,
-) {
-	if (provider.synced) {
-		return Promise.resolve(true);
-	}
-
-	return new Promise<boolean>((resolve) => {
-		let settled = false;
-		const onSynced = (isSynced: unknown) => {
-			if (settled || isSynced !== true) {
-				return;
-			}
-
-			settled = true;
-			clearTimeout(timeoutId);
-			provider.off('synced', onSynced);
-			resolve(true);
-		};
-
-		const timeoutId = setTimeout(() => {
-			if (settled) {
-				return;
-			}
-
-			settled = true;
-			provider.off('synced', onSynced);
-			resolve(false);
-		}, timeoutMs);
-
-		provider.on('synced', onSynced);
-	});
 }

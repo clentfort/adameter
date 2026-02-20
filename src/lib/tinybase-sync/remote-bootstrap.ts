@@ -1,7 +1,7 @@
 import type { Content, Store } from 'tinybase';
 import type { JoinStrategy } from '@/contexts/data-synchronization-context';
-import { isStoreDataEmpty } from './legacy-yjs-migration';
 import { mergeStoreContent } from './merge';
+import { isStoreDataEmpty } from './store-utils';
 
 type RemoteBootstrapDecision =
 	| 'keep-empty'
