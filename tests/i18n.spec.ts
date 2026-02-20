@@ -27,9 +27,9 @@ test.describe('Internationalization', () => {
 		await expect(page.getByText('Letztes Stillen')).toBeVisible();
 
 		// 5. Switch back to English
-		// In German, the title is translated to "Sprache"
+		// In German, the title is translated to "Sprache" and "English" to "Englisch"
 		await page.getByTitle('Sprache').click();
-		await page.getByRole('menuitem').filter({ hasText: 'English' }).click();
+		await page.getByRole('menuitem').filter({ hasText: 'Englisch' }).click();
 
 		// 6. Verify English text again
 		await expect(page.getByText('Last Feeding')).toBeVisible();

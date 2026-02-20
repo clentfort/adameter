@@ -52,7 +52,6 @@ const nextConfig: NextConfig = {
 		ignoreDuringBuilds: true,
 	},
 	productionBrowserSourceMaps: true,
-	serverExternalPackages: ['yjs'],
 	typescript: {
 		// Warning: This allows production builds to successfully complete even if
 		// your project has TypeScript errors.
