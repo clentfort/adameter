@@ -3,6 +3,11 @@ name: Deploy PartyKit Preview
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'party/**'
+      - 'partykit.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
 
 permissions:
   contents: read

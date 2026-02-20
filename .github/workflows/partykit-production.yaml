@@ -27,3 +27,17 @@ jobs:
       transient_environment: false
       production_environment: true
     secrets: inherit
+
+  deploy-preview:
+    uses: ./.github/workflows/partykit-deploy-reusable.yaml
+    with:
+      deployment_environment: partykit-shared-preview
+      deployment_url: https://preview.adameter-party.clentfort.partykit.dev
+      deploy_command: pnpm exec partykit deploy --preview preview
+      deployment_description: PartyKit shared preview deployment
+      in_progress_description: PartyKit shared preview deployment in progress
+      success_description: PartyKit shared preview deployment is ready
+      failure_description: PartyKit shared preview deployment failed
+      transient_environment: false
+      production_environment: false
+    secrets: inherit

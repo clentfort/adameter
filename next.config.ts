@@ -1,7 +1,28 @@
+import { execSync } from 'node:child_process';
 import { NextConfig } from 'next';
 
 const PARTYKIT_PROJECT_NAME = 'adameter-party';
 const PARTYKIT_ACCOUNT = 'clentfort';
+
+const hasPartykitChanges = () => {
+	try {
+		execSync('git fetch origin main --depth=1', { stdio: 'ignore' });
+		const diff = execSync('git diff --name-only origin/main...HEAD', {
+			encoding: 'utf8',
+		});
+		return diff
+			.split('\n')
+			.some(
+				(file) =>
+					file.startsWith('party/') ||
+					file === 'package.json' ||
+					file === 'partykit.json' ||
+					file === 'pnpm-lock.yaml',
+			);
+	} catch {
+		return false;
+	}
+};
 
 const getPartykitHostForBuild = () => {
 	const explicitHost = process.env.NEXT_PUBLIC_PARTYKIT_HOST;
@@ -10,36 +31,15 @@ const getPartykitHostForBuild = () => {
 	}
 
 	const vercelEnv = process.env.VERCEL_ENV;
-	const vercelGitCommitRef = process.env.VERCEL_GIT_COMMIT_REF;
-	const previewName =
-		vercelEnv === 'preview' ? getPreviewName(vercelGitCommitRef) : undefined;
-	if (previewName) {
-		return `${previewName}.${PARTYKIT_PROJECT_NAME}.${PARTYKIT_ACCOUNT}.partykit.dev`;
+	if (vercelEnv === 'preview') {
+		const prId = process.env.VERCEL_GIT_PULL_REQUEST_ID;
+		if (prId && hasPartykitChanges()) {
+			return `pr-${prId}.${PARTYKIT_PROJECT_NAME}.${PARTYKIT_ACCOUNT}.partykit.dev`;
+		}
+		return `preview.${PARTYKIT_PROJECT_NAME}.${PARTYKIT_ACCOUNT}.partykit.dev`;
 	}
 
 	return `${PARTYKIT_PROJECT_NAME}.${PARTYKIT_ACCOUNT}.partykit.dev`;
-};
-
-const getPreviewName = (vercelGitCommitRef?: string) => {
-	if (!vercelGitCommitRef) {
-		return undefined;
-	}
-
-	return `branch-${normalizePreviewId(vercelGitCommitRef, 56)}`;
-};
-
-const normalizePreviewId = (value: string, maxLength: number) => {
-	const normalized = value
-		.toLowerCase()
-		.replaceAll(/[^\da-z]+/g, '-')
-		.replaceAll(/^-+|-+$/g, '')
-		.replaceAll(/-+/g, '-');
-
-	if (!normalized) {
-		return 'preview';
-	}
-
-	return normalized.slice(0, maxLength).replaceAll(/-+$/g, '') || 'preview';
 };
 
 const nextConfig: NextConfig = {

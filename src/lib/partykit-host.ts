@@ -6,19 +6,23 @@ interface ResolvePartykitHostOptions {
 	explicitHost?: string;
 	vercelEnv?: string;
 	vercelGitCommitRef?: string;
+	vercelPrId?: string;
 }
 
 export function resolvePartykitHost({
 	explicitHost,
 	vercelEnv,
 	vercelGitCommitRef,
+	vercelPrId,
 }: ResolvePartykitHostOptions = {}) {
 	if (explicitHost) {
 		return normalizePartykitHost(explicitHost);
 	}
 
 	const previewName =
-		vercelEnv === 'preview' ? getPreviewName(vercelGitCommitRef) : undefined;
+		vercelEnv === 'preview'
+			? getPreviewName(vercelGitCommitRef, vercelPrId)
+			: undefined;
 	if (previewName) {
 		return [
 			previewName,
@@ -38,6 +42,7 @@ export function getPartykitHostFromEnv(env: NodeJS.ProcessEnv = process.env) {
 		explicitHost: env.NEXT_PUBLIC_PARTYKIT_HOST,
 		vercelEnv: env.VERCEL_ENV,
 		vercelGitCommitRef: env.VERCEL_GIT_COMMIT_REF,
+		vercelPrId: env.VERCEL_GIT_PULL_REQUEST_ID,
 	});
 }
 
@@ -47,6 +52,7 @@ export const PARTYKIT_HOST = resolvePartykitHost({
 	explicitHost: NEXT_PUBLIC_PARTYKIT_HOST,
 	vercelEnv: process.env.VERCEL_ENV,
 	vercelGitCommitRef: process.env.VERCEL_GIT_COMMIT_REF,
+	vercelPrId: process.env.VERCEL_GIT_PULL_REQUEST_ID,
 });
 export const PARTYKIT_URL = `https://${PARTYKIT_HOST}`;
 
@@ -54,7 +60,10 @@ function normalizePartykitHost(host: string) {
 	return host.replace(/^https?:\/\//, '').replace(/\/$/, '');
 }
 
-function getPreviewName(vercelGitCommitRef?: string) {
+function getPreviewName(vercelGitCommitRef?: string, vercelPrId?: string) {
+	if (vercelPrId) {
+		return `pr-${vercelPrId}`;
+	}
 	if (!vercelGitCommitRef) {
 		return undefined;
 	}
