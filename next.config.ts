@@ -8,7 +8,7 @@ const hasPartykitChanges = () => {
 	try {
 		execSync('git fetch origin main --depth=1', { stdio: 'ignore' });
 		const diff = execSync('git diff --name-only origin/main...HEAD', {
-			encoding: 'utf-8',
+			encoding: 'utf8',
 		});
 		return diff
 			.split('\n')
@@ -18,8 +18,7 @@ const hasPartykitChanges = () => {
 					file === 'package.json' ||
 					file === 'partykit.json',
 			);
-	} catch (e) {
-		console.error('Failed to check for PartyKit changes:', e);
+	} catch {
 		return false;
 	}
 };
