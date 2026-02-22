@@ -2,7 +2,7 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactConfetti from 'react-confetti';
 import { Button } from '@/components/ui/button';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
@@ -10,14 +10,24 @@ import { useLastUsedDiaperBrand } from '@/hooks/use-last-used-diaper-brand';
 import DiaperForm from './components/diaper-form';
 import DiaperHistoryList from './components/diaper-history-list';
 import DiaperTracker from './components/diaper-tracker';
+import { migrateDiaperChanges } from './utils/migration';
 
 export default function DiaperPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const [showConfetti, setShowConfetti] = useState(false);
 
 	const diaperChanges = useDiaperChanges();
-	const { add } = diaperChanges;
+	const { add, replace, value: changes } = diaperChanges;
 	const lastUsedDiaperBrand = useLastUsedDiaperBrand();
+
+	useEffect(() => {
+		if (changes.length > 0) {
+			const { hasChanges, migrated } = migrateDiaperChanges(changes);
+			if (hasChanges) {
+				replace(migrated);
+			}
+		}
+	}, [changes, replace]);
 
 	const checkAndTriggerConfetti = (
 		change: DiaperChange,
