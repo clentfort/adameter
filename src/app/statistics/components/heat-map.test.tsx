@@ -1,4 +1,4 @@
-import { cleanup, render, within } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import HeatMap from './heat-map';
 
@@ -48,7 +48,7 @@ describe('HeatMap', () => {
 	});
 
 	it('renders time markers and legend', () => {
-		const { getByText, getAllByText } = render(
+		const { getAllByText, getByText } = render(
 			<HeatMap data={mockData} description="Desc" title="Title" />,
 		);
 
