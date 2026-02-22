@@ -2,13 +2,30 @@
 
 import type { GrowthMeasurement } from '@/types/growth';
 import { addDays, differenceInDays, isAfter, min, startOfDay } from 'date-fns';
+import { Info } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import LineChart from '@/components/charts/line-chart';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+	Card,
+	CardAction,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+import {
+	Popover,
+	PopoverContent,
+	PopoverDescription,
+	PopoverHeader,
+	PopoverTitle,
+	PopoverTrigger,
+} from '@/components/ui/popover';
 import { useProfile } from '@/hooks/use-profile';
 import {
 	calculateValue,
 	getGrowthTable,
+	getPercentile,
 	lookupLms,
 	Z_3RD,
 	Z_97TH,
@@ -26,11 +43,53 @@ interface RangePoint {
 
 const DAYS_PER_MONTH = 30.4375;
 
+function PercentileBadge({ value }: { value: number }) {
+	return (
+		<Popover>
+			<PopoverTrigger
+				nativeButton={false}
+				render={
+					<Badge
+						className="cursor-help transition-colors hover:bg-secondary/80"
+						variant="secondary"
+					>
+						<fbt desc="Label for growth percentile">
+							P<fbt:param name="percentile">{Math.round(value)}</fbt:param>
+						</fbt>
+						<Info className="ml-1 size-3" />
+					</Badge>
+				}
+			/>
+			<PopoverContent className="w-80">
+				<PopoverHeader>
+					<PopoverTitle>
+						<fbt desc="Title for percentile explanation popover">
+							What is a percentile?
+						</fbt>
+					</PopoverTitle>
+				</PopoverHeader>
+				<PopoverDescription className="text-xs leading-normal">
+					<fbt desc="Explanation of what a growth percentile means">
+						A percentile shows how your child&apos;s measurement compares to
+						other children of the same age and sex. For example, P50 means your
+						child is in the middle: 50% of children are smaller and 50% are
+						larger. P95 means your child is larger than 95% of children the same
+						age.
+					</fbt>
+				</PopoverDescription>
+			</PopoverContent>
+		</Popover>
+	);
+}
+
 export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [profile] = useProfile();
 	const [weightRange, setWeightRange] = useState<RangePoint[]>([]);
 	const [heightRange, setHeightRange] = useState<RangePoint[]>([]);
 	const [headRange, setHeadRange] = useState<RangePoint[]>([]);
+	const [weightPercentile, setWeightPercentile] = useState<number | null>(null);
+	const [heightPercentile, setHeightPercentile] = useState<number | null>(null);
+	const [headPercentile, setHeadPercentile] = useState<number | null>(null);
 
 	const sortedMeasurements = useMemo(
 		() =>
@@ -51,8 +110,9 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			sortedMeasurements.length > 0
 				? startOfDay(new Date(sortedMeasurements.at(-1).date))
 				: dob;
-		const endDate = addDays(lastMeasureDate, 30);
-		return differenceInDays(endDate, dob) / DAYS_PER_MONTH;
+		const currentAgeMonths =
+			differenceInDays(lastMeasureDate, dob) / DAYS_PER_MONTH;
+		return Math.floor(currentAgeMonths / 3) * 3 + 3;
 	}, [dob, sortedMeasurements]);
 
 	useEffect(() => {
@@ -61,7 +121,55 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				setWeightRange([]);
 				setHeightRange([]);
 				setHeadRange([]);
+				setWeightPercentile(null);
+				setHeightPercentile(null);
+				setHeadPercentile(null);
 				return;
+			}
+
+			// Calculate percentiles for the latest measurements
+			let latestWeight = null;
+			let latestHeight = null;
+			let latestHead = null;
+			for (let i = sortedMeasurements.length - 1; i >= 0; i--) {
+				const m = sortedMeasurements[i];
+				if (!latestWeight && m.weight != null) latestWeight = m;
+				if (!latestHeight && m.height != null) latestHeight = m;
+				if (!latestHead && m.headCircumference != null) latestHead = m;
+				if (latestWeight && latestHeight && latestHead) break;
+			}
+
+			if (latestWeight?.weight) {
+				getPercentile(
+					'weight-for-age',
+					profile.sex,
+					differenceInDays(new Date(latestWeight.date), dob),
+					latestWeight.weight,
+				).then(setWeightPercentile);
+			} else {
+				setWeightPercentile(null);
+			}
+
+			if (latestHeight?.height) {
+				getPercentile(
+					'length-height-for-age',
+					profile.sex,
+					differenceInDays(new Date(latestHeight.date), dob),
+					latestHeight.height,
+				).then(setHeightPercentile);
+			} else {
+				setHeightPercentile(null);
+			}
+
+			if (latestHead?.headCircumference) {
+				getPercentile(
+					'head-circumference-for-age',
+					profile.sex,
+					differenceInDays(new Date(latestHead.date), dob),
+					latestHead.headCircumference,
+				).then(setHeadPercentile);
+			} else {
+				setHeadPercentile(null);
 			}
 
 			const firstMeasureDate =
@@ -239,6 +347,11 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							Weight (g)
 						</fbt>
 					</CardTitle>
+					{weightPercentile !== null && (
+						<CardAction>
+							<PercentileBadge value={weightPercentile} />
+						</CardAction>
+					)}
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<LineChart
@@ -274,6 +387,11 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							Height (cm)
 						</fbt>
 					</CardTitle>
+					{heightPercentile !== null && (
+						<CardAction>
+							<PercentileBadge value={heightPercentile} />
+						</CardAction>
+					)}
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<LineChart
@@ -309,6 +427,11 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							Head Circumference (cm)
 						</fbt>
 					</CardTitle>
+					{headPercentile !== null && (
+						<CardAction>
+							<PercentileBadge value={headPercentile} />
+						</CardAction>
+					)}
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<LineChart
