@@ -1,71 +1,71 @@
 import type { DiaperChange } from '@/types/diaper';
 import { describe, expect, it } from 'vitest';
-import { migrateDiaperChanges } from './migration';
 
-describe('migrateDiaperChanges', () => {
-	it('should migrate German phrases correctly', () => {
-		const changes: DiaperChange[] = [
-			{
-				abnormalities: 'Urin abgehalten',
-				containsStool: false,
-				containsUrine: true,
-				id: '1',
-				timestamp: '2024-01-01T10:00:00Z',
-			},
-			{
-				abnormalities: 'Stuhl abgehalten',
-				containsStool: true,
-				containsUrine: true,
-				id: '2',
-				timestamp: '2024-01-01T11:00:00Z',
-			},
-			{
-				abnormalities: 'Windel trocken, Urin abgehalten',
-				containsStool: false,
-				containsUrine: true,
-				id: '3',
-				timestamp: '2024-01-01T12:00:00Z',
-			},
-			{
-				abnormalities: 'Some other note',
-				containsStool: false,
-				containsUrine: true,
-				id: '4',
-				timestamp: '2024-01-01T13:00:00Z',
-			},
-		];
+import { migrateDiaperChange } from './migration';
 
-		const { hasChanges, migrated } = migrateDiaperChanges(changes);
-
-		expect(hasChanges).toBe(true);
-		expect(migrated[0].pottyUrine).toBe(true);
-		expect(migrated[0].pottyStool).toBe(false);
-		expect(migrated[0].containsUrine).toBe(true);
-
-		expect(migrated[1].pottyStool).toBe(true);
-		expect(migrated[1].containsStool).toBe(true);
-
-		expect(migrated[2].containsUrine).toBe(false);
-		expect(migrated[2].pottyUrine).toBe(true);
-
-		expect(migrated[3].pottyUrine).toBe(false);
-		expect(migrated[3].pottyStool).toBe(false);
-		expect(migrated[3].containsUrine).toBe(true);
+describe('migrateDiaperChange', () => {
+	it('should not change records that already have potty data', () => {
+		const record = {
+			abnormalities: 'Urin abgehalten',
+			containsUrine: true,
+			id: '1',
+			pottyStool: false,
+			pottyUrine: true,
+			timestamp: Date.now(),
+		} as DiaperChange;
+		expect(migrateDiaperChange(record)).toBe(record);
 	});
 
-	it('should not migrate already migrated changes', () => {
-		const changes: DiaperChange[] = [
-			{
-				containsStool: false,
-				containsUrine: true,
-				id: '1',
-				pottyStool: false,
-				pottyUrine: true,
-				timestamp: '2024-01-01T10:00:00Z',
-			},
-		];
+	it('should migrate "Urin abgehalten"', () => {
+		const record = {
+			abnormalities: 'Urin abgehalten',
+			containsStool: false,
+			containsUrine: true,
+			id: '1',
+			timestamp: Date.now(),
+		} as DiaperChange;
+		const migrated = migrateDiaperChange(record);
+		expect(migrated.pottyUrine).toBe(true);
+		expect(migrated.containsUrine).toBe(true);
+	});
 
-		const { hasChanges } = migrateDiaperChanges(changes);
-		expect(hasChanges).toBe(false);
+	it('should migrate "Stuhl abgehalten"', () => {
+		const record = {
+			abnormalities: 'Stuhl abgehalten',
+			containsStool: true,
+			containsUrine: false,
+			id: '1',
+			timestamp: Date.now(),
+		} as DiaperChange;
+		const migrated = migrateDiaperChange(record);
+		expect(migrated.pottyStool).toBe(true);
+		expect(migrated.containsStool).toBe(true);
+	});
+
+	it('should handle "Windel trocken"', () => {
+		const record = {
+			abnormalities: 'Windel trocken, Urin abgehalten',
+			containsStool: false,
+			containsUrine: true,
+			id: '1',
+			timestamp: Date.now(),
+		} as DiaperChange;
+		const migrated = migrateDiaperChange(record);
+		expect(migrated.pottyUrine).toBe(true);
+		expect(migrated.containsUrine).toBe(false);
+		expect(migrated.containsStool).toBe(false);
+	});
+
+	it('should handle both urine and stool', () => {
+		const record = {
+			abnormalities: 'Beides abgehalten',
+			containsStool: true,
+			containsUrine: true,
+			id: '1',
+			timestamp: Date.now(),
+		} as DiaperChange;
+		const migrated = migrateDiaperChange(record);
+		expect(migrated.pottyUrine).toBe(true);
+		expect(migrated.pottyStool).toBe(true);
 	});
 });

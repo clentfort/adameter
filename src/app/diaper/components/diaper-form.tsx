@@ -153,14 +153,9 @@ export default function DiaperForm({
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
-				<div className="grid gap-4 py-4">
-					<div className="space-y-2">
-						<Label>
-							<fbt desc="Label for the contents section of the diaper change form">
-								Contents
-							</fbt>
-						</Label>
-						<div className="grid grid-cols-3 gap-3 items-center border rounded-lg p-4 bg-muted/20">
+				<div className="grid gap-4 py-2">
+					<div className="space-y-3">
+						<div className="grid grid-cols-3 gap-3 items-center">
 							<div />
 							<div className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
 								<fbt desc="Urine column header">Urine</fbt>
@@ -177,7 +172,7 @@ export default function DiaperForm({
 							<Button
 								className={`h-12 w-full transition-all ${
 									containsUrine
-										? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-sm ring-2 ring-yellow-600 ring-offset-2'
+										? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
 										: 'bg-background hover:bg-muted text-muted-foreground'
 								}`}
 								data-testid="toggle-diaper-urine"
@@ -190,7 +185,7 @@ export default function DiaperForm({
 							<Button
 								className={`h-12 w-full transition-all ${
 									containsStool
-										? 'bg-amber-700 hover:bg-amber-800 text-white shadow-sm ring-2 ring-amber-900 ring-offset-2'
+										? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
 										: 'bg-background hover:bg-muted text-muted-foreground'
 								}`}
 								data-testid="toggle-diaper-stool"
@@ -209,7 +204,7 @@ export default function DiaperForm({
 							<Button
 								className={`h-12 w-full transition-all ${
 									pottyUrine
-										? 'bg-blue-400 hover:bg-blue-500 text-blue-900 shadow-sm ring-2 ring-blue-600 ring-offset-2'
+										? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
 										: 'bg-background hover:bg-muted text-muted-foreground'
 								}`}
 								data-testid="toggle-potty-urine"
@@ -222,7 +217,7 @@ export default function DiaperForm({
 							<Button
 								className={`h-12 w-full transition-all ${
 									pottyStool
-										? 'bg-orange-700 hover:bg-orange-800 text-white shadow-sm ring-2 ring-orange-900 ring-offset-2'
+										? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
 										: 'bg-background hover:bg-muted text-muted-foreground'
 								}`}
 								data-testid="toggle-potty-stool"
@@ -232,6 +227,19 @@ export default function DiaperForm({
 							>
 								<span className="text-xl">💩</span>
 							</Button>
+						</div>
+
+						<div className="flex items-center space-x-2">
+							<Switch
+								checked={hasLeakage}
+								id="edit-leakage"
+								onCheckedChange={setHasLeakage}
+							/>
+							<Label htmlFor="edit-leakage">
+								<fbt desc="Label for a switch button that indicates that a diaper has leaked">
+									Diaper leaked
+								</fbt>
+							</Label>
 						</div>
 					</div>
 
@@ -319,18 +327,6 @@ export default function DiaperForm({
 							)}
 					</div>
 
-					<div className="flex items-center space-x-2">
-						<Switch
-							checked={hasLeakage}
-							id="edit-leakage"
-							onCheckedChange={setHasLeakage}
-						/>
-						<Label htmlFor="edit-leakage">
-							<fbt desc="Label for a switch button that indicates that a diaper has leaked">
-								Diaper leaked
-							</fbt>
-						</Label>
-					</div>
 
 					<div className="space-y-2">
 						<Label htmlFor="edit-notes">
