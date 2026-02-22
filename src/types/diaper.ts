@@ -7,14 +7,14 @@ export interface DiaperChange extends BaseEntity {
 	containsStool: boolean;
 	/** Whether the diaper contains urine. */
 	containsUrine: boolean;
-	/** Whether stool went into the potty. */
-	pottyStool?: boolean;
-	/** Whether urine went into the potty. */
-	pottyUrine?: boolean;
 	/** Optional diaper brand. */
 	diaperBrand?: string;
 	/** Optional leakage indicator. */
 	leakage?: boolean;
+	/** Whether stool went into the potty. */
+	pottyStool?: boolean;
+	/** Whether urine went into the potty. */
+	pottyUrine?: boolean;
 	/** Optional temperature in Celsius. */
 	temperature?: number;
 	/** Timestamp of the diaper change. */

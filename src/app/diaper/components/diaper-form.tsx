@@ -134,9 +134,9 @@ export default function DiaperForm({
 			containsUrine,
 			diaperBrand: diaperBrand || undefined,
 			id: change?.id || Date.now().toString(),
+			leakage: hasLeakage || undefined,
 			pottyStool,
 			pottyUrine,
-			leakage: hasLeakage || undefined,
 			temperature: temperature ? Number.parseFloat(temperature) : undefined,
 			timestamp: timestamp.toISOString(),
 		};

@@ -6,36 +6,36 @@ describe('migrateDiaperChanges', () => {
     it('should migrate German phrases correctly', () => {
         const changes: DiaperChange[] = [
             {
+                abnormalities: 'Urin abgehalten',
+                containsStool: false,
+                containsUrine: true,
                 id: '1',
                 timestamp: '2024-01-01T10:00:00Z',
-                containsUrine: true,
-                containsStool: false,
-                abnormalities: 'Urin abgehalten',
             },
             {
+                abnormalities: 'Stuhl abgehalten',
+                containsStool: true,
+                containsUrine: true,
                 id: '2',
                 timestamp: '2024-01-01T11:00:00Z',
-                containsUrine: true,
-                containsStool: true,
-                abnormalities: 'Stuhl abgehalten',
             },
             {
+                abnormalities: 'Windel trocken, Urin abgehalten',
+                containsStool: false,
+                containsUrine: true,
                 id: '3',
                 timestamp: '2024-01-01T12:00:00Z',
-                containsUrine: true,
-                containsStool: false,
-                abnormalities: 'Windel trocken, Urin abgehalten',
             },
             {
+                abnormalities: 'Some other note',
+                containsStool: false,
+                containsUrine: true,
                 id: '4',
                 timestamp: '2024-01-01T13:00:00Z',
-                containsUrine: true,
-                containsStool: false,
-                abnormalities: 'Some other note',
             }
         ];
 
-        const { migrated, hasChanges } = migrateDiaperChanges(changes);
+        const { hasChanges, migrated } = migrateDiaperChanges(changes);
 
         expect(hasChanges).toBe(true);
         expect(migrated[0].pottyUrine).toBe(true);
@@ -56,12 +56,12 @@ describe('migrateDiaperChanges', () => {
     it('should not migrate already migrated changes', () => {
         const changes: DiaperChange[] = [
             {
-                id: '1',
-                timestamp: '2024-01-01T10:00:00Z',
-                containsUrine: true,
                 containsStool: false,
-                pottyUrine: true,
+                containsUrine: true,
+                id: '1',
                 pottyStool: false,
+                pottyUrine: true,
+                timestamp: '2024-01-01T10:00:00Z',
             }
         ];
 
