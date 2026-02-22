@@ -30,7 +30,11 @@ describe('HeatMap', () => {
 
 	it('renders the heat map with correct title and description', () => {
 		const { getByText } = render(
-			<HeatMap data={mockData} description="Test Description" title="Test Title" />,
+			<HeatMap
+				data={mockData}
+				description="Test Description"
+				title="Test Title"
+			/>,
 		);
 		expect(getByText('Test Title')).toBeInTheDocument();
 		expect(getByText('Test Description')).toBeInTheDocument();
@@ -40,7 +44,9 @@ describe('HeatMap', () => {
 		const { container } = render(
 			<HeatMap data={mockData} description="Desc" title="Title" />,
 		);
-		const intervalContainer = container.querySelector('.absolute.top-0.left-0.right-0.h-8.flex');
+		const intervalContainer = container.querySelector(
+			'.absolute.top-0.left-0.right-0.h-8.flex',
+		);
 		expect(intervalContainer).not.toBeNull();
 		if (intervalContainer) {
 			expect(intervalContainer.children.length).toBe(288);
@@ -62,10 +68,17 @@ describe('HeatMap', () => {
 
 	it('applies different background colors based on intensity', () => {
 		const { container } = render(
-			<HeatMap data={mockData} description="Desc" palette="feeding" title="Title" />,
+			<HeatMap
+				data={mockData}
+				description="Desc"
+				palette="feeding"
+				title="Title"
+			/>,
 		);
 
-		const intervalContainer = container.querySelector('.absolute.top-0.left-0.right-0.h-8.flex');
+		const intervalContainer = container.querySelector(
+			'.absolute.top-0.left-0.right-0.h-8.flex',
+		);
 		expect(intervalContainer).not.toBeNull();
 		if (intervalContainer) {
 			// Interval 0 (00:00): 2 hits (from session 1 and session 3) -> maxCount is 2
