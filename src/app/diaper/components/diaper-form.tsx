@@ -327,7 +327,6 @@ export default function DiaperForm({
 							)}
 					</div>
 
-
 					<div className="space-y-2">
 						<Label htmlFor="edit-notes">
 							<fbt desc="Label for a textbox to note any notes">Notes</fbt>

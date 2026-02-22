@@ -1,6 +1,5 @@
 import type { DiaperChange } from '@/types/diaper';
 import { describe, expect, it } from 'vitest';
-
 import { migrateDiaperChange } from './migration';
 
 describe('migrateDiaperChange', () => {

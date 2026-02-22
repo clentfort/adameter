@@ -14,11 +14,17 @@ export function migrateDiaperChange(change: DiaperChange): DiaperChange {
 
 	let hasChanges = false;
 
-	if (notes.includes('urin abgehalten') || notes.includes('beides abgehalten')) {
+	if (
+		notes.includes('urin abgehalten') ||
+		notes.includes('beides abgehalten')
+	) {
 		newChange.pottyUrine = true;
 		hasChanges = true;
 	}
-	if (notes.includes('stuhl abgehalten') || notes.includes('beides abgehalten')) {
+	if (
+		notes.includes('stuhl abgehalten') ||
+		notes.includes('beides abgehalten')
+	) {
 		newChange.pottyStool = true;
 		hasChanges = true;
 	}
