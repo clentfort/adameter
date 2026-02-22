@@ -20,6 +20,54 @@ export function calculateValue(
 	return M * Math.pow(1 + L * S * Z, 1 / L);
 }
 
+/**
+ * Calculates the Z-score for a given L, M, S and value X.
+ * Formula: Z = ((X/M)^L - 1) / (L*S)
+ */
+export function calculateZScore(
+	L: number,
+	M: number,
+	S: number,
+	X: number,
+): number {
+	if (L === 0) {
+		return Math.log(X / M) / S;
+	}
+	return (Math.pow(X / M, L) - 1) / (L * S);
+}
+
+/**
+ * Error function approximation.
+ */
+function erf(x: number): number {
+	const sign = x >= 0 ? 1 : -1;
+	const absX = Math.abs(x);
+
+	// constants
+	const a1 = 0.254_829_592;
+	const a2 = -0.284_496_736;
+	const a3 = 1.421_413_741;
+	const a4 = -1.453_152_027;
+	const a5 = 1.061_405_429;
+	const p = 0.327_591_1;
+
+	// A&S formula 7.1.26
+	const t = 1.0 / (1.0 + p * absX);
+	const y =
+		1.0 -
+		((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+
+	return sign * y;
+}
+
+/**
+ * Cumulative distribution function for standard normal distribution.
+ * Converts Z-score to percentile (0-1).
+ */
+export function zScoreToPercentile(z: number): number {
+	return 0.5 * (1 + erf(z / Math.sqrt(2)));
+}
+
 export interface GrowthRange {
 	max: number;
 	min: number;
@@ -105,6 +153,36 @@ export async function getGrowthTable(
 			`../data/growth-standards/${tableKey}.json`
 		);
 		return { index, table: dataModule.default as LmsData[] };
+	} catch {
+		return null;
+	}
+}
+
+export async function getPercentile(
+	indicator:
+		| 'weight-for-age'
+		| 'length-height-for-age'
+		| 'head-circumference-for-age',
+	sex: Sex,
+	ageInDays: number,
+	value: number,
+): Promise<number | null> {
+	try {
+		const result = await getGrowthTable(indicator, sex, ageInDays);
+		if (!result) return null;
+
+		const { index, table } = result;
+		const lms = lookupLms(table, index);
+		if (!lms) return null;
+
+		let val = value;
+		// weight is in g in our app, but kg in WHO data
+		if (indicator === 'weight-for-age') {
+			val = value / 1000;
+		}
+
+		const z = calculateZScore(lms.L, lms.M, lms.S, val);
+		return zScoreToPercentile(z) * 100;
 	} catch {
 		return null;
 	}

@@ -4,11 +4,18 @@ import type { GrowthMeasurement } from '@/types/growth';
 import { addDays, differenceInDays, isAfter, min, startOfDay } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import LineChart from '@/components/charts/line-chart';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Card,
+	CardAction,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 import { useProfile } from '@/hooks/use-profile';
 import {
 	calculateValue,
 	getGrowthTable,
+	getPercentile,
 	lookupLms,
 	Z_3RD,
 	Z_97TH,
@@ -31,6 +38,9 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [weightRange, setWeightRange] = useState<RangePoint[]>([]);
 	const [heightRange, setHeightRange] = useState<RangePoint[]>([]);
 	const [headRange, setHeadRange] = useState<RangePoint[]>([]);
+	const [weightPercentile, setWeightPercentile] = useState<number | null>(null);
+	const [heightPercentile, setHeightPercentile] = useState<number | null>(null);
+	const [headPercentile, setHeadPercentile] = useState<number | null>(null);
 
 	const sortedMeasurements = useMemo(
 		() =>
@@ -61,7 +71,55 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				setWeightRange([]);
 				setHeightRange([]);
 				setHeadRange([]);
+				setWeightPercentile(null);
+				setHeightPercentile(null);
+				setHeadPercentile(null);
 				return;
+			}
+
+			// Calculate percentiles for the latest measurements
+			let latestWeight = null;
+			let latestHeight = null;
+			let latestHead = null;
+			for (let i = sortedMeasurements.length - 1; i >= 0; i--) {
+				const m = sortedMeasurements[i];
+				if (!latestWeight && m.weight != null) latestWeight = m;
+				if (!latestHeight && m.height != null) latestHeight = m;
+				if (!latestHead && m.headCircumference != null) latestHead = m;
+				if (latestWeight && latestHeight && latestHead) break;
+			}
+
+			if (latestWeight?.weight) {
+				getPercentile(
+					'weight-for-age',
+					profile.sex,
+					differenceInDays(new Date(latestWeight.date), dob),
+					latestWeight.weight,
+				).then(setWeightPercentile);
+			} else {
+				setWeightPercentile(null);
+			}
+
+			if (latestHeight?.height) {
+				getPercentile(
+					'length-height-for-age',
+					profile.sex,
+					differenceInDays(new Date(latestHeight.date), dob),
+					latestHeight.height,
+				).then(setHeightPercentile);
+			} else {
+				setHeightPercentile(null);
+			}
+
+			if (latestHead?.headCircumference) {
+				getPercentile(
+					'head-circumference-for-age',
+					profile.sex,
+					differenceInDays(new Date(latestHead.date), dob),
+					latestHead.headCircumference,
+				).then(setHeadPercentile);
+			} else {
+				setHeadPercentile(null);
 			}
 
 			const firstMeasureDate =
@@ -239,6 +297,17 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							Weight (g)
 						</fbt>
 					</CardTitle>
+					{weightPercentile !== null && (
+						<CardAction>
+							<span className="text-xs font-normal text-muted-foreground">
+								<fbt desc="Label for growth percentile">
+									P<fbt:param name="percentile">
+										{Math.round(weightPercentile)}
+									</fbt:param>
+								</fbt>
+							</span>
+						</CardAction>
+					)}
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<LineChart
@@ -274,6 +343,17 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							Height (cm)
 						</fbt>
 					</CardTitle>
+					{heightPercentile !== null && (
+						<CardAction>
+							<span className="text-xs font-normal text-muted-foreground">
+								<fbt desc="Label for growth percentile">
+									P<fbt:param name="percentile">
+										{Math.round(heightPercentile)}
+									</fbt:param>
+								</fbt>
+							</span>
+						</CardAction>
+					)}
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<LineChart
@@ -309,6 +389,17 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							Head Circumference (cm)
 						</fbt>
 					</CardTitle>
+					{headPercentile !== null && (
+						<CardAction>
+							<span className="text-xs font-normal text-muted-foreground">
+								<fbt desc="Label for growth percentile">
+									P<fbt:param name="percentile">
+										{Math.round(headPercentile)}
+									</fbt:param>
+								</fbt>
+							</span>
+						</CardAction>
+					)}
 				</CardHeader>
 				<CardContent className="p-4 pt-0">
 					<LineChart

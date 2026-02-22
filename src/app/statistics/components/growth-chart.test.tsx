@@ -45,6 +45,7 @@ vi.mock('@/utils/growth-standards', () => ({
 		index: 0,
 		table: [{ age: 0, L: 1, M: 1, S: 1 }],
 	})),
+	getPercentile: vi.fn(async () => 50),
 	lookupLms: vi.fn(() => ({ age: 0, L: 1, M: 1, S: 1 })),
 	Z_3RD: -1.88,
 	Z_97TH: 1.88,
@@ -199,6 +200,15 @@ describe('GrowthChart', () => {
 		expect(
 			within(growthCard).getByTestId('mock-line-chart-head circumference'),
 		).toHaveTextContent('No data available.');
+	});
+
+	it('displays percentiles when data is available', async () => {
+		render(<GrowthChart measurements={mockMeasurements} />);
+
+		// Wait for the async getPercentile calls to resolve and the component to re-render
+		// Use findAllByText because P50 appears multiple times (Weight, Height, HC)
+		const elements = await screen.findAllByText('P50', {}, { timeout: 3000 });
+		expect(elements).toHaveLength(3);
 	});
 
 	afterEach(() => {
