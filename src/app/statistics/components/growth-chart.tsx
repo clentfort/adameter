@@ -2,8 +2,10 @@
 
 import type { GrowthMeasurement } from '@/types/growth';
 import { addDays, differenceInDays, isAfter, min, startOfDay } from 'date-fns';
+import { Info } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import LineChart from '@/components/charts/line-chart';
+import { Badge } from '@/components/ui/badge';
 import {
 	Card,
 	CardAction,
@@ -11,6 +13,14 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import {
+	Popover,
+	PopoverContent,
+	PopoverDescription,
+	PopoverHeader,
+	PopoverTitle,
+	PopoverTrigger,
+} from '@/components/ui/popover';
 import { useProfile } from '@/hooks/use-profile';
 import {
 	calculateValue,
@@ -32,6 +42,45 @@ interface RangePoint {
 }
 
 const DAYS_PER_MONTH = 30.4375;
+
+function PercentileBadge({ value }: { value: number }) {
+	return (
+		<Popover>
+			<PopoverTrigger
+				nativeButton={false}
+				render={
+					<Badge
+						className="cursor-help transition-colors hover:bg-secondary/80"
+						variant="secondary"
+					>
+						<fbt desc="Label for growth percentile">
+							P<fbt:param name="percentile">{Math.round(value)}</fbt:param>
+						</fbt>
+						<Info className="ml-1 size-3" />
+					</Badge>
+				}
+			/>
+			<PopoverContent className="w-80">
+				<PopoverHeader>
+					<PopoverTitle>
+						<fbt desc="Title for percentile explanation popover">
+							What is a percentile?
+						</fbt>
+					</PopoverTitle>
+				</PopoverHeader>
+				<PopoverDescription className="text-xs leading-normal">
+					<fbt desc="Explanation of what a growth percentile means">
+						A percentile shows how your child&apos;s measurement compares to
+						other children of the same age and sex. For example, P50 means your
+						child is in the middle: 50% of children are smaller and 50% are
+						larger. P95 means your child is larger than 95% of children the same
+						age.
+					</fbt>
+				</PopoverDescription>
+			</PopoverContent>
+		</Popover>
+	);
+}
 
 export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [profile] = useProfile();
@@ -61,8 +110,9 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			sortedMeasurements.length > 0
 				? startOfDay(new Date(sortedMeasurements.at(-1).date))
 				: dob;
-		const endDate = addDays(lastMeasureDate, 30);
-		return differenceInDays(endDate, dob) / DAYS_PER_MONTH;
+		const currentAgeMonths =
+			differenceInDays(lastMeasureDate, dob) / DAYS_PER_MONTH;
+		return Math.floor(currentAgeMonths / 3) * 3 + 3;
 	}, [dob, sortedMeasurements]);
 
 	useEffect(() => {
@@ -299,13 +349,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					</CardTitle>
 					{weightPercentile !== null && (
 						<CardAction>
-							<span className="text-xs font-normal text-muted-foreground">
-								<fbt desc="Label for growth percentile">
-									P<fbt:param name="percentile">
-										{Math.round(weightPercentile)}
-									</fbt:param>
-								</fbt>
-							</span>
+							<PercentileBadge value={weightPercentile} />
 						</CardAction>
 					)}
 				</CardHeader>
@@ -345,13 +389,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					</CardTitle>
 					{heightPercentile !== null && (
 						<CardAction>
-							<span className="text-xs font-normal text-muted-foreground">
-								<fbt desc="Label for growth percentile">
-									P<fbt:param name="percentile">
-										{Math.round(heightPercentile)}
-									</fbt:param>
-								</fbt>
-							</span>
+							<PercentileBadge value={heightPercentile} />
 						</CardAction>
 					)}
 				</CardHeader>
@@ -391,13 +429,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					</CardTitle>
 					{headPercentile !== null && (
 						<CardAction>
-							<span className="text-xs font-normal text-muted-foreground">
-								<fbt desc="Label for growth percentile">
-									P<fbt:param name="percentile">
-										{Math.round(headPercentile)}
-									</fbt:param>
-								</fbt>
-							</span>
+							<PercentileBadge value={headPercentile} />
 						</CardAction>
 					)}
 				</CardHeader>
