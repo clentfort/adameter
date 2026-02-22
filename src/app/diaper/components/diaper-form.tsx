@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
 	Select,
 	SelectContent,
@@ -61,12 +60,23 @@ export default function DiaperForm({
 			? dateToTimeInputValue(props.change.timestamp)
 			: dateToTimeInputValue(new Date()),
 	);
-	const [diaperType, setDiaperType] = useState<'urine' | 'stool'>(
+	const [containsUrine, setContainsUrine] = useState(
+		'change' in props
+			? props.change.containsUrine
+			: props.presetType === undefined ||
+					props.presetType === 'urine' ||
+					props.presetType === 'stool',
+	);
+	const [containsStool, setContainsStool] = useState(
 		'change' in props
 			? props.change.containsStool
-				? 'stool'
-				: 'urine'
-			: (props.presetType ?? 'urine'),
+			: props.presetType === 'stool',
+	);
+	const [pottyUrine, setPottyUrine] = useState(
+		'change' in props ? (props.change.pottyUrine ?? false) : false,
+	);
+	const [pottyStool, setPottyStool] = useState(
+		'change' in props ? (props.change.pottyStool ?? false) : false,
 	);
 	const [diaperBrand, setDiaperBrand] = useState(
 		'change' in props
@@ -93,7 +103,10 @@ export default function DiaperForm({
 		const changeDate = new Date(change.timestamp);
 		setDate(dateToDateInputValue(changeDate));
 		setTime(dateToTimeInputValue(changeDate));
-		setDiaperType(change.containsStool ? 'stool' : 'urine');
+		setContainsUrine(change.containsUrine);
+		setContainsStool(change.containsStool);
+		setPottyUrine(change.pottyUrine ?? false);
+		setPottyStool(change.pottyStool ?? false);
 
 		const isPredefinedBrand = DIAPER_BRANDS.some(
 			(brand) => brand.value === change.diaperBrand,
@@ -119,12 +132,13 @@ export default function DiaperForm({
 		const updatedChange: DiaperChange = {
 			...change,
 			abnormalities: abnormalities || undefined,
-			containsStool: diaperType === 'stool',
-			// Always true, as stool usually comes with urine
-			containsUrine: true,
+			containsStool,
+			containsUrine,
 			diaperBrand: diaperBrand || undefined,
 			id: change?.id || Date.now().toString(),
 			leakage: hasLeakage || undefined,
+			pottyStool,
+			pottyUrine,
 			temperature: temperature ? Number.parseFloat(temperature) : undefined,
 			timestamp: timestamp.toISOString(),
 		};
@@ -139,49 +153,94 @@ export default function DiaperForm({
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
-				<div className="grid gap-4 py-4">
-					<div className="space-y-2">
-						<Label>
-							<fbt desc="Label on a radio button to select the type of diaper (urine or stool)">
-								Diaper Type
-							</fbt>
-						</Label>
-						<RadioGroup
-							className="flex gap-4"
-							onValueChange={(value) =>
-								setDiaperType(value as 'urine' | 'stool')
-							}
-							value={diaperType}
-						>
-							<div className="flex items-center space-x-2">
-								<RadioGroupItem
-									className="text-yellow-500 border-yellow-500"
-									data-testid="edit-urine-radio"
-									id="edit-urine"
-									value="urine"
-								/>
-								<Label className="text-yellow-700" htmlFor="edit-urine">
-									<span className="text-lg mr-1">💧</span>{' '}
-									<fbt desc="Label on a radio button that sets the input to urine only">
-										Urine Only
-									</fbt>
-								</Label>
+				<div className="grid gap-4 py-2">
+					<div className="space-y-3">
+						<div className="grid grid-cols-3 gap-3 items-center">
+							<div />
+							<div className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+								<fbt desc="Urine column header">Urine</fbt>
 							</div>
-							<div className="flex items-center space-x-2">
-								<RadioGroupItem
-									className="text-amber-700 border-amber-700"
-									data-testid="edit-stool-radio"
-									id="edit-stool"
-									value="stool"
-								/>
-								<Label className="text-amber-800" htmlFor="edit-stool">
-									<span className="text-lg mr-1">💩</span>{' '}
-									<fbt desc="Label on a radio button that sets the input to urine and stool">
-										Stool
-									</fbt>
-								</Label>
+							<div className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+								<fbt desc="Stool column header">Stool</fbt>
 							</div>
-						</RadioGroup>
+
+							<div className="text-sm font-medium">
+								<fbt desc="Label for the diaper row in the contents matrix">
+									Diaper
+								</fbt>
+							</div>
+							<Button
+								className={`h-12 w-full transition-all ${
+									containsUrine
+										? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
+										: 'bg-background hover:bg-muted text-muted-foreground'
+								}`}
+								data-testid="toggle-diaper-urine"
+								onClick={() => setContainsUrine(!containsUrine)}
+								type="button"
+								variant="outline"
+							>
+								<span className="text-xl">💧</span>
+							</Button>
+							<Button
+								className={`h-12 w-full transition-all ${
+									containsStool
+										? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
+										: 'bg-background hover:bg-muted text-muted-foreground'
+								}`}
+								data-testid="toggle-diaper-stool"
+								onClick={() => setContainsStool(!containsStool)}
+								type="button"
+								variant="outline"
+							>
+								<span className="text-xl">💩</span>
+							</Button>
+
+							<div className="text-sm font-medium">
+								<fbt desc="Label for the potty row in the contents matrix">
+									Potty
+								</fbt>
+							</div>
+							<Button
+								className={`h-12 w-full transition-all ${
+									pottyUrine
+										? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
+										: 'bg-background hover:bg-muted text-muted-foreground'
+								}`}
+								data-testid="toggle-potty-urine"
+								onClick={() => setPottyUrine(!pottyUrine)}
+								type="button"
+								variant="outline"
+							>
+								<span className="text-xl">💧</span>
+							</Button>
+							<Button
+								className={`h-12 w-full transition-all ${
+									pottyStool
+										? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
+										: 'bg-background hover:bg-muted text-muted-foreground'
+								}`}
+								data-testid="toggle-potty-stool"
+								onClick={() => setPottyStool(!pottyStool)}
+								type="button"
+								variant="outline"
+							>
+								<span className="text-xl">💩</span>
+							</Button>
+						</div>
+
+						<div className="flex items-center space-x-2">
+							<Switch
+								checked={hasLeakage}
+								id="edit-leakage"
+								onCheckedChange={setHasLeakage}
+							/>
+							<Label htmlFor="edit-leakage">
+								<fbt desc="Label for a switch button that indicates that a diaper has leaked">
+									Diaper leaked
+								</fbt>
+							</Label>
+						</div>
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">
@@ -266,19 +325,6 @@ export default function DiaperForm({
 									</fbt>
 								</p>
 							)}
-					</div>
-
-					<div className="flex items-center space-x-2">
-						<Switch
-							checked={hasLeakage}
-							id="edit-leakage"
-							onCheckedChange={setHasLeakage}
-						/>
-						<Label htmlFor="edit-leakage">
-							<fbt desc="Label for a switch button that indicates that a diaper has leaked">
-								Diaper leaked
-							</fbt>
-						</Label>
 					</div>
 
 					<div className="space-y-2">

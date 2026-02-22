@@ -15,7 +15,10 @@ function calculateDiaperMetrics(diaperChanges: DiaperChange[]) {
 	if (diaperChanges.length === 0) {
 		return {
 			changesPerDay: '0',
+			pottyStool: 0,
+			pottyUrine: 0,
 			totalChanges: 0,
+			totalPottyHits: 0,
 			urineOnly: 0,
 			withLeakage: 0,
 			withStool: 0,
@@ -28,6 +31,12 @@ function calculateDiaperMetrics(diaperChanges: DiaperChange[]) {
 	).length;
 	const withStool = diaperChanges.filter((c) => c.containsStool).length;
 	const withLeakage = diaperChanges.filter((c) => c.leakage).length;
+
+	const pottyUrine = diaperChanges.filter((c) => c.pottyUrine).length;
+	const pottyStool = diaperChanges.filter((c) => c.pottyStool).length;
+	const totalPottyHits = diaperChanges.filter(
+		(c) => c.pottyUrine || c.pottyStool,
+	).length;
 
 	const oldestChange = new Date(
 		Math.min(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
@@ -43,7 +52,10 @@ function calculateDiaperMetrics(diaperChanges: DiaperChange[]) {
 
 	return {
 		changesPerDay,
+		pottyStool,
+		pottyUrine,
 		totalChanges,
+		totalPottyHits,
 		urineOnly,
 		withLeakage,
 		withStool,
@@ -80,8 +92,16 @@ export default function DiaperStats({
 		? calculateDiaperMetrics(comparisonDiaperChanges)
 		: null;
 
-	const { changesPerDay, totalChanges, urineOnly, withLeakage, withStool } =
-		metrics;
+	const {
+		changesPerDay,
+		pottyStool,
+		pottyUrine,
+		totalChanges,
+		totalPottyHits,
+		urineOnly,
+		withLeakage,
+		withStool,
+	} = metrics;
 
 	const brandCounts: Record<string, { leakage: number; total: number }> = {};
 	diaperChanges.forEach((change) => {
@@ -237,6 +257,64 @@ export default function DiaperStats({
 								<p className="text-xs text-red-600 dark:text-red-400">
 									{Math.round((withLeakage / totalChanges) * 100)}%
 								</p>
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							<h4 className="text-sm font-semibold">
+								<fbt desc="Title for the potty training section in diaper statistics">
+									Potty Successes
+								</fbt>
+							</h4>
+							<div className="grid grid-cols-3 gap-4">
+								<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-800/30">
+									<p className="text-sm text-blue-800 dark:text-blue-300">
+										<fbt desc="Label for total potty hits">Total</fbt>
+									</p>
+									<div className="flex items-baseline">
+										<p className="text-xl font-bold text-blue-800 dark:text-blue-300">
+											{totalPottyHits}
+										</p>
+										{prevMetrics && (
+											<ComparisonValue
+												current={totalPottyHits}
+												previous={prevMetrics.totalPottyHits}
+											/>
+										)}
+									</div>
+								</div>
+								<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-800/30">
+									<p className="text-sm text-blue-800 dark:text-blue-300">
+										<fbt desc="Label for potty hits with urine">Urine</fbt>
+									</p>
+									<div className="flex items-baseline">
+										<p className="text-xl font-bold text-blue-800 dark:text-blue-300">
+											{pottyUrine}
+										</p>
+										{prevMetrics && (
+											<ComparisonValue
+												current={pottyUrine}
+												previous={prevMetrics.pottyUrine}
+											/>
+										)}
+									</div>
+								</div>
+								<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-800/30">
+									<p className="text-sm text-blue-800 dark:text-blue-300">
+										<fbt desc="Label for potty hits with stool">Stool</fbt>
+									</p>
+									<div className="flex items-baseline">
+										<p className="text-xl font-bold text-blue-800 dark:text-blue-300">
+											{pottyStool}
+										</p>
+										{prevMetrics && (
+											<ComparisonValue
+												current={pottyStool}
+												previous={prevMetrics.pottyStool}
+											/>
+										)}
+									</div>
+								</div>
 							</div>
 						</div>
 					</TabsContent>

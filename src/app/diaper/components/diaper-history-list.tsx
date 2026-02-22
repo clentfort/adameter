@@ -23,12 +23,25 @@ export default function DiaperHistoryList() {
 				entries={changes}
 			>
 				{(change) => {
-					const isStool = change.containsStool;
+					const hasDiaper = change.containsUrine || change.containsStool;
+					const hasPotty = change.pottyUrine || change.pottyStool;
+					const isStool = change.containsStool || change.pottyStool;
+
 					const borderColor = isStool
 						? 'border-amber-700/30'
-						: 'border-yellow-400/30';
-					const bgColor = isStool ? 'bg-amber-700/5' : 'bg-yellow-400/5';
-					const textColor = isStool ? 'text-amber-700' : 'text-yellow-800';
+						: hasPotty && !hasDiaper
+							? 'border-blue-400/30'
+							: 'border-yellow-400/30';
+					const bgColor = isStool
+						? 'bg-amber-700/5'
+						: hasPotty && !hasDiaper
+							? 'bg-blue-400/5'
+							: 'bg-yellow-400/5';
+					const textColor = isStool
+						? 'text-amber-700'
+						: hasPotty && !hasDiaper
+							? 'text-blue-700'
+							: 'text-yellow-800';
 
 					return (
 						<div
@@ -38,15 +51,49 @@ export default function DiaperHistoryList() {
 						>
 							<div className="flex justify-between items-start">
 								<div>
-									<p className={`font-medium ${textColor}`}>
-										{isStool ? (
-											<fbt desc="Diaper container urine and stool">
-												Urine and Stool
-											</fbt>
-										) : (
-											<fbt desc="Diaper container urine only">Urine Only</fbt>
+									<div
+										className={`font-medium ${textColor} flex flex-wrap items-center gap-x-3 gap-y-1`}
+									>
+										{hasDiaper && (
+											<div className="flex items-center gap-1">
+												<span className="text-base">👶</span>
+												<span className="text-sm">
+													{change.containsUrine && change.containsStool ? (
+														<fbt desc="Urine and stool in diaper">
+															Urine & Stool
+														</fbt>
+													) : change.containsUrine ? (
+														<fbt desc="Urine in diaper">Urine</fbt>
+													) : (
+														<fbt desc="Stool in diaper">Stool</fbt>
+													)}
+												</span>
+											</div>
 										)}
-									</p>
+										{hasPotty && (
+											<div className="flex items-center gap-1">
+												<span className="text-base">🚽</span>
+												<span className="text-sm">
+													{change.pottyUrine && change.pottyStool ? (
+														<fbt desc="Urine and stool in potty">
+															Urine & Stool
+														</fbt>
+													) : change.pottyUrine ? (
+														<fbt desc="Urine in potty">Urine</fbt>
+													) : (
+														<fbt desc="Stool in potty">Stool</fbt>
+													)}
+												</span>
+											</div>
+										)}
+										{!hasDiaper && !hasPotty && (
+											<div className="flex items-center gap-1">
+												<span className="text-sm italic">
+													<fbt desc="Dry diaper">Dry</fbt>
+												</span>
+											</div>
+										)}
+									</div>
 									<p className="text-xs text-muted-foreground">
 										{format(new Date(change.timestamp), 'p')}
 									</p>

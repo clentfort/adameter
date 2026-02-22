@@ -20,7 +20,7 @@ test.describe('Diaper Page', () => {
 
 		// Verify in history
 		await expect(
-			page.getByTestId('diaper-history-entry').getByText('Urine Only', {
+			page.getByTestId('diaper-history-entry').getByText('Urine', {
 				exact: true,
 			}),
 		).toBeVisible();
@@ -35,7 +35,7 @@ test.describe('Diaper Page', () => {
 
 		// Verify in history
 		await expect(
-			page.getByTestId('diaper-history-entry').getByText('Urine and Stool', {
+			page.getByTestId('diaper-history-entry').getByText('Urine & Stool', {
 				exact: true,
 			}),
 		).toBeVisible();
@@ -45,7 +45,7 @@ test.describe('Diaper Page', () => {
 		await page.getByRole('button', { name: 'Add Entry' }).click();
 
 		// Fill the form
-		await page.getByTestId('edit-stool-radio').click({ force: true });
+		await page.getByTestId('toggle-diaper-stool').click({ force: true });
 		await page.locator('#edit-temperature').fill('37.0', { force: true });
 		await page.locator('#edit-notes').fill('Normal change', { force: true });
 
@@ -54,7 +54,7 @@ test.describe('Diaper Page', () => {
 
 		// Verify in history
 		const entry = page.getByTestId('diaper-history-entry').first();
-		await expect(entry.getByText('Urine and Stool')).toBeVisible();
+		await expect(entry.getByText('Urine & Stool')).toBeVisible();
 		await expect(entry.getByText('37 °C')).toBeVisible();
 		await expect(entry.getByText('Normal change')).toBeVisible();
 	});
