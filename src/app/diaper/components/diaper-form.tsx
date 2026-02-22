@@ -63,7 +63,9 @@ export default function DiaperForm({
 	const [containsUrine, setContainsUrine] = useState(
 		'change' in props
 			? props.change.containsUrine
-			: props.presetType === 'urine' || props.presetType === 'stool',
+			: props.presetType === undefined ||
+					props.presetType === 'urine' ||
+					props.presetType === 'stool',
 	);
 	const [containsStool, setContainsStool] = useState(
 		'change' in props
