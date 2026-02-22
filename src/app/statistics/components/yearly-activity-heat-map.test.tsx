@@ -48,9 +48,11 @@ describe('YearlyActivityHeatMap', () => {
 		expect(lightDayCell).toHaveAttribute('title', 'January 3rd, 2024: 1');
 		expect(prevYearDayCell).toHaveAttribute('title', 'December 31st, 2023: 1');
 
+		// maxCount = 2. count 2 -> ratio 1.0 -> level 9
 		expect(busyDayCell).toHaveClass('bg-left-breast');
-		expect(lightDayCell).toHaveClass('bg-left-breast/30');
-		expect(prevYearDayCell).toHaveClass('bg-left-breast/30');
+		// maxCount = 2. count 1 -> ratio 0.5 -> level 5
+		expect(lightDayCell).toHaveClass('bg-left-breast/50');
+		expect(prevYearDayCell).toHaveClass('bg-left-breast/50');
 	});
 
 	it('includes data from exactly one year ago but not further', () => {
@@ -74,7 +76,7 @@ describe('YearlyActivityHeatMap', () => {
 		expect(inRangeCell).toHaveAttribute('title', 'June 15th, 2023: 1');
 		expect(outOfRangeCell).toHaveAttribute('title', 'June 14th, 2023: 0');
 
-		// With only one entry, count 1 is the maximum, so it gets level 4 (highest intensity)
+		// With only one entry, count 1 is the maximum, so it gets level 9 (highest intensity)
 		expect(inRangeCell).toHaveClass('bg-left-breast');
 		expect(outOfRangeCell).toHaveClass('bg-muted');
 	});
@@ -90,6 +92,7 @@ describe('YearlyActivityHeatMap', () => {
 		);
 
 		const diaperDayCell = screen.getByTestId('yearly-cell-2024-01-02');
-		expect(diaperDayCell).toHaveClass('bg-amber-600');
+		// maxCount = 1. count 1 -> ratio 1.0 -> level 9
+		expect(diaperDayCell).toHaveClass('bg-amber-800');
 	});
 });

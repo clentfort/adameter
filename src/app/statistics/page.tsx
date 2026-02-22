@@ -245,7 +245,21 @@ export default function StatisticsPage() {
 									comparisonSessions={comparisonSessions}
 									sessions={filteredSessions}
 								/>
-								<HeatMap className="col-span-2" sessions={filteredSessions} />
+								<HeatMap
+									className="col-span-2"
+									data={filteredSessions}
+									description={
+										<fbt desc="Description for the feeding distribution heat map">
+											Distribution of feeding times throughout the day
+										</fbt>
+									}
+									palette="feeding"
+									title={
+										<fbt desc="Title for the feeding distribution heat map">
+											Daily Feeding Distribution
+										</fbt>
+									}
+								/>
 							</div>
 							<YearlyActivityHeatMap
 								className="mt-4"
@@ -279,10 +293,28 @@ export default function StatisticsPage() {
 					</h3>
 					{filteredDiaperChanges.length > 0 ? (
 						<>
-							<DiaperStats
-								comparisonDiaperChanges={comparisonDiaperChanges}
-								diaperChanges={filteredDiaperChanges}
-							/>
+							<div className="grid grid-cols-1 gap-4 mb-4">
+								<DiaperStats
+									comparisonDiaperChanges={comparisonDiaperChanges}
+									diaperChanges={filteredDiaperChanges}
+								/>
+								<HeatMap
+									data={filteredDiaperChanges.map((change) => ({
+										startTime: change.timestamp,
+									}))}
+									description={
+										<fbt desc="Description for the diaper distribution heat map">
+											Distribution of diaper changes throughout the day
+										</fbt>
+									}
+									palette="diaper"
+									title={
+										<fbt desc="Title for the diaper distribution heat map">
+											Daily Diaper Distribution
+										</fbt>
+									}
+								/>
+							</div>
 							<YearlyActivityHeatMap
 								className="mt-4"
 								dates={diaperChanges.map((change) => change.timestamp)}
