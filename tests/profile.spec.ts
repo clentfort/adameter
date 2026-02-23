@@ -60,12 +60,12 @@ test.describe('Child Profile', () => {
 
 		// Create a room
 		await page.getByRole('button', { name: /settings/i }).click();
-		await page.getByTestId('settings-sharing').click();
-		await page.getByRole('tab', { name: /Create room|Raum erstellen/i }).click();
-		await page.getByRole('button', { name: /Create New Room|Neuen Raum erstellen/i }).click();
+		await page.getByRole('button', { name: /sharing|teilen/i }).click();
+		await page.getByRole('tab', { name: /create room|raum erstellen/i }).click();
+		await page.getByRole('button', { name: /create new room|neuen raum erstellen/i }).click();
 
 		// Wait for room to be created (room name should appear)
-		await expect(page.locator('p.text-xl.font-bold').filter({ hasText: /[a-z]+-[a-z]+-[a-z]+/ })).toBeVisible();
+		await expect(page.locator('p.text-xl.font-bold').filter({ hasText: /(?:[a-z]+-){2}[a-z]+/ })).toBeVisible();
 
 		// Verify profile prompt doesn't reappear
 		await page.getByTestId('back-button').click();
