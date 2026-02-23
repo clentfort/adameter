@@ -16,10 +16,20 @@ test.describe('Internationalization', () => {
 		await expect(page.getByText('Last Feeding')).toBeVisible();
 
 		// 2. Switch to German
-		await page.getByTitle('Language').click();
-		await page.getByRole('menuitem').filter({ hasText: 'German' }).click();
+		await page.getByRole('button', { name: /Settings|Einstellungen/ }).click();
+		await page.getByTestId('settings-appearance').click();
+		await page.getByRole('combobox').first().click();
+		await page.getByRole('option', { name: 'German' }).click();
 
 		// 3. Verify German text
+		// Wait for the select to close and any re-renders
+		await page.waitForTimeout(500);
+		await page.getByTestId('back-button').click();
+		// Wait for the main settings to show up before clicking back again
+		await expect(
+			page.getByRole('button', { name: /Appearance|Erscheinungsbild/ }),
+		).toBeVisible();
+		await page.getByTestId('back-button').click();
 		await expect(page.getByText('Letztes Stillen')).toBeVisible();
 
 		// 4. Reload and verify German is persisted
@@ -27,11 +37,16 @@ test.describe('Internationalization', () => {
 		await expect(page.getByText('Letztes Stillen')).toBeVisible();
 
 		// 5. Switch back to English
-		// In German, the title is translated to "Sprache" and "English" to "Englisch"
-		await page.getByTitle('Sprache').click();
-		await page.getByRole('menuitem').filter({ hasText: 'Englisch' }).click();
+		// In German, the title is translated to "Settings" (since translation is missing)
+		await page.getByRole('button', { name: /Settings|Einstellungen/ }).click();
+		await page.getByTestId('settings-appearance').click();
+		await page.getByRole('combobox').first().click();
+		await page.getByRole('option', { name: /English|Englisch/ }).click();
 
-		// 6. Verify English text again
+		// 6. Go back to home and verify English text again
+		await page.waitForTimeout(500);
+		await page.getByTestId('back-button').click();
+		await page.getByTestId('back-button').click();
 		await expect(page.getByText('Last Feeding')).toBeVisible();
 	});
 });
