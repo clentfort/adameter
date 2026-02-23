@@ -13,7 +13,7 @@ test.describe('Room management', () => {
 
 	test('should allow creating a room', async ({ page }) => {
 		await page.getByRole('button', { name: /settings|einstellungen/i }).click();
-		await page.getByRole('button', { name: /sharing/i }).click();
+		await page.getByTestId('settings-sharing').click();
 		await page.getByRole('tab', { name: /create room/i }).click();
 		await page.getByRole('button', { name: /create new room/i }).click();
 
@@ -28,7 +28,7 @@ test.describe('Room management', () => {
 	test('should allow joining a room', async ({ page }) => {
 		const testRoom = 'test-room-name';
 		await page.getByRole('button', { name: /settings|einstellungen/i }).click();
-		await page.getByRole('button', { name: /sharing/i }).click();
+		await page.getByTestId('settings-sharing').click();
 		await page.getByRole('tab', { name: /join room/i }).click();
 		await page.getByPlaceholder(/(?:predicate-){2}object/i).fill(testRoom);
 		await page.getByRole('button', { name: /join/i }).first().click();
@@ -47,7 +47,7 @@ test.describe('Room management', () => {
 	}) => {
 		// Join a room first
 		await page.getByRole('button', { name: /settings|einstellungen/i }).click();
-		await page.getByRole('button', { name: /sharing/i }).click();
+		await page.getByTestId('settings-sharing').click();
 		await page.getByRole('tab', { name: /create room/i }).click();
 		await page.getByRole('button', { name: /create new room/i }).click();
 		// Ensure room is created

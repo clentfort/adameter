@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -129,7 +130,7 @@ export default function ProfileForm({
 					<div className="flex flex-wrap gap-2">
 						{COLORS.map((c) => (
 							<button
-								className={`h-8 w-8 rounded-full border-2 transition-all ${c} ${
+								className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all ${c} ${
 									color === c
 										? 'border-slate-900 scale-110'
 										: 'border-transparent hover:scale-105'
@@ -137,7 +138,9 @@ export default function ProfileForm({
 								key={c}
 								onClick={() => setColor(c)}
 								type="button"
-							/>
+							>
+								{color === c && <Check className="h-4 w-4 text-white" />}
+							</button>
 						))}
 					</div>
 				</div>

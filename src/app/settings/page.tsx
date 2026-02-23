@@ -41,13 +41,13 @@ export default function SettingsPage() {
 
 	const updateLocale = async (code: Locale) => {
 		await setLocale(code);
-		window.location.reload();
 	};
 
 	const renderMain = () => (
 		<div className="space-y-4 w-full">
 			<button
 				className="w-full flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm hover:bg-accent transition-colors"
+				data-testid="settings-profile"
 				onClick={() => setActiveSection('profile')}
 			>
 				<div className="flex items-center gap-3">
@@ -78,6 +78,7 @@ export default function SettingsPage() {
 
 			<button
 				className="w-full flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm hover:bg-accent transition-colors"
+				data-testid="settings-appearance"
 				onClick={() => setActiveSection('appearance')}
 			>
 				<div className="flex items-center gap-3">
@@ -98,6 +99,7 @@ export default function SettingsPage() {
 
 			<button
 				className="w-full flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm hover:bg-accent transition-colors"
+				data-testid="settings-sharing"
 				onClick={() => setActiveSection('sharing')}
 			>
 				<div className="flex items-center gap-3">

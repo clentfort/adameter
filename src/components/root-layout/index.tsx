@@ -53,6 +53,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 											'Settings',
 											'Label for the settings button',
 										)}
+										data-testid="settings-button"
 										size="icon"
 										variant="outline"
 									>
