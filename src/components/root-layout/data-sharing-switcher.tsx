@@ -21,11 +21,7 @@ import { JoinRoomDialog } from './join-room-dialog';
 import { RoomQRCode } from './room-qr-code';
 import { RoomQRScanner } from './room-qr-scanner';
 
-export function DataSharingContent({
-	onClose,
-}: {
-	onClose?: () => void;
-}) {
+export function DataSharingContent({ onClose }: { onClose?: () => void }) {
 	const { joinRoom, room, setRoom } = useContext(DataSynchronizationContext);
 	const [inputRoom, setInputRoom] = useState('');
 	const [pendingJoinRoom, setPendingJoinRoom] = useState<string | null>(null);

@@ -12,12 +12,12 @@ test.describe('Room management', () => {
 	});
 
 	test('should allow creating a room', async ({ page }) => {
+		await page.getByRole('button', { name: /settings|einstellungen/i }).click();
 		await page.getByRole('button', { name: /sharing/i }).click();
 		await page.getByRole('tab', { name: /create room/i }).click();
 		await page.getByRole('button', { name: /create new room/i }).click();
 
-		// After creation, the dialog closes. Re-open to verify.
-		await page.getByRole('button', { name: /sharing/i }).click();
+		// After creation, verify room name is visible
 		await expect(page.getByText(/currently connected to:/i)).toBeVisible();
 
 		// Room name should be 3 words separated by hyphens
@@ -27,6 +27,7 @@ test.describe('Room management', () => {
 
 	test('should allow joining a room', async ({ page }) => {
 		const testRoom = 'test-room-name';
+		await page.getByRole('button', { name: /settings|einstellungen/i }).click();
 		await page.getByRole('button', { name: /sharing/i }).click();
 		await page.getByRole('tab', { name: /join room/i }).click();
 		await page.getByPlaceholder(/(?:predicate-){2}object/i).fill(testRoom);
@@ -36,8 +37,7 @@ test.describe('Room management', () => {
 		await expect(page.getByText(/you are about to join room/i)).toBeVisible();
 		await page.getByRole('button', { name: /merge & join/i }).click();
 
-		// Re-open sharing dialog to verify
-		await page.getByRole('button', { name: /sharing/i }).click();
+		// Verify connection
 		await expect(page.getByText(/currently connected to:/i)).toBeVisible();
 		await expect(page.locator('p.text-xl.font-bold')).toHaveText(testRoom);
 	});
@@ -46,11 +46,12 @@ test.describe('Room management', () => {
 		page,
 	}) => {
 		// Join a room first
+		await page.getByRole('button', { name: /settings|einstellungen/i }).click();
 		await page.getByRole('button', { name: /sharing/i }).click();
 		await page.getByRole('tab', { name: /create room/i }).click();
 		await page.getByRole('button', { name: /create new room/i }).click();
-		// Wait for dialog to close
-		await expect(page.getByRole('dialog')).not.toBeVisible();
+		// Ensure room is created
+		await expect(page.getByText(/currently connected to:/i)).toBeVisible();
 
 		// Navigate to another room via URL
 		await page.goto('/?room=new-test-room');

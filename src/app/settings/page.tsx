@@ -10,8 +10,10 @@ import {
 	User,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 import { useContext, useState } from 'react';
 import ProfileForm from '@/components/profile-form';
+import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -25,7 +27,6 @@ import { DataSynchronizationContext } from '@/contexts/data-synchronization-cont
 import { useLanguage } from '@/contexts/i18n-context';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
-import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
 
 export default function SettingsPage() {
 	const [profile, setProfile] = useProfile();
@@ -33,7 +34,9 @@ export default function SettingsPage() {
 	const { locale, setLocale } = useLanguage();
 	const { room } = useContext(DataSynchronizationContext);
 
-	const [activeSection, setActiveSection] = useState<'main' | 'profile' | 'sharing' | 'appearance'>('main');
+	const [activeSection, setActiveSection] = useState<
+		'main' | 'profile' | 'sharing' | 'appearance'
+	>('main');
 
 	const updateLocale = async (code: Locale) => {
 		await setLocale(code);
@@ -47,12 +50,26 @@ export default function SettingsPage() {
 				onClick={() => setActiveSection('profile')}
 			>
 				<div className="flex items-center gap-3">
-					<div className={`h-10 w-10 rounded-full flex items-center justify-center text-white ${profile?.color || 'bg-primary'}`}>
-						{profile?.name ? profile.name[0].toUpperCase() : <User className="h-5 w-5" />}
+					<div
+						className={`h-10 w-10 rounded-full flex items-center justify-center text-white ${profile?.color || 'bg-primary'}`}
+					>
+						{profile?.name ? (
+							profile.name[0].toUpperCase()
+						) : (
+							<User className="h-5 w-5" />
+						)}
 					</div>
 					<div className="text-left">
-						<p className="font-medium">{profile?.name || fbt('Child Profile', 'Label for child profile settings')}</p>
-						<p className="text-sm text-muted-foreground">{fbt('Edit name, birthday, and more', 'Subtext for profile settings')}</p>
+						<p className="font-medium">
+							{profile?.name ||
+								fbt('Child Profile', 'Label for child profile settings')}
+						</p>
+						<p className="text-sm text-muted-foreground">
+							{fbt(
+								'Edit name, birthday, and more',
+								'Subtext for profile settings',
+							)}
+						</p>
 					</div>
 				</div>
 				<ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -67,8 +84,12 @@ export default function SettingsPage() {
 						<Globe className="h-5 w-5" />
 					</div>
 					<div className="text-left">
-						<p className="font-medium"><fbt desc="Label for appearance settings">Appearance</fbt></p>
-						<p className="text-sm text-muted-foreground">{fbt('Language and Theme', 'Subtext for appearance settings')}</p>
+						<p className="font-medium">
+							<fbt desc="Label for appearance settings">Appearance</fbt>
+						</p>
+						<p className="text-sm text-muted-foreground">
+							{fbt('Language and Theme', 'Subtext for appearance settings')}
+						</p>
 					</div>
 				</div>
 				<ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -83,7 +104,9 @@ export default function SettingsPage() {
 						<Share2 className="h-5 w-5" />
 					</div>
 					<div className="text-left">
-						<p className="font-medium"><fbt desc="Label for sharing settings">Sharing</fbt></p>
+						<p className="font-medium">
+							<fbt desc="Label for sharing settings">Sharing</fbt>
+						</p>
 						<p className="text-sm text-muted-foreground">
 							{room ? (
 								<fbt desc="Text showing current room">
@@ -123,9 +146,14 @@ export default function SettingsPage() {
 					<div className="space-y-2">
 						<div className="flex items-center gap-2">
 							<Globe className="h-4 w-4" />
-							<p className="text-sm font-medium"><fbt desc="Label for language setting">Language</fbt></p>
+							<p className="text-sm font-medium">
+								<fbt desc="Label for language setting">Language</fbt>
+							</p>
 						</div>
-						<Select onValueChange={(v) => updateLocale(v as Locale)} value={locale}>
+						<Select
+							onValueChange={(v) => updateLocale(v as Locale)}
+							value={locale}
+						>
 							<SelectTrigger>
 								<SelectValue />
 							</SelectTrigger>
@@ -139,16 +167,24 @@ export default function SettingsPage() {
 					<div className="space-y-2">
 						<div className="flex items-center gap-2">
 							<Moon className="h-4 w-4" />
-							<p className="text-sm font-medium"><fbt desc="Label for theme setting">Theme</fbt></p>
+							<p className="text-sm font-medium">
+								<fbt desc="Label for theme setting">Theme</fbt>
+							</p>
 						</div>
 						<Select onValueChange={(v) => setTheme(v)} value={theme}>
 							<SelectTrigger>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="light"><fbt desc="Light theme option">Light</fbt></SelectItem>
-								<SelectItem value="dark"><fbt desc="Dark theme option">Dark</fbt></SelectItem>
-								<SelectItem value="system"><fbt desc="System theme option">System</fbt></SelectItem>
+								<SelectItem value="light">
+									<fbt desc="Light theme option">Light</fbt>
+								</SelectItem>
+								<SelectItem value="dark">
+									<fbt desc="Dark theme option">Dark</fbt>
+								</SelectItem>
+								<SelectItem value="system">
+									<fbt desc="System theme option">System</fbt>
+								</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
@@ -164,8 +200,8 @@ export default function SettingsPage() {
 					<div className="flex flex-col gap-4">
 						<p className="text-sm text-muted-foreground">
 							<fbt desc="Description of sharing feature">
-								Synchronize your data across multiple devices by joining a shared
-								room.
+								Synchronize your data across multiple devices by joining a
+								shared room.
 							</fbt>
 						</p>
 						<DataSharingContent />
@@ -188,21 +224,26 @@ export default function SettingsPage() {
 		}
 	};
 
-	const handleBack = () => {
-		if (activeSection === 'main') {
-			window.location.href = '/';
-		} else {
-			setActiveSection('main');
-		}
-	};
-
 	return (
 		<div className="flex flex-col items-center w-full max-w-md mx-auto">
 			<div className="w-full flex justify-between items-center mb-6">
-				<Button onClick={handleBack} size="icon" variant="outline">
-					<ArrowLeft className="h-4 w-4" />
-					<span className="sr-only">Back</span>
-				</Button>
+				{activeSection === 'main' ? (
+					<Link href="/">
+						<Button size="icon" variant="outline">
+							<ArrowLeft className="h-4 w-4" />
+							<span className="sr-only">Back</span>
+						</Button>
+					</Link>
+				) : (
+					<Button
+						onClick={() => setActiveSection('main')}
+						size="icon"
+						variant="outline"
+					>
+						<ArrowLeft className="h-4 w-4" />
+						<span className="sr-only">Back</span>
+					</Button>
+				)}
 				<h1 className="text-2xl font-bold">{getTitle()}</h1>
 				<div className="w-10" /> {/* Spacer */}
 			</div>
