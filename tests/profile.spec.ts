@@ -34,7 +34,9 @@ test.describe('Child Profile', () => {
 		await page.getByRole('button', { name: 'Save Profile' }).click();
 
 		// Should be back to main settings
-		await expect(page.getByRole('button', { name: /Ada Lovelace|Profile|Profil/ })).toBeVisible();
+		await expect(
+			page.getByRole('button', { name: /Ada Lovelace|Profile|Profil/ }),
+		).toBeVisible();
 		await expect(page.getByText('Ada Lovelace')).toBeVisible();
 
 		// 3. Verify it persists across reloads
@@ -61,11 +63,19 @@ test.describe('Child Profile', () => {
 		// Create a room
 		await page.getByRole('button', { name: /settings/i }).click();
 		await page.getByRole('button', { name: /sharing|teilen/i }).click();
-		await page.getByRole('tab', { name: /create room|raum erstellen/i }).click();
-		await page.getByRole('button', { name: /create new room|neuen raum erstellen/i }).click();
+		await page
+			.getByRole('tab', { name: /create room|raum erstellen/i })
+			.click();
+		await page
+			.getByRole('button', { name: /create new room|neuen raum erstellen/i })
+			.click();
 
 		// Wait for room to be created (room name should appear)
-		await expect(page.locator('p.text-xl.font-bold').filter({ hasText: /(?:[a-z]+-){2}[a-z]+/ })).toBeVisible();
+		await expect(
+			page
+				.locator('p.text-xl.font-bold')
+				.filter({ hasText: /(?:[a-z]+-){2}[a-z]+/ }),
+		).toBeVisible();
 
 		// Verify profile prompt doesn't reappear
 		await page.getByTestId('back-button').click();
@@ -73,7 +83,9 @@ test.describe('Child Profile', () => {
 		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
 
 		// Check settings again to be sure
-		await page.getByRole('button', { name: /settings/i }).click({ force: true });
+		await page
+			.getByRole('button', { name: /settings/i })
+			.click({ force: true });
 		await page.getByTestId('settings-profile').click();
 		await expect(page.getByLabel(/Name/)).toHaveValue('Baby Ada');
 	});
