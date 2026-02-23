@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,26 +11,84 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Sex } from '@/types/profile';
+import { Profile, Sex } from '@/types/profile';
 
 interface ProfileFormProps {
-	onOptOut: () => void;
-	onSave: (data: { dob: string; sex: Sex }) => void;
+	initialData?: Profile | null;
+	onOptOut?: () => void;
+	onSave: (data: {
+		color: string;
+		dob: string;
+		name: string;
+		sex: Sex;
+	}) => void;
 }
 
-export default function ProfileForm({ onOptOut, onSave }: ProfileFormProps) {
-	const [dob, setDob] = useState('');
-	const [sex, setSex] = useState<Sex | ''>('');
+const COLORS = [
+	'bg-slate-500',
+	'bg-red-500',
+	'bg-orange-500',
+	'bg-amber-500',
+	'bg-yellow-500',
+	'bg-lime-500',
+	'bg-green-500',
+	'bg-emerald-500',
+	'bg-teal-500',
+	'bg-cyan-500',
+	'bg-sky-500',
+	'bg-blue-500',
+	'bg-indigo-500',
+	'bg-violet-500',
+	'bg-purple-500',
+	'bg-fuchsia-500',
+	'bg-pink-500',
+	'bg-rose-500',
+];
+
+export default function ProfileForm({
+	initialData,
+	onOptOut,
+	onSave,
+}: ProfileFormProps) {
+	const [dob, setDob] = useState(initialData?.dob || '');
+	const [sex, setSex] = useState<Sex | ''>(initialData?.sex || '');
+	const [name, setName] = useState(initialData?.name || '');
+	const [color, setColor] = useState(
+		initialData?.color || COLORS[Math.floor(Math.random() * COLORS.length)],
+	);
+
+	useEffect(() => {
+		if (initialData) {
+			setDob(initialData.dob || '');
+			setSex(initialData.sex || '');
+			setName(initialData.name || '');
+			if (initialData.color) {
+				setColor(initialData.color);
+			}
+		}
+	}, [initialData]);
 
 	const handleSave = () => {
-		if (dob && sex) {
-			onSave({ dob, sex });
+		if (dob && sex && name) {
+			onSave({ color, dob, name, sex });
 		}
 	};
 
 	return (
 		<div className="space-y-6 py-4">
 			<div className="space-y-4">
+				<div className="space-y-2">
+					<Label htmlFor="name">
+						<fbt desc="Label for child name input">Name</fbt>
+					</Label>
+					<Input
+						id="name"
+						onChange={(e) => setName(e.target.value)}
+						placeholder={fbt('Name', 'Placeholder for child name input')}
+						type="text"
+						value={name}
+					/>
+				</div>
 				<div className="space-y-2">
 					<Label htmlFor="dob">
 						<fbt desc="Label for date of birth input">Date of Birth</fbt>
@@ -64,10 +122,33 @@ export default function ProfileForm({ onOptOut, onSave }: ProfileFormProps) {
 						</SelectContent>
 					</Select>
 				</div>
+				<div className="space-y-2">
+					<Label>
+						<fbt desc="Label for color selection">Color</fbt>
+					</Label>
+					<div className="flex flex-wrap gap-2">
+						{COLORS.map((c) => (
+							<button
+								className={`h-8 w-8 rounded-full border-2 transition-all ${c} ${
+									color === c
+										? 'border-slate-900 scale-110'
+										: 'border-transparent hover:scale-105'
+								}`}
+								key={c}
+								onClick={() => setColor(c)}
+								type="button"
+							/>
+						))}
+					</div>
+				</div>
 			</div>
 
 			<div className="flex flex-col gap-2 pt-4">
-				<Button className="w-full" disabled={!dob || !sex} onClick={handleSave}>
+				<Button
+					className="w-full"
+					disabled={!dob || !sex || !name}
+					onClick={handleSave}
+				>
 					<fbt desc="Button to save profile information">Save Profile</fbt>
 				</Button>
 				<Button
