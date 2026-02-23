@@ -10,7 +10,7 @@ import {
 	User,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
@@ -33,6 +33,7 @@ export default function SettingsPage() {
 	const { setTheme, theme } = useTheme();
 	const { locale, setLocale } = useLanguage();
 	const { room } = useContext(DataSynchronizationContext);
+	const router = useRouter();
 
 	const [activeSection, setActiveSection] = useState<
 		'main' | 'profile' | 'sharing' | 'appearance'
@@ -227,23 +228,21 @@ export default function SettingsPage() {
 	return (
 		<div className="flex flex-col items-center w-full max-w-md mx-auto">
 			<div className="w-full flex justify-between items-center mb-6">
-				{activeSection === 'main' ? (
-					<Link href="/">
-						<Button size="icon" variant="outline">
-							<ArrowLeft className="h-4 w-4" />
-							<span className="sr-only">Back</span>
-						</Button>
-					</Link>
-				) : (
-					<Button
-						onClick={() => setActiveSection('main')}
-						size="icon"
-						variant="outline"
-					>
-						<ArrowLeft className="h-4 w-4" />
-						<span className="sr-only">Back</span>
-					</Button>
-				)}
+				<Button
+					data-testid="back-button"
+					onClick={() => {
+						if (activeSection === 'main') {
+							router.push('/');
+						} else {
+							setActiveSection('main');
+						}
+					}}
+					size="icon"
+					variant="outline"
+				>
+					<ArrowLeft className="h-4 w-4" />
+					<span className="sr-only">Back</span>
+				</Button>
 				<h1 className="text-2xl font-bold">{getTitle()}</h1>
 				<div className="w-10" /> {/* Spacer */}
 			</div>

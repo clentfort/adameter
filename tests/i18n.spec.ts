@@ -22,12 +22,12 @@ test.describe('Internationalization', () => {
 		await page.getByRole('option', { name: 'German' }).click();
 
 		// 3. Verify German text
-		await page.getByRole('button', { name: /back/i }).click();
+		await page.getByTestId('back-button').click();
 		// Wait for the main settings to show up before clicking back again
 		await expect(
 			page.getByRole('button', { name: /Appearance|Erscheinungsbild/ }),
 		).toBeVisible();
-		await page.getByRole('button', { name: /back/i }).click();
+		await page.getByTestId('back-button').click();
 		await expect(page.getByText('Letztes Stillen')).toBeVisible();
 
 		// 4. Reload and verify German is persisted
