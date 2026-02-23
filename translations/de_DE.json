@@ -3453,30 +3453,6 @@
           "translation": "Wachstum"
         }
       ]
-    },
-    "HtU4zP5vL1skpy+8+8hUaA==": {
-      "description": "Title for the diaper distribution heat map",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Tägliche Windelverteilung",
-          "variations": {}
-        }
-      ]
-    },
-    "SwjPimp9VYOXXfBHs+hFrg==": {
-      "description": "Description for the diaper distribution heat map",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Verteilung der Windelwechsel über den Tag",
-          "variations": {}
-        }
-      ]
     }
   }
 }

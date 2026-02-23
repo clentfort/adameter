@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { FeedingSession } from '@/types/feeding';
 import {
 	Card,
 	CardContent,
@@ -9,82 +9,51 @@ import {
 
 interface HeatMapProps {
 	className?: string;
-	data: { endTime?: string; startTime: string }[];
-	description: ReactNode;
-	palette?: 'diaper' | 'feeding';
-	title: ReactNode;
+	sessions: FeedingSession[];
 }
 
-const PALETTES = {
-	diaper: [
-		'bg-muted/60 dark:bg-zinc-800',
-		'bg-amber-100/40 border-amber-200/20',
-		'bg-amber-100 border-amber-200/50',
-		'bg-amber-200 border-amber-300/50',
-		'bg-amber-300 border-amber-400/50',
-		'bg-amber-400 border-amber-500/50',
-		'bg-amber-500 border-amber-600/50',
-		'bg-amber-600 border-amber-700/50',
-		'bg-amber-700 border-amber-800/50',
-		'bg-amber-800 border-amber-900/50',
-	],
-	feeding: [
-		'bg-muted/60 dark:bg-zinc-800',
-		'bg-left-breast/10',
-		'bg-left-breast/25',
-		'bg-left-breast/40',
-		'bg-left-breast/55',
-		'bg-right-breast/30',
-		'bg-right-breast/45',
-		'bg-right-breast/60',
-		'bg-right-breast/75',
-		'bg-right-breast',
-	],
-} as const;
+const INTENSITY_CLASSES = [
+	'bg-muted/60 dark:bg-zinc-800',
+	'bg-left-breast/20 dark:bg-left-breast/35',
+	'bg-left-breast/45 dark:bg-left-breast/55',
+	'bg-right-breast/45 dark:bg-right-breast/55',
+	'bg-right-breast/65 dark:bg-right-breast/70',
+	'bg-right-breast dark:bg-right-breast-light',
+] as const;
 
-export default function HeatMap({
-	className,
-	data = [],
-	description,
-	palette = 'feeding',
-	title,
-}: HeatMapProps) {
-	if (data.length === 0) return null;
-
-	const intensityClasses = PALETTES[palette];
+export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
+	if (sessions.length === 0) return null;
 
 	// Calculate time distribution (5-minute intervals)
 	const distribution = Array(288).fill(0); // 288 5-minute intervals in a day
 
-	data.forEach((item) => {
-		const startTime = new Date(item.startTime);
+	sessions.forEach((session) => {
+		const startTime = new Date(session.startTime);
+		const endTime = new Date(session.endTime);
+
+		// Calculate which 5-minute intervals this session spans
 		const startMinuteOfDay = startTime.getHours() * 60 + startTime.getMinutes();
+		const endMinuteOfDay = endTime.getHours() * 60 + endTime.getMinutes();
+
+		// Handle sessions that span midnight
 		const startInterval = Math.floor(startMinuteOfDay / 5);
+		let endInterval = Math.floor(endMinuteOfDay / 5);
 
-		if (item.endTime) {
-			const endTime = new Date(item.endTime);
-			const endMinuteOfDay = endTime.getHours() * 60 + endTime.getMinutes();
-			let endInterval = Math.floor(endMinuteOfDay / 5);
+		if (endInterval < startInterval) {
+			// Session crosses midnight
+			endInterval += 288;
+		}
 
-			if (endInterval < startInterval) {
-				// Session crosses midnight
-				endInterval += 288;
+		// Mark all intervals that this session spans
+		for (let i = startInterval; i <= Math.min(endInterval, 287); i++) {
+			distribution[i % 288]++;
+		}
+
+		// If session crosses midnight, continue from the beginning of the day
+		if (endInterval > 287) {
+			for (let i = 0; i <= endInterval - 288; i++) {
+				distribution[i]++;
 			}
-
-			// Mark all intervals that this session spans
-			for (let i = startInterval; i <= Math.min(endInterval, 287); i++) {
-				distribution[i % 288]++;
-			}
-
-			// If session crosses midnight, continue from the beginning of the day
-			if (endInterval > 287) {
-				for (let i = 0; i <= endInterval - 288; i++) {
-					distribution[i]++;
-				}
-			}
-		} else {
-			// Single point in time
-			distribution[startInterval]++;
 		}
 	});
 
@@ -109,8 +78,16 @@ export default function HeatMap({
 	return (
 		<Card className={className}>
 			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">{title}</CardTitle>
-				<CardDescription>{description}</CardDescription>
+				<CardTitle className="text-base">
+					<fbt desc="Title for the feeding distribution heat map">
+						Daily Feeding Distribution
+					</fbt>
+				</CardTitle>
+				<CardDescription>
+					<fbt desc="Description for the feeding distribution heat map">
+						Distribution of feeding times throughout the day
+					</fbt>
+				</CardDescription>
 			</CardHeader>
 			<CardContent className="p-4 pt-0">
 				<div className="mt-6 mb-2 rounded-lg border border-border/70 bg-muted/20 p-3 dark:border-zinc-700/80 dark:bg-zinc-900/60">
@@ -121,16 +98,25 @@ export default function HeatMap({
 								const level =
 									interval.count === 0
 										? 0
-										: Math.min(9, Math.ceil(intensity * 9));
+										: intensity < 0.2
+											? 1
+											: intensity < 0.4
+												? 2
+												: intensity < 0.6
+													? 3
+													: intensity < 0.8
+														? 4
+														: 5;
 
 								return (
 									<div
-										className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 group relative transition-colors ${intensityClasses[level]}`}
+										className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 group relative transition-colors ${INTENSITY_CLASSES[level]}`}
 										key={index}
 										style={{ width: `${100 / displayIntervals.length}%` }}
+										title={`${interval.time} Uhr: ${interval.count} Mahlzeit${interval.count !== 1 ? 'en' : ''}`}
 									>
 										<div className="absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 transform whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] text-background opacity-0 transition-opacity pointer-events-none group-hover:opacity-100">
-											{interval.time}: {interval.count}
+											{interval.time} Uhr: {interval.count}
 										</div>
 									</div>
 								);
@@ -161,19 +147,47 @@ export default function HeatMap({
 						</div>
 					</div>
 
-					<div className="mt-4 flex items-center justify-end gap-2 text-[10px] text-muted-foreground">
-						<span>
-							<fbt desc="Legend minimum activity label">Less</fbt>
-						</span>
-						{intensityClasses.map((levelClass, index) => (
-							<div
-								className={`h-3 w-3 rounded-[2px] border border-black/5 dark:border-white/10 ${levelClass}`}
-								key={index}
-							/>
-						))}
-						<span>
-							<fbt desc="Legend maximum activity label">More</fbt>
-						</span>
+					<div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-muted-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
+						<div className="flex items-center gap-1">
+							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast dark:border-white/10 dark:bg-right-breast-light"></div>
+							<span>
+								<fbt desc="Heat map legend label for very high activity">
+									Very High Activity
+								</fbt>
+							</span>
+						</div>
+						<div className="flex items-center gap-1">
+							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast/65 dark:border-white/10 dark:bg-right-breast/70"></div>
+							<span>
+								<fbt desc="Heat map legend label for high activity">
+									High Activity
+								</fbt>
+							</span>
+						</div>
+						<div className="flex items-center gap-1">
+							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast/45 dark:border-white/10 dark:bg-right-breast/55"></div>
+							<span>
+								<fbt desc="Heat map legend label for medium activity">
+									Medium Activity
+								</fbt>
+							</span>
+						</div>
+						<div className="flex items-center gap-1">
+							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-left-breast/45 dark:border-white/10 dark:bg-left-breast/55"></div>
+							<span>
+								<fbt desc="Heat map legend label for low activity">
+									Low Activity
+								</fbt>
+							</span>
+						</div>
+						<div className="flex items-center gap-1">
+							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-left-breast/20 dark:border-white/10 dark:bg-left-breast/35"></div>
+							<span>
+								<fbt desc="Heat map legend label for very low activity">
+									Very Low Activity
+								</fbt>
+							</span>
+						</div>
 					</div>
 				</div>
 			</CardContent>
