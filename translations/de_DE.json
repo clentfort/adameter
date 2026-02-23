@@ -2907,7 +2907,7 @@
       "translations": [
         {
           "variations": {},
-          "translation": "Jedes Kästchen zeigt, wie viele Fütterungen an diesem Tag eingetragen wurden."
+          "translation": "Jedes Kästchen zeigt, wie viele Stillvorgänge an diesem Tag eingetragen wurden."
         }
       ]
     },
@@ -2919,7 +2919,7 @@
       "translations": [
         {
           "variations": {},
-          "translation": "Fütterung-Aktivität (letztes Jahr)"
+          "translation": "Still-Aktivität (letztes Jahr)"
         }
       ]
     },
@@ -2977,7 +2977,7 @@
       "status": "translated",
       "translations": [
         {
-          "translation": "Die meisten Fütterungen an einem Tag",
+          "translation": "Die meisten Stillvorgänge an einem Tag",
           "variations": {}
         }
       ],
@@ -2989,7 +2989,7 @@
       "status": "translated",
       "translations": [
         {
-          "translation": "Die wenigsten Fütterungen an einem Tag",
+          "translation": "Die wenigsten Stillvorgänge an einem Tag",
           "variations": {}
         }
       ],
@@ -3001,7 +3001,7 @@
       "status": "translated",
       "translations": [
         {
-          "translation": "Längster Fütterungstag",
+          "translation": "Tag mit der längsten Stilldauer",
           "variations": {}
         }
       ],
@@ -3013,7 +3013,7 @@
       "status": "translated",
       "translations": [
         {
-          "translation": "Kürzester Fütterungstag",
+          "translation": "Tag mit der kürzesten Stilldauer",
           "variations": {}
         }
       ],
