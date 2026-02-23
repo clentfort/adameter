@@ -53,7 +53,9 @@ describe('FeedingForm', () => {
 		expect(screen.getByLabelText(/minutes/i)).toHaveValue(null);
 
 		fireEvent.click(screen.getByTestId('right-breast-radio'));
-		fireEvent.change(screen.getByLabelText(/minutes/i), { target: { value: '15' } });
+		fireEvent.change(screen.getByLabelText(/minutes/i), {
+			target: { value: '15' },
+		});
 
 		fireEvent.click(screen.getByTestId('save-button'));
 
@@ -66,7 +68,9 @@ describe('FeedingForm', () => {
 	it('does not call onSave if duration is invalid', () => {
 		render(<FeedingForm {...baseProps} />);
 
-		fireEvent.change(screen.getByLabelText(/minutes/i), { target: { value: '' } });
+		fireEvent.change(screen.getByLabelText(/minutes/i), {
+			target: { value: '' },
+		});
 		fireEvent.click(screen.getByTestId('save-button'));
 
 		expect(mockOnSave).not.toHaveBeenCalled();
