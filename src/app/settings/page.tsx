@@ -9,12 +9,11 @@ import {
 	Share2,
 	User,
 } from 'lucide-react';
-import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useContext, useState } from 'react';
 import ProfileForm from '@/components/profile-form';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
 	Select,
 	SelectContent,
