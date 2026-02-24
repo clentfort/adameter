@@ -8,10 +8,6 @@ interface ItemWithId {
 }
 
 function getDateKey(timestamp: string) {
-	if (timestamp.length >= 10 && timestamp[4] === '-' && timestamp[7] === '-') {
-		return timestamp.slice(0, 10);
-	}
-
 	const parsedDate = parseISO(timestamp);
 	if (Number.isNaN(parsedDate.getTime())) {
 		return timestamp;
