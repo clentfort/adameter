@@ -1,4 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
+import { fbt } from 'fbtee';
 import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -160,7 +161,7 @@ export default function FeedingForm({
 					<div className="space-y-2">
 						<Label htmlFor="edit-duration">
 							<fbt desc="Label for a number input that sets the duration of a feeding session in minutes">
-								minutes
+								Duration (minutes)
 							</fbt>
 						</Label>
 						<Input
@@ -173,6 +174,9 @@ export default function FeedingForm({
 					</div>
 				</div>
 				<DialogFooter>
+					<Button onClick={onClose} variant="outline">
+						<fbt common>Cancel</fbt>
+					</Button>
 					<Button
 						className={
 							breast === 'left'

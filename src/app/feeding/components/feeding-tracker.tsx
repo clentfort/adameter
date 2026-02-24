@@ -261,8 +261,8 @@ export default function BreastfeedingTracker({
 					onClose={() => setManualSession(null)}
 					onSave={handleManualSave}
 					title={
-						<fbt desc="Title of the dialog to enter feeding time manually">
-							Enter Feeding Time Manually
+						<fbt desc="Title of the dialog to add a feeding entry manually">
+							Add Feeding Entry
 						</fbt>
 					}
 				/>

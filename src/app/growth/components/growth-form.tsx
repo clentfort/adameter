@@ -163,8 +163,7 @@ export default function MeasurementForm({
 						<Label htmlFor="notes">
 							<fbt desc="Label for an optional notes textarea">
 								Notes (optional)
-							</fbt>{' '}
-							(optional)
+							</fbt>
 						</Label>
 						<Textarea
 							id="notes"
@@ -179,6 +178,9 @@ export default function MeasurementForm({
 					</div>
 				</div>
 				<DialogFooter>
+					<Button onClick={onClose} variant="outline">
+						<fbt common>Cancel</fbt>
+					</Button>
 					<Button onClick={handleSave} type="submit">
 						<fbt common>Save</fbt>
 					</Button>

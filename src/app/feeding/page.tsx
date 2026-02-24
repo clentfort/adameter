@@ -59,7 +59,7 @@ export default function Feedings() {
 					}}
 					title={
 						<fbt desc="Title of the dialog to manually add a previous feeding session">
-							Add Feeding
+							Add Feeding Entry
 						</fbt>
 					}
 				/>

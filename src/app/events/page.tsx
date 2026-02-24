@@ -38,8 +38,8 @@ export default function EventsPage() {
 						setIsAddEntryDialogOpen(false);
 					}}
 					title={
-						<fbt desc="Title of the dialog to add a measurement">
-							Add Measurement
+						<fbt desc="Title of the dialog to add an event">
+							Add Event Entry
 						</fbt>
 					}
 				/>

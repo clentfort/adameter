@@ -126,8 +126,8 @@ export default function EventsList() {
 						setEventToEdit(null);
 					}}
 					title={
-						<fbt desc="Title of the dialog to edit a measurement">
-							Edit Measurement
+						<fbt desc="Title of the dialog to edit an event">
+							Edit Event Entry
 						</fbt>
 					}
 				/>

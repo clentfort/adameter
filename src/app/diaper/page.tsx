@@ -85,7 +85,7 @@ export default function DiaperPage() {
 					presetDiaperBrand={lastUsedDiaperBrand}
 					title={
 						<fbt desc="Title of the dialog to manually add a previous diaper change">
-							Add Diaper Change
+							Add Diaper Entry
 						</fbt>
 					}
 				/>
