@@ -113,4 +113,5 @@ describe('useSortedEvents', () => {
 		);
 		expect(Object.keys(result.current)).toEqual(['2024-01-05']);
 	});
+
 });
