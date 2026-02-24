@@ -203,7 +203,7 @@ export default function GrowthHistoryList({
 					onSave={onMeasurementUpdate}
 					title={
 						<fbt desc="Title for dialog to edit a growth measurement">
-									Edit Growth Entry
+							Edit Growth Entry
 						</fbt>
 					}
 				/>
