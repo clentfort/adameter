@@ -33,7 +33,7 @@ test.describe('Navigation', () => {
 
 		// Check if the navigation was successful
 		await expect(page).toHaveURL(/\/diaper/);
-		await expect(page.getByText('Urine Only')).toBeVisible();
+		await expect(page.getByText('Urine', { exact: true })).toBeVisible();
 
 		// Navigate back to feeding to ensure the session is still active (state persistence)
 		await page

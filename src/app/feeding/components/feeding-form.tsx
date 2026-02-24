@@ -1,5 +1,4 @@
 import type { FeedingSession } from '@/types/feeding';
-import { fbt } from 'fbtee';
 import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
