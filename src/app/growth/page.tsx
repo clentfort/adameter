@@ -68,7 +68,7 @@ export default function GrowthPage() {
 					}}
 					title={
 						<fbt desc="Title of the dialog to manually add a growth measurement">
-							Add Growth Measurement
+							Add Growth Entry
 						</fbt>
 					}
 				/>

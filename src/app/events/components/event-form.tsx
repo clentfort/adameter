@@ -285,6 +285,9 @@ export default function EventForm({
 					</div>
 				</div>
 				<DialogFooter>
+					<Button onClick={onClose} variant="outline">
+						<fbt common>Cancel</fbt>
+					</Button>
 					<Button data-testid="save-button" onClick={handleSave} type="submit">
 						<fbt common>Save</fbt>
 					</Button>

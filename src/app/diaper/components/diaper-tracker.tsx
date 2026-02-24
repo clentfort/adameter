@@ -35,9 +35,7 @@ export default function DiaperTracker({
 					size="lg"
 				>
 					<span className="text-2xl mr-2">💧</span>{' '}
-					<fbt desc="Label for a button that tracks a urine only diaper">
-						Urine Only
-					</fbt>
+					<fbt desc="Label for a button that tracks a urine diaper">Urine</fbt>
 				</Button>
 				<Button
 					className="h-24 text-lg w-full bg-amber-700 hover:bg-amber-800 text-white"
@@ -46,9 +44,7 @@ export default function DiaperTracker({
 					size="lg"
 				>
 					<span className="text-2xl mr-2">💩</span>{' '}
-					<fbt desc="Label for a button that tracks a urine and stool diaper">
-						Stool
-					</fbt>
+					<fbt desc="Label for a button that tracks a stool diaper">Stool</fbt>
 				</Button>
 			</div>
 			{isDetailsDialogOpen && (
@@ -63,15 +59,8 @@ export default function DiaperTracker({
 					presetDiaperBrand={lastUsedDiaperBrand}
 					presetType={selectedType ?? undefined}
 					title={
-						<fbt desc="Title for the diaper change details dialog">
-							<fbt:param name="diaperType">
-								{selectedType === 'urine' ? (
-									<fbt common>Urine</fbt>
-								) : (
-									<fbt common>Stool</fbt>
-								)}
-							</fbt:param>{' '}
-							Diaper - Details
+						<fbt desc="Title for the diaper change entry dialog">
+							Add Diaper Entry
 						</fbt>
 					}
 				/>
