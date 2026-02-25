@@ -405,7 +405,8 @@ export default function SettingsPage() {
 												onChange={(e) =>
 													setNewBrand({
 														...newBrand,
-														costPerDiaper: Number.parseFloat(e.target.value) || 0,
+														costPerDiaper:
+															Number.parseFloat(e.target.value) || 0,
 													})
 												}
 												step="0.01"
