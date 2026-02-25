@@ -15,12 +15,23 @@ const mockChartInstance = {
 };
 const mockChart = vi.fn((...args: unknown[]) => mockChartInstance);
 
-vi.mock('chart.js/auto', () => ({
-	default: class Chart {
+vi.mock('chart.js', () => ({
+	CategoryScale: vi.fn(),
+	Chart: class Chart {
+		static register = vi.fn();
 		constructor(...args: unknown[]) {
 			return mockChart(...args);
 		}
 	},
+	Filler: vi.fn(),
+	Legend: vi.fn(),
+	LinearScale: vi.fn(),
+	LineController: vi.fn(),
+	LineElement: vi.fn(),
+	PointElement: vi.fn(),
+	TimeScale: vi.fn(),
+	Title: vi.fn(),
+	Tooltip: vi.fn(),
 }));
 
 vi.mock('chartjs-adapter-date-fns', () => ({}));
@@ -41,7 +52,8 @@ describe('LineChart', () => {
 	});
 
 	it('should render and initialize chart with minimal props', () => {
-		const mockData = [{ x: new Date(), y: 10 }];
+		const date = new Date();
+		const mockData = [{ x: date, y: 10 }];
 		render(
 			<LineChart
 				data={mockData}
@@ -61,7 +73,7 @@ describe('LineChart', () => {
 				data: expect.objectContaining({
 					datasets: expect.arrayContaining([
 						expect.objectContaining({
-							data: mockData,
+							data: [{ x: date.getTime(), y: 10 }],
 							label: 'Test Dataset',
 						}),
 					]),
