@@ -100,12 +100,16 @@ export function calculateDiaperSavings(
 		}
 	});
 
-	const topBrandsSpending: BrandSpending[] = Array.from(brandUsageCount.entries())
+	const topBrandsSpending: BrandSpending[] = Array.from(
+		brandUsageCount.entries(),
+	)
 		.map(([brandId, usageCount]) => {
 			const brand = brandMap.get(brandId);
 			let totalSpend = 0;
 			if (brand) {
-				totalSpend = brand.isReusable ? brand.upfrontCost + usageCount * (brand.perUseCost ?? 0) : usageCount * brand.costPerDiaper;
+				totalSpend = brand.isReusable
+					? brand.upfrontCost + usageCount * (brand.perUseCost ?? 0)
+					: usageCount * brand.costPerDiaper;
 			}
 			return {
 				brandId,

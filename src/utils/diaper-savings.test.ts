@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { calculateDiaperSavings } from './diaper-savings';
 import { DiaperChange } from '@/types/diaper';
 import { DiaperBrand } from '@/types/diaper-brand';
+import { calculateDiaperSavings } from './diaper-savings';
 
 describe('calculateDiaperSavings', () => {
 	const brands: DiaperBrand[] = [
@@ -64,7 +64,9 @@ describe('calculateDiaperSavings', () => {
 		// Pampers: 2 uses * 0.25 = 0.50
 		// Stoffy: 100 upfront + 1 use * 0.05 = 100.05
 		expect(result.topBrandsSpending).toHaveLength(2);
-		const pampers = result.topBrandsSpending.find((b) => b.brandId === 'pampers');
+		const pampers = result.topBrandsSpending.find(
+			(b) => b.brandId === 'pampers',
+		);
 		const stoffy = result.topBrandsSpending.find((b) => b.brandId === 'stoffy');
 
 		expect(pampers?.totalSpend).toBe(0.5);
