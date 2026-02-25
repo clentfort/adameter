@@ -50,7 +50,7 @@ export default function DiaperSavingsStats({
 	} = savingsData;
 
 	const chartData = useMemo(
-		() => cumulativeSavings.map((d) => ({ x: d.date, y: d.savings })),
+		() => cumulativeSavings.map((d) => ({ x: d.date.getTime(), y: d.savings })),
 		[cumulativeSavings],
 	);
 

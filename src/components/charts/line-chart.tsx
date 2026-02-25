@@ -1,9 +1,34 @@
 'use client';
 
-import Chart from 'chart.js/auto';
+import {
+	CategoryScale,
+	Chart,
+	Filler,
+	Legend,
+	LinearScale,
+	LineController,
+	LineElement,
+	PointElement,
+	TimeScale,
+	Title,
+	Tooltip,
+} from 'chart.js';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns';
+
+Chart.register(
+	CategoryScale,
+	LinearScale,
+	PointElement,
+	LineElement,
+	Title,
+	Tooltip,
+	Legend,
+	TimeScale,
+	LineController,
+	Filler,
+);
 
 interface ChartDataContext {
 	dataset: {
@@ -94,7 +119,7 @@ export default function LineChart({
 
 		if (showZeroLine && data.length > 0) {
 			const xValues = data.map((d) =>
-				typeof d.x === 'object' ? d.x.getTime() : d.x,
+				typeof d.x === 'number' ? d.x : d.x.getTime(),
 			);
 			const minX = Math.min(...xValues);
 			const maxX = Math.max(...xValues);
@@ -119,7 +144,10 @@ export default function LineChart({
 				{
 					backgroundColor: 'transparent',
 					borderColor: 'transparent',
-					data: rangeData.map((d) => ({ x: d.x, y: d.yMin })),
+					data: rangeData.map((d) => ({
+						x: typeof d.x === 'number' ? d.x : d.x.getTime(),
+						y: d.yMin,
+					})),
 					fill: false,
 					label: String(rangeLabel || 'Range Min'),
 					pointRadius: 0,
@@ -128,7 +156,10 @@ export default function LineChart({
 					backgroundColor: rangeFillColor,
 					borderColor: rangeBorderColor,
 					borderWidth: 1,
-					data: rangeData.map((d) => ({ x: d.x, y: d.yMax })),
+					data: rangeData.map((d) => ({
+						x: typeof d.x === 'number' ? d.x : d.x.getTime(),
+						y: d.yMax,
+					})),
 					fill: 0, // Fill to the first dataset (Range Min)
 					label: String(rangeLabel || 'Range Max'),
 					pointRadius: 0,
@@ -139,7 +170,10 @@ export default function LineChart({
 		datasets.push({
 			backgroundColor,
 			borderColor,
-			data,
+			data: data.map((d) => ({
+				...d,
+				x: typeof d.x === 'number' ? d.x : d.x.getTime(),
+			})),
 			label: String(datasetLabel),
 			pointHoverRadius: 7,
 			pointRadius: 5,
@@ -214,8 +248,8 @@ export default function LineChart({
 							display: true,
 						},
 						max:
-							forecastDate && typeof forecastDate === 'object'
-								? (forecastDate as Date).getTime()
+							forecastDate && typeof forecastDate !== 'number'
+								? forecastDate.getTime()
 								: forecastDate,
 						ticks:
 							xAxisType === 'linear'
@@ -232,6 +266,9 @@ export default function LineChart({
 											hour: 'HH:mm',
 											minute: 'HH:mm',
 											month: 'MMM yyyy',
+											quarter: 'MMM yyyy',
+											week: 'dd.MM',
+											year: 'yyyy',
 										},
 									}
 								: undefined,
