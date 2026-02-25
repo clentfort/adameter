@@ -19,6 +19,7 @@ import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
 import DiaperRecords from './components/diaper-records';
+import DiaperSavingsStats from './components/diaper-savings-stats';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
 import FeedingRecords from './components/feeding-records';
@@ -279,10 +280,13 @@ export default function StatisticsPage() {
 					</h3>
 					{filteredDiaperChanges.length > 0 ? (
 						<>
-							<DiaperStats
-								comparisonDiaperChanges={comparisonDiaperChanges}
-								diaperChanges={filteredDiaperChanges}
-							/>
+							<div className="space-y-4">
+								<DiaperStats
+									comparisonDiaperChanges={comparisonDiaperChanges}
+									diaperChanges={filteredDiaperChanges}
+								/>
+								<DiaperSavingsStats diaperChanges={diaperChanges} />
+							</div>
 							<YearlyActivityHeatMap
 								className="mt-4"
 								dates={diaperChanges.map((change) => change.timestamp)}
