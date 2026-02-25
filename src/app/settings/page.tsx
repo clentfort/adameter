@@ -30,6 +30,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useLanguage } from '@/contexts/i18n-context';
+import { useCurrency } from '@/hooks/use-currency';
 import { useDiaperAverageCost } from '@/hooks/use-diaper-average-cost';
 import { useDiaperBrands } from '@/hooks/use-diaper-brands';
 import { useProfile } from '@/hooks/use-profile';
@@ -40,6 +41,7 @@ export default function SettingsPage() {
 	const [profile, setProfile] = useProfile();
 	const { setTheme, theme } = useTheme();
 	const { locale, setLocale } = useLanguage();
+	const [currency, setCurrency] = useCurrency();
 	const [averageCost, setAverageCost] = useDiaperAverageCost();
 	const {
 		add: addBrand,
@@ -58,6 +60,7 @@ export default function SettingsPage() {
 		costPerDiaper: 0,
 		isReusable: false,
 		name: '',
+		perUseCost: 0,
 		upfrontCost: 0,
 	});
 
@@ -236,6 +239,25 @@ export default function SettingsPage() {
 							</SelectContent>
 						</Select>
 					</div>
+
+					<div className="space-y-2">
+						<div className="flex items-center gap-2">
+							<PoundSterling className="h-4 w-4" />
+							<p className="text-sm font-medium">
+								<fbt desc="Label for currency setting">Currency</fbt>
+							</p>
+						</div>
+						<Select onValueChange={(v) => setCurrency(v)} value={currency}>
+							<SelectTrigger>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="GBP">£ GBP</SelectItem>
+								<SelectItem value="EUR">€ EUR</SelectItem>
+								<SelectItem value="USD">$ USD</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
 				</CardContent>
 			</Card>
 		</div>
@@ -348,14 +370,27 @@ export default function SettingsPage() {
 											</span>
 										)}
 										{brand.isReusable && (
-											<span>
-												<fbt desc="Upfront cost label">
-													Upfront:{' '}
-													<fbt:param name="cost">
-														{brand.upfrontCost.toFixed(2)}
-													</fbt:param>
-												</fbt>
-											</span>
+											<>
+												<span>
+													<fbt desc="Upfront cost label">
+														Upfront:{' '}
+														<fbt:param name="cost">
+															{brand.upfrontCost.toFixed(2)}
+														</fbt:param>
+													</fbt>
+												</span>
+												{brand.perUseCost !== undefined &&
+													brand.perUseCost > 0 && (
+														<span>
+															<fbt desc="Usage cost label">
+																Usage:{' '}
+																<fbt:param name="cost">
+																	{brand.perUseCost.toFixed(2)}
+																</fbt:param>
+															</fbt>
+														</span>
+													)}
+											</>
 										)}
 									</div>
 								</div>
@@ -416,23 +451,46 @@ export default function SettingsPage() {
 										</div>
 									)}
 									{newBrand.isReusable && (
-										<div className="space-y-1">
-											<Label htmlFor="brand-upfront">
-												<fbt desc="Upfront cost label">Upfront Cost</fbt>
-											</Label>
-											<Input
-												id="brand-upfront"
-												onChange={(e) =>
-													setNewBrand({
-														...newBrand,
-														upfrontCost: Number.parseFloat(e.target.value) || 0,
-													})
-												}
-												step="1.00"
-												type="number"
-												value={newBrand.upfrontCost || 0}
-											/>
-										</div>
+										<>
+											<div className="space-y-1">
+												<Label htmlFor="brand-upfront">
+													<fbt desc="Upfront cost label">Upfront Cost</fbt>
+												</Label>
+												<Input
+													id="brand-upfront"
+													onChange={(e) =>
+														setNewBrand({
+															...newBrand,
+															upfrontCost:
+																Number.parseFloat(e.target.value) || 0,
+														})
+													}
+													step="1.00"
+													type="number"
+													value={newBrand.upfrontCost || 0}
+												/>
+											</div>
+											<div className="space-y-1">
+												<Label htmlFor="brand-per-use">
+													<fbt desc="Usage cost label (e.g. washing)">
+														Usage Cost (per use)
+													</fbt>
+												</Label>
+												<Input
+													id="brand-per-use"
+													onChange={(e) =>
+														setNewBrand({
+															...newBrand,
+															perUseCost:
+																Number.parseFloat(e.target.value) || 0,
+														})
+													}
+													step="0.01"
+													type="number"
+													value={newBrand.perUseCost || 0}
+												/>
+											</div>
+										</>
 									)}
 									<div className="flex gap-2 pt-2">
 										<Button
@@ -455,6 +513,7 @@ export default function SettingsPage() {
 													costPerDiaper: 0,
 													isReusable: false,
 													name: '',
+													perUseCost: 0,
 													upfrontCost: 0,
 												});
 											}}
@@ -473,6 +532,7 @@ export default function SettingsPage() {
 														costPerDiaper: 0,
 														isReusable: false,
 														name: '',
+														perUseCost: 0,
 														upfrontCost: 0,
 													});
 												}}

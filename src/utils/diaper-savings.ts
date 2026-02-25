@@ -2,11 +2,19 @@ import type { DiaperChange } from '@/types/diaper';
 import type { DiaperBrand } from '@/types/diaper-brand';
 import { startOfDay } from 'date-fns';
 
+export interface BrandSpending {
+	brandId: string;
+	brandName: string;
+	totalSpend: number;
+	usageCount: number;
+}
+
 export interface SavingsData {
 	breakEvenPoint?: Date;
 	cumulativeSavings: { date: Date; savings: number }[];
 	pottyTrainingSavings: number;
 	reusableSavings: number;
+	topBrandsSpending: BrandSpending[];
 	totalSavings: number;
 }
 
@@ -22,18 +30,23 @@ export function calculateDiaperSavings(
 	let reusableSavings = 0;
 
 	const dailySavings = new Map<number, number>();
+	const brandUsageCount = new Map<string, number>();
 
 	diaperChanges.sort(
 		(a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
 	);
 
 	diaperChanges.forEach((change) => {
-		const brand = brandMap.get(change.diaperBrand || '');
+		const brandId = change.diaperBrand || '';
+		brandUsageCount.set(brandId, (brandUsageCount.get(brandId) || 0) + 1);
+
+		const brand = brandMap.get(brandId);
 		let changeSavings = 0;
 
 		if (brand?.isReusable) {
-			// Using a reusable diaper saves the cost of an average disposable
-			const saving = averageDisposableCost - (brand.costPerDiaper || 0);
+			// Using a reusable diaper saves the cost of an average disposable minus per-use costs
+			const saving =
+				averageDisposableCost - (brand.perUseCost ?? brand.costPerDiaper ?? 0);
 			reusableSavings += saving;
 			changeSavings += saving;
 		} else {
@@ -87,11 +100,29 @@ export function calculateDiaperSavings(
 		}
 	});
 
+	const topBrandsSpending: BrandSpending[] = Array.from(brandUsageCount.entries())
+		.map(([brandId, usageCount]) => {
+			const brand = brandMap.get(brandId);
+			let totalSpend = 0;
+			if (brand) {
+				totalSpend = brand.isReusable ? brand.upfrontCost + usageCount * (brand.perUseCost ?? 0) : usageCount * brand.costPerDiaper;
+			}
+			return {
+				brandId,
+				brandName: brand?.name || brandId || 'Unknown',
+				totalSpend,
+				usageCount,
+			};
+		})
+		.sort((a, b) => b.usageCount - a.usageCount)
+		.slice(0, 3);
+
 	return {
 		breakEvenPoint,
 		cumulativeSavings,
 		pottyTrainingSavings,
 		reusableSavings,
+		topBrandsSpending,
 		totalSavings: pottyTrainingSavings + reusableSavings - totalUpfrontCost,
 	};
 }

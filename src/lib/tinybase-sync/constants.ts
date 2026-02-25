@@ -5,6 +5,7 @@ export const TINYBASE_LOCAL_DB_NAME = 'adameter-tinybase';
 export const STORE_VALUE_FEEDING_IN_PROGRESS = 'feedingInProgress';
 export const STORE_VALUE_PROFILE = 'profile';
 export const STORE_VALUE_DIAPER_AVERAGE_COST = 'diaperAverageCost';
+export const STORE_VALUE_CURRENCY = 'currency';
 
 export const TABLE_IDS = {
 	DIAPER_BRANDS: 'diaperBrands',

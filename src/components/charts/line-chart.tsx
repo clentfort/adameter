@@ -35,6 +35,7 @@ interface LineChartProps {
 	forecastDate?: Date | number;
 	rangeData?: RangePoint[];
 	rangeLabel?: React.ReactNode;
+	showZeroLine?: boolean;
 	title: React.ReactNode;
 	tooltipLabelFormatter?: (context: ChartDataContext) => string;
 	tooltipTitleFormatter?: (context: ChartDataContext[]) => string;
@@ -53,6 +54,7 @@ export default function LineChart({
 	forecastDate,
 	rangeData = [],
 	rangeLabel,
+	showZeroLine = false,
 	title,
 	tooltipLabelFormatter,
 	tooltipTitleFormatter,
@@ -89,6 +91,28 @@ export default function LineChart({
 		const rangeBorderColor = isDark
 			? 'rgba(255, 255, 255, 0.2)'
 			: 'rgba(0, 0, 0, 0.1)';
+
+		if (showZeroLine && data.length > 0) {
+			const xValues = data.map((d) =>
+				typeof d.x === 'object' ? d.x.getTime() : d.x,
+			);
+			const minX = Math.min(...xValues);
+			const maxX = Math.max(...xValues);
+			datasets.push({
+				backgroundColor: 'transparent',
+				borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+				borderDash: [5, 5],
+				borderWidth: 1,
+				data: [
+					{ x: minX, y: 0 },
+					{ x: maxX, y: 0 },
+				],
+				fill: false,
+				label: 'Zero Baseline',
+				pointRadius: 0,
+				tension: 0,
+			});
+		}
 
 		if (rangeData.length > 0) {
 			datasets.push(
@@ -169,11 +193,13 @@ export default function LineChart({
 									},
 						},
 						filter: (tooltipItem) => {
-							// Don't show tooltips for range datasets
+							// Don't show tooltips for range datasets or zero baseline
 							return (
 								tooltipItem.dataset.label !==
 									String(rangeLabel || 'Range Min') &&
-								tooltipItem.dataset.label !== String(rangeLabel || 'Range Max')
+								tooltipItem.dataset.label !==
+									String(rangeLabel || 'Range Max') &&
+								tooltipItem.dataset.label !== 'Zero Baseline'
 							);
 						},
 					},
@@ -203,9 +229,10 @@ export default function LineChart({
 								? {
 										displayFormats: {
 											day: 'dd.MM',
+											hour: 'HH:mm',
+											minute: 'HH:mm',
 											month: 'MMM yyyy',
 										},
-										unit: 'month', // Monthly grid lines
 									}
 								: undefined,
 						title: {
@@ -219,7 +246,16 @@ export default function LineChart({
 						ticks: {
 							callback:
 								yAxisUnit && typeof yAxisUnit === 'string'
-									? (value) => `${value} ${yAxisUnit}`
+									? (value) => {
+											if (
+												yAxisUnit === '£' ||
+												yAxisUnit === '€' ||
+												yAxisUnit === '$'
+											) {
+												return `${yAxisUnit}${value}`;
+											}
+											return `${value} ${yAxisUnit}`;
+										}
 									: undefined,
 						},
 						title: {
@@ -245,6 +281,7 @@ export default function LineChart({
 		yAxisUnit,
 		tooltipTitleFormatter,
 		tooltipLabelFormatter,
+		showZeroLine,
 	]);
 
 	useEffect(() => {
