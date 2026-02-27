@@ -161,7 +161,8 @@ export default function DiaperSavingsStats({
 								<fbt desc="Upfront cost label">Upfront</fbt>
 							</p>
 							<p className="text-lg font-bold text-red-900 dark:text-red-100">
-								-{currencySymbol}
+								{totalUpfrontCost > 0 ? '-' : ''}
+								{currencySymbol}
 								{totalUpfrontCost.toFixed(2)}
 							</p>
 						</div>
@@ -186,27 +187,29 @@ export default function DiaperSavingsStats({
 					</div>
 
 					<div className="mb-6 space-y-3">
-						<div className="flex items-center justify-between">
-							<h4 className="text-sm font-semibold">
-								<fbt desc="Label for break even point">Break-even Point</fbt>
-							</h4>
-							<span
-								className={`text-sm font-medium ${breakEvenPoint ? 'text-green-600' : 'text-muted-foreground italic'}`}
-							>
-								{breakEvenPoint ? (
-									<fbt desc="Format for break even date reached">
-										Reached on{' '}
-										<fbt:param name="date">
-											{format(breakEvenPoint, 'MMM d, yyyy')}
-										</fbt:param>
-									</fbt>
-								) : (
-									<fbt desc="Label for when break even is not yet reached">
-										Not yet reached
-									</fbt>
-								)}
-							</span>
-						</div>
+						{totalUpfrontCost > 0 && (
+							<div className="flex items-center justify-between">
+								<h4 className="text-sm font-semibold">
+									<fbt desc="Label for break even point">Break-even Point</fbt>
+								</h4>
+								<span
+									className={`text-sm font-medium ${breakEvenPoint ? 'text-green-600' : 'text-muted-foreground italic'}`}
+								>
+									{breakEvenPoint ? (
+										<fbt desc="Format for break even date reached">
+											Reached on{' '}
+											<fbt:param name="date">
+												{format(breakEvenPoint, 'MMM d, yyyy')}
+											</fbt:param>
+										</fbt>
+									) : (
+										<fbt desc="Label for when break even is not yet reached">
+											Not yet reached
+										</fbt>
+									)}
+								</span>
+							</div>
+						)}
 
 						{topBrandsSavings.length > 0 && (
 							<div className="space-y-2">

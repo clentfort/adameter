@@ -119,7 +119,7 @@ export default function LineChart({
 
 		if (showZeroLine && data.length > 0) {
 			const xValues = data.map((d) =>
-				typeof d.x === 'number' ? d.x : d.x.getTime(),
+				d.x instanceof Date ? d.x.getTime() : new Date(d.x).getTime(),
 			);
 			const minX = Math.min(...xValues);
 			const maxX = Math.max(...xValues);
@@ -129,8 +129,8 @@ export default function LineChart({
 				borderDash: [5, 5],
 				borderWidth: 1,
 				data: [
-					{ x: minX, y: 0 },
-					{ x: maxX, y: 0 },
+					{ x: xAxisType === 'time' ? new Date(minX) : minX, y: 0 },
+					{ x: xAxisType === 'time' ? new Date(maxX) : maxX, y: 0 },
 				],
 				fill: false,
 				label: 'Zero Baseline',
@@ -145,7 +145,12 @@ export default function LineChart({
 					backgroundColor: 'transparent',
 					borderColor: 'transparent',
 					data: rangeData.map((d) => ({
-						x: typeof d.x === 'number' ? d.x : d.x.getTime(),
+						x:
+							xAxisType === 'time'
+								? d.x instanceof Date
+									? d.x
+									: new Date(d.x)
+								: d.x,
 						y: d.yMin,
 					})),
 					fill: false,
@@ -157,7 +162,12 @@ export default function LineChart({
 					borderColor: rangeBorderColor,
 					borderWidth: 1,
 					data: rangeData.map((d) => ({
-						x: typeof d.x === 'number' ? d.x : d.x.getTime(),
+						x:
+							xAxisType === 'time'
+								? d.x instanceof Date
+									? d.x
+									: new Date(d.x)
+								: d.x,
 						y: d.yMax,
 					})),
 					fill: 0, // Fill to the first dataset (Range Min)
@@ -172,7 +182,7 @@ export default function LineChart({
 			borderColor,
 			data: data.map((d) => ({
 				...d,
-				x: typeof d.x === 'number' ? d.x : d.x.getTime(),
+				x: xAxisType === 'time' ? (d.x instanceof Date ? d.x : new Date(d.x)) : d.x,
 			})),
 			label: String(datasetLabel),
 			pointHoverRadius: 7,
@@ -182,7 +192,7 @@ export default function LineChart({
 
 		chartInstance.current = new Chart(ctx, {
 			data: {
-				datasets,
+				datasets: datasets as import('chart.js').ChartDataset<'line', any>[],
 			},
 			options: {
 				maintainAspectRatio: false,
@@ -270,6 +280,7 @@ export default function LineChart({
 											week: 'dd.MM',
 											year: 'yyyy',
 										},
+										minUnit: 'day',
 									}
 								: undefined,
 						title: {

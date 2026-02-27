@@ -73,7 +73,7 @@ describe('LineChart', () => {
 				data: expect.objectContaining({
 					datasets: expect.arrayContaining([
 						expect.objectContaining({
-							data: [{ x: date.getTime(), y: 10 }],
+							data: [{ x: date, y: 10 }],
 							label: 'Test Dataset',
 						}),
 					]),
