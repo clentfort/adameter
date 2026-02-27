@@ -27,10 +27,12 @@ import { DiaperChange } from '@/types/diaper';
 import { calculateDiaperSavings } from '@/utils/diaper-savings';
 
 interface DiaperSavingsStatsProps {
+	dateRange?: { from: Date; to: Date };
 	diaperChanges: DiaperChange[];
 }
 
 export default function DiaperSavingsStats({
+	dateRange,
 	diaperChanges,
 }: DiaperSavingsStatsProps) {
 	const { value: brands } = useDiaperBrands();
@@ -38,8 +40,8 @@ export default function DiaperSavingsStats({
 	const [, , currencySymbol] = useCurrency();
 
 	const savingsData = useMemo(
-		() => calculateDiaperSavings(diaperChanges, brands, averageCost),
-		[diaperChanges, brands, averageCost],
+		() => calculateDiaperSavings(diaperChanges, brands, averageCost, dateRange),
+		[diaperChanges, brands, averageCost, dateRange],
 	);
 
 	const {

@@ -125,9 +125,9 @@ export default function LineChart({
 			const maxX = Math.max(...xValues);
 			datasets.push({
 				backgroundColor: 'transparent',
-				borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+				borderColor: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.2)',
 				borderDash: [5, 5],
-				borderWidth: 1,
+				borderWidth: 2,
 				data: [
 					{ x: xAxisType === 'time' ? new Date(minX) : minX, y: 0 },
 					{ x: xAxisType === 'time' ? new Date(maxX) : maxX, y: 0 },
@@ -209,8 +209,12 @@ export default function LineChart({
 						display: !!datasetLabel,
 						labels: {
 							filter: (item) => {
-								// Hide the range min/max from legend, just show the main dataset
-								return item.text === String(datasetLabel);
+								// Hide the range min/max and zero baseline from legend, just show the main dataset
+								return (
+									item.text !== String(rangeLabel || 'Range Min') &&
+									item.text !== String(rangeLabel || 'Range Max') &&
+									item.text !== 'Zero Baseline'
+								);
 							},
 						},
 					},
@@ -272,7 +276,9 @@ export default function LineChart({
 						ticks:
 							xAxisType === 'linear'
 								? {
-										callback: (value) => `${Math.round(Number(value))} mo`,
+										callback: function (value) {
+											return `${Number(value).toFixed(1)} mo`;
+										},
 										stepSize: 3,
 									}
 								: undefined,
@@ -289,6 +295,7 @@ export default function LineChart({
 											year: 'yyyy',
 										},
 										minUnit: 'day',
+										unit: 'day',
 									}
 								: undefined,
 						title: {

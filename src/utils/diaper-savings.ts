@@ -23,6 +23,7 @@ export function calculateDiaperSavings(
 	diaperChanges: DiaperChange[],
 	brands: DiaperBrand[],
 	averageDisposableCost: number,
+	dateRange?: { from: Date; to: Date },
 ): SavingsData {
 	const brandMap = new Map<string, DiaperBrand>();
 	brands.forEach((b) => brandMap.set(b.id, b));
@@ -38,8 +39,14 @@ export function calculateDiaperSavings(
 	);
 
 	sortedChanges.forEach((change) => {
+		const changeDate = new Date(change.timestamp);
+		const isInRange =
+			!dateRange || (changeDate >= dateRange.from && changeDate <= dateRange.to);
+
 		const brandId = change.diaperBrand || '';
-		brandUsageCount.set(brandId, (brandUsageCount.get(brandId) || 0) + 1);
+		if (isInRange) {
+			brandUsageCount.set(brandId, (brandUsageCount.get(brandId) || 0) + 1);
+		}
 
 		const brand = brandMap.get(brandId);
 		let changeSavings = 0;
@@ -48,7 +55,9 @@ export function calculateDiaperSavings(
 			// Using a reusable diaper saves the cost of an average disposable minus per-use costs
 			const saving =
 				averageDisposableCost - (brand.perUseCost ?? brand.costPerDiaper ?? 0);
-			reusableSavings += saving;
+			if (isInRange) {
+				reusableSavings += saving;
+			}
 			changeSavings += saving;
 		} else {
 			// If it's a disposable diaper and it was clean because of potty success
@@ -57,13 +66,15 @@ export function calculateDiaperSavings(
 
 			if (isClean && isPottySuccess) {
 				const cost = brand?.costPerDiaper ?? averageDisposableCost;
-				pottyTrainingSavings += cost;
+				if (isInRange) {
+					pottyTrainingSavings += cost;
+				}
 				changeSavings += cost;
 			}
 		}
 
 		if (changeSavings !== 0) {
-			const day = startOfDay(new Date(change.timestamp)).getTime();
+			const day = startOfDay(changeDate).getTime();
 			dailySavings.set(day, (dailySavings.get(day) || 0) + changeSavings);
 		}
 	});
@@ -101,36 +112,38 @@ export function calculateDiaperSavings(
 		}
 	});
 
-	const brandSavingsMap = new Map<string, number>();
-	sortedChanges.forEach((change) => {
-		const brandId = change.diaperBrand || '';
-		const brand = brandMap.get(brandId);
-		let changeSavings = 0;
-
-		if (brand?.isReusable) {
-			changeSavings =
-				averageDisposableCost - (brand.perUseCost ?? brand.costPerDiaper ?? 0);
-		} else {
-			const isClean = !change.containsUrine && !change.containsStool;
-			const isPottySuccess = change.pottyUrine || change.pottyStool;
-			if (isClean && isPottySuccess) {
-				changeSavings = brand?.costPerDiaper ?? averageDisposableCost;
-			}
-		}
-
-		if (changeSavings !== 0) {
-			brandSavingsMap.set(
-				brandId,
-				(brandSavingsMap.get(brandId) || 0) + changeSavings,
-			);
-		}
-	});
-
 	const topBrandsSavings: BrandSavings[] = Array.from(brandUsageCount.entries())
 		.map(([brandId, usageCount]) => {
 			const brand = brandMap.get(brandId);
-			let totalSavingsForBrand = brandSavingsMap.get(brandId) || 0;
-			if (brand?.isReusable) {
+			let totalSavingsForBrand = 0;
+
+			// Calculate savings for this brand within the range
+			sortedChanges.forEach((change) => {
+				const changeDate = new Date(change.timestamp);
+				if (
+					dateRange &&
+					(changeDate < dateRange.from || changeDate > dateRange.to)
+				) {
+					return;
+				}
+
+				if (change.diaperBrand !== brandId) return;
+
+				if (brand?.isReusable) {
+					totalSavingsForBrand +=
+						averageDisposableCost -
+						(brand.perUseCost ?? brand.costPerDiaper ?? 0);
+				} else {
+					const isClean = !change.containsUrine && !change.containsStool;
+					const isPottySuccess = change.pottyUrine || change.pottyStool;
+					if (isClean && isPottySuccess) {
+						totalSavingsForBrand += brand?.costPerDiaper ?? averageDisposableCost;
+					}
+				}
+			});
+
+			// If we are looking at all time (no range), subtract upfront cost for reusables
+			if (!dateRange && brand?.isReusable) {
 				totalSavingsForBrand -= brand.upfrontCost;
 			}
 

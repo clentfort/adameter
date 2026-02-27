@@ -285,7 +285,10 @@ export default function StatisticsPage() {
 									comparisonDiaperChanges={comparisonDiaperChanges}
 									diaperChanges={filteredDiaperChanges}
 								/>
-								<DiaperSavingsStats diaperChanges={diaperChanges} />
+								<DiaperSavingsStats
+									dateRange={timeRange === 'all' ? undefined : primary}
+									diaperChanges={diaperChanges}
+								/>
 							</div>
 							<YearlyActivityHeatMap
 								className="mt-4"
