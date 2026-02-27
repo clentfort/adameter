@@ -33,11 +33,11 @@ export function calculateDiaperSavings(
 	const dailySavings = new Map<number, number>();
 	const brandUsageCount = new Map<string, number>();
 
-	diaperChanges.sort(
+	const sortedChanges = [...diaperChanges].sort(
 		(a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
 	);
 
-	diaperChanges.forEach((change) => {
+	sortedChanges.forEach((change) => {
 		const brandId = change.diaperBrand || '';
 		brandUsageCount.set(brandId, (brandUsageCount.get(brandId) || 0) + 1);
 
@@ -78,10 +78,10 @@ export function calculateDiaperSavings(
 
 	let breakEvenPoint: Date | undefined;
 
-	if (totalUpfrontCost > 0 || diaperChanges.length > 0) {
+	if (totalUpfrontCost > 0 || sortedChanges.length > 0) {
 		const firstChangeDate =
-			diaperChanges.length > 0
-				? new Date(diaperChanges[0].timestamp)
+			sortedChanges.length > 0
+				? new Date(sortedChanges[0].timestamp)
 				: new Date();
 		cumulativeSavings.push({
 			date: startOfDay(firstChangeDate),
@@ -102,7 +102,7 @@ export function calculateDiaperSavings(
 	});
 
 	const brandSavingsMap = new Map<string, number>();
-	diaperChanges.forEach((change) => {
+	sortedChanges.forEach((change) => {
 		const brandId = change.diaperBrand || '';
 		const brand = brandMap.get(brandId);
 		let changeSavings = 0;
