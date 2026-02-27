@@ -1,7 +1,6 @@
 'use client';
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import { fbt } from 'fbtee';
 import { differenceInDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

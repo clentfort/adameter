@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import ProductForm from '@/components/product-form';
-import { useCurrency } from '@/hooks/use-currency';
+import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useLanguage } from '@/contexts/i18n-context';
 import { useProfile } from '@/hooks/use-profile';
@@ -234,7 +234,7 @@ export default function SettingsPage() {
 							</p>
 						</div>
 						<Select
-							onValueChange={(v) => setCurrency(v as any)}
+							onValueChange={(v) => setCurrency(v as Currency)}
 							value={currency}
 						>
 							<SelectTrigger>
