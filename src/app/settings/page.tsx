@@ -17,6 +17,7 @@ import {
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
+import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
 import { Button } from '@/components/ui/button';
@@ -29,10 +30,9 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
-import ProductForm from '@/components/product-form';
+import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
-import { useLanguage } from '@/contexts/i18n-context';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
 
@@ -329,7 +329,11 @@ export default function SettingsPage() {
 										<fbt desc="Cost per diaper display">
 											Cost per item:{' '}
 											<fbt:param name="currency">
-												{currency === 'GBP' ? '£' : currency === 'EUR' ? '€' : '$'}
+												{currency === 'GBP'
+													? '£'
+													: currency === 'EUR'
+														? '€'
+														: '$'}
 											</fbt:param>
 											<fbt:param name="cost">
 												{product.costPerDiaper.toFixed(2)}

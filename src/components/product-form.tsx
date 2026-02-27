@@ -33,7 +33,9 @@ export default function ProductForm({
 
 		onSave({
 			...(initialData as DiaperProduct),
-			costPerDiaper: costPerDiaper ? Number.parseFloat(costPerDiaper) : undefined,
+			costPerDiaper: costPerDiaper
+				? Number.parseFloat(costPerDiaper)
+				: undefined,
 			id: initialData?.id || crypto.randomUUID(),
 			isReusable,
 			name,
@@ -49,7 +51,10 @@ export default function ProductForm({
 				<Input
 					id="product-name"
 					onChange={(e) => setName(e.target.value)}
-					placeholder={fbt('e.g. Pampers Size 1', 'Placeholder for product name')}
+					placeholder={fbt(
+						'e.g. Pampers Size 1',
+						'Placeholder for product name',
+					)}
 					required
 					value={name}
 				/>

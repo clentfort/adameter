@@ -7,7 +7,9 @@ export type Currency = 'GBP' | 'EUR' | 'USD';
 
 export const useCurrency = () => {
 	const { store } = useContext(tinybaseContext);
-	const currency = useValue(STORE_VALUE_CURRENCY, store) as Currency | undefined;
+	const currency = useValue(STORE_VALUE_CURRENCY, store) as
+		| Currency
+		| undefined;
 
 	const setCurrency = useCallback(
 		(newCurrency: Currency) => {
