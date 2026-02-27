@@ -4,9 +4,9 @@ import { fbt } from 'fbtee';
 import {
 	ArrowLeft,
 	ChevronRight,
+	Coins,
 	Globe,
 	Moon,
-	PoundSterling,
 	Share2,
 	Trash2,
 	User,
@@ -156,7 +156,7 @@ export default function SettingsPage() {
 			>
 				<div className="flex items-center gap-3">
 					<div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center text-orange-600 dark:text-orange-300">
-						<PoundSterling className="h-5 w-5" />
+						<Coins className="h-5 w-5" />
 					</div>
 					<div className="text-left">
 						<p className="font-medium">
@@ -242,7 +242,7 @@ export default function SettingsPage() {
 
 					<div className="space-y-2">
 						<div className="flex items-center gap-2">
-							<PoundSterling className="h-4 w-4" />
+							<Coins className="h-4 w-4" />
 							<p className="text-sm font-medium">
 								<fbt desc="Label for currency setting">Currency</fbt>
 							</p>
@@ -444,6 +444,10 @@ export default function SettingsPage() {
 															Number.parseFloat(e.target.value) || 0,
 													})
 												}
+												placeholder={fbt(
+													'e.g. 0.25',
+													'Placeholder for cost per diaper',
+												)}
 												step="0.01"
 												type="number"
 												value={newBrand.costPerDiaper || 0}
@@ -465,6 +469,10 @@ export default function SettingsPage() {
 																Number.parseFloat(e.target.value) || 0,
 														})
 													}
+													placeholder={fbt(
+														'e.g. 50.00',
+														'Placeholder for upfront cost',
+													)}
 													step="1.00"
 													type="number"
 													value={newBrand.upfrontCost || 0}
@@ -485,6 +493,10 @@ export default function SettingsPage() {
 																Number.parseFloat(e.target.value) || 0,
 														})
 													}
+													placeholder={fbt(
+														'e.g. 0.10',
+														'Placeholder for usage cost',
+													)}
 													step="0.01"
 													type="number"
 													value={newBrand.perUseCost || 0}
