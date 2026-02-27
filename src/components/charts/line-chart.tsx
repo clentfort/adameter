@@ -273,15 +273,23 @@ export default function LineChart({
 							forecastDate && typeof forecastDate !== 'number'
 								? forecastDate.getTime()
 								: forecastDate,
-						ticks:
-							xAxisType === 'linear'
-								? {
-										callback: function (value) {
-											return `${Number(value).toFixed(1)} mo`;
-										},
-										stepSize: 3,
-									}
-								: undefined,
+						ticks: {
+							callback(value) {
+								if (xAxisType === 'linear') {
+									return `${Number(value).toFixed(1)} mo`;
+								}
+								// For time scale, value is the numerical timestamp
+								try {
+									const date = new Date(value);
+									if (Number.isNaN(date.getTime())) return value;
+									return format(date, 'dd.MM');
+								} catch {
+									return value;
+								}
+							},
+							maxRotation: 0,
+							stepSize: xAxisType === 'linear' ? 3 : undefined,
+						},
 						time:
 							xAxisType === 'time'
 								? {
@@ -295,7 +303,7 @@ export default function LineChart({
 											year: 'yyyy',
 										},
 										minUnit: 'day',
-										unit: 'day',
+										unit: 'month',
 									}
 								: undefined,
 						title: {
@@ -310,12 +318,17 @@ export default function LineChart({
 							callback:
 								yAxisUnit && typeof yAxisUnit === 'string'
 									? (value) => {
-											if (
-												yAxisUnit === '£' ||
-												yAxisUnit === '€' ||
-												yAxisUnit === '$'
-											) {
-												return `${yAxisUnit}${value}`;
+											const currencyMap: Record<string, string> = {
+												'$': 'USD',
+												'£': 'GBP',
+												'€': 'EUR',
+											};
+											const currencyCode = currencyMap[yAxisUnit];
+											if (currencyCode) {
+												return new Intl.NumberFormat(undefined, {
+													currency: currencyCode,
+													style: 'currency',
+												}).format(Number(value));
 											}
 											return `${value} ${yAxisUnit}`;
 										}

@@ -1,5 +1,6 @@
 import type { DiaperChange } from '@/types/diaper';
 import { fbt } from 'fbtee';
+import { PlusCircle } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -276,11 +277,23 @@ export default function DiaperForm({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="edit-diaper-brand">
-							<fbt desc="Label on a select that allows the user to pick a diaper brand">
-								Diaper Brand
-							</fbt>
-						</Label>
+						<div className="flex items-center justify-between">
+							<Label htmlFor="edit-diaper-brand">
+								<fbt desc="Label on a select that allows the user to pick a diaper brand">
+									Diaper Brand
+								</fbt>
+							</Label>
+							<Button
+								asChild
+								className="h-auto p-0 text-xs text-primary"
+								variant="link"
+							>
+								<a href="/settings">
+									<PlusCircle className="mr-1 h-3 w-3" />
+									<fbt desc="Link to add a new diaper brand">Add Brand</fbt>
+								</a>
+							</Button>
+						</div>
 						<Select onValueChange={setDiaperBrand} value={diaperBrand}>
 							<SelectTrigger>
 								<SelectValue
@@ -292,17 +305,19 @@ export default function DiaperForm({
 								/>
 							</SelectTrigger>
 							<SelectContent>
-								{brands.length > 0
-									? brands.map((brand) => (
-											<SelectItem key={brand.id} value={brand.id}>
-												{brand.name}
-											</SelectItem>
-										))
-									: DIAPER_BRANDS.map((brand) => (
-											<SelectItem key={brand.value} value={brand.value}>
-												{brand.label}
-											</SelectItem>
-										))}
+								{brands
+									.filter((brand) => !brand.archived)
+									.map((brand) => (
+										<SelectItem key={brand.id} value={brand.id}>
+											{brand.name}
+										</SelectItem>
+									))}
+								{brands.length === 0 &&
+									DIAPER_BRANDS.map((brand) => (
+										<SelectItem key={brand.value} value={brand.value}>
+											{brand.label}
+										</SelectItem>
+									))}
 							</SelectContent>
 						</Select>
 					</div>

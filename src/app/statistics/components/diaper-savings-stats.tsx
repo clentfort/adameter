@@ -47,9 +47,10 @@ export default function DiaperSavingsStats({
 	const {
 		breakEvenPoint,
 		cumulativeSavings,
+		estimatedBreakEvenDate,
 		pottyTrainingSavings,
 		reusableSavings,
-		topBrandsSavings,
+		topBrandsSpending,
 		totalSavings,
 		totalUpfrontCost,
 	} = savingsData;
@@ -58,6 +59,26 @@ export default function DiaperSavingsStats({
 		() => cumulativeSavings.map((d) => ({ x: d.date, y: d.savings })),
 		[cumulativeSavings],
 	);
+
+	const formatValue = (value: number, showSign = true) => {
+		const isNegative = value < -0.005;
+		const absValue = Math.abs(value);
+
+		const currencyMap: Record<string, string> = {
+			'$': 'USD',
+			'£': 'GBP',
+			'€': 'EUR',
+		};
+		const currencyCode = currencyMap[currencySymbol] || 'GBP';
+
+		const formatted = new Intl.NumberFormat(undefined, {
+			currency: currencyCode,
+			signDisplay: showSign ? 'auto' : 'never',
+			style: 'currency',
+		}).format(isNegative ? -absValue : absValue);
+
+		return formatted;
+	};
 
 	return (
 		<div className="space-y-4">
@@ -144,97 +165,105 @@ export default function DiaperSavingsStats({
 								<fbt desc="Total savings label">Total Savings</fbt>
 							</p>
 							<p
-								className={`text-3xl font-bold ${totalSavings >= 0 ? 'text-green-600' : 'text-red-600'}`}
+								className={`text-3xl font-bold ${totalSavings >= -0.005 ? 'text-green-600' : 'text-red-600'}`}
 							>
-								{currencySymbol}
-								{Math.abs(totalSavings).toFixed(2)}
-								{totalSavings < 0 && (
-									<span className="text-sm font-normal ml-2 opacity-80">
-										<fbt desc="Label for deficit status">(deficit)</fbt>
-									</span>
-								)}
+								{formatValue(totalSavings, true)}
 							</p>
 						</div>
 					</div>
 
-					<div className="grid grid-cols-3 gap-3 mb-6">
-						<div className="border rounded-md p-3 bg-red-50 dark:bg-red-900/20">
-							<p className="text-[10px] uppercase tracking-wider font-semibold text-red-800 dark:text-red-300">
-								<fbt desc="Upfront cost label">Upfront</fbt>
-							</p>
-							<p className="text-lg font-bold text-red-900 dark:text-red-100">
-								{totalUpfrontCost > 0 ? '-' : ''}
-								{currencySymbol}
-								{totalUpfrontCost.toFixed(2)}
-							</p>
-						</div>
+					<div className="grid grid-cols-2 gap-3 mb-6">
 						<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-900/20">
 							<p className="text-[10px] uppercase tracking-wider font-semibold text-blue-800 dark:text-blue-300">
 								<fbt desc="Potty training savings label">Potty</fbt>
 							</p>
 							<p className="text-lg font-bold text-blue-900 dark:text-blue-100">
-								+{currencySymbol}
-								{pottyTrainingSavings.toFixed(2)}
+								{formatValue(pottyTrainingSavings)}
 							</p>
 						</div>
-						<div className="border rounded-md p-3 bg-green-50 dark:bg-green-900/20">
-							<p className="text-[10px] uppercase tracking-wider font-semibold text-green-800 dark:text-green-300">
+						<div
+							className={`border rounded-md p-3 ${
+								reusableSavings >= -0.005
+									? 'bg-green-50 dark:bg-green-900/20'
+									: 'bg-red-50 dark:bg-red-900/20'
+							}`}
+						>
+							<p
+								className={`text-[10px] uppercase tracking-wider font-semibold ${
+									reusableSavings >= -0.005
+										? 'text-green-800 dark:text-green-300'
+										: 'text-red-800 dark:text-red-300'
+								}`}
+							>
 								<fbt desc="Reusable diaper savings label">Reusable</fbt>
 							</p>
-							<p className="text-lg font-bold text-green-900 dark:text-green-100">
-								+{currencySymbol}
-								{reusableSavings.toFixed(2)}
+							<p
+								className={`text-lg font-bold ${
+									reusableSavings >= -0.005
+										? 'text-green-900 dark:text-green-100'
+										: 'text-red-900 dark:text-red-100'
+								}`}
+							>
+								{formatValue(reusableSavings)}
 							</p>
 						</div>
 					</div>
 
-					<div className="mb-6 space-y-3">
+					<div className="mb-6 space-y-3 text-right">
 						{totalUpfrontCost > 0 && (
-							<div className="flex items-center justify-between">
-								<h4 className="text-sm font-semibold">
-									<fbt desc="Label for break even point">Break-even Point</fbt>
-								</h4>
-								<span
-									className={`text-sm font-medium ${breakEvenPoint ? 'text-green-600' : 'text-muted-foreground italic'}`}
-								>
-									{breakEvenPoint ? (
-										<fbt desc="Format for break even date reached">
-											Reached on{' '}
+							<div className="space-y-1">
+								<div className="flex items-center justify-between">
+									<h4 className="text-sm font-semibold">
+										<fbt desc="Label for break even point">Break-even Point</fbt>
+									</h4>
+									<span
+										className={`text-sm font-medium ${breakEvenPoint ? 'text-green-600' : 'text-muted-foreground italic'}`}
+									>
+										{breakEvenPoint ? (
+											<fbt desc="Format for break even date reached">
+												Reached on{' '}
+												<fbt:param name="date">
+													{format(breakEvenPoint, 'MMM d, yyyy')}
+												</fbt:param>
+											</fbt>
+										) : (
+											<fbt desc="Label for when break even is not yet reached">
+												Not yet reached
+											</fbt>
+										)}
+									</span>
+								</div>
+								{!breakEvenPoint && estimatedBreakEvenDate && (
+									<p className="text-xs text-muted-foreground">
+										<fbt desc="Estimated break even date">
+											Estimated break-even:{' '}
 											<fbt:param name="date">
-												{format(breakEvenPoint, 'MMM d, yyyy')}
+												{format(estimatedBreakEvenDate, 'MMM d, yyyy')}
 											</fbt:param>
 										</fbt>
-									) : (
-										<fbt desc="Label for when break even is not yet reached">
-											Not yet reached
-										</fbt>
-									)}
-								</span>
+									</p>
+								)}
 							</div>
 						)}
 
-						{topBrandsSavings.length > 0 && (
+						{topBrandsSpending.length > 0 && (
 							<div className="space-y-2">
-								<h4 className="text-sm font-semibold">
-									<fbt desc="Title for top brand savings tally">
-										Top Brand Savings (Net)
+								<h4 className="text-sm font-semibold text-left">
+									<fbt desc="Title for top brand spending tally">
+										Top Brand Spending
 									</fbt>
 								</h4>
 								<div className="grid gap-2">
-									{topBrandsSavings.map((brand) => (
+									{topBrandsSpending.map((brand) => (
 										<div
 											className="flex items-center justify-between text-sm p-2 border rounded-md"
 											key={brand.brandId}
 										>
-											<span>
+											<span className="text-left">
 												{brand.brandName} ({brand.usageCount})
 											</span>
-											<span
-												className={`font-mono font-medium ${brand.totalSavings >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
-											>
-												{brand.totalSavings >= 0 ? '+' : ''}
-												{currencySymbol}
-												{brand.totalSavings.toFixed(2)}
+											<span className="font-mono font-medium">
+												{formatValue(brand.totalSpend, false)}
 											</span>
 										</div>
 									))}
