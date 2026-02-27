@@ -128,3 +128,19 @@ export function migrateDiaperBrandsToProducts(store: Store) {
 		});
 	}
 }
+
+export function migrateDiaperChanges(changes: DiaperChange[]): {
+	hasChanges: boolean;
+	migrated: DiaperChange[];
+} {
+	let hasGlobalChanges = false;
+	const migrated = changes.map((change) => {
+		const migratedChange = migrateDiaperChange(change);
+		if (migratedChange !== change) {
+			hasGlobalChanges = true;
+		}
+		return migratedChange;
+	});
+
+	return { hasChanges: hasGlobalChanges, migrated };
+}
