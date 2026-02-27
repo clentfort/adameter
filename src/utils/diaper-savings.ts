@@ -47,7 +47,8 @@ export function calculateDiaperSavings(
 	sortedChanges.forEach((change, index) => {
 		const changeDate = new Date(change.timestamp);
 		const isInRange =
-			!dateRange || (changeDate >= dateRange.from && changeDate <= dateRange.to);
+			!dateRange ||
+			(changeDate >= dateRange.from && changeDate <= dateRange.to);
 
 		const brandId = change.diaperBrand || '';
 		const brand = brandMap.get(brandId);
@@ -83,8 +84,7 @@ export function calculateDiaperSavings(
 			.filter((cost): cost is number => cost !== undefined);
 
 		if (costs.length > 0) {
-			effectiveDisposableCost =
-				costs.reduce((a, b) => a + b, 0) / costs.length;
+			effectiveDisposableCost = costs.reduce((a, b) => a + b, 0) / costs.length;
 		}
 
 		if (brand?.isReusable) {
@@ -162,7 +162,9 @@ export function calculateDiaperSavings(
 
 		if (averageSavingsPerDay > 0) {
 			const remainingDeficit = Math.abs(currentTotal);
-			const daysToBreakEven = Math.ceil(remainingDeficit / averageSavingsPerDay);
+			const daysToBreakEven = Math.ceil(
+				remainingDeficit / averageSavingsPerDay,
+			);
 			estimatedBreakEvenDate = new Date(lastDate);
 			estimatedBreakEvenDate.setDate(
 				estimatedBreakEvenDate.getDate() + daysToBreakEven,
@@ -170,7 +172,9 @@ export function calculateDiaperSavings(
 		}
 	}
 
-	const topBrandsSpending: BrandSpending[] = Array.from(brandUsageCount.entries())
+	const topBrandsSpending: BrandSpending[] = Array.from(
+		brandUsageCount.entries(),
+	)
 		.map(([brandId, usageCount]) => {
 			const brand = brandMap.get(brandId);
 			return {

@@ -214,7 +214,9 @@ export default function DiaperSavingsStats({
 							<div className="space-y-1">
 								<div className="flex items-center justify-between">
 									<h4 className="text-sm font-semibold">
-										<fbt desc="Label for break even point">Break-even Point</fbt>
+										<fbt desc="Label for break even point">
+											Break-even Point
+										</fbt>
 									</h4>
 									<span
 										className={`text-sm font-medium ${breakEvenPoint ? 'text-green-600' : 'text-muted-foreground italic'}`}

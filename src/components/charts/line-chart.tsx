@@ -197,10 +197,7 @@ export default function LineChart({
 
 		chartInstance.current = new Chart(ctx, {
 			data: {
-				datasets: datasets as import('chart.js').ChartDataset<
-					'line',
-					(number | PointData)[]
-				>[],
+				datasets: datasets as any[],
 			},
 			options: {
 				maintainAspectRatio: false,
@@ -221,8 +218,8 @@ export default function LineChart({
 					tooltip: {
 						callbacks: {
 							label: tooltipLabelFormatter
-								? tooltipLabelFormatter
-								: (context) => {
+								? (tooltipLabelFormatter as any)
+								: (context: any) => {
 										let label = context.dataset.label || '';
 										if (
 											label === String(rangeLabel || 'Range Min') ||
@@ -239,12 +236,14 @@ export default function LineChart({
 										return label;
 									},
 							title: tooltipTitleFormatter
-								? tooltipTitleFormatter
-								: (context) => {
+								? (tooltipTitleFormatter as any)
+								: (context: any) => {
 										if (xAxisType === 'linear') {
 											return `${Number(context[0].parsed.x).toFixed(1)} mo`;
 										}
-										const date = new Date(context[0].parsed.x);
+										const xValue = context[0].parsed.x;
+										if (xValue === null || xValue === undefined) return '';
+										const date = new Date(xValue);
 										return format(date, 'dd. MMMM yyyy');
 									},
 						},
@@ -269,10 +268,11 @@ export default function LineChart({
 						grid: {
 							display: true,
 						},
-						max:
-							forecastDate && typeof forecastDate !== 'number'
-								? forecastDate.getTime()
-								: forecastDate,
+						max: forecastDate
+							? typeof forecastDate === 'number'
+								? forecastDate
+								: forecastDate.getTime()
+							: undefined,
 						ticks: {
 							callback(value) {
 								if (xAxisType === 'linear') {
