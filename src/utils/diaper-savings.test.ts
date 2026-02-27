@@ -60,18 +60,18 @@ describe('calculateDiaperSavings', () => {
 		// Total savings: 0.25 + 0.25 - 100 = -99.50
 		expect(result.totalSavings).toBe(-99.5);
 
-		// Brand spending:
-		// Pampers: 2 uses * 0.25 = 0.50
-		// Stoffy: 100 upfront + 1 use * 0.05 = 100.05
-		expect(result.topBrandsSpending).toHaveLength(2);
-		const pampers = result.topBrandsSpending.find(
+		// Brand savings:
+		// Pampers: 1 potty hit * 0.25 = 0.25
+		// Stoffy: 1 use * (0.3 - 0.05) - 100 upfront = -99.75
+		expect(result.topBrandsSavings).toHaveLength(2);
+		const pampers = result.topBrandsSavings.find(
 			(b) => b.brandId === 'pampers',
 		);
-		const stoffy = result.topBrandsSpending.find((b) => b.brandId === 'stoffy');
+		const stoffy = result.topBrandsSavings.find((b) => b.brandId === 'stoffy');
 
-		expect(pampers?.totalSpend).toBe(0.5);
+		expect(pampers?.totalSavings).toBe(0.25);
 		expect(pampers?.usageCount).toBe(2);
-		expect(stoffy?.totalSpend).toBe(100.05);
+		expect(stoffy?.totalSavings).toBe(-99.75);
 		expect(stoffy?.usageCount).toBe(1);
 	});
 });

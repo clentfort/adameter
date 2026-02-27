@@ -1,5 +1,6 @@
 'use client';
 
+import { format } from 'date-fns';
 import { fbt } from 'fbtee';
 import { Info } from 'lucide-react';
 import { useMemo } from 'react';
@@ -42,15 +43,17 @@ export default function DiaperSavingsStats({
 	);
 
 	const {
+		breakEvenPoint,
 		cumulativeSavings,
 		pottyTrainingSavings,
 		reusableSavings,
-		topBrandsSpending,
+		topBrandsSavings,
 		totalSavings,
+		totalUpfrontCost,
 	} = savingsData;
 
 	const chartData = useMemo(
-		() => cumulativeSavings.map((d) => ({ x: d.date.getTime(), y: d.savings })),
+		() => cumulativeSavings.map((d) => ({ x: d.date, y: d.savings })),
 		[cumulativeSavings],
 	);
 
@@ -108,13 +111,23 @@ export default function DiaperSavingsStats({
 									</p>
 									<p>
 										<strong>
+											<fbt desc="Label for upfront costs explanation">
+												Upfront Costs:
+											</fbt>
+										</strong>{' '}
+										<fbt desc="Explanation for upfront costs">
+											The initial investment for reusable diaper sets, which
+											starts your savings balance in a deficit.
+										</fbt>
+									</p>
+									<p>
+										<strong>
 											<fbt desc="Label for total savings explanation">
 												Total Savings:
 											</fbt>
 										</strong>{' '}
 										<fbt desc="Explanation for total savings">
-											Combined savings minus the upfront costs of reusable
-											diaper sets.
+											Combined savings minus the upfront costs.
 										</fbt>
 									</p>
 								</PopoverDescription>
@@ -133,57 +146,97 @@ export default function DiaperSavingsStats({
 							>
 								{currencySymbol}
 								{Math.abs(totalSavings).toFixed(2)}
-								{totalSavings < 0 && ' (deficit)'}
+								{totalSavings < 0 && (
+									<span className="text-sm font-normal ml-2 opacity-80">
+										<fbt desc="Label for deficit status">(deficit)</fbt>
+									</span>
+								)}
 							</p>
 						</div>
 					</div>
 
-					<div className="grid grid-cols-2 gap-4 mb-6">
-						<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-900/20">
-							<p className="text-sm text-blue-800 dark:text-blue-300">
-								<fbt desc="Potty training savings label">Potty Training</fbt>
+					<div className="grid grid-cols-3 gap-3 mb-6">
+						<div className="border rounded-md p-3 bg-red-50 dark:bg-red-900/20">
+							<p className="text-[10px] uppercase tracking-wider font-semibold text-red-800 dark:text-red-300">
+								<fbt desc="Upfront cost label">Upfront</fbt>
 							</p>
-							<p className="text-xl font-bold text-blue-900 dark:text-blue-100">
+							<p className="text-lg font-bold text-red-900 dark:text-red-100">
+								-{currencySymbol}
+								{totalUpfrontCost.toFixed(2)}
+							</p>
+						</div>
+						<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-900/20">
+							<p className="text-[10px] uppercase tracking-wider font-semibold text-blue-800 dark:text-blue-300">
+								<fbt desc="Potty training savings label">Potty</fbt>
+							</p>
+							<p className="text-lg font-bold text-blue-900 dark:text-blue-100">
 								+{currencySymbol}
 								{pottyTrainingSavings.toFixed(2)}
 							</p>
 						</div>
 						<div className="border rounded-md p-3 bg-green-50 dark:bg-green-900/20">
-							<p className="text-sm text-green-800 dark:text-green-300">
-								<fbt desc="Reusable diaper savings label">Reusable Usage</fbt>
+							<p className="text-[10px] uppercase tracking-wider font-semibold text-green-800 dark:text-green-300">
+								<fbt desc="Reusable diaper savings label">Reusable</fbt>
 							</p>
-							<p className="text-xl font-bold text-green-900 dark:text-green-100">
+							<p className="text-lg font-bold text-green-900 dark:text-green-100">
 								+{currencySymbol}
 								{reusableSavings.toFixed(2)}
 							</p>
 						</div>
 					</div>
 
-					{topBrandsSpending.length > 0 && (
-						<div className="mb-6 space-y-2">
+					<div className="mb-6 space-y-3">
+						<div className="flex items-center justify-between">
 							<h4 className="text-sm font-semibold">
-								<fbt desc="Title for top brand spending tally">
-									Top Used Brand Spending
-								</fbt>
+								<fbt desc="Label for break even point">Break-even Point</fbt>
 							</h4>
-							<div className="grid gap-2">
-								{topBrandsSpending.map((brand) => (
-									<div
-										className="flex items-center justify-between text-sm p-2 border rounded-md"
-										key={brand.brandId}
-									>
-										<span>
-											{brand.brandName} ({brand.usageCount})
-										</span>
-										<span className="font-mono font-medium text-red-600 dark:text-red-400">
-											{currencySymbol}
-											{brand.totalSpend.toFixed(2)}
-										</span>
-									</div>
-								))}
-							</div>
+							<span
+								className={`text-sm font-medium ${breakEvenPoint ? 'text-green-600' : 'text-muted-foreground italic'}`}
+							>
+								{breakEvenPoint ? (
+									<fbt desc="Format for break even date reached">
+										Reached on{' '}
+										<fbt:param name="date">
+											{format(breakEvenPoint, 'MMM d, yyyy')}
+										</fbt:param>
+									</fbt>
+								) : (
+									<fbt desc="Label for when break even is not yet reached">
+										Not yet reached
+									</fbt>
+								)}
+							</span>
 						</div>
-					)}
+
+						{topBrandsSavings.length > 0 && (
+							<div className="space-y-2">
+								<h4 className="text-sm font-semibold">
+									<fbt desc="Title for top brand savings tally">
+										Top Brand Savings (Net)
+									</fbt>
+								</h4>
+								<div className="grid gap-2">
+									{topBrandsSavings.map((brand) => (
+										<div
+											className="flex items-center justify-between text-sm p-2 border rounded-md"
+											key={brand.brandId}
+										>
+											<span>
+												{brand.brandName} ({brand.usageCount})
+											</span>
+											<span
+												className={`font-mono font-medium ${brand.totalSavings >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+											>
+												{brand.totalSavings >= 0 ? '+' : ''}
+												{currencySymbol}
+												{brand.totalSavings.toFixed(2)}
+											</span>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+					</div>
 
 					<div className="space-y-2">
 						<h4 className="text-sm font-semibold">
@@ -206,6 +259,7 @@ export default function DiaperSavingsStats({
 							showZeroLine={true}
 							title={fbt('Savings Graph', 'Chart title')}
 							xAxisLabel={fbt('Date', 'X-axis label')}
+							xAxisType="time"
 							yAxisLabel={fbt('Savings', 'Y-axis label')}
 							yAxisUnit={currencySymbol}
 						/>
