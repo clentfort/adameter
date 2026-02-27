@@ -11,12 +11,16 @@ function getItemsFromChildren(children: React.ReactNode): any[] {
 		if (!React.isValidElement(child)) return;
 
 		if (child.type === SelectItem) {
+			const props = child.props as any;
 			items.push({
-				value: child.props.value,
-				label: child.props.children,
+				value: props.value,
+				label: props.children,
 			});
-		} else if (child.props && 'children' in child.props) {
-			items.push(...getItemsFromChildren(child.props.children));
+		} else {
+			const props = child.props as any;
+			if (props && props.children) {
+				items.push(...getItemsFromChildren(props.children));
+			}
 		}
 	});
 	return items;

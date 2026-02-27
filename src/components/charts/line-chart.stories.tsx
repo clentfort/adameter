@@ -8,7 +8,6 @@ const meta: Meta<typeof LineChart> = {
 		data: { control: 'object' },
 		datasetLabel: { control: 'text' },
 		emptyStateMessage: { control: 'text' },
-		events: { control: 'object' },
 		title: { control: 'text' },
 		xAxisLabel: { control: 'text' },
 		yAxisLabel: { control: 'text' },
@@ -61,51 +60,6 @@ export const Empty: Story = {
 	},
 };
 
-export const WithEvents: Story = {
-	args: {
-		data: generateRandomData(30),
-		datasetLabel: 'Weight',
-		emptyStateMessage: 'No data available.',
-		events: [
-			{
-				color: 'hsl(var(--primary))',
-				endDate: (() => {
-					const date = new Date();
-					date.setDate(date.getDate() + 5);
-					return date.toISOString();
-				})(),
-				id: 'event1',
-				startDate: (() => {
-					const date = new Date();
-					date.setDate(date.getDate() + 5);
-					return date.toISOString();
-				})(),
-				title: 'Vaccination',
-				type: 'point',
-			},
-			{
-				color: 'hsl(var(--destructive))',
-				endDate: (() => {
-					const date = new Date();
-					date.setDate(date.getDate() + 15);
-					return date.toISOString();
-				})(),
-				id: 'event2',
-				startDate: (() => {
-					const date = new Date();
-					date.setDate(date.getDate() + 15);
-					return date.toISOString();
-				})(),
-				title: 'Fever Spike',
-				type: 'point',
-			},
-		],
-		title: 'Weight Over Time with Events',
-		xAxisLabel: 'Date',
-		yAxisLabel: 'Weight',
-		yAxisUnit: 'kg',
-	},
-};
 
 export const CustomStyling: Story = {
 	args: {

@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
+import DataInitialization from '../data-initialization';
 import ProfilePrompt from '../profile-prompt';
 import { Button } from '../ui/button';
 import { Toaster } from '../ui/toaster';
@@ -88,6 +89,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 				<Suspense fallback={null}>
 					<RoomInviteHandler />
 				</Suspense>
+				<DataInitialization />
 				<ProfilePrompt />
 				{children}
 			</main>

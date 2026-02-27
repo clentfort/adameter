@@ -1,5 +1,7 @@
 import type { Store } from 'tinybase';
 import {
+	STORE_VALUE_CURRENCY,
+	STORE_VALUE_DIAPER_AVERAGE_COST,
 	STORE_VALUE_FEEDING_IN_PROGRESS,
 	STORE_VALUE_PROFILE,
 	TABLE_IDS,
@@ -19,6 +21,14 @@ export function isStoreDataEmpty(store: Store) {
 	}
 
 	if (store.hasValue(STORE_VALUE_PROFILE)) {
+		return false;
+	}
+
+	if (store.hasValue(STORE_VALUE_DIAPER_AVERAGE_COST)) {
+		return false;
+	}
+
+	if (store.hasValue(STORE_VALUE_CURRENCY)) {
 		return false;
 	}
 

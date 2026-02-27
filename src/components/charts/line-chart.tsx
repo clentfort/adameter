@@ -1,9 +1,36 @@
 'use client';
 
-import Chart from 'chart.js/auto';
+import {
+	CategoryScale,
+	Chart,
+	type ChartDataset,
+	Filler,
+	Legend,
+	LinearScale,
+	LineController,
+	LineElement,
+	PointElement,
+	TimeScale,
+	Title,
+	Tooltip,
+	type TooltipItem,
+} from 'chart.js';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns';
+
+Chart.register(
+	CategoryScale,
+	LinearScale,
+	PointElement,
+	LineElement,
+	Title,
+	Tooltip,
+	Legend,
+	TimeScale,
+	LineController,
+	Filler,
+);
 
 interface ChartDataContext {
 	dataset: {
@@ -35,6 +62,7 @@ interface LineChartProps {
 	forecastDate?: Date | number;
 	rangeData?: RangePoint[];
 	rangeLabel?: React.ReactNode;
+	showZeroLine?: boolean;
 	title: React.ReactNode;
 	tooltipLabelFormatter?: (context: ChartDataContext) => string;
 	tooltipTitleFormatter?: (context: ChartDataContext[]) => string;
@@ -53,6 +81,7 @@ export default function LineChart({
 	forecastDate,
 	rangeData = [],
 	rangeLabel,
+	showZeroLine = false,
 	title,
 	tooltipLabelFormatter,
 	tooltipTitleFormatter,
@@ -90,12 +119,42 @@ export default function LineChart({
 			? 'rgba(255, 255, 255, 0.2)'
 			: 'rgba(0, 0, 0, 0.1)';
 
+		if (showZeroLine && data.length > 0) {
+			const xValues = data.map((d) =>
+				typeof d.x !== 'number' ? d.x.getTime() : new Date(d.x).getTime(),
+			);
+			const minX = Math.min(...xValues);
+			const maxX = Math.max(...xValues);
+			datasets.push({
+				backgroundColor: 'transparent',
+				borderColor: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.2)',
+				borderDash: [5, 5],
+				borderWidth: 2,
+				data: [
+					{ x: xAxisType === 'time' ? new Date(minX) : minX, y: 0 },
+					{ x: xAxisType === 'time' ? new Date(maxX) : maxX, y: 0 },
+				],
+				fill: false,
+				label: 'Zero Baseline',
+				pointRadius: 0,
+				tension: 0,
+			});
+		}
+
 		if (rangeData.length > 0) {
 			datasets.push(
 				{
 					backgroundColor: 'transparent',
 					borderColor: 'transparent',
-					data: rangeData.map((d) => ({ x: d.x, y: d.yMin })),
+					data: rangeData.map((d) => ({
+						x:
+							xAxisType === 'time'
+								? typeof d.x !== 'number'
+									? (d.x as Date)
+									: new Date(d.x)
+								: d.x,
+						y: d.yMin,
+					})),
 					fill: false,
 					label: String(rangeLabel || 'Range Min'),
 					pointRadius: 0,
@@ -104,7 +163,15 @@ export default function LineChart({
 					backgroundColor: rangeFillColor,
 					borderColor: rangeBorderColor,
 					borderWidth: 1,
-					data: rangeData.map((d) => ({ x: d.x, y: d.yMax })),
+					data: rangeData.map((d) => ({
+						x:
+							xAxisType === 'time'
+								? typeof d.x !== 'number'
+									? (d.x as Date)
+									: new Date(d.x)
+								: d.x,
+						y: d.yMax,
+					})),
 					fill: 0, // Fill to the first dataset (Range Min)
 					label: String(rangeLabel || 'Range Max'),
 					pointRadius: 0,
@@ -115,7 +182,15 @@ export default function LineChart({
 		datasets.push({
 			backgroundColor,
 			borderColor,
-			data,
+			data: data.map((d) => ({
+				...d,
+				x:
+					xAxisType === 'time'
+						? typeof d.x !== 'number'
+							? (d.x as Date)
+							: new Date(d.x)
+						: d.x,
+			})),
 			label: String(datasetLabel),
 			pointHoverRadius: 7,
 			pointRadius: 5,
@@ -124,7 +199,7 @@ export default function LineChart({
 
 		chartInstance.current = new Chart(ctx, {
 			data: {
-				datasets,
+				datasets: datasets as ChartDataset<'line', PointData[]>[],
 			},
 			options: {
 				maintainAspectRatio: false,
@@ -133,16 +208,23 @@ export default function LineChart({
 						display: !!datasetLabel,
 						labels: {
 							filter: (item) => {
-								// Hide the range min/max from legend, just show the main dataset
-								return item.text === String(datasetLabel);
+								// Hide the range min/max and zero baseline from legend, just show the main dataset
+								return (
+									item.text !== String(rangeLabel || 'Range Min') &&
+									item.text !== String(rangeLabel || 'Range Max') &&
+									item.text !== 'Zero Baseline'
+								);
 							},
 						},
 					},
 					tooltip: {
 						callbacks: {
 							label: tooltipLabelFormatter
-								? tooltipLabelFormatter
-								: (context) => {
+								? (context: TooltipItem<'line'>) =>
+										tooltipLabelFormatter(
+											context as unknown as ChartDataContext,
+										)
+								: (context: TooltipItem<'line'>) => {
 										let label = context.dataset.label || '';
 										if (
 											label === String(rangeLabel || 'Range Min') ||
@@ -159,21 +241,28 @@ export default function LineChart({
 										return label;
 									},
 							title: tooltipTitleFormatter
-								? tooltipTitleFormatter
-								: (context) => {
+								? (context: TooltipItem<'line'>[]) =>
+										tooltipTitleFormatter(
+											context as unknown as ChartDataContext[],
+										)
+								: (context: TooltipItem<'line'>[]) => {
 										if (xAxisType === 'linear') {
 											return `${Number(context[0].parsed.x).toFixed(1)} mo`;
 										}
-										const date = new Date(context[0].parsed.x);
+										const xValue = context[0].parsed.x;
+										if (xValue === null || xValue === undefined) return '';
+										const date = new Date(xValue);
 										return format(date, 'dd. MMMM yyyy');
 									},
 						},
 						filter: (tooltipItem) => {
-							// Don't show tooltips for range datasets
+							// Don't show tooltips for range datasets or zero baseline
 							return (
 								tooltipItem.dataset.label !==
 									String(rangeLabel || 'Range Min') &&
-								tooltipItem.dataset.label !== String(rangeLabel || 'Range Max')
+								tooltipItem.dataset.label !==
+									String(rangeLabel || 'Range Max') &&
+								tooltipItem.dataset.label !== 'Zero Baseline'
 							);
 						},
 					},
@@ -187,25 +276,42 @@ export default function LineChart({
 						grid: {
 							display: true,
 						},
-						max:
-							forecastDate && typeof forecastDate === 'object'
-								? (forecastDate as Date).getTime()
-								: forecastDate,
-						ticks:
-							xAxisType === 'linear'
-								? {
-										callback: (value) => `${Math.round(Number(value))} mo`,
-										stepSize: 3,
-									}
-								: undefined,
+						max: forecastDate
+							? typeof forecastDate === 'number'
+								? forecastDate
+								: forecastDate.getTime()
+							: undefined,
+						ticks: {
+							callback(value) {
+								if (xAxisType === 'linear') {
+									return `${Number(value).toFixed(1)} mo`;
+								}
+								// For time scale, value is the numerical timestamp
+								try {
+									const date = new Date(value);
+									if (Number.isNaN(date.getTime())) return value;
+									return format(date, 'dd.MM');
+								} catch {
+									return value;
+								}
+							},
+							maxRotation: 0,
+							stepSize: xAxisType === 'linear' ? 3 : undefined,
+						},
 						time:
 							xAxisType === 'time'
 								? {
 										displayFormats: {
 											day: 'dd.MM',
+											hour: 'HH:mm',
+											minute: 'HH:mm',
 											month: 'MMM yyyy',
+											quarter: 'MMM yyyy',
+											week: 'dd.MM',
+											year: 'yyyy',
 										},
-										unit: 'month', // Monthly grid lines
+										minUnit: 'day',
+										unit: 'month',
 									}
 								: undefined,
 						title: {
@@ -219,7 +325,21 @@ export default function LineChart({
 						ticks: {
 							callback:
 								yAxisUnit && typeof yAxisUnit === 'string'
-									? (value) => `${value} ${yAxisUnit}`
+									? (value) => {
+											const currencyMap: Record<string, string> = {
+												'$': 'USD',
+												'£': 'GBP',
+												'€': 'EUR',
+											};
+											const currencyCode = currencyMap[yAxisUnit];
+											if (currencyCode) {
+												return new Intl.NumberFormat(undefined, {
+													currency: currencyCode,
+													style: 'currency',
+												}).format(Number(value));
+											}
+											return `${value} ${yAxisUnit}`;
+										}
 									: undefined,
 						},
 						title: {
@@ -245,6 +365,7 @@ export default function LineChart({
 		yAxisUnit,
 		tooltipTitleFormatter,
 		tooltipLabelFormatter,
+		showZeroLine,
 	]);
 
 	useEffect(() => {

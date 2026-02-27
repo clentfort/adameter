@@ -2,11 +2,15 @@
 
 import { fbt } from 'fbtee';
 import {
+	Archive,
+	ArchiveRestore,
 	ArrowLeft,
 	ChevronRight,
+	Coins,
 	Globe,
 	Moon,
 	Share2,
+	Trash2,
 	User,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -16,6 +20,8 @@ import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
@@ -23,21 +29,42 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useLanguage } from '@/contexts/i18n-context';
+import { useCurrency } from '@/hooks/use-currency';
+import { useDiaperAverageCost } from '@/hooks/use-diaper-average-cost';
+import { useDiaperBrands } from '@/hooks/use-diaper-brands';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
+import { DiaperBrand } from '@/types/diaper-brand';
 
 export default function SettingsPage() {
 	const [profile, setProfile] = useProfile();
 	const { setTheme, theme } = useTheme();
 	const { locale, setLocale } = useLanguage();
+	const [currency, setCurrency] = useCurrency();
+	const [averageCost, setAverageCost] = useDiaperAverageCost();
+	const {
+		add: addBrand,
+		remove: removeBrand,
+		update: updateBrand,
+		value: brands,
+	} = useDiaperBrands();
 	const { room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
 
 	const [activeSection, setActiveSection] = useState<
-		'main' | 'profile' | 'sharing' | 'appearance'
+		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers'
 	>('main');
+	const [editingBrandId, setEditingBrandId] = useState<string | null>(null);
+	const [newBrand, setNewBrand] = useState<Partial<DiaperBrand>>({
+		costPerDiaper: 0,
+		isReusable: false,
+		name: '',
+		perUseCost: 0,
+		upfrontCost: 0,
+	});
 
 	const updateLocale = async (code: Locale) => {
 		await setLocale(code);
@@ -123,6 +150,29 @@ export default function SettingsPage() {
 				</div>
 				<ChevronRight className="h-5 w-5 text-muted-foreground" />
 			</button>
+
+			<button
+				className="w-full flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm hover:bg-accent transition-colors"
+				data-testid="settings-diapers"
+				onClick={() => setActiveSection('diapers')}
+			>
+				<div className="flex items-center gap-3">
+					<div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center text-orange-600 dark:text-orange-300">
+						<Coins className="h-5 w-5" />
+					</div>
+					<div className="text-left">
+						<p className="font-medium">
+							<fbt desc="Label for diaper cost settings">Diaper Costs</fbt>
+						</p>
+						<p className="text-sm text-muted-foreground">
+							<fbt desc="Subtext for diaper cost settings">
+								Configure brands and costs
+							</fbt>
+						</p>
+					</div>
+				</div>
+				<ChevronRight className="h-5 w-5 text-muted-foreground" />
+			</button>
 		</div>
 	);
 
@@ -191,6 +241,25 @@ export default function SettingsPage() {
 							</SelectContent>
 						</Select>
 					</div>
+
+					<div className="space-y-2">
+						<div className="flex items-center gap-2">
+							<Coins className="h-4 w-4" />
+							<p className="text-sm font-medium">
+								<fbt desc="Label for currency setting">Currency</fbt>
+							</p>
+						</div>
+						<Select onValueChange={(v) => setCurrency(v)} value={currency}>
+							<SelectTrigger>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="GBP">£ GBP</SelectItem>
+								<SelectItem value="EUR">€ EUR</SelectItem>
+								<SelectItem value="USD">$ USD</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
 				</CardContent>
 			</Card>
 		</div>
@@ -214,6 +283,303 @@ export default function SettingsPage() {
 		</div>
 	);
 
+	const renderDiapers = () => (
+		<div className="space-y-4 w-full">
+			<Card>
+				<CardContent className="space-y-6">
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<Label htmlFor="average-cost">
+								<fbt desc="Label for average disposable cost setting">
+									Average Disposable Cost
+								</fbt>
+							</Label>
+							<Input
+								className="w-24 text-right"
+								id="average-cost"
+								onChange={(e) =>
+									setAverageCost(Number.parseFloat(e.target.value) || 0)
+								}
+								step="0.01"
+								type="number"
+								value={averageCost}
+							/>
+						</div>
+						<p className="text-xs text-muted-foreground">
+							<fbt desc="Help text for average cost setting">
+								Used as a baseline to calculate savings from reusable diapers.
+							</fbt>
+						</p>
+					</div>
+
+					<div className="space-y-4 pt-4 border-t">
+						<div className="flex items-center justify-between">
+							<h3 className="font-medium">
+								<fbt desc="Title for diaper brands list in settings">
+									Diaper Brands
+								</fbt>
+							</h3>
+						</div>
+
+						<div className="space-y-4">
+							{brands.map((brand) => (
+								<div
+									className="flex flex-col gap-2 p-3 border rounded-lg bg-accent/20"
+									key={brand.id}
+								>
+									<div className="flex items-center justify-between">
+										<span className="font-semibold">{brand.name}</span>
+										<div className="flex items-center gap-2">
+											<Button
+												onClick={() => {
+													setEditingBrandId(brand.id);
+													setNewBrand(brand);
+												}}
+												size="sm"
+												variant="ghost"
+											>
+												<fbt common>Edit</fbt>
+											</Button>
+											<Button
+												onClick={() =>
+													updateBrand({ ...brand, archived: !brand.archived })
+												}
+												size="icon"
+												variant="ghost"
+											>
+												{brand.archived ? (
+													<ArchiveRestore className="h-4 w-4" />
+												) : (
+													<Archive className="h-4 w-4" />
+												)}
+											</Button>
+											<Button
+												onClick={() => removeBrand(brand.id)}
+												size="icon"
+												variant="ghost"
+											>
+												<Trash2 className="h-4 w-4 text-destructive" />
+											</Button>
+										</div>
+									</div>
+									<div
+										className={`text-xs text-muted-foreground flex gap-4 ${brand.archived ? 'opacity-50' : ''}`}
+									>
+										<span>
+											{brand.isReusable ? (
+												<fbt desc="Label for reusable diaper in list">
+													Reusable
+												</fbt>
+											) : (
+												<fbt desc="Label for disposable diaper in list">
+													Disposable
+												</fbt>
+											)}
+										</span>
+										{!brand.isReusable && (
+											<span>
+												<fbt desc="Cost per diaper label">
+													Cost/Unit:{' '}
+													<fbt:param name="cost">
+														{brand.costPerDiaper.toFixed(2)}
+													</fbt:param>
+												</fbt>
+											</span>
+										)}
+										{brand.isReusable && (
+											<>
+												<span>
+													<fbt desc="Upfront cost label">
+														Upfront:{' '}
+														<fbt:param name="cost">
+															{brand.upfrontCost.toFixed(2)}
+														</fbt:param>
+													</fbt>
+												</span>
+												{brand.perUseCost !== undefined &&
+													brand.perUseCost > 0 && (
+														<span>
+															<fbt desc="Usage cost label">
+																Usage:{' '}
+																<fbt:param name="cost">
+																	{brand.perUseCost.toFixed(2)}
+																</fbt:param>
+															</fbt>
+														</span>
+													)}
+											</>
+										)}
+									</div>
+								</div>
+							))}
+
+							<div className="space-y-4 p-4 border rounded-xl bg-card">
+								<h4 className="text-sm font-semibold">
+									{editingBrandId ? (
+										<fbt desc="Title for editing a brand">Edit Brand</fbt>
+									) : (
+										<fbt desc="Title for adding a brand">Add New Brand</fbt>
+									)}
+								</h4>
+								<div className="space-y-3">
+									<div className="space-y-1">
+										<Label htmlFor="brand-name">
+											<fbt desc="Brand name label">Name</fbt>
+										</Label>
+										<Input
+											id="brand-name"
+											onChange={(e) =>
+												setNewBrand({ ...newBrand, name: e.target.value })
+											}
+											placeholder="e.g. Pampers, Stoffy"
+											value={newBrand.name || ''}
+										/>
+									</div>
+									<div className="flex items-center justify-between py-2">
+										<Label htmlFor="brand-reusable">
+											<fbt desc="Reusable toggle label">Reusable</fbt>
+										</Label>
+										<Switch
+											checked={newBrand.isReusable || false}
+											id="brand-reusable"
+											onCheckedChange={(checked) =>
+												setNewBrand({ ...newBrand, isReusable: checked })
+											}
+										/>
+									</div>
+									{!newBrand.isReusable && (
+										<div className="space-y-1">
+											<Label htmlFor="brand-cost">
+												<fbt desc="Cost per diaper label">Cost per Diaper</fbt>
+											</Label>
+											<Input
+												id="brand-cost"
+												onChange={(e) =>
+													setNewBrand({
+														...newBrand,
+														costPerDiaper:
+															Number.parseFloat(e.target.value) || 0,
+													})
+												}
+												placeholder={fbt(
+													'e.g. 0.25',
+													'Placeholder for cost per diaper',
+												)}
+												step="0.01"
+												type="number"
+												value={newBrand.costPerDiaper || 0}
+											/>
+										</div>
+									)}
+									{newBrand.isReusable && (
+										<>
+											<div className="space-y-1">
+												<Label htmlFor="brand-upfront">
+													<fbt desc="Upfront cost label">Upfront Cost</fbt>
+												</Label>
+												<Input
+													id="brand-upfront"
+													onChange={(e) =>
+														setNewBrand({
+															...newBrand,
+															upfrontCost:
+																Number.parseFloat(e.target.value) || 0,
+														})
+													}
+													placeholder={fbt(
+														'e.g. 50.00',
+														'Placeholder for upfront cost',
+													)}
+													step="1.00"
+													type="number"
+													value={newBrand.upfrontCost || 0}
+												/>
+											</div>
+											<div className="space-y-1">
+												<Label htmlFor="brand-per-use">
+													<fbt desc="Usage cost label (e.g. washing)">
+														Usage Cost (per use)
+													</fbt>
+												</Label>
+												<Input
+													id="brand-per-use"
+													onChange={(e) =>
+														setNewBrand({
+															...newBrand,
+															perUseCost:
+																Number.parseFloat(e.target.value) || 0,
+														})
+													}
+													placeholder={fbt(
+														'e.g. 0.10',
+														'Placeholder for usage cost',
+													)}
+													step="0.01"
+													type="number"
+													value={newBrand.perUseCost || 0}
+												/>
+											</div>
+										</>
+									)}
+									<div className="flex gap-2 pt-2">
+										<Button
+											className="flex-1"
+											disabled={!newBrand.name}
+											onClick={() => {
+												if (editingBrandId) {
+													updateBrand({
+														...(newBrand as DiaperBrand),
+														id: editingBrandId,
+													});
+												} else {
+													addBrand({
+														...(newBrand as DiaperBrand),
+														id: Date.now().toString(),
+													});
+												}
+												setEditingBrandId(null);
+												setNewBrand({
+													costPerDiaper: 0,
+													isReusable: false,
+													name: '',
+													perUseCost: 0,
+													upfrontCost: 0,
+												});
+											}}
+										>
+											{editingBrandId ? (
+												<fbt desc="Save changes button">Save Changes</fbt>
+											) : (
+												<fbt desc="Add brand button">Add Brand</fbt>
+											)}
+										</Button>
+										{editingBrandId && (
+											<Button
+												onClick={() => {
+													setEditingBrandId(null);
+													setNewBrand({
+														costPerDiaper: 0,
+														isReusable: false,
+														name: '',
+														perUseCost: 0,
+														upfrontCost: 0,
+													});
+												}}
+												variant="outline"
+											>
+												<fbt common>Cancel</fbt>
+											</Button>
+										)}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
+	);
+
 	const getTitle = () => {
 		switch (activeSection) {
 			case 'profile':
@@ -222,6 +588,8 @@ export default function SettingsPage() {
 				return fbt('Appearance', 'Title for appearance settings section');
 			case 'sharing':
 				return fbt('Sharing', 'Title for sharing settings section');
+			case 'diapers':
+				return fbt('Diaper Costs', 'Title for diaper settings section');
 			default:
 				return fbt('Settings', 'Title for settings page');
 		}
@@ -253,6 +621,7 @@ export default function SettingsPage() {
 			{activeSection === 'profile' && renderProfile()}
 			{activeSection === 'appearance' && renderAppearance()}
 			{activeSection === 'sharing' && renderSharing()}
+			{activeSection === 'diapers' && renderDiapers()}
 		</div>
 	);
 }

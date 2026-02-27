@@ -1,5 +1,6 @@
 import type { DiaperChange } from '@/types/diaper';
 import { fbt } from 'fbtee';
+import { PlusCircle } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useDiaperBrands } from '@/hooks/use-diaper-brands';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 import { DIAPER_BRANDS } from '../utils/diaper-brands';
@@ -78,6 +80,7 @@ export default function DiaperForm({
 	const [pottyStool, setPottyStool] = useState(
 		'change' in props ? (props.change.pottyStool ?? false) : false,
 	);
+	const { value: brands } = useDiaperBrands();
 	const [diaperBrand, setDiaperBrand] = useState(
 		'change' in props
 			? props.change.diaperBrand
@@ -108,7 +111,12 @@ export default function DiaperForm({
 		setPottyUrine(change.pottyUrine ?? false);
 		setPottyStool(change.pottyStool ?? false);
 
-		const isPredefinedBrand = DIAPER_BRANDS.some(
+		const allBrands =
+			brands.length > 0
+				? brands.map((b) => ({ label: b.name, value: b.id }))
+				: DIAPER_BRANDS;
+
+		const isPredefinedBrand = allBrands.some(
 			(brand) => brand.value === change.diaperBrand,
 		);
 		if (change.diaperBrand && !isPredefinedBrand) {
@@ -120,7 +128,7 @@ export default function DiaperForm({
 		setTemperature(change.temperature ? change.temperature.toString() : '');
 		setHasLeakage(change.leakage || false);
 		setAbnormalities(change.abnormalities || '');
-	}, [change]);
+	}, [change, brands]);
 
 	const handleSubmit = () => {
 		if (!date || !time) return;
@@ -269,11 +277,23 @@ export default function DiaperForm({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="edit-diaper-brand">
-							<fbt desc="Label on a select that allows the user to pick a diaper brand">
-								Diaper Brand
-							</fbt>
-						</Label>
+						<div className="flex items-center justify-between">
+							<Label htmlFor="edit-diaper-brand">
+								<fbt desc="Label on a select that allows the user to pick a diaper brand">
+									Diaper Brand
+								</fbt>
+							</Label>
+							<Button
+								asChild
+								className="h-auto p-0 text-xs text-primary"
+								variant="link"
+							>
+								<a href="/settings">
+									<PlusCircle className="mr-1 h-3 w-3" />
+									<fbt desc="Link to add a new diaper brand">Add Brand</fbt>
+								</a>
+							</Button>
+						</div>
 						<Select onValueChange={setDiaperBrand} value={diaperBrand}>
 							<SelectTrigger>
 								<SelectValue
@@ -285,11 +305,19 @@ export default function DiaperForm({
 								/>
 							</SelectTrigger>
 							<SelectContent>
-								{DIAPER_BRANDS.map((brand) => (
-									<SelectItem key={brand.value} value={brand.value}>
-										{brand.label}
-									</SelectItem>
-								))}
+								{brands
+									.filter((brand) => !brand.archived)
+									.map((brand) => (
+										<SelectItem key={brand.id} value={brand.id}>
+											{brand.name}
+										</SelectItem>
+									))}
+								{brands.length === 0 &&
+									DIAPER_BRANDS.map((brand) => (
+										<SelectItem key={brand.value} value={brand.value}>
+											{brand.label}
+										</SelectItem>
+									))}
 							</SelectContent>
 						</Select>
 					</div>
