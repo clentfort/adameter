@@ -13,7 +13,14 @@ const columns: { [key: string]: string[] } = {
 		'leakage',
 		'temperature',
 	],
-	diaperProducts: ['id', 'deviceId', 'name', 'costPerDiaper', 'isReusable', 'archived'],
+	diaperProducts: [
+		'id',
+		'deviceId',
+		'name',
+		'costPerDiaper',
+		'isReusable',
+		'archived',
+	],
 	events: [
 		'id',
 		'deviceId',
