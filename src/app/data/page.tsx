@@ -26,7 +26,8 @@ import {
 	PERFORMANCE_LOG_UPDATED_EVENT,
 	setPerformanceDeviceLabel,
 } from '@/lib/performance-logging';
-import { migrateDiaperChanges } from '../diaper/utils/migration';
+import { tinybaseContext } from '@/contexts/tinybase-context';
+import { migrateDiaperBrandsToProducts } from '../diaper/utils/migration';
 import { fromCsv, mergeData, toCsv } from './utils/csv';
 import { createZip, downloadZip, extractFiles } from './utils/zip';
 
@@ -201,12 +202,12 @@ export default function DataPage() {
 		toast.success('Diagnostics log cleared.');
 	};
 
+	const { store } = useContext(tinybaseContext);
+
 	const handleMigrateDiaperData = () => {
-		const { hasChanges, migrated } = migrateDiaperChanges(
-			diaperChangesState.value,
-		);
+		const hasChanges = migrateDiaperBrandsToProducts(store);
+
 		if (hasChanges) {
-			diaperChangesState.replace(migrated);
 			toast.success('Diaper data migrated successfully.');
 		} else {
 			toast.success('No diaper data needed migration.');
