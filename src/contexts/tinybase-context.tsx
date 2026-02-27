@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { createStore } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
+import { migrateDiaperBrandsToProducts } from '@/app/diaper/utils/migration';
 import { SplashScreen } from '@/components/splash-screen';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
@@ -55,6 +56,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			loadTimer.end();
 
 			await localPersister.startAutoSave();
+
+			migrateDiaperBrandsToProducts(store);
 
 			if (!isDisposed) {
 				setIsReady(true);
@@ -143,6 +146,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				joinStrategy,
 				getDeviceId(),
 			);
+
+			migrateDiaperBrandsToProducts(store);
 
 			if (
 				bootstrapResult.decision === 'restore-local' ||

@@ -7,7 +7,7 @@ import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
 import Markdown from '@/components/markdown';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { DIAPER_BRAND_LABELS } from '../utils/diaper-brands';
+import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
 
@@ -15,6 +15,7 @@ export default function DiaperHistoryList() {
 	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
 	const [changeToEdit, setChangeToEdit] = useState<DiaperChange | null>(null);
 	const { remove, update, value: changes } = useDiaperChanges();
+	const { value: products } = useDiaperProducts();
 
 	return (
 		<>
@@ -117,14 +118,16 @@ export default function DiaperHistoryList() {
 												{isAbnormalTemperature(change.temperature) && ' (!)'}
 											</p>
 										)}
-										{change.diaperBrand && (
+										{change.diaperProductId && (
 											<p>
-												<fbt desc="Label on a field that informs the user about the diaper brand used">
-													Diaper Brand
+												<fbt desc="Label on a field that informs the user about the diaper product used">
+													Product
 												</fbt>
 												:{' '}
 												<span className="font-medium">
-													{DIAPER_BRAND_LABELS[change.diaperBrand]}
+													{products.find((p) => p.id === change.diaperProductId)
+														?.name ||
+														fbt('Unknown Product', 'Label for missing product')}
 												</span>
 											</p>
 										)}

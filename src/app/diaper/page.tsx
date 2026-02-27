@@ -6,7 +6,7 @@ import { useState } from 'react';
 import ReactConfetti from 'react-confetti';
 import { Button } from '@/components/ui/button';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useLastUsedDiaperBrand } from '@/hooks/use-last-used-diaper-brand';
+import { useLastUsedDiaperProduct } from '@/hooks/use-last-used-diaper-product';
 import DiaperForm from './components/diaper-form';
 import DiaperHistoryList from './components/diaper-history-list';
 import DiaperTracker from './components/diaper-tracker';
@@ -17,7 +17,7 @@ export default function DiaperPage() {
 
 	const diaperChanges = useDiaperChanges();
 	const { add } = diaperChanges;
-	const lastUsedDiaperBrand = useLastUsedDiaperBrand();
+	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
 
 	const checkAndTriggerConfetti = (
 		change: DiaperChange,
@@ -82,7 +82,7 @@ export default function DiaperPage() {
 						checkAndTriggerConfetti(change, currentTotalChanges);
 						setIsAddEntryDialogOpen(false);
 					}}
-					presetDiaperBrand={lastUsedDiaperBrand}
+					presetDiaperProductId={lastUsedDiaperProduct}
 					title={
 						<fbt desc="Title of the dialog to manually add a previous diaper change">
 							Add Diaper Entry

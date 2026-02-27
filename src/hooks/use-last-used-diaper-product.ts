@@ -1,6 +1,6 @@
 import { useLatestDiaperChange } from './use-latest-diaper-change';
 
-export const useLastUsedDiaperBrand = () => {
+export const useLastUsedDiaperProduct = () => {
 	const latestDiaperChange = useLatestDiaperChange();
-	return latestDiaperChange?.diaperBrand ?? 'andere';
+	return latestDiaperChange?.diaperProductId;
 };

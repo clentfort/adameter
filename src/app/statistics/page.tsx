@@ -13,6 +13,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
@@ -32,6 +33,7 @@ import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
 export default function StatisticsPage() {
 	const { value: diaperChanges } = useDiaperChanges();
+	const { value: diaperProducts } = useDiaperProducts();
 	const { value: events } = useEvents();
 	const { value: measurements } = useGrowthMeasurements();
 	const { value: sessions } = useFeedingSessions();
@@ -282,6 +284,7 @@ export default function StatisticsPage() {
 							<DiaperStats
 								comparisonDiaperChanges={comparisonDiaperChanges}
 								diaperChanges={filteredDiaperChanges}
+								products={diaperProducts}
 							/>
 							<YearlyActivityHeatMap
 								className="mt-4"

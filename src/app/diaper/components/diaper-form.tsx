@@ -1,6 +1,8 @@
 import type { DiaperChange } from '@/types/diaper';
 import { fbt } from 'fbtee';
+import { Plus } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
+import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -20,15 +22,15 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
-import { DIAPER_BRANDS } from '../utils/diaper-brands';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
 export interface AddDiaperProps {
 	onClose: () => void;
 	onSave: (change: DiaperChange) => void;
-	presetDiaperBrand?: string;
+	presetDiaperProductId?: string;
 	presetType?: 'urine' | 'stool' | undefined;
 	title: ReactNode;
 }
@@ -78,11 +80,15 @@ export default function DiaperForm({
 	const [pottyStool, setPottyStool] = useState(
 		'change' in props ? (props.change.pottyStool ?? false) : false,
 	);
-	const [diaperBrand, setDiaperBrand] = useState(
+
+	const { add: addProduct, value: products } = useDiaperProducts();
+	const [diaperProductId, setDiaperProductId] = useState(
 		'change' in props
-			? props.change.diaperBrand
-			: (props.presetDiaperBrand ?? 'andere'),
+			? props.change.diaperProductId
+			: props.presetDiaperProductId,
 	);
+	const [isAddingProduct, setIsAddingProduct] = useState(false);
+
 	const [temperature, setTemperature] = useState(
 		'change' in props ? props.change.temperature?.toString() || '' : '',
 	);
@@ -107,15 +113,7 @@ export default function DiaperForm({
 		setContainsStool(change.containsStool);
 		setPottyUrine(change.pottyUrine ?? false);
 		setPottyStool(change.pottyStool ?? false);
-
-		const isPredefinedBrand = DIAPER_BRANDS.some(
-			(brand) => brand.value === change.diaperBrand,
-		);
-		if (change.diaperBrand && !isPredefinedBrand) {
-			setDiaperBrand('andere');
-		} else {
-			setDiaperBrand(change.diaperBrand || '');
-		}
+		setDiaperProductId(change.diaperProductId);
 
 		setTemperature(change.temperature ? change.temperature.toString() : '');
 		setHasLeakage(change.leakage || false);
@@ -134,7 +132,7 @@ export default function DiaperForm({
 			abnormalities: abnormalities || undefined,
 			containsStool,
 			containsUrine,
-			diaperBrand: diaperBrand || undefined,
+			diaperProductId: diaperProductId || undefined,
 			id: change?.id || Date.now().toString(),
 			leakage: hasLeakage || undefined,
 			pottyStool,
@@ -269,29 +267,52 @@ export default function DiaperForm({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="edit-diaper-brand">
-							<fbt desc="Label on a select that allows the user to pick a diaper brand">
-								Diaper Brand
+						<Label htmlFor="edit-diaper-product">
+							<fbt desc="Label on a select that allows the user to pick a diaper product">
+								Product
 							</fbt>
 						</Label>
-						<Select onValueChange={setDiaperBrand} value={diaperBrand}>
-							<SelectTrigger>
-								<SelectValue
-									placeholder={
-										<fbt desc="Placeholder text on a select that allows the user to pick a diaper brand">
-											Select Diaper Brand
-										</fbt>
-									}
-								/>
-							</SelectTrigger>
-							<SelectContent>
-								{DIAPER_BRANDS.map((brand) => (
-									<SelectItem key={brand.value} value={brand.value}>
-										{brand.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+						<div className="flex gap-2">
+							<div className="flex-grow">
+								<Select
+									onValueChange={setDiaperProductId}
+									value={diaperProductId}
+								>
+									<SelectTrigger id="edit-diaper-product">
+										<SelectValue
+											placeholder={
+												<fbt desc="Placeholder text on a select that allows the user to pick a diaper product">
+													Select Product
+												</fbt>
+											}
+										/>
+									</SelectTrigger>
+									<SelectContent>
+										{products
+											.filter(
+												(p) =>
+													!p.archived ||
+													p.id === diaperProductId ||
+													p.id === change?.diaperProductId,
+											)
+											.sort((a, b) => a.name.localeCompare(b.name))
+											.map((product) => (
+												<SelectItem key={product.id} value={product.id}>
+													{product.name}
+												</SelectItem>
+											))}
+									</SelectContent>
+								</Select>
+							</div>
+							<Button
+								onClick={() => setIsAddingProduct(true)}
+								size="icon"
+								type="button"
+								variant="outline"
+							>
+								<Plus className="h-4 w-4" />
+							</Button>
+						</div>
 					</div>
 
 					<div className="space-y-2">
@@ -351,6 +372,28 @@ export default function DiaperForm({
 					</Button>
 				</DialogFooter>
 			</DialogContent>
+
+			{isAddingProduct && (
+				<Dialog onOpenChange={setIsAddingProduct} open={true}>
+					<DialogContent className="sm:max-w-[425px]">
+						<DialogHeader>
+							<DialogTitle>
+								<fbt desc="Title for the quick-add product dialog">
+									Add Product
+								</fbt>
+							</DialogTitle>
+						</DialogHeader>
+						<ProductForm
+							onCancel={() => setIsAddingProduct(false)}
+							onSave={(product) => {
+								addProduct(product);
+								setDiaperProductId(product.id);
+								setIsAddingProduct(false);
+							}}
+						/>
+					</DialogContent>
+				</Dialog>
+			)}
 		</Dialog>
 	);
 }
