@@ -119,7 +119,7 @@ export default function LineChart({
 
 		if (showZeroLine && data.length > 0) {
 			const xValues = data.map((d) =>
-				d.x instanceof Date ? d.x.getTime() : new Date(d.x).getTime(),
+				typeof d.x !== 'number' ? d.x.getTime() : new Date(d.x).getTime(),
 			);
 			const minX = Math.min(...xValues);
 			const maxX = Math.max(...xValues);
@@ -147,8 +147,8 @@ export default function LineChart({
 					data: rangeData.map((d) => ({
 						x:
 							xAxisType === 'time'
-								? d.x instanceof Date
-									? d.x
+								? typeof d.x !== 'number'
+									? (d.x as Date)
 									: new Date(d.x)
 								: d.x,
 						y: d.yMin,
@@ -164,8 +164,8 @@ export default function LineChart({
 					data: rangeData.map((d) => ({
 						x:
 							xAxisType === 'time'
-								? d.x instanceof Date
-									? d.x
+								? typeof d.x !== 'number'
+									? (d.x as Date)
 									: new Date(d.x)
 								: d.x,
 						y: d.yMax,
@@ -182,7 +182,12 @@ export default function LineChart({
 			borderColor,
 			data: data.map((d) => ({
 				...d,
-				x: xAxisType === 'time' ? (d.x instanceof Date ? d.x : new Date(d.x)) : d.x,
+				x:
+					xAxisType === 'time'
+						? typeof d.x !== 'number'
+							? (d.x as Date)
+							: new Date(d.x)
+						: d.x,
 			})),
 			label: String(datasetLabel),
 			pointHoverRadius: 7,
@@ -192,7 +197,10 @@ export default function LineChart({
 
 		chartInstance.current = new Chart(ctx, {
 			data: {
-				datasets: datasets as import('chart.js').ChartDataset<'line', any>[],
+				datasets: datasets as import('chart.js').ChartDataset<
+					'line',
+					(number | PointData)[]
+				>[],
 			},
 			options: {
 				maintainAspectRatio: false,
