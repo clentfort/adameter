@@ -3,6 +3,7 @@
 import {
 	CategoryScale,
 	Chart,
+	type ChartDataset,
 	Filler,
 	Legend,
 	LinearScale,
@@ -12,6 +13,7 @@ import {
 	TimeScale,
 	Title,
 	Tooltip,
+	type TooltipItem,
 } from 'chart.js';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
@@ -197,7 +199,7 @@ export default function LineChart({
 
 		chartInstance.current = new Chart(ctx, {
 			data: {
-				datasets: datasets as any[],
+				datasets: datasets as ChartDataset<'line', PointData[]>[],
 			},
 			options: {
 				maintainAspectRatio: false,
@@ -218,8 +220,11 @@ export default function LineChart({
 					tooltip: {
 						callbacks: {
 							label: tooltipLabelFormatter
-								? (tooltipLabelFormatter as any)
-								: (context: any) => {
+								? (context: TooltipItem<'line'>) =>
+										tooltipLabelFormatter(
+											context as unknown as ChartDataContext,
+										)
+								: (context: TooltipItem<'line'>) => {
 										let label = context.dataset.label || '';
 										if (
 											label === String(rangeLabel || 'Range Min') ||
@@ -236,8 +241,11 @@ export default function LineChart({
 										return label;
 									},
 							title: tooltipTitleFormatter
-								? (tooltipTitleFormatter as any)
-								: (context: any) => {
+								? (context: TooltipItem<'line'>[]) =>
+										tooltipTitleFormatter(
+											context as unknown as ChartDataContext[],
+										)
+								: (context: TooltipItem<'line'>[]) => {
 										if (xAxisType === 'linear') {
 											return `${Number(context[0].parsed.x).toFixed(1)} mo`;
 										}
