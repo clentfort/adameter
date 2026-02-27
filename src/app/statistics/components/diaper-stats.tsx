@@ -66,6 +66,7 @@ function calculateDiaperMetrics(diaperChanges: DiaperChange[]) {
 export default function DiaperStats({
 	comparisonDiaperChanges,
 	diaperChanges = [],
+	products = [],
 }: DiaperStatsProps) {
 	if (diaperChanges.length === 0) {
 		return (
