@@ -40,29 +40,22 @@ export function migrateDiaperChange(change: DiaperChange): DiaperChange {
 	return hasChanges ? newChange : change;
 }
 
-export function migrateDiaperBrandsToProducts(store: Store) {
-	const productsTable = store.getTable(TABLE_IDS.DIAPER_PRODUCTS);
-	const changesTable = store.getTable(TABLE_IDS.DIAPER_CHANGES);
-	const changes = Object.values(changesTable)
-		.map((row) => JSON.parse(row[ROW_JSON_CELL] as string) as DiaperChange)
-		.filter(Boolean);
+export function migrateDiaperBrandsToProducts(store: Store): boolean {
+	let hasAnyChanges = false;
+	store.transaction(() => {
+		const productsTable = store.getTable(TABLE_IDS.DIAPER_PRODUCTS);
+		const changesTable = store.getTable(TABLE_IDS.DIAPER_CHANGES);
 
-	// Perform the legacy flag migration first for all changes
-	let anyFlagChanges = false;
-	const flagMigratedChanges = changes.map((change) => {
-		const migrated = migrateDiaperChange(change);
-		if (migrated !== change) {
-			anyFlagChanges = true;
-		}
-		return migrated;
-	});
+		const existingProducts = Object.values(productsTable)
+			.map((row) => JSON.parse(row[ROW_JSON_CELL] as string) as DiaperProduct)
+			.filter(Boolean);
 
-	// If no products exist yet, we need to create them
-	if (Object.keys(productsTable).length === 0) {
-		const productMap = new Map<string, string>(); // name -> uuid
+		const changes = Object.values(changesTable)
+			.map((row) => JSON.parse(row[ROW_JSON_CELL] as string) as DiaperChange)
+			.filter(Boolean);
 
-		if (changes.length === 0) {
-			// New user: seed with default brands + " Size 1"
+		// 1. Seed defaults ONLY for brand new users (no products AND no history)
+		if (existingProducts.length === 0 && changes.length === 0) {
 			DIAPER_BRANDS.filter((b) => b.value !== 'andere').forEach((brand) => {
 				const id = crypto.randomUUID();
 				const product: DiaperProduct = {
@@ -74,73 +67,76 @@ export function migrateDiaperBrandsToProducts(store: Store) {
 					[ROW_JSON_CELL]: JSON.stringify(product),
 				});
 			});
-		} else {
-			// Existing user: create products from history
-			const usedBrands = new Set<string>();
-			changes.forEach((change) => {
-				if (change.diaperBrand) {
-					usedBrands.add(change.diaperBrand);
-				}
-			});
+			hasAnyChanges = true;
+			return;
+		}
 
-			usedBrands.forEach((brandValue) => {
-				const brandInfo = DIAPER_BRANDS.find((b) => b.value === brandValue);
-				const name = brandInfo ? brandInfo.label : brandValue;
+		// 2. Map existing products by name for "find or create" logic
+		const productMapByName = new Map<string, string>(); // Normalized Name -> ID
+		existingProducts.forEach((p) => {
+			productMapByName.set(p.name.toLowerCase(), p.id);
+		});
+
+		// 3. Identify all unique brands used in history that need a product
+		const brandsToMigrate = new Set<string>();
+		changes.forEach((change) => {
+			if (change.diaperBrand && !change.diaperProductId) {
+				brandsToMigrate.add(change.diaperBrand);
+			}
+		});
+
+		// 4. Create missing products for these brands
+		brandsToMigrate.forEach((brandValue) => {
+			const brandInfo = DIAPER_BRANDS.find((b) => b.value === brandValue);
+			const rawName = brandInfo ? brandInfo.label : brandValue;
+			const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+			const normalizedName = name.toLowerCase();
+
+			if (!productMapByName.has(normalizedName)) {
 				const id = crypto.randomUUID();
 				const product: DiaperProduct = {
 					id,
 					isReusable: brandValue === 'stoffwindel',
-					name: name.charAt(0).toUpperCase() + name.slice(1),
+					name,
 				};
 				store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
 					[ROW_JSON_CELL]: JSON.stringify(product),
 				});
-				productMap.set(brandValue, id);
-			});
-
-			// Update all changes with their new product IDs and flags
-			flagMigratedChanges.forEach((change) => {
-				const productId = change.diaperBrand
-					? productMap.get(change.diaperBrand)
-					: undefined;
-				if (productId || anyFlagChanges) {
-					const updatedChange = {
-						...change,
-						diaperProductId: productId || change.diaperProductId,
-					};
-					store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, {
-						[ROW_JSON_CELL]: JSON.stringify(updatedChange),
-					});
-				}
-			});
-			return; // Done
-		}
-	}
-
-	// If products already exist, just ensure flags are migrated if they weren't before
-	if (anyFlagChanges) {
-		flagMigratedChanges.forEach((change, index) => {
-			if (change !== changes[index]) {
-				store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, {
-					[ROW_JSON_CELL]: JSON.stringify(change),
-				});
+				productMapByName.set(normalizedName, id);
+				hasAnyChanges = true;
 			}
 		});
-	}
-}
 
-export function migrateDiaperChanges(changes: DiaperChange[]): {
-	hasChanges: boolean;
-	migrated: DiaperChange[];
-} {
-	let hasGlobalChanges = false;
-	const migrated = changes.map((change) => {
-		const migratedChange = migrateDiaperChange(change);
-		if (migratedChange !== change) {
-			hasGlobalChanges = true;
-		}
-		return migratedChange;
+		// 5. Update changes that need migration (flags or product IDs)
+		changes.forEach((change) => {
+			const flagMigrated = migrateDiaperChange(change);
+			let diaperProductId = flagMigrated.diaperProductId;
+
+			if (flagMigrated.diaperBrand && !diaperProductId) {
+				const brandInfo = DIAPER_BRANDS.find(
+					(b) => b.value === flagMigrated.diaperBrand,
+				);
+				const rawName = brandInfo
+					? brandInfo.label
+					: (flagMigrated.diaperBrand as string);
+				const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+				diaperProductId = productMapByName.get(name.toLowerCase());
+			}
+
+			if (
+				flagMigrated !== change ||
+				diaperProductId !== change.diaperProductId
+			) {
+				const updatedChange: DiaperChange = {
+					...flagMigrated,
+					diaperProductId,
+				};
+				store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, {
+					[ROW_JSON_CELL]: JSON.stringify(updatedChange),
+				});
+				hasAnyChanges = true;
+			}
+		});
 	});
-
-	return { hasChanges: hasGlobalChanges, migrated };
+	return hasAnyChanges;
 }
