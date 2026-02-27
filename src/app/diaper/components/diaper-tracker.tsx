@@ -2,7 +2,7 @@ import type { DiaperChange } from '@/types/diaper';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useLastUsedDiaperBrand } from '@/hooks/use-last-used-diaper-brand';
+import { useLastUsedDiaperProduct } from '@/hooks/use-last-used-diaper-product';
 import DiaperForm from './diaper-form';
 
 interface DiaperTrackerProps {
@@ -18,7 +18,7 @@ export default function DiaperTracker({
 	);
 	const diaperChangesHook = useDiaperChanges(); // Renamed to avoid conflict with diaperChanges prop if that was intended
 	const { add } = diaperChangesHook;
-	const lastUsedDiaperBrand = useLastUsedDiaperBrand();
+	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
 
 	const handleQuickChange = (type: 'urine' | 'stool') => {
 		setSelectedType(type);
@@ -56,7 +56,7 @@ export default function DiaperTracker({
 						const currentTotalChanges = diaperChangesHook.value.length;
 						checkAndTriggerConfetti(change, currentTotalChanges);
 					}}
-					presetDiaperBrand={lastUsedDiaperBrand}
+					presetDiaperProductId={lastUsedDiaperProduct}
 					presetType={selectedType ?? undefined}
 					title={
 						<fbt desc="Title for the diaper change entry dialog">

@@ -16,6 +16,7 @@ import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
+import { migrateDiaperBrandsToProducts } from '@/app/diaper/utils/migration';
 import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
@@ -55,6 +56,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			loadTimer.end();
 
 			await localPersister.startAutoSave();
+
+			migrateDiaperBrandsToProducts(store);
 
 			if (!isDisposed) {
 				setIsReady(true);
@@ -143,6 +146,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				joinStrategy,
 				getDeviceId(),
 			);
+
+			migrateDiaperBrandsToProducts(store);
 
 			if (
 				bootstrapResult.decision === 'restore-local' ||

@@ -1,6 +1,7 @@
 'use client';
 
-import type { DiaperChange } from '@/types/diaper';
+import type { DiaperChange, DiaperProduct } from '@/types/diaper';
+import { fbt } from 'fbtee';
 import { differenceInDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,6 +10,7 @@ import ComparisonValue from './comparison-value';
 interface DiaperStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
 	diaperChanges: DiaperChange[];
+	products: DiaperProduct[];
 }
 
 function calculateDiaperMetrics(diaperChanges: DiaperChange[]) {
@@ -105,13 +107,16 @@ export default function DiaperStats({
 
 	const brandCounts: Record<string, { leakage: number; total: number }> = {};
 	diaperChanges.forEach((change) => {
-		if (change.diaperBrand) {
-			if (!brandCounts[change.diaperBrand]) {
-				brandCounts[change.diaperBrand] = { leakage: 0, total: 0 };
+		const productId = change.diaperProductId;
+		if (productId) {
+			const product = products.find((p) => p.id === productId);
+			const productName = product ? product.name : productId;
+			if (!brandCounts[productName]) {
+				brandCounts[productName] = { leakage: 0, total: 0 };
 			}
-			brandCounts[change.diaperBrand].total++;
+			brandCounts[productName].total++;
 			if (change.leakage) {
-				brandCounts[change.diaperBrand].leakage++;
+				brandCounts[productName].leakage++;
 			}
 		}
 	});
