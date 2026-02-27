@@ -9,9 +9,11 @@ const columns: { [key: string]: string[] } = {
 		'containsStool',
 		'abnormalities',
 		'diaperBrand',
+		'diaperProductId',
 		'leakage',
 		'temperature',
 	],
+	diaperProducts: ['id', 'deviceId', 'name', 'costPerDiaper', 'isReusable', 'archived'],
 	events: [
 		'id',
 		'deviceId',
@@ -64,9 +66,14 @@ const optionalNumeric = new Set([
 	'weight',
 	'height',
 	'headCircumference',
+	'costPerDiaper',
 ]);
-const requiredBoolean = new Set(['containsUrine', 'containsStool']);
-const optionalBoolean = new Set(['leakage']);
+const requiredBoolean = new Set([
+	'containsUrine',
+	'containsStool',
+	'isReusable',
+]);
+const optionalBoolean = new Set(['leakage', 'archived']);
 
 export const fromCsv = (csv: string) => {
 	const parsed = Papa.parse(csv, {

@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
@@ -44,6 +45,7 @@ export default function DataPage() {
 	const [summaries, setSummaries] = useState<PerformanceSummary[]>([]);
 
 	const diaperChangesState = useDiaperChanges();
+	const diaperProductsState = useDiaperProducts();
 	const eventsState = useEvents();
 	const feedingSessionsState = useFeedingSessions();
 	const growthMeasurementsState = useGrowthMeasurements();
@@ -51,12 +53,14 @@ export default function DataPage() {
 	const dataStores = useMemo(
 		() => ({
 			diaperChanges: diaperChangesState,
+			diaperProducts: diaperProductsState,
 			events: eventsState,
 			feedingSessions: feedingSessionsState,
 			growthMeasurements: growthMeasurementsState,
 		}),
 		[
 			diaperChangesState,
+			diaperProductsState,
 			eventsState,
 			feedingSessionsState,
 			growthMeasurementsState,
