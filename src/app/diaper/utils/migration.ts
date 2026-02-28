@@ -62,7 +62,11 @@ export function migrateDiaperBrandsToProducts(store: Store): boolean {
 					isReusable: brand.value === 'stoffwindel',
 					name: `${brand.label} Size 1`,
 				};
-				store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, product as unknown as Record<string, string | number | boolean>);
+				store.setRow(
+					TABLE_IDS.DIAPER_PRODUCTS,
+					id,
+					product as unknown as Record<string, string | number | boolean>,
+				);
 			});
 			hasAnyChanges = true;
 			return;
@@ -95,7 +99,11 @@ export function migrateDiaperBrandsToProducts(store: Store): boolean {
 					isReusable: brandValue === 'stoffwindel',
 					name,
 				};
-				store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, product as unknown as Record<string, string | number | boolean>);
+				store.setRow(
+					TABLE_IDS.DIAPER_PRODUCTS,
+					id,
+					product as unknown as Record<string, string | number | boolean>,
+				);
 				productMapByName.set(normalizedName, id);
 				hasAnyChanges = true;
 			}
@@ -125,7 +133,11 @@ export function migrateDiaperBrandsToProducts(store: Store): boolean {
 					...flagMigrated,
 					diaperProductId,
 				};
-				store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, updatedChange as unknown as Record<string, string | number | boolean>);
+				store.setRow(
+					TABLE_IDS.DIAPER_CHANGES,
+					change.id,
+					updatedChange as unknown as Record<string, string | number | boolean>,
+				);
 				hasAnyChanges = true;
 			}
 		});

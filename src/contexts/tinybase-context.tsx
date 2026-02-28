@@ -4,17 +4,17 @@ import type { Store } from 'tinybase';
 import PartySocket from 'partysocket';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { createStore } from 'tinybase';
-import { Provider } from 'tinybase/ui-react';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
+import { Provider } from 'tinybase/ui-react';
 import { migrateDiaperBrandsToProducts } from '@/app/diaper/utils/migration';
 import { SplashScreen } from '@/components/splash-screen';
-import { migrateToJsonCells } from '@/lib/tinybase-sync/cell-migration';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
 	logPerformanceEvent,
 	startPerformanceTimer,
 } from '@/lib/performance-logging';
+import { migrateToJsonCells } from '@/lib/tinybase-sync/cell-migration';
 import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,

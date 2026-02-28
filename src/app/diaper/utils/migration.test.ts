@@ -99,9 +99,21 @@ describe('migrateDiaperBrandsToProducts', () => {
 			timestamp: new Date().toISOString(),
 		};
 
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'c1', change1 as unknown as Record<string, string | number | boolean>);
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'c2', change2 as unknown as Record<string, string | number | boolean>);
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'c3', change3 as unknown as Record<string, string | number | boolean>);
+		store.setRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c1',
+			change1 as unknown as Record<string, string | number | boolean>,
+		);
+		store.setRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c2',
+			change2 as unknown as Record<string, string | number | boolean>,
+		);
+		store.setRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c3',
+			change3 as unknown as Record<string, string | number | boolean>,
+		);
 
 		const changed = migrateDiaperBrandsToProducts(store);
 		expect(changed).toBe(true);
@@ -150,7 +162,11 @@ describe('migrateDiaperBrandsToProducts', () => {
 			id: 'c1',
 			timestamp: new Date().toISOString(),
 		};
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'c1', change as unknown as Record<string, string | number | boolean>);
+		store.setRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c1',
+			change as unknown as Record<string, string | number | boolean>,
+		);
 
 		migrateDiaperBrandsToProducts(store);
 
@@ -175,7 +191,11 @@ describe('migrateDiaperBrandsToProducts', () => {
 				id: `c${i}`,
 				timestamp: new Date().toISOString(),
 			};
-			store.setRow(TABLE_IDS.DIAPER_CHANGES, `c${i}`, change as unknown as Record<string, string | number | boolean>);
+			store.setRow(
+				TABLE_IDS.DIAPER_CHANGES,
+				`c${i}`,
+				change as unknown as Record<string, string | number | boolean>,
+			);
 		}
 
 		const startTime = Date.now();
