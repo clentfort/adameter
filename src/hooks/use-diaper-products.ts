@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { DiaperProduct } from '@/types/diaper';
 import { getDeviceId } from '@/utils/device-id';
 
@@ -9,10 +10,7 @@ export const useDiaperProducts = () => {
 	const table = useTable(TABLE_IDS.DIAPER_PRODUCTS, store);
 
 	const value = useMemo(
-		() =>
-			Object.entries(table).map(
-				([id, row]) => ({ ...row, id }) as unknown as DiaperProduct,
-			),
+		() => fromTable<DiaperProduct>(table),
 		[table],
 	);
 

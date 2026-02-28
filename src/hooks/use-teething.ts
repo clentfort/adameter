@@ -2,6 +2,7 @@ import type { Tooth } from '@/types/teething';
 import { useCallback, useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
 
 export const useTeething = () => {
@@ -9,10 +10,7 @@ export const useTeething = () => {
 	const table = useTable(TABLE_IDS.TEETHING, store);
 
 	const value = useMemo(
-		() =>
-			Object.entries(table).map(
-				([id, row]) => ({ ...row, id }) as unknown as Tooth,
-			),
+		() => fromTable<Tooth>(table),
 		[table],
 	);
 
