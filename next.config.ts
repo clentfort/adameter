@@ -42,8 +42,17 @@ const getPartykitHostForBuild = () => {
 	return `${PARTYKIT_PROJECT_NAME}.${PARTYKIT_ACCOUNT}.partykit.dev`;
 };
 
+const getGitCommit = () => {
+	try {
+		return execSync('git rev-parse --short HEAD').toString().trim();
+	} catch {
+		return 'unknown';
+	}
+};
+
 const nextConfig: NextConfig = {
 	env: {
+		NEXT_PUBLIC_GIT_COMMIT: getGitCommit(),
 		NEXT_PUBLIC_PARTYKIT_HOST: getPartykitHostForBuild(),
 	},
 	eslint: {
