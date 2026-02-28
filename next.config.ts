@@ -24,6 +24,14 @@ const hasPartykitChanges = () => {
 	}
 };
 
+const getGitCommitHash = () => {
+	try {
+		return execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+	} catch {
+		return 'unknown';
+	}
+};
+
 const getPartykitHostForBuild = () => {
 	const explicitHost = process.env.NEXT_PUBLIC_PARTYKIT_HOST;
 	if (explicitHost) {
@@ -44,6 +52,7 @@ const getPartykitHostForBuild = () => {
 
 const nextConfig: NextConfig = {
 	env: {
+		NEXT_PUBLIC_GIT_COMMIT_SHA: getGitCommitHash(),
 		NEXT_PUBLIC_PARTYKIT_HOST: getPartykitHostForBuild(),
 	},
 	eslint: {

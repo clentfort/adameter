@@ -6,6 +6,7 @@ import {
 	ArrowLeft,
 	ChevronRight,
 	Coins,
+	Database,
 	Globe,
 	Moon,
 	Package,
@@ -21,7 +22,9 @@ import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 import {
 	Select,
 	SelectContent,
@@ -32,9 +35,16 @@ import {
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
+import { useEvents } from '@/hooks/use-events';
+import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { useProfile } from '@/hooks/use-profile';
+import { useTeething } from '@/hooks/use-teething';
 import { Locale } from '@/i18n';
+import { fromCsv, mergeData, toCsv } from '../data/utils/csv';
+import { createZip, downloadZip, extractFiles } from '../data/utils/zip';
 
 export default function SettingsPage() {
 	const [profile, setProfile] = useProfile();
@@ -43,9 +53,10 @@ export default function SettingsPage() {
 	const [currency, setCurrency] = useCurrency();
 	const { room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
+	const { toast } = useToast();
 
 	const [activeSection, setActiveSection] = useState<
-		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers'
+		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers' | 'data'
 	>('main');
 
 	const updateLocale = async (code: Locale) => {
@@ -157,6 +168,27 @@ export default function SettingsPage() {
 				</div>
 				<ChevronRight className="h-5 w-5 text-muted-foreground" />
 			</button>
+
+			<button
+				className="w-full flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm hover:bg-accent transition-colors"
+				data-testid="settings-data"
+				onClick={() => setActiveSection('data')}
+			>
+				<div className="flex items-center gap-3">
+					<div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600 dark:text-purple-300">
+						<Database className="h-5 w-5" />
+					</div>
+					<div className="text-left">
+						<p className="font-medium">
+							<fbt desc="Label for data settings">Data Management</fbt>
+						</p>
+						<p className="text-sm text-muted-foreground">
+							<fbt desc="Subtext for data settings">Import and export data</fbt>
+						</p>
+					</div>
+				</div>
+				<ChevronRight className="h-5 w-5 text-muted-foreground" />
+			</button>
 		</div>
 	);
 
@@ -173,6 +205,160 @@ export default function SettingsPage() {
 					/>
 				</CardContent>
 			</Card>
+		</div>
+	);
+
+	const diaperChangesState = useDiaperChanges();
+	const eventsState = useEvents();
+	const feedingSessionsState = useFeedingSessions();
+	const growthMeasurementsState = useGrowthMeasurements();
+	const teethingState = useTeething();
+
+	const [isProcessing, setIsProcessing] = useState(false);
+
+	const handleExport = async () => {
+		setIsProcessing(true);
+		try {
+			const dataStores = {
+				diaperChanges: diaperChangesState.value,
+				diaperProducts: products,
+				events: eventsState.value,
+				feedingSessions: feedingSessionsState.value,
+				growthMeasurements: growthMeasurementsState.value,
+				teething: teethingState.value,
+			};
+
+			const files = Object.entries(dataStores)
+				.filter(([, data]) => data.length > 0)
+				.map(([name, data]) => ({
+					content: toCsv(name, data as Record<string, unknown>[]),
+					name: `${name}.csv`,
+				}));
+
+			const zipBlob = await createZip(files);
+			downloadZip(zipBlob);
+			toast.success(fbt('Data exported successfully.', 'Export success toast'));
+		} catch {
+			toast.error(fbt('Failed to export data.', 'Export error toast'));
+		} finally {
+			setIsProcessing(false);
+		}
+	};
+
+	const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (!file) return;
+
+		setIsProcessing(true);
+		try {
+			const files = await extractFiles(file);
+			for (const { content, name } of files) {
+				let state: {
+					update: (item: any) => void;
+					value: any[];
+				} | null = null;
+
+				switch (name) {
+					case 'diaperChanges':
+						state = diaperChangesState;
+						break;
+					case 'diaperProducts':
+						state = { update: updateProduct, value: products };
+						break;
+					case 'events':
+						state = eventsState;
+						break;
+					case 'feedingSessions':
+						state = feedingSessionsState;
+						break;
+					case 'growthMeasurements':
+						state = growthMeasurementsState;
+						break;
+					case 'teething':
+						state = teethingState;
+						break;
+				}
+
+				if (state) {
+					const data = fromCsv(content) as ({ id: string } & Record<
+						string,
+						string | number | boolean
+					>)[];
+					const merged = mergeData(
+						state.value as Record<string, unknown>[],
+						data,
+					);
+					merged.forEach((item) => {
+						state?.update(item);
+					});
+				}
+			}
+			toast.success(fbt('Data imported successfully.', 'Import success toast'));
+		} catch {
+			toast.error(fbt('Failed to import data.', 'Import error toast'));
+		} finally {
+			setIsProcessing(false);
+		}
+	};
+
+	const renderData = () => (
+		<div className="space-y-4 w-full pb-8">
+			<Card>
+				<CardHeader>
+					<CardTitle>
+						<fbt desc="Title for export section">Export Data</fbt>
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="text-sm text-muted-foreground mb-4">
+						<fbt desc="Description of export feature">
+							Download all your data as a ZIP file containing CSVs.
+						</fbt>
+					</p>
+					<Button
+						className="w-full"
+						disabled={isProcessing}
+						onClick={handleExport}
+					>
+						{isProcessing ? (
+							<fbt desc="Loading state for export">Exporting...</fbt>
+						) : (
+							<fbt desc="Action to export data">Export</fbt>
+						)}
+					</Button>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>
+						<fbt desc="Title for import section">Import Data</fbt>
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="text-sm text-muted-foreground mb-4">
+						<fbt desc="Description of import feature">
+							Import data from a ZIP file containing CSVs. Existing data will
+							not be overwritten.
+						</fbt>
+					</p>
+					<Input
+						accept=".zip"
+						disabled={isProcessing}
+						onChange={handleImport}
+						type="file"
+					/>
+				</CardContent>
+			</Card>
+
+			<div className="text-center pt-4">
+				<p className="text-xs text-muted-foreground">
+					<fbt desc="Version information label">Version:</fbt>{' '}
+					<span className="font-mono">
+						{process.env.NEXT_PUBLIC_GIT_COMMIT_SHA || 'dev'}
+					</span>
+				</p>
+			</div>
 		</div>
 	);
 
@@ -405,6 +591,8 @@ export default function SettingsPage() {
 				if (editingProductId)
 					return fbt('Edit Product', 'Title for editing a product');
 				return fbt('Diaper Products', 'Title for diaper products section');
+			case 'data':
+				return fbt('Data Management', 'Title for data management section');
 			default:
 				return fbt('Settings', 'Title for settings page');
 		}
@@ -437,6 +625,7 @@ export default function SettingsPage() {
 			{activeSection === 'appearance' && renderAppearance()}
 			{activeSection === 'sharing' && renderSharing()}
 			{activeSection === 'diapers' && renderDiapers()}
+			{activeSection === 'data' && renderData()}
 		</div>
 	);
 }

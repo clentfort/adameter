@@ -24,7 +24,7 @@ export function Footer() {
 						</fbt>
 					</Link>
 					<span className="mx-2">|</span>
-					<Link className="hover:underline" href="/data" prefetch={false}>
+					<Link className="hover:underline" href="/settings" prefetch={false}>
 						<fbt desc="Link text for Data page in footer">Import/Export</fbt>
 					</Link>
 				</div>

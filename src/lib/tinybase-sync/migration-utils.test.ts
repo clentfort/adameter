@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ROW_JSON_CELL } from './constants';
-import { fromRow } from './migration-utils';
+import { fromRow, fromTable } from './migration-utils';
 
 describe('fromRow', () => {
 	it('extracts data from individual cells when present', () => {
@@ -74,5 +74,31 @@ describe('fromRow', () => {
 		expect(result.a).toBe(1);
 		expect(result.b).toBe(2);
 		expect(result.c).toBe(3);
+	});
+});
+
+describe('fromTable', () => {
+	it('extracts all rows from a table, including unmigrated JSON-only rows', () => {
+		const table = {
+			'row-1': {
+				a: 1,
+				b: 2,
+			},
+			'row-2': {
+				deviceId: 'device-1',
+				[ROW_JSON_CELL]: JSON.stringify({ a: 10, b: 20 }),
+			},
+		};
+
+		const result = fromTable<{ a: number; b: number; id: string }>(table);
+
+		expect(result).toHaveLength(2);
+		expect(result).toContainEqual({ a: 1, b: 2, id: 'row-1' });
+		expect(result).toContainEqual({
+			a: 10,
+			b: 20,
+			deviceId: 'device-1',
+			id: 'row-2',
+		});
 	});
 });
