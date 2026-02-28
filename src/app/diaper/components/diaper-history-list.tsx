@@ -1,5 +1,6 @@
 import type { DiaperChange } from '@/types/diaper';
 import { format } from 'date-fns';
+import { fbt } from 'fbtee';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';

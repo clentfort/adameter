@@ -24,19 +24,35 @@ export function mergeStoreContent(
 			for (const [rowId, row] of Object.entries(table)) {
 				// If the row doesn't exist in the current store, we "bring" it
 				if (!store.hasRow(tableId, rowId)) {
+					// We prefer cell-level data if available, but keep supporting JSON for transition
+					const rowData: Record<string, string | number | boolean> = {
+						...row,
+						deviceId,
+					};
+
+					// If there's JSON but no individual cells (older version), we unpack it
 					const json = row[ROW_JSON_CELL];
-					if (typeof json === 'string') {
+					if (typeof json === 'string' && Object.keys(row).length === 1) {
 						try {
 							const data = JSON.parse(json);
-							// Attach the deviceId as requested
-							data.deviceId = deviceId;
-							store.setRow(tableId, rowId, {
-								[ROW_JSON_CELL]: JSON.stringify(data),
-							});
+							if (data && typeof data === 'object') {
+								for (const [cellId, cellValue] of Object.entries(data)) {
+									if (
+										typeof cellValue === 'string' ||
+										typeof cellValue === 'number' ||
+										typeof cellValue === 'boolean'
+									) {
+										rowData[cellId] = cellValue;
+									}
+								}
+								rowData.deviceId = deviceId;
+							}
 						} catch {
 							// Ignore malformed JSON
 						}
 					}
+
+					store.setRow(tableId, rowId, rowData);
 				}
 			}
 		}

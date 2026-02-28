@@ -6,12 +6,12 @@ import type {
 	PerformanceSummary,
 } from '@/lib/performance-logging';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useStore } from 'tinybase/ui-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
-import { tinybaseContext } from '@/contexts/tinybase-context';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useEvents } from '@/hooks/use-events';
@@ -96,7 +96,7 @@ export default function DataPage() {
 	const roomToShow = room ?? getCurrentPerformanceRoom() ?? '';
 
 	const recentLogs = useMemo(() => logs.slice(-10).reverse(), [logs]);
-	const latestLogAt = logs.length > 0 ? logs.at(-1).at : undefined;
+	const latestLogAt = logs.length > 0 ? logs.at(-1)?.at : undefined;
 
 	const handleExport = async () => {
 		setIsLoading(true);
@@ -108,7 +108,7 @@ export default function DataPage() {
 			const files = allData
 				.filter(({ data }) => data.length > 0)
 				.map(({ data, name }) => ({
-					content: toCsv(name, data),
+					content: toCsv(name, data as Record<string, unknown>[]),
 					name: `${name}.csv`,
 				}));
 			const zipBlob = await createZip(files);
@@ -136,9 +136,18 @@ export default function DataPage() {
 					continue;
 				}
 
-				const data = fromCsv(content) as { id: string }[];
-				const merged = mergeData(dataStore.value, data);
-				dataStore.replace(merged as never);
+				const data = fromCsv(content) as ({ id: string } & Record<
+					string,
+					string | number | boolean
+				>)[];
+				const merged = mergeData(
+					dataStore.value as Record<string, unknown>[],
+					data,
+				);
+				// We no longer have replace, so we add/update each item
+				merged.forEach((item) => {
+					dataStore.update(item as Parameters<typeof dataStore.update>[0]);
+				});
 			}
 			toast.success('Data imported successfully.');
 		} catch {
@@ -202,10 +211,10 @@ export default function DataPage() {
 		toast.success('Diagnostics log cleared.');
 	};
 
-	const { store } = useContext(tinybaseContext);
+	const store = useStore();
 
 	const handleMigrateDiaperData = () => {
-		const hasChanges = migrateDiaperBrandsToProducts(store);
+		const hasChanges = migrateDiaperBrandsToProducts(store!);
 
 		if (hasChanges) {
 			toast.success('Diaper data migrated successfully.');

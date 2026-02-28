@@ -1,32 +1,30 @@
 import type { Profile } from '@/types/profile';
-import { useCallback, useContext, useMemo } from 'react';
-import { useValue } from 'tinybase/ui-react';
-import { tinybaseContext } from '@/contexts/tinybase-context';
+import { useMemo } from 'react';
+import { useSetValueCallback, useValue } from 'tinybase/ui-react';
 import { STORE_VALUE_PROFILE } from '@/lib/tinybase-sync/constants';
 
 export const useProfile = () => {
-	const { store } = useContext(tinybaseContext);
-	const currentJson = useValue(STORE_VALUE_PROFILE, store);
+	const currentJson = useValue(STORE_VALUE_PROFILE);
 	const current = useMemo(() => parseProfile(currentJson), [currentJson]);
 
-	const set = useCallback(
+	const set = useSetValueCallback(
+		STORE_VALUE_PROFILE,
 		(nextProfile: Profile | null) => {
 			if (nextProfile === null) {
-				store.delValue(STORE_VALUE_PROFILE);
-				return;
+				return '';
 			}
 
 			const normalized = structuredClone(nextProfile);
-			store.setValue(STORE_VALUE_PROFILE, JSON.stringify(normalized));
+			return JSON.stringify(normalized);
 		},
-		[store],
+		[],
 	);
 
 	return [current, set] as const;
 };
 
 function parseProfile(value: unknown): Profile | null {
-	if (typeof value !== 'string') {
+	if (typeof value !== 'string' || value === '') {
 		return null;
 	}
 
