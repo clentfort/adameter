@@ -1,11 +1,10 @@
 import type { FeedingInProgress } from '@/types/feeding-in-progress';
-import { useCallback, useContext, useMemo } from 'react';
-import { useValue } from 'tinybase/ui-react';
-import { tinybaseContext } from '@/contexts/tinybase-context';
+import { useCallback, useMemo } from 'react';
+import { useStore, useValue } from 'tinybase/ui-react';
 import { STORE_VALUE_FEEDING_IN_PROGRESS } from '@/lib/tinybase-sync/constants';
 
 export const useFeedingInProgress = () => {
-	const { store } = useContext(tinybaseContext);
+	const store = useStore();
 	const currentJson = useValue(STORE_VALUE_FEEDING_IN_PROGRESS, store);
 	const current = useMemo(
 		() => parseFeedingInProgress(currentJson),
@@ -16,21 +15,13 @@ export const useFeedingInProgress = () => {
 		(nextFeedingInProgress: FeedingInProgress | null) => {
 			if (nextFeedingInProgress === null) {
 				store.delValue(STORE_VALUE_FEEDING_IN_PROGRESS);
-
 				localStorage.setItem('feedingInProgress-backup', 'null');
-				return;
+			} else {
+				const normalized = structuredClone(nextFeedingInProgress);
+				const json = JSON.stringify(normalized);
+				store.setValue(STORE_VALUE_FEEDING_IN_PROGRESS, json);
+				localStorage.setItem('feedingInProgress-backup', json);
 			}
-
-			const normalized = structuredClone(nextFeedingInProgress);
-			store.setValue(
-				STORE_VALUE_FEEDING_IN_PROGRESS,
-				JSON.stringify(normalized),
-			);
-
-			localStorage.setItem(
-				'feedingInProgress-backup',
-				JSON.stringify(normalized),
-			);
 		},
 		[store],
 	);

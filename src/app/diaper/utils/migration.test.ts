@@ -1,7 +1,7 @@
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
-import { ROW_JSON_CELL, TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import {
 	migrateDiaperBrandsToProducts,
 	migrateDiaperChange,
@@ -15,7 +15,7 @@ describe('migrateDiaperChange', () => {
 			id: '1',
 			pottyStool: false,
 			pottyUrine: true,
-			timestamp: Date.now(),
+			timestamp: new Date().toISOString(),
 		} as DiaperChange;
 		expect(migrateDiaperChange(record)).toBe(record);
 	});
@@ -26,7 +26,7 @@ describe('migrateDiaperChange', () => {
 			containsStool: false,
 			containsUrine: true,
 			id: '1',
-			timestamp: Date.now(),
+			timestamp: new Date().toISOString(),
 		} as DiaperChange;
 		const migrated = migrateDiaperChange(record);
 		expect(migrated.pottyUrine).toBe(true);
@@ -39,7 +39,7 @@ describe('migrateDiaperChange', () => {
 			containsStool: true,
 			containsUrine: false,
 			id: '1',
-			timestamp: Date.now(),
+			timestamp: new Date().toISOString(),
 		} as DiaperChange;
 		const migrated = migrateDiaperChange(record);
 		expect(migrated.pottyStool).toBe(true);
@@ -52,7 +52,7 @@ describe('migrateDiaperChange', () => {
 			containsStool: false,
 			containsUrine: true,
 			id: '1',
-			timestamp: Date.now(),
+			timestamp: new Date().toISOString(),
 		} as DiaperChange;
 		const migrated = migrateDiaperChange(record);
 		expect(migrated.pottyUrine).toBe(true);
@@ -66,7 +66,7 @@ describe('migrateDiaperChange', () => {
 			containsStool: true,
 			containsUrine: true,
 			id: '1',
-			timestamp: Date.now(),
+			timestamp: new Date().toISOString(),
 		} as DiaperChange;
 		const migrated = migrateDiaperChange(record);
 		expect(migrated.pottyUrine).toBe(true);
@@ -99,23 +99,30 @@ describe('migrateDiaperBrandsToProducts', () => {
 			timestamp: new Date().toISOString(),
 		};
 
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'c1', {
-			[ROW_JSON_CELL]: JSON.stringify(change1),
-		});
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'c2', {
-			[ROW_JSON_CELL]: JSON.stringify(change2),
-		});
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'c3', {
-			[ROW_JSON_CELL]: JSON.stringify(change3),
-		});
+		store.setRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c1',
+			change1 as unknown as Record<string, string | number | boolean>,
+		);
+		store.setRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c2',
+			change2 as unknown as Record<string, string | number | boolean>,
+		);
+		store.setRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c3',
+			change3 as unknown as Record<string, string | number | boolean>,
+		);
 
 		const changed = migrateDiaperBrandsToProducts(store);
 		expect(changed).toBe(true);
 
 		const products = store.getTable(TABLE_IDS.DIAPER_PRODUCTS);
-		const productList = Object.values(products).map((r) =>
-			JSON.parse(r[ROW_JSON_CELL]),
-		) as DiaperProduct[];
+		const productList = Object.entries(products).map(([id, r]) => ({
+			...r,
+			id,
+		})) as unknown as DiaperProduct[];
 
 		expect(productList).toHaveLength(2);
 		const pampers = productList.find((p) => p.name === 'Pampers');
@@ -123,14 +130,16 @@ describe('migrateDiaperBrandsToProducts', () => {
 		expect(pampers).toBeDefined();
 		expect(huggies).toBeDefined();
 
-		const migratedChange1 = JSON.parse(
-			store.getRow(TABLE_IDS.DIAPER_CHANGES, 'c1')[ROW_JSON_CELL],
-		) as DiaperChange;
+		const migratedChange1 = store.getRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c1',
+		) as unknown as DiaperChange;
 		expect(migratedChange1.diaperProductId).toBe(pampers?.id);
 
-		const migratedChange3 = JSON.parse(
-			store.getRow(TABLE_IDS.DIAPER_CHANGES, 'c3')[ROW_JSON_CELL],
-		) as DiaperChange;
+		const migratedChange3 = store.getRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c3',
+		) as unknown as DiaperChange;
 		expect(migratedChange3.diaperProductId).toBe(huggies?.id);
 	});
 
@@ -142,7 +151,8 @@ describe('migrateDiaperBrandsToProducts', () => {
 			name: 'Pampers',
 		};
 		store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
-			[ROW_JSON_CELL]: JSON.stringify(existingProduct),
+			isReusable: existingProduct.isReusable,
+			name: existingProduct.name,
 		});
 
 		const change: DiaperChange = {
@@ -152,18 +162,21 @@ describe('migrateDiaperBrandsToProducts', () => {
 			id: 'c1',
 			timestamp: new Date().toISOString(),
 		};
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'c1', {
-			[ROW_JSON_CELL]: JSON.stringify(change),
-		});
+		store.setRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c1',
+			change as unknown as Record<string, string | number | boolean>,
+		);
 
 		migrateDiaperBrandsToProducts(store);
 
 		const products = store.getTable(TABLE_IDS.DIAPER_PRODUCTS);
 		expect(Object.keys(products)).toHaveLength(1); // No new product created
 
-		const migratedChange = JSON.parse(
-			store.getRow(TABLE_IDS.DIAPER_CHANGES, 'c1')[ROW_JSON_CELL],
-		) as DiaperChange;
+		const migratedChange = store.getRow(
+			TABLE_IDS.DIAPER_CHANGES,
+			'c1',
+		) as unknown as DiaperChange;
 		expect(migratedChange.diaperProductId).toBe('p1');
 	});
 
@@ -178,9 +191,11 @@ describe('migrateDiaperBrandsToProducts', () => {
 				id: `c${i}`,
 				timestamp: new Date().toISOString(),
 			};
-			store.setRow(TABLE_IDS.DIAPER_CHANGES, `c${i}`, {
-				[ROW_JSON_CELL]: JSON.stringify(change),
-			});
+			store.setRow(
+				TABLE_IDS.DIAPER_CHANGES,
+				`c${i}`,
+				change as unknown as Record<string, string | number | boolean>,
+			);
 		}
 
 		const startTime = Date.now();
