@@ -1,5 +1,6 @@
 'use client';
 
+import type { ChangeEvent } from 'react';
 import { fbt } from 'fbtee';
 import {
 	Archive,
@@ -17,19 +18,13 @@ import {
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
-import {
-	type ChangeEvent,
-	useContext,
-	useMemo,
-	useState,
-} from 'react';
+import { useContext, useMemo, useState } from 'react';
 import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
 import {
 	Select,
 	SelectContent,
@@ -37,6 +32,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
@@ -48,7 +44,11 @@ import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
 import { fromCsv, mergeData, toCsv } from '@/utils/data-transfer/csv';
-import { createZip, downloadZip, extractFiles } from '@/utils/data-transfer/zip';
+import {
+	createZip,
+	downloadZip,
+	extractFiles,
+} from '@/utils/data-transfer/zip';
 
 export default function SettingsPage() {
 	const { toast } = useToast();
