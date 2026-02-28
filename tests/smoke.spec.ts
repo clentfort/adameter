@@ -21,7 +21,9 @@ test.describe('Smoke tests - Page Loads', () => {
 	});
 
 	for (const pageInfo of pages) {
-		test(`should load ${pageInfo.name} page without errors`, async ({ page }) => {
+		test(`should load ${pageInfo.name} page without errors`, async ({
+			page,
+		}) => {
 			const errors: string[] = [];
 			page.on('pageerror', (err) => errors.push(err.message));
 
