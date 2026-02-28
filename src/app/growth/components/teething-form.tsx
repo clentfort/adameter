@@ -1,6 +1,9 @@
 import type { Tooth } from '@/types/teething';
+import { teethingSchema, type TeethingFormValues } from '@/types/teething';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -27,16 +30,36 @@ export default function TeethingForm({
 	tooth,
 	toothName,
 }: TeethingFormProps) {
-	const [date, setDate] = useState(
-		dateToDateInputValue(tooth.date ? new Date(tooth.date) : new Date()),
-	);
-	const [notes, setNotes] = useState(tooth.notes || '');
+	const {
+		formState: { isValid },
+		handleSubmit,
+		register,
+		reset,
+	} = useForm<TeethingFormValues>({
+		defaultValues: {
+			date: dateToDateInputValue(tooth.date ? new Date(tooth.date) : new Date()),
+			notes: tooth.notes || '',
+		},
+		mode: 'onChange',
+		resolver: zodResolver(teethingSchema),
+	});
 
-	const handleSave = () => {
+	useEffect(() => {
+		if (tooth) {
+			reset({
+				date: dateToDateInputValue(
+					tooth.date ? new Date(tooth.date) : new Date(),
+				),
+				notes: tooth.notes || '',
+			});
+		}
+	}, [tooth, reset]);
+
+	const onSubmit = (values: TeethingFormValues) => {
 		onSave({
 			...tooth,
-			date: new Date(`${date}T12:00:00`).toISOString(),
-			notes: notes || undefined,
+			date: new Date(`${values.date}T12:00:00`).toISOString(),
+			notes: values.notes || undefined,
 		});
 		onClose();
 	};
@@ -62,43 +85,39 @@ export default function TeethingForm({
 						</fbt>
 					</DialogTitle>
 				</DialogHeader>
-				<div className="grid gap-4 py-4">
-					<div className="space-y-2">
-						<Label htmlFor="date">
-							<fbt desc="Date of eruption">Eruption Date</fbt>
-						</Label>
-						<Input
-							id="date"
-							onChange={(e) => setDate(e.target.value)}
-							type="date"
-							value={date}
-						/>
-					</div>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<div className="grid gap-4 py-4">
+						<div className="space-y-2">
+							<Label htmlFor="date">
+								<fbt desc="Date of eruption">Eruption Date</fbt>
+							</Label>
+							<Input id="date" type="date" {...register('date')} />
+						</div>
 
-					<div className="space-y-2">
-						<Label htmlFor="notes">
-							<fbt common>Notes</fbt>
-						</Label>
-						<Textarea
-							id="notes"
-							onChange={(e) => setNotes(e.target.value)}
-							placeholder={fbt(
-								'Additional information',
-								'Placeholder for a text input for notes',
-							)}
-							rows={3}
-							value={notes}
-						/>
+						<div className="space-y-2">
+							<Label htmlFor="notes">
+								<fbt common>Notes</fbt>
+							</Label>
+							<Textarea
+								id="notes"
+								placeholder={fbt(
+									'Additional information',
+									'Placeholder for a text input for notes',
+								)}
+								rows={3}
+								{...register('notes')}
+							/>
+						</div>
 					</div>
-				</div>
-				<DialogFooter className="flex justify-between sm:justify-between">
-					<Button onClick={handleClear} variant="outline">
-						<fbt desc="Clear teething data">Clear</fbt>
-					</Button>
-					<Button onClick={handleSave} type="submit">
-						<fbt common>Save</fbt>
-					</Button>
-				</DialogFooter>
+					<DialogFooter className="flex justify-between sm:justify-between">
+						<Button onClick={handleClear} type="button" variant="outline">
+							<fbt desc="Clear teething data">Clear</fbt>
+						</Button>
+						<Button type="submit">
+							<fbt common>Save</fbt>
+						</Button>
+					</DialogFooter>
+				</form>
 			</DialogContent>
 		</Dialog>
 	);

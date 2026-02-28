@@ -1,6 +1,9 @@
 import type { GrowthMeasurement } from '@/types/growth';
+import { growthSchema, type GrowthFormValues } from '@/types/growth';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -17,14 +20,12 @@ import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 interface EditGrowthFormProps {
 	measurement: GrowthMeasurement;
 	onClose: () => void;
-	// Optional for editing existing measurement
 	onSave: (measurement: GrowthMeasurement) => void;
 	title: ReactNode;
 }
 
 interface AddGrowthFormProps {
 	onClose: () => void;
-	// Optional for editing existing measurement
 	onSave: (measurement: GrowthMeasurement) => void;
 	title: ReactNode;
 }
@@ -37,55 +38,48 @@ export default function MeasurementForm({
 	title,
 	...props
 }: MeasurementFormProps) {
-	const [date, setDate] = useState(
-		dateToDateInputValue(
-			'measurement' in props ? props.measurement.date : new Date(),
-		),
-	);
-	const [weight, setWeight] = useState(
-		'measurement' in props ? props.measurement.weight?.toString() : '',
-	);
-	const [height, setHeight] = useState(
-		'measurement' in props ? props.measurement.height?.toString() : '',
-	);
-	const [headCircumference, setHeadCircumference] = useState(
-		'measurement' in props
-			? props.measurement.headCircumference?.toString()
-			: '',
-	);
-	const [notes, setNotes] = useState(
-		'measurement' in props ? props.measurement.notes : '',
-	);
-	const [error, setError] = useState('');
+	const measurement = 'measurement' in props ? props.measurement : undefined;
 
-	const handleSave = () => {
-		// Validate that at least one of weight or height is provided
-		if (!weight && !height && !headCircumference) {
-			setError(
-				fbt(
-					'Please enter at least a weight, height, or head circumference.',
-					'Message shown when no weight, height, or head circumference is provided. At least one is required',
-				),
-			);
-			return;
+	const {
+		formState: { errors, isValid },
+		handleSubmit,
+		register,
+		reset,
+	} = useForm<GrowthFormValues>({
+		defaultValues: {
+			date: dateToDateInputValue(measurement?.date ?? new Date()),
+			headCircumference: measurement?.headCircumference?.toString() ?? '',
+			height: measurement?.height?.toString() ?? '',
+			notes: measurement?.notes ?? '',
+			weight: measurement?.weight?.toString() ?? '',
+		},
+		mode: 'onChange',
+		resolver: zodResolver(growthSchema),
+	});
+
+	useEffect(() => {
+		if (measurement) {
+			reset({
+				date: dateToDateInputValue(measurement.date),
+				headCircumference: measurement.headCircumference?.toString() ?? '',
+				height: measurement.height?.toString() ?? '',
+				notes: measurement.notes ?? '',
+				weight: measurement.weight?.toString() ?? '',
+			});
 		}
+	}, [measurement, reset]);
 
-		setError('');
-
-		const measurement = 'measurement' in props ? props.measurement : undefined;
-
+	const onSubmit = (values: GrowthFormValues) => {
 		const newMeasurement: GrowthMeasurement = {
 			...measurement,
-			date: new Date(`${date}T12:00:00`).toISOString(),
-			headCircumference: headCircumference
-				? Number.parseFloat(headCircumference)
+			date: new Date(`${values.date}T12:00:00`).toISOString(),
+			headCircumference: values.headCircumference
+				? Number.parseFloat(values.headCircumference)
 				: undefined,
-			height: height ? Number.parseFloat(height) : undefined,
+			height: values.height ? Number.parseFloat(values.height) : undefined,
 			id: measurement?.id || Date.now().toString(),
-
-			notes: notes || undefined,
-			// Use noon to avoid timezone issues
-			weight: weight ? Number.parseFloat(weight) : undefined,
+			notes: values.notes || undefined,
+			weight: values.weight ? Number.parseFloat(values.weight) : undefined,
 		};
 
 		onSave(newMeasurement);
@@ -98,93 +92,96 @@ export default function MeasurementForm({
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
-				<div className="grid gap-4 py-4">
-					<div className="space-y-2">
-						<Label htmlFor="date">
-							<fbt common>Date</fbt>
-						</Label>
-						<Input
-							id="date"
-							onChange={(e) => setDate(e.target.value)}
-							type="date"
-							value={date}
-						/>
-					</div>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<div className="grid gap-4 py-4">
+						<div className="space-y-2">
+							<Label htmlFor="date">
+								<fbt common>Date</fbt>
+							</Label>
+							<Input id="date" type="date" {...register('date')} />
+						</div>
 
-					<div className="grid grid-cols-1 gap-4">
-						<div className="space-y-2">
-							<Label htmlFor="weight">
-								<fbt desc="Label for a body weight input">Weight (g)</fbt>
-							</Label>
-							<Input
-								id="weight"
-								onChange={(e) => setWeight(e.target.value)}
-								placeholder={fbt('e.g. 3500', 'Placeholder for a weight input')}
-								type="number"
-								value={weight}
-							/>
+						<div className="grid grid-cols-1 gap-4">
+							<div className="space-y-2">
+								<Label htmlFor="weight">
+									<fbt desc="Label for a body weight input">Weight (g)</fbt>
+								</Label>
+								<Input
+									id="weight"
+									placeholder={fbt('e.g. 3500', 'Placeholder for a weight input')}
+									type="number"
+									{...register('weight')}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="height">
+									<fbt desc="Label for a body height input">Height (cm)</fbt>
+								</Label>
+								<Input
+									id="height"
+									placeholder={fbt('e.g. 50', 'Placeholder for a height input')}
+									step="0.1"
+									type="number"
+									{...register('height')}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="headCircumference">
+									<fbt desc="Label for a head circumference input">
+										Head Circumference (cm)
+									</fbt>
+								</Label>
+								<Input
+									id="headCircumference"
+									placeholder={fbt(
+										'e.g. 35',
+										'Placeholder for a head circumference input',
+									)}
+									step="0.1"
+									type="number"
+									{...register('headCircumference')}
+								/>
+							</div>
 						</div>
+
+						{errors.root && (
+							<div className="text-sm text-red-500">{errors.root.message}</div>
+						)}
+						{errors.weight && !errors.root && (
+							<div className="text-sm text-red-500">
+								<fbt desc="Message shown when no weight, height, or head circumference is provided. At least one is required">
+									Please enter at least a weight, height, or head
+									circumference.
+								</fbt>
+							</div>
+						)}
+
 						<div className="space-y-2">
-							<Label htmlFor="height">
-								<fbt desc="Label for a body height input">Height (cm)</fbt>
-							</Label>
-							<Input
-								id="height"
-								onChange={(e) => setHeight(e.target.value)}
-								placeholder={fbt('e.g. 50', 'Placeholder for a height input')}
-								step="0.1"
-								type="number"
-								value={height}
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="headCircumference">
-								<fbt desc="Label for a head circumference input">
-									Head Circumference (cm)
+							<Label htmlFor="notes">
+								<fbt desc="Label for an optional notes textarea">
+									Notes (optional)
 								</fbt>
 							</Label>
-							<Input
-								id="headCircumference"
-								onChange={(e) => setHeadCircumference(e.target.value)}
+							<Textarea
+								id="notes"
 								placeholder={fbt(
-									'e.g. 35',
-									'Placeholder for a head circumference input',
+									'Additional information',
+									'Placeholder for a text input for notes',
 								)}
-								step="0.1"
-								type="number"
-								value={headCircumference}
+								rows={3}
+								{...register('notes')}
 							/>
 						</div>
 					</div>
-
-					{error && <div className="text-sm text-red-500">{error}</div>}
-
-					<div className="space-y-2">
-						<Label htmlFor="notes">
-							<fbt desc="Label for an optional notes textarea">
-								Notes (optional)
-							</fbt>
-						</Label>
-						<Textarea
-							id="notes"
-							onChange={(e) => setNotes(e.target.value)}
-							placeholder={fbt(
-								'Additional information',
-								'Placeholder for a text input for notes',
-							)}
-							rows={3}
-							value={notes}
-						/>
-					</div>
-				</div>
-				<DialogFooter>
-					<Button onClick={onClose} variant="outline">
-						<fbt common>Cancel</fbt>
-					</Button>
-					<Button onClick={handleSave} type="submit">
-						<fbt common>Save</fbt>
-					</Button>
-				</DialogFooter>
+					<DialogFooter>
+						<Button onClick={onClose} type="button" variant="outline">
+							<fbt common>Cancel</fbt>
+						</Button>
+						<Button type="submit">
+							<fbt common>Save</fbt>
+						</Button>
+					</DialogFooter>
+				</form>
 			</DialogContent>
 		</Dialog>
 	);

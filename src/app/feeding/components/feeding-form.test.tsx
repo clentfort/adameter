@@ -1,5 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import FeedingForm from './feeding-form';
 
@@ -21,7 +21,7 @@ describe('FeedingForm', () => {
 		cleanup();
 	});
 
-	it('renders with initial data and calls onSave when submitted', () => {
+	it('renders with initial data and calls onSave when submitted', async () => {
 		const initialFeeding: FeedingSession = {
 			breast: 'left',
 			durationInSeconds: 600, // 10 minutes
@@ -39,14 +39,14 @@ describe('FeedingForm', () => {
 		const saveButton = screen.getByTestId('save-button');
 		fireEvent.click(saveButton);
 
-		expect(mockOnSave).toHaveBeenCalledTimes(1);
+		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
 		const savedSession = mockOnSave.mock.calls[0][0];
 		expect(savedSession.breast).toBe('left');
 		expect(savedSession.durationInSeconds).toBe(600);
 		expect(savedSession.id).toBe('1');
 	});
 
-	it('renders without initial data and allows saving new session', () => {
+	it('renders without initial data and allows saving new session', async () => {
 		render(<FeedingForm {...baseProps} />);
 
 		// Default should be left breast
@@ -57,15 +57,17 @@ describe('FeedingForm', () => {
 			target: { value: '15' },
 		});
 
-		fireEvent.click(screen.getByTestId('save-button'));
+		const saveButton = screen.getByTestId('save-button');
+		await waitFor(() => expect(saveButton).not.toBeDisabled());
+		fireEvent.click(saveButton);
 
-		expect(mockOnSave).toHaveBeenCalledTimes(1);
+		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
 		const savedSession = mockOnSave.mock.calls[0][0];
 		expect(savedSession.breast).toBe('right');
 		expect(savedSession.durationInSeconds).toBe(900);
 	});
 
-	it('does not call onSave if duration is invalid', () => {
+	it('does not call onSave if duration is invalid', async () => {
 		render(<FeedingForm {...baseProps} />);
 
 		fireEvent.change(screen.getByLabelText(/minutes/i), {
@@ -73,6 +75,8 @@ describe('FeedingForm', () => {
 		});
 		fireEvent.click(screen.getByTestId('save-button'));
 
+		// Wait a bit to ensure it's NOT called
+		await new Promise((resolve) => setTimeout(resolve, 100));
 		expect(mockOnSave).not.toHaveBeenCalled();
 	});
 });

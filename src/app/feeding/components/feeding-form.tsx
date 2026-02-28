@@ -1,5 +1,9 @@
 import type { FeedingSession } from '@/types/feeding';
-import { ReactNode, useEffect, useState } from 'react';
+import { feedingSchema, type FeedingFormValues } from '@/types/feeding';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { fbt } from 'fbtee';
+import { ReactNode, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -27,43 +31,43 @@ export default function FeedingForm({
 	onSave,
 	title,
 }: FeedingFormProps) {
-	const [breast, setBreast] = useState<'left' | 'right'>(
-		feeding?.breast ?? 'left',
-	);
-	const [date, setDate] = useState(
-		dateToDateInputValue(feeding?.startTime ?? new Date()),
-	);
-	const [time, setTime] = useState(
-		dateToTimeInputValue(feeding?.startTime ?? new Date()),
-	);
-	const [duration, setDuration] = useState(
-		feeding?.durationInSeconds
-			? Math.round(feeding.durationInSeconds / 60).toString()
-			: '',
-	);
+	const {
+		formState: { isValid },
+		handleSubmit,
+		register,
+		reset,
+		setValue,
+		watch,
+	} = useForm<FeedingFormValues>({
+		defaultValues: {
+			breast: feeding?.breast ?? 'left',
+			date: dateToDateInputValue(feeding?.startTime ?? new Date()),
+			duration: feeding?.durationInSeconds
+				? Math.round(feeding.durationInSeconds / 60).toString()
+				: '',
+			time: dateToTimeInputValue(feeding?.startTime ?? new Date()),
+		},
+		mode: 'onChange',
+		resolver: zodResolver(feedingSchema),
+	});
+
+	const breast = watch('breast');
 
 	useEffect(() => {
-		if (!feeding) {
-			return;
+		if (feeding) {
+			reset({
+				breast: feeding.breast,
+				date: dateToDateInputValue(new Date(feeding.startTime)),
+				duration: Math.round(feeding.durationInSeconds / 60).toString(),
+				time: dateToTimeInputValue(new Date(feeding.startTime)),
+			});
 		}
+	}, [feeding, reset]);
 
-		const startDate = new Date(feeding.startTime);
-
-		setDate(dateToDateInputValue(startDate));
-		setTime(dateToTimeInputValue(startDate));
-
-		const durationInMinutes = Math.round(feeding.durationInSeconds / 60);
-		setDuration(durationInMinutes.toString());
-	}, [feeding]);
-
-	const handleSubmit = () => {
-		if (!date || !time || !duration || Number.isNaN(Number(duration))) {
-			return;
-		}
-
-		const durationInMinutes = Number(duration);
-		const [year, month, day] = date.split('-').map(Number);
-		const [hours, minutes] = time.split(':').map(Number);
+	const onSubmit = (values: FeedingFormValues) => {
+		const durationInMinutes = Number(values.duration);
+		const [year, month, day] = values.date.split('-').map(Number);
+		const [hours, minutes] = values.time.split(':').map(Number);
 
 		const startTime = new Date(year, month - 1, day, hours, minutes);
 		const endTime = new Date(
@@ -72,7 +76,7 @@ export default function FeedingForm({
 
 		const updatedSession: FeedingSession = {
 			...feeding,
-			breast,
+			breast: values.breast,
 			durationInSeconds: durationInMinutes * 60,
 			endTime: endTime.toISOString(),
 			id: feeding?.id ?? Date.now().toString(),
@@ -89,106 +93,100 @@ export default function FeedingForm({
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
-				<div className="grid gap-4 py-4">
-					<div className="space-y-2">
-						<Label>
-							<fbt desc="Label for a radio group that allows the user to select which breat was used to feed">
-								Breast
-							</fbt>
-						</Label>
-						<RadioGroup
-							className="flex gap-4"
-							onValueChange={(value) => setBreast(value as 'left' | 'right')}
-							value={breast}
-						>
-							<div className="flex items-center space-x-2">
-								<RadioGroupItem
-									className="text-left-breast border-left-breast"
-									data-testid="left-breast-radio"
-									id="edit-left"
-									value="left"
-								/>
-								<Label className="text-left-breast-dark" htmlFor="edit-left">
-									<fbt desc="Label for a radio button that indicates the left breast was used to feed">
-										Left Breast
-									</fbt>
-								</Label>
-							</div>
-							<div className="flex items-center space-x-2">
-								<RadioGroupItem
-									className="text-right-breast border-right-breast"
-									data-testid="right-breast-radio"
-									id="edit-right"
-									value="right"
-								/>
-								<Label className="text-right-breast-dark" htmlFor="edit-right">
-									<fbt desc="Label for a radio button that indicates the right breast was used to feed">
-										Right Breast
-									</fbt>
-								</Label>
-							</div>
-						</RadioGroup>
-					</div>
-
-					<div className="grid grid-cols-2 gap-4">
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<div className="grid gap-4 py-4">
 						<div className="space-y-2">
-							<Label htmlFor="edit-date">
-								<fbt desc="Label for a date input">Date</fbt>
+							<Label>
+								<fbt desc="Label for a radio group that allows the user to select which breat was used to feed">
+									Breast
+								</fbt>
 							</Label>
-							<Input
-								id="edit-date"
-								onChange={(e) => setDate(e.target.value)}
-								type="date"
-								value={date}
-							/>
+							<RadioGroup
+								className="flex gap-4"
+								onValueChange={(value) =>
+									setValue('breast', value as 'left' | 'right', {
+										shouldValidate: true,
+									})
+								}
+								value={breast}
+							>
+								<div className="flex items-center space-x-2">
+									<RadioGroupItem
+										className="text-left-breast border-left-breast"
+										data-testid="left-breast-radio"
+										id="edit-left"
+										value="left"
+									/>
+									<Label className="text-left-breast-dark" htmlFor="edit-left">
+										<fbt desc="Label for a radio button that indicates the left breast was used to feed">
+											Left Breast
+										</fbt>
+									</Label>
+								</div>
+								<div className="flex items-center space-x-2">
+									<RadioGroupItem
+										className="text-right-breast border-right-breast"
+										data-testid="right-breast-radio"
+										id="edit-right"
+										value="right"
+									/>
+									<Label className="text-right-breast-dark" htmlFor="edit-right">
+										<fbt desc="Label for a radio button that indicates the right breast was used to feed">
+											Right Breast
+										</fbt>
+									</Label>
+								</div>
+							</RadioGroup>
 						</div>
+
+						<div className="grid grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label htmlFor="edit-date">
+									<fbt desc="Label for a date input">Date</fbt>
+								</Label>
+								<Input id="edit-date" type="date" {...register('date')} />
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="edit-time">
+									<fbt desc="Label for a time input that sets the starting time of a feeding session">
+										Start Time
+									</fbt>
+								</Label>
+								<Input id="edit-time" type="time" {...register('time')} />
+							</div>
+						</div>
+
 						<div className="space-y-2">
-							<Label htmlFor="edit-time">
-								<fbt desc="Label for a time input that sets the starting time of a feeding session">
-									Start Time
+							<Label htmlFor="edit-duration">
+								<fbt desc="Label for a number input that sets the duration of a feeding session in minutes">
+									Duration (minutes)
 								</fbt>
 							</Label>
 							<Input
-								id="edit-time"
-								onChange={(e) => setTime(e.target.value)}
-								type="time"
-								value={time}
+								id="edit-duration"
+								min="1"
+								type="number"
+								{...register('duration')}
 							/>
 						</div>
 					</div>
-
-					<div className="space-y-2">
-						<Label htmlFor="edit-duration">
-							<fbt desc="Label for a number input that sets the duration of a feeding session in minutes">
-								Duration (minutes)
-							</fbt>
-						</Label>
-						<Input
-							id="edit-duration"
-							min="1"
-							onChange={(e) => setDuration(e.target.value)}
-							type="number"
-							value={duration}
-						/>
-					</div>
-				</div>
-				<DialogFooter>
-					<Button onClick={onClose} variant="outline">
-						<fbt common>Cancel</fbt>
-					</Button>
-					<Button
-						className={
-							breast === 'left'
-								? 'bg-left-breast hover:bg-left-breast-dark'
-								: 'bg-right-breast hover:bg-right-breast-dark'
-						}
-						data-testid="save-button"
-						onClick={handleSubmit}
-						type="submit"
-					>
-						<fbt common>Save</fbt>
-					</Button>
-				</DialogFooter>
+					<DialogFooter>
+						<Button onClick={onClose} type="button" variant="outline">
+							<fbt common>Cancel</fbt>
+						</Button>
+						<Button
+							className={
+								breast === 'left'
+									? 'bg-left-breast hover:bg-left-breast-dark'
+									: 'bg-right-breast hover:bg-right-breast-dark'
+							}
+							data-testid="save-button"
+							type="submit"
+						>
+							<fbt common>Save</fbt>
+						</Button>
+					</DialogFooter>
+				</form>
 			</DialogContent>
 		</Dialog>
 	);

@@ -1,4 +1,20 @@
+import { z } from 'zod';
 import type { BaseEntity } from './base-entity';
+
+export const diaperSchema = z.object({
+	abnormalities: z.string().optional(),
+	containsStool: z.boolean(),
+	containsUrine: z.boolean(),
+	date: z.string().min(1),
+	diaperProductId: z.string().optional(),
+	leakage: z.boolean(),
+	pottyStool: z.boolean(),
+	pottyUrine: z.boolean(),
+	temperature: z.string().optional(),
+	time: z.string().min(1),
+});
+
+export type DiaperFormValues = z.infer<typeof diaperSchema>;
 
 export interface DiaperProduct extends BaseEntity {
 	/** Whether the product is archived. */
