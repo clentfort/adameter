@@ -140,12 +140,13 @@ export default function DataPage() {
 					string,
 					string | number | boolean
 				>)[];
-				const merged = mergeData(dataStore.value as Record<string, unknown>[], data);
+				const merged = mergeData(
+					dataStore.value as Record<string, unknown>[],
+					data,
+				);
 				// We no longer have replace, so we add/update each item
 				merged.forEach((item) => {
-					dataStore.update(
-						item as Parameters<typeof dataStore.update>[0],
-					);
+					dataStore.update(item as Parameters<typeof dataStore.update>[0]);
 				});
 			}
 			toast.success('Data imported successfully.');
