@@ -1,7 +1,7 @@
 import type { DiaperChange } from '@/types/diaper';
 import { fbt } from 'fbtee';
 import { Plus } from 'lucide-react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,9 +22,11 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import { getFrecencySortedProducts } from '../utils/get-frecency-sorted-products';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
 export interface AddDiaperProps {
@@ -82,6 +84,13 @@ export default function DiaperForm({
 	);
 
 	const { add: addProduct, value: products } = useDiaperProducts();
+	const { value: changes } = useDiaperChanges();
+
+	const sortedProducts = useMemo(
+		() => getFrecencySortedProducts(products, changes),
+		[products, changes],
+	);
+
 	const [diaperProductId, setDiaperProductId] = useState(
 		'change' in props
 			? props.change.diaperProductId
@@ -288,14 +297,13 @@ export default function DiaperForm({
 										/>
 									</SelectTrigger>
 									<SelectContent>
-										{products
+										{sortedProducts
 											.filter(
 												(p) =>
 													!p.archived ||
 													p.id === diaperProductId ||
 													p.id === change?.diaperProductId,
 											)
-											.sort((a, b) => a.name.localeCompare(b.name))
 											.map((product) => (
 												<SelectItem key={product.id} value={product.id}>
 													{product.name}
