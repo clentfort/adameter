@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { logPerformanceEvent } from '@/lib/performance-logging';
 import { DiaperChange } from '@/types/diaper';
 import { useDiaperChanges } from './use-diaper-changes';
 
@@ -20,23 +19,6 @@ export function useLatestDiaperChange(): DiaperChange | undefined {
 			if (diaperChange.timestamp > latestChange.timestamp) {
 				latestChange = diaperChange;
 			}
-		}
-
-		const durationMs =
-			(typeof performance !== 'undefined' ? performance.now() : Date.now()) -
-			start;
-
-		if (diaperChanges.length >= 200 || durationMs >= 3) {
-			logPerformanceEvent(
-				'ui.latest-diaper.compute',
-				{
-					durationMs,
-					metadata: {
-						itemCount: diaperChanges.length,
-					},
-				},
-				{ throttleKey: 'ui.latest-diaper.compute', throttleMs: 4000 },
-			);
 		}
 
 		return latestChange;
