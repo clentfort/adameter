@@ -49,7 +49,9 @@ test.describe('Statistics Page', () => {
 		await expect(
 			page.getByText('Total', { exact: true }).first(),
 		).toBeVisible();
-		await expect(page.getByText('Per Day', { exact: true }).first()).toBeVisible();
+		await expect(
+			page.getByText('Per Day', { exact: true }).first(),
+		).toBeVisible();
 
 		// Check for specific feeding stats
 		await expect(page.getByText('Average Feeding Duration')).toBeVisible();
