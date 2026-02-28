@@ -9,10 +9,7 @@ export const useGrowthMeasurements = () => {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.GROWTH_MEASUREMENTS, store);
 
-	const value = useMemo(
-		() => fromTable<GrowthMeasurement>(table),
-		[table],
-	);
+	const value = useMemo(() => fromTable<GrowthMeasurement>(table), [table]);
 
 	const add = useCallback(
 		(item: GrowthMeasurement) => {

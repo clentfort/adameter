@@ -9,10 +9,7 @@ export const useEvents = () => {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.EVENTS, store);
 
-	const value = useMemo(
-		() => fromTable<Event>(table),
-		[table],
-	);
+	const value = useMemo(() => fromTable<Event>(table), [table]);
 
 	const add = useCallback(
 		(item: Event) => {

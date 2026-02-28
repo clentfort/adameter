@@ -9,10 +9,7 @@ export const useDiaperProducts = () => {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.DIAPER_PRODUCTS, store);
 
-	const value = useMemo(
-		() => fromTable<DiaperProduct>(table),
-		[table],
-	);
+	const value = useMemo(() => fromTable<DiaperProduct>(table), [table]);
 
 	const add = useCallback(
 		(item: DiaperProduct) => {

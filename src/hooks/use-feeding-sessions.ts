@@ -9,10 +9,7 @@ export const useFeedingSessions = () => {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
 
-	const value = useMemo(
-		() => fromTable<FeedingSession>(table),
-		[table],
-	);
+	const value = useMemo(() => fromTable<FeedingSession>(table), [table]);
 
 	const add = useCallback(
 		(item: FeedingSession) => {

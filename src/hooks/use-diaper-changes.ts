@@ -9,10 +9,7 @@ export const useDiaperChanges = () => {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.DIAPER_CHANGES, store);
 
-	const value = useMemo(
-		() => fromTable<DiaperChange>(table),
-		[table],
-	);
+	const value = useMemo(() => fromTable<DiaperChange>(table), [table]);
 
 	const add = useCallback(
 		(item: DiaperChange) => {

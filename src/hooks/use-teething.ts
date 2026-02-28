@@ -9,10 +9,7 @@ export const useTeething = () => {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.TEETHING, store);
 
-	const value = useMemo(
-		() => fromTable<Tooth>(table),
-		[table],
-	);
+	const value = useMemo(() => fromTable<Tooth>(table), [table]);
 
 	const add = useCallback(
 		(item: Tooth) => {
