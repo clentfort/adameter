@@ -85,8 +85,8 @@ describe('fromTable', () => {
 				b: 2,
 			},
 			'row-2': {
-				[ROW_JSON_CELL]: JSON.stringify({ a: 10, b: 20 }),
 				deviceId: 'device-1',
+				[ROW_JSON_CELL]: JSON.stringify({ a: 10, b: 20 }),
 			},
 		};
 
