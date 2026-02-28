@@ -18,7 +18,7 @@ describe('useLatestDiaperChange', () => {
 		mockUseDiaperChanges.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: [],
 		});
@@ -37,7 +37,7 @@ describe('useLatestDiaperChange', () => {
 		mockUseDiaperChanges.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: [singleChange],
 		});
@@ -70,7 +70,7 @@ describe('useLatestDiaperChange', () => {
 		mockUseDiaperChanges.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: changes,
 		});
@@ -103,7 +103,7 @@ describe('useLatestDiaperChange', () => {
 		mockUseDiaperChanges.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: changes,
 		});
@@ -136,7 +136,7 @@ describe('useLatestDiaperChange', () => {
 		mockUseDiaperChanges.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: changes,
 		});
@@ -167,7 +167,7 @@ describe('useLatestDiaperChange', () => {
 		const mockDiaperChangesHook = mockUseDiaperChanges.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: initialChanges,
 		});
@@ -179,7 +179,7 @@ describe('useLatestDiaperChange', () => {
 			mockDiaperChangesHook.mockReturnValue({
 				add: vi.fn(),
 				remove: vi.fn(),
-				replace: vi.fn(),
+
 				update: vi.fn(),
 				value: nextChanges,
 			});

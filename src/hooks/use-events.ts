@@ -5,7 +5,7 @@ import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { getDeviceId } from '@/utils/device-id';
 
 export const useEvents = () => {
-	const store = useStore();
+	const store = useStore()!;
 	const table = useTable(TABLE_IDS.EVENTS, store);
 
 	const value = useMemo(

@@ -4,7 +4,7 @@ import { useStore, useValue } from 'tinybase/ui-react';
 import { STORE_VALUE_FEEDING_IN_PROGRESS } from '@/lib/tinybase-sync/constants';
 
 export const useFeedingInProgress = () => {
-	const store = useStore();
+	const store = useStore()!;
 	const currentJson = useValue(STORE_VALUE_FEEDING_IN_PROGRESS, store);
 	const current = useMemo(
 		() => parseFeedingInProgress(currentJson),
