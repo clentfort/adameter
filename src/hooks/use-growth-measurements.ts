@@ -1,15 +1,12 @@
 import type { GrowthMeasurement } from '@/types/growth';
 import { useCallback, useMemo } from 'react';
-import {
-	useDelRowCallback,
-	useSetRowCallback,
-	useTable,
-} from 'tinybase/ui-react';
+import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { getDeviceId } from '@/utils/device-id';
 
 export const useGrowthMeasurements = () => {
-	const table = useTable(TABLE_IDS.GROWTH_MEASUREMENTS);
+	const store = useStore();
+	const table = useTable(TABLE_IDS.GROWTH_MEASUREMENTS, store);
 
 	const value = useMemo(
 		() =>
@@ -19,34 +16,38 @@ export const useGrowthMeasurements = () => {
 		[table],
 	);
 
-	const add = useSetRowCallback(
-		TABLE_IDS.GROWTH_MEASUREMENTS,
-		(item: GrowthMeasurement) => item.id,
-		(item: GrowthMeasurement) => ({ ...item, deviceId: getDeviceId() }),
-		[],
+	const add = useCallback(
+		(item: GrowthMeasurement) => {
+			const { id, ...cells } = item;
+			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, id, {
+				...cells,
+				deviceId: getDeviceId(),
+			} as unknown as Record<string, string | number | boolean>);
+		},
+		[store],
 	);
 
-	const update = useSetRowCallback(
-		TABLE_IDS.GROWTH_MEASUREMENTS,
-		(item: GrowthMeasurement) => item.id,
-		(item: GrowthMeasurement) => ({ ...item, deviceId: getDeviceId() }),
-		[],
+	const update = useCallback(
+		(item: GrowthMeasurement) => {
+			const { id, ...cells } = item;
+			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, id, {
+				...cells,
+				deviceId: getDeviceId(),
+			} as unknown as Record<string, string | number | boolean>);
+		},
+		[store],
 	);
 
-	const remove = useDelRowCallback(
-		TABLE_IDS.GROWTH_MEASUREMENTS,
-		(id: string) => id,
-		[],
+	const remove = useCallback(
+		(id: string) => {
+			store.delRow(TABLE_IDS.GROWTH_MEASUREMENTS, id);
+		},
+		[store],
 	);
-
-	const replace = useCallback(() => {
-		console.warn('replace is not implemented in useGrowthMeasurements');
-	}, []);
 
 	return {
 		add,
 		remove,
-		replace,
 		update,
 		value,
 	} as const;

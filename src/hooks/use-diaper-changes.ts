@@ -1,15 +1,12 @@
 import type { DiaperChange } from '@/types/diaper';
 import { useCallback, useMemo } from 'react';
-import {
-	useDelRowCallback,
-	useSetRowCallback,
-	useTable,
-} from 'tinybase/ui-react';
+import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { getDeviceId } from '@/utils/device-id';
 
 export const useDiaperChanges = () => {
-	const table = useTable(TABLE_IDS.DIAPER_CHANGES);
+	const store = useStore();
+	const table = useTable(TABLE_IDS.DIAPER_CHANGES, store);
 
 	const value = useMemo(
 		() =>
@@ -19,34 +16,38 @@ export const useDiaperChanges = () => {
 		[table],
 	);
 
-	const add = useSetRowCallback(
-		TABLE_IDS.DIAPER_CHANGES,
-		(item: DiaperChange) => item.id,
-		(item: DiaperChange) => ({ ...item, deviceId: getDeviceId() }),
-		[],
+	const add = useCallback(
+		(item: DiaperChange) => {
+			const { id, ...cells } = item;
+			store.setRow(TABLE_IDS.DIAPER_CHANGES, id, {
+				...cells,
+				deviceId: getDeviceId(),
+			} as unknown as Record<string, string | number | boolean>);
+		},
+		[store],
 	);
 
-	const update = useSetRowCallback(
-		TABLE_IDS.DIAPER_CHANGES,
-		(item: DiaperChange) => item.id,
-		(item: DiaperChange) => ({ ...item, deviceId: getDeviceId() }),
-		[],
+	const update = useCallback(
+		(item: DiaperChange) => {
+			const { id, ...cells } = item;
+			store.setRow(TABLE_IDS.DIAPER_CHANGES, id, {
+				...cells,
+				deviceId: getDeviceId(),
+			} as unknown as Record<string, string | number | boolean>);
+		},
+		[store],
 	);
 
-	const remove = useDelRowCallback(
-		TABLE_IDS.DIAPER_CHANGES,
-		(id: string) => id,
-		[],
+	const remove = useCallback(
+		(id: string) => {
+			store.delRow(TABLE_IDS.DIAPER_CHANGES, id);
+		},
+		[store],
 	);
-
-	const replace = useCallback(() => {
-		console.warn('replace is not implemented in useDiaperChanges');
-	}, []);
 
 	return {
 		add,
 		remove,
-		replace,
 		update,
 		value,
 	} as const;

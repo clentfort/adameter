@@ -1,15 +1,12 @@
-import { useMemo } from 'react';
-import {
-	useDelRowCallback,
-	useSetRowCallback,
-	useTable,
-} from 'tinybase/ui-react';
+import { useCallback, useMemo } from 'react';
+import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { DiaperProduct } from '@/types/diaper';
 import { getDeviceId } from '@/utils/device-id';
 
 export const useDiaperProducts = () => {
-	const table = useTable(TABLE_IDS.DIAPER_PRODUCTS);
+	const store = useStore();
+	const table = useTable(TABLE_IDS.DIAPER_PRODUCTS, store);
 
 	const value = useMemo(
 		() =>
@@ -19,24 +16,33 @@ export const useDiaperProducts = () => {
 		[table],
 	);
 
-	const add = useSetRowCallback(
-		TABLE_IDS.DIAPER_PRODUCTS,
-		(item: DiaperProduct) => item.id,
-		(item: DiaperProduct) => ({ ...item, deviceId: getDeviceId() }),
-		[],
+	const add = useCallback(
+		(item: DiaperProduct) => {
+			const { id, ...cells } = item;
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
+				...cells,
+				deviceId: getDeviceId(),
+			} as unknown as Record<string, string | number | boolean>);
+		},
+		[store],
 	);
 
-	const update = useSetRowCallback(
-		TABLE_IDS.DIAPER_PRODUCTS,
-		(item: DiaperProduct) => item.id,
-		(item: DiaperProduct) => ({ ...item, deviceId: getDeviceId() }),
-		[],
+	const update = useCallback(
+		(item: DiaperProduct) => {
+			const { id, ...cells } = item;
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
+				...cells,
+				deviceId: getDeviceId(),
+			} as unknown as Record<string, string | number | boolean>);
+		},
+		[store],
 	);
 
-	const remove = useDelRowCallback(
-		TABLE_IDS.DIAPER_PRODUCTS,
-		(id: string) => id,
-		[],
+	const remove = useCallback(
+		(id: string) => {
+			store.delRow(TABLE_IDS.DIAPER_PRODUCTS, id);
+		},
+		[store],
 	);
 
 	return {

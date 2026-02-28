@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
-import { tinybaseContext } from '@/contexts/tinybase-context';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useEvents } from '@/hooks/use-events';
@@ -136,9 +135,17 @@ export default function DataPage() {
 					continue;
 				}
 
-				const data = fromCsv(content) as { id: string }[];
+				const data = fromCsv(content) as ({ id: string } & Record<
+					string,
+					string | number | boolean
+				>)[];
 				const merged = mergeData(dataStore.value, data);
-				dataStore.replace(merged as never);
+				// We no longer have replace, so we add/update each item
+				merged.forEach((item) => {
+					dataStore.update(
+						item as unknown as Parameters<typeof dataStore.update>[0],
+					);
+				});
 			}
 			toast.success('Data imported successfully.');
 		} catch {
@@ -202,7 +209,7 @@ export default function DataPage() {
 		toast.success('Diagnostics log cleared.');
 	};
 
-	const { store } = useContext(tinybaseContext);
+	const store = useStore();
 
 	const handleMigrateDiaperData = () => {
 		const hasChanges = migrateDiaperBrandsToProducts(store);

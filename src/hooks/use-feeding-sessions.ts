@@ -1,15 +1,12 @@
 import type { FeedingSession } from '@/types/feeding';
 import { useCallback, useMemo } from 'react';
-import {
-	useDelRowCallback,
-	useSetRowCallback,
-	useTable,
-} from 'tinybase/ui-react';
+import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { getDeviceId } from '@/utils/device-id';
 
 export const useFeedingSessions = () => {
-	const table = useTable(TABLE_IDS.FEEDING_SESSIONS);
+	const store = useStore();
+	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
 
 	const value = useMemo(
 		() =>
@@ -19,34 +16,38 @@ export const useFeedingSessions = () => {
 		[table],
 	);
 
-	const add = useSetRowCallback(
-		TABLE_IDS.FEEDING_SESSIONS,
-		(item: FeedingSession) => item.id,
-		(item: FeedingSession) => ({ ...item, deviceId: getDeviceId() }),
-		[],
+	const add = useCallback(
+		(item: FeedingSession) => {
+			const { id, ...cells } = item;
+			store.setRow(TABLE_IDS.FEEDING_SESSIONS, id, {
+				...cells,
+				deviceId: getDeviceId(),
+			} as unknown as Record<string, string | number | boolean>);
+		},
+		[store],
 	);
 
-	const update = useSetRowCallback(
-		TABLE_IDS.FEEDING_SESSIONS,
-		(item: FeedingSession) => item.id,
-		(item: FeedingSession) => ({ ...item, deviceId: getDeviceId() }),
-		[],
+	const update = useCallback(
+		(item: FeedingSession) => {
+			const { id, ...cells } = item;
+			store.setRow(TABLE_IDS.FEEDING_SESSIONS, id, {
+				...cells,
+				deviceId: getDeviceId(),
+			} as unknown as Record<string, string | number | boolean>);
+		},
+		[store],
 	);
 
-	const remove = useDelRowCallback(
-		TABLE_IDS.FEEDING_SESSIONS,
-		(id: string) => id,
-		[],
+	const remove = useCallback(
+		(id: string) => {
+			store.delRow(TABLE_IDS.FEEDING_SESSIONS, id);
+		},
+		[store],
 	);
-
-	const replace = useCallback(() => {
-		console.warn('replace is not implemented in useFeedingSessions');
-	}, []);
 
 	return {
 		add,
 		remove,
-		replace,
 		update,
 		value,
 	} as const;
