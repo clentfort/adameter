@@ -18,7 +18,7 @@ describe('useLatestFeedingSession', () => {
 		mockUseFeedingSessions.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: [],
 		});
@@ -38,7 +38,7 @@ describe('useLatestFeedingSession', () => {
 		mockUseFeedingSessions.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: [singleSession],
 		});
@@ -74,7 +74,7 @@ describe('useLatestFeedingSession', () => {
 		mockUseFeedingSessions.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: sessions,
 		});
@@ -110,7 +110,7 @@ describe('useLatestFeedingSession', () => {
 		mockUseFeedingSessions.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: sessions,
 		});
@@ -146,7 +146,7 @@ describe('useLatestFeedingSession', () => {
 		mockUseFeedingSessions.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: sessions,
 		});
@@ -179,7 +179,7 @@ describe('useLatestFeedingSession', () => {
 		const mockHook = mockUseFeedingSessions.mockReturnValue({
 			add: vi.fn(),
 			remove: vi.fn(),
-			replace: vi.fn(),
+
 			update: vi.fn(),
 			value: initialSessions,
 		});
@@ -191,7 +191,7 @@ describe('useLatestFeedingSession', () => {
 			mockHook.mockReturnValue({
 				add: vi.fn(),
 				remove: vi.fn(),
-				replace: vi.fn(),
+
 				update: vi.fn(),
 				value: nextSessions,
 			});

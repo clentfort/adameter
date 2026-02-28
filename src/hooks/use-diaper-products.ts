@@ -5,7 +5,7 @@ import { DiaperProduct } from '@/types/diaper';
 import { getDeviceId } from '@/utils/device-id';
 
 export const useDiaperProducts = () => {
-	const store = useStore();
+	const store = useStore()!;
 	const table = useTable(TABLE_IDS.DIAPER_PRODUCTS, store);
 
 	const value = useMemo(

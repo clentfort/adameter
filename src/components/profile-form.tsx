@@ -1,6 +1,7 @@
 'use client';
 
 import { Check } from 'lucide-react';
+import { fbt } from 'fbtee';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -105,7 +106,7 @@ export default function ProfileForm({
 					<Label htmlFor="sex">
 						<fbt desc="Label for biological sex select">Sex</fbt>
 					</Label>
-					<Select onValueChange={(value) => setSex(value as Sex)} value={sex}>
+					<Select onValueChange={(value: string) => setSex(value as Sex)} value={sex}>
 						<SelectTrigger id="sex">
 							<SelectValue
 								placeholder={

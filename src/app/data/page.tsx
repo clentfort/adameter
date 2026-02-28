@@ -96,7 +96,7 @@ export default function DataPage() {
 	const roomToShow = room ?? getCurrentPerformanceRoom() ?? '';
 
 	const recentLogs = useMemo(() => logs.slice(-10).reverse(), [logs]);
-	const latestLogAt = logs.length > 0 ? logs.at(-1).at : undefined;
+	const latestLogAt = logs.length > 0 ? logs.at(-1)?.at : undefined;
 
 	const handleExport = async () => {
 		setIsLoading(true);
@@ -108,7 +108,7 @@ export default function DataPage() {
 			const files = allData
 				.filter(({ data }) => data.length > 0)
 				.map(({ data, name }) => ({
-					content: toCsv(name, data),
+					content: toCsv(name, data as any),
 					name: `${name}.csv`,
 				}));
 			const zipBlob = await createZip(files);
@@ -140,11 +140,11 @@ export default function DataPage() {
 					string,
 					string | number | boolean
 				>)[];
-				const merged = mergeData(dataStore.value, data);
+				const merged = mergeData(dataStore.value as any[], data);
 				// We no longer have replace, so we add/update each item
 				merged.forEach((item) => {
 					dataStore.update(
-						item as unknown as Parameters<typeof dataStore.update>[0],
+						item as any,
 					);
 				});
 			}
@@ -213,7 +213,7 @@ export default function DataPage() {
 	const store = useStore();
 
 	const handleMigrateDiaperData = () => {
-		const hasChanges = migrateDiaperBrandsToProducts(store);
+		const hasChanges = migrateDiaperBrandsToProducts(store!);
 
 		if (hasChanges) {
 			toast.success('Diaper data migrated successfully.');

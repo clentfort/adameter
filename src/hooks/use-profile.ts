@@ -11,7 +11,7 @@ export const useProfile = () => {
 		STORE_VALUE_PROFILE,
 		(nextProfile: Profile | null) => {
 			if (nextProfile === null) {
-				return undefined;
+				return '';
 			}
 
 			const normalized = structuredClone(nextProfile);
@@ -24,7 +24,7 @@ export const useProfile = () => {
 };
 
 function parseProfile(value: unknown): Profile | null {
-	if (typeof value !== 'string') {
+	if (typeof value !== 'string' || value === '') {
 		return null;
 	}
 
