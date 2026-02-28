@@ -4,10 +4,12 @@ import type { Store } from 'tinybase';
 import PartySocket from 'partysocket';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { createStore } from 'tinybase';
+import { Provider } from 'tinybase/ui-react';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
 import { migrateDiaperBrandsToProducts } from '@/app/diaper/utils/migration';
 import { SplashScreen } from '@/components/splash-screen';
+import { migrateToJsonCells } from '@/lib/tinybase-sync/cell-migration';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
 	logPerformanceEvent,
@@ -57,6 +59,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			await localPersister.startAutoSave();
 
+			migrateToJsonCells(store);
 			migrateDiaperBrandsToProducts(store);
 
 			if (!isDisposed) {
@@ -147,6 +150,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				getDeviceId(),
 			);
 
+			migrateToJsonCells(store);
 			migrateDiaperBrandsToProducts(store);
 
 			if (
@@ -210,7 +214,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 	return (
 		<tinybaseContext.Provider value={{ store: storeRef.current }}>
-			{children}
+			<Provider store={storeRef.current}>{children}</Provider>
 		</tinybaseContext.Provider>
 	);
 }

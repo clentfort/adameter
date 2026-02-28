@@ -46,26 +46,23 @@ export function migrateDiaperBrandsToProducts(store: Store): boolean {
 		const productsTable = store.getTable(TABLE_IDS.DIAPER_PRODUCTS);
 		const changesTable = store.getTable(TABLE_IDS.DIAPER_CHANGES);
 
-		const existingProducts = Object.values(productsTable)
-			.map((row) => JSON.parse(row[ROW_JSON_CELL] as string) as DiaperProduct)
+		const existingProducts = Object.entries(productsTable)
+			.map(([id, row]) => ({ ...row, id }) as unknown as DiaperProduct)
 			.filter(Boolean);
 
-		const changes = Object.values(changesTable)
-			.map((row) => JSON.parse(row[ROW_JSON_CELL] as string) as DiaperChange)
+		const changes = Object.entries(changesTable)
+			.map(([id, row]) => ({ ...row, id }) as unknown as DiaperChange)
 			.filter(Boolean);
 
 		// 1. Seed defaults ONLY for brand new users (no products AND no history)
 		if (existingProducts.length === 0 && changes.length === 0) {
 			DIAPER_BRANDS.filter((b) => b.value !== 'andere').forEach((brand) => {
 				const id = crypto.randomUUID();
-				const product: DiaperProduct = {
-					id,
+				const product: Omit<DiaperProduct, 'id'> = {
 					isReusable: brand.value === 'stoffwindel',
 					name: `${brand.label} Size 1`,
 				};
-				store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
-					[ROW_JSON_CELL]: JSON.stringify(product),
-				});
+				store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, product as any);
 			});
 			hasAnyChanges = true;
 			return;
@@ -94,14 +91,11 @@ export function migrateDiaperBrandsToProducts(store: Store): boolean {
 
 			if (!productMapByName.has(normalizedName)) {
 				const id = crypto.randomUUID();
-				const product: DiaperProduct = {
-					id,
+				const product: Omit<DiaperProduct, 'id'> = {
 					isReusable: brandValue === 'stoffwindel',
 					name,
 				};
-				store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
-					[ROW_JSON_CELL]: JSON.stringify(product),
-				});
+				store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, product as any);
 				productMapByName.set(normalizedName, id);
 				hasAnyChanges = true;
 			}
@@ -127,13 +121,11 @@ export function migrateDiaperBrandsToProducts(store: Store): boolean {
 				flagMigrated !== change ||
 				diaperProductId !== change.diaperProductId
 			) {
-				const updatedChange: DiaperChange = {
+				const { id: _, ...updatedChange } = {
 					...flagMigrated,
 					diaperProductId,
 				};
-				store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, {
-					[ROW_JSON_CELL]: JSON.stringify(updatedChange),
-				});
+				store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, updatedChange as any);
 				hasAnyChanges = true;
 			}
 		});
