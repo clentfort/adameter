@@ -1,5 +1,5 @@
-import { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { subDays } from 'date-fns';
+import { DiaperChange, DiaperProduct } from '@/types/diaper';
 
 /**
  * Sorts diaper products based on frecency (frequency and recency).

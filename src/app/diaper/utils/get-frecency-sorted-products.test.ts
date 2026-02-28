@@ -1,6 +1,6 @@
-import { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { subDays, subHours } from 'date-fns';
 import { describe, expect, it } from 'vitest';
+import { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { getFrecencySortedProducts } from './get-frecency-sorted-products';
 
 describe('getFrecencySortedProducts', () => {
