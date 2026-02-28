@@ -108,7 +108,7 @@ export default function DataPage() {
 			const files = allData
 				.filter(({ data }) => data.length > 0)
 				.map(({ data, name }) => ({
-					content: toCsv(name, data as any),
+					content: toCsv(name, data as Record<string, unknown>[]),
 					name: `${name}.csv`,
 				}));
 			const zipBlob = await createZip(files);
@@ -140,11 +140,11 @@ export default function DataPage() {
 					string,
 					string | number | boolean
 				>)[];
-				const merged = mergeData(dataStore.value as any[], data);
+				const merged = mergeData(dataStore.value as Record<string, unknown>[], data);
 				// We no longer have replace, so we add/update each item
 				merged.forEach((item) => {
 					dataStore.update(
-						item as any,
+						item as Parameters<typeof dataStore.update>[0],
 					);
 				});
 			}

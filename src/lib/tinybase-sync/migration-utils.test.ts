@@ -58,7 +58,7 @@ describe('fromRow', () => {
 			containsStool: true,
 			[ROW_JSON_CELL]: '{"foo": "bar"}',
 		};
-		const result = fromRow<any>('id-1', row);
+		const result = fromRow<Record<string, unknown>>('id-1', row);
 		expect(result[ROW_JSON_CELL]).toBeUndefined();
 		expect(result.containsStool).toBe(true);
 	});
@@ -70,7 +70,7 @@ describe('fromRow', () => {
 			c: 3,
 			[ROW_JSON_CELL]: JSON.stringify({ a: 10, b: 20, c: 30 }),
 		};
-		const result = fromRow<any>('id-1', row);
+		const result = fromRow<Record<string, unknown>>('id-1', row);
 		expect(result.a).toBe(1);
 		expect(result.b).toBe(2);
 		expect(result.c).toBe(3);
