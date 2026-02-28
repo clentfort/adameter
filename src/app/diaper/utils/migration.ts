@@ -1,5 +1,6 @@
 import { Store } from 'tinybase';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { DIAPER_BRANDS } from './diaper-brands';
 
@@ -46,13 +47,8 @@ export function migrateDiaperBrandsToProducts(store: Store): boolean {
 		const productsTable = store.getTable(TABLE_IDS.DIAPER_PRODUCTS);
 		const changesTable = store.getTable(TABLE_IDS.DIAPER_CHANGES);
 
-		const existingProducts = Object.entries(productsTable)
-			.map(([id, row]) => ({ ...row, id }) as unknown as DiaperProduct)
-			.filter(Boolean);
-
-		const changes = Object.entries(changesTable)
-			.map(([id, row]) => ({ ...row, id }) as unknown as DiaperChange)
-			.filter(Boolean);
+		const existingProducts = fromTable<DiaperProduct>(productsTable);
+		const changes = fromTable<DiaperChange>(changesTable);
 
 		// 1. Seed defaults ONLY for brand new users (no products AND no history)
 		if (existingProducts.length === 0 && changes.length === 0) {
