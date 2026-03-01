@@ -115,7 +115,7 @@ describe('useSortedEvents', () => {
 	});
 
 	it('should handle invalid date strings gracefully', () => {
-		const invalidEvents: any[] = [
+		const invalidEvents: Partial<Event>[] = [
 			{
 				id: '1',
 				startDate: 'not-a-date',
@@ -128,7 +128,7 @@ describe('useSortedEvents', () => {
 			},
 		];
 		const { result } = renderHook(() =>
-			useSortedEvents(invalidEvents, (e) => e.startDate),
+			useSortedEvents(invalidEvents as Event[], (e) => e.startDate),
 		);
 		// It should not crash, and for now it returns dateKey as the string itself or "undefined"
 		expect(result.current).toBeDefined();
