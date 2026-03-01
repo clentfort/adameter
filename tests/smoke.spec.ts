@@ -8,6 +8,7 @@ const pages = [
 	{ name: 'Growth', path: '/growth' },
 	{ name: 'Statistics', path: '/statistics' },
 	{ name: 'Settings', path: '/settings' },
+	{ name: 'Data', path: '/data' },
 	{ name: 'Privacy Policy', path: '/legal/privacy-policy' },
 	{ name: 'Imprint', path: '/legal/imprint' },
 ];

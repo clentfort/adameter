@@ -21,7 +21,7 @@ test.describe('Child Profile', () => {
 		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
 
 		// 2. Edit profile in settings
-		await page.getByTestId('settings-button').click();
+		await page.getByRole('button', { name: /settings/i }).click();
 		await page.getByTestId('settings-profile').click();
 
 		// Verify initial data
@@ -34,7 +34,9 @@ test.describe('Child Profile', () => {
 		await page.getByRole('button', { name: 'Save Profile' }).click();
 
 		// Should be back to main settings
-		await expect(page.getByTestId('settings-profile')).toBeVisible();
+		await expect(
+			page.getByRole('button', { name: /Ada Lovelace|Profile|Profil/ }),
+		).toBeVisible();
 		await expect(page.getByText('Ada Lovelace')).toBeVisible();
 
 		// 3. Verify it persists across reloads
@@ -43,7 +45,7 @@ test.describe('Child Profile', () => {
 		await expect(page.getByText('AdaMeter')).toBeVisible();
 		// Wait for profile prompt to be gone (if it appeared briefly)
 		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
-		await page.getByTestId('settings-button').click();
+		await page.getByRole('button', { name: /settings/i }).click();
 		await page.getByTestId('settings-profile').click();
 		await expect(page.getByLabel(/Name/)).toHaveValue('Ada Lovelace');
 	});
@@ -59,8 +61,8 @@ test.describe('Child Profile', () => {
 		await page.getByRole('button', { name: 'Save Profile' }).click();
 
 		// Create a room
-		await page.getByTestId('settings-button').click();
-		await page.getByTestId('settings-sharing').click();
+		await page.getByRole('button', { name: /settings/i }).click();
+		await page.getByRole('button', { name: /sharing|teilen/i }).click();
 		await page
 			.getByRole('tab', { name: /create room|raum erstellen/i })
 			.click();
@@ -81,7 +83,9 @@ test.describe('Child Profile', () => {
 		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
 
 		// Check settings again to be sure
-		await page.getByTestId('settings-button').click({ force: true });
+		await page
+			.getByRole('button', { name: /settings/i })
+			.click({ force: true });
 		await page.getByTestId('settings-profile').click();
 		await expect(page.getByLabel(/Name/)).toHaveValue('Baby Ada');
 	});
