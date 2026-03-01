@@ -41,13 +41,10 @@ export async function hashRoomId(roomName: string): Promise<string> {
 export async function getEncryptionKey(roomName: string): Promise<CryptoKey> {
 	const msgUint8 = new TextEncoder().encode(`key:${roomName}`);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-	return await crypto.subtle.importKey(
-		'raw',
-		hashBuffer,
-		ALGORITHM,
-		false,
-		['encrypt', 'decrypt'],
-	);
+	return await crypto.subtle.importKey('raw', hashBuffer, ALGORITHM, false, [
+		'encrypt',
+		'decrypt',
+	]);
 }
 
 async function encryptValue(
@@ -191,8 +188,10 @@ export async function encryptChanges(
 		if (table === undefined) {
 			encryptedTableChanges[tableId] = undefined;
 		} else {
-			const encryptedTable: Record<Id, Record<Id, CellOrUndefined> | undefined> =
-				{};
+			const encryptedTable: Record<
+				Id,
+				Record<Id, CellOrUndefined> | undefined
+			> = {};
 			for (const [rowId, row] of Object.entries(table)) {
 				if (row === undefined) {
 					encryptedTable[rowId] = undefined;
@@ -236,8 +235,10 @@ export async function decryptChanges(
 		if (table === undefined) {
 			decryptedTableChanges[tableId] = undefined;
 		} else {
-			const decryptedTable: Record<Id, Record<Id, CellOrUndefined> | undefined> =
-				{};
+			const decryptedTable: Record<
+				Id,
+				Record<Id, CellOrUndefined> | undefined
+			> = {};
 			for (const [rowId, row] of Object.entries(table)) {
 				if (row === undefined) {
 					decryptedTable[rowId] = undefined;
@@ -258,7 +259,9 @@ export async function decryptChanges(
 
 	for (const [valueId, value] of Object.entries(valueChanges)) {
 		decryptedValueChanges[valueId] =
-			value === undefined ? undefined : await decryptValue(value as string, key);
+			value === undefined
+				? undefined
+				: await decryptValue(value as string, key);
 	}
 
 	return [decryptedTableChanges, decryptedValueChanges, internal];

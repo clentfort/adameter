@@ -48,7 +48,10 @@ export function createSecurePartyKitPersister(
 
 	const getPersisted = async () => await getOrSetStore();
 
-	const setPersisted = async (_getContent: () => Content, changes?: Changes) => {
+	const setPersisted = async (
+		_getContent: () => Content,
+		changes?: Changes,
+	) => {
 		if (changes) {
 			const encryptedChanges = await encryptChanges(changes, encryptionKey);
 			connection.send(SET_CHANGES + jsonString(encryptedChanges));
@@ -68,7 +71,10 @@ export function createSecurePartyKitPersister(
 			if (typeof data === 'string' && data.startsWith(SET_CHANGES)) {
 				try {
 					const encryptedChanges = jsonParse(data.slice(1));
-					const decrypted = await decryptChanges(encryptedChanges, encryptionKey);
+					const decrypted = await decryptChanges(
+						encryptedChanges,
+						encryptionKey,
+					);
 					listener(undefined, decrypted);
 				} catch (error) {
 					onIgnoredError?.(error);

@@ -12,11 +12,11 @@ import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
-import { createSecurePartyKitPersister } from '@/lib/tinybase-sync/secure-partykit-persister';
 import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
 } from '@/lib/tinybase-sync/remote-bootstrap';
+import { createSecurePartyKitPersister } from '@/lib/tinybase-sync/secure-partykit-persister';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getEncryptionKey, hashRoomId } from '@/utils/crypto';
 import { getDeviceId } from '@/utils/device-id';
