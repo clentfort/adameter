@@ -25,7 +25,7 @@ export default function DiaperPage() {
 	) => {
 		if (
 			totalChanges % 100 === 0 ||
-			(change.abnormalities && change.abnormalities.includes('🎉'))
+			(change.notes && change.notes.includes('🎉'))
 		) {
 			setShowConfetti(true);
 		}

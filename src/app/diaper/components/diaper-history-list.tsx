@@ -152,15 +152,13 @@ export default function DiaperHistoryList() {
 												</fbt>
 											</p>
 										)}
-										{change.abnormalities && (
+										{change.notes && (
 											<div className="text-sm">
 												<fbt desc="Prefix to a user defined text on notes on a diaper change (i.e. rashes, redness.)">
 													Notes
 												</fbt>
-												:
-												<Markdown className="text-sm">
-													{change.abnormalities}
-												</Markdown>
+												:{' '}
+												<Markdown className="text-sm">{change.notes}</Markdown>
 											</div>
 										)}
 									</div>

@@ -9,6 +9,7 @@ import {
 export type JoinStrategy = 'merge' | 'overwrite' | 'clear';
 
 interface DataSynchronizationContextProps {
+	isHydrated: boolean;
 	joinRoom: (roomId: string, strategy: JoinStrategy) => void;
 	joinStrategy: JoinStrategy;
 	leaveRoom: () => void;
@@ -18,6 +19,7 @@ interface DataSynchronizationContextProps {
 
 export const DataSynchronizationContext =
 	createContext<DataSynchronizationContextProps>({
+		isHydrated: false,
 		joinRoom: () => {},
 		joinStrategy: 'overwrite',
 		leaveRoom: () => {},
@@ -34,6 +36,7 @@ export function DataSynchronizationProvider({
 }: DataSynchronizationProviderProps) {
 	const [room, setRoom] = useState<string | undefined>(undefined);
 	const [joinStrategy, setJoinStrategy] = useState<JoinStrategy>('overwrite');
+	const [isHydrated, setIsHydrated] = useState(false);
 
 	const joinRoom = (roomId: string, strategy: JoinStrategy) => {
 		setJoinStrategy(strategy);
@@ -46,17 +49,23 @@ export function DataSynchronizationProvider({
 	};
 
 	useEffect(() => {
-		const room = localStorage.getItem('room');
-		if (room) {
-			setRoom(room);
-			setCurrentPerformanceRoom(room);
+		const restoredRoom = localStorage.getItem('room');
+		if (restoredRoom) {
+			setRoom(restoredRoom);
+			setCurrentPerformanceRoom(restoredRoom);
 			logPerformanceEvent('sync.room.restored', {
-				metadata: { room },
+				metadata: { room: restoredRoom },
 			});
 		}
+
+		setIsHydrated(true);
 	}, []);
 
 	useEffect(() => {
+		if (!isHydrated) {
+			return;
+		}
+
 		setCurrentPerformanceRoom(room);
 		logPerformanceEvent(
 			'sync.room.changed',
@@ -73,11 +82,18 @@ export function DataSynchronizationProvider({
 			return;
 		}
 		localStorage.setItem('room', room);
-	}, [room]);
+	}, [isHydrated, room]);
 
 	return (
 		<DataSynchronizationContext.Provider
-			value={{ joinRoom, joinStrategy, leaveRoom, room, setRoom }}
+			value={{
+				isHydrated,
+				joinRoom,
+				joinStrategy,
+				leaveRoom,
+				room,
+				setRoom,
+			}}
 		>
 			{children}
 		</DataSynchronizationContext.Provider>

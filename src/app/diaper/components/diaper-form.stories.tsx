@@ -51,12 +51,12 @@ export const AddModeWithPresetStool: AddStory = {
 export const EditMode: EditStory = {
 	args: {
 		change: {
-			abnormalities: 'Slight rash noted.',
 			containsStool: true,
 			containsUrine: true,
 			diaperBrand: DIAPER_BRANDS[1].value,
 			id: 'diaper-123',
 			leakage: true,
+			notes: 'Slight rash noted.',
 			temperature: 37.0,
 			timestamp: yesterday.toISOString(),
 		},
@@ -71,12 +71,12 @@ export const EditModeUrineOnly: EditStory = {
 	args: {
 		...EditMode.args!,
 		change: {
-			abnormalities: '',
 			containsStool: false,
 			containsUrine: true,
 			diaperBrand: 'andere', // Test with a non-predefined brand
 			id: 'diaper-124',
 			leakage: false,
+			notes: '',
 			temperature: 36.5,
 			timestamp: now.toISOString(),
 		},

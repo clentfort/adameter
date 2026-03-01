@@ -104,8 +104,8 @@ export default function DiaperForm({
 	const [hasLeakage, setHasLeakage] = useState(
 		'change' in props ? (props.change.leakage ?? false) : false,
 	);
-	const [abnormalities, setAbnormalities] = useState(
-		'change' in props ? (props.change.abnormalities ?? '') : '',
+	const [notes, setNotes] = useState(
+		'change' in props ? (props.change.notes ?? '') : '',
 	);
 
 	const change = 'change' in props ? props.change : undefined;
@@ -126,7 +126,7 @@ export default function DiaperForm({
 
 		setTemperature(change.temperature ? change.temperature.toString() : '');
 		setHasLeakage(change.leakage || false);
-		setAbnormalities(change.abnormalities || '');
+		setNotes(change.notes || '');
 	}, [change]);
 
 	const handleSubmit = () => {
@@ -138,12 +138,12 @@ export default function DiaperForm({
 
 		const updatedChange: DiaperChange = {
 			...change,
-			abnormalities: abnormalities || undefined,
 			containsStool,
 			containsUrine,
 			diaperProductId: diaperProductId || undefined,
 			id: change?.id || Date.now().toString(),
 			leakage: hasLeakage || undefined,
+			notes: notes || undefined,
 			pottyStool,
 			pottyUrine,
 			temperature: temperature ? Number.parseFloat(temperature) : undefined,
@@ -364,12 +364,12 @@ export default function DiaperForm({
 						</Label>
 						<Textarea
 							id="edit-notes"
-							onChange={(e) => setAbnormalities(e.target.value)}
+							onChange={(e) => setNotes(e.target.value)}
 							placeholder={fbt(
 								'e.g. redness, rash, etc.',
 								'Placeholder text for a textbox to note any notes',
 							)}
-							value={abnormalities}
+							value={notes}
 						/>
 					</div>
 				</div>

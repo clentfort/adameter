@@ -15,5 +15,15 @@ export const TABLE_IDS = {
 	TEETHING: 'teething',
 } as const;
 
+export const INTERNAL_TABLE_IDS = {
+	MIGRATIONS: '_migrations',
+} as const;
+
+export const MIGRATION_ROW_CELLS = {
+	APPLIED_AT: 'appliedAt',
+	APPLIED_BY_DEVICE_ID: 'appliedByDeviceId',
+	DESCRIPTION: 'description',
+} as const;
+
 export const ROW_JSON_CELL = 'json';
 export const ROW_ORDER_CELL = 'order';

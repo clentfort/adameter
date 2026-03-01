@@ -7,7 +7,7 @@ const columns: { [key: string]: string[] } = {
 		'timestamp',
 		'containsUrine',
 		'containsStool',
-		'abnormalities',
+		'notes',
 		'diaperBrand',
 		'diaperProductId',
 		'leakage',
@@ -119,7 +119,23 @@ export const fromCsv = (csv: string) => {
 			return value;
 		},
 	});
-	return parsed.data;
+
+	return parsed.data.map((row) => {
+		const normalizedRow = row as Record<string, unknown>;
+
+		if (
+			typeof normalizedRow.notes !== 'string' &&
+			typeof normalizedRow.abnormalities === 'string'
+		) {
+			normalizedRow.notes = normalizedRow.abnormalities;
+		}
+
+		if ('abnormalities' in normalizedRow) {
+			delete normalizedRow.abnormalities;
+		}
+
+		return normalizedRow;
+	});
 };
 
 export const mergeData = <T extends { id: string }>(store: T[], data: T[]) => {

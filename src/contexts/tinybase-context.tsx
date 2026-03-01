@@ -7,14 +7,12 @@ import { createStore } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
 import { Provider } from 'tinybase/ui-react';
-import { migrateDiaperBrandsToProducts } from '@/app/diaper/utils/migration';
 import { SplashScreen } from '@/components/splash-screen';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
 	logPerformanceEvent,
 	startPerformanceTimer,
 } from '@/lib/performance-logging';
-import { migrateToJsonCells } from '@/lib/tinybase-sync/cell-migration';
 import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
@@ -23,6 +21,7 @@ import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
 } from '@/lib/tinybase-sync/remote-bootstrap';
+import { runMigrations } from '@/migrations';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
 
@@ -37,9 +36,12 @@ interface TinybaseProviderProps {
 }
 
 export function TinybaseProvider({ children }: TinybaseProviderProps) {
-	const { joinStrategy, room } = useContext(DataSynchronizationContext);
+	const { isHydrated, joinStrategy, room } = useContext(
+		DataSynchronizationContext,
+	);
 	const storeRef = useRef<Store>(defaultStore);
-	const [isReady, setIsReady] = useState(false);
+	const [isLocalReady, setIsLocalReady] = useState(false);
+	const [isSyncReady, setIsSyncReady] = useState(false);
 
 	useEffect(() => {
 		let isDisposed = false;
@@ -59,11 +61,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			await localPersister.startAutoSave();
 
-			migrateToJsonCells(store);
-			migrateDiaperBrandsToProducts(store);
+			runMigrations(store, { deviceId: getDeviceId() });
 
 			if (!isDisposed) {
-				setIsReady(true);
+				setIsLocalReady(true);
 			}
 		};
 
@@ -75,7 +76,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			});
 
 			if (!isDisposed) {
-				setIsReady(true);
+				setIsLocalReady(true);
 			}
 		});
 
@@ -87,20 +88,47 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	}, []);
 
 	useEffect(() => {
-		if (!isReady || !room) {
+		if (!isHydrated || !isLocalReady) {
+			return;
+		}
+
+		if (!room) {
+			setIsSyncReady(true);
 			return;
 		}
 
 		let isDisposed = false;
 		const store = storeRef.current;
+		const deviceId = getDeviceId();
 		let remotePersister: ReturnType<typeof createPartyKitPersister> | undefined;
 		let connection: PartySocket | undefined;
+
+		setIsSyncReady(false);
+
+		const loadRemoteAndApplyMigrations = async () => {
+			if (!remotePersister) {
+				return;
+			}
+
+			await remotePersister.load();
+			const migrationResult = runMigrations(store, { deviceId });
+			if (migrationResult.hasChanges && joinStrategy !== 'clear') {
+				await remotePersister.save();
+			}
+		};
 
 		const onOpen = () => {
 			logPerformanceEvent('sync.partykit.reconnected', {
 				metadata: { room },
 			});
-			void remotePersister?.load();
+			void loadRemoteAndApplyMigrations().catch((error) => {
+				logPerformanceEvent('sync.partykit.provider.error', {
+					metadata: {
+						error: String(error),
+						room,
+					},
+				});
+			});
 		};
 
 		const onVisibilityChange = () => {
@@ -109,7 +137,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 					metadata: { room },
 				});
 				connection?.reconnect();
-				void remotePersister?.load();
+				void loadRemoteAndApplyMigrations().catch((error) => {
+					logPerformanceEvent('sync.partykit.provider.error', {
+						metadata: {
+							error: String(error),
+							room,
+						},
+					});
+				});
 			}
 		};
 
@@ -147,16 +182,15 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				store,
 				localSnapshot,
 				joinStrategy,
-				getDeviceId(),
+				deviceId,
 			);
-
-			migrateToJsonCells(store);
-			migrateDiaperBrandsToProducts(store);
+			const migrationResult = runMigrations(store, { deviceId });
 
 			if (
 				bootstrapResult.decision === 'restore-local' ||
 				bootstrapResult.decision === 'keep-empty' ||
-				bootstrapResult.decision === 'merge'
+				bootstrapResult.decision === 'merge' ||
+				(migrationResult.hasChanges && joinStrategy !== 'clear')
 			) {
 				await remotePersister.save();
 			}
@@ -165,6 +199,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				metadata: {
 					decision: bootstrapResult.decision,
 					localHadData: bootstrapResult.localHadData,
+					migrationsApplied: migrationResult.appliedMigrationIds.join(','),
 					remoteHadData: bootstrapResult.remoteHadData,
 					room,
 				},
@@ -179,6 +214,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			logPerformanceEvent('sync.partykit.provider.created', {
 				metadata: { room },
 			});
+
+			if (!isDisposed) {
+				setIsSyncReady(true);
+			}
 		};
 
 		void connectRoomSync().catch((error) => {
@@ -188,6 +227,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 					room,
 				},
 			});
+
+			if (!isDisposed) {
+				setIsSyncReady(true);
+			}
 		});
 
 		return () => {
@@ -206,9 +249,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			void remotePersister.stopAutoPersisting(true);
 			void remotePersister.destroy();
 		};
-	}, [isReady, room, joinStrategy]);
+	}, [isHydrated, isLocalReady, joinStrategy, room]);
 
-	if (!isReady) {
+	if (!isHydrated || !isLocalReady || !isSyncReady) {
 		return <SplashScreen />;
 	}
 

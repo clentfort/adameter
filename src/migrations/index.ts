@@ -1,0 +1,67 @@
+import type { Store } from 'tinybase';
+import type {
+	Migration,
+	MigrationRunOptions,
+	MigrationRunResult,
+} from './types';
+import {
+	INTERNAL_TABLE_IDS,
+	MIGRATION_ROW_CELLS,
+} from '@/lib/tinybase-sync/constants';
+import { renameDiaperAbnormalitiesToNotesMigration } from './2026-03-01-rename-diaper-abnormalities-to-notes';
+
+/**
+ * Ordered migration list (oldest -> newest).
+ *
+ * Keep this explicit and append-only.
+ */
+export const migrations: readonly Migration[] = [
+	renameDiaperAbnormalitiesToNotesMigration,
+];
+
+export function runMigrations(
+	store: Store,
+	options: MigrationRunOptions = {},
+): MigrationRunResult {
+	const appliedMigrationIds: string[] = [];
+	const skippedMigrationIds: string[] = [];
+	let hasChanges = false;
+
+	for (const migration of migrations) {
+		let wasAlreadyApplied = false;
+
+		store.transaction(() => {
+			if (store.hasRow(INTERNAL_TABLE_IDS.MIGRATIONS, migration.id)) {
+				wasAlreadyApplied = true;
+				return;
+			}
+
+			migration.migrate(store);
+
+			const metadata: Record<string, string | number | boolean> = {
+				[MIGRATION_ROW_CELLS.APPLIED_AT]: Date.now(),
+				[MIGRATION_ROW_CELLS.DESCRIPTION]: migration.description,
+			};
+
+			if (options.deviceId) {
+				metadata[MIGRATION_ROW_CELLS.APPLIED_BY_DEVICE_ID] = options.deviceId;
+			}
+
+			store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, migration.id, metadata);
+		});
+
+		if (wasAlreadyApplied) {
+			skippedMigrationIds.push(migration.id);
+			continue;
+		}
+
+		hasChanges = true;
+		appliedMigrationIds.push(migration.id);
+	}
+
+	return {
+		appliedMigrationIds,
+		hasChanges,
+		skippedMigrationIds,
+	};
+}

@@ -5,31 +5,31 @@ describe('CSV Integration', () => {
 	it('should correctly import what it exports, respecting type definitions for defaults', () => {
 		const data = [
 			{
-				abnormalities: 'None',
 				containsStool: 'false',
 				containsUrine: 'true',
 				diaperBrand: 'Pampers',
 				id: '1', // Valid case
 				leakage: 'true',
+				notes: 'None',
 				temperature: '37.5',
 			},
 			{
-				abnormalities: '',
 				containsStool: 'not-a-boolean', // required boolean -> false
 				containsUrine: '', // required boolean -> false
 				diaperBrand: '',
 				id: '2', // Empty and invalid values
 				leakage: '', // optional boolean -> undefined
+				notes: '',
 				temperature: 'invalid-temp', // optional numeric -> undefined
 				timestamp: '2022-01-01',
 			},
 			{
-				abnormalities: 'A bit reddish',
 				containsStool: 'FALSE',
 				containsUrine: 'TRUE',
 				diaperBrand: 'Huggies',
 				id: '3', // Case-insensitivity and different values
 				leakage: 'false',
+				notes: 'A bit reddish',
 				temperature: '', // optional numeric -> undefined
 				timestamp: '2022-01-02',
 			},
@@ -40,7 +40,6 @@ describe('CSV Integration', () => {
 
 		const expectedData = [
 			{
-				abnormalities: 'None',
 				containsStool: false,
 				containsUrine: true,
 				deviceId: '',
@@ -48,11 +47,11 @@ describe('CSV Integration', () => {
 				diaperProductId: '',
 				id: '1',
 				leakage: true,
+				notes: 'None',
 				temperature: 37.5,
 				timestamp: '',
 			},
 			{
-				abnormalities: '',
 				containsStool: false,
 				containsUrine: false,
 				deviceId: '',
@@ -60,11 +59,11 @@ describe('CSV Integration', () => {
 				diaperProductId: '',
 				id: '2',
 				leakage: undefined,
+				notes: '',
 				temperature: undefined,
 				timestamp: '2022-01-01',
 			},
 			{
-				abnormalities: 'A bit reddish',
 				containsStool: false,
 				containsUrine: true,
 				deviceId: '',
@@ -72,12 +71,29 @@ describe('CSV Integration', () => {
 				diaperProductId: '',
 				id: '3',
 				leakage: false,
+				notes: 'A bit reddish',
 				temperature: undefined,
 				timestamp: '2022-01-02',
 			},
 		];
 
 		expect(parsedData).toEqual(expectedData);
+	});
+
+	it('maps legacy diaper abnormalities CSV columns to notes', () => {
+		const csv =
+			'id,containsUrine,containsStool,abnormalities\nlegacy-1,true,false,Legacy notes';
+
+		const parsed = fromCsv(csv);
+
+		expect(parsed).toEqual([
+			{
+				containsStool: false,
+				containsUrine: true,
+				id: 'legacy-1',
+				notes: 'Legacy notes',
+			},
+		]);
 	});
 
 	it('should correctly parse required numeric fields for feeding sessions', () => {

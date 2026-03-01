@@ -6,7 +6,6 @@ import type {
 	PerformanceSummary,
 } from '@/lib/performance-logging';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useStore } from 'tinybase/ui-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -27,7 +26,6 @@ import {
 	PERFORMANCE_LOG_UPDATED_EVENT,
 	setPerformanceDeviceLabel,
 } from '@/lib/performance-logging';
-import { migrateDiaperBrandsToProducts } from '../diaper/utils/migration';
 import { fromCsv, mergeData, toCsv } from './utils/csv';
 import { createZip, downloadZip, extractFiles } from './utils/zip';
 
@@ -235,18 +233,6 @@ export default function DataPage() {
 		toast.success('Diagnostics log cleared.');
 	};
 
-	const store = useStore();
-
-	const handleMigrateDiaperData = () => {
-		const hasChanges = migrateDiaperBrandsToProducts(store!);
-
-		if (hasChanges) {
-			toast.success('Diaper data migrated successfully.');
-		} else {
-			toast.success('No diaper data needed migration.');
-		}
-	};
-
 	return (
 		<div className="space-y-4">
 			<Card>
@@ -393,27 +379,6 @@ export default function DataPage() {
 						onChange={handleImport}
 						type="file"
 					/>
-				</CardContent>
-			</Card>
-
-			<Card>
-				<CardHeader>
-					<CardTitle>Data Maintenance</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
-					<p className="text-sm text-muted-foreground">
-						Perform manual data migrations and cleanup tasks.
-					</p>
-					<div className="space-y-2">
-						<p className="text-sm font-medium">Migrate Diaper Data</p>
-						<p className="text-xs text-muted-foreground">
-							Updates existing diaper records by parsing German notes (e.g.,
-							&quot;Urin abgehalten&quot;) into dedicated data fields.
-						</p>
-						<Button onClick={handleMigrateDiaperData} variant="outline">
-							Migrate Diaper Data
-						</Button>
-					</div>
 				</CardContent>
 			</Card>
 		</div>

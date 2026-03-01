@@ -12,8 +12,6 @@ export interface DiaperProduct extends BaseEntity {
 }
 
 export interface DiaperChange extends BaseEntity {
-	/** Optional notes about abnormalities, displayed as "Notes" in the UI. */
-	abnormalities?: string;
 	/** Whether the diaper contains stool. */
 	containsStool: boolean;
 	/** Whether the diaper contains urine. */
@@ -24,6 +22,8 @@ export interface DiaperChange extends BaseEntity {
 	diaperProductId?: string;
 	/** Optional leakage indicator. */
 	leakage?: boolean;
+	/** Optional user-entered notes shown in the diaper UI. */
+	notes?: string;
 	/** Whether stool went into the potty. */
 	pottyStool?: boolean;
 	/** Whether urine went into the potty. */
