@@ -1,11 +1,13 @@
 'use client';
 
+import type { ChangeEvent } from 'react';
 import { fbt } from 'fbtee';
 import {
 	Archive,
 	ArrowLeft,
 	ChevronRight,
 	Coins,
+	Database,
 	Globe,
 	Moon,
 	Package,
@@ -21,7 +23,8 @@ import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
 	Select,
 	SelectContent,
@@ -29,12 +32,38 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
+import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
+import { useEvents } from '@/hooks/use-events';
+import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
+import { fromCsv, mergeData, toCsv } from '@/utils/data-transfer/csv';
+import {
+	createZip,
+	downloadZip,
+	extractFiles,
+} from '@/utils/data-transfer/zip';
+
+type CsvImportRow = {
+	id: string;
+} & Record<string, boolean | number | string | undefined>;
+
+function importRows<T extends { id: string }>(
+	storeState: {
+		update: (item: T) => void;
+		value: readonly T[];
+	},
+	rows: CsvImportRow[],
+) {
+	const mergedRows = mergeData(storeState.value as T[], rows as unknown as T[]);
+	mergedRows.forEach((item) => storeState.update(item));
+}
 
 export default function SettingsPage() {
 	const [profile, setProfile] = useProfile();
@@ -43,13 +72,102 @@ export default function SettingsPage() {
 	const [currency, setCurrency] = useCurrency();
 	const { room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
+	const { toast } = useToast();
 
 	const [activeSection, setActiveSection] = useState<
-		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers'
+		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers' | 'data'
 	>('main');
 
 	const updateLocale = async (code: Locale) => {
 		await setLocale(code);
+	};
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const diaperChangesState = useDiaperChanges();
+	const diaperProductsState = useDiaperProducts();
+	const eventsState = useEvents();
+	const feedingSessionsState = useFeedingSessions();
+	const growthMeasurementsState = useGrowthMeasurements();
+
+	const dataStores = {
+		diaperChanges: diaperChangesState,
+		diaperProducts: diaperProductsState,
+		events: eventsState,
+		feedingSessions: feedingSessionsState,
+		growthMeasurements: growthMeasurementsState,
+	};
+
+	const handleExport = async () => {
+		setIsLoading(true);
+		try {
+			const files = (
+				[
+					{ data: diaperChangesState.value, name: 'diaperChanges' },
+					{ data: diaperProductsState.value, name: 'diaperProducts' },
+					{ data: eventsState.value, name: 'events' },
+					{ data: feedingSessionsState.value, name: 'feedingSessions' },
+					{ data: growthMeasurementsState.value, name: 'growthMeasurements' },
+				] as const
+			)
+				.filter(({ data }) => data.length > 0)
+				.map(({ data, name }) => ({
+					content: toCsv(name, data as unknown as Record<string, unknown>[]),
+					name: `${name}.csv`,
+				}));
+
+			const zipBlob = await createZip(files);
+			downloadZip(zipBlob);
+			toast.success(
+				fbt('Data exported successfully.', 'Export success message'),
+			);
+		} catch {
+			toast.error(fbt('Failed to export data.', 'Export error message'));
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (!file) {
+			return;
+		}
+
+		setIsLoading(true);
+		try {
+			const files = await extractFiles(file);
+			for (const { content, name } of files) {
+				const data = fromCsv(content) as CsvImportRow[];
+
+				switch (name as keyof typeof dataStores) {
+					case 'diaperChanges':
+						importRows(diaperChangesState, data);
+						break;
+					case 'diaperProducts':
+						importRows(diaperProductsState, data);
+						break;
+					case 'events':
+						importRows(eventsState, data);
+						break;
+					case 'feedingSessions':
+						importRows(feedingSessionsState, data);
+						break;
+					case 'growthMeasurements':
+						importRows(growthMeasurementsState, data);
+						break;
+					default:
+						break;
+				}
+			}
+			toast.success(
+				fbt('Data imported successfully.', 'Import success message'),
+			);
+		} catch {
+			toast.error(fbt('Failed to import data.', 'Import error message'));
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	const renderMain = () => (
@@ -151,6 +269,29 @@ export default function SettingsPage() {
 						<p className="text-sm text-muted-foreground">
 							<fbt desc="Subtext for diaper products settings">
 								Manage brands, sizes and costs
+							</fbt>
+						</p>
+					</div>
+				</div>
+				<ChevronRight className="h-5 w-5 text-muted-foreground" />
+			</button>
+
+			<button
+				className="w-full flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm hover:bg-accent transition-colors"
+				data-testid="settings-data"
+				onClick={() => setActiveSection('data')}
+			>
+				<div className="flex items-center gap-3">
+					<div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600 dark:text-purple-300">
+						<Database className="h-5 w-5" />
+					</div>
+					<div className="text-left">
+						<p className="font-medium">
+							<fbt desc="Label for data settings">Data Management</fbt>
+						</p>
+						<p className="text-sm text-muted-foreground">
+							<fbt desc="Subtext for data settings">
+								Import and export your data
 							</fbt>
 						</p>
 					</div>
@@ -406,6 +547,54 @@ export default function SettingsPage() {
 		</div>
 	);
 
+	const renderData = () => (
+		<div className="space-y-4 w-full">
+			<Card>
+				<CardHeader>
+					<CardTitle>
+						<fbt desc="Export data card title">Export Data</fbt>
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="mb-4 text-sm">
+						<fbt desc="Export data description">
+							Download all your data as a ZIP file containing CSVs.
+						</fbt>
+					</p>
+					<Button disabled={isLoading} onClick={handleExport}>
+						{isLoading ? (
+							<fbt desc="Exporting button text">Exporting...</fbt>
+						) : (
+							<fbt desc="Export button text">Export</fbt>
+						)}
+					</Button>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>
+						<fbt desc="Import data card title">Import Data</fbt>
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="mb-4 text-sm">
+						<fbt desc="Import data description">
+							Import data from a ZIP file containing CSVs. Existing data will
+							not be overwritten.
+						</fbt>
+					</p>
+					<Input
+						accept=".zip"
+						disabled={isLoading}
+						onChange={handleImport}
+						type="file"
+					/>
+				</CardContent>
+			</Card>
+		</div>
+	);
+
 	const getTitle = () => {
 		switch (activeSection) {
 			case 'profile':
@@ -414,6 +603,8 @@ export default function SettingsPage() {
 				return fbt('Appearance', 'Title for appearance settings section');
 			case 'sharing':
 				return fbt('Sharing', 'Title for sharing settings section');
+			case 'data':
+				return fbt('Data Management', 'Title for data settings section');
 			case 'diapers':
 				if (isAddingProduct)
 					return fbt('Add Product', 'Title for adding a product');
@@ -452,6 +643,7 @@ export default function SettingsPage() {
 			{activeSection === 'appearance' && renderAppearance()}
 			{activeSection === 'sharing' && renderSharing()}
 			{activeSection === 'diapers' && renderDiapers()}
+			{activeSection === 'data' && renderData()}
 		</div>
 	);
 }

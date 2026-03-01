@@ -10,10 +10,6 @@ import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
-	logPerformanceEvent,
-	startPerformanceTimer,
-} from '@/lib/performance-logging';
-import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
@@ -53,11 +49,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		);
 
 		const initialize = async () => {
-			const loadTimer = startPerformanceTimer(
-				'tinybase.persistence.local.load',
-			);
 			await localPersister.load();
-			loadTimer.end();
 
 			await localPersister.startAutoSave();
 
@@ -68,13 +60,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 		};
 
-		void initialize().catch((error) => {
-			logPerformanceEvent('tinybase.persistence.local.failed', {
-				metadata: {
-					error: String(error),
-				},
-			});
-
+		void initialize().catch(() => {
 			if (!isDisposed) {
 				setIsLocalReady(true);
 			}
@@ -120,33 +106,13 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		};
 
 		const onOpen = () => {
-			logPerformanceEvent('sync.partykit.reconnected', {
-				metadata: { room },
-			});
-			void loadRemoteAndApplyMigrations().catch((error) => {
-				logPerformanceEvent('sync.partykit.provider.error', {
-					metadata: {
-						error: String(error),
-						room,
-					},
-				});
-			});
+			void loadRemoteAndApplyMigrations().catch(() => {});
 		};
 
 		const onVisibilityChange = () => {
 			if (document.visibilityState === 'visible') {
-				logPerformanceEvent('sync.partykit.visibility_visible', {
-					metadata: { room },
-				});
 				connection?.reconnect();
-				void loadRemoteAndApplyMigrations().catch((error) => {
-					logPerformanceEvent('sync.partykit.provider.error', {
-						metadata: {
-							error: String(error),
-							room,
-						},
-					});
-				});
+				void loadRemoteAndApplyMigrations().catch(() => {});
 			}
 		};
 
@@ -168,14 +134,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				store,
 				connection,
 				undefined,
-				(error) => {
-					logPerformanceEvent('sync.partykit.provider.error', {
-						metadata: {
-							error: String(error),
-							room,
-						},
-					});
-				},
+				() => {},
 			);
 
 			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
@@ -199,39 +158,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				await remotePersister.save();
 			}
 
-			logPerformanceEvent('tinybase.persistence.remote.bootstrap', {
-				metadata: {
-					decision: bootstrapResult.decision,
-					localHadData: bootstrapResult.localHadData,
-					migrationsApplied: migrationResult.appliedMigrationIds.join(','),
-					remoteHadData: bootstrapResult.remoteHadData,
-					room,
-				},
-			});
-
-			const connectTimer = startPerformanceTimer('sync.partykit.connect', {
-				room,
-			});
 			await remotePersister.startAutoPersisting(undefined, false);
-			connectTimer.end();
-
-			logPerformanceEvent('sync.partykit.provider.created', {
-				metadata: { room },
-			});
 
 			if (!isDisposed) {
 				setIsSyncReady(true);
 			}
 		};
 
-		void connectRoomSync().catch((error) => {
-			logPerformanceEvent('sync.partykit.provider.failed', {
-				metadata: {
-					error: String(error),
-					room,
-				},
-			});
-
+		void connectRoomSync().catch(() => {
 			if (!isDisposed) {
 				setIsSyncReady(true);
 			}
@@ -247,9 +181,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
-			logPerformanceEvent('sync.partykit.provider.destroyed', {
-				metadata: { room },
-			});
 			void remotePersister.stopAutoPersisting(true);
 			void remotePersister.destroy();
 		};

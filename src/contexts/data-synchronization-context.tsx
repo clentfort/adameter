@@ -1,10 +1,6 @@
 'use client';
 
 import { createContext, useEffect, useState } from 'react';
-import {
-	logPerformanceEvent,
-	setCurrentPerformanceRoom,
-} from '@/lib/performance-logging';
 
 export type JoinStrategy = 'merge' | 'overwrite' | 'clear';
 
@@ -52,10 +48,6 @@ export function DataSynchronizationProvider({
 		const restoredRoom = localStorage.getItem('room');
 		if (restoredRoom) {
 			setRoom(restoredRoom);
-			setCurrentPerformanceRoom(restoredRoom);
-			logPerformanceEvent('sync.room.restored', {
-				metadata: { room: restoredRoom },
-			});
 		}
 
 		setIsHydrated(true);
@@ -65,17 +57,6 @@ export function DataSynchronizationProvider({
 		if (!isHydrated) {
 			return;
 		}
-
-		setCurrentPerformanceRoom(room);
-		logPerformanceEvent(
-			'sync.room.changed',
-			{
-				metadata: {
-					room: room ?? '',
-				},
-			},
-			{ throttleKey: 'sync.room.changed', throttleMs: 2000 },
-		);
 
 		if (!room) {
 			localStorage.removeItem('room');
