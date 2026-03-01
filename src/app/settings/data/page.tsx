@@ -1,7 +1,8 @@
 'use client';
 
+import type { ChangeEvent } from 'react';
 import { fbt } from 'fbtee';
-import { type ChangeEvent, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,7 +13,11 @@ import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { fromCsv, mergeData, toCsv } from '@/utils/data-transfer/csv';
-import { createZip, downloadZip, extractFiles } from '@/utils/data-transfer/zip';
+import {
+	createZip,
+	downloadZip,
+	extractFiles,
+} from '@/utils/data-transfer/zip';
 
 export default function DataSettingsPage() {
 	const { toast } = useToast();
