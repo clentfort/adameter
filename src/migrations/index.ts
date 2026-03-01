@@ -28,9 +28,14 @@ export function runMigrations(
 	let hasChanges = false;
 
 	for (const migration of migrations) {
-		let wasAlreadyApplied = false;
+		if (store.hasRow(INTERNAL_TABLE_IDS.MIGRATIONS, migration.id)) {
+			skippedMigrationIds.push(migration.id);
+			continue;
+		}
 
+		let wasAlreadyApplied = false;
 		store.transaction(() => {
+			// Double-check inside transaction in case of concurrent runs
 			if (store.hasRow(INTERNAL_TABLE_IDS.MIGRATIONS, migration.id)) {
 				wasAlreadyApplied = true;
 				return;
