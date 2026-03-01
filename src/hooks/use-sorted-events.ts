@@ -1,6 +1,5 @@
 import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
-import { logPerformanceEvent } from '@/lib/performance-logging';
 
 // Make the hook generic for any item type T that has an id
 interface ItemWithId {
@@ -25,20 +24,6 @@ export function useSortedEvents<T extends ItemWithId>(
 			typeof performance !== 'undefined' ? performance.now() : Date.now();
 
 		if (!items || items.length === 0) {
-			const durationMs =
-				(typeof performance !== 'undefined' ? performance.now() : Date.now()) -
-				start;
-			logPerformanceEvent(
-				'ui.history.group-and-sort',
-				{
-					durationMs,
-					metadata: {
-						groupCount: 0,
-						itemCount: 0,
-					},
-				},
-				{ throttleKey: 'ui.history.group-and-sort:empty', throttleMs: 10_000 },
-			);
 			return {};
 		}
 
@@ -85,22 +70,6 @@ export function useSortedEvents<T extends ItemWithId>(
 			result[preparedItem.dateKey] = existingItems;
 		}
 
-		const durationMs =
-			(typeof performance !== 'undefined' ? performance.now() : Date.now()) -
-			start;
-		if (items.length >= 200 || durationMs >= 8) {
-			logPerformanceEvent(
-				'ui.history.group-and-sort',
-				{
-					durationMs,
-					metadata: {
-						groupCount: Object.keys(result).length,
-						itemCount: items.length,
-					},
-				},
-				{ throttleKey: 'ui.history.group-and-sort:heavy', throttleMs: 3000 },
-			);
-		}
 		return result;
 	}, [items, dateAccessor]);
 }

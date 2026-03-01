@@ -10,10 +10,6 @@ import { Provider } from 'tinybase/ui-react';
 import { migrateDiaperBrandsToProducts } from '@/app/diaper/utils/migration';
 import { SplashScreen } from '@/components/splash-screen';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
-import {
-	logPerformanceEvent,
-	startPerformanceTimer,
-} from '@/lib/performance-logging';
 import { migrateToJsonCells } from '@/lib/tinybase-sync/cell-migration';
 import {
 	TINYBASE_LOCAL_DB_NAME,
@@ -51,11 +47,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		);
 
 		const initialize = async () => {
-			const loadTimer = startPerformanceTimer(
-				'tinybase.persistence.local.load',
-			);
 			await localPersister.load();
-			loadTimer.end();
 
 			await localPersister.startAutoSave();
 
@@ -67,13 +59,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 		};
 
-		void initialize().catch((error) => {
-			logPerformanceEvent('tinybase.persistence.local.failed', {
-				metadata: {
-					error: String(error),
-				},
-			});
-
+		void initialize().catch((_error) => {
 			if (!isDisposed) {
 				setIsReady(true);
 			}
@@ -97,17 +83,11 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		let connection: PartySocket | undefined;
 
 		const onOpen = () => {
-			logPerformanceEvent('sync.partykit.reconnected', {
-				metadata: { room },
-			});
 			void remotePersister?.load();
 		};
 
 		const onVisibilityChange = () => {
 			if (document.visibilityState === 'visible') {
-				logPerformanceEvent('sync.partykit.visibility_visible', {
-					metadata: { room },
-				});
 				connection?.reconnect();
 				void remotePersister?.load();
 			}
@@ -131,14 +111,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				store,
 				connection,
 				undefined,
-				(error) => {
-					logPerformanceEvent('sync.partykit.provider.error', {
-						metadata: {
-							error: String(error),
-							room,
-						},
-					});
-				},
+				(_error) => {},
 			);
 
 			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
@@ -161,34 +134,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				await remotePersister.save();
 			}
 
-			logPerformanceEvent('tinybase.persistence.remote.bootstrap', {
-				metadata: {
-					decision: bootstrapResult.decision,
-					localHadData: bootstrapResult.localHadData,
-					remoteHadData: bootstrapResult.remoteHadData,
-					room,
-				},
-			});
-
-			const connectTimer = startPerformanceTimer('sync.partykit.connect', {
-				room,
-			});
 			await remotePersister.startAutoPersisting(undefined, false);
-			connectTimer.end();
-
-			logPerformanceEvent('sync.partykit.provider.created', {
-				metadata: { room },
-			});
 		};
 
-		void connectRoomSync().catch((error) => {
-			logPerformanceEvent('sync.partykit.provider.failed', {
-				metadata: {
-					error: String(error),
-					room,
-				},
-			});
-		});
+		void connectRoomSync().catch((_error) => {});
 
 		return () => {
 			isDisposed = true;
@@ -200,9 +149,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
-			logPerformanceEvent('sync.partykit.provider.destroyed', {
-				metadata: { room },
-			});
 			void remotePersister.stopAutoPersisting(true);
 			void remotePersister.destroy();
 		};

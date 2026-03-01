@@ -26,7 +26,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 	const latestDiaperChange = useLatestDiaperChange();
 	const pathname = usePathname();
 
-	const isSettingsPage = pathname === '/settings';
+	const isSettingsPage = pathname.startsWith('/settings');
 
 	return (
 		<div className="flex flex-col min-h-screen items-center">
