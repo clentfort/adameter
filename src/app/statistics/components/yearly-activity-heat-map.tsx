@@ -23,9 +23,10 @@ import { cn } from '@/lib/utils';
 interface YearlyActivityHeatMapProps {
 	className?: string;
 	dates: string[];
-	description: ReactNode;
+	description?: ReactNode;
+	noCard?: boolean;
 	palette?: 'diaper' | 'feeding';
-	title: ReactNode;
+	title?: ReactNode;
 }
 
 const CONTRIBUTION_PALETTES = {
@@ -78,6 +79,7 @@ export default function YearlyActivityHeatMap({
 	className,
 	dates,
 	description,
+	noCard = false,
 	palette = 'feeding',
 	title,
 }: YearlyActivityHeatMapProps) {
@@ -138,64 +140,74 @@ export default function YearlyActivityHeatMap({
 		},
 	);
 
-	return (
-		<Card className={className}>
-			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">{title}</CardTitle>
-				<CardDescription>{description}</CardDescription>
-			</CardHeader>
-			<CardContent className="p-4 pt-0">
-				<div className="overflow-x-auto pb-2">
-					<div className="inline-block min-w-full">
-						<div
-							className="mb-1 grid gap-1 text-[11px] text-muted-foreground"
-							style={{
-								gridTemplateColumns: `repeat(${weekCount}, minmax(0, 1fr))`,
-							}}
-						>
-							{monthLabels.map(({ label, monthIndex, weekIndex }) => (
-								<span
-									className="leading-none"
-									key={monthIndex}
-									style={{ gridColumnStart: weekIndex + 1 }}
-								>
-									{label}
-								</span>
-							))}
-						</div>
+	const content = (
+		<div className={cn('p-4 pt-0', !noCard && 'pt-0')}>
+			<div className="overflow-x-auto pb-2">
+				<div className="inline-block min-w-full">
+					<div
+						className="mb-1 grid gap-1 text-[11px] text-muted-foreground"
+						style={{
+							gridTemplateColumns: `repeat(${weekCount}, minmax(0, 1fr))`,
+						}}
+					>
+						{monthLabels.map(({ label, monthIndex, weekIndex }) => (
+							<span
+								className="leading-none"
+								key={monthIndex}
+								style={{ gridColumnStart: weekIndex + 1 }}
+							>
+								{label}
+							</span>
+						))}
+					</div>
 
-						<div className="grid grid-flow-col grid-rows-7 gap-1">
-							{cells.map((cell) => (
-								<div
-									className={cn(
-										'h-3 w-3 rounded-[3px] border transition-colors',
-										levelClasses[cell.level],
-										cell.isToday && todayRingClass,
-									)}
-									data-testid={`yearly-cell-${cell.key}`}
-									key={cell.key}
-									title={cell.title}
-								/>
-							))}
-						</div>
+					<div className="grid grid-flow-col grid-rows-7 gap-1">
+						{cells.map((cell) => (
+							<div
+								className={cn(
+									'h-3 w-3 rounded-[3px] border transition-colors',
+									levelClasses[cell.level],
+									cell.isToday && todayRingClass,
+								)}
+								data-testid={`yearly-cell-${cell.key}`}
+								key={cell.key}
+								title={cell.title}
+							/>
+						))}
 					</div>
 				</div>
+			</div>
 
-				<div className="mt-4 flex items-center justify-end gap-2 text-xs text-muted-foreground">
-					<span>
-						<fbt desc="Legend minimum activity label">Less</fbt>
-					</span>
-					{levelClasses.map((levelClass, index) => (
-						<div
-							className={cn('h-3 w-3 rounded-[3px] border', levelClass)}
-							key={index}
-						/>
-					))}
-					<span>
-						<fbt desc="Legend maximum activity label">More</fbt>
-					</span>
-				</div>
-			</CardContent>
+			<div className="mt-4 flex items-center justify-end gap-2 text-xs text-muted-foreground">
+				<span>
+					<fbt desc="Legend minimum activity label">Less</fbt>
+				</span>
+				{levelClasses.map((levelClass, index) => (
+					<div
+						className={cn('h-3 w-3 rounded-[3px] border', levelClass)}
+						key={index}
+					/>
+				))}
+				<span>
+					<fbt desc="Legend maximum activity label">More</fbt>
+				</span>
+			</div>
+		</div>
+	);
+
+	if (noCard) {
+		return <div className={className}>{content}</div>;
+	}
+
+	return (
+		<Card className={className}>
+			{(title || description) && (
+				<CardHeader className="p-4 pb-2">
+					{title && <CardTitle className="text-base">{title}</CardTitle>}
+					{description && <CardDescription>{description}</CardDescription>}
+				</CardHeader>
+			)}
+			<CardContent className="p-0">{content}</CardContent>
 		</Card>
 	);
 }
