@@ -1,27 +1,10 @@
 import { Row } from 'tinybase';
-import { ROW_JSON_CELL } from './constants';
 
 /**
- * Strips the 'json' cell from a row and adds the ID.
+ * Strips any metadata cells from a row and adds the ID.
  */
 export function fromRow<T>(id: string, row: Row): T {
-	const { [ROW_JSON_CELL]: json, ...cells } = row;
-
-	// Fallback to JSON if cells are missing (only ID and deviceId/order present)
-	// or if we have very few cells, indicating migration might not have happened.
-	const cellCount = Object.keys(cells).length;
-	if (typeof json === 'string' && cellCount <= 2) {
-		try {
-			const data = JSON.parse(json);
-			if (data && typeof data === 'object') {
-				return { ...data, ...cells, id } as unknown as T;
-			}
-		} catch {
-			// Ignore malformed JSON
-		}
-	}
-
-	return { ...cells, id } as unknown as T;
+	return { ...row, id } as unknown as T;
 }
 
 /**
