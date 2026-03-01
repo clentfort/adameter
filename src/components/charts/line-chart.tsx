@@ -24,6 +24,7 @@ interface LineChartProps {
 	datasetLabel: React.ReactNode;
 	emptyStateMessage: React.ReactNode;
 	forecastDate?: Date | number;
+	pointRadius?: number;
 	rangeData?: RangePoint[];
 	rangeLabel?: React.ReactNode;
 	title: React.ReactNode;
@@ -42,6 +43,7 @@ export default function LineChart({
 	datasetLabel,
 	emptyStateMessage,
 	forecastDate,
+	pointRadius = 5,
 	rangeData = [],
 	rangeLabel,
 	title,
@@ -108,8 +110,8 @@ export default function LineChart({
 			borderColor,
 			data,
 			label: String(datasetLabel),
-			pointHoverRadius: 7,
-			pointRadius: 5,
+			pointHoverRadius: pointRadius > 0 ? 7 : 0,
+			pointRadius,
 			tension: 0.3,
 		});
 
@@ -247,6 +249,7 @@ export default function LineChart({
 		datasetLabel,
 		xAxisLabel,
 		xAxisType,
+		pointRadius,
 		yAxisLabel,
 		yAxisUnit,
 		tooltipTitleFormatter,
