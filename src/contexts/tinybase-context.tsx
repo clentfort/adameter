@@ -5,7 +5,6 @@ import PartySocket from 'partysocket';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { createStore } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
-import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
 import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
@@ -13,11 +12,13 @@ import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
+import { createSecurePartyKitPersister } from '@/lib/tinybase-sync/secure-partykit-persister';
 import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
 } from '@/lib/tinybase-sync/remote-bootstrap';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
+import { getEncryptionKey, hashRoomId } from '@/utils/crypto';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
 
@@ -86,7 +87,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		let isDisposed = false;
 		const store = storeRef.current;
 		const deviceId = getDeviceId();
-		let remotePersister: ReturnType<typeof createPartyKitPersister> | undefined;
+		let remotePersister:
+			| ReturnType<typeof createSecurePartyKitPersister>
+			| undefined;
 		let connection: PartySocket | undefined;
 
 		setIsSyncReady(false);
@@ -121,19 +124,24 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
+			const [hashedRoomId, encryptionKey] = await Promise.all([
+				hashRoomId(room),
+				getEncryptionKey(room),
+			]);
+
 			connection = new PartySocket({
 				host: PARTYKIT_HOST,
 				party: TINYBASE_PARTYKIT_PARTY,
-				room,
+				room: hashedRoomId,
 			});
 			connection.addEventListener('open', onOpen);
 			document.addEventListener('visibilitychange', onVisibilityChange);
 			window.addEventListener('focus', onVisibilityChange);
 
-			remotePersister = createPartyKitPersister(
+			remotePersister = createSecurePartyKitPersister(
 				store,
 				connection,
-				undefined,
+				encryptionKey,
 				() => {},
 			);
 
