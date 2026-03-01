@@ -72,9 +72,7 @@ test.describe('Child Profile', () => {
 
 		// Wait for room to be created (room name should appear)
 		await expect(
-			page
-				.locator('.room-name')
-				.filter({ hasText: /(?:[a-z]+-){2}[a-z]+/ }),
+			page.locator('.room-name').filter({ hasText: /(?:[a-z]+-){2}[a-z]+/ }),
 		).toBeVisible();
 
 		// Verify profile prompt doesn't reappear

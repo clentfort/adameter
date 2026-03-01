@@ -90,6 +90,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Collect and compile translations
+        run: pnpm run fbtee:collect && pnpm run fbtee:translate
+
       - name: Run typecheck
         run: pnpm run typecheck
 
