@@ -15,4 +15,5 @@ export const TABLE_IDS = {
 	TEETHING: 'teething',
 } as const;
 
+export const ROW_JSON_CELL = 'json';
 export const ROW_ORDER_CELL = 'order';

@@ -18,6 +18,8 @@ export interface DiaperChange extends BaseEntity {
 	containsStool: boolean;
 	/** Whether the diaper contains urine. */
 	containsUrine: boolean;
+	/** Optional diaper brand (deprecated, use diaperProductId). */
+	diaperBrand?: string;
 	/** Reference to the diaper product used. */
 	diaperProductId?: string;
 	/** Optional leakage indicator. */

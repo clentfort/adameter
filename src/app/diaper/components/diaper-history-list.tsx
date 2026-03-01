@@ -97,12 +97,7 @@ export default function DiaperHistoryList() {
 										)}
 									</div>
 									<p className="text-xs text-muted-foreground">
-										{(() => {
-											const date = new Date(change.timestamp);
-											return !Number.isNaN(date.getTime())
-												? format(date, 'p')
-												: fbt('Unknown', 'Label for unknown time');
-										})()}
+										{format(new Date(change.timestamp), 'p')}
 									</p>
 
 									<div className="mt-2 text-sm space-y-1">

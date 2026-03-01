@@ -45,12 +45,7 @@ export default function HistoryList({
 					// Check if session crosses midnight
 					const startDate = new Date(session.startTime);
 					const endDate = new Date(session.endTime);
-					const isValidStartDate = !Number.isNaN(startDate.getTime());
-					const isValidEndDate = !Number.isNaN(endDate.getTime());
-					const crossesMidnight =
-						isValidStartDate &&
-						isValidEndDate &&
-						!isSameDay(startDate, endDate);
+					const crossesMidnight = !isSameDay(startDate, endDate);
 
 					return (
 						<div
@@ -90,10 +85,7 @@ export default function HistoryList({
 										<fbt desc="Label indicating when a feeding session started">
 											Start
 										</fbt>
-										:{' '}
-										{isValidStartDate
-											? format(startDate, 'p')
-											: fbt('Unknown', 'Label for unknown time')}
+										: {format(new Date(session.startTime), 'p')}
 									</p>
 									<div className="flex gap-1 mt-2">
 										<EditIconButton onClick={() => setSessionToEdit(session)} />

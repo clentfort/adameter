@@ -6,20 +6,13 @@ interface ItemWithId {
 	id: string;
 }
 
-function getDateKey(timestamp: string | undefined | null) {
-	if (!timestamp) {
-		return 'unknown';
-	}
-	try {
-		const parsedDate = parseISO(timestamp);
-		if (Number.isNaN(parsedDate.getTime())) {
-			return timestamp;
-		}
-
-		return format(parsedDate, 'yyyy-MM-dd');
-	} catch {
+function getDateKey(timestamp: string) {
+	const parsedDate = parseISO(timestamp);
+	if (Number.isNaN(parsedDate.getTime())) {
 		return timestamp;
 	}
+
+	return format(parsedDate, 'yyyy-MM-dd');
 }
 
 export function useSortedEvents<T extends ItemWithId>(
@@ -36,7 +29,7 @@ export function useSortedEvents<T extends ItemWithId>(
 
 		const preparedItems = items.map((item) => {
 			const timestamp = dateAccessor(item);
-			const sortKey = timestamp ? Date.parse(timestamp) : Number.NaN;
+			const sortKey = Date.parse(timestamp);
 
 			return {
 				dateKey: getDateKey(timestamp),
