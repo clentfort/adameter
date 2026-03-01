@@ -30,10 +30,16 @@ interface LineChartProps {
 	title: React.ReactNode;
 	tooltipLabelFormatter?: (context: TooltipItem<'line'>) => string;
 	tooltipTitleFormatter?: (context: TooltipItem<'line'>[]) => string;
+	verticalLines?: { color?: string; label?: string; x: number }[];
 	xAxisLabel: React.ReactNode;
+	xAxisTickCallback?: (value: number | string) => string;
 	xAxisType?: 'time' | 'linear';
+	xMax?: number;
+	xMin?: number;
 	yAxisLabel: React.ReactNode;
 	yAxisUnit?: string;
+	yMax?: number;
+	yMin?: number;
 }
 
 export default function LineChart({
@@ -49,10 +55,16 @@ export default function LineChart({
 	title,
 	tooltipLabelFormatter,
 	tooltipTitleFormatter,
+	verticalLines = [],
 	xAxisLabel,
+	xAxisTickCallback,
 	xAxisType = 'time',
+	xMax,
+	xMin,
 	yAxisLabel,
 	yAxisUnit = '',
+	yMax,
+	yMin,
 }: LineChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<ChartJS<'line', PointData[]> | null>(null);
@@ -115,10 +127,50 @@ export default function LineChart({
 			tension: 0.3,
 		});
 
+		const verticalLinesPlugin = {
+			beforeDatasetsDraw: (chart: ChartJS) => {
+				if (verticalLines.length === 0) return;
+
+				const {
+					ctx,
+					scales: { x, y },
+				} = chart;
+				ctx.save();
+
+				verticalLines.forEach((line) => {
+					const xPos = x.getPixelForValue(line.x);
+					if (xPos < x.left || xPos > x.right) return;
+
+					ctx.beginPath();
+					ctx.strokeStyle =
+						line.color ||
+						(isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)');
+					ctx.lineWidth = 1;
+					ctx.setLineDash([5, 5]);
+					ctx.moveTo(xPos, y.top);
+					ctx.lineTo(xPos, y.bottom);
+					ctx.stroke();
+
+					if (line.label) {
+						ctx.fillStyle =
+							line.color ||
+							(isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)');
+						ctx.font = '12px sans-serif';
+						ctx.textAlign = 'center';
+						ctx.fillText(line.label, xPos, y.top + 15);
+					}
+				});
+
+				ctx.restore();
+			},
+			id: 'verticalLines',
+		};
+
 		chartInstance.current = new Chart<'line', PointData[]>(ctx, {
 			data: {
 				datasets,
 			},
+			plugins: [verticalLinesPlugin],
 			options: {
 				maintainAspectRatio: false,
 				plugins: {
@@ -160,6 +212,9 @@ export default function LineChart({
 										}
 
 										if (xAxisType === 'linear') {
+											if (xAxisTickCallback) {
+												return xAxisTickCallback(firstItem.parsed.x);
+											}
 											return `${Number(firstItem.parsed.x).toFixed(1)} mo`;
 										}
 
@@ -186,23 +241,30 @@ export default function LineChart({
 						grid: {
 							display: true,
 						},
-						max: isDate(forecastDate)
-							? forecastDate.getTime()
-							: typeof forecastDate === 'number'
-								? forecastDate
-								: undefined,
+						max:
+							xMax !== undefined
+								? xMax
+								: isDate(forecastDate)
+									? forecastDate.getTime()
+									: typeof forecastDate === 'number'
+										? forecastDate
+										: undefined,
 						min:
-							xAxisType === 'time' && data.length > 0
-								? Math.min(
-										...data.map((d) =>
-											isDate(d.x) ? d.x.getTime() : Number(d.x),
-										),
-									)
-								: undefined,
+							xMin !== undefined
+								? xMin
+								: xAxisType === 'time' && data.length > 0
+									? Math.min(
+											...data.map((d) =>
+												isDate(d.x) ? d.x.getTime() : Number(d.x),
+											),
+										)
+									: undefined,
 						ticks:
 							xAxisType === 'linear'
 								? {
-										callback: (value) => `${Math.round(Number(value))} mo`,
+										callback: xAxisTickCallback
+											? (value) => xAxisTickCallback(value)
+											: (value) => `${Math.round(Number(value))} mo`,
 										stepSize: 3,
 									}
 								: undefined,
@@ -224,6 +286,8 @@ export default function LineChart({
 					},
 					y: {
 						beginAtZero: false,
+						max: yMax,
+						min: yMin,
 						ticks: {
 							callback:
 								yAxisUnit && typeof yAxisUnit === 'string'
@@ -248,10 +312,16 @@ export default function LineChart({
 		borderColor,
 		datasetLabel,
 		xAxisLabel,
+		xAxisTickCallback,
 		xAxisType,
+		xMax,
+		xMin,
+		verticalLines,
 		pointRadius,
 		yAxisLabel,
 		yAxisUnit,
+		yMax,
+		yMin,
 		tooltipTitleFormatter,
 		tooltipLabelFormatter,
 	]);

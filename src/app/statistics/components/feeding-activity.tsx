@@ -39,7 +39,7 @@ export default function FeedingActivity({
 			<CardContent className="p-0">
 				<Tabs className="w-full" defaultValue="duration">
 					<div className="px-4 pt-2">
-						<TabsList className="grid grid-cols-2 mb-2">
+						<TabsList className="flex w-full mb-2">
 							<TabsTrigger value="duration">
 								<fbt desc="Label for the duration tab in feeding activity stats">
 									Duration
