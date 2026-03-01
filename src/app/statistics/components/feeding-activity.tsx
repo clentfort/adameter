@@ -54,10 +54,7 @@ export default function FeedingActivity({
 					</div>
 
 					<TabsContent className="mt-0" value="duration">
-						<FeedingActivityChart
-							className="px-4 pb-4"
-							sessions={sessions}
-						/>
+						<FeedingActivityChart className="px-4 pb-4" sessions={sessions} />
 					</TabsContent>
 					<TabsContent className="mt-0" value="frequency">
 						<YearlyActivityHeatMap

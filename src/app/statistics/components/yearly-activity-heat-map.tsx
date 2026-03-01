@@ -143,56 +143,56 @@ export default function YearlyActivityHeatMap({
 	const content = (
 		<div className={cn('p-4 pt-0', !noCard && 'pt-0')}>
 			<div className="overflow-x-auto pb-2">
-					<div className="inline-block min-w-full">
-						<div
-							className="mb-1 grid gap-1 text-[11px] text-muted-foreground"
-							style={{
-								gridTemplateColumns: `repeat(${weekCount}, minmax(0, 1fr))`,
-							}}
-						>
-							{monthLabels.map(({ label, monthIndex, weekIndex }) => (
-								<span
-									className="leading-none"
-									key={monthIndex}
-									style={{ gridColumnStart: weekIndex + 1 }}
-								>
-									{label}
-								</span>
-							))}
-						</div>
+				<div className="inline-block min-w-full">
+					<div
+						className="mb-1 grid gap-1 text-[11px] text-muted-foreground"
+						style={{
+							gridTemplateColumns: `repeat(${weekCount}, minmax(0, 1fr))`,
+						}}
+					>
+						{monthLabels.map(({ label, monthIndex, weekIndex }) => (
+							<span
+								className="leading-none"
+								key={monthIndex}
+								style={{ gridColumnStart: weekIndex + 1 }}
+							>
+								{label}
+							</span>
+						))}
+					</div>
 
-						<div className="grid grid-flow-col grid-rows-7 gap-1">
-							{cells.map((cell) => (
-								<div
-									className={cn(
-										'h-3 w-3 rounded-[3px] border transition-colors',
-										levelClasses[cell.level],
-										cell.isToday && todayRingClass,
-									)}
-									data-testid={`yearly-cell-${cell.key}`}
-									key={cell.key}
-									title={cell.title}
-								/>
-							))}
-						</div>
+					<div className="grid grid-flow-col grid-rows-7 gap-1">
+						{cells.map((cell) => (
+							<div
+								className={cn(
+									'h-3 w-3 rounded-[3px] border transition-colors',
+									levelClasses[cell.level],
+									cell.isToday && todayRingClass,
+								)}
+								data-testid={`yearly-cell-${cell.key}`}
+								key={cell.key}
+								title={cell.title}
+							/>
+						))}
 					</div>
 				</div>
-
-				<div className="mt-4 flex items-center justify-end gap-2 text-xs text-muted-foreground">
-					<span>
-						<fbt desc="Legend minimum activity label">Less</fbt>
-					</span>
-					{levelClasses.map((levelClass, index) => (
-						<div
-							className={cn('h-3 w-3 rounded-[3px] border', levelClass)}
-							key={index}
-						/>
-					))}
-					<span>
-						<fbt desc="Legend maximum activity label">More</fbt>
-					</span>
-				</div>
 			</div>
+
+			<div className="mt-4 flex items-center justify-end gap-2 text-xs text-muted-foreground">
+				<span>
+					<fbt desc="Legend minimum activity label">Less</fbt>
+				</span>
+				{levelClasses.map((levelClass, index) => (
+					<div
+						className={cn('h-3 w-3 rounded-[3px] border', levelClass)}
+						key={index}
+					/>
+				))}
+				<span>
+					<fbt desc="Legend maximum activity label">More</fbt>
+				</span>
+			</div>
+		</div>
 	);
 
 	if (noCard) {

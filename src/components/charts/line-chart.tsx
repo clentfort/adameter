@@ -189,6 +189,14 @@ export default function LineChart({
 							: typeof forecastDate === 'number'
 								? forecastDate
 								: undefined,
+						min:
+							xAxisType === 'time' && data.length > 0
+								? Math.min(
+										...data.map((d) =>
+											isDate(d.x) ? d.x.getTime() : Number(d.x),
+										),
+									)
+								: undefined,
 						ticks:
 							xAxisType === 'linear'
 								? {
@@ -203,14 +211,6 @@ export default function LineChart({
 											day: 'dd.MM',
 											month: 'MMM yyyy',
 										},
-										min:
-											data.length > 0
-												? Math.min(
-														...data.map((d) =>
-															isDate(d.x) ? d.x.getTime() : Number(d.x),
-														),
-													)
-												: undefined,
 										unit: 'month', // Monthly grid lines
 									}
 								: undefined,

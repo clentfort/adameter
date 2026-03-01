@@ -66,8 +66,12 @@ export default function FeedingActivityChart({
 						No feeding data available for the past year.
 					</fbt>
 				}
-				title={<fbt desc="Chart title for feeding duration">Feeding Duration</fbt>}
-				xAxisLabel={<fbt desc="Label for the date axis on feeding chart">Date</fbt>}
+				title={
+					<fbt desc="Chart title for feeding duration">Feeding Duration</fbt>
+				}
+				xAxisLabel={
+					<fbt desc="Label for the date axis on feeding chart">Date</fbt>
+				}
 				xAxisType="time"
 				yAxisLabel={
 					<fbt desc="Label for the Y-axis showing feeding duration in minutes">
