@@ -1,3 +1,4 @@
+import type { Changes, Content } from 'tinybase';
 import { describe, expect, it } from 'vitest';
 import {
 	decryptChanges,
@@ -13,16 +14,17 @@ describe('crypto utils', () => {
 		const hash = await hashRoomId('test-room');
 		const key = await getEncryptionKey('test-room');
 
-		expect(hash).toMatch(/^[0-9a-f]{64}$/);
+		expect(hash).toMatch(/^[\da-f]{64}$/);
 
 		// Verify distinct derivation (at least likely distinct)
 		// We can't easily compare CryptoKey to the hash string,
-        // but we know they use different prefixes.
+		// but we know they use different prefixes.
+		expect(key).toBeDefined();
 	});
 
 	it('should encrypt and decrypt content correctly', async () => {
 		const key = await getEncryptionKey('test-room');
-		const content: any = [
+		const content: Content = [
 			{
 				table1: {
 					row1: {
@@ -42,9 +44,12 @@ describe('crypto utils', () => {
 		const encrypted = await encryptContent(content, key);
 
 		// Check that values are encrypted (start with prefix and are base64)
-		expect(encrypted[0].table1.row1.cell1).toMatch(/^s:/);
-		expect(encrypted[1].value1).toMatch(/^s:/);
-		expect(encrypted[1].value2).toMatch(/^n:/);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		expect((encrypted[0] as any).table1.row1.cell1).toMatch(/^s:/);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		expect((encrypted[1] as any).value1).toMatch(/^s:/);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		expect((encrypted[1] as any).value2).toMatch(/^n:/);
 
 		const decrypted = await decryptContent(encrypted, key);
 		expect(decrypted).toEqual(content);
@@ -52,7 +57,7 @@ describe('crypto utils', () => {
 
 	it('should encrypt and decrypt changes correctly including deletions', async () => {
 		const key = await getEncryptionKey('test-room');
-		const changes: any = [
+		const changes: Changes = [
 			{
 				table1: {
 					row1: {
@@ -71,24 +76,30 @@ describe('crypto utils', () => {
 		];
 
 		const encrypted = await encryptChanges(changes, key);
-		expect(encrypted[0].table1.row1.cell1).toMatch(/^s:/);
-		expect(encrypted[0].table1.row1.cell2).toBeUndefined();
-		expect(encrypted[0].table1.row2).toBeUndefined();
-		expect(encrypted[0].table2).toBeUndefined();
-		expect(encrypted[1].value1).toMatch(/^n:/);
-		expect(encrypted[1].value2).toBeUndefined();
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const tables = encrypted[0] as any;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const values = encrypted[1] as any;
+
+		expect(tables.table1.row1.cell1).toMatch(/^s:/);
+		expect(tables.table1.row1.cell2).toBeUndefined();
+		expect(tables.table1.row2).toBeUndefined();
+		expect(tables.table2).toBeUndefined();
+		expect(values.value1).toMatch(/^n:/);
+		expect(values.value2).toBeUndefined();
 
 		const decrypted = await decryptChanges(encrypted, key);
 		expect(decrypted).toEqual(changes);
 	});
 
-    it('should handle large strings correctly', async () => {
-        const key = await getEncryptionKey('test-room');
-        const largeString = 'a'.repeat(100000); // 100KB
-        const content: any = [{}, { large: largeString }];
+	it('should handle large strings correctly', async () => {
+		const key = await getEncryptionKey('test-room');
+		const largeString = 'a'.repeat(100_000); // 100KB
+		const content: Content = [{}, { large: largeString }];
 
-        const encrypted = await encryptContent(content, key);
-        const decrypted = await decryptContent(encrypted, key);
-        expect(decrypted[1].large).toBe(largeString);
-    });
+		const encrypted = await encryptContent(content, key);
+		const decrypted = await decryptContent(encrypted, key);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		expect((decrypted[1] as any).large).toBe(largeString);
+	});
 });

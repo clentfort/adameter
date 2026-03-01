@@ -20,7 +20,7 @@ export function createSecurePartyKitPersister(
 	store: Store,
 	connection: PartySocket,
 	encryptionKey: CryptoKey,
-	onIgnoredError?: (error: any) => void,
+	onIgnoredError?: (error: unknown) => void,
 ) {
 	const { host, room } = connection.partySocketOptions;
 	const storePath = STORE_PATH;
@@ -58,7 +58,10 @@ export function createSecurePartyKitPersister(
 	};
 
 	const addPersisterListener = (
-		listener: (content: Content | undefined, changes: Changes | undefined) => void,
+		listener: (
+			content: Content | undefined,
+			changes: Changes | undefined,
+		) => void,
 	) => {
 		const messageListener = async (event: MessageEvent) => {
 			const data = event.data;
@@ -67,17 +70,19 @@ export function createSecurePartyKitPersister(
 					const encryptedChanges = jsonParse(data.slice(1));
 					const decrypted = await decryptChanges(encryptedChanges, encryptionKey);
 					listener(undefined, decrypted);
-				} catch (e) {
-					onIgnoredError?.(e);
+				} catch (error) {
+					onIgnoredError?.(error);
 				}
 			}
 		};
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		connection.addEventListener(MESSAGE, messageListener as any);
-		return messageListener;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		return messageListener as any;
 	};
 
-	const delPersisterListener = (messageListener: any) => {
-		connection.removeEventListener(MESSAGE, messageListener);
+	const delPersisterListener = (messageListener: unknown) => {
+		connection.removeEventListener(MESSAGE, messageListener as EventListener);
 	};
 
 	return createCustomPersister(
