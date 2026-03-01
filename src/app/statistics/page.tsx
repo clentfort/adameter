@@ -22,6 +22,7 @@ import { getRangeDates } from '@/utils/get-range-dates';
 import DiaperRecords from './components/diaper-records';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
+import FeedingActivity from './components/feeding-activity';
 import FeedingRecords from './components/feeding-records';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
@@ -254,21 +255,7 @@ export default function StatisticsPage() {
 								/>
 								<HeatMap className="col-span-2" sessions={filteredSessions} />
 							</div>
-							<YearlyActivityHeatMap
-								className="mt-4"
-								dates={sessions.map((session) => session.startTime)}
-								description={
-									<fbt desc="Description for the feeding yearly activity heat map chart">
-										Each square shows how many feedings were logged on that day.
-									</fbt>
-								}
-								palette="feeding"
-								title={
-									<fbt desc="Title for the feeding yearly activity heat map chart">
-										Feeding Activity (Past Year)
-									</fbt>
-								}
-							/>
+							<FeedingActivity className="mt-4" sessions={sessions} />
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<FeedingRecords sessions={sessions} />
 							</div>

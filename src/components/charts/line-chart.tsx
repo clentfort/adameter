@@ -161,7 +161,7 @@ export default function LineChart({
 											return `${Number(firstItem.parsed.x).toFixed(1)} mo`;
 										}
 
-										const date = new Date(firstItem.parsed.x);
+										const date = new Date(Number(firstItem.parsed.x));
 										return format(date, 'dd. MMMM yyyy');
 									},
 						},
@@ -184,7 +184,11 @@ export default function LineChart({
 						grid: {
 							display: true,
 						},
-						max: isDate(forecastDate) ? forecastDate.getTime() : forecastDate,
+						max: isDate(forecastDate)
+							? forecastDate.getTime()
+							: typeof forecastDate === 'number'
+								? forecastDate
+								: undefined,
 						ticks:
 							xAxisType === 'linear'
 								? {
@@ -199,6 +203,14 @@ export default function LineChart({
 											day: 'dd.MM',
 											month: 'MMM yyyy',
 										},
+										min:
+											data.length > 0
+												? Math.min(
+														...data.map((d) =>
+															isDate(d.x) ? d.x.getTime() : Number(d.x),
+														),
+													)
+												: undefined,
 										unit: 'month', // Monthly grid lines
 									}
 								: undefined,

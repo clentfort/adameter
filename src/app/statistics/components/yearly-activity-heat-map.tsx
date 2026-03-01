@@ -23,9 +23,10 @@ import { cn } from '@/lib/utils';
 interface YearlyActivityHeatMapProps {
 	className?: string;
 	dates: string[];
-	description: ReactNode;
+	description?: ReactNode;
+	noCard?: boolean;
 	palette?: 'diaper' | 'feeding';
-	title: ReactNode;
+	title?: ReactNode;
 }
 
 const CONTRIBUTION_PALETTES = {
@@ -78,6 +79,7 @@ export default function YearlyActivityHeatMap({
 	className,
 	dates,
 	description,
+	noCard = false,
 	palette = 'feeding',
 	title,
 }: YearlyActivityHeatMapProps) {
@@ -138,14 +140,9 @@ export default function YearlyActivityHeatMap({
 		},
 	);
 
-	return (
-		<Card className={className}>
-			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">{title}</CardTitle>
-				<CardDescription>{description}</CardDescription>
-			</CardHeader>
-			<CardContent className="p-4 pt-0">
-				<div className="overflow-x-auto pb-2">
+	const content = (
+		<div className={cn('p-4 pt-0', !noCard && 'pt-0')}>
+			<div className="overflow-x-auto pb-2">
 					<div className="inline-block min-w-full">
 						<div
 							className="mb-1 grid gap-1 text-[11px] text-muted-foreground"
@@ -195,7 +192,22 @@ export default function YearlyActivityHeatMap({
 						<fbt desc="Legend maximum activity label">More</fbt>
 					</span>
 				</div>
-			</CardContent>
+			</div>
+	);
+
+	if (noCard) {
+		return <div className={className}>{content}</div>;
+	}
+
+	return (
+		<Card className={className}>
+			{(title || description) && (
+				<CardHeader className="p-4 pb-2">
+					{title && <CardTitle className="text-base">{title}</CardTitle>}
+					{description && <CardDescription>{description}</CardDescription>}
+				</CardHeader>
+			)}
+			<CardContent className="p-0">{content}</CardContent>
 		</Card>
 	);
 }
