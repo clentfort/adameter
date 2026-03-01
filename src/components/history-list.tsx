@@ -6,12 +6,19 @@ const INITIAL_VISIBLE_DATE_SECTIONS = 14;
 const DATE_SECTIONS_INCREMENT = 14;
 
 function formatSectionDate(dateKey: string) {
-	const parsedDate = parseISO(dateKey);
-	if (Number.isNaN(parsedDate.getTime())) {
+	if (dateKey === 'unknown') {
+		return 'Unknown Date';
+	}
+	try {
+		const parsedDate = parseISO(dateKey);
+		if (Number.isNaN(parsedDate.getTime())) {
+			return dateKey;
+		}
+
+		return format(parsedDate, 'EEEE, d. MMMM yyyy');
+	} catch {
 		return dateKey;
 	}
-
-	return format(parsedDate, 'EEEE, d. MMMM yyyy');
 }
 
 export interface ItemWithId {

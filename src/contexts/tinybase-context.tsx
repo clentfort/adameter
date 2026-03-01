@@ -7,10 +7,8 @@ import { createStore } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
 import { Provider } from 'tinybase/ui-react';
-import { migrateDiaperBrandsToProducts } from '@/app/diaper/utils/migration';
 import { SplashScreen } from '@/components/splash-screen';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
-import { migrateToJsonCells } from '@/lib/tinybase-sync/cell-migration';
 import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
@@ -50,9 +48,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			await localPersister.load();
 
 			await localPersister.startAutoSave();
-
-			migrateToJsonCells(store);
-			migrateDiaperBrandsToProducts(store);
 
 			if (!isDisposed) {
 				setIsReady(true);
@@ -122,9 +117,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				joinStrategy,
 				getDeviceId(),
 			);
-
-			migrateToJsonCells(store);
-			migrateDiaperBrandsToProducts(store);
 
 			if (
 				bootstrapResult.decision === 'restore-local' ||
