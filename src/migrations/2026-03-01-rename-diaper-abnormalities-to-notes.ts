@@ -37,26 +37,24 @@ export const renameDiaperAbnormalitiesToNotesMigration: Migration = {
 		let hasChanges = false;
 
 		store.transaction(() => {
-			const diaperChanges = store.getTable(TABLE_IDS.DIAPER_CHANGES);
-
-			for (const [rowId, row] of Object.entries(diaperChanges)) {
-				const legacy = row.abnormalities as
-					| DiaperChangeBefore20260301['abnormalities']
-					| undefined;
-				const current = row.notes as
-					| DiaperChangeAfter20260301['notes']
-					| undefined;
+			store.forEachRow(TABLE_IDS.DIAPER_CHANGES, (rowId) => {
+				const legacy = store.getCell(
+					TABLE_IDS.DIAPER_CHANGES,
+					rowId,
+					'abnormalities',
+				);
+				const current = store.getCell(TABLE_IDS.DIAPER_CHANGES, rowId, 'notes');
 
 				if (typeof legacy === 'string' && typeof current !== 'string') {
 					store.setCell(TABLE_IDS.DIAPER_CHANGES, rowId, 'notes', legacy);
 					hasChanges = true;
 				}
 
-				if (row.abnormalities !== undefined) {
+				if (legacy !== undefined) {
 					store.delCell(TABLE_IDS.DIAPER_CHANGES, rowId, 'abnormalities');
 					hasChanges = true;
 				}
-			}
+			});
 		});
 
 		return hasChanges;
