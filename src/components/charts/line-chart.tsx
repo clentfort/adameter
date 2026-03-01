@@ -170,7 +170,6 @@ export default function LineChart({
 			data: {
 				datasets,
 			},
-			plugins: [verticalLinesPlugin],
 			options: {
 				maintainAspectRatio: false,
 				plugins: {
@@ -301,6 +300,7 @@ export default function LineChart({
 					},
 				},
 			},
+			plugins: [verticalLinesPlugin],
 			type: 'line',
 		});
 	}, [
