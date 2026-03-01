@@ -239,8 +239,11 @@ export default function SettingsPage() {
 						</p>
 						<p className="text-sm text-muted-foreground">
 							{room ? (
-								<fbt desc="Text showing current room">
-									Connected to: <fbt:param name="room">{room}</fbt:param>
+								<fbt desc="Text indicating the current room">
+									Currently connected to:{' '}
+									<fbt:param name="roomName">
+										<span className="font-bold room-name">{room}</span>
+									</fbt:param>
 								</fbt>
 							) : (
 								<fbt desc="Text showing no room is connected">Not syncing</fbt>

@@ -25,11 +25,10 @@ test.describe('Sharing via TinyBase', () => {
 		await pageA.getByRole('button', { name: /create new room/i }).click();
 
 		// Get room name
-		const roomName = await pageA.locator('p.text-xl.font-bold').textContent();
+		const roomName = await pageA.locator('.room-name').textContent();
 		expect(roomName).toBeTruthy();
 		// Go back to main app
-		await pageA.getByTestId('back-button').click();
-		await pageA.getByTestId('back-button').click();
+		await pageA.goto('/');
 
 		// 2. Join room on Page B
 		await pageB.getByRole('button', { name: /settings/i }).click();
@@ -39,8 +38,7 @@ test.describe('Sharing via TinyBase', () => {
 		await pageB.getByRole('button', { name: /join/i }).first().click();
 		await pageB.getByRole('button', { name: /merge & join/i }).click();
 		// Go back to main app
-		await pageB.getByTestId('back-button').click();
-		await pageB.getByTestId('back-button').click();
+		await pageB.goto('/');
 
 		// 3. Add data on Page A
 		await pageA.getByRole('link', { name: 'Feeding' }).click();
