@@ -1,19 +1,10 @@
 'use client';
 
+import type { Chart as ChartJS, TooltipItem } from 'chart.js';
 import Chart from 'chart.js/auto';
-import { format } from 'date-fns';
+import { format, isDate } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
 import 'chartjs-adapter-date-fns';
-
-interface ChartDataContext {
-	dataset: {
-		label?: string;
-	};
-	parsed: {
-		x: number;
-		y: number;
-	};
-}
 
 interface PointData {
 	x: Date | number;
@@ -36,8 +27,8 @@ interface LineChartProps {
 	rangeData?: RangePoint[];
 	rangeLabel?: React.ReactNode;
 	title: React.ReactNode;
-	tooltipLabelFormatter?: (context: ChartDataContext) => string;
-	tooltipTitleFormatter?: (context: ChartDataContext[]) => string;
+	tooltipLabelFormatter?: (context: TooltipItem<'line'>) => string;
+	tooltipTitleFormatter?: (context: TooltipItem<'line'>[]) => string;
 	xAxisLabel: React.ReactNode;
 	xAxisType?: 'time' | 'linear';
 	yAxisLabel: React.ReactNode;
@@ -62,7 +53,7 @@ export default function LineChart({
 	yAxisUnit = '',
 }: LineChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
-	const chartInstance = useRef<Chart | null>(null);
+	const chartInstance = useRef<ChartJS<'line', PointData[]> | null>(null);
 
 	const createChart = useCallback(() => {
 		if (!chartRef.current) return;
@@ -122,7 +113,7 @@ export default function LineChart({
 			tension: 0.3,
 		});
 
-		chartInstance.current = new Chart(ctx, {
+		chartInstance.current = new Chart<'line', PointData[]>(ctx, {
 			data: {
 				datasets,
 			},
@@ -161,10 +152,16 @@ export default function LineChart({
 							title: tooltipTitleFormatter
 								? tooltipTitleFormatter
 								: (context) => {
-										if (xAxisType === 'linear') {
-											return `${Number(context[0].parsed.x).toFixed(1)} mo`;
+										const firstItem = context[0];
+										if (!firstItem || firstItem.parsed.x === null) {
+											return '';
 										}
-										const date = new Date(context[0].parsed.x);
+
+										if (xAxisType === 'linear') {
+											return `${Number(firstItem.parsed.x).toFixed(1)} mo`;
+										}
+
+										const date = new Date(firstItem.parsed.x);
 										return format(date, 'dd. MMMM yyyy');
 									},
 						},
@@ -187,10 +184,7 @@ export default function LineChart({
 						grid: {
 							display: true,
 						},
-						max:
-							forecastDate && typeof forecastDate === 'object'
-								? (forecastDate as Date).getTime()
-								: forecastDate,
+						max: isDate(forecastDate) ? forecastDate.getTime() : forecastDate,
 						ticks:
 							xAxisType === 'linear'
 								? {

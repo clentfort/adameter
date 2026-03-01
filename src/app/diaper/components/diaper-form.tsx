@@ -284,7 +284,9 @@ export default function DiaperForm({
 						<div className="flex gap-2">
 							<div className="flex-grow">
 								<Select
-									onValueChange={setDiaperProductId}
+									onValueChange={(value) =>
+										setDiaperProductId(value ?? undefined)
+									}
 									value={diaperProductId}
 								>
 									<SelectTrigger id="edit-diaper-product">

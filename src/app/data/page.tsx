@@ -33,6 +33,21 @@ import { createZip, downloadZip, extractFiles } from './utils/zip';
 
 const DIAGNOSTICS_REFRESH_INTERVAL_MS = 2500;
 
+type CsvImportRow = {
+	id: string;
+} & Record<string, boolean | number | string | undefined>;
+
+function importRows<T extends { id: string }>(
+	storeState: {
+		update: (item: T) => void;
+		value: readonly T[];
+	},
+	rows: CsvImportRow[],
+) {
+	const mergedRows = mergeData(storeState.value as T[], rows as unknown as T[]);
+	mergedRows.forEach((item) => storeState.update(item));
+}
+
 function formatDuration(durationMs: number) {
 	return `${durationMs.toFixed(2)} ms`;
 }
@@ -101,16 +116,21 @@ export default function DataPage() {
 	const handleExport = async () => {
 		setIsLoading(true);
 		try {
-			const allData = Object.entries(dataStores).map(([name, data]) => ({
-				data: data.value,
-				name,
-			}));
-			const files = allData
+			const files = (
+				[
+					{ data: diaperChangesState.value, name: 'diaperChanges' },
+					{ data: diaperProductsState.value, name: 'diaperProducts' },
+					{ data: eventsState.value, name: 'events' },
+					{ data: feedingSessionsState.value, name: 'feedingSessions' },
+					{ data: growthMeasurementsState.value, name: 'growthMeasurements' },
+				] as const
+			)
 				.filter(({ data }) => data.length > 0)
 				.map(({ data, name }) => ({
-					content: toCsv(name, data as Record<string, unknown>[]),
+					content: toCsv(name, data as unknown as Record<string, unknown>[]),
 					name: `${name}.csv`,
 				}));
+
 			const zipBlob = await createZip(files);
 			downloadZip(zipBlob);
 			toast.success('Data exported successfully.');
@@ -131,23 +151,27 @@ export default function DataPage() {
 		try {
 			const files = await extractFiles(file);
 			for (const { content, name } of files) {
-				const dataStore = dataStores[name as keyof typeof dataStores];
-				if (!dataStore) {
-					continue;
-				}
+				const data = fromCsv(content) as CsvImportRow[];
 
-				const data = fromCsv(content) as ({ id: string } & Record<
-					string,
-					string | number | boolean
-				>)[];
-				const merged = mergeData(
-					dataStore.value as Record<string, unknown>[],
-					data,
-				);
-				// We no longer have replace, so we add/update each item
-				merged.forEach((item) => {
-					dataStore.update(item as Parameters<typeof dataStore.update>[0]);
-				});
+				switch (name as keyof typeof dataStores) {
+					case 'diaperChanges':
+						importRows(diaperChangesState, data);
+						break;
+					case 'diaperProducts':
+						importRows(diaperProductsState, data);
+						break;
+					case 'events':
+						importRows(eventsState, data);
+						break;
+					case 'feedingSessions':
+						importRows(feedingSessionsState, data);
+						break;
+					case 'growthMeasurements':
+						importRows(growthMeasurementsState, data);
+						break;
+					default:
+						break;
+				}
 			}
 			toast.success('Data imported successfully.');
 		} catch {

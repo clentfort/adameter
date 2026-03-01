@@ -112,7 +112,11 @@ export default function StatisticsPage() {
 					</h2>
 					<div className="flex flex-col items-end gap-1">
 						<Select
-							onValueChange={(value) => setTimeRange(value as TimeRange)}
+							onValueChange={(value) => {
+								if (value) {
+									setTimeRange(value as TimeRange);
+								}
+							}}
 							value={timeRange}
 						>
 							<SelectTrigger className="w-[140px]">

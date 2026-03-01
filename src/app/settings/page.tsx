@@ -188,7 +188,11 @@ export default function SettingsPage() {
 							</p>
 						</div>
 						<Select
-							onValueChange={(v) => updateLocale(v as Locale)}
+							onValueChange={(v) => {
+								if (v) {
+									void updateLocale(v as Locale);
+								}
+							}}
 							value={locale}
 						>
 							<SelectTrigger>
@@ -208,7 +212,14 @@ export default function SettingsPage() {
 								<fbt desc="Label for theme setting">Theme</fbt>
 							</p>
 						</div>
-						<Select onValueChange={(v) => setTheme(v)} value={theme}>
+						<Select
+							onValueChange={(v) => {
+								if (v) {
+									setTheme(v);
+								}
+							}}
+							value={theme}
+						>
 							<SelectTrigger>
 								<SelectValue />
 							</SelectTrigger>
@@ -234,7 +245,11 @@ export default function SettingsPage() {
 							</p>
 						</div>
 						<Select
-							onValueChange={(v) => setCurrency(v as Currency)}
+							onValueChange={(v) => {
+								if (v) {
+									setCurrency(v as Currency);
+								}
+							}}
 							value={currency}
 						>
 							<SelectTrigger>

@@ -106,10 +106,12 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 
 	const forecastAge = useMemo(() => {
 		if (!dob) return undefined;
-		const lastMeasureDate =
-			sortedMeasurements.length > 0
-				? startOfDay(new Date(sortedMeasurements.at(-1).date))
-				: dob;
+
+		const lastMeasurement = sortedMeasurements.at(-1);
+		const lastMeasureDate = lastMeasurement
+			? startOfDay(new Date(lastMeasurement.date))
+			: dob;
+
 		const currentAgeMonths =
 			differenceInDays(lastMeasureDate, dob) / DAYS_PER_MONTH;
 		return Math.floor(currentAgeMonths / 3) * 3 + 3;
@@ -172,14 +174,14 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				setHeadPercentile(null);
 			}
 
-			const firstMeasureDate =
-				sortedMeasurements.length > 0
-					? startOfDay(new Date(sortedMeasurements[0].date))
-					: dob;
-			const lastMeasureDate =
-				sortedMeasurements.length > 0
-					? startOfDay(new Date(sortedMeasurements.at(-1).date))
-					: dob;
+			const firstMeasurement = sortedMeasurements[0];
+			const lastMeasurement = sortedMeasurements.at(-1);
+			const firstMeasureDate = firstMeasurement
+				? startOfDay(new Date(firstMeasurement.date))
+				: dob;
+			const lastMeasureDate = lastMeasurement
+				? startOfDay(new Date(lastMeasurement.date))
+				: dob;
 
 			const startDate = min([dob, firstMeasureDate]);
 			const endDate = addDays(lastMeasureDate, 30);
@@ -193,7 +195,8 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				current = addDays(current, 7);
 			}
 			// Always include the very end
-			if (differenceInDays(endDate, points.at(-1)) > 0) {
+			const lastPoint = points.at(-1);
+			if (!lastPoint || differenceInDays(endDate, lastPoint) > 0) {
 				points.push(endDate);
 			}
 

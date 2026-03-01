@@ -13,18 +13,12 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"test": "vitest",
+		"typecheck": "tsc --noEmit",
 		"fbtee:collect": "fbtee collect --common ./common_strings.json --src src",
 		"fbtee:translate": "fbtee translate --translations translations/*.json -o src/translations",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build",
 		"prepare": "husky"
-	},
-	"lint-staged": {
-		"*.{cjs,js,mjs,jsx,ts,tsx}": [
-			"pnpm exec eslint --fix --max-warnings=0",
-			"pnpm exec prettier --write"
-		],
-		"*.{css,json,md,yaml,yml}": "pnpm exec prettier --write"
 	},
 	"devEngines": {
 		"packageManager": {

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Event } from '@/types/event';
-import { GrowthMeasurement } from '@/types/growth';
+import type { GrowthMeasurement } from '@/types/growth';
 import GrowthChart from './growth-chart';
 
 const today = new Date();
@@ -44,26 +43,8 @@ const sampleMeasurements: GrowthMeasurement[] = [
 	{ date: createDate(15), height: 62, id: 'gm6' },
 ];
 
-const sampleEvents: Event[] = [
-	{
-		color: 'red',
-		id: 'ev1',
-		startDate: createDate(60),
-		title: 'Vaccination #1',
-		type: 'point',
-	},
-	{
-		color: 'blue',
-		id: 'ev2',
-		startDate: createDate(30),
-		title: 'Started Solids',
-		type: 'point',
-	},
-];
-
 const meta: Meta<typeof GrowthChart> = {
 	argTypes: {
-		events: { control: 'object' },
 		measurements: { control: 'object' },
 	},
 	component: GrowthChart,
@@ -86,21 +67,18 @@ type Story = StoryObj<typeof GrowthChart>;
 
 export const DefaultView: Story = {
 	args: {
-		events: sampleEvents,
 		measurements: sampleMeasurements,
 	},
 };
 
 export const NoMeasurements: Story = {
 	args: {
-		events: [],
 		measurements: [],
 	},
 };
 
 export const OnlyWeightData: Story = {
 	args: {
-		events: [],
 		measurements: [
 			{ date: createDate(30), id: 'gmw1', weight: 5000 },
 			{ date: createDate(0), id: 'gmw2', weight: 5500 },
@@ -110,14 +88,12 @@ export const OnlyWeightData: Story = {
 
 export const NoEvents: Story = {
 	args: {
-		events: [],
 		measurements: sampleMeasurements,
 	},
 };
 
 export const MeasurementsWithGaps: Story = {
 	args: {
-		events: [],
 		measurements: [
 			{ date: createDate(90), height: 50, id: 'gm1', weight: 3500 },
 			{ date: createDate(0), height: 65, id: 'gm3', weight: 7200 },

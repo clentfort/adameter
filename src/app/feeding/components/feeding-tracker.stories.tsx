@@ -1,21 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import BreastfeedingTracker from './feeding-tracker';
 
-// Mocking useFeedingInProgress for Storybook
-let mockFeedingInProgressState: {
-	breast: 'left' | 'right';
-	startTime: string;
-} | null = null;
-const mockSetFeedingInProgress = (
-	newState: typeof mockFeedingInProgressState,
-) => {
-	mockFeedingInProgressState = newState;
-};
-
 const meta: Meta<typeof BreastfeedingTracker> = {
 	argTypes: {
 		nextBreast: { control: 'radio', options: ['left', 'right'] },
-		onSessionComplete: { action: 'sessionCompleted' },
+		onCreateSession: { action: 'sessionCreated' },
+		onUpdateSession: { action: 'sessionUpdated' },
+		resumableSession: { control: 'object' },
 	},
 	component: BreastfeedingTracker,
 	parameters: {
@@ -32,77 +23,50 @@ const meta: Meta<typeof BreastfeedingTracker> = {
 };
 
 export default meta;
-type Story = StoryObj<
-	typeof BreastfeedingTracker & {
-		initialFeedingState?: {
-			breast: 'left' | 'right';
-			startTime: string;
-		} | null;
-	}
->;
+type Story = StoryObj<typeof meta>;
 
 export const InitialScreenNextLeft: Story = {
 	args: {
 		nextBreast: 'left',
-		onSessionComplete: () => {},
+		onCreateSession: () => {},
+		onUpdateSession: () => {},
 	},
 };
 
 export const InitialScreenNextRight: Story = {
 	args: {
 		nextBreast: 'right',
-		onSessionComplete: () => {},
+		onCreateSession: () => {},
+		onUpdateSession: () => {},
 	},
 };
 
-export const StartLeftFeeding: Story = {
-	args: {
-		nextBreast: 'left',
-		onSessionComplete: () => {},
-	},
-};
-
-export const FeedingInProgressView: Story = {
+export const WithResumableLeft: Story = {
 	args: {
 		nextBreast: 'right',
-		onSessionComplete: () => {},
-		// @ts-ignore: Forcing initial state via args for story setup
-		initialFeedingState: {
-			breast: 'right',
-			startTime: new Date().toISOString(),
-		},
-	},
-};
-
-export const EndFeedingAction: Story = {
-	args: {
-		...FeedingInProgressView.args,
-		// @ts-ignore: Forcing initial state
-		initialFeedingState: {
+		onCreateSession: () => {},
+		onUpdateSession: () => {},
+		resumableSession: {
 			breast: 'left',
-			startTime: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+			durationInSeconds: 240,
+			endTime: new Date().toISOString(),
+			id: 'resumable-left',
+			startTime: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
 		},
 	},
 };
 
-export const EnterTimeManuallyDialog: Story = {
+export const WithResumableRight: Story = {
 	args: {
-		...FeedingInProgressView.args,
-		// @ts-ignore: Forcing initial state
-		initialFeedingState: {
+		nextBreast: 'left',
+		onCreateSession: () => {},
+		onUpdateSession: () => {},
+		resumableSession: {
 			breast: 'right',
-			startTime: new Date().toISOString(),
-		},
-	},
-};
-
-export const SaveManualTimeEntry: Story = {
-	args: {
-		...FeedingInProgressView.args,
-		// @ts-ignore: Forcing initial state
-		initialFeedingState: {
-			breast: 'left',
-			startTime: new Date().toISOString(),
+			durationInSeconds: 360,
+			endTime: new Date().toISOString(),
+			id: 'resumable-right',
+			startTime: new Date(Date.now() - 6 * 60 * 1000).toISOString(),
 		},
 	},
 };

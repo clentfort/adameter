@@ -5,35 +5,65 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-function getItemsFromChildren(children: React.ReactNode): any[] {
-	const items: any[] = [];
+type SelectChildProps = {
+	children?: React.ReactNode;
+	value?: unknown;
+};
+
+type SelectItemDescriptor = {
+	label: React.ReactNode;
+	value: unknown;
+};
+
+function getItemsFromChildren(
+	children: React.ReactNode,
+): SelectItemDescriptor[] {
+	const items: SelectItemDescriptor[] = [];
+
 	React.Children.forEach(children, (child) => {
-		if (!React.isValidElement(child)) return;
+		if (!React.isValidElement<SelectChildProps>(child)) {
+			return;
+		}
 
 		if (child.type === SelectItem) {
 			items.push({
-				value: child.props.value,
 				label: child.props.children,
+				value: child.props.value,
 			});
-		} else if (child.props && 'children' in child.props) {
+			return;
+		}
+
+		if (child.props.children) {
 			items.push(...getItemsFromChildren(child.props.children));
 		}
 	});
+
 	return items;
 }
 
-function Select({
+function Select<Value, Multiple extends boolean | undefined = false>({
 	children,
 	items: providedItems,
 	...props
-}: SelectPrimitive.Root.Props) {
-	const extractedItems = React.useMemo(
-		() => (providedItems ? undefined : getItemsFromChildren(children)),
+}: SelectPrimitive.Root.Props<Value, Multiple>) {
+	const extractedItems = React.useMemo<
+		SelectPrimitive.Root.Props<Value, Multiple>['items']
+	>(
+		() =>
+			providedItems
+				? undefined
+				: (getItemsFromChildren(children) as SelectPrimitive.Root.Props<
+						Value,
+						Multiple
+					>['items']),
 		[children, providedItems],
 	);
 
 	return (
-		<SelectPrimitive.Root items={providedItems ?? extractedItems} {...props}>
+		<SelectPrimitive.Root<Value, Multiple>
+			items={providedItems ?? extractedItems}
+			{...props}
+		>
 			{children}
 		</SelectPrimitive.Root>
 	);

@@ -8,7 +8,6 @@ const meta: Meta<typeof LineChart> = {
 		data: { control: 'object' },
 		datasetLabel: { control: 'text' },
 		emptyStateMessage: { control: 'text' },
-		events: { control: 'object' },
 		title: { control: 'text' },
 		xAxisLabel: { control: 'text' },
 		yAxisLabel: { control: 'text' },
@@ -61,46 +60,23 @@ export const Empty: Story = {
 	},
 };
 
-export const WithEvents: Story = {
+export const WithForecastRange: Story = {
 	args: {
 		data: generateRandomData(30),
 		datasetLabel: 'Weight',
 		emptyStateMessage: 'No data available.',
-		events: [
-			{
-				color: 'hsl(var(--primary))',
-				endDate: (() => {
-					const date = new Date();
-					date.setDate(date.getDate() + 5);
-					return date.toISOString();
-				})(),
-				id: 'event1',
-				startDate: (() => {
-					const date = new Date();
-					date.setDate(date.getDate() + 5);
-					return date.toISOString();
-				})(),
-				title: 'Vaccination',
-				type: 'point',
-			},
-			{
-				color: 'hsl(var(--destructive))',
-				endDate: (() => {
-					const date = new Date();
-					date.setDate(date.getDate() + 15);
-					return date.toISOString();
-				})(),
-				id: 'event2',
-				startDate: (() => {
-					const date = new Date();
-					date.setDate(date.getDate() + 15);
-					return date.toISOString();
-				})(),
-				title: 'Fever Spike',
-				type: 'point',
-			},
-		],
-		title: 'Weight Over Time with Events',
+		forecastDate: (() => {
+			const date = new Date();
+			date.setDate(date.getDate() + 20);
+			return date;
+		})(),
+		rangeData: generateRandomData(30).map((point) => ({
+			x: point.x,
+			yMax: point.y + 2,
+			yMin: point.y - 2,
+		})),
+		rangeLabel: 'Expected Range',
+		title: 'Weight Over Time with Forecast Range',
 		xAxisLabel: 'Date',
 		yAxisLabel: 'Weight',
 		yAxisUnit: 'kg',
@@ -146,14 +122,15 @@ export const WithCustomTooltipFormatters: Story = {
 		datasetLabel: 'Formatted Tooltip Data',
 		emptyStateMessage: 'No data.',
 		title: 'Chart with Custom Tooltips',
-		tooltipLabelFormatter: (context: {
-			dataset?: { label?: string };
-			parsed: { y: unknown };
-		}) => {
-			return `Value: ${context.parsed.y} ${context.dataset?.label || ''}`;
+		tooltipLabelFormatter: (context) => {
+			return `Value: ${context.parsed.y} ${context.dataset.label || ''}`;
 		},
 		tooltipTitleFormatter: (context) => {
-			const date = new Date(context[0].parsed.x);
+			const firstItem = context[0];
+			if (!firstItem || firstItem.parsed.x === null) {
+				return 'Date: -';
+			}
+			const date = new Date(firstItem.parsed.x);
 			return `Date: ${date.toLocaleDateString()}`;
 		},
 		xAxisLabel: 'X Axis',

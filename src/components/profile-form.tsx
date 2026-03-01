@@ -107,7 +107,11 @@ export default function ProfileForm({
 						<fbt desc="Label for biological sex select">Sex</fbt>
 					</Label>
 					<Select
-						onValueChange={(value: string) => setSex(value as Sex)}
+						onValueChange={(value) => {
+							if (value) {
+								setSex(value as Sex);
+							}
+						}}
 						value={sex}
 					>
 						<SelectTrigger id="sex">
