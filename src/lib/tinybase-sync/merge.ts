@@ -65,7 +65,7 @@ export function mergeStoreContent(
 			// but for now, first-come-first-served (prefer existing local if present)
 			// Actually, if we are joining a room that HAS data, we might want to prefer the room's data
 			// but JoinStrategy 'merge' usually means keep what we have and add what's missing.
-			if (!store.hasValue(valueId)) {
+			if (!store.hasValue(valueId) || store.getValue(valueId) === '') {
 				store.setValue(valueId, value);
 			}
 		}

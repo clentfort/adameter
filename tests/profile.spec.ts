@@ -72,14 +72,11 @@ test.describe('Child Profile', () => {
 
 		// Wait for room to be created (room name should appear)
 		await expect(
-			page
-				.locator('p.text-xl.font-bold')
-				.filter({ hasText: /(?:[a-z]+-){2}[a-z]+/ }),
+			page.locator('.room-name').filter({ hasText: /(?:[a-z]+-){2}[a-z]+/ }),
 		).toBeVisible();
 
 		// Verify profile prompt doesn't reappear
-		await page.getByTestId('back-button').click();
-		await page.getByTestId('back-button').click(); // Back to home
+		await page.goto('/');
 		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
 
 		// Check settings again to be sure

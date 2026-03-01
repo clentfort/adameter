@@ -21,8 +21,8 @@ test.describe('Room management', () => {
 		await expect(page.getByText(/currently connected to:/i)).toBeVisible();
 
 		// Room name should be 3 words separated by hyphens
-		const roomName = await page.locator('p.text-xl.font-bold').textContent();
-		expect(roomName?.split('-')).toHaveLength(3);
+		const roomName = await page.locator('.room-name').textContent();
+		expect(roomName?.trim().split('-')).toHaveLength(3);
 	});
 
 	test('should allow joining a room', async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe('Room management', () => {
 
 		// Verify connection
 		await expect(page.getByText(/currently connected to:/i)).toBeVisible();
-		await expect(page.locator('p.text-xl.font-bold')).toHaveText(testRoom);
+		await expect(page.locator('.room-name')).toHaveText(testRoom);
 	});
 
 	test('should handle invite link with warning if already in a room', async ({
