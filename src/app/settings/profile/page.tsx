@@ -17,7 +17,7 @@ export default function ProfileSettingsPage() {
 						initialData={profile}
 						onSave={(data) => {
 							setProfile({ ...data, optedOut: false });
-							router.push('/settings');
+							router.replace('/settings');
 						}}
 					/>
 				</CardContent>

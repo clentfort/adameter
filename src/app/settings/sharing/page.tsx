@@ -11,10 +11,10 @@ export default function SharingSettingsPage() {
 				<CardContent>
 					<div className="flex flex-col gap-4">
 						<p className="text-sm text-muted-foreground pt-4">
-							<fbt desc="Description of sharing feature">
-								Synchronize your data across multiple devices by joining a
-								shared room.
-							</fbt>
+							{fbt(
+								'Synchronize your data across multiple devices by joining a shared room.',
+								'Description of sharing feature',
+							)}
 						</p>
 						<DataSharingContent />
 					</div>

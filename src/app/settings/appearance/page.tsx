@@ -32,7 +32,7 @@ export default function AppearanceSettingsPage() {
 						<div className="flex items-center gap-2">
 							<Globe className="h-4 w-4" />
 							<p className="text-sm font-medium">
-								<fbt desc="Label for language setting">Language</fbt>
+								{fbt('Language', 'Label for language setting')}
 							</p>
 						</div>
 						<Select
@@ -53,7 +53,7 @@ export default function AppearanceSettingsPage() {
 						<div className="flex items-center gap-2">
 							<Moon className="h-4 w-4" />
 							<p className="text-sm font-medium">
-								<fbt desc="Label for theme setting">Theme</fbt>
+								{fbt('Theme', 'Label for theme setting')}
 							</p>
 						</div>
 						<Select onValueChange={(v) => setTheme(v)} value={theme}>
@@ -62,13 +62,13 @@ export default function AppearanceSettingsPage() {
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="light">
-									<fbt desc="Light theme option">Light</fbt>
+									{fbt('Light', 'Light theme option')}
 								</SelectItem>
 								<SelectItem value="dark">
-									<fbt desc="Dark theme option">Dark</fbt>
+									{fbt('Dark', 'Dark theme option')}
 								</SelectItem>
 								<SelectItem value="system">
-									<fbt desc="System theme option">System</fbt>
+									{fbt('System', 'System theme option')}
 								</SelectItem>
 							</SelectContent>
 						</Select>
@@ -78,7 +78,7 @@ export default function AppearanceSettingsPage() {
 						<div className="flex items-center gap-2">
 							<Coins className="h-4 w-4" />
 							<p className="text-sm font-medium">
-								<fbt desc="Label for currency setting">Currency</fbt>
+								{fbt('Currency', 'Label for currency setting')}
 							</p>
 						</div>
 						<Select

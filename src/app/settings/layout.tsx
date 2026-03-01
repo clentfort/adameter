@@ -35,11 +35,7 @@ export default function SettingsLayout({
 				<Button
 					data-testid="back-button"
 					onClick={() => {
-						if (isMainSettings) {
-							router.back();
-						} else {
-							router.push('/settings');
-						}
+						router.back();
 					}}
 					size="icon"
 					variant="outline"
