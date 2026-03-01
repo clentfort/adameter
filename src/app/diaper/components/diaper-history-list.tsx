@@ -1,5 +1,5 @@
 import type { DiaperChange } from '@/types/diaper';
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
@@ -11,6 +11,19 @@ import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
+
+function formatChangeTime(timestamp: unknown) {
+	if (typeof timestamp !== 'string') {
+		return '';
+	}
+
+	const parsedTimestamp = parseISO(timestamp);
+	if (!isValid(parsedTimestamp)) {
+		return timestamp;
+	}
+
+	return format(parsedTimestamp, 'p');
+}
 
 export default function DiaperHistoryList() {
 	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
@@ -97,7 +110,7 @@ export default function DiaperHistoryList() {
 										)}
 									</div>
 									<p className="text-xs text-muted-foreground">
-										{format(new Date(change.timestamp), 'p')}
+										{formatChangeTime(change.timestamp)}
 									</p>
 
 									<div className="mt-2 text-sm space-y-1">

@@ -1,6 +1,28 @@
 import type { DiaperChange } from '@/types/diaper';
-import { format, parseISO } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import StatsCard from './stats-card';
+
+function getDayKey(timestamp: unknown): string | undefined {
+	if (typeof timestamp !== 'string') {
+		return undefined;
+	}
+
+	const parsedTimestamp = parseISO(timestamp);
+	if (!isValid(parsedTimestamp)) {
+		return undefined;
+	}
+
+	return format(parsedTimestamp, 'yyyy-MM-dd');
+}
+
+function formatDay(dayKey: string) {
+	const parsedDay = parseISO(dayKey);
+	if (!isValid(parsedDay)) {
+		return dayKey;
+	}
+
+	return format(parsedDay, 'PP');
+}
 
 interface DiaperRecordsProps {
 	diaperChanges: readonly DiaperChange[];
@@ -16,8 +38,8 @@ export default function DiaperRecords({
 	// Group changes by day
 	const changesByDay = new Map<string, number>();
 	for (const change of diaperChanges) {
-		const day = format(new Date(change.timestamp), 'yyyy-MM-dd');
-		if (day === todayKey) continue;
+		const day = getDayKey(change.timestamp);
+		if (!day || day === todayKey) continue;
 
 		changesByDay.set(day, (changesByDay.get(day) || 0) + 1);
 	}
@@ -39,7 +61,7 @@ export default function DiaperRecords({
 			>
 				<div className="text-2xl font-bold">{mostChanges[1]}</div>
 				<div className="text-sm text-muted-foreground">
-					{format(parseISO(mostChanges[0]), 'PP')}
+					{formatDay(mostChanges[0])}
 				</div>
 			</StatsCard>
 			<StatsCard
@@ -51,7 +73,7 @@ export default function DiaperRecords({
 			>
 				<div className="text-2xl font-bold">{fewestChanges[1]}</div>
 				<div className="text-sm text-muted-foreground">
-					{format(parseISO(fewestChanges[0]), 'PP')}
+					{formatDay(fewestChanges[0])}
 				</div>
 			</StatsCard>
 		</>

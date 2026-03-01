@@ -95,4 +95,32 @@ describe('DiaperRecords', () => {
 		render(<DiaperRecords diaperChanges={customMock} />);
 		expect(screen.getByText('3')).toBeInTheDocument();
 	});
+
+	it('ignores entries with invalid timestamps', () => {
+		vi.setSystemTime(new Date('2024-01-04T12:00:00Z'));
+		const malformedChanges = [
+			...mockDiaperChanges,
+			{
+				containsStool: false,
+				containsUrine: true,
+				id: 'invalid-1',
+				timestamp: 'not-a-date',
+			},
+			{
+				containsStool: false,
+				containsUrine: true,
+				id: 'invalid-2',
+				timestamp: undefined,
+			},
+		] as unknown as DiaperChange[];
+
+		render(<DiaperRecords diaperChanges={malformedChanges} />);
+
+		expect(
+			screen.getByText('Most diaper changes in a day'),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText('Fewest diaper changes in a day'),
+		).toBeInTheDocument();
+	});
 });

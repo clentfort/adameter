@@ -1,6 +1,6 @@
+import type { Event } from '@/types/event';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { Event } from '@/types/event';
 import { useSortedEvents } from './use-sorted-events';
 
 const mockEvents: Event[] = [
@@ -112,5 +112,32 @@ describe('useSortedEvents', () => {
 			useSortedEvents(singleEvent, eventDateAccessor),
 		);
 		expect(Object.keys(result.current)).toEqual(['2024-01-05']);
+	});
+
+	it('should handle missing timestamps without throwing', () => {
+		const malformedEvents = [
+			{
+				id: '1',
+				startDate: undefined,
+				title: 'Missing date',
+				type: 'point',
+			},
+			{
+				id: '2',
+				startDate: '2024-01-05T10:00:00Z',
+				title: 'Valid date',
+				type: 'point',
+			},
+		] as unknown as Event[];
+
+		const { result } = renderHook(() =>
+			useSortedEvents(malformedEvents, eventDateAccessor),
+		);
+
+		expect(Object.keys(result.current)).toEqual(['2024-01-05', '']);
+		expect(result.current['2024-01-05'].map((event) => event.id)).toEqual([
+			'2',
+		]);
+		expect(result.current[''].map((event) => event.id)).toEqual(['1']);
 	});
 });
