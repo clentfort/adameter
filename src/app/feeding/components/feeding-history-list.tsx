@@ -48,7 +48,9 @@ export default function HistoryList({
 					const isValidStartDate = !Number.isNaN(startDate.getTime());
 					const isValidEndDate = !Number.isNaN(endDate.getTime());
 					const crossesMidnight =
-						isValidStartDate && isValidEndDate && !isSameDay(startDate, endDate);
+						isValidStartDate &&
+						isValidEndDate &&
+						!isSameDay(startDate, endDate);
 
 					return (
 						<div
