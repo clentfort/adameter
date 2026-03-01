@@ -21,7 +21,7 @@ import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
 } from '@/lib/tinybase-sync/remote-bootstrap';
-import { runMigrations } from '@/migrations';
+import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
 
@@ -61,7 +61,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			await localPersister.startAutoSave();
 
-			runMigrations(store, { deviceId: getDeviceId() });
+			await runMigrationsIfNeeded(store, { deviceId: getDeviceId() });
 
 			if (!isDisposed) {
 				setIsLocalReady(true);
@@ -111,7 +111,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 
 			await remotePersister.load();
-			const migrationResult = runMigrations(store, { deviceId });
+			const migrationResult = await runMigrationsIfNeeded(store, {
+				deviceId,
+			});
 			if (migrationResult.hasChanges && joinStrategy !== 'clear') {
 				await remotePersister.save();
 			}
@@ -184,7 +186,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				joinStrategy,
 				deviceId,
 			);
-			const migrationResult = runMigrations(store, { deviceId });
+			const migrationResult = await runMigrationsIfNeeded(store, {
+				deviceId,
+			});
 
 			if (
 				bootstrapResult.decision === 'restore-local' ||

@@ -1,0 +1,11 @@
+/**
+ * Lightweight migration manifest for startup fast-path checks.
+ *
+ * Keep this list in chronological order and append-only.
+ */
+export const MIGRATION_IDS = [
+	'2026-03-01-rename-diaper-abnormalities-to-notes',
+] as const;
+
+export const LATEST_MIGRATION_ID =
+	MIGRATION_IDS.length > 0 ? MIGRATION_IDS.at(-1) : undefined;

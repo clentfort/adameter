@@ -7,9 +7,11 @@ This directory contains append-only schema/data migrations.
 1. **One file per migration**, named with date prefix:
    - `YYYY-MM-DD-short-description.ts`
 2. **Register it in `src/migrations/index.ts`** in chronological order.
-3. **Copy type snapshots into migration files** so the migration remains
+3. **Add its id to `src/migrations/manifest.ts`** in chronological order.
+   - This manifest is used for a lightweight startup fast-path and lazy loading.
+4. **Copy type snapshots into migration files** so the migration remains
    understandable even if app types evolve.
-4. **Migrations must be idempotent** and multiplayer-safe.
+5. **Migrations must be idempotent** and multiplayer-safe.
    - Multiple devices can run the same migration before sync metadata converges.
 
 ## Metadata tracking
@@ -25,10 +27,14 @@ Each row stores:
 
 ## Startup behavior
 
-`TinybaseProvider` runs migrations:
+`TinybaseProvider` checks migration metadata and runs migrations:
 
 1. after local IndexedDB load
 2. again after PartyKit bootstrap/merge (if syncing)
+
+Migration code is loaded lazily only when pending migrations are detected. If
+the latest migration id is already present in `_migrations`, startup skips
+loading the migration module.
 
 The app stays on splash screen until this process is complete, so UI code does
 not run against unmigrated data.

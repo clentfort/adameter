@@ -5,11 +5,16 @@ import {
 	MIGRATION_ROW_CELLS,
 	TABLE_IDS,
 } from '@/lib/tinybase-sync/constants';
-import { runMigrations } from './index';
+import { migrations, runMigrations } from './index';
+import { MIGRATION_IDS } from './manifest';
 
 const RENAME_MIGRATION_ID = '2026-03-01-rename-diaper-abnormalities-to-notes';
 
 describe('runMigrations', () => {
+	it('keeps manifest ids in sync with registered migrations', () => {
+		expect(migrations.map((migration) => migration.id)).toEqual(MIGRATION_IDS);
+	});
+
 	it('applies migrations, renames diaper abnormalities to notes, and stores metadata', () => {
 		const store = createStore();
 		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd1', {
