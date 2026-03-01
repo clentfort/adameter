@@ -1,6 +1,8 @@
-import type { Tooth } from '@/types/teething';
+import type { TeethingFormValues, Tooth } from '@/types/teething';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -12,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { teethingFormSchema } from '@/types/teething';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
 interface TeethingFormProps {
@@ -21,22 +24,34 @@ interface TeethingFormProps {
 	toothName: string;
 }
 
+function getDefaultValues(tooth: Tooth): TeethingFormValues {
+	return {
+		date: dateToDateInputValue(tooth.date ? new Date(tooth.date) : new Date()),
+		notes: tooth.notes ?? '',
+	};
+}
+
 export default function TeethingForm({
 	onClose,
 	onSave,
 	tooth,
 	toothName,
 }: TeethingFormProps) {
-	const [date, setDate] = useState(
-		dateToDateInputValue(tooth.date ? new Date(tooth.date) : new Date()),
-	);
-	const [notes, setNotes] = useState(tooth.notes || '');
+	const { handleSubmit, register, reset } = useForm<TeethingFormValues>({
+		defaultValues: getDefaultValues(tooth),
+		mode: 'onChange',
+		resolver: zodResolver(teethingFormSchema),
+	});
 
-	const handleSave = () => {
+	useEffect(() => {
+		reset(getDefaultValues(tooth));
+	}, [reset, tooth]);
+
+	const handleSave = (values: TeethingFormValues) => {
 		onSave({
 			...tooth,
-			date: new Date(`${date}T12:00:00`).toISOString(),
-			notes: notes || undefined,
+			date: new Date(`${values.date}T12:00:00`).toISOString(),
+			notes: values.notes || undefined,
 		});
 		onClose();
 	};
@@ -57,48 +72,43 @@ export default function TeethingForm({
 					<DialogTitle>
 						<fbt desc="Edit teething progress title">
 							Edit Teething: <fbt:param name="toothName">{toothName}</fbt:param>{' '}
-							(
-							<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
+							(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
 						</fbt>
 					</DialogTitle>
 				</DialogHeader>
-				<div className="grid gap-4 py-4">
-					<div className="space-y-2">
-						<Label htmlFor="date">
-							<fbt desc="Date of eruption">Eruption Date</fbt>
-						</Label>
-						<Input
-							id="date"
-							onChange={(e) => setDate(e.target.value)}
-							type="date"
-							value={date}
-						/>
-					</div>
+				<form onSubmit={handleSubmit(handleSave)}>
+					<div className="grid gap-4 py-4">
+						<div className="space-y-2">
+							<Label htmlFor="date">
+								<fbt desc="Date of eruption">Eruption Date</fbt>
+							</Label>
+							<Input id="date" type="date" {...register('date')} />
+						</div>
 
-					<div className="space-y-2">
-						<Label htmlFor="notes">
-							<fbt common>Notes</fbt>
-						</Label>
-						<Textarea
-							id="notes"
-							onChange={(e) => setNotes(e.target.value)}
-							placeholder={fbt(
-								'Additional information',
-								'Placeholder for a text input for notes',
-							)}
-							rows={3}
-							value={notes}
-						/>
+						<div className="space-y-2">
+							<Label htmlFor="notes">
+								<fbt common>Notes</fbt>
+							</Label>
+							<Textarea
+								id="notes"
+								placeholder={fbt(
+									'Additional information',
+									'Placeholder for a text input for notes',
+								)}
+								rows={3}
+								{...register('notes')}
+							/>
+						</div>
 					</div>
-				</div>
-				<DialogFooter className="flex justify-between sm:justify-between">
-					<Button onClick={handleClear} variant="outline">
-						<fbt desc="Clear teething data">Clear</fbt>
-					</Button>
-					<Button onClick={handleSave} type="submit">
-						<fbt common>Save</fbt>
-					</Button>
-				</DialogFooter>
+					<DialogFooter className="flex justify-between sm:justify-between">
+						<Button onClick={handleClear} type="button" variant="outline">
+							<fbt desc="Clear teething data">Clear</fbt>
+						</Button>
+						<Button type="submit">
+							<fbt common>Save</fbt>
+						</Button>
+					</DialogFooter>
+				</form>
 			</DialogContent>
 		</Dialog>
 	);

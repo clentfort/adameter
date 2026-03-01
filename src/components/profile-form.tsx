@@ -1,8 +1,11 @@
 'use client';
 
+import type { Profile, ProfileFormValues, Sex } from '@/types/profile';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { Check } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +16,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Profile, Sex } from '@/types/profile';
+import { profileFormSchema } from '@/types/profile';
 
 interface ProfileFormProps {
 	initialData?: Profile | null;
@@ -47,37 +50,54 @@ const COLORS = [
 	'bg-rose-500',
 ];
 
+function getDefaultValues(
+	initialData: Profile | null | undefined,
+	fallbackColor: string,
+): ProfileFormValues {
+	return {
+		color: initialData?.color ?? fallbackColor,
+		dob: initialData?.dob ?? '',
+		name: initialData?.name ?? '',
+		sex: initialData?.sex ?? 'boy',
+	};
+}
+
 export default function ProfileForm({
 	initialData,
 	onOptOut,
 	onSave,
 }: ProfileFormProps) {
-	const [dob, setDob] = useState(initialData?.dob || '');
-	const [sex, setSex] = useState<Sex | ''>(initialData?.sex || '');
-	const [name, setName] = useState(initialData?.name || '');
-	const [color, setColor] = useState(
-		initialData?.color || COLORS[Math.floor(Math.random() * COLORS.length)],
+	const fallbackColor = useMemo(
+		() => COLORS[Math.floor(Math.random() * COLORS.length)],
+		[],
 	);
 
-	useEffect(() => {
-		if (initialData) {
-			setDob(initialData.dob || '');
-			setSex(initialData.sex || '');
-			setName(initialData.name || '');
-			if (initialData.color) {
-				setColor(initialData.color);
-			}
-		}
-	}, [initialData]);
+	const {
+		formState: { isValid },
+		handleSubmit,
+		register,
+		reset,
+		setValue,
+		watch,
+	} = useForm<ProfileFormValues>({
+		defaultValues: getDefaultValues(initialData, fallbackColor),
+		mode: 'onChange',
+		resolver: zodResolver(profileFormSchema),
+	});
 
-	const handleSave = () => {
-		if (dob && sex && name) {
-			onSave({ color, dob, name, sex });
-		}
+	const color = watch('color');
+	const sex = watch('sex');
+
+	useEffect(() => {
+		reset(getDefaultValues(initialData, fallbackColor));
+	}, [fallbackColor, initialData, reset]);
+
+	const handleSave = (values: ProfileFormValues) => {
+		onSave(values);
 	};
 
 	return (
-		<div className="space-y-6 py-4">
+		<form className="space-y-6 py-4" onSubmit={handleSubmit(handleSave)}>
 			<div className="space-y-4">
 				<div className="space-y-2">
 					<Label htmlFor="name">
@@ -85,22 +105,16 @@ export default function ProfileForm({
 					</Label>
 					<Input
 						id="name"
-						onChange={(e) => setName(e.target.value)}
 						placeholder={fbt('Name', 'Placeholder for child name input')}
 						type="text"
-						value={name}
+						{...register('name')}
 					/>
 				</div>
 				<div className="space-y-2">
 					<Label htmlFor="dob">
 						<fbt desc="Label for date of birth input">Date of Birth</fbt>
 					</Label>
-					<Input
-						id="dob"
-						onChange={(e) => setDob(e.target.value)}
-						type="date"
-						value={dob}
-					/>
+					<Input id="dob" type="date" {...register('dob')} />
 				</div>
 				<div className="space-y-2">
 					<Label htmlFor="sex">
@@ -108,9 +122,7 @@ export default function ProfileForm({
 					</Label>
 					<Select
 						onValueChange={(value) => {
-							if (value) {
-								setSex(value as Sex);
-							}
+							setValue('sex', value as Sex, { shouldValidate: true });
 						}}
 						value={sex}
 					>
@@ -136,18 +148,22 @@ export default function ProfileForm({
 						<fbt desc="Label for color selection">Color</fbt>
 					</Label>
 					<div className="flex flex-wrap gap-2">
-						{COLORS.map((c) => (
+						{COLORS.map((colorOption) => (
 							<button
-								className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all ${c} ${
-									color === c
+								className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all ${colorOption} ${
+									color === colorOption
 										? 'border-slate-900 scale-110'
 										: 'border-transparent hover:scale-105'
 								}`}
-								key={c}
-								onClick={() => setColor(c)}
+								key={colorOption}
+								onClick={() => {
+									setValue('color', colorOption, { shouldValidate: true });
+								}}
 								type="button"
 							>
-								{color === c && <Check className="h-4 w-4 text-white" />}
+								{color === colorOption && (
+									<Check className="h-4 w-4 text-white" />
+								)}
 							</button>
 						))}
 					</div>
@@ -155,17 +171,14 @@ export default function ProfileForm({
 			</div>
 
 			<div className="flex flex-col gap-2 pt-4">
-				<Button
-					className="w-full"
-					disabled={!dob || !sex || !name}
-					onClick={handleSave}
-				>
+				<Button className="w-full" disabled={!isValid} type="submit">
 					<fbt desc="Button to save profile information">Save Profile</fbt>
 				</Button>
 				<Button
 					className="w-full text-muted-foreground text-xs"
 					data-testid="profile-opt-out-button"
 					onClick={onOptOut}
+					type="button"
 					variant="ghost"
 				>
 					<fbt desc="Button to opt out of providing profile information">
@@ -173,6 +186,6 @@ export default function ProfileForm({
 					</fbt>
 				</Button>
 			</div>
-		</div>
+		</form>
 	);
 }
