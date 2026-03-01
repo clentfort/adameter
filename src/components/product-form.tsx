@@ -24,6 +24,7 @@ function getDefaultValues(
 		costPerDiaper: initialData?.costPerDiaper?.toString() ?? '',
 		isReusable: initialData?.isReusable ?? false,
 		name: initialData?.name ?? '',
+		upfrontCost: initialData?.upfrontCost?.toString() ?? '',
 	};
 }
 
@@ -52,14 +53,29 @@ export default function ProductForm({
 	}, [initialData, reset]);
 
 	const handleSave = (values: DiaperProductFormValues) => {
+		const parsedCostPerDiaper = values.costPerDiaper
+			? Number.parseFloat(values.costPerDiaper)
+			: undefined;
+		const parsedUpfrontCost = values.upfrontCost
+			? Number.parseFloat(values.upfrontCost)
+			: undefined;
+
 		onSave({
 			...(initialData as DiaperProduct),
-			costPerDiaper: values.costPerDiaper
-				? Number.parseFloat(values.costPerDiaper)
-				: undefined,
+			costPerDiaper:
+				typeof parsedCostPerDiaper === 'number' &&
+				Number.isFinite(parsedCostPerDiaper)
+					? parsedCostPerDiaper
+					: undefined,
 			id: initialData?.id ?? crypto.randomUUID(),
 			isReusable: values.isReusable,
 			name: values.name,
+			upfrontCost:
+				values.isReusable &&
+				typeof parsedUpfrontCost === 'number' &&
+				Number.isFinite(parsedUpfrontCost)
+					? parsedUpfrontCost
+					: undefined,
 		});
 	};
 
@@ -98,13 +114,37 @@ export default function ProductForm({
 					checked={isReusable}
 					id="product-reusable"
 					onCheckedChange={(checked) => {
-						setValue('isReusable', checked, { shouldValidate: true });
+						setValue('isReusable', checked, {
+							shouldDirty: true,
+							shouldValidate: true,
+						});
+						if (!checked) {
+							setValue('upfrontCost', '', { shouldValidate: true });
+						}
 					}}
 				/>
 				<Label htmlFor="product-reusable">
 					<fbt desc="Label for reusable diaper switch">Reusable Diaper</fbt>
 				</Label>
 			</div>
+
+			{isReusable && (
+				<div className="space-y-2">
+					<Label htmlFor="product-upfront-cost">
+						<fbt desc="Label for reusable diaper upfront cost input">
+							Upfront Cost
+						</fbt>
+					</Label>
+					<Input
+						id="product-upfront-cost"
+						min="0"
+						placeholder="0.00"
+						step="0.01"
+						type="number"
+						{...register('upfrontCost')}
+					/>
+				</div>
+			)}
 
 			<div className="flex justify-end gap-2 pt-2">
 				<Button onClick={onCancel} type="button" variant="outline">

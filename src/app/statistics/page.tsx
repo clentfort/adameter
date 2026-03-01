@@ -26,6 +26,7 @@ import FeedingRecords from './components/feeding-records';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
+import ReusableSavingsCard from './components/reusable-savings-card';
 import TimeBetweenStats from './components/time-between-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
@@ -288,6 +289,11 @@ export default function StatisticsPage() {
 							<DiaperStats
 								comparisonDiaperChanges={comparisonDiaperChanges}
 								diaperChanges={filteredDiaperChanges}
+								products={diaperProducts}
+							/>
+							<ReusableSavingsCard
+								allDiaperChanges={diaperChanges}
+								className="mt-4"
 								products={diaperProducts}
 							/>
 							<YearlyActivityHeatMap

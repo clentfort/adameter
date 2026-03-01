@@ -42,6 +42,18 @@ export const diaperProductSchema = z.object({
 		),
 	isReusable: z.boolean(),
 	name: z.string().min(1),
+	upfrontCost: z
+		.string()
+		.optional()
+		.refine(
+			(value) =>
+				value === undefined ||
+				value.length === 0 ||
+				!Number.isNaN(Number(value)),
+			{
+				message: 'Upfront cost must be a number',
+			},
+		),
 });
 
 export type DiaperProductFormValues = z.infer<typeof diaperProductSchema>;
@@ -55,6 +67,8 @@ export interface DiaperProduct extends BaseEntity {
 	isReusable: boolean;
 	/** Name of the diaper product. */
 	name: string;
+	/** One-time upfront cost for reusable diapers in the current currency. */
+	upfrontCost?: number;
 }
 
 export interface DiaperChange extends BaseEntity {

@@ -502,6 +502,29 @@ export default function SettingsPage() {
 										<fbt desc="Text showing no cost is set">No cost set</fbt>
 									)}
 								</p>
+								{product.isReusable && (
+									<p className="text-xs text-muted-foreground">
+										{typeof product.upfrontCost === 'number' ? (
+											<fbt desc="Reusable diaper upfront cost display">
+												Upfront cost:{' '}
+												<fbt:param name="currency">
+													{currency === 'GBP'
+														? '£'
+														: currency === 'EUR'
+															? '€'
+															: '$'}
+												</fbt:param>
+												<fbt:param name="upfrontCost">
+													{product.upfrontCost.toFixed(2)}
+												</fbt:param>
+											</fbt>
+										) : (
+											<fbt desc="Text showing no upfront cost is set for reusable diapers">
+												No upfront cost set
+											</fbt>
+										)}
+									</p>
+								)}
 							</div>
 							<div className="flex items-center gap-2">
 								<Button
