@@ -6,7 +6,7 @@ import Image from 'next/image';
 import '@/i18n';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
 import ProfilePrompt from '../profile-prompt';
@@ -25,45 +25,125 @@ export default function RootLayout({ children }: RootLayoutProps) {
 	const latestFeedingSession = useLatestFeedingSession();
 	const latestDiaperChange = useLatestDiaperChange();
 	const pathname = usePathname();
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const isSettingsPage = pathname === '/settings';
 
+	useEffect(() => {
+		const handleScroll = () => {
+			if (!containerRef.current) return;
+			const scrollThreshold = 144;
+			const scrollY = window.scrollY;
+			const progress = Math.min(1, Math.max(0, scrollY / scrollThreshold));
+			containerRef.current.style.setProperty(
+				'--header-scroll-progress',
+				progress.toString(),
+			);
+		};
+
+		window.addEventListener('scroll', handleScroll);
+		handleScroll(); // Initial call
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
+
 	return (
-		<div className="flex flex-col min-h-screen items-center">
-			<main className="flex flex-col items-center p-4 max-w-md mx-auto w-full flex-grow">
+		<div
+			className="flex flex-col min-h-screen items-center"
+			ref={containerRef}
+			style={{ '--header-scroll-progress': '0' } as React.CSSProperties}
+		>
+			<main className="flex flex-col items-center max-w-md mx-auto w-full flex-grow">
 				{!isSettingsPage && (
-					<>
-						<div className="w-full flex justify-between items-center mb-6 mt-4">
-							<span className="relative w-12 h-12">
-								<Link href="/">
-									<Image
-										alt="AdaMeter Logo"
-										className="rounded-full block h-full w-full"
-										height={96}
-										src="/icon-96x96.png"
-										width={96}
-									/>
-								</Link>
-							</span>
-							<h1 className="text-2xl font-bold">AdaMeter</h1>
-							<div className="flex items-center gap-2">
-								<Link href="/settings">
-									<Button
-										aria-label={fbt(
-											'Settings',
-											'Label for the settings button',
-										)}
-										data-testid="settings-button"
-										size="icon"
-										variant="outline"
-									>
-										<Settings className="h-5 w-5" />
-									</Button>
-								</Link>
+					<div
+						className="sticky top-0 z-50 w-full flex flex-col bg-background !transition-none"
+						style={
+							{
+								height: `calc(var(--header-height-expanded) - (var(--header-height-expanded) - var(--header-height-sticky)) * var(--header-scroll-progress))`,
+							} as React.CSSProperties
+						}
+					>
+						<div
+							className="absolute z-50 !transition-none"
+							style={
+								{
+									height: `calc(var(--logo-size-expanded) - (var(--logo-size-expanded) - var(--logo-size-sticky)) * var(--header-scroll-progress))`,
+									left: `calc(var(--logo-left-expanded) + (var(--logo-left-sticky) - var(--logo-left-expanded)) * var(--header-scroll-progress))`,
+									top: `calc(var(--logo-top-expanded) + (var(--logo-top-sticky) - var(--logo-top-expanded)) * var(--header-scroll-progress))`,
+									width: `calc(var(--logo-size-expanded) - (var(--logo-size-expanded) - var(--logo-size-sticky)) * var(--header-scroll-progress))`,
+								} as React.CSSProperties
+							}
+						>
+							<Link href="/">
+								<Image
+									alt="AdaMeter Logo"
+									className="rounded-full block h-full w-full"
+									height={96}
+									src="/icon-96x96.png"
+									width={96}
+								/>
+							</Link>
+						</div>
+
+						<div
+							className="w-full !transition-none"
+							style={{
+								height: `calc(10px * var(--header-scroll-progress))`,
+							}}
+						/>
+
+						<div
+							className="relative flex-grow flex items-center justify-between px-4 !transition-none"
+							style={{
+								marginTop: `calc(1rem * (1 - var(--header-scroll-progress)))`,
+								maxHeight: `calc(48px * (1 - var(--header-scroll-progress)))`,
+								overflow: 'hidden',
+							}}
+						>
+							<div className="w-full flex justify-between items-center">
+								<div className="w-12 h-12 shrink-0" />
+								<h1
+									className="text-2xl font-bold !transition-none"
+									style={{
+										opacity: `calc(1 - var(--header-scroll-progress))`,
+										transform: `translateY(calc(-20px * var(--header-scroll-progress)))`,
+									}}
+								>
+									AdaMeter
+								</h1>
+								<div
+									className="flex items-center gap-2 !transition-none"
+									style={{
+										opacity: `calc(1 - var(--header-scroll-progress))`,
+										transform: `translateY(calc(-20px * var(--header-scroll-progress)))`,
+									}}
+								>
+									<Link href="/settings">
+										<Button
+											aria-label={fbt(
+												'Settings',
+												'Label for the settings button',
+											)}
+											data-testid="settings-button"
+											size="icon"
+											variant="outline"
+										>
+											<Settings className="h-5 w-5" />
+										</Button>
+									</Link>
+								</div>
 							</div>
 						</div>
 
-						<div className="w-full flex flex-row justify-between gap-2 mb-6">
+						<div
+							className="w-full flex flex-row justify-between gap-2 px-4 !transition-none"
+							style={{
+								marginBottom: `calc(1rem * (1 - var(--header-scroll-progress)))`,
+								maxHeight: `calc(60px * (1 - var(--header-scroll-progress)))`,
+								opacity: `calc(1 - var(--header-scroll-progress))`,
+								overflow: 'hidden',
+								transform: `translateY(calc(-20px * var(--header-scroll-progress)))`,
+							}}
+						>
 							<TimeSince
 								icon="🍼"
 								lastChange={latestFeedingSession?.endTime || null}
@@ -82,14 +162,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
 								</fbt>
 							</TimeSince>
 						</div>
-						<Navigation />
-					</>
+						<div className="px-4">
+							<Navigation />
+						</div>
+					</div>
 				)}
-				<Suspense fallback={null}>
-					<RoomInviteHandler />
-				</Suspense>
-				<ProfilePrompt />
-				{children}
+				<div className="p-4 w-full">
+					<Suspense fallback={null}>
+						<RoomInviteHandler />
+					</Suspense>
+					<ProfilePrompt />
+					{children}
+				</div>
 			</main>
 			<Toaster />
 			<Footer />
