@@ -1,5 +1,5 @@
 import type { Content, Store } from 'tinybase';
-import { ROW_JSON_CELL, TABLE_IDS } from './constants';
+import { INTERNAL_TABLE_IDS, ROW_JSON_CELL, TABLE_IDS } from './constants';
 
 /**
  * Merges a snapshot into the current store.
@@ -14,7 +14,10 @@ export function mergeStoreContent(
 	const [tables, values] = snapshot;
 
 	if (tables) {
-		const allowedTableIds = Object.values(TABLE_IDS) as string[];
+		const allowedTableIds = [
+			...Object.values(TABLE_IDS),
+			...Object.values(INTERNAL_TABLE_IDS),
+		] as string[];
 
 		for (const [tableId, table] of Object.entries(tables)) {
 			if (!allowedTableIds.includes(tableId)) {

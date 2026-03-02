@@ -42,6 +42,32 @@ test.describe('Room management', () => {
 		await expect(page.locator('.room-name')).toHaveText(testRoom);
 	});
 
+	test('should preserve data when creating a room with merge strategy', async ({
+		page,
+	}) => {
+		// 1. Add some data
+		await page.getByRole('link', { name: /feeding|füttern/i }).click();
+		await page.getByRole('button', { name: /add entry|eintrag hinzufügen/i }).click();
+		await page.getByLabel(/duration|dauer/i).fill('10');
+		await page.getByRole('button', { name: /save|speichern/i }).click();
+		await expect(page.getByText(/10\s*min/i)).toBeVisible();
+
+		// 2. Create a room (defaults to merge)
+		await page.getByRole('button', { name: /settings|einstellungen/i }).click();
+		await page.getByTestId('settings-sharing').click();
+		await page.getByRole('tab', { name: /create room/i }).click();
+		await page.getByRole('button', { name: /create new room/i }).click();
+
+		// 3. Verify room is connected
+		await expect(page.getByText(/currently connected to:/i)).toBeVisible();
+
+		// 4. Go back to feeding and verify data is still there
+		await page.getByTestId('back-button').click(); // Back to main settings
+		await page.getByTestId('back-button').click(); // Back to dashboard
+		await page.getByRole('link', { name: /feeding|füttern/i }).click();
+		await expect(page.getByText(/10\s*min/i)).toBeVisible();
+	});
+
 	test('should handle invite link with warning if already in a room', async ({
 		page,
 	}) => {
