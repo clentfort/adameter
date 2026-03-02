@@ -7,6 +7,8 @@ import {
 	encryptContent,
 	getEncryptionKey,
 	hashRoomId,
+	jsonParseWithUndefined,
+	jsonStringWithUndefined,
 } from './crypto';
 
 describe('crypto utils', () => {
@@ -101,5 +103,26 @@ describe('crypto utils', () => {
 		const decrypted = await decryptContent(encrypted, key);
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		expect((decrypted[1] as any).large).toBe(largeString);
+	});
+
+	it('should serialize and deserialize undefined values using marker', () => {
+		const data = {
+			a: 1,
+			b: undefined,
+			c: [1, undefined, 3],
+			d: {
+				e: undefined,
+				f: 2,
+			},
+		};
+
+		const serialized = jsonStringWithUndefined(data);
+		expect(serialized).toContain('\uFFFC');
+
+		const deserialized = jsonParseWithUndefined(serialized);
+		expect(deserialized).toEqual(data);
+		expect(deserialized.b).toBeUndefined();
+		expect(deserialized.c[1]).toBeUndefined();
+		expect(deserialized.d.e).toBeUndefined();
 	});
 });

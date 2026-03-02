@@ -5,7 +5,6 @@ import type {
 	Content,
 	Id,
 	Tables,
-	ValueOrUndefined,
 	Values,
 } from 'tinybase';
 
@@ -178,11 +177,10 @@ export async function encryptChanges(
 	key: CryptoKey,
 ): Promise<Changes> {
 	const [tableChanges, valueChanges, internal] = changes;
-	const encryptedTableChanges: Record<
-		Id,
-		Record<Id, Record<Id, CellOrUndefined> | undefined> | undefined
-	> = {};
-	const encryptedValueChanges: Record<Id, ValueOrUndefined> = {};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const encryptedTableChanges: any = {};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const encryptedValueChanges: any = {};
 
 	for (const [tableId, table] of Object.entries(tableChanges)) {
 		if (table === undefined) {
@@ -225,11 +223,10 @@ export async function decryptChanges(
 	key: CryptoKey,
 ): Promise<Changes> {
 	const [tableChanges, valueChanges, internal] = changes;
-	const decryptedTableChanges: Record<
-		Id,
-		Record<Id, Record<Id, CellOrUndefined> | undefined> | undefined
-	> = {};
-	const decryptedValueChanges: Record<Id, ValueOrUndefined> = {};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const decryptedTableChanges: any = {};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const decryptedValueChanges: any = {};
 
 	for (const [tableId, table] of Object.entries(tableChanges)) {
 		if (table === undefined) {
@@ -265,4 +262,34 @@ export async function decryptChanges(
 	}
 
 	return [decryptedTableChanges, decryptedValueChanges, internal];
+}
+
+const UNDEFINED_MARKER = '\uFFFC';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function jsonStringWithUndefined(obj: any): string {
+	return JSON.stringify(obj, (_key, value) =>
+		value === undefined ? UNDEFINED_MARKER : value,
+	);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function replaceUndefinedMarker(obj: any): any {
+	if (obj === UNDEFINED_MARKER) {
+		return undefined;
+	}
+	if (Array.isArray(obj)) {
+		return obj.map(replaceUndefinedMarker);
+	}
+	if (obj !== null && typeof obj === 'object') {
+		return Object.fromEntries(
+			Object.entries(obj).map(([k, v]) => [k, replaceUndefinedMarker(v)]),
+		);
+	}
+	return obj;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function jsonParseWithUndefined(str: string): any {
+	return replaceUndefinedMarker(JSON.parse(str));
 }

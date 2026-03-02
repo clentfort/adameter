@@ -6,15 +6,14 @@ import {
 	decryptContent,
 	encryptChanges,
 	encryptContent,
+	jsonParseWithUndefined,
+	jsonStringWithUndefined,
 } from '@/utils/crypto';
 
 const SET_CHANGES = 's';
 const STORE_PATH = '/store';
 const PUT = 'PUT';
 const MESSAGE = 'message';
-
-const jsonString = JSON.stringify;
-const jsonParse = JSON.parse;
 
 export function createSecurePartyKitPersister(
 	store: Store,
@@ -30,7 +29,7 @@ export function createSecurePartyKitPersister(
 
 	const getOrSetStore = async (content?: Content) => {
 		const body = content
-			? jsonString(await encryptContent(content, encryptionKey))
+			? jsonStringWithUndefined(await encryptContent(content, encryptionKey))
 			: undefined;
 
 		const response = await fetch(storeUrl, {
@@ -54,7 +53,7 @@ export function createSecurePartyKitPersister(
 	) => {
 		if (changes) {
 			const encryptedChanges = await encryptChanges(changes, encryptionKey);
-			connection.send(SET_CHANGES + jsonString(encryptedChanges));
+			connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
 		} else {
 			await getOrSetStore(_getContent());
 		}
@@ -70,7 +69,7 @@ export function createSecurePartyKitPersister(
 			const data = event.data;
 			if (typeof data === 'string' && data.startsWith(SET_CHANGES)) {
 				try {
-					const encryptedChanges = jsonParse(data.slice(1));
+					const encryptedChanges = jsonParseWithUndefined(data.slice(1));
 					const decrypted = await decryptChanges(
 						encryptedChanges,
 						encryptionKey,
