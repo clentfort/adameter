@@ -1,5 +1,6 @@
+import type { Changes } from 'tinybase';
 import PartySocket from 'partysocket';
-import { createStore, type Changes } from 'tinybase';
+import { createStore } from 'tinybase';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getEncryptionKey } from '@/utils/crypto';
 import { createSecurePartyKitPersister } from './secure-partykit-persister';
