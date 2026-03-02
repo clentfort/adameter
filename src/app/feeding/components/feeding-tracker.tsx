@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
-import { cn } from '@/lib/utils';
 import { formatDurationShort } from '@/utils/format-duration-short';
 import FeedingForm from './feeding-form';
 
