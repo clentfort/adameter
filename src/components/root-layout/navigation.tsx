@@ -42,9 +42,10 @@ export default function Navigation() {
 	const pathname = usePathname();
 	return (
 		<div
-			className="mb-6 !transition-none"
+			className="!transition-none"
 			style={{
-				marginLeft: `calc(32px * var(--header-scroll-progress))`,
+				marginBottom: `calc(1.5rem * (1 - var(--header-scroll-progress)))`,
+				marginLeft: `calc(40px * var(--header-scroll-progress))`,
 			}}
 		>
 			<NavigationMenu className="w-full max-w-none">
