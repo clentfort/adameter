@@ -41,7 +41,12 @@ const pages = [
 export default function Navigation() {
 	const pathname = usePathname();
 	return (
-		<div className="mb-6">
+		<div
+			className="mb-6 !transition-none"
+			style={{
+				marginLeft: `calc(32px * var(--header-scroll-progress))`,
+			}}
+		>
 			<NavigationMenu className="w-full max-w-none">
 				<NavigationMenuList className="w-full grid grid-cols-5">
 					{pages.map((page) => {

@@ -50,6 +50,15 @@
 
 	--breakpoint-xs: 480px;
 
+	--header-height-expanded: 172px;
+	--header-height-sticky: 64px;
+	--logo-size-expanded: 48px;
+	--logo-size-sticky: 24px;
+	--logo-top-expanded: 16px;
+	--logo-top-sticky: 20px;
+	--logo-left-expanded: 16px;
+	--logo-left-sticky: 16px;
+
 	@keyframes accordion-down {
 		from {
 			height: 0;
