@@ -42,9 +42,25 @@ export default function RootLayout({ children }: RootLayoutProps) {
 			setIsCondensed(window.scrollY >= threshold);
 		};
 
+		const handleScrollEnd = () => {
+			const threshold = 100;
+			const scrollY = window.scrollY;
+			if (scrollY > 0 && scrollY < threshold) {
+				const target = scrollY > threshold / 2 ? threshold : 0;
+				window.scrollTo({
+					behavior: 'smooth',
+					top: target,
+				});
+			}
+		};
+
 		window.addEventListener('scroll', handleScroll, { passive: true });
+		window.addEventListener('scrollend', handleScrollEnd);
 		handleScroll(); // Initial call
-		return () => window.removeEventListener('scroll', handleScroll);
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
+			window.removeEventListener('scrollend', handleScrollEnd);
+		};
 	}, []);
 
 	const isSettingsPage = pathname === '/settings';

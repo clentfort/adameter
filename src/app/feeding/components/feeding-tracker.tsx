@@ -129,7 +129,7 @@ export default function BreastfeedingTracker({
 				<div className="grid grid-cols-2 gap-4">
 					<div className="relative">
 						<Button
-							className="h-24 text-lg w-full bg-left-breast hover:bg-left-breast-dark text-white"
+							className="h-24 text-base xs:text-lg w-full bg-left-breast hover:bg-left-breast-dark text-white whitespace-normal break-words leading-tight px-2"
 							onClick={() =>
 								resumableSession && resumableSession.breast === 'left'
 									? resumeFeeding(resumableSession)
@@ -150,7 +150,7 @@ export default function BreastfeedingTracker({
 					</div>
 					<div className="relative">
 						<Button
-							className="h-24 text-lg w-full bg-right-breast hover:bg-right-breast-dark text-white"
+							className="h-24 text-base xs:text-lg w-full bg-right-breast hover:bg-right-breast-dark text-white whitespace-normal break-words leading-tight px-2"
 							onClick={() =>
 								resumableSession && resumableSession.breast === 'right'
 									? resumeFeeding(resumableSession)
