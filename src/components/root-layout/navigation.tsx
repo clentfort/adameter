@@ -1,7 +1,6 @@
 import { fbt } from 'fbtee';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
 import {
 	NavigationMenu,
 	NavigationMenuItem,
@@ -9,6 +8,7 @@ import {
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import { cn } from '@/lib/utils';
 import '@/i18n';
 
 const pages = [
