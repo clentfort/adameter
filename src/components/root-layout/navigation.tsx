@@ -60,7 +60,8 @@ export default function Navigation() {
 								<span
 									className="truncate hidden xs:inline-block transition-[max-width,opacity] duration-0 overflow-hidden"
 									style={{
-										maxWidth: 'calc((1 - var(--header-scroll-progress, 0)) * 100px)',
+										maxWidth:
+											'calc((1 - var(--header-scroll-progress, 0)) * 100px)',
 										opacity: 'calc(1 - var(--header-scroll-progress, 0))',
 									}}
 								>
