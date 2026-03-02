@@ -39,63 +39,38 @@ const pages = [
 	},
 ];
 
-export default function Navigation({ isCondensed }: { isCondensed?: boolean }) {
+export default function Navigation() {
 	const pathname = usePathname();
 	return (
-		<div
-			className="transition-[margin-bottom] duration-300"
-			style={{
-				marginBottom: isCondensed
-					? 0
-					: 'calc((1 - var(--header-scroll-progress, 0)) * 1.5rem)',
-			}}
-		>
-			<NavigationMenu className="w-full max-w-none">
-				<NavigationMenuList className="w-full grid grid-cols-5">
-					{pages.map((page) => {
-						const isActive = pathname === page.path;
-						return (
-							<NavigationMenuItem key={page.path}>
-								<NavigationMenuLink
-									active={isActive}
-									className={cn(
-										navigationMenuTriggerStyle(),
-										'flex w-full items-center sm:gap-1 sm:text-sm transition-all duration-300',
-										isCondensed
-											? 'flex-row gap-1 text-sm h-8'
-											: 'flex-col text-xs sm:flex-row',
-									)}
-									render={<Link href={page.path} />}
+		<NavigationMenu className="w-full max-w-none">
+			<NavigationMenuList className="w-full grid grid-cols-5">
+				{pages.map((page) => {
+					const isActive = pathname === page.path;
+					return (
+						<NavigationMenuItem key={page.path}>
+							<NavigationMenuLink
+								active={isActive}
+								className={cn(
+									navigationMenuTriggerStyle(),
+									'flex w-full flex-row items-center justify-center gap-1 sm:text-sm h-10 px-1 transition-none!',
+								)}
+								render={<Link href={page.path} />}
+							>
+								<span className="h-4 w-4 shrink-0">{page.icon}</span>
+								<span
+									className="truncate hidden xs:inline-block transition-[max-width,opacity] duration-0 overflow-hidden"
 									style={{
-										paddingBottom: isCondensed
-											? '0.25rem'
-											: 'calc(0.5rem - var(--header-scroll-progress, 0) * 0.25rem)',
-										paddingLeft: isCondensed
-											? '0.25rem'
-											: 'calc(0.5rem - var(--header-scroll-progress, 0) * 0.25rem)',
-										paddingRight: isCondensed
-											? '0.25rem'
-											: 'calc(0.5rem - var(--header-scroll-progress, 0) * 0.25rem)',
-										paddingTop: isCondensed
-											? '0.25rem'
-											: 'calc(0.5rem - var(--header-scroll-progress, 0) * 0.25rem)',
+										maxWidth: 'calc((1 - var(--header-scroll-progress, 0)) * 100px)',
+										opacity: 'calc(1 - var(--header-scroll-progress, 0))',
 									}}
 								>
-									<span className="h-4 w-4 shrink-0">{page.icon}</span>
-									<span
-										className={cn(
-											'hidden xs:inline truncate',
-											isCondensed && 'hidden sm:inline',
-										)}
-									>
-										{page.label()}
-									</span>
-								</NavigationMenuLink>
-							</NavigationMenuItem>
-						);
-					})}
-				</NavigationMenuList>
-			</NavigationMenu>
-		</div>
+									{page.label()}
+								</span>
+							</NavigationMenuLink>
+						</NavigationMenuItem>
+					);
+				})}
+			</NavigationMenuList>
+		</NavigationMenu>
 	);
 }

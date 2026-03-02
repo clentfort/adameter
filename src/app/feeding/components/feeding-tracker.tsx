@@ -277,7 +277,7 @@ interface NextBreastBadgeProps {
 function NextBreastBadge({ breast }: NextBreastBadgeProps) {
 	const bg = breast === 'left' ? 'bg-left-breast' : 'bg-right-breast';
 	return (
-		<Badge className={`absolute -top-2 -right-1 ${bg}`}>
+		<Badge className={`absolute -top-2 -right-1 transition-none! ${bg}`}>
 			<fbt desc="Badge on a button that tells the user that they should use this breast for the next feeding session">
 				Next
 			</fbt>
@@ -291,7 +291,7 @@ interface ResumeBadgeProps {
 function ResumeBadge({ breast }: ResumeBadgeProps) {
 	const bg = breast === 'left' ? 'bg-left-breast' : 'bg-right-breast';
 	return (
-		<Badge className={`absolute -top-2 -right-1 ${bg}`}>
+		<Badge className={`absolute -top-2 -right-1 transition-none! ${bg}`}>
 			<fbt desc="Badge on a button that tells the user that they can resume the last feeding session on this breast">
 				Resume
 			</fbt>
