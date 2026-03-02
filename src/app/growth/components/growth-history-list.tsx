@@ -1,34 +1,32 @@
 import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useRowIds } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
 import Markdown from '@/components/markdown';
+import { useGrowthMeasurementRow } from '@/hooks/use-growth-measurements';
+import { useToothRow } from '@/hooks/use-teething';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { getToothName } from '../utils/teething';
 import MeasurementForm from './growth-form';
 import TeethingForm from './teething-form';
 
 interface GrowthHistoryListProps {
-	measurements: ReadonlyArray<GrowthMeasurement>;
 	onMeasurementDelete: (measurementId: string) => void;
 	onMeasurementUpdate: (measurement: GrowthMeasurement) => void;
 	onToothUpdate: (tooth: Tooth) => void;
-	teeth: ReadonlyArray<Tooth>;
 }
 
-type HistoryEntry =
-	| { data: GrowthMeasurement; id: string; type: 'growth' }
-	| { data: Tooth; id: string; type: 'teething' };
-
 export default function GrowthHistoryList({
-	measurements = [],
 	onMeasurementDelete,
 	onMeasurementUpdate,
 	onToothUpdate,
-	teeth = [],
 }: GrowthHistoryListProps) {
+	const measurementIds = useRowIds(TABLE_IDS.GROWTH_MEASUREMENTS);
+	const toothIds = useRowIds(TABLE_IDS.TEETHING);
 	const [measurementToDelete, setMeasurementToDelete] = useState<string | null>(
 		null,
 	);
@@ -36,26 +34,16 @@ export default function GrowthHistoryList({
 		useState<GrowthMeasurement | null>(null);
 	const [toothToEdit, setToothToEdit] = useState<Tooth | null>(null);
 
-	const interleavedEntries: HistoryEntry[] = [
-		...measurements.map(
-			(m): HistoryEntry => ({ data: m, id: m.id, type: 'growth' }),
-		),
-		...teeth
-			.filter((t) => !!t.date)
-			.map(
-				(t): HistoryEntry => ({
-					data: t,
-					id: `tooth-${t.toothId}`,
-					type: 'teething',
-				}),
-			),
-	].sort((a, b) => {
-		const dateA = new Date(a.data.date!).getTime();
-		const dateB = new Date(b.data.date!).getTime();
-		return dateB - dateA;
-	});
+	const interleavedIds = useMemo(
+		() =>
+			[
+				...measurementIds.map((id) => ({ id, type: 'growth' as const })),
+				...toothIds.map((id) => ({ id, type: 'teething' as const })),
+			],
+		[measurementIds, toothIds],
+	);
 
-	if (interleavedEntries.length === 0) {
+	if (interleavedIds.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
 				<fbt desc="Empty state message when no growth history is recorded">
@@ -75,116 +63,24 @@ export default function GrowthHistoryList({
 	return (
 		<>
 			<div className="space-y-4">
-				{interleavedEntries.map((entry) => {
-					const date = new Date(entry.data.date!);
-
+				{interleavedIds.map((entry) => {
 					if (entry.type === 'growth') {
-						const measurement = entry.data;
 						return (
-							<div className="border rounded-lg p-4 shadow-xs" key={entry.id}>
-								<div className="flex justify-between items-start">
-									<div>
-										<div className="flex items-center gap-2">
-											<span aria-hidden="true" role="img">
-												📏
-											</span>
-											<p className="font-medium text-lg">
-												{format(date, 'dd. MMMM yyyy')}
-											</p>
-										</div>
-										<div className="mt-2 space-y-1">
-											{measurement.weight && (
-												<p className="text-sm">
-													<span className="font-medium">
-														<fbt desc="Weight of the baby">Weight</fbt>
-													</span>{' '}
-													{measurement.weight} g
-												</p>
-											)}
-											{measurement.height && (
-												<p className="text-sm">
-													<span className="font-medium">
-														{<fbt desc="Height of the baby">Height</fbt>}
-													</span>{' '}
-													{measurement.height} cm
-												</p>
-											)}
-											{measurement.headCircumference && (
-												<p className="text-sm">
-													<span className="font-medium">
-														<fbt desc="Head circumference of the baby">
-															Head Circumference
-														</fbt>
-													</span>{' '}
-													{measurement.headCircumference} cm
-												</p>
-											)}
-											{measurement.notes && (
-												<Markdown className="text-sm text-muted-foreground mt-2">
-													{measurement.notes}
-												</Markdown>
-											)}
-										</div>
-									</div>
-									<div className="flex gap-1">
-										<EditIconButton
-											onClick={() => setMeasurementToEdit(measurement)}
-										/>
-										<DeleteIconButton
-											onClick={() => setMeasurementToDelete(measurement.id)}
-										/>
-									</div>
-								</div>
-							</div>
+							<GrowthEntry
+								id={entry.id}
+								key={entry.id}
+								onDelete={setMeasurementToDelete}
+								onEdit={setMeasurementToEdit}
+							/>
 						);
 					} else {
-						const tooth = entry.data;
 						return (
-							<div className="border rounded-lg p-4 shadow-xs" key={entry.id}>
-								<div className="flex justify-between items-start">
-									<div>
-										<div className="flex items-center gap-2">
-											<span aria-hidden="true" role="img">
-												🦷
-											</span>
-											<p className="font-medium text-lg">
-												{format(date, 'dd. MMMM yyyy')}
-											</p>
-										</div>
-										<div className="mt-2 space-y-1">
-											<p className="text-sm">
-												<fbt desc="Tooth erupted message">
-													<fbt:param name="label">
-														<span className="font-medium">Tooth Erupted</span>
-													</fbt:param>
-													:
-													<fbt:param name="toothName">
-														{getToothName(tooth.toothId)}
-													</fbt:param>{' '}
-													(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
-												</fbt>
-											</p>
-											{tooth.notes && (
-												<Markdown className="text-sm text-muted-foreground mt-2">
-													{tooth.notes}
-												</Markdown>
-											)}
-										</div>
-									</div>
-									<div className="flex gap-1">
-										<EditIconButton onClick={() => setToothToEdit(tooth)} />
-										<DeleteIconButton
-											onClick={() =>
-												onToothUpdate({
-													...tooth,
-													date: undefined,
-													notes: undefined,
-												})
-											}
-										/>
-									</div>
-								</div>
-							</div>
+							<ToothEntry
+								id={entry.id}
+								key={entry.id}
+								onEdit={setToothToEdit}
+								onUpdate={onToothUpdate}
+							/>
 						);
 					}
 				})}
@@ -217,5 +113,131 @@ export default function GrowthHistoryList({
 				/>
 			)}
 		</>
+	);
+}
+
+interface GrowthEntryProps {
+	id: string;
+	onDelete: (id: string) => void;
+	onEdit: (measurement: GrowthMeasurement) => void;
+}
+
+function GrowthEntry({ id, onDelete, onEdit }: GrowthEntryProps) {
+	const measurement = useGrowthMeasurementRow(id);
+	if (!measurement.date) return null;
+	const date = new Date(measurement.date);
+
+	return (
+		<div className="border rounded-lg p-4 shadow-xs">
+			<div className="flex justify-between items-start">
+				<div>
+					<div className="flex items-center gap-2">
+						<span aria-hidden="true" role="img">
+							📏
+						</span>
+						<p className="font-medium text-lg">
+							{format(date, 'dd. MMMM yyyy')}
+						</p>
+					</div>
+					<div className="mt-2 space-y-1">
+						{measurement.weight && (
+							<p className="text-sm">
+								<span className="font-medium">
+									<fbt desc="Weight of the baby">Weight</fbt>
+								</span>{' '}
+								{measurement.weight} g
+							</p>
+						)}
+						{measurement.height && (
+							<p className="text-sm">
+								<span className="font-medium">
+									{<fbt desc="Height of the baby">Height</fbt>}
+								</span>{' '}
+								{measurement.height} cm
+							</p>
+						)}
+						{measurement.headCircumference && (
+							<p className="text-sm">
+								<span className="font-medium">
+									<fbt desc="Head circumference of the baby">
+										Head Circumference
+									</fbt>
+								</span>{' '}
+								{measurement.headCircumference} cm
+							</p>
+						)}
+						{measurement.notes && (
+							<Markdown className="text-sm text-muted-foreground mt-2">
+								{measurement.notes}
+							</Markdown>
+						)}
+					</div>
+				</div>
+				<div className="flex gap-1">
+					<EditIconButton onClick={() => onEdit(measurement)} />
+					<DeleteIconButton onClick={() => onDelete(measurement.id)} />
+				</div>
+			</div>
+		</div>
+	);
+}
+
+interface ToothEntryProps {
+	id: string;
+	onEdit: (tooth: Tooth) => void;
+	onUpdate: (tooth: Tooth) => void;
+}
+
+function ToothEntry({ id, onEdit, onUpdate }: ToothEntryProps) {
+	const tooth = useToothRow(id);
+	if (!tooth.date) return null;
+	const date = new Date(tooth.date);
+
+	return (
+		<div className="border rounded-lg p-4 shadow-xs">
+			<div className="flex justify-between items-start">
+				<div>
+					<div className="flex items-center gap-2">
+						<span aria-hidden="true" role="img">
+							🦷
+						</span>
+						<p className="font-medium text-lg">
+							{format(date, 'dd. MMMM yyyy')}
+						</p>
+					</div>
+					<div className="mt-2 space-y-1">
+						<p className="text-sm">
+							<fbt desc="Tooth erupted message">
+								<fbt:param name="label">
+									<span className="font-medium">Tooth Erupted</span>
+								</fbt:param>
+								:
+								<fbt:param name="toothName">
+									{getToothName(tooth.toothId)}
+								</fbt:param>{' '}
+								(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
+							</fbt>
+						</p>
+						{tooth.notes && (
+							<Markdown className="text-sm text-muted-foreground mt-2">
+								{tooth.notes}
+							</Markdown>
+						)}
+					</div>
+				</div>
+				<div className="flex gap-1">
+					<EditIconButton onClick={() => onEdit(tooth)} />
+					<DeleteIconButton
+						onClick={() =>
+							onUpdate({
+								...tooth,
+								date: undefined,
+								notes: undefined,
+							})
+						}
+					/>
+				</div>
+			</div>
+		</div>
 	);
 }

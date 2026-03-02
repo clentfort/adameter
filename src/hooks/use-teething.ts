@@ -1,15 +1,18 @@
 import type { Tooth } from '@/types/teething';
 import { useCallback, useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
+import { useRow, useRowIds, useStore } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
+
+export const useToothRow = (id: string) => {
+	const store = useStore()!;
+	const row = useRow(TABLE_IDS.TEETHING, id, store);
+	return useMemo(() => ({ ...row, id }) as unknown as Tooth, [id, row]);
+};
 
 export const useTeething = () => {
 	const store = useStore()!;
-	const table = useTable(TABLE_IDS.TEETHING, store);
-
-	const value = useMemo(() => fromTable<Tooth>(table), [table]);
+	const rowIds = useRowIds(TABLE_IDS.TEETHING, store);
 
 	const add = useCallback(
 		(item: Tooth) => {
@@ -43,7 +46,7 @@ export const useTeething = () => {
 	return {
 		add,
 		remove,
+		rowIds,
 		update,
-		value,
 	} as const;
 };

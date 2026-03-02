@@ -1,9 +1,10 @@
 'use client';
 
-import type { Store } from 'tinybase';
+import type { Queries, Store } from 'tinybase';
 import PartySocket from 'partysocket';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { createStore } from 'tinybase';
+import { createQueries, createStore } from 'tinybase';
+import { defineStatisticsQueries } from '@/lib/tinybase-sync/queries';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
 import { Provider } from 'tinybase/ui-react';
@@ -22,8 +23,13 @@ import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
 
 const defaultStore = createStore();
+const defaultQueries = createQueries(defaultStore);
 
-export const tinybaseContext = createContext<{ store: Store }>({
+export const tinybaseContext = createContext<{
+	queries: Queries;
+	store: Store;
+}>({
+	queries: defaultQueries,
 	store: defaultStore,
 });
 
@@ -36,6 +42,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		DataSynchronizationContext,
 	);
 	const storeRef = useRef<Store>(defaultStore);
+	const queriesRef = useRef<Queries>(defaultQueries);
 	const [isLocalReady, setIsLocalReady] = useState(false);
 	const [isSyncReady, setIsSyncReady] = useState(false);
 
@@ -43,6 +50,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		let isDisposed = false;
 
 		const store = storeRef.current;
+		const queries = createQueries(store);
+		defineStatisticsQueries(queries);
+		queriesRef.current = queries;
 		const localPersister = createIndexedDbPersister(
 			store,
 			TINYBASE_LOCAL_DB_NAME,
@@ -191,8 +201,12 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	}
 
 	return (
-		<tinybaseContext.Provider value={{ store: storeRef.current }}>
-			<Provider store={storeRef.current}>{children}</Provider>
+		<tinybaseContext.Provider
+			value={{ queries: queriesRef.current, store: storeRef.current }}
+		>
+			<Provider queries={queriesRef.current} store={storeRef.current}>
+				{children}
+			</Provider>
 		</tinybaseContext.Provider>
 	);
 }

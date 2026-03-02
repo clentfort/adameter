@@ -1,15 +1,23 @@
 import type { FeedingSession } from '@/types/feeding';
 import { useCallback, useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
+import {
+	useResultTable,
+	useRow,
+	useRowIds,
+	useStore,
+} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
+
+export const useFeedingSessionRow = (id: string) => {
+	const store = useStore()!;
+	const row = useRow(TABLE_IDS.FEEDING_SESSIONS, id, store);
+	return useMemo(() => ({ ...row, id }) as unknown as FeedingSession, [id, row]);
+};
 
 export const useFeedingSessions = () => {
 	const store = useStore()!;
-	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
-
-	const value = useMemo(() => fromTable<FeedingSession>(table), [table]);
+	const rowIds = useRowIds(TABLE_IDS.FEEDING_SESSIONS, store);
 
 	const add = useCallback(
 		(item: FeedingSession) => {
@@ -40,10 +48,17 @@ export const useFeedingSessions = () => {
 		[store],
 	);
 
+	const historyTable = useResultTable('feedingHistory');
+	const historyRowIds = useMemo(
+		() => Object.keys(historyTable),
+		[historyTable],
+	);
+
 	return {
 		add,
+		historyRowIds,
 		remove,
+		rowIds,
 		update,
-		value,
 	} as const;
 };

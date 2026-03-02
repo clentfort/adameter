@@ -1,15 +1,18 @@
 import type { GrowthMeasurement } from '@/types/growth';
 import { useCallback, useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
+import { useRow, useRowIds, useStore } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
+
+export const useGrowthMeasurementRow = (id: string) => {
+	const store = useStore()!;
+	const row = useRow(TABLE_IDS.GROWTH_MEASUREMENTS, id, store);
+	return useMemo(() => ({ ...row, id }) as unknown as GrowthMeasurement, [id, row]);
+};
 
 export const useGrowthMeasurements = () => {
 	const store = useStore()!;
-	const table = useTable(TABLE_IDS.GROWTH_MEASUREMENTS, store);
-
-	const value = useMemo(() => fromTable<GrowthMeasurement>(table), [table]);
+	const rowIds = useRowIds(TABLE_IDS.GROWTH_MEASUREMENTS, store);
 
 	const add = useCallback(
 		(item: GrowthMeasurement) => {
@@ -43,7 +46,7 @@ export const useGrowthMeasurements = () => {
 	return {
 		add,
 		remove,
+		rowIds,
 		update,
-		value,
 	} as const;
 };

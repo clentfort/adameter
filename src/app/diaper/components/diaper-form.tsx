@@ -1,10 +1,12 @@
-import type { ReactNode } from 'react';
-import type { DiaperChange, DiaperFormValues } from '@/types/diaper';
+'use client';
+
+import type { DiaperChange, DiaperFormValues, DiaperProduct } from '@/types/diaper';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { Plus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRow, useRowIds, useStore } from 'tinybase/ui-react';
 import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,8 +27,8 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { diaperFormSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
@@ -81,8 +83,33 @@ export default function DiaperForm({
 	title,
 	...props
 }: DiaperFormProps) {
-	const { add: addProduct, value: products } = useDiaperProducts();
-	const { value: changes } = useDiaperChanges();
+	const { add: addProduct } = useDiaperProducts();
+	const store = useStore()!;
+	const productIds = useRowIds(TABLE_IDS.DIAPER_PRODUCTS);
+	const changeIds = useRowIds(TABLE_IDS.DIAPER_CHANGES);
+
+	const products = useMemo(
+		() =>
+			productIds.map(
+				(id) =>
+					({
+						...store.getRow(TABLE_IDS.DIAPER_PRODUCTS, id),
+						id,
+					}) as DiaperProduct,
+			),
+		[productIds, store],
+	);
+	const changes = useMemo(
+		() =>
+			changeIds.map(
+				(id) =>
+					({
+						...store.getRow(TABLE_IDS.DIAPER_CHANGES, id),
+						id,
+					}) as DiaperChange,
+			),
+		[changeIds, store],
+	);
 
 	const sortedProducts = useMemo(
 		() => getFrecencySortedProducts(products, changes),

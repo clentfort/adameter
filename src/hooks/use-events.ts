@@ -1,15 +1,18 @@
 import type { Event } from '@/types/event';
 import { useCallback, useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
+import { useRow, useRowIds, useStore } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
+
+export const useEventRow = (id: string) => {
+	const store = useStore()!;
+	const row = useRow(TABLE_IDS.EVENTS, id, store);
+	return useMemo(() => ({ ...row, id }) as unknown as Event, [id, row]);
+};
 
 export const useEvents = () => {
 	const store = useStore()!;
-	const table = useTable(TABLE_IDS.EVENTS, store);
-
-	const value = useMemo(() => fromTable<Event>(table), [table]);
+	const rowIds = useRowIds(TABLE_IDS.EVENTS, store);
 
 	const add = useCallback(
 		(item: Event) => {
@@ -43,7 +46,7 @@ export const useEvents = () => {
 	return {
 		add,
 		remove,
+		rowIds,
 		update,
-		value,
 	} as const;
 };

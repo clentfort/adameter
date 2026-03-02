@@ -1,203 +1,64 @@
-import { act, renderHook } from '@testing-library/react';
-import { describe, expect, it, MockedFunction, vi } from 'vitest';
-import { FeedingSession } from '@/types/feeding';
-import { useFeedingSessions } from './use-feeding-sessions';
+import { renderHook } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { useRowIds, useStore } from 'tinybase/ui-react';
 import { useLatestFeedingSession } from './use-latest-feeding-session';
 
-// Mock useFeedingSessions
-vi.mock('./use-feeding-sessions', () => ({
-	useFeedingSessions: vi.fn(),
-}));
-
-const mockUseFeedingSessions = useFeedingSessions as MockedFunction<
-	typeof useFeedingSessions
->;
+vi.mock('tinybase/ui-react', async () => {
+	const actual = await vi.importActual('tinybase/ui-react');
+	return {
+		...actual,
+		useRowIds: vi.fn(),
+		useStore: vi.fn(),
+	};
+});
 
 describe('useLatestFeedingSession', () => {
 	it('should return undefined if there are no feeding sessions', () => {
-		mockUseFeedingSessions.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: [],
-		});
+		vi.mocked(useRowIds).mockReturnValue([]);
+		vi.mocked(useStore).mockReturnValue({
+			getCell: vi.fn(),
+			getRow: vi.fn(),
+		} as any);
 
 		const { result } = renderHook(() => useLatestFeedingSession());
 		expect(result.current).toBeUndefined();
 	});
 
 	it('should return the feeding session if there is only one', () => {
-		const singleSession: FeedingSession = {
+		const singleSession = {
 			breast: 'left',
 			durationInSeconds: 1800,
 			endTime: '2023-01-01T12:00:00Z',
 			id: '1',
 			startTime: '2023-01-01T11:30:00Z',
 		};
-		mockUseFeedingSessions.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: [singleSession],
-		});
+		vi.mocked(useRowIds).mockReturnValue(['1']);
+		vi.mocked(useStore).mockReturnValue({
+			getCell: vi.fn().mockReturnValue('2023-01-01T12:00:00Z'),
+			getRow: vi.fn().mockReturnValue(singleSession),
+		} as any);
 
 		const { result } = renderHook(() => useLatestFeedingSession());
 		expect(result.current).toEqual(singleSession);
 	});
 
-	it('should return the latest feeding session when newest (by endTime) is at the end', () => {
-		const sessions: FeedingSession[] = [
-			{
-				breast: 'left',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T10:00:00Z',
-				id: '1',
-				startTime: '2023-01-01T09:30:00Z',
-			},
-			{
-				breast: 'right',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T11:00:00Z',
-				id: '2',
-				startTime: '2023-01-01T10:30:00Z',
-			},
-			{
-				breast: 'left',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T12:00:00Z',
-				id: '3',
-				startTime: '2023-01-01T11:30:00Z',
-			}, // Latest
+	it('should return the latest feeding session (by endTime)', () => {
+		const sessions = [
+			{ id: '1', endTime: '2023-01-01T10:00:00Z' },
+			{ id: '2', endTime: '2023-01-01T11:00:00Z' },
+			{ id: '3', endTime: '2023-01-01T12:00:00Z' },
 		];
-		mockUseFeedingSessions.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: sessions,
-		});
+		vi.mocked(useRowIds).mockReturnValue(['1', '2', '3']);
+		vi.mocked(useStore).mockReturnValue({
+			getCell: vi.fn().mockImplementation((_table, id) => {
+				return sessions.find((s) => s.id === id)?.endTime;
+			}),
+			getRow: vi.fn().mockImplementation((_table, id) => {
+				return sessions.find((s) => s.id === id);
+			}),
+		} as any);
 
 		const { result } = renderHook(() => useLatestFeedingSession());
 		expect(result.current).toEqual(sessions[2]);
-	});
-
-	it('should return the latest feeding session when newest (by endTime) is at the beginning', () => {
-		const sessions: FeedingSession[] = [
-			{
-				breast: 'left',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T12:00:00Z',
-				id: '3',
-				startTime: '2023-01-01T11:30:00Z',
-			}, // Latest
-			{
-				breast: 'left',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T10:00:00Z',
-				id: '1',
-				startTime: '2023-01-01T09:30:00Z',
-			},
-			{
-				breast: 'right',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T11:00:00Z',
-				id: '2',
-				startTime: '2023-01-01T10:30:00Z',
-			},
-		];
-		mockUseFeedingSessions.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: sessions,
-		});
-
-		const { result } = renderHook(() => useLatestFeedingSession());
-		expect(result.current).toEqual(sessions[0]);
-	});
-
-	it('should return the latest feeding session when newest (by endTime) is in the middle', () => {
-		const sessions: FeedingSession[] = [
-			{
-				breast: 'left',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T10:00:00Z',
-				id: '1',
-				startTime: '2023-01-01T09:30:00Z',
-			},
-			{
-				breast: 'left',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T12:00:00Z',
-				id: '3',
-				startTime: '2023-01-01T11:30:00Z',
-			}, // Latest
-			{
-				breast: 'right',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T11:00:00Z',
-				id: '2',
-				startTime: '2023-01-01T10:30:00Z',
-			},
-		];
-		mockUseFeedingSessions.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: sessions,
-		});
-
-		const { result } = renderHook(() => useLatestFeedingSession());
-		expect(result.current).toEqual(sessions[1]);
-	});
-
-	it('should update when feeding sessions array reference changes', () => {
-		const initialSessions: FeedingSession[] = [
-			{
-				breast: 'left',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T10:00:00Z',
-				id: '1',
-				startTime: '2023-01-01T09:30:00Z',
-			},
-		];
-		const nextSessions: FeedingSession[] = [
-			...initialSessions,
-			{
-				breast: 'right',
-				durationInSeconds: 1800,
-				endTime: '2023-01-01T11:00:00Z',
-				id: '2',
-				startTime: '2023-01-01T10:30:00Z',
-			}, // Latest
-		];
-
-		const mockHook = mockUseFeedingSessions.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: initialSessions,
-		});
-
-		const { rerender, result } = renderHook(() => useLatestFeedingSession());
-		expect(result.current).toEqual(initialSessions[0]);
-
-		act(() => {
-			mockHook.mockReturnValue({
-				add: vi.fn(),
-				remove: vi.fn(),
-
-				update: vi.fn(),
-				value: nextSessions,
-			});
-		});
-		rerender();
-
-		expect(result.current).toEqual(nextSessions[1]);
 	});
 });

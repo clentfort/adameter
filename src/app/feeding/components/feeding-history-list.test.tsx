@@ -1,7 +1,21 @@
 import type { FeedingSession } from '@/types/feeding';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { useRowIds } from 'tinybase/ui-react';
+import {
+	useFeedingSessionRow,
+	useFeedingSessions,
+} from '@/hooks/use-feeding-sessions';
 import HistoryList from './feeding-history-list';
+
+vi.mock('@/hooks/use-feeding-sessions');
+vi.mock('tinybase/ui-react', async () => {
+	const actual = await vi.importActual('tinybase/ui-react');
+	return {
+		...actual,
+		useRowIds: vi.fn(),
+	};
+});
 
 describe('FeedingHistoryList', () => {
 	it('should render a feeding session shorter than one hour correctly', () => {
@@ -14,13 +28,17 @@ describe('FeedingHistoryList', () => {
 			startTime: '2023-01-01T10:00:00Z',
 		};
 
-		render(
-			<HistoryList
-				onSessionDelete={() => {}}
-				onSessionUpdate={() => {}}
-				sessions={[mockSession]}
-			/>,
-		);
+		vi.mocked(useFeedingSessions).mockReturnValue({
+			add: vi.fn(),
+			historyRowIds: ['test-session-1'],
+			remove: vi.fn(),
+			rowIds: ['test-session-1'],
+			update: vi.fn(),
+		});
+		vi.mocked(useRowIds).mockReturnValue(['test-session-1']);
+		vi.mocked(useFeedingSessionRow).mockReturnValue(mockSession);
+
+		render(<HistoryList />);
 
 		// Assert duration is formatted correctly by formatDurationAbbreviated
 		// formatDurationAbbreviated(1500) -> "25 min"
@@ -40,13 +58,17 @@ describe('FeedingHistoryList', () => {
 			startTime: '2023-01-01T12:00:00Z',
 		};
 
-		render(
-			<HistoryList
-				onSessionDelete={() => {}}
-				onSessionUpdate={() => {}}
-				sessions={[mockSessionLong]}
-			/>,
-		);
+		vi.mocked(useFeedingSessions).mockReturnValue({
+			add: vi.fn(),
+			historyRowIds: ['test-session-2'],
+			remove: vi.fn(),
+			rowIds: ['test-session-2'],
+			update: vi.fn(),
+		});
+		vi.mocked(useRowIds).mockReturnValue(['test-session-2']);
+		vi.mocked(useFeedingSessionRow).mockReturnValue(mockSessionLong);
+
+		render(<HistoryList />);
 
 		// Assert duration is formatted correctly by formatDurationAbbreviated
 		// formatDurationAbbreviated(4200) -> "1 h 10 min"

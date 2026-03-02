@@ -1,8 +1,10 @@
 import type { DiaperChange } from '@/types/diaper';
 import { useState } from 'react';
+import { useRowIds } from 'tinybase/ui-react';
 import { Button } from '@/components/ui/button';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useLastUsedDiaperProduct } from '@/hooks/use-last-used-diaper-product';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import DiaperForm from './diaper-form';
 
 interface DiaperTrackerProps {
@@ -16,8 +18,8 @@ export default function DiaperTracker({
 	const [selectedType, setSelectedType] = useState<'urine' | 'stool' | null>(
 		null,
 	);
-	const diaperChangesHook = useDiaperChanges(); // Renamed to avoid conflict with diaperChanges prop if that was intended
-	const { add } = diaperChangesHook;
+	const { add } = useDiaperChanges();
+	const rowIds = useRowIds(TABLE_IDS.DIAPER_CHANGES);
 	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
 
 	const handleQuickChange = (type: 'urine' | 'stool') => {
@@ -53,7 +55,7 @@ export default function DiaperTracker({
 					onSave={(change) => {
 						setIsDetailsDialogOpen(false);
 						add(change);
-						const currentTotalChanges = diaperChangesHook.value.length;
+						const currentTotalChanges = rowIds.length;
 						checkAndTriggerConfetti(change, currentTotalChanges);
 					}}
 					presetDiaperProductId={lastUsedDiaperProduct}

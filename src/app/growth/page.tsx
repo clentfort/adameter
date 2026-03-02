@@ -11,8 +11,8 @@ import TeethingDialog from './components/teething-dialog';
 export default function GrowthPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const [isTeethingDialogOpen, setIsTeethingDialogOpen] = useState(false);
-	const { add, remove, update, value: measurements } = useGrowthMeasurements();
-	const { update: updateTooth, value: teeth } = useTeething();
+	const { add, remove, update } = useGrowthMeasurements();
+	const { update: updateTooth } = useTeething();
 
 	return (
 		<>
@@ -46,11 +46,9 @@ export default function GrowthPage() {
 					</div>
 
 					<GrowthHistoryList
-						measurements={measurements}
 						onMeasurementDelete={remove}
 						onMeasurementUpdate={update}
 						onToothUpdate={updateTooth}
-						teeth={teeth}
 					/>
 				</div>
 			</div>

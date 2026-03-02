@@ -12,7 +12,7 @@ import { useResumableSession } from './hooks/use-resumable-session';
 
 export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
-	const { add, remove, update, value: sessions } = useFeedingSessions();
+	const { add, update } = useFeedingSessions();
 	const nextBreast = useNextBreast();
 	const resumableSession = useResumableSession();
 
@@ -42,11 +42,7 @@ export default function Feedings() {
 							<fbt common>Add Entry</fbt>
 						</Button>
 					</div>
-					<HistoryList
-						onSessionDelete={remove}
-						onSessionUpdate={update}
-						sessions={sessions}
-					/>
+					<HistoryList />
 				</div>
 			</div>
 

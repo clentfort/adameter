@@ -1,8 +1,14 @@
 'use client';
 
 import type { TimeRange } from '@/utils/get-range-dates';
-import { addDays, format, isWithinInterval } from 'date-fns';
-import { useMemo, useState } from 'react';
+import { addDays, format } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
+import {
+	useResultTable,
+	useRowIds,
+	useSetParamValuesCallback,
+	useStore,
+} from 'tinybase/ui-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -14,9 +20,13 @@ import {
 } from '@/components/ui/select';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
-import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { fromTable } from '@/lib/tinybase-sync/migration-utils';
+import { DiaperChange, DiaperProduct } from '@/types/diaper';
+import { FeedingSession } from '@/types/feeding';
+import { GrowthMeasurement } from '@/types/growth';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
 import DiaperRecords from './components/diaper-records';
@@ -32,11 +42,11 @@ import TotalFeedingsStats from './components/total-feedings-stats';
 import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
 export default function StatisticsPage() {
-	const { value: diaperChanges } = useDiaperChanges();
-	const { value: diaperProducts } = useDiaperProducts();
-	const { value: events } = useEvents();
-	const { value: measurements } = useGrowthMeasurements();
-	const { value: sessions } = useFeedingSessions();
+	const store = useStore()!;
+	useDiaperChanges();
+	useDiaperProducts();
+	useFeedingSessions();
+	useGrowthMeasurements();
 
 	const [timeRange, setTimeRange] = useState<TimeRange>('7');
 	const [customRange, setCustomRange] = useState({
@@ -53,55 +63,116 @@ export default function StatisticsPage() {
 		[timeRange, customRange],
 	);
 
-	// Filter sessions based on selected time range
-	const filteredSessions = useMemo(
-		() =>
-			sessions.filter((session) =>
-				isWithinInterval(new Date(session.startTime), {
-					end: primary.to,
-					start: primary.from,
-				}),
-			),
-		[sessions, primary],
+	const updateParams = useSetParamValuesCallback(
+		'filteredFeedingSessions',
+		() => ({
+			from: primary.from.toISOString(),
+			to: primary.to.toISOString(),
+		}),
+		[primary],
 	);
 
-	const comparisonSessions = useMemo(
+	const updateComparisonParams = useSetParamValuesCallback(
+		'comparisonFeedingSessions',
+		() => ({
+			from: secondary?.from.toISOString() ?? '',
+			to: secondary?.to.toISOString() ?? '',
+		}),
+		[secondary],
+	);
+
+	const updateDiaperParams = useSetParamValuesCallback(
+		'filteredDiaperChanges',
+		() => ({
+			from: primary.from.toISOString(),
+			to: primary.to.toISOString(),
+		}),
+		[primary],
+	);
+
+	const updateComparisonDiaperParams = useSetParamValuesCallback(
+		'comparisonDiaperChanges',
+		() => ({
+			from: secondary?.from.toISOString() ?? '',
+			to: secondary?.to.toISOString() ?? '',
+		}),
+		[secondary],
+	);
+
+	useEffect(() => {
+		updateParams();
+		updateComparisonParams();
+		updateDiaperParams();
+		updateComparisonDiaperParams();
+	}, [
+		updateParams,
+		updateComparisonParams,
+		updateDiaperParams,
+		updateComparisonDiaperParams,
+	]);
+
+	const filteredSessions = useResultTable('filteredFeedingSessions');
+	const comparisonSessionsResult = useResultTable('comparisonFeedingSessions');
+	const filteredDiaperChanges = useResultTable('filteredDiaperChanges');
+	const comparisonDiaperChangesResult = useResultTable('comparisonDiaperChanges');
+
+	const filteredSessionsArray = useMemo(
+		() =>
+			Object.entries(filteredSessions).map(
+				([id, row]) => ({ ...row, id }) as unknown as FeedingSession,
+			),
+		[filteredSessions],
+	);
+
+	const comparisonSessionsArray = useMemo(
 		() =>
 			secondary
-				? sessions.filter((session) =>
-						isWithinInterval(new Date(session.startTime), {
-							end: secondary.to,
-							start: secondary.from,
-						}),
+				? Object.entries(comparisonSessionsResult).map(
+						([id, row]) => ({ ...row, id }) as unknown as FeedingSession,
 					)
 				: undefined,
-		[sessions, secondary],
+		[comparisonSessionsResult, secondary],
 	);
 
-	// Filter diaper changes based on selected time range
-	const filteredDiaperChanges = useMemo(
+	const filteredDiaperChangesArray = useMemo(
 		() =>
-			diaperChanges.filter((change) =>
-				isWithinInterval(new Date(change.timestamp), {
-					end: primary.to,
-					start: primary.from,
-				}),
+			Object.entries(filteredDiaperChanges).map(
+				([id, row]) => ({ ...row, id }) as unknown as DiaperChange,
 			),
-		[diaperChanges, primary],
+		[filteredDiaperChanges],
 	);
 
-	const comparisonDiaperChanges = useMemo(
+	const comparisonDiaperChangesArray = useMemo(
 		() =>
 			secondary
-				? diaperChanges.filter((change) =>
-						isWithinInterval(new Date(change.timestamp), {
-							end: secondary.to,
-							start: secondary.from,
-						}),
+				? Object.entries(comparisonDiaperChangesResult).map(
+						([id, row]) => ({ ...row, id }) as unknown as DiaperChange,
 					)
 				: undefined,
-		[diaperChanges, secondary],
+		[comparisonDiaperChangesResult, secondary],
 	);
+
+	const allProducts = useMemo(
+		() => fromTable<DiaperProduct>(store.getTable(TABLE_IDS.DIAPER_PRODUCTS)),
+		[store],
+	);
+	const allMeasurements = useMemo(
+		() =>
+			fromTable<GrowthMeasurement>(
+				store.getTable(TABLE_IDS.GROWTH_MEASUREMENTS),
+			),
+		[store],
+	);
+	const allSessions = useMemo(
+		() => fromTable<FeedingSession>(store.getTable(TABLE_IDS.FEEDING_SESSIONS)),
+		[store],
+	);
+	const allDiaperChanges = useMemo(
+		() => fromTable<DiaperChange>(store.getTable(TABLE_IDS.DIAPER_CHANGES)),
+		[store],
+	);
+
+	const measurementsIds = useRowIds(TABLE_IDS.GROWTH_MEASUREMENTS);
 
 	return (
 		<div className="w-full">
@@ -210,9 +281,9 @@ export default function StatisticsPage() {
 					</div>
 				)}
 			</div>
-			{filteredSessions.length === 0 &&
-			filteredDiaperChanges.length === 0 &&
-			measurements.length === 0 ? (
+			{filteredSessionsArray.length === 0 &&
+			filteredDiaperChangesArray.length === 0 &&
+			measurementsIds.length === 0 ? (
 				<div
 					className="text-center py-8 text-muted-foreground"
 					data-testid="no-data-message"
@@ -228,34 +299,37 @@ export default function StatisticsPage() {
 							Feeding
 						</fbt>
 					</h3>
-					{filteredSessions.length > 0 ? (
+					{filteredSessionsArray.length > 0 ? (
 						<>
 							<div className="grid grid-cols-2 gap-4">
 								<DurationStats
-									comparisonSessions={comparisonSessions}
-									sessions={filteredSessions}
+									comparisonSessions={comparisonSessionsArray}
+									sessions={filteredSessionsArray}
 								/>
 								<TotalDurationStats
-									comparisonSessions={comparisonSessions}
-									sessions={filteredSessions}
+									comparisonSessions={comparisonSessionsArray}
+									sessions={filteredSessionsArray}
 								/>
 								<TimeBetweenStats
-									comparisonSessions={comparisonSessions}
-									sessions={filteredSessions}
+									comparisonSessions={comparisonSessionsArray}
+									sessions={filteredSessionsArray}
 								/>
 								<FeedingsPerDayStats
-									comparisonSessions={comparisonSessions}
-									sessions={filteredSessions}
+									comparisonSessions={comparisonSessionsArray}
+									sessions={filteredSessionsArray}
 								/>
 								<TotalFeedingsStats
-									comparisonSessions={comparisonSessions}
-									sessions={filteredSessions}
+									comparisonSessions={comparisonSessionsArray}
+									sessions={filteredSessionsArray}
 								/>
-								<HeatMap className="col-span-2" sessions={filteredSessions} />
+								<HeatMap
+									className="col-span-2"
+									sessions={filteredSessionsArray}
+								/>
 							</div>
 							<YearlyActivityHeatMap
 								className="mt-4"
-								dates={sessions.map((session) => session.startTime)}
+								dates={allSessions.map((session) => session.startTime)}
 								description={
 									<fbt desc="Description for the feeding yearly activity heat map chart">
 										Each square shows how many feedings were logged on that day.
@@ -269,7 +343,7 @@ export default function StatisticsPage() {
 								}
 							/>
 							<div className="grid grid-cols-2 gap-4 mt-4">
-								<FeedingRecords sessions={sessions} />
+								<FeedingRecords sessions={allSessions} />
 							</div>
 						</>
 					) : (
@@ -283,16 +357,16 @@ export default function StatisticsPage() {
 					<h3 className="text-lg font-medium mt-8 mb-4">
 						<fbt desc="Subtitle for the diaper statistics section">Diaper</fbt>
 					</h3>
-					{filteredDiaperChanges.length > 0 ? (
+					{filteredDiaperChangesArray.length > 0 ? (
 						<>
 							<DiaperStats
-								comparisonDiaperChanges={comparisonDiaperChanges}
-								diaperChanges={filteredDiaperChanges}
-								products={diaperProducts}
+								comparisonDiaperChanges={comparisonDiaperChangesArray}
+								diaperChanges={filteredDiaperChangesArray}
+								products={allProducts}
 							/>
 							<YearlyActivityHeatMap
 								className="mt-4"
-								dates={diaperChanges.map((change) => change.timestamp)}
+								dates={allDiaperChanges.map((change) => change.timestamp)}
 								description={
 									<fbt desc="Description for the diaper yearly activity heat map chart">
 										Each square shows how many diaper changes were logged on
@@ -307,7 +381,7 @@ export default function StatisticsPage() {
 								}
 							/>
 							<div className="grid grid-cols-2 gap-4 mt-4">
-								<DiaperRecords diaperChanges={diaperChanges} />
+								<DiaperRecords diaperChanges={allDiaperChanges} />
 							</div>
 						</>
 					) : (
@@ -321,8 +395,8 @@ export default function StatisticsPage() {
 					<h3 className="text-lg font-medium mt-8 mb-4">
 						<fbt desc="Subtitle for the growth statistics section">Growth</fbt>
 					</h3>
-					{measurements.length > 0 ? (
-						<GrowthChart measurements={[...measurements]} />
+					{allMeasurements.length > 0 ? (
+						<GrowthChart measurements={allMeasurements} />
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
 							<fbt desc="Message shown when no growth data is available">

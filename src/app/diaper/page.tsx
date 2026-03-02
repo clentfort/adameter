@@ -4,9 +4,11 @@ import type { DiaperChange } from '@/types/diaper';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import ReactConfetti from 'react-confetti';
+import { useRowIds } from 'tinybase/ui-react';
 import { Button } from '@/components/ui/button';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useLastUsedDiaperProduct } from '@/hooks/use-last-used-diaper-product';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import DiaperForm from './components/diaper-form';
 import DiaperHistoryList from './components/diaper-history-list';
 import DiaperTracker from './components/diaper-tracker';
@@ -15,8 +17,8 @@ export default function DiaperPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const [showConfetti, setShowConfetti] = useState(false);
 
-	const diaperChanges = useDiaperChanges();
-	const { add } = diaperChanges;
+	const { add } = useDiaperChanges();
+	const rowIds = useRowIds(TABLE_IDS.DIAPER_CHANGES);
 	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
 
 	const checkAndTriggerConfetti = (
@@ -78,7 +80,7 @@ export default function DiaperPage() {
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(change) => {
 						add(change);
-						const currentTotalChanges = diaperChanges.value.length;
+						const currentTotalChanges = rowIds.length;
 						checkAndTriggerConfetti(change, currentTotalChanges);
 						setIsAddEntryDialogOpen(false);
 					}}

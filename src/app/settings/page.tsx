@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
+import { useStore } from 'tinybase/ui-react';
 import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
@@ -37,12 +38,18 @@ import { DataSynchronizationContext } from '@/contexts/data-synchronization-cont
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useDiaperProducts } from '@/hooks/use-diaper-products';
+import {
+	useDiaperProductRow,
+	useDiaperProducts,
+} from '@/hooks/use-diaper-products';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { fromTable } from '@/lib/tinybase-sync/migration-utils';
+import { DiaperProduct } from '@/types/diaper';
 import { fromCsv, mergeData, toCsv } from '@/utils/data-transfer/csv';
 import {
 	createZip,
@@ -57,11 +64,11 @@ type CsvImportRow = {
 function importRows<T extends { id: string }>(
 	storeState: {
 		update: (item: T) => void;
-		value: readonly T[];
 	},
+	currentData: T[],
 	rows: CsvImportRow[],
 ) {
-	const mergedRows = mergeData(storeState.value as T[], rows as unknown as T[]);
+	const mergedRows = mergeData(currentData, rows as unknown as T[]);
 	mergedRows.forEach((item) => storeState.update(item));
 }
 
@@ -73,6 +80,7 @@ export default function SettingsPage() {
 	const { room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
 	const { toast } = useToast();
+	const store = useStore()!;
 
 	const [activeSection, setActiveSection] = useState<
 		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers' | 'data'
@@ -90,24 +98,31 @@ export default function SettingsPage() {
 	const feedingSessionsState = useFeedingSessions();
 	const growthMeasurementsState = useGrowthMeasurements();
 
-	const dataStores = {
-		diaperChanges: diaperChangesState,
-		diaperProducts: diaperProductsState,
-		events: eventsState,
-		feedingSessions: feedingSessionsState,
-		growthMeasurements: growthMeasurementsState,
-	};
-
 	const handleExport = async () => {
 		setIsLoading(true);
 		try {
 			const files = (
 				[
-					{ data: diaperChangesState.value, name: 'diaperChanges' },
-					{ data: diaperProductsState.value, name: 'diaperProducts' },
-					{ data: eventsState.value, name: 'events' },
-					{ data: feedingSessionsState.value, name: 'feedingSessions' },
-					{ data: growthMeasurementsState.value, name: 'growthMeasurements' },
+					{
+						data: fromTable(store.getTable(TABLE_IDS.DIAPER_CHANGES)),
+						name: 'diaperChanges',
+					},
+					{
+						data: fromTable(store.getTable(TABLE_IDS.DIAPER_PRODUCTS)),
+						name: 'diaperProducts',
+					},
+					{
+						data: fromTable(store.getTable(TABLE_IDS.EVENTS)),
+						name: 'events',
+					},
+					{
+						data: fromTable(store.getTable(TABLE_IDS.FEEDING_SESSIONS)),
+						name: 'feedingSessions',
+					},
+					{
+						data: fromTable(store.getTable(TABLE_IDS.GROWTH_MEASUREMENTS)),
+						name: 'growthMeasurements',
+					},
 				] as const
 			)
 				.filter(({ data }) => data.length > 0)
@@ -140,21 +155,41 @@ export default function SettingsPage() {
 			for (const { content, name } of files) {
 				const data = fromCsv(content) as CsvImportRow[];
 
-				switch (name as keyof typeof dataStores) {
-					case 'diaperChanges':
-						importRows(diaperChangesState, data);
+				switch (name as keyof typeof TABLE_IDS) {
+					case 'DIAPER_CHANGES':
+						importRows(
+							diaperChangesState,
+							fromTable(store.getTable(TABLE_IDS.DIAPER_CHANGES)),
+							data,
+						);
 						break;
-					case 'diaperProducts':
-						importRows(diaperProductsState, data);
+					case 'DIAPER_PRODUCTS':
+						importRows(
+							diaperProductsState,
+							fromTable(store.getTable(TABLE_IDS.DIAPER_PRODUCTS)),
+							data,
+						);
 						break;
-					case 'events':
-						importRows(eventsState, data);
+					case 'EVENTS':
+						importRows(
+							eventsState,
+							fromTable(store.getTable(TABLE_IDS.EVENTS)),
+							data,
+						);
 						break;
-					case 'feedingSessions':
-						importRows(feedingSessionsState, data);
+					case 'FEEDING_SESSIONS':
+						importRows(
+							feedingSessionsState,
+							fromTable(store.getTable(TABLE_IDS.FEEDING_SESSIONS)),
+							data,
+						);
 						break;
-					case 'growthMeasurements':
-						importRows(growthMeasurementsState, data);
+					case 'GROWTH_MEASUREMENTS':
+						importRows(
+							growthMeasurementsState,
+							fromTable(store.getTable(TABLE_IDS.GROWTH_MEASUREMENTS)),
+							data,
+						);
 						break;
 					default:
 						break;
@@ -415,15 +450,23 @@ export default function SettingsPage() {
 		add: addProduct,
 		remove: removeProduct,
 		update: updateProduct,
-		value: products,
 	} = useDiaperProducts();
 	const [editingProductId, setEditingProductId] = useState<string | null>(null);
 	const [isAddingProduct, setIsAddingProduct] = useState(false);
 
 	const renderDiapers = () => {
+		const productIds = store.getRowIds(TABLE_IDS.DIAPER_PRODUCTS);
+		const products = productIds.map(
+			(id) =>
+				({
+					...store.getRow(TABLE_IDS.DIAPER_PRODUCTS, id),
+					id,
+				}) as DiaperProduct,
+		);
+
 		if (isAddingProduct || editingProductId) {
 			const initialData = editingProductId
-				? products.find((p) => p.id === editingProductId)
+				? (products.find((p) => p.id === editingProductId) as Partial<DiaperProduct>)
 				: {};
 			return (
 				<Card>
@@ -475,33 +518,7 @@ export default function SettingsPage() {
 								className="flex-grow cursor-pointer"
 								onClick={() => setEditingProductId(product.id)}
 							>
-								<div className="flex items-center gap-2">
-									<p className="font-medium">{product.name}</p>
-									{product.isReusable && (
-										<span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">
-											<fbt desc="Badge for reusable diapers">Reusable</fbt>
-										</span>
-									)}
-								</div>
-								<p className="text-xs text-muted-foreground">
-									{product.costPerDiaper !== undefined ? (
-										<fbt desc="Cost per diaper display">
-											Cost per item:{' '}
-											<fbt:param name="currency">
-												{currency === 'GBP'
-													? '£'
-													: currency === 'EUR'
-														? '€'
-														: '$'}
-											</fbt:param>
-											<fbt:param name="cost">
-												{product.costPerDiaper.toFixed(2)}
-											</fbt:param>
-										</fbt>
-									) : (
-										<fbt desc="Text showing no cost is set">No cost set</fbt>
-									)}
-								</p>
+								<DiaperProductRowItem id={product.id} />
 							</div>
 							<div className="flex items-center gap-2">
 								<Button
@@ -648,5 +665,36 @@ export default function SettingsPage() {
 			{activeSection === 'diapers' && renderDiapers()}
 			{activeSection === 'data' && renderData()}
 		</div>
+	);
+}
+
+function DiaperProductRowItem({ id }: { id: string }) {
+	const product = useDiaperProductRow(id);
+	const [currency] = useCurrency();
+
+	return (
+		<>
+			<div className="flex items-center gap-2">
+				<p className="font-medium">{product.name}</p>
+				{product.isReusable && (
+					<span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">
+						<fbt desc="Badge for reusable diapers">Reusable</fbt>
+					</span>
+				)}
+			</div>
+			<p className="text-xs text-muted-foreground">
+				{product.costPerDiaper !== undefined ? (
+					<fbt desc="Cost per diaper display">
+						Cost per item:{' '}
+						<fbt:param name="currency">
+							{currency === 'GBP' ? '£' : currency === 'EUR' ? '€' : '$'}
+						</fbt:param>
+						<fbt:param name="cost">{product.costPerDiaper.toFixed(2)}</fbt:param>
+					</fbt>
+				) : (
+					<fbt desc="Text showing no cost is set">No cost set</fbt>
+				)}
+			</p>
+		</>
 	);
 }
