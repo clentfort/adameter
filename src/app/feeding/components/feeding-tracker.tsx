@@ -1,6 +1,7 @@
 import type { FeedingSession } from '@/types/feeding';
 import { Duration, format, intervalToDuration } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
 import { cn } from '@/lib/utils';
@@ -124,17 +125,10 @@ export default function BreastfeedingTracker({
 	};
 
 	return (
-		<div className="w-full pt-4">
+		<div className="w-full">
 			{!feedingInProgress ? (
 				<div className="grid grid-cols-2 gap-4">
-					<div
-						className={cn(
-							'relative',
-							(resumableSession?.breast === 'left' ||
-								(!resumableSession && nextBreast === 'left')) &&
-								'z-10',
-						)}
-					>
+					<div className="relative">
 						<Button
 							className="h-24 text-sm xs:text-base w-full bg-left-breast hover:bg-left-breast-dark text-white whitespace-normal break-words leading-tight px-2"
 							onClick={() =>
@@ -155,14 +149,7 @@ export default function BreastfeedingTracker({
 							nextBreast === 'left' && <NextBreastBadge breast="left" />
 						)}
 					</div>
-					<div
-						className={cn(
-							'relative',
-							(resumableSession?.breast === 'right' ||
-								(!resumableSession && nextBreast === 'right')) &&
-								'z-10',
-						)}
-					>
+					<div className="relative">
 						<Button
 							className="h-24 text-sm xs:text-base w-full bg-right-breast hover:bg-right-breast-dark text-white whitespace-normal break-words leading-tight px-2"
 							onClick={() =>
@@ -291,16 +278,11 @@ interface NextBreastBadgeProps {
 function NextBreastBadge({ breast }: NextBreastBadgeProps) {
 	const bg = breast === 'left' ? 'bg-left-breast' : 'bg-right-breast';
 	return (
-		<div
-			className={cn(
-				'absolute -top-2 -right-1 flex h-5 items-center justify-center rounded-full px-2 text-[10px] font-bold whitespace-nowrap text-white shadow-md z-20 border border-white/20',
-				bg,
-			)}
-		>
+		<Badge className={`absolute -top-2 -right-1 ${bg}`}>
 			<fbt desc="Badge on a button that tells the user that they should use this breast for the next feeding session">
 				Next
 			</fbt>
-		</div>
+		</Badge>
 	);
 }
 
@@ -310,15 +292,10 @@ interface ResumeBadgeProps {
 function ResumeBadge({ breast }: ResumeBadgeProps) {
 	const bg = breast === 'left' ? 'bg-left-breast' : 'bg-right-breast';
 	return (
-		<div
-			className={cn(
-				'absolute -top-2 -right-1 flex h-5 items-center justify-center rounded-full px-2 text-[10px] font-bold whitespace-nowrap text-white shadow-md z-20 border border-white/20',
-				bg,
-			)}
-		>
+		<Badge className={`absolute -top-2 -right-1 ${bg}`}>
 			<fbt desc="Badge on a button that tells the user that they can resume the last feeding session on this breast">
 				Resume
 			</fbt>
-		</div>
+		</Badge>
 	);
 }
