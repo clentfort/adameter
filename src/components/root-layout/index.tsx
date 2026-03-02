@@ -31,7 +31,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
 	useEffect(() => {
 		const handleScroll = () => {
 			const threshold = 100;
-			const scrollProgress = Math.min(1, Math.max(0, window.scrollY / threshold));
+			const scrollProgress = Math.min(
+				1,
+				Math.max(0, window.scrollY / threshold),
+			);
 			document.documentElement.style.setProperty(
 				'--header-scroll-progress',
 				scrollProgress.toString(),
@@ -131,21 +134,21 @@ export default function RootLayout({ children }: RootLayoutProps) {
 								}}
 							>
 								<TimeSince
-								icon="🍼"
-								lastChange={latestFeedingSession?.endTime || null}
-							>
-								<fbt desc="Short label indicating when a feeding was last recorded">
-									Last Feeding
-								</fbt>
-							</TimeSince>
+									icon="🍼"
+									lastChange={latestFeedingSession?.endTime || null}
+								>
+									<fbt desc="Short label indicating when a feeding was last recorded">
+										Last Feeding
+									</fbt>
+								</TimeSince>
 
-							<TimeSince
-								icon="👶"
-								lastChange={latestDiaperChange?.timestamp || null}
-							>
-								<fbt desc="A short label indicating when a diaper was last changed">
-									Last Diaper Change
-								</fbt>
+								<TimeSince
+									icon="👶"
+									lastChange={latestDiaperChange?.timestamp || null}
+								>
+									<fbt desc="A short label indicating when a diaper was last changed">
+										Last Diaper Change
+									</fbt>
 								</TimeSince>
 							</div>
 						</div>
