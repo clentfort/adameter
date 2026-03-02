@@ -42,7 +42,14 @@ const pages = [
 export default function Navigation({ isCondensed }: { isCondensed?: boolean }) {
 	const pathname = usePathname();
 	return (
-		<div className={isCondensed ? 'mb-0' : 'mb-6'}>
+		<div
+			className="transition-[margin-bottom] duration-300"
+			style={{
+				marginBottom: isCondensed
+					? 0
+					: 'calc((1 - var(--header-scroll-progress, 0)) * 1.5rem)',
+			}}
+		>
 			<NavigationMenu className="w-full max-w-none">
 				<NavigationMenuList className="w-full grid grid-cols-5">
 					{pages.map((page) => {
@@ -53,12 +60,26 @@ export default function Navigation({ isCondensed }: { isCondensed?: boolean }) {
 									active={isActive}
 									className={cn(
 										navigationMenuTriggerStyle(),
-										'flex w-full items-center sm:gap-1 sm:px-2 sm:text-sm',
+										'flex w-full items-center sm:gap-1 sm:text-sm transition-all duration-300',
 										isCondensed
-											? 'flex-row gap-1 px-1 py-1 text-sm h-8'
-											: 'flex-col py-2 text-xs sm:flex-row',
+											? 'flex-row gap-1 text-sm h-8'
+											: 'flex-col text-xs sm:flex-row',
 									)}
 									render={<Link href={page.path} />}
+									style={{
+										paddingBottom: isCondensed
+											? '0.25rem'
+											: 'calc(0.5rem - var(--header-scroll-progress, 0) * 0.25rem)',
+										paddingLeft: isCondensed
+											? '0.25rem'
+											: 'calc(0.5rem - var(--header-scroll-progress, 0) * 0.25rem)',
+										paddingRight: isCondensed
+											? '0.25rem'
+											: 'calc(0.5rem - var(--header-scroll-progress, 0) * 0.25rem)',
+										paddingTop: isCondensed
+											? '0.25rem'
+											: 'calc(0.5rem - var(--header-scroll-progress, 0) * 0.25rem)',
+									}}
 								>
 									<span className="h-4 w-4 shrink-0">{page.icon}</span>
 									<span
