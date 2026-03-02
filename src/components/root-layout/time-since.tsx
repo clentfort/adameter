@@ -42,12 +42,14 @@ export default function TimeSince({
 	}, [lastChange, locale]);
 
 	return (
-		<div className="text-center bg-muted/20 rounded-lg p-2 flex-1">
+		<div className="text-center bg-muted/20 rounded-lg p-2 flex-1 min-w-0">
 			<div className="flex items-center justify-center gap-1">
-				<span className="text-sm">{icon}</span>
-				<p className="text-xs text-muted-foreground">{children}</p>
+				<span className="text-sm shrink-0">{icon}</span>
+				<p className="text-[10px] xs:text-xs text-muted-foreground truncate">
+					{children}
+				</p>
 			</div>
-			<p className="text-sm font-medium">
+			<p className="text-xs xs:text-sm font-medium truncate">
 				<fbt desc="Time since an event happened">
 					<fbt:param name="timeSince">{timeSince}</fbt:param>
 					ago

@@ -42,24 +42,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
 			setIsCondensed(window.scrollY >= threshold);
 		};
 
-		const handleScrollEnd = () => {
-			const threshold = 100;
-			const scrollY = window.scrollY;
-			if (scrollY > 0 && scrollY < threshold) {
-				const target = scrollY > threshold / 2 ? threshold : 0;
-				window.scrollTo({
-					behavior: 'smooth',
-					top: target,
-				});
-			}
-		};
-
 		window.addEventListener('scroll', handleScroll, { passive: true });
-		window.addEventListener('scrollend', handleScrollEnd);
 		handleScroll(); // Initial call
 		return () => {
 			window.removeEventListener('scroll', handleScroll);
-			window.removeEventListener('scrollend', handleScrollEnd);
 		};
 	}, []);
 
@@ -100,22 +86,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
 								className="flex justify-between items-center h-12"
 								style={{
 									transform:
-										'translateY(calc(var(--header-scroll-progress, 0) * -20px))',
+										'translateY(calc(var(--header-scroll-progress, 0) * -48px))',
 								}}
 							>
-								<span className="relative w-12 h-12">
-									<Link href="/">
-										<Image
-											alt="AdaMeter Logo"
-											className="rounded-full block h-full w-full"
-											height={96}
-											src="/icon-96x96.png"
-											width={96}
-										/>
-									</Link>
-								</span>
-								<h1 className="text-2xl font-bold">AdaMeter</h1>
-								<div className="flex items-center gap-2">
+								<div className="w-12 h-12 shrink-0" />
+								<h1 className="text-2xl font-bold truncate px-2">AdaMeter</h1>
+								<div className="flex items-center gap-2 shrink-0">
 									<Link href="/settings">
 										<Button
 											aria-label={fbt(
@@ -146,7 +122,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 								className="flex flex-row justify-between gap-2 h-12"
 								style={{
 									transform:
-										'translateY(calc(var(--header-scroll-progress, 0) * -40px))',
+										'translateY(calc(var(--header-scroll-progress, 0) * -64px))',
 								}}
 							>
 								<TimeSince
@@ -169,28 +145,30 @@ export default function RootLayout({ children }: RootLayoutProps) {
 							</div>
 						</div>
 
-						<div className="flex items-center gap-2 w-full min-w-0">
+						<div className="flex items-center gap-2 w-full min-w-0 relative h-10">
+							<div className="flex-shrink-0 w-6 h-6" />
+							<div className="flex-grow min-w-0">
+								<Navigation isCondensed={isCondensed} />
+							</div>
+
 							<div
-								className="flex-shrink-0 overflow-hidden"
+								className="absolute left-0 z-20 pointer-events-auto"
 								style={{
-									opacity: 'var(--header-scroll-progress, 0)',
+									top: '4px',
 									transform:
-										'translateX(calc((1 - var(--header-scroll-progress, 0)) * -20px))',
-									width: 'calc(var(--header-scroll-progress, 0) * 1.5rem)',
+										'translateY(calc((1 - var(--header-scroll-progress, 0)) * -144px)) scale(calc(1 + (1 - var(--header-scroll-progress, 0))))',
+									transformOrigin: 'left top',
 								}}
 							>
 								<Link href="/">
 									<Image
 										alt="AdaMeter Logo"
-										className="rounded-full block h-6 w-6"
-										height={24}
+										className="rounded-full block h-6 w-6 shadow-sm"
+										height={48}
 										src="/icon-96x96.png"
-										width={24}
+										width={48}
 									/>
 								</Link>
-							</div>
-							<div className="flex-grow min-w-0">
-								<Navigation isCondensed={isCondensed} />
 							</div>
 						</div>
 					</div>
