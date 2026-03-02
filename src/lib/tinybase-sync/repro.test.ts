@@ -35,10 +35,10 @@ describe('remote-bootstrap - merge reproduction', () => {
 
         // 1. Simulate local feeding data
         store.setRow(FEEDING_TABLE, 'f1', {
-            id: 'f1',
-            type: 'breast',
-            side: 'left',
             duration: 600,
+            id: 'f1',
+            side: 'left',
+            type: 'breast',
         });
         const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 
@@ -122,5 +122,43 @@ describe('remote-bootstrap - merge reproduction', () => {
         // MIGRATIONS_TABLE should now be merged
         expect(store.getTableIds()).toContain(MIGRATIONS_TABLE);
         expect(store.hasRow(MIGRATIONS_TABLE, 'mig-1')).toBe(true);
+    });
+
+    it('should merge large data sets correctly', () => {
+        const store = createStore();
+        const FEEDING_TABLE = TABLE_IDS.FEEDING_SESSIONS;
+        const DIAPER_TABLE = TABLE_IDS.DIAPER_CHANGES;
+
+        // 1. Simulate large local data
+        for (let i = 0; i < 3000; i++) {
+            store.setRow(FEEDING_TABLE, `f${i}`, {
+                duration: 600,
+                id: `f${i}`,
+                side: 'left',
+                type: 'breast',
+            });
+        }
+        for (let i = 0; i < 2000; i++) {
+            store.setRow(DIAPER_TABLE, `d${i}`, {
+                id: `d${i}`,
+                stool: true,
+                urine: true,
+            });
+        }
+
+        const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+        expect(localSnapshot).toBeDefined();
+
+        // 2. Joining room (empty)
+        store.delTables();
+        expect(store.getRowCount(FEEDING_TABLE)).toBe(0);
+        expect(store.getRowCount(DIAPER_TABLE)).toBe(0);
+
+        // 3. Merging
+        reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'test-device');
+
+        // Verify all data is merged
+        expect(store.getRowCount(FEEDING_TABLE)).toBe(3000);
+        expect(store.getRowCount(DIAPER_TABLE)).toBe(2000);
     });
 });
