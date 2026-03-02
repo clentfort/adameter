@@ -1,164 +1,191 @@
 import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
-import { TABLE_IDS, ROW_JSON_CELL, ROW_ORDER_CELL } from './constants';
-import { reconcileRemoteLoadResult, snapshotStoreContentIfNonEmpty } from './remote-bootstrap';
+import { ROW_JSON_CELL, ROW_ORDER_CELL, TABLE_IDS } from './constants';
+import {
+	reconcileRemoteLoadResult,
+	snapshotStoreContentIfNonEmpty,
+} from './remote-bootstrap';
 
 describe('remote-bootstrap - merge reproduction', () => {
-    it('should merge local data into empty remote when strategy is merge', () => {
-        const store = createStore();
+	it('should merge local data into empty remote when strategy is merge', () => {
+		const store = createStore();
 
-        // 1. Simulate local data
-        store.setRow(TABLE_IDS.EVENTS, 'local-1', {
-            [ROW_JSON_CELL]: JSON.stringify({ id: 'local-1', title: 'Local Event' }),
-            [ROW_ORDER_CELL]: 0,
-        });
-        const localSnapshot = snapshotStoreContentIfNonEmpty(store);
-        expect(localSnapshot).toBeDefined();
+		// 1. Simulate local data
+		store.setRow(TABLE_IDS.EVENTS, 'local-1', {
+			[ROW_JSON_CELL]: JSON.stringify({ id: 'local-1', title: 'Local Event' }),
+			[ROW_ORDER_CELL]: 0,
+		});
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+		expect(localSnapshot).toBeDefined();
 
-        // 2. Simulate joining a room (remote is empty)
-        // In TinybaseProvider, we call remotePersister.load() which will clear the store if remote is empty
-        store.delTables();
-        expect(store.getRowCount(TABLE_IDS.EVENTS)).toBe(0);
+		// 2. Simulate joining a room (remote is empty)
+		// In TinybaseProvider, we call remotePersister.load() which will clear the store if remote is empty
+		store.delTables();
+		expect(store.getRowCount(TABLE_IDS.EVENTS)).toBe(0);
 
-        // 3. Reconcile with 'merge' strategy
-        const result = reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'test-device');
+		// 3. Reconcile with 'merge' strategy
+		const result = reconcileRemoteLoadResult(
+			store,
+			localSnapshot,
+			'merge',
+			'test-device',
+		);
 
-        expect(result.decision).toBe('merge');
-        expect(store.getRowCount(TABLE_IDS.EVENTS)).toBe(1);
-        expect(store.hasRow(TABLE_IDS.EVENTS, 'local-1')).toBe(true);
-    });
+		expect(result.decision).toBe('merge');
+		expect(store.getRowCount(TABLE_IDS.EVENTS)).toBe(1);
+		expect(store.hasRow(TABLE_IDS.EVENTS, 'local-1')).toBe(true);
+	});
 
+	it('should merge feeding session if it has simple fields', () => {
+		const store = createStore();
+		const FEEDING_TABLE = TABLE_IDS.FEEDING_SESSIONS;
 
-    it('should merge feeding session if it has simple fields', () => {
-        const store = createStore();
-        const FEEDING_TABLE = TABLE_IDS.FEEDING_SESSIONS;
+		// 1. Simulate local feeding data
+		store.setRow(FEEDING_TABLE, 'f1', {
+			duration: 600,
+			id: 'f1',
+			side: 'left',
+			type: 'breast',
+		});
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 
-        // 1. Simulate local feeding data
-        store.setRow(FEEDING_TABLE, 'f1', {
-            duration: 600,
-            id: 'f1',
-            side: 'left',
-            type: 'breast',
-        });
-        const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+		store.delTables();
 
-        store.delTables();
+		// 3. Reconcile with 'merge' strategy
+		reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'test-device');
 
-        // 3. Reconcile with 'merge' strategy
-        reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'test-device');
+		expect(store.getRowCount(FEEDING_TABLE)).toBe(1);
+		expect(store.getRow(FEEDING_TABLE, 'f1').side).toBe('left');
+	});
 
-        expect(store.getRowCount(FEEDING_TABLE)).toBe(1);
-        expect(store.getRow(FEEDING_TABLE, 'f1').side).toBe('left');
-    });
+	it('should merge profile value if strategy is merge', () => {
+		const store = createStore();
+		const PROFILE_VALUE = 'profile';
 
-    it('should merge profile value if strategy is merge', () => {
-        const store = createStore();
-        const PROFILE_VALUE = 'profile';
+		// 1. Simulate local profile data
+		store.setValue(PROFILE_VALUE, JSON.stringify({ name: 'Local' }));
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 
-        // 1. Simulate local profile data
-        store.setValue(PROFILE_VALUE, JSON.stringify({ name: 'Local' }));
-        const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+		store.delValues();
 
-        store.delValues();
+		// 3. Reconcile with 'merge' strategy
+		reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'test-device');
 
-        // 3. Reconcile with 'merge' strategy
-        reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'test-device');
+		expect(store.getValue(PROFILE_VALUE)).toEqual(
+			JSON.stringify({ name: 'Local' }),
+		);
+	});
 
-        expect(store.getValue(PROFILE_VALUE)).toEqual(JSON.stringify({ name: 'Local' }));
-    });
+	it('should NOT return decision restore-local if local is empty and remote is empty', () => {
+		const store = createStore();
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+		expect(localSnapshot).toBeUndefined();
 
-    it('should NOT return decision restore-local if local is empty and remote is empty', () => {
-        const store = createStore();
-        const localSnapshot = snapshotStoreContentIfNonEmpty(store);
-        expect(localSnapshot).toBeUndefined();
+		const result = reconcileRemoteLoadResult(
+			store,
+			localSnapshot,
+			'overwrite',
+			'dev',
+		);
+		expect(result.decision).toBe('keep-empty');
+	});
 
-        const result = reconcileRemoteLoadResult(store, localSnapshot, 'overwrite', 'dev');
-        expect(result.decision).toBe('keep-empty');
-    });
+	it('should return decision restore-local if local HAD data and remote is empty', () => {
+		const store = createStore();
+		store.setValue('profile', 'some-data');
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 
-    it('should return decision restore-local if local HAD data and remote is empty', () => {
-        const store = createStore();
-        store.setValue('profile', 'some-data');
-        const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+		store.delValues();
 
-        store.delValues();
+		const result = reconcileRemoteLoadResult(
+			store,
+			localSnapshot,
+			'overwrite',
+			'dev',
+		);
+		expect(result.decision).toBe('restore-local');
+		expect(store.getValue('profile')).toBe('some-data');
+	});
 
-        const result = reconcileRemoteLoadResult(store, localSnapshot, 'overwrite', 'dev');
-        expect(result.decision).toBe('restore-local');
-        expect(store.getValue('profile')).toBe('some-data');
-    });
+	it('reproduces data loss when joinRoom("room-id", "overwrite") is called', () => {
+		const store = createStore();
+		store.setValue('profile', 'local-user');
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 
-    it('reproduces data loss when joinRoom("room-id", "overwrite") is called', () => {
-        const store = createStore();
-        store.setValue('profile', 'local-user');
-        const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+		// Simulating TinybaseProvider with room="room-id" and joinStrategy="overwrite"
+		store.delValues(); // remotePersister.load() clears local data if remote is empty
 
-        // Simulating TinybaseProvider with room="room-id" and joinStrategy="overwrite"
-        store.delValues(); // remotePersister.load() clears local data if remote is empty
+		const result = reconcileRemoteLoadResult(
+			store,
+			localSnapshot,
+			'overwrite',
+			'dev',
+		);
 
-        const result = reconcileRemoteLoadResult(store, localSnapshot, 'overwrite', 'dev');
+		// This actually PASSES currently, meaning it RESTORES the data.
+		expect(result.decision).toBe('restore-local');
+		expect(store.getValue('profile')).toBe('local-user');
+	});
 
-        // This actually PASSES currently, meaning it RESTORES the data.
-        expect(result.decision).toBe('restore-local');
-        expect(store.getValue('profile')).toBe('local-user');
-    });
+	it('merges migration table to prevent migration re-runs - deeper debug', () => {
+		const store = createStore();
+		const FEEDING_TABLE = TABLE_IDS.FEEDING_SESSIONS;
+		const MIGRATIONS_TABLE = '_migrations';
 
-    it('merges migration table to prevent migration re-runs - deeper debug', () => {
-        const store = createStore();
-        const FEEDING_TABLE = TABLE_IDS.FEEDING_SESSIONS;
-        const MIGRATIONS_TABLE = '_migrations';
+		// 1. Local has data and migrations applied
+		store.setRow(FEEDING_TABLE, 'f1', { id: 'f1', old_field: 'value' });
+		store.setRow(MIGRATIONS_TABLE, 'mig-1', {
+			appliedAt: 123,
+			description: 'test',
+		});
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 
-        // 1. Local has data and migrations applied
-        store.setRow(FEEDING_TABLE, 'f1', { id: 'f1', old_field: 'value' });
-        store.setRow(MIGRATIONS_TABLE, 'mig-1', { appliedAt: 123, description: 'test' });
-        const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+		// 2. Joining room (empty)
+		store.delTables();
 
-        // 2. Joining room (empty)
-        store.delTables();
+		// 3. Merging
+		reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'dev');
 
-        // 3. Merging
-        reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'dev');
+		// MIGRATIONS_TABLE should now be merged
+		expect(store.getTableIds()).toContain(MIGRATIONS_TABLE);
+		expect(store.hasRow(MIGRATIONS_TABLE, 'mig-1')).toBe(true);
+	});
 
-        // MIGRATIONS_TABLE should now be merged
-        expect(store.getTableIds()).toContain(MIGRATIONS_TABLE);
-        expect(store.hasRow(MIGRATIONS_TABLE, 'mig-1')).toBe(true);
-    });
+	it('should merge large data sets correctly', () => {
+		const store = createStore();
+		const FEEDING_TABLE = TABLE_IDS.FEEDING_SESSIONS;
+		const DIAPER_TABLE = TABLE_IDS.DIAPER_CHANGES;
 
-    it('should merge large data sets correctly', () => {
-        const store = createStore();
-        const FEEDING_TABLE = TABLE_IDS.FEEDING_SESSIONS;
-        const DIAPER_TABLE = TABLE_IDS.DIAPER_CHANGES;
+		// 1. Simulate large local data
+		for (let i = 0; i < 3000; i++) {
+			store.setRow(FEEDING_TABLE, `f${i}`, {
+				duration: 600,
+				id: `f${i}`,
+				side: 'left',
+				type: 'breast',
+			});
+		}
+		for (let i = 0; i < 2000; i++) {
+			store.setRow(DIAPER_TABLE, `d${i}`, {
+				id: `d${i}`,
+				stool: true,
+				urine: true,
+			});
+		}
 
-        // 1. Simulate large local data
-        for (let i = 0; i < 3000; i++) {
-            store.setRow(FEEDING_TABLE, `f${i}`, {
-                duration: 600,
-                id: `f${i}`,
-                side: 'left',
-                type: 'breast',
-            });
-        }
-        for (let i = 0; i < 2000; i++) {
-            store.setRow(DIAPER_TABLE, `d${i}`, {
-                id: `d${i}`,
-                stool: true,
-                urine: true,
-            });
-        }
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+		expect(localSnapshot).toBeDefined();
 
-        const localSnapshot = snapshotStoreContentIfNonEmpty(store);
-        expect(localSnapshot).toBeDefined();
+		// 2. Joining room (empty)
+		store.delTables();
+		expect(store.getRowCount(FEEDING_TABLE)).toBe(0);
+		expect(store.getRowCount(DIAPER_TABLE)).toBe(0);
 
-        // 2. Joining room (empty)
-        store.delTables();
-        expect(store.getRowCount(FEEDING_TABLE)).toBe(0);
-        expect(store.getRowCount(DIAPER_TABLE)).toBe(0);
+		// 3. Merging
+		reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'test-device');
 
-        // 3. Merging
-        reconcileRemoteLoadResult(store, localSnapshot, 'merge', 'test-device');
-
-        // Verify all data is merged
-        expect(store.getRowCount(FEEDING_TABLE)).toBe(3000);
-        expect(store.getRowCount(DIAPER_TABLE)).toBe(2000);
-    });
+		// Verify all data is merged
+		expect(store.getRowCount(FEEDING_TABLE)).toBe(3000);
+		expect(store.getRowCount(DIAPER_TABLE)).toBe(2000);
+	});
 });

@@ -47,10 +47,14 @@ test.describe('Room management', () => {
 	}) => {
 		// 1. Add some data
 		await page.getByRole('link', { name: /feeding|füttern/i }).click();
-		await page.getByRole('button', { name: /add entry|eintrag hinzufügen/i }).click();
+		await page
+			.getByRole('button', { name: /add entry|eintrag hinzufügen/i })
+			.click();
 		await page.getByLabel(/duration|dauer/i).fill('10');
 		await page.getByRole('button', { name: /save|speichern/i }).click();
-		await expect(page.getByTestId('feeding-history-entry').getByText(/10\s*min/i)).toBeVisible();
+		await expect(
+			page.getByTestId('feeding-history-entry').getByText(/10\s*min/i),
+		).toBeVisible();
 
 		// 2. Create a room (defaults to merge)
 		await page.getByRole('button', { name: /settings|einstellungen/i }).click();
@@ -65,7 +69,9 @@ test.describe('Room management', () => {
 		await page.goto('/');
 		await expect(page.getByAltText('AdaMeter Logo Splash')).not.toBeVisible();
 		await page.getByRole('link', { name: /feeding|füttern/i }).click();
-		await expect(page.getByTestId('feeding-history-entry').getByText(/10\s*min/i)).toBeVisible();
+		await expect(
+			page.getByTestId('feeding-history-entry').getByText(/10\s*min/i),
+		).toBeVisible();
 	});
 
 	test('should handle invite link with warning if already in a room', async ({
