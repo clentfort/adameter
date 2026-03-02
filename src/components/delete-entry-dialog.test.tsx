@@ -21,13 +21,13 @@ describe('DeleteEntryDialog', () => {
 		);
 
 		// Verify title and description
-		expect(screen.getByText(/Delete Entry/i)).toBeInTheDocument();
+		expect(screen.getByText(/delete entry/i)).toBeInTheDocument();
 		expect(
-			screen.getByText(/Do you really want to delete this entry?/i),
+			screen.getByText(/do you really want to delete this entry?/i),
 		).toBeInTheDocument();
 
 		// Click the Delete button
-		const deleteButton = screen.getByRole('button', { name: /^Delete$/i });
+		const deleteButton = screen.getByRole('button', { name: /^delete$/i });
 		fireEvent.click(deleteButton);
 
 		// Verify callbacks were called
@@ -47,7 +47,7 @@ describe('DeleteEntryDialog', () => {
 			/>,
 		);
 
-		const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+		const cancelButton = screen.getByRole('button', { name: /cancel/i });
 		fireEvent.click(cancelButton);
 
 		expect(mockOnClose).toHaveBeenCalledTimes(1);
