@@ -10,6 +10,20 @@ export const useToothRow = (id: string) => {
 	return useMemo(() => ({ ...row, id }) as unknown as Tooth, [id, row]);
 };
 
+export const useAllTeeth = () => {
+	const store = useStore()!;
+	const rowIds = useRowIds(TABLE_IDS.TEETHING, store);
+
+	return useMemo(
+		() =>
+			rowIds.map(
+				(id) =>
+					({ ...store.getRow(TABLE_IDS.TEETHING, id), id }) as unknown as Tooth,
+			),
+		[rowIds, store],
+	);
+};
+
 export const useTeething = () => {
 	const store = useStore()!;
 	const rowIds = useRowIds(TABLE_IDS.TEETHING, store);

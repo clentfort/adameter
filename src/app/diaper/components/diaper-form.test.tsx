@@ -10,18 +10,25 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DiaperForm from './diaper-form';
 
 vi.mock('@/hooks/use-diaper-changes', () => ({
+	useAllDiaperChanges: () => [],
 	useDiaperChanges: () => ({
-		value: [],
+		add: vi.fn(),
+		remove: vi.fn(),
+		rowIds: [],
+		update: vi.fn(),
 	}),
 }));
 
 vi.mock('@/hooks/use-diaper-products', () => ({
+	useAllDiaperProducts: () => [
+		{ id: '1', isReusable: false, name: 'Product 1' },
+		{ id: '2', isReusable: true, name: 'Product 2' },
+	],
 	useDiaperProducts: () => ({
 		add: vi.fn(),
-		value: [
-			{ id: '1', isReusable: false, name: 'Product 1' },
-			{ id: '2', isReusable: true, name: 'Product 2' },
-		],
+		remove: vi.fn(),
+		rowIds: ['1', '2'],
+		update: vi.fn(),
 	}),
 }));
 

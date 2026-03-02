@@ -10,6 +10,19 @@ export const useEventRow = (id: string) => {
 	return useMemo(() => ({ ...row, id }) as unknown as Event, [id, row]);
 };
 
+export const useAllEvents = () => {
+	const store = useStore()!;
+	const rowIds = useRowIds(TABLE_IDS.EVENTS, store);
+
+	return useMemo(
+		() =>
+			rowIds.map(
+				(id) => ({ ...store.getRow(TABLE_IDS.EVENTS, id), id }) as unknown as Event,
+			),
+		[rowIds, store],
+	);
+};
+
 export const useEvents = () => {
 	const store = useStore()!;
 	const rowIds = useRowIds(TABLE_IDS.EVENTS, store);

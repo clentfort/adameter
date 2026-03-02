@@ -15,6 +15,23 @@ export const useFeedingSessionRow = (id: string) => {
 	return useMemo(() => ({ ...row, id }) as unknown as FeedingSession, [id, row]);
 };
 
+export const useAllFeedingSessions = () => {
+	const store = useStore()!;
+	const rowIds = useRowIds(TABLE_IDS.FEEDING_SESSIONS, store);
+
+	return useMemo(
+		() =>
+			rowIds.map(
+				(id) =>
+					({
+						...store.getRow(TABLE_IDS.FEEDING_SESSIONS, id),
+						id,
+					}) as FeedingSession,
+			),
+		[rowIds, store],
+	);
+};
+
 export const useFeedingSessions = () => {
 	const store = useStore()!;
 	const rowIds = useRowIds(TABLE_IDS.FEEDING_SESSIONS, store);

@@ -5,9 +5,7 @@ import { addDays, format } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import {
 	useResultTable,
-	useRowIds,
 	useSetParamValuesCallback,
-	useStore,
 } from 'tinybase/ui-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,12 +16,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useDiaperProducts } from '@/hooks/use-diaper-products';
-import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
-import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { fromTable } from '@/lib/tinybase-sync/migration-utils';
+import { useAllDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useAllDiaperProducts } from '@/hooks/use-diaper-products';
+import {
+	useAllFeedingSessions,
+	useFeedingSessions,
+} from '@/hooks/use-feeding-sessions';
+import {
+	useAllGrowthMeasurements,
+	useGrowthMeasurements,
+} from '@/hooks/use-growth-measurements';
 import { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { FeedingSession } from '@/types/feeding';
 import { GrowthMeasurement } from '@/types/growth';
@@ -41,13 +43,35 @@ import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
 import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
-export default function StatisticsPage() {
-	const store = useStore()!;
-	useDiaperChanges();
-	useDiaperProducts();
-	useFeedingSessions();
-	useGrowthMeasurements();
+function useFilteredQuery<T>(
+	queryId: string,
+	from: Date | undefined,
+	to: Date | undefined,
+): T[] {
+	const updateParams = useSetParamValuesCallback(
+		queryId,
+		() => ({
+			from: from?.toISOString() ?? '',
+			to: to?.toISOString() ?? '',
+		}),
+		[from, to],
+	);
 
+	useEffect(() => {
+		updateParams();
+	}, [updateParams]);
+
+	const resultTable = useResultTable(queryId);
+	return useMemo(
+		() =>
+			Object.entries(resultTable).map(
+				([id, row]) => ({ ...row, id }) as unknown as T,
+			),
+		[resultTable],
+	);
+}
+
+export default function StatisticsPage() {
 	const [timeRange, setTimeRange] = useState<TimeRange>('7');
 	const [customRange, setCustomRange] = useState({
 		from: dateToDateInputValue(addDays(new Date(), -7)),
@@ -63,116 +87,33 @@ export default function StatisticsPage() {
 		[timeRange, customRange],
 	);
 
-	const updateParams = useSetParamValuesCallback(
+	const filteredSessionsArray = useFilteredQuery<FeedingSession>(
 		'filteredFeedingSessions',
-		() => ({
-			from: primary.from.toISOString(),
-			to: primary.to.toISOString(),
-		}),
-		[primary],
+		primary.from,
+		primary.to,
 	);
-
-	const updateComparisonParams = useSetParamValuesCallback(
+	const comparisonSessionsArray = useFilteredQuery<FeedingSession>(
 		'comparisonFeedingSessions',
-		() => ({
-			from: secondary?.from.toISOString() ?? '',
-			to: secondary?.to.toISOString() ?? '',
-		}),
-		[secondary],
+		secondary?.from,
+		secondary?.to,
 	);
-
-	const updateDiaperParams = useSetParamValuesCallback(
+	const filteredDiaperChangesArray = useFilteredQuery<DiaperChange>(
 		'filteredDiaperChanges',
-		() => ({
-			from: primary.from.toISOString(),
-			to: primary.to.toISOString(),
-		}),
-		[primary],
+		primary.from,
+		primary.to,
 	);
-
-	const updateComparisonDiaperParams = useSetParamValuesCallback(
+	const comparisonDiaperChangesArray = useFilteredQuery<DiaperChange>(
 		'comparisonDiaperChanges',
-		() => ({
-			from: secondary?.from.toISOString() ?? '',
-			to: secondary?.to.toISOString() ?? '',
-		}),
-		[secondary],
+		secondary?.from,
+		secondary?.to,
 	);
 
-	useEffect(() => {
-		updateParams();
-		updateComparisonParams();
-		updateDiaperParams();
-		updateComparisonDiaperParams();
-	}, [
-		updateParams,
-		updateComparisonParams,
-		updateDiaperParams,
-		updateComparisonDiaperParams,
-	]);
+	const allProducts = useAllDiaperProducts();
+	const allMeasurements = useAllGrowthMeasurements();
+	const allSessions = useAllFeedingSessions();
+	const allDiaperChanges = useAllDiaperChanges();
 
-	const filteredSessions = useResultTable('filteredFeedingSessions');
-	const comparisonSessionsResult = useResultTable('comparisonFeedingSessions');
-	const filteredDiaperChanges = useResultTable('filteredDiaperChanges');
-	const comparisonDiaperChangesResult = useResultTable('comparisonDiaperChanges');
-
-	const filteredSessionsArray = useMemo(
-		() =>
-			Object.entries(filteredSessions).map(
-				([id, row]) => ({ ...row, id }) as unknown as FeedingSession,
-			),
-		[filteredSessions],
-	);
-
-	const comparisonSessionsArray = useMemo(
-		() =>
-			secondary
-				? Object.entries(comparisonSessionsResult).map(
-						([id, row]) => ({ ...row, id }) as unknown as FeedingSession,
-					)
-				: undefined,
-		[comparisonSessionsResult, secondary],
-	);
-
-	const filteredDiaperChangesArray = useMemo(
-		() =>
-			Object.entries(filteredDiaperChanges).map(
-				([id, row]) => ({ ...row, id }) as unknown as DiaperChange,
-			),
-		[filteredDiaperChanges],
-	);
-
-	const comparisonDiaperChangesArray = useMemo(
-		() =>
-			secondary
-				? Object.entries(comparisonDiaperChangesResult).map(
-						([id, row]) => ({ ...row, id }) as unknown as DiaperChange,
-					)
-				: undefined,
-		[comparisonDiaperChangesResult, secondary],
-	);
-
-	const allProducts = useMemo(
-		() => fromTable<DiaperProduct>(store.getTable(TABLE_IDS.DIAPER_PRODUCTS)),
-		[store],
-	);
-	const allMeasurements = useMemo(
-		() =>
-			fromTable<GrowthMeasurement>(
-				store.getTable(TABLE_IDS.GROWTH_MEASUREMENTS),
-			),
-		[store],
-	);
-	const allSessions = useMemo(
-		() => fromTable<FeedingSession>(store.getTable(TABLE_IDS.FEEDING_SESSIONS)),
-		[store],
-	);
-	const allDiaperChanges = useMemo(
-		() => fromTable<DiaperChange>(store.getTable(TABLE_IDS.DIAPER_CHANGES)),
-		[store],
-	);
-
-	const measurementsIds = useRowIds(TABLE_IDS.GROWTH_MEASUREMENTS);
+	const { rowIds: measurementsIds } = useGrowthMeasurements();
 
 	return (
 		<div className="w-full">

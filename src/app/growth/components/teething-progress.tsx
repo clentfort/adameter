@@ -1,8 +1,7 @@
 import type { Tooth } from '@/types/teething';
 import { useMemo, useState } from 'react';
 import { useRowIds, useStore } from 'tinybase/ui-react';
-import { useTeething } from '@/hooks/use-teething';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { useAllTeeth, useTeething } from '@/hooks/use-teething';
 import { cn } from '@/lib/utils';
 import { getToothName } from '../utils/teething';
 import TeethingForm from './teething-form';
@@ -13,19 +12,9 @@ const LOWER_RIGHT = [85, 84, 83, 82, 81];
 const LOWER_LEFT = [71, 72, 73, 74, 75];
 
 export default function TeethingProgress() {
-	const store = useStore()!;
 	const { update } = useTeething();
-	const rowIds = useRowIds(TABLE_IDS.TEETHING);
+	const teeth = useAllTeeth();
 	const [selectedToothId, setSelectedToothId] = useState<number | null>(null);
-
-	const teeth = useMemo(
-		() =>
-			rowIds.map(
-				(id) =>
-					({ ...store.getRow(TABLE_IDS.TEETHING, id), id }) as unknown as Tooth,
-			),
-		[rowIds, store],
-	);
 
 	const getTooth = (toothId: number): Tooth => {
 		return (

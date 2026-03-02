@@ -37,14 +37,15 @@ import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useAllDiaperChanges, useDiaperChanges } from '@/hooks/use-diaper-changes';
 import {
+	useAllDiaperProducts,
 	useDiaperProductRow,
 	useDiaperProducts,
 } from '@/hooks/use-diaper-products';
-import { useEvents } from '@/hooks/use-events';
-import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
-import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import { useAllEvents, useEvents } from '@/hooks/use-events';
+import { useAllFeedingSessions, useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useAllGrowthMeasurements, useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -98,29 +99,35 @@ export default function SettingsPage() {
 	const feedingSessionsState = useFeedingSessions();
 	const growthMeasurementsState = useGrowthMeasurements();
 
+	const allDiaperChanges = useAllDiaperChanges();
+	const allDiaperProducts = useAllDiaperProducts();
+	const allEvents = useAllEvents();
+	const allFeedingSessions = useAllFeedingSessions();
+	const allGrowthMeasurements = useAllGrowthMeasurements();
+
 	const handleExport = async () => {
 		setIsLoading(true);
 		try {
 			const files = (
 				[
 					{
-						data: fromTable(store.getTable(TABLE_IDS.DIAPER_CHANGES)),
+						data: allDiaperChanges,
 						name: 'diaperChanges',
 					},
 					{
-						data: fromTable(store.getTable(TABLE_IDS.DIAPER_PRODUCTS)),
+						data: allDiaperProducts,
 						name: 'diaperProducts',
 					},
 					{
-						data: fromTable(store.getTable(TABLE_IDS.EVENTS)),
+						data: allEvents,
 						name: 'events',
 					},
 					{
-						data: fromTable(store.getTable(TABLE_IDS.FEEDING_SESSIONS)),
+						data: allFeedingSessions,
 						name: 'feedingSessions',
 					},
 					{
-						data: fromTable(store.getTable(TABLE_IDS.GROWTH_MEASUREMENTS)),
+						data: allGrowthMeasurements,
 						name: 'growthMeasurements',
 					},
 				] as const
@@ -157,37 +164,21 @@ export default function SettingsPage() {
 
 				switch (name as keyof typeof TABLE_IDS) {
 					case 'DIAPER_CHANGES':
-						importRows(
-							diaperChangesState,
-							fromTable(store.getTable(TABLE_IDS.DIAPER_CHANGES)),
-							data,
-						);
+						importRows(diaperChangesState, allDiaperChanges, data);
 						break;
 					case 'DIAPER_PRODUCTS':
-						importRows(
-							diaperProductsState,
-							fromTable(store.getTable(TABLE_IDS.DIAPER_PRODUCTS)),
-							data,
-						);
+						importRows(diaperProductsState, allDiaperProducts, data);
 						break;
 					case 'EVENTS':
-						importRows(
-							eventsState,
-							fromTable(store.getTable(TABLE_IDS.EVENTS)),
-							data,
-						);
+						importRows(eventsState, allEvents, data);
 						break;
 					case 'FEEDING_SESSIONS':
-						importRows(
-							feedingSessionsState,
-							fromTable(store.getTable(TABLE_IDS.FEEDING_SESSIONS)),
-							data,
-						);
+						importRows(feedingSessionsState, allFeedingSessions, data);
 						break;
 					case 'GROWTH_MEASUREMENTS':
 						importRows(
 							growthMeasurementsState,
-							fromTable(store.getTable(TABLE_IDS.GROWTH_MEASUREMENTS)),
+							allGrowthMeasurements,
 							data,
 						);
 						break;
@@ -455,14 +446,7 @@ export default function SettingsPage() {
 	const [isAddingProduct, setIsAddingProduct] = useState(false);
 
 	const renderDiapers = () => {
-		const productIds = store.getRowIds(TABLE_IDS.DIAPER_PRODUCTS);
-		const products = productIds.map(
-			(id) =>
-				({
-					...store.getRow(TABLE_IDS.DIAPER_PRODUCTS, id),
-					id,
-				}) as DiaperProduct,
-		);
+		const products = allDiaperProducts;
 
 		if (isAddingProduct || editingProductId) {
 			const initialData = editingProductId

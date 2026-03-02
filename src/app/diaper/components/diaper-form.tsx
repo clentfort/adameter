@@ -27,8 +27,11 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { useDiaperProducts } from '@/hooks/use-diaper-products';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import {
+	useAllDiaperProducts,
+	useDiaperProducts,
+} from '@/hooks/use-diaper-products';
+import { useAllDiaperChanges } from '@/hooks/use-diaper-changes';
 import { diaperFormSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
@@ -84,32 +87,8 @@ export default function DiaperForm({
 	...props
 }: DiaperFormProps) {
 	const { add: addProduct } = useDiaperProducts();
-	const store = useStore()!;
-	const productIds = useRowIds(TABLE_IDS.DIAPER_PRODUCTS);
-	const changeIds = useRowIds(TABLE_IDS.DIAPER_CHANGES);
-
-	const products = useMemo(
-		() =>
-			productIds.map(
-				(id) =>
-					({
-						...store.getRow(TABLE_IDS.DIAPER_PRODUCTS, id),
-						id,
-					}) as DiaperProduct,
-			),
-		[productIds, store],
-	);
-	const changes = useMemo(
-		() =>
-			changeIds.map(
-				(id) =>
-					({
-						...store.getRow(TABLE_IDS.DIAPER_CHANGES, id),
-						id,
-					}) as DiaperChange,
-			),
-		[changeIds, store],
-	);
+	const products = useAllDiaperProducts();
+	const changes = useAllDiaperChanges();
 
 	const sortedProducts = useMemo(
 		() => getFrecencySortedProducts(products, changes),

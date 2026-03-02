@@ -15,6 +15,23 @@ export const useDiaperChangeRow = (id: string) => {
 	return useMemo(() => ({ ...row, id }) as unknown as DiaperChange, [id, row]);
 };
 
+export const useAllDiaperChanges = () => {
+	const store = useStore()!;
+	const rowIds = useRowIds(TABLE_IDS.DIAPER_CHANGES, store);
+
+	return useMemo(
+		() =>
+			rowIds.map(
+				(id) =>
+					({
+						...store.getRow(TABLE_IDS.DIAPER_CHANGES, id),
+						id,
+					}) as DiaperChange,
+			),
+		[rowIds, store],
+	);
+};
+
 export const useDiaperChanges = () => {
 	const store = useStore()!;
 	const rowIds = useRowIds(TABLE_IDS.DIAPER_CHANGES, store);

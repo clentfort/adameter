@@ -10,6 +10,23 @@ export const useGrowthMeasurementRow = (id: string) => {
 	return useMemo(() => ({ ...row, id }) as unknown as GrowthMeasurement, [id, row]);
 };
 
+export const useAllGrowthMeasurements = () => {
+	const store = useStore()!;
+	const rowIds = useRowIds(TABLE_IDS.GROWTH_MEASUREMENTS, store);
+
+	return useMemo(
+		() =>
+			rowIds.map(
+				(id) =>
+					({
+						...store.getRow(TABLE_IDS.GROWTH_MEASUREMENTS, id),
+						id,
+					}) as GrowthMeasurement,
+			),
+		[rowIds, store],
+	);
+};
+
 export const useGrowthMeasurements = () => {
 	const store = useStore()!;
 	const rowIds = useRowIds(TABLE_IDS.GROWTH_MEASUREMENTS, store);

@@ -14,6 +14,11 @@ export const defineStatisticsQueries = (queries: Queries) => {
 				const from = param('from') as string | undefined;
 				const to = param('to') as string | undefined;
 				const startTime = getTableCell('startTime') as string;
+
+				if (from === '' || to === '') {
+					return false;
+				}
+
 				return (!from || startTime >= from) && (!to || startTime <= to);
 			});
 		},
@@ -31,6 +36,11 @@ export const defineStatisticsQueries = (queries: Queries) => {
 				const from = param('from') as string | undefined;
 				const to = param('to') as string | undefined;
 				const startTime = getTableCell('startTime') as string;
+
+				if (from === '' || to === '') {
+					return false;
+				}
+
 				return (!from || startTime >= from) && (!to || startTime <= to);
 			});
 		},
@@ -51,6 +61,11 @@ export const defineStatisticsQueries = (queries: Queries) => {
 				const from = param('from') as string | undefined;
 				const to = param('to') as string | undefined;
 				const timestamp = getTableCell('timestamp') as string;
+
+				if (from === '' || to === '') {
+					return false;
+				}
+
 				return (!from || timestamp >= from) && (!to || timestamp <= to);
 			});
 		},
@@ -71,6 +86,11 @@ export const defineStatisticsQueries = (queries: Queries) => {
 				const from = param('from') as string | undefined;
 				const to = param('to') as string | undefined;
 				const timestamp = getTableCell('timestamp') as string;
+
+				if (from === '' || to === '') {
+					return false;
+				}
+
 				return (!from || timestamp >= from) && (!to || timestamp <= to);
 			});
 		},

@@ -10,6 +10,23 @@ export const useDiaperProductRow = (id: string) => {
 	return useMemo(() => ({ ...row, id }) as unknown as DiaperProduct, [id, row]);
 };
 
+export const useAllDiaperProducts = () => {
+	const store = useStore()!;
+	const rowIds = useRowIds(TABLE_IDS.DIAPER_PRODUCTS, store);
+
+	return useMemo(
+		() =>
+			rowIds.map(
+				(id) =>
+					({
+						...store.getRow(TABLE_IDS.DIAPER_PRODUCTS, id),
+						id,
+					}) as DiaperProduct,
+			),
+		[rowIds, store],
+	);
+};
+
 export const useDiaperProducts = () => {
 	const store = useStore()!;
 	const rowIds = useRowIds(TABLE_IDS.DIAPER_PRODUCTS, store);
