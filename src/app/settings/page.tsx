@@ -1,6 +1,8 @@
 'use client';
 
 import type { ChangeEvent } from 'react';
+import type { FeedingInProgress } from '@/types/feeding-in-progress';
+import type { Profile } from '@/types/profile';
 import { fbt } from 'fbtee';
 import {
 	Archive,
@@ -19,6 +21,7 @@ import {
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
+import { useValue } from 'tinybase/ui-react';
 import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
@@ -40,9 +43,12 @@ import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useEvents } from '@/hooks/use-events';
 import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useFeedingInProgress } from '@/hooks/use-feeing-in-progress';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { useProfile } from '@/hooks/use-profile';
+import { useTeething } from '@/hooks/use-teething';
 import { Locale } from '@/i18n';
+import { STORE_VALUE_CURRENCY } from '@/lib/tinybase-sync/constants';
 import { fromCsv, mergeData, toCsv } from '@/utils/data-transfer/csv';
 import {
 	createZip,
@@ -53,6 +59,118 @@ import {
 type CsvImportRow = {
 	id: string;
 } & Record<string, boolean | number | string | undefined>;
+
+type AppSettingsImportRow = CsvImportRow & {
+	currency?: string;
+};
+
+type FeedingInProgressImportRow = CsvImportRow & {
+	breast?: string;
+	startTime?: string;
+};
+
+type ProfileImportRow = CsvImportRow & {
+	color?: string;
+	dob?: string;
+	name?: string;
+	optedOut?: boolean;
+	sex?: string;
+};
+
+function profileToRow(profile: Profile): ProfileImportRow {
+	return {
+		color: profile.color,
+		dob: profile.dob,
+		id: 'profile',
+		name: profile.name,
+		optedOut: profile.optedOut,
+		sex: profile.sex,
+	};
+}
+
+function rowToProfile(row: ProfileImportRow | undefined): Profile | null {
+	if (!row) {
+		return null;
+	}
+
+	const profile: Profile = {};
+
+	if (typeof row.color === 'string' && row.color.length > 0) {
+		profile.color = row.color;
+	}
+
+	if (typeof row.dob === 'string' && row.dob.length > 0) {
+		profile.dob = row.dob;
+	}
+
+	if (typeof row.name === 'string' && row.name.length > 0) {
+		profile.name = row.name;
+	}
+
+	if (typeof row.optedOut === 'boolean') {
+		profile.optedOut = row.optedOut;
+	}
+
+	if (row.sex === 'boy' || row.sex === 'girl') {
+		profile.sex = row.sex;
+	}
+
+	return Object.keys(profile).length > 0 ? profile : null;
+}
+
+function mergeProfiles(
+	existing: Profile | null,
+	imported: Profile | null,
+): Profile | null {
+	if (!existing) {
+		return imported;
+	}
+
+	if (!imported) {
+		return existing;
+	}
+
+	return {
+		...imported,
+		...existing,
+	};
+}
+
+function rowToCurrency(
+	row: AppSettingsImportRow | undefined,
+): Currency | undefined {
+	if (!row) {
+		return undefined;
+	}
+
+	if (
+		row.currency === 'GBP' ||
+		row.currency === 'EUR' ||
+		row.currency === 'USD'
+	) {
+		return row.currency;
+	}
+
+	return undefined;
+}
+
+function rowToFeedingInProgress(
+	row: FeedingInProgressImportRow | undefined,
+): FeedingInProgress | null {
+	if (
+		!row ||
+		(row.breast !== 'left' && row.breast !== 'right') ||
+		typeof row.startTime !== 'string' ||
+		row.startTime.length === 0
+	) {
+		return null;
+	}
+
+	return {
+		breast: row.breast,
+		startTime: row.startTime,
+	};
+}
 
 function importRows<T extends { id: string }>(
 	storeState: {
@@ -70,6 +188,8 @@ export default function SettingsPage() {
 	const { setTheme, theme } = useTheme();
 	const { locale, setLocale } = useLanguage();
 	const [currency, setCurrency] = useCurrency();
+	const storedCurrency = useValue(STORE_VALUE_CURRENCY);
+	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
 	const { room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
 	const { toast } = useToast();
@@ -89,6 +209,7 @@ export default function SettingsPage() {
 	const eventsState = useEvents();
 	const feedingSessionsState = useFeedingSessions();
 	const growthMeasurementsState = useGrowthMeasurements();
+	const teethingState = useTeething();
 
 	const dataStores = {
 		diaperChanges: diaperChangesState,
@@ -96,6 +217,7 @@ export default function SettingsPage() {
 		events: eventsState,
 		feedingSessions: feedingSessionsState,
 		growthMeasurements: growthMeasurementsState,
+		teething: teethingState,
 	};
 
 	const handleExport = async () => {
@@ -108,6 +230,26 @@ export default function SettingsPage() {
 					{ data: eventsState.value, name: 'events' },
 					{ data: feedingSessionsState.value, name: 'feedingSessions' },
 					{ data: growthMeasurementsState.value, name: 'growthMeasurements' },
+					{ data: teethingState.value, name: 'teething' },
+					...(profile
+						? [{ data: [profileToRow(profile)], name: 'profile' as const }]
+						: []),
+					...(currency
+						? [
+								{
+									data: [{ currency, id: 'appSettings' }],
+									name: 'appSettings' as const,
+								},
+							]
+						: []),
+					...(feedingInProgress
+						? [
+								{
+									data: [{ ...feedingInProgress, id: 'feedingInProgress' }],
+									name: 'feedingInProgress' as const,
+								},
+							]
+						: []),
 				] as const
 			)
 				.filter(({ data }) => data.length > 0)
@@ -137,10 +279,13 @@ export default function SettingsPage() {
 		setIsLoading(true);
 		try {
 			const files = await extractFiles(file);
+			const hasStoredCurrency =
+				typeof storedCurrency === 'string' && storedCurrency.length > 0;
+
 			for (const { content, name } of files) {
 				const data = fromCsv(content) as CsvImportRow[];
 
-				switch (name as keyof typeof dataStores) {
+				switch (name) {
 					case 'diaperChanges':
 						importRows(diaperChangesState, data);
 						break;
@@ -156,6 +301,37 @@ export default function SettingsPage() {
 					case 'growthMeasurements':
 						importRows(growthMeasurementsState, data);
 						break;
+					case 'teething':
+						importRows(teethingState, data);
+						break;
+					case 'profile': {
+						const importedProfile = rowToProfile(data[0] as ProfileImportRow);
+						const mergedProfile = mergeProfiles(profile, importedProfile);
+						if (mergedProfile) {
+							setProfile(mergedProfile);
+						}
+						break;
+					}
+					case 'appSettings': {
+						const importedCurrency = rowToCurrency(
+							data[0] as AppSettingsImportRow,
+						);
+
+						if (importedCurrency && !hasStoredCurrency) {
+							setCurrency(importedCurrency);
+						}
+						break;
+					}
+					case 'feedingInProgress': {
+						const importedFeedingInProgress = rowToFeedingInProgress(
+							data[0] as FeedingInProgressImportRow,
+						);
+
+						if (importedFeedingInProgress && !feedingInProgress) {
+							setFeedingInProgress(importedFeedingInProgress);
+						}
+						break;
+					}
 					default:
 						break;
 				}

@@ -153,4 +153,81 @@ describe('CSV Integration', () => {
 
 		expect(parsedData).toEqual(expectedData);
 	});
+
+	it('round-trips teething data', () => {
+		const data = [
+			{
+				date: '2026-03-01',
+				deviceId: 'device-1',
+				id: 'tooth-1',
+				notes: 'First visible',
+				toothId: '51',
+			},
+		];
+
+		const csv = toCsv('teething', data);
+		const parsedData = fromCsv(csv);
+
+		expect(parsedData).toEqual([
+			{
+				date: '2026-03-01',
+				deviceId: 'device-1',
+				id: 'tooth-1',
+				notes: 'First visible',
+				toothId: 51,
+			},
+		]);
+	});
+
+	it('round-trips profile data including optedOut', () => {
+		const data = [
+			{
+				color: '#22c55e',
+				dob: '2024-01-01',
+				id: 'profile',
+				name: 'Ada',
+				optedOut: 'true',
+				sex: 'girl',
+			},
+		];
+
+		const csv = toCsv('profile', data);
+		const parsedData = fromCsv(csv);
+
+		expect(parsedData).toEqual([
+			{
+				color: '#22c55e',
+				dob: '2024-01-01',
+				id: 'profile',
+				name: 'Ada',
+				optedOut: true,
+				sex: 'girl',
+			},
+		]);
+	});
+
+	it('round-trips app settings and feeding-in-progress values', () => {
+		const appSettingsCsv = toCsv('appSettings', [
+			{ currency: 'EUR', id: 'appSettings' },
+		]);
+		const feedingInProgressCsv = toCsv('feedingInProgress', [
+			{
+				breast: 'left',
+				id: 'feedingInProgress',
+				startTime: '2026-03-01T10:00:00.000Z',
+			},
+		]);
+
+		expect(fromCsv(appSettingsCsv)).toEqual([
+			{ currency: 'EUR', id: 'appSettings' },
+		]);
+
+		expect(fromCsv(feedingInProgressCsv)).toEqual([
+			{
+				breast: 'left',
+				id: 'feedingInProgress',
+				startTime: '2026-03-01T10:00:00.000Z',
+			},
+		]);
+	});
 });
