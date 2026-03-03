@@ -201,7 +201,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 
 			await remotePersister.startAutoSave();
-			await remotePersister.startAutoLoad();
 			isInitialRemoteSyncComplete = true;
 
 			if (!isDisposed) {
@@ -225,7 +224,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
-			void remotePersister.stopAutoLoad();
 			void remotePersister.stopAutoSave();
 			void remotePersister.destroy();
 		};

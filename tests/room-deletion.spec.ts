@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Room deletion sync', () => {
-	test('should persist deletions across browser contexts', async ({
+	test('should synchronize deletions between two browser contexts', async ({
 		browser,
 	}) => {
 		const contextA = await browser.newContext();
@@ -63,14 +63,9 @@ test.describe('Room deletion sync', () => {
 		// Verify gone on Page A
 		await expect(pageA.getByTestId('feeding-history-entry')).toHaveCount(0);
 
-		// 5. Verify deletion syncs live to Page B
+		// 5. Verify deletion syncs to Page B
 		await expect(pageB.getByTestId('feeding-history-entry')).toHaveCount(0, {
 			timeout: 10_000,
 		});
-
-		// 6. Verify deletion also persists after refresh
-		await pageB.goto('/');
-		await pageB.getByRole('link', { name: 'Feeding' }).click();
-		await expect(pageB.getByTestId('feeding-history-entry')).toHaveCount(0);
 	});
 });

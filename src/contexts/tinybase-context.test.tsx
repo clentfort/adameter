@@ -44,9 +44,7 @@ interface RemotePersisterMock {
 	destroy: ReturnType<typeof vi.fn>;
 	load: ReturnType<typeof vi.fn>;
 	save: ReturnType<typeof vi.fn>;
-	startAutoLoad: ReturnType<typeof vi.fn>;
 	startAutoSave: ReturnType<typeof vi.fn>;
-	stopAutoLoad: ReturnType<typeof vi.fn>;
 	stopAutoSave: ReturnType<typeof vi.fn>;
 }
 
@@ -114,9 +112,7 @@ describe('TinybaseProvider room sync', () => {
 					store.setContent([{}, {}]);
 				}),
 				save: vi.fn(async () => {}),
-				startAutoLoad: vi.fn(async () => {}),
 				startAutoSave: vi.fn(async () => {}),
-				stopAutoLoad: vi.fn(async () => {}),
 				stopAutoSave: vi.fn(async () => {}),
 			}),
 		);
@@ -150,7 +146,6 @@ describe('TinybaseProvider room sync', () => {
 			?.value as RemotePersisterMock;
 
 		expect(remotePersister.load).toHaveBeenCalledTimes(1);
-		expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
 		expect(remotePersister.startAutoSave).toHaveBeenCalledTimes(1);
 	});
 });
