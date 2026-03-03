@@ -29,17 +29,14 @@ export default class TinybasePartyServer extends TinyBasePartyKitServer {
 			}
 			headers.set('Content-Type', 'application/json');
 
-			const bodyText = await response.text();
 			if (request.method === 'PUT') {
-				return new Response(bodyText || 'null', {
+				return new Response('null', {
 					headers,
-					status:
-						response.status === 201 || response.status === 205
-							? 200
-							: response.status,
+					status: 200,
 				});
 			}
 
+			const bodyText = await response.text();
 			if (bodyText.length > 0) {
 				return new Response(bodyText, {
 					headers,

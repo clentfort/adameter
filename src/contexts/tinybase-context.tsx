@@ -97,7 +97,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			| ReturnType<typeof createSecurePartyKitPersister>
 			| undefined;
 		let connection: PartySocket | undefined;
-		let remoteRefreshPromise = Promise.resolve();
 
 		setIsSyncReady(false);
 
@@ -130,34 +129,20 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 		};
 
-		const scheduleRemoteRefresh = async () => {
-			remoteRefreshPromise = remoteRefreshPromise
-				.catch(() => {})
-				.then(loadRemoteAndApplyMigrations);
-
-			await remoteRefreshPromise;
-		};
-
 		const onOpen = () => {
-			if (!isInitialRemoteSyncComplete) {
-				return;
-			}
-
 			if (shouldSkipNextOpenLoad) {
 				shouldSkipNextOpenLoad = false;
 				return;
 			}
 
-			void scheduleRemoteRefresh().catch(() => {});
+			void loadRemoteAndApplyMigrations().catch(() => {});
 		};
 
 		const onVisibilityChange = () => {
-			if (document.visibilityState !== 'visible') {
-				return;
+			if (document.visibilityState === 'visible') {
+				connection?.reconnect();
+				void loadRemoteAndApplyMigrations().catch(() => {});
 			}
-
-			connection?.reconnect();
-			void scheduleRemoteRefresh().catch(() => {});
 		};
 
 		const connectRoomSync = async () => {
@@ -187,7 +172,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				() => {},
 			);
 
-			await remotePersister.startAutoLoad();
+			await remotePersister.load();
 			const bootstrapResult = reconcileRemoteLoadResult(
 				store,
 				localSnapshot,
@@ -239,7 +224,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
-			void remotePersister.stopAutoLoad();
 			void remotePersister.stopAutoSave();
 			void remotePersister.destroy();
 		};
