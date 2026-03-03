@@ -1,6 +1,7 @@
 'use client';
 
 import type { ChangeEvent } from 'react';
+import type { Profile } from '@/types/profile';
 import { fbt } from 'fbtee';
 import {
 	Archive,
@@ -54,6 +55,73 @@ type CsvImportRow = {
 	id: string;
 } & Record<string, boolean | number | string | undefined>;
 
+type ProfileImportRow = CsvImportRow & {
+	color?: string;
+	dob?: string;
+	name?: string;
+	optedOut?: boolean;
+	sex?: string;
+};
+
+function profileToRow(profile: Profile): ProfileImportRow {
+	return {
+		color: profile.color,
+		dob: profile.dob,
+		id: 'profile',
+		name: profile.name,
+		optedOut: profile.optedOut,
+		sex: profile.sex,
+	};
+}
+
+function rowToProfile(row: ProfileImportRow | undefined): Profile | null {
+	if (!row) {
+		return null;
+	}
+
+	const profile: Profile = {};
+
+	if (typeof row.color === 'string' && row.color.length > 0) {
+		profile.color = row.color;
+	}
+
+	if (typeof row.dob === 'string' && row.dob.length > 0) {
+		profile.dob = row.dob;
+	}
+
+	if (typeof row.name === 'string' && row.name.length > 0) {
+		profile.name = row.name;
+	}
+
+	if (typeof row.optedOut === 'boolean') {
+		profile.optedOut = row.optedOut;
+	}
+
+	if (row.sex === 'boy' || row.sex === 'girl') {
+		profile.sex = row.sex;
+	}
+
+	return Object.keys(profile).length > 0 ? profile : null;
+}
+
+function mergeProfiles(
+	existing: Profile | null,
+	imported: Profile | null,
+): Profile | null {
+	if (!existing) {
+		return imported;
+	}
+
+	if (!imported) {
+		return existing;
+	}
+
+	return {
+		...imported,
+		...existing,
+	};
+}
+
 function importRows<T extends { id: string }>(
 	storeState: {
 		update: (item: T) => void;
@@ -82,7 +150,9 @@ export default function SettingsPage() {
 		await setLocale(code);
 	};
 
-	const [isLoading, setIsLoading] = useState(false);
+	const [importProgress, setImportProgress] = useState(0);
+	const [isExporting, setIsExporting] = useState(false);
+	const [isImporting, setIsImporting] = useState(false);
 
 	const diaperChangesState = useDiaperChanges();
 	const diaperProductsState = useDiaperProducts();
@@ -99,10 +169,13 @@ export default function SettingsPage() {
 	};
 
 	const handleExport = async () => {
-		setIsLoading(true);
+		setIsExporting(true);
 		try {
 			const files = (
 				[
+					...(profile
+						? [{ data: [profileToRow(profile)], name: 'profile' as const }]
+						: []),
 					{ data: diaperChangesState.value, name: 'diaperChanges' },
 					{ data: diaperProductsState.value, name: 'diaperProducts' },
 					{ data: eventsState.value, name: 'events' },
@@ -124,7 +197,7 @@ export default function SettingsPage() {
 		} catch {
 			toast.error(fbt('Failed to export data.', 'Export error message'));
 		} finally {
-			setIsLoading(false);
+			setIsExporting(false);
 		}
 	};
 
@@ -134,13 +207,24 @@ export default function SettingsPage() {
 			return;
 		}
 
-		setIsLoading(true);
+		setIsImporting(true);
+		setImportProgress(0);
 		try {
 			const files = await extractFiles(file);
-			for (const { content, name } of files) {
+			const fileCount = files.length || 1;
+
+			for (const [index, { content, name }] of files.entries()) {
 				const data = fromCsv(content) as CsvImportRow[];
 
-				switch (name as keyof typeof dataStores) {
+				switch (name) {
+					case 'profile': {
+						const importedProfile = rowToProfile(data[0] as ProfileImportRow);
+						const mergedProfile = mergeProfiles(profile, importedProfile);
+						if (mergedProfile) {
+							setProfile(mergedProfile);
+						}
+						break;
+					}
 					case 'diaperChanges':
 						importRows(diaperChangesState, data);
 						break;
@@ -159,6 +243,8 @@ export default function SettingsPage() {
 					default:
 						break;
 				}
+
+				setImportProgress(Math.round(((index + 1) / fileCount) * 100));
 			}
 			toast.success(
 				fbt('Data imported successfully.', 'Import success message'),
@@ -166,7 +252,8 @@ export default function SettingsPage() {
 		} catch {
 			toast.error(fbt('Failed to import data.', 'Import error message'));
 		} finally {
-			setIsLoading(false);
+			setIsImporting(false);
+			setImportProgress(0);
 		}
 	};
 
@@ -584,11 +671,12 @@ export default function SettingsPage() {
 				<CardContent>
 					<p className="mb-4 text-sm">
 						<fbt desc="Export data description">
-							Download all your data as a ZIP file containing CSVs.
+							Download all your data (including your child profile) as a ZIP
+							file containing CSVs.
 						</fbt>
 					</p>
-					<Button disabled={isLoading} onClick={handleExport}>
-						{isLoading ? (
+					<Button disabled={isExporting || isImporting} onClick={handleExport}>
+						{isExporting ? (
 							<fbt desc="Exporting button text">Exporting...</fbt>
 						) : (
 							<fbt desc="Export button text">Export</fbt>
@@ -606,16 +694,30 @@ export default function SettingsPage() {
 				<CardContent>
 					<p className="mb-4 text-sm">
 						<fbt desc="Import data description">
-							Import data from a ZIP file containing CSVs. Existing data will
-							not be overwritten.
+							Import data from a ZIP file containing CSVs (including your child
+							profile). Existing data will not be overwritten.
 						</fbt>
 					</p>
 					<Input
 						accept=".zip"
-						disabled={isLoading}
+						disabled={isImporting || isExporting}
 						onChange={handleImport}
 						type="file"
 					/>
+					{isImporting && (
+						<div aria-live="polite" className="mt-4 space-y-2" role="status">
+							<div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+								<div
+									className="h-full bg-primary transition-all duration-200"
+									style={{ width: `${importProgress}%` }}
+								/>
+							</div>
+							<p className="text-sm text-muted-foreground">
+								<fbt desc="Import progress text">Importing data...</fbt>{' '}
+								{importProgress}%
+							</p>
+						</div>
+					)}
 				</CardContent>
 			</Card>
 		</div>

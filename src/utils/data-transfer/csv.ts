@@ -48,6 +48,7 @@ const columns: { [key: string]: string[] } = {
 		'headCircumference',
 		'notes',
 	],
+	profile: ['id', 'name', 'dob', 'sex', 'color', 'optedOut'],
 };
 
 export const toCsv = (
@@ -80,7 +81,7 @@ const requiredBoolean = new Set([
 	'containsStool',
 	'isReusable',
 ]);
-const optionalBoolean = new Set(['leakage', 'archived']);
+const optionalBoolean = new Set(['leakage', 'archived', 'optedOut']);
 
 export const fromCsv = (csv: string) => {
 	const parsed = Papa.parse(csv, {
