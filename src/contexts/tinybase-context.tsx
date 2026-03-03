@@ -4,8 +4,12 @@ import type { Store } from 'tinybase';
 import PartySocket from 'partysocket';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { createStore } from 'tinybase';
+import {
+	createSecurePartyKitPersister,
+	getEncryptionKey,
+	hashRoomId,
+} from 'tinybase-persister-partykit-client-encrypted';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
-import { createPartyKitPersister } from 'tinybase/persisters/persister-partykit-client';
 import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
@@ -89,7 +93,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		let shouldSkipNextOpenLoad = true;
 		const store = storeRef.current;
 		const deviceId = getDeviceId();
-		let remotePersister: ReturnType<typeof createPartyKitPersister> | undefined;
+		let remotePersister:
+			| ReturnType<typeof createSecurePartyKitPersister>
+			| undefined;
 		let connection: PartySocket | undefined;
 
 		setIsSyncReady(false);
@@ -145,20 +151,24 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 
 			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+			const [hashedRoomId, encryptionKey] = await Promise.all([
+				hashRoomId(room),
+				getEncryptionKey(room),
+			]);
 
 			connection = new PartySocket({
 				host: PARTYKIT_HOST,
 				party: TINYBASE_PARTYKIT_PARTY,
-				room,
+				room: hashedRoomId,
 			});
 			connection.addEventListener('open', onOpen);
 			document.addEventListener('visibilitychange', onVisibilityChange);
 			window.addEventListener('focus', onVisibilityChange);
 
-			remotePersister = createPartyKitPersister(
+			remotePersister = createSecurePartyKitPersister(
 				store,
 				connection,
-				undefined,
+				encryptionKey,
 				() => {},
 			);
 
