@@ -70,22 +70,29 @@ export function createSecurePartyKitPersister(
 			changes: Changes | undefined,
 		) => void,
 	) => {
+		let lastMessagePromise = Promise.resolve();
 		const messageListener = async (event: MessageEvent) => {
 			const data = event.data;
 
 			if (typeof data === 'string' && data.startsWith(SET_CHANGES)) {
-				try {
-					const encryptedChanges = jsonParseWithUndefined<Changes>(
-						data.slice(1),
-					);
-					const decryptedChanges = await decryptChanges(
-						encryptedChanges,
-						encryptionKey,
-					);
-					listener(undefined, decryptedChanges);
-				} catch (error) {
-					onIgnoredError?.(error);
-				}
+				lastMessagePromise = lastMessagePromise
+					.catch(() => {})
+					.then(async () => {
+						try {
+							const encryptedChanges = jsonParseWithUndefined<Changes>(
+								data.slice(1),
+							);
+							const decryptedChanges = await decryptChanges(
+								encryptedChanges,
+								encryptionKey,
+							);
+							listener(undefined, decryptedChanges);
+						} catch (error) {
+							onIgnoredError?.(error);
+						}
+					});
+
+				await lastMessagePromise;
 			}
 		};
 

@@ -1,17 +1,11 @@
-import type {
-	Cell,
-	CellOrUndefined,
-	Changes,
-	Content,
-	Id,
-	Tables,
-	Values,
-} from 'tinybase';
+import type { Changes, Content, Tables, Values } from 'tinybase';
 
 const ALGORITHM = 'AES-GCM';
 const IV_LENGTH = 12;
 const UNDEFINED_MARKER = '\uFFFC';
 type EncryptableValue = boolean | number | string | null;
+const TEXT_DECODER = new TextDecoder();
+const TEXT_ENCODER = new TextEncoder();
 
 function uint8ArrayToBase64(array: Uint8Array): string {
 	let binary = '';
@@ -34,7 +28,7 @@ function base64ToUint8Array(base64: string): Uint8Array {
 }
 
 export async function hashRoomId(roomName: string): Promise<string> {
-	const msgUint8 = new TextEncoder().encode(`room:${roomName}`);
+	const msgUint8 = TEXT_ENCODER.encode(`room:${roomName}`);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 	const hashArray = Array.from(new Uint8Array(hashBuffer));
 
@@ -42,7 +36,7 @@ export async function hashRoomId(roomName: string): Promise<string> {
 }
 
 export async function getEncryptionKey(roomName: string): Promise<CryptoKey> {
-	const msgUint8 = new TextEncoder().encode(`key:${roomName}`);
+	const msgUint8 = TEXT_ENCODER.encode(`key:${roomName}`);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 
 	return crypto.subtle.importKey('raw', hashBuffer, ALGORITHM, false, [
@@ -73,7 +67,7 @@ async function encryptValue(
 	}
 
 	const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
-	const encodedValue = new TextEncoder().encode(serializedValue);
+	const encodedValue = TEXT_ENCODER.encode(serializedValue);
 	const encryptedBuffer = await crypto.subtle.encrypt(
 		{ iv, name: ALGORITHM },
 		key,
@@ -103,7 +97,7 @@ async function decryptValue(
 		key,
 		ciphertext,
 	);
-	const value = new TextDecoder().decode(decryptedBuffer);
+	const value = TEXT_DECODER.decode(decryptedBuffer);
 
 	if (prefix === 's:') {
 		return value;
@@ -129,34 +123,26 @@ export async function encryptContent(
 	key: CryptoKey,
 ): Promise<Content> {
 	const [tables, values] = content;
-	const encryptedTables: Tables = {};
-	const encryptedValues: Values = {};
-
-	for (const [tableId, table] of Object.entries(tables)) {
-		const encryptedTable: Record<Id, Record<Id, Cell>> = {};
-
-		for (const [rowId, row] of Object.entries(table)) {
-			const encryptedRow: Record<Id, Cell> = {};
-
-			for (const [cellId, cell] of Object.entries(row)) {
-				encryptedRow[cellId] = await encryptValue(
-					cell as EncryptableValue,
+	const [encryptedTableEntries, encryptedValueEntries] = await Promise.all([
+		Promise.all(
+			Object.entries(tables).map(async ([tableId, table]) => [
+				tableId,
+				await encryptTableContent(
+					table as Record<string, Record<string, unknown>>,
 					key,
-				);
-			}
+				),
+			]),
+		),
+		Promise.all(
+			Object.entries(values).map(async ([valueId, value]) => [
+				valueId,
+				await encryptValue(value as EncryptableValue, key),
+			]),
+		),
+	]);
 
-			encryptedTable[rowId] = encryptedRow;
-		}
-
-		encryptedTables[tableId] = encryptedTable;
-	}
-
-	for (const [valueId, value] of Object.entries(values)) {
-		encryptedValues[valueId] = await encryptValue(
-			value as EncryptableValue,
-			key,
-		);
-	}
+	const encryptedTables = Object.fromEntries(encryptedTableEntries) as Tables;
+	const encryptedValues = Object.fromEntries(encryptedValueEntries) as Values;
 
 	return [encryptedTables, encryptedValues];
 }
@@ -166,28 +152,26 @@ export async function decryptContent(
 	key: CryptoKey,
 ): Promise<Content> {
 	const [tables, values] = content;
-	const decryptedTables: Tables = {};
-	const decryptedValues: Values = {};
+	const [decryptedTableEntries, decryptedValueEntries] = await Promise.all([
+		Promise.all(
+			Object.entries(tables).map(async ([tableId, table]) => [
+				tableId,
+				await decryptTableContent(
+					table as Record<string, Record<string, unknown>>,
+					key,
+				),
+			]),
+		),
+		Promise.all(
+			Object.entries(values).map(async ([valueId, value]) => [
+				valueId,
+				await decryptValue(value as string, key),
+			]),
+		),
+	]);
 
-	for (const [tableId, table] of Object.entries(tables)) {
-		const decryptedTable: Record<Id, Record<Id, Cell>> = {};
-
-		for (const [rowId, row] of Object.entries(table)) {
-			const decryptedRow: Record<Id, Cell> = {};
-
-			for (const [cellId, cell] of Object.entries(row)) {
-				decryptedRow[cellId] = await decryptValue(cell as string, key);
-			}
-
-			decryptedTable[rowId] = decryptedRow;
-		}
-
-		decryptedTables[tableId] = decryptedTable;
-	}
-
-	for (const [valueId, value] of Object.entries(values)) {
-		decryptedValues[valueId] = await decryptValue(value as string, key);
-	}
+	const decryptedTables = Object.fromEntries(decryptedTableEntries) as Tables;
+	const decryptedValues = Object.fromEntries(decryptedValueEntries) as Values;
 
 	return [decryptedTables, decryptedValues];
 }
@@ -197,51 +181,36 @@ export async function encryptChanges(
 	key: CryptoKey,
 ): Promise<Changes> {
 	const [tableChanges, valueChanges, internal] = changes;
-	const encryptedTableChanges: Record<string, unknown> = {};
-	const encryptedValueChanges: Record<string, unknown> = {};
+	const [encryptedTableEntries, encryptedValueEntries] = await Promise.all([
+		Promise.all(
+			Object.entries(tableChanges).map(async ([tableId, table]) => [
+				tableId,
+				await encryptChangedTable(
+					table as
+						| Record<string, Record<string, unknown> | undefined>
+						| undefined,
+					key,
+				),
+			]),
+		),
+		Promise.all(
+			Object.entries(valueChanges).map(async ([valueId, value]) => [
+				valueId,
+				value === undefined
+					? undefined
+					: await encryptValue(value as EncryptableValue, key),
+			]),
+		),
+	]);
 
-	for (const [tableId, table] of Object.entries(tableChanges)) {
-		if (table === undefined) {
-			encryptedTableChanges[tableId] = undefined;
-			continue;
-		}
+	const encryptedTableChanges = Object.fromEntries(
+		encryptedTableEntries,
+	) as Changes[0];
+	const encryptedValueChanges = Object.fromEntries(
+		encryptedValueEntries,
+	) as Changes[1];
 
-		const encryptedTable: Record<Id, Record<Id, CellOrUndefined> | undefined> =
-			{};
-
-		for (const [rowId, row] of Object.entries(table)) {
-			if (row === undefined) {
-				encryptedTable[rowId] = undefined;
-				continue;
-			}
-
-			const encryptedRow: Record<Id, CellOrUndefined> = {};
-
-			for (const [cellId, cell] of Object.entries(row)) {
-				encryptedRow[cellId] =
-					cell === undefined
-						? undefined
-						: await encryptValue(cell as EncryptableValue, key);
-			}
-
-			encryptedTable[rowId] = encryptedRow;
-		}
-
-		encryptedTableChanges[tableId] = encryptedTable;
-	}
-
-	for (const [valueId, value] of Object.entries(valueChanges)) {
-		encryptedValueChanges[valueId] =
-			value === undefined
-				? undefined
-				: await encryptValue(value as EncryptableValue, key);
-	}
-
-	return [
-		encryptedTableChanges as Changes[0],
-		encryptedValueChanges as Changes[1],
-		internal,
-	];
+	return [encryptedTableChanges, encryptedValueChanges, internal];
 }
 
 export async function decryptChanges(
@@ -249,51 +218,169 @@ export async function decryptChanges(
 	key: CryptoKey,
 ): Promise<Changes> {
 	const [tableChanges, valueChanges, internal] = changes;
-	const decryptedTableChanges: Record<string, unknown> = {};
-	const decryptedValueChanges: Record<string, unknown> = {};
+	const [decryptedTableEntries, decryptedValueEntries] = await Promise.all([
+		Promise.all(
+			Object.entries(tableChanges).map(async ([tableId, table]) => [
+				tableId,
+				await decryptChangedTable(
+					table as
+						| Record<string, Record<string, unknown> | undefined>
+						| undefined,
+					key,
+				),
+			]),
+		),
+		Promise.all(
+			Object.entries(valueChanges).map(async ([valueId, value]) => [
+				valueId,
+				value === undefined
+					? undefined
+					: await decryptValue(value as string, key),
+			]),
+		),
+	]);
 
-	for (const [tableId, table] of Object.entries(tableChanges)) {
-		if (table === undefined) {
-			decryptedTableChanges[tableId] = undefined;
-			continue;
-		}
+	const decryptedTableChanges = Object.fromEntries(
+		decryptedTableEntries,
+	) as Changes[0];
+	const decryptedValueChanges = Object.fromEntries(
+		decryptedValueEntries,
+	) as Changes[1];
 
-		const decryptedTable: Record<Id, Record<Id, CellOrUndefined> | undefined> =
-			{};
+	return [decryptedTableChanges, decryptedValueChanges, internal];
+}
 
-		for (const [rowId, row] of Object.entries(table)) {
-			if (row === undefined) {
-				decryptedTable[rowId] = undefined;
-				continue;
-			}
+async function encryptTableContent(
+	table: Record<string, Record<string, unknown>>,
+	key: CryptoKey,
+) {
+	return transformTableContent(table, key, encryptRowContent);
+}
 
-			const decryptedRow: Record<Id, CellOrUndefined> = {};
+async function decryptTableContent(
+	table: Record<string, Record<string, unknown>>,
+	key: CryptoKey,
+) {
+	return transformTableContent(table, key, decryptRowContent);
+}
 
-			for (const [cellId, cell] of Object.entries(row)) {
-				decryptedRow[cellId] =
-					cell === undefined
-						? undefined
-						: await decryptValue(cell as string, key);
-			}
+async function transformTableContent(
+	table: Record<string, Record<string, unknown>>,
+	key: CryptoKey,
+	transformRowContent: (
+		row: Record<string, unknown>,
+		key: CryptoKey,
+	) => Promise<Record<string, unknown>>,
+) {
+	const transformedRowEntries = await Promise.all(
+		Object.entries(table).map(async ([rowId, row]) => [
+			rowId,
+			await transformRowContent(row, key),
+		]),
+	);
 
-			decryptedTable[rowId] = decryptedRow;
-		}
+	return Object.fromEntries(transformedRowEntries);
+}
 
-		decryptedTableChanges[tableId] = decryptedTable;
+async function encryptRowContent(row: Record<string, unknown>, key: CryptoKey) {
+	return transformRowContent(row, key, (cell, rowKey) =>
+		encryptValue(cell as EncryptableValue, rowKey),
+	);
+}
+
+async function decryptRowContent(row: Record<string, unknown>, key: CryptoKey) {
+	return transformRowContent(row, key, (cell, rowKey) =>
+		decryptValue(cell as string, rowKey),
+	);
+}
+
+async function transformRowContent(
+	row: Record<string, unknown>,
+	key: CryptoKey,
+	transformCell: (cell: unknown, key: CryptoKey) => Promise<unknown>,
+) {
+	const transformedCellEntries = await Promise.all(
+		Object.entries(row).map(async ([cellId, cell]) => [
+			cellId,
+			await transformCell(cell, key),
+		]),
+	);
+
+	return Object.fromEntries(transformedCellEntries);
+}
+
+async function encryptChangedTable(
+	table: Record<string, Record<string, unknown> | undefined> | undefined,
+	key: CryptoKey,
+) {
+	return transformChangedTable(table, key, encryptChangedRow);
+}
+
+async function decryptChangedTable(
+	table: Record<string, Record<string, unknown> | undefined> | undefined,
+	key: CryptoKey,
+) {
+	return transformChangedTable(table, key, decryptChangedRow);
+}
+
+async function transformChangedTable(
+	table: Record<string, Record<string, unknown> | undefined> | undefined,
+	key: CryptoKey,
+	transformChangedRow: (
+		row: Record<string, unknown> | undefined,
+		key: CryptoKey,
+	) => Promise<Record<string, unknown> | undefined>,
+) {
+	if (table === undefined) {
+		return undefined;
 	}
 
-	for (const [valueId, value] of Object.entries(valueChanges)) {
-		decryptedValueChanges[valueId] =
-			value === undefined
+	const transformedRowEntries = await Promise.all(
+		Object.entries(table).map(async ([rowId, row]) => [
+			rowId,
+			await transformChangedRow(row, key),
+		]),
+	);
+
+	return Object.fromEntries(transformedRowEntries);
+}
+
+async function encryptChangedRow(
+	row: Record<string, unknown> | undefined,
+	key: CryptoKey,
+) {
+	if (row === undefined) {
+		return undefined;
+	}
+
+	const encryptedCellEntries = await Promise.all(
+		Object.entries(row).map(async ([cellId, cell]) => [
+			cellId,
+			cell === undefined
 				? undefined
-				: await decryptValue(value as string, key);
+				: await encryptValue(cell as EncryptableValue, key),
+		]),
+	);
+
+	return Object.fromEntries(encryptedCellEntries);
+}
+
+async function decryptChangedRow(
+	row: Record<string, unknown> | undefined,
+	key: CryptoKey,
+) {
+	if (row === undefined) {
+		return undefined;
 	}
 
-	return [
-		decryptedTableChanges as Changes[0],
-		decryptedValueChanges as Changes[1],
-		internal,
-	];
+	const decryptedCellEntries = await Promise.all(
+		Object.entries(row).map(async ([cellId, cell]) => [
+			cellId,
+			cell === undefined ? undefined : await decryptValue(cell as string, key),
+		]),
+	);
+
+	return Object.fromEntries(decryptedCellEntries);
 }
 
 export function jsonStringWithUndefined(value: unknown): string {
