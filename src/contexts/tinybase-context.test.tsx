@@ -82,6 +82,7 @@ function RoomSyncProbe() {
 describe('TinybaseProvider room sync', () => {
 	afterEach(() => {
 		cleanup();
+		vi.useRealTimers();
 	});
 
 	beforeEach(() => {
@@ -171,70 +172,91 @@ describe('TinybaseProvider room sync', () => {
 		expect(remotePersister.startAutoSave).toHaveBeenCalledTimes(1);
 	});
 
-	it('keeps large local datasets when joining with merge strategy', async () => {
-		// /Users/lentfortc/Downloads/adameter-export(4).zip has ~5.4k data rows.
-		// Use >10x that size to guard against large-import regressions.
-		const LARGE_EVENT_COUNT = 60_000;
+	it.each([
+		['tiny', 10],
+		['medium', 1000],
+		['large', 10_000],
+		['huge', 60_000],
+	])(
+		'keeps %s datasets after 10s delayed room refresh',
+		async (_sizeLabel, eventCount) => {
+			mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
+				destroy: vi.fn(async () => {}),
+				load: vi.fn(async () => {
+					store.setContent([{}, {}]);
+					for (let index = 0; index < eventCount; index++) {
+						store.setRow(TABLE_IDS.EVENTS, `local-event-${index}`, {
+							deviceId: 'local-device',
+							startDate: '2026-03-03T00:00:00.000Z',
+							title: `e${index}`,
+							type: 'point',
+						});
+					}
 
-		mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
-			destroy: vi.fn(async () => {}),
-			load: vi.fn(async () => {
-				store.setContent([{}, {}]);
-				for (let index = 0; index < LARGE_EVENT_COUNT; index++) {
-					store.setRow(TABLE_IDS.EVENTS, `local-event-${index}`, {
-						deviceId: 'local-device',
-						startDate: '2026-03-03T00:00:00.000Z',
-						title: `e${index}`,
-						type: 'point',
-					});
-				}
+					store.setValue(
+						STORE_VALUE_PROFILE,
+						JSON.stringify({
+							color: '#22c55e',
+							name: 'Ada Large',
+						}),
+					);
+				}),
+				startAutoSave: vi.fn(async () => {}),
+				stopAutoSave: vi.fn(async () => {}),
+			}));
 
-				store.setValue(
-					STORE_VALUE_PROFILE,
-					JSON.stringify({
-						color: '#22c55e',
-						name: 'Ada Large',
-					}),
-				);
-			}),
-			startAutoSave: vi.fn(async () => {}),
-			stopAutoSave: vi.fn(async () => {}),
-		}));
+			render(
+				<DataSynchronizationProvider>
+					<TinybaseProvider>
+						<RoomSyncProbe />
+					</TinybaseProvider>
+				</DataSynchronizationProvider>,
+			);
 
-		render(
-			<DataSynchronizationProvider>
-				<TinybaseProvider>
-					<RoomSyncProbe />
-				</TinybaseProvider>
-			</DataSynchronizationProvider>,
-		);
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('event-count')).toHaveTextContent(
+						String(eventCount),
+					);
+					expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
+				},
+				{ timeout: 30_000 },
+			);
 
-		await waitFor(
-			() => {
-				expect(screen.getByTestId('event-count')).toHaveTextContent(
-					String(LARGE_EVENT_COUNT),
-				);
-				expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
-			},
-			{ timeout: 30_000 },
-		);
+			fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
 
-		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('event-count')).toHaveTextContent(
+						String(eventCount),
+					);
+					expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
+				},
+				{ timeout: 30_000 },
+			);
 
-		await waitFor(
-			() => {
-				expect(screen.getByTestId('event-count')).toHaveTextContent(
-					String(LARGE_EVENT_COUNT),
-				);
-				expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
-			},
-			{ timeout: 30_000 },
-		);
+			await new Promise((resolve) => setTimeout(resolve, 10_000));
 
-		const remotePersister = mocks.createSecurePartyKitPersister.mock.results[0]
-			?.value as RemotePersisterMock;
+			document.dispatchEvent(new Event('visibilitychange'));
+			window.dispatchEvent(new Event('focus'));
 
-		expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
-		expect(remotePersister.save).toHaveBeenCalledTimes(1);
-	}, 60_000);
+			await waitFor(
+				() => {
+					expect(screen.getByTestId('event-count')).toHaveTextContent(
+						String(eventCount),
+					);
+					expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
+				},
+				{ timeout: 30_000 },
+			);
+
+			const remotePersister = mocks.createSecurePartyKitPersister.mock
+				.results[0]?.value as RemotePersisterMock;
+
+			expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
+			expect(remotePersister.load).toHaveBeenCalledTimes(3);
+			expect(remotePersister.save).toHaveBeenCalledTimes(3);
+		},
+		120_000,
+	);
 });
