@@ -12,7 +12,9 @@ import { TinybaseProvider } from './tinybase-context';
 
 const mocks = vi.hoisted(() => ({
 	createIndexedDbPersister: vi.fn(),
-	createPartyKitPersister: vi.fn(),
+	createSecurePartyKitPersister: vi.fn(),
+	getEncryptionKey: vi.fn(),
+	hashRoomId: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
 }));
 
@@ -28,8 +30,10 @@ vi.mock('tinybase/persisters/persister-indexed-db', () => ({
 	createIndexedDbPersister: mocks.createIndexedDbPersister,
 }));
 
-vi.mock('tinybase/persisters/persister-partykit-client', () => ({
-	createPartyKitPersister: mocks.createPartyKitPersister,
+vi.mock('tinybase-persister-partykit-client-encrypted', () => ({
+	createSecurePartyKitPersister: mocks.createSecurePartyKitPersister,
+	getEncryptionKey: mocks.getEncryptionKey,
+	hashRoomId: mocks.hashRoomId,
 }));
 
 vi.mock('@/migrations/run-if-needed', () => ({
@@ -40,7 +44,6 @@ interface RemotePersisterMock {
 	destroy: ReturnType<typeof vi.fn>;
 	load: ReturnType<typeof vi.fn>;
 	save: ReturnType<typeof vi.fn>;
-	startAutoPersisting: ReturnType<typeof vi.fn>;
 	startAutoSave: ReturnType<typeof vi.fn>;
 	stopAutoSave: ReturnType<typeof vi.fn>;
 }
@@ -71,10 +74,14 @@ function RoomSyncProbe() {
 describe('TinybaseProvider room sync', () => {
 	beforeEach(() => {
 		localStorage.clear();
+		mocks.createSecurePartyKitPersister.mockReset();
 		mocks.createIndexedDbPersister.mockReset();
-		mocks.createPartyKitPersister.mockReset();
+		mocks.getEncryptionKey.mockReset();
+		mocks.hashRoomId.mockReset();
 		mocks.runMigrationsIfNeeded.mockReset();
 
+		mocks.getEncryptionKey.mockResolvedValue({} as CryptoKey);
+		mocks.hashRoomId.mockResolvedValue('hashed-regression-room');
 		mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
 
 		mocks.createIndexedDbPersister.mockImplementation((store: Store) => ({
@@ -98,16 +105,13 @@ describe('TinybaseProvider room sync', () => {
 			stopAutoSave: vi.fn(async () => {}),
 		}));
 
-		mocks.createPartyKitPersister.mockImplementation(
+		mocks.createSecurePartyKitPersister.mockImplementation(
 			(store: Store): RemotePersisterMock => ({
 				destroy: vi.fn(async () => {}),
 				load: vi.fn(async () => {
 					store.setContent([{}, {}]);
 				}),
 				save: vi.fn(async () => {}),
-				startAutoPersisting: vi.fn(async () => {
-					store.setContent([{}, {}]);
-				}),
 				startAutoSave: vi.fn(async () => {}),
 				stopAutoSave: vi.fn(async () => {}),
 			}),
@@ -131,16 +135,17 @@ describe('TinybaseProvider room sync', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
 
 		await waitFor(() => {
-			expect(mocks.createPartyKitPersister).toHaveBeenCalledTimes(1);
+			expect(mocks.hashRoomId).toHaveBeenCalledWith('regression-room');
+			expect(mocks.getEncryptionKey).toHaveBeenCalledWith('regression-room');
+			expect(mocks.createSecurePartyKitPersister).toHaveBeenCalledTimes(1);
 			expect(screen.getByTestId('event-count')).toHaveTextContent('1');
 			expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
 		});
 
-		const remotePersister = mocks.createPartyKitPersister.mock.results[0]
+		const remotePersister = mocks.createSecurePartyKitPersister.mock.results[0]
 			?.value as RemotePersisterMock;
 
 		expect(remotePersister.load).toHaveBeenCalledTimes(1);
 		expect(remotePersister.startAutoSave).toHaveBeenCalledTimes(1);
-		expect(remotePersister.startAutoPersisting).not.toHaveBeenCalled();
 	});
 });
