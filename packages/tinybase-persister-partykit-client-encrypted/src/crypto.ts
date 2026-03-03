@@ -254,86 +254,95 @@ async function encryptTableContent(
 	table: Record<string, Record<string, unknown>>,
 	key: CryptoKey,
 ) {
-	const encryptedRowEntries = await Promise.all(
-		Object.entries(table).map(async ([rowId, row]) => [
-			rowId,
-			await encryptRowContent(row, key),
-		]),
-	);
-
-	return Object.fromEntries(encryptedRowEntries);
+	return transformTableContent(table, key, encryptRowContent);
 }
 
 async function decryptTableContent(
 	table: Record<string, Record<string, unknown>>,
 	key: CryptoKey,
 ) {
-	const decryptedRowEntries = await Promise.all(
+	return transformTableContent(table, key, decryptRowContent);
+}
+
+async function transformTableContent(
+	table: Record<string, Record<string, unknown>>,
+	key: CryptoKey,
+	transformRowContent: (
+		row: Record<string, unknown>,
+		key: CryptoKey,
+	) => Promise<Record<string, unknown>>,
+) {
+	const transformedRowEntries = await Promise.all(
 		Object.entries(table).map(async ([rowId, row]) => [
 			rowId,
-			await decryptRowContent(row, key),
+			await transformRowContent(row, key),
 		]),
 	);
 
-	return Object.fromEntries(decryptedRowEntries);
+	return Object.fromEntries(transformedRowEntries);
 }
 
 async function encryptRowContent(row: Record<string, unknown>, key: CryptoKey) {
-	const encryptedCellEntries = await Promise.all(
-		Object.entries(row).map(async ([cellId, cell]) => [
-			cellId,
-			await encryptValue(cell as EncryptableValue, key),
-		]),
+	return transformRowContent(row, key, (cell, rowKey) =>
+		encryptValue(cell as EncryptableValue, rowKey),
 	);
-
-	return Object.fromEntries(encryptedCellEntries);
 }
 
 async function decryptRowContent(row: Record<string, unknown>, key: CryptoKey) {
-	const decryptedCellEntries = await Promise.all(
+	return transformRowContent(row, key, (cell, rowKey) =>
+		decryptValue(cell as string, rowKey),
+	);
+}
+
+async function transformRowContent(
+	row: Record<string, unknown>,
+	key: CryptoKey,
+	transformCell: (cell: unknown, key: CryptoKey) => Promise<unknown>,
+) {
+	const transformedCellEntries = await Promise.all(
 		Object.entries(row).map(async ([cellId, cell]) => [
 			cellId,
-			await decryptValue(cell as string, key),
+			await transformCell(cell, key),
 		]),
 	);
 
-	return Object.fromEntries(decryptedCellEntries);
+	return Object.fromEntries(transformedCellEntries);
 }
 
 async function encryptChangedTable(
 	table: Record<string, Record<string, unknown> | undefined> | undefined,
 	key: CryptoKey,
 ) {
-	if (table === undefined) {
-		return undefined;
-	}
-
-	const encryptedRowEntries = await Promise.all(
-		Object.entries(table).map(async ([rowId, row]) => [
-			rowId,
-			await encryptChangedRow(row, key),
-		]),
-	);
-
-	return Object.fromEntries(encryptedRowEntries);
+	return transformChangedTable(table, key, encryptChangedRow);
 }
 
 async function decryptChangedTable(
 	table: Record<string, Record<string, unknown> | undefined> | undefined,
 	key: CryptoKey,
 ) {
+	return transformChangedTable(table, key, decryptChangedRow);
+}
+
+async function transformChangedTable(
+	table: Record<string, Record<string, unknown> | undefined> | undefined,
+	key: CryptoKey,
+	transformChangedRow: (
+		row: Record<string, unknown> | undefined,
+		key: CryptoKey,
+	) => Promise<Record<string, unknown> | undefined>,
+) {
 	if (table === undefined) {
 		return undefined;
 	}
 
-	const decryptedRowEntries = await Promise.all(
+	const transformedRowEntries = await Promise.all(
 		Object.entries(table).map(async ([rowId, row]) => [
 			rowId,
-			await decryptChangedRow(row, key),
+			await transformChangedRow(row, key),
 		]),
 	);
 
-	return Object.fromEntries(decryptedRowEntries);
+	return Object.fromEntries(transformedRowEntries);
 }
 
 async function encryptChangedRow(
