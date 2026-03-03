@@ -113,6 +113,9 @@ importers:
       tinybase:
         specifier: ^7.3.3
         version: 7.3.4(partykit@0.0.115)(partysocket@1.1.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(yjs@13.6.29)(zod@4.3.6)
+      tinybase-persister-partykit-client-encrypted:
+        specifier: workspace:*
+        version: link:packages/tinybase-persister-partykit-client-encrypted
       tw-animate-css:
         specifier: ^1.2.8
         version: 1.4.0
