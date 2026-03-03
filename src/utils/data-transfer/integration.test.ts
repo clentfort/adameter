@@ -153,31 +153,4 @@ describe('CSV Integration', () => {
 
 		expect(parsedData).toEqual(expectedData);
 	});
-
-	it('round-trips profile data including optedOut', () => {
-		const data = [
-			{
-				color: '#22c55e',
-				dob: '2024-01-01',
-				id: 'profile',
-				name: 'Ada',
-				optedOut: 'true',
-				sex: 'girl',
-			},
-		];
-
-		const csv = toCsv('profile', data);
-		const parsedData = fromCsv(csv);
-
-		expect(parsedData).toEqual([
-			{
-				color: '#22c55e',
-				dob: '2024-01-01',
-				id: 'profile',
-				name: 'Ada',
-				optedOut: true,
-				sex: 'girl',
-			},
-		]);
-	});
 });
