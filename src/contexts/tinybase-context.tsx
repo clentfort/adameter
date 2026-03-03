@@ -172,7 +172,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				() => {},
 			);
 
-			await remotePersister.load();
+			await remotePersister.startAutoLoad();
 			const bootstrapResult = reconcileRemoteLoadResult(
 				store,
 				localSnapshot,
@@ -201,7 +201,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 
 			await remotePersister.startAutoSave();
-			await remotePersister.startAutoLoad();
 			isInitialRemoteSyncComplete = true;
 
 			if (!isDisposed) {

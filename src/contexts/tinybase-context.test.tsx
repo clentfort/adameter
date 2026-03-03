@@ -108,17 +108,23 @@ describe('TinybaseProvider room sync', () => {
 		}));
 
 		mocks.createSecurePartyKitPersister.mockImplementation(
-			(store: Store): RemotePersisterMock => ({
-				destroy: vi.fn(async () => {}),
-				load: vi.fn(async () => {
-					store.setContent([{}, {}]);
-				}),
-				save: vi.fn(async () => {}),
-				startAutoLoad: vi.fn(async () => {}),
-				startAutoSave: vi.fn(async () => {}),
-				stopAutoLoad: vi.fn(async () => {}),
-				stopAutoSave: vi.fn(async () => {}),
-			}),
+			(store: Store): RemotePersisterMock => {
+				const remotePersister: RemotePersisterMock = {
+					destroy: vi.fn(async () => {}),
+					load: vi.fn(async () => {
+						store.setContent([{}, {}]);
+					}),
+					save: vi.fn(async () => {}),
+					startAutoLoad: vi.fn(async () => {
+						await (remotePersister.load as unknown as () => Promise<void>)();
+					}),
+					startAutoSave: vi.fn(async () => {}),
+					stopAutoLoad: vi.fn(async () => {}),
+					stopAutoSave: vi.fn(async () => {}),
+				};
+
+				return remotePersister;
+			},
 		);
 	});
 
