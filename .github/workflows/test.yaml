@@ -99,6 +99,12 @@ jobs:
       - name: Run tests with coverage
         run: pnpm exec vitest run --coverage
 
+      - name: Run all package typechecks
+        run: pnpm -r --filter './packages/*' typecheck
+
+      - name: Run all package tests with coverage
+        run: pnpm -r --filter './packages/*' test --run --coverage
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:

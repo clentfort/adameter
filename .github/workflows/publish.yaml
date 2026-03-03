@@ -1,0 +1,149 @@
+name: Publish Packages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/**'
+      - '.github/workflows/publish.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  discover-packages:
+    runs-on: ubuntu-latest
+    outputs:
+      has_packages: ${{ steps.discover.outputs.has_packages }}
+      packages: ${{ steps.discover.outputs.packages }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Discover publishable packages
+        id: discover
+        run: |
+          node <<'EOF'
+          const fs = require('node:fs');
+          const path = require('node:path');
+
+          const packagesDir = path.join(process.cwd(), 'packages');
+          const outputPath = process.env.GITHUB_OUTPUT;
+
+          if (!fs.existsSync(packagesDir)) {
+            fs.appendFileSync(outputPath, 'has_packages=false\n');
+            fs.appendFileSync(outputPath, 'packages=[]\n');
+            process.exit(0);
+          }
+
+          const packageDirs = fs
+            .readdirSync(packagesDir, { withFileTypes: true })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => entry.name);
+
+          const publishablePackages = [];
+
+          for (const dirName of packageDirs) {
+            const packagePath = path.join(packagesDir, dirName);
+            const packageJsonPath = path.join(packagePath, 'package.json');
+
+            if (!fs.existsSync(packageJsonPath)) {
+              continue;
+            }
+
+            const packageJson = JSON.parse(
+              fs.readFileSync(packageJsonPath, 'utf8'),
+            );
+
+            if (packageJson.private === true) {
+              continue;
+            }
+
+            if (!packageJson.name) {
+              continue;
+            }
+
+            publishablePackages.push({
+              name: packageJson.name,
+              path: `packages/${dirName}`,
+            });
+          }
+
+          fs.appendFileSync(
+            outputPath,
+            `has_packages=${publishablePackages.length > 0}\n`,
+          );
+          fs.appendFileSync(
+            outputPath,
+            `packages=${JSON.stringify(publishablePackages)}\n`,
+          );
+          EOF
+
+  publish:
+    needs: discover-packages
+    if: needs.discover-packages.outputs.has_packages == 'true'
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check package changes since last release
+        id: changed
+        run: |
+          PACKAGE_NAME='${{ matrix.package.name }}'
+          PACKAGE_PATH='${{ matrix.package.path }}'
+
+          LAST_TAG=$(git tag --list "${PACKAGE_NAME}-v*" --sort=-version:refname | head -n 1)
+
+          if [[ -z "$LAST_TAG" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if git diff --quiet "$LAST_TAG"..HEAD -- "$PACKAGE_PATH"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run package typecheck
+        if: steps.changed.outputs.changed == 'true'
+        run: pnpm --filter '${{ matrix.package.name }}' typecheck
+
+      - name: Run package tests with coverage
+        if: steps.changed.outputs.changed == 'true'
+        run: pnpm --filter '${{ matrix.package.name }}' test --run --coverage
+
+      - name: Release package
+        if: steps.changed.outputs.changed == 'true'
+        run: pnpm --filter '${{ matrix.package.name }}' release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
