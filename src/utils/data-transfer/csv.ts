@@ -1,6 +1,7 @@
 import Papa from 'papaparse';
 
 const columns: { [key: string]: string[] } = {
+	appSettings: ['id', 'currency'],
 	diaperChanges: [
 		'id',
 		'deviceId',
@@ -31,6 +32,7 @@ const columns: { [key: string]: string[] } = {
 		'color',
 		'type',
 	],
+	feedingInProgress: ['id', 'breast', 'startTime'],
 	feedingSessions: [
 		'id',
 		'deviceId',
@@ -48,6 +50,8 @@ const columns: { [key: string]: string[] } = {
 		'headCircumference',
 		'notes',
 	],
+	profile: ['id', 'name', 'dob', 'sex', 'color', 'optedOut'],
+	teething: ['id', 'deviceId', 'toothId', 'date', 'notes'],
 };
 
 export const toCsv = (
@@ -67,7 +71,7 @@ export const toCsv = (
 
 // --- Type-safe CSV Parsing ---
 
-const requiredNumeric = new Set(['durationInSeconds']);
+const requiredNumeric = new Set(['durationInSeconds', 'toothId']);
 const optionalNumeric = new Set([
 	'temperature',
 	'weight',
@@ -80,7 +84,7 @@ const requiredBoolean = new Set([
 	'containsStool',
 	'isReusable',
 ]);
-const optionalBoolean = new Set(['leakage', 'archived']);
+const optionalBoolean = new Set(['leakage', 'archived', 'optedOut']);
 
 export const fromCsv = (csv: string) => {
 	const parsed = Papa.parse(csv, {
