@@ -17,6 +17,7 @@ import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
 } from '@/lib/tinybase-sync/remote-bootstrap';
+import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
@@ -84,6 +85,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		}
 
 		let isDisposed = false;
+		let isInitialRemoteSyncComplete = false;
+		let shouldSkipNextOpenLoad = true;
 		const store = storeRef.current;
 		const deviceId = getDeviceId();
 		let remotePersister: ReturnType<typeof createPartyKitPersister> | undefined;
@@ -92,20 +95,40 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		setIsSyncReady(false);
 
 		const loadRemoteAndApplyMigrations = async () => {
-			if (!remotePersister) {
+			if (!remotePersister || !isInitialRemoteSyncComplete) {
 				return;
 			}
 
+			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 			await remotePersister.load();
+
+			let restoredLocal = false;
+			if (
+				joinStrategy !== 'clear' &&
+				localSnapshot &&
+				isStoreDataEmpty(store)
+			) {
+				store.setContent(localSnapshot);
+				restoredLocal = true;
+			}
+
 			const migrationResult = await runMigrationsIfNeeded(store, {
 				deviceId,
 			});
-			if (migrationResult.hasChanges && joinStrategy !== 'clear') {
+			if (
+				restoredLocal ||
+				(migrationResult.hasChanges && joinStrategy !== 'clear')
+			) {
 				await remotePersister.save();
 			}
 		};
 
 		const onOpen = () => {
+			if (shouldSkipNextOpenLoad) {
+				shouldSkipNextOpenLoad = false;
+				return;
+			}
+
 			void loadRemoteAndApplyMigrations().catch(() => {});
 		};
 
@@ -120,6 +143,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			if (isDisposed) {
 				return;
 			}
+
+			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 
 			connection = new PartySocket({
 				host: PARTYKIT_HOST,
@@ -137,7 +162,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				() => {},
 			);
 
-			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
 			await remotePersister.load();
 			const bootstrapResult = reconcileRemoteLoadResult(
 				store,
@@ -150,6 +174,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			});
 
 			if (
+				joinStrategy !== 'clear' &&
+				localSnapshot &&
+				isStoreDataEmpty(store)
+			) {
+				store.setContent(localSnapshot);
+			}
+
+			if (
 				bootstrapResult.decision === 'restore-local' ||
 				bootstrapResult.decision === 'keep-empty' ||
 				bootstrapResult.decision === 'merge' ||
@@ -158,7 +190,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				await remotePersister.save();
 			}
 
-			await remotePersister.startAutoPersisting(undefined, false);
+			await remotePersister.startAutoSave();
+			isInitialRemoteSyncComplete = true;
 
 			if (!isDisposed) {
 				setIsSyncReady(true);
@@ -181,7 +214,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
-			void remotePersister.stopAutoPersisting(true);
+			void remotePersister.stopAutoSave();
 			void remotePersister.destroy();
 		};
 	}, [isHydrated, isLocalReady, joinStrategy, room]);

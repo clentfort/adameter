@@ -57,6 +57,26 @@ describe('remote-bootstrap', () => {
 		});
 		expect(store.getRowCount(TABLE_IDS.EVENTS)).toBe(0);
 	});
+
+	it('keeps remote data when clear strategy is selected', () => {
+		const store = createStore();
+		setEventRow(store, 'local');
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+
+		store.delTables();
+		setEventRow(store, 'remote');
+
+		const result = reconcileRemoteLoadResult(store, localSnapshot, 'clear');
+
+		expect(result).toEqual({
+			decision: 'keep-remote',
+			localHadData: true,
+			remoteHadData: true,
+		});
+		expect(store.getRowCount(TABLE_IDS.EVENTS)).toBe(1);
+		expect(store.hasRow(TABLE_IDS.EVENTS, 'remote')).toBe(true);
+		expect(store.hasRow(TABLE_IDS.EVENTS, 'local')).toBe(false);
+	});
 });
 
 function setEventRow(store: ReturnType<typeof createStore>, id: string) {

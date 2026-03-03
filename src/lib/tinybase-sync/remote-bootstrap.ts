@@ -40,11 +40,10 @@ export function reconcileRemoteLoadResult(
 	const localHadData = localSnapshot !== undefined;
 
 	if (strategy === 'clear') {
-		store.delTables();
 		return {
 			decision: 'keep-remote',
 			localHadData,
-			remoteHadData: !isStoreDataEmpty(store),
+			remoteHadData,
 		};
 	}
 
