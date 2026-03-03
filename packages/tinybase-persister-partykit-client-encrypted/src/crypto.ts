@@ -34,7 +34,8 @@ function base64ToUint8Array(base64: string): Uint8Array {
 }
 
 export async function hashRoomId(roomName: string): Promise<string> {
-	const msgUint8 = new TextEncoder().encode(`room:${roomName}`);
+	const normalizedRoomName = roomName.trim().toLowerCase();
+	const msgUint8 = new TextEncoder().encode(`room:${normalizedRoomName}`);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 	const hashArray = Array.from(new Uint8Array(hashBuffer));
 
@@ -42,7 +43,8 @@ export async function hashRoomId(roomName: string): Promise<string> {
 }
 
 export async function getEncryptionKey(roomName: string): Promise<CryptoKey> {
-	const msgUint8 = new TextEncoder().encode(`key:${roomName}`);
+	const normalizedRoomName = roomName.trim().toLowerCase();
+	const msgUint8 = new TextEncoder().encode(`key:${normalizedRoomName}`);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 
 	return crypto.subtle.importKey('raw', hashBuffer, ALGORITHM, false, [
