@@ -1,6 +1,6 @@
 {
 	"name": "tinybase-persister-partykit-client-encrypted",
-	"version": "0.0.0-development",
+	"version": "0.0.1",
 	"description": "Encrypted PartyKit client persister for TinyBase",
 	"type": "module",
 	"sideEffects": false,
