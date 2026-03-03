@@ -34,7 +34,7 @@ describe('createSecurePartyKitPersister', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		global.fetch = vi.fn().mockResolvedValue({
-			json: () => Promise.resolve({}),
+			json: () => Promise.resolve([{}, {}]),
 		} as Response);
 	});
 
@@ -145,6 +145,7 @@ describe('createSecurePartyKitPersister', () => {
 			encryptionKey,
 		);
 
+		await persister.load();
 		store.setCell('table1', 'row1', 'cell1', 'value1');
 		await persister.save();
 
@@ -160,6 +161,70 @@ describe('createSecurePartyKitPersister', () => {
 		};
 		const body = JSON.parse(requestOptions.body);
 		expect(body[0].table1.row1.cell1).toMatch(/^s:/);
+	});
+
+	it('skips full save until initial load succeeds', async () => {
+		const store = createStore();
+		const encryptionKey = await getEncryptionKey('test-room');
+		const connection = new (PartySocket as unknown as new (
+			options: Record<string, unknown>,
+		) => PartySocket)({
+			host: 'localhost',
+			party: 'tinybase',
+			room: 'test-room',
+		});
+		(connection as unknown as { name: string }).name = 'tinybase';
+
+		const persister = createSecurePartyKitPersister(
+			store,
+			connection,
+			encryptionKey,
+		);
+
+		store.setCell('table1', 'row1', 'cell1', 'value1');
+		await persister.save();
+
+		const fetchMock = global.fetch as unknown as ReturnType<typeof vi.fn>;
+		const putCall = fetchMock.mock.calls.find(
+			(call: unknown[]) => (call[1] as { method?: string })?.method === 'PUT',
+		);
+
+		expect(putCall).toBeUndefined();
+	});
+
+	it('does not overwrite remote content when initial load fails', async () => {
+		const store = createStore();
+		store.setCell('table1', 'row1', 'cell1', 'local-value');
+		const encryptionKey = await getEncryptionKey('test-room');
+		const connection = new (PartySocket as unknown as new (
+			options: Record<string, unknown>,
+		) => PartySocket)({
+			host: 'localhost',
+			party: 'tinybase',
+			room: 'test-room',
+		});
+		(connection as unknown as { name: string }).name = 'tinybase';
+
+		global.fetch = vi
+			.fn()
+			.mockRejectedValueOnce(new Error('load failed'))
+			.mockResolvedValue({ json: () => Promise.resolve([{}, {}]) } as Response);
+
+		const persister = createSecurePartyKitPersister(
+			store,
+			connection,
+			encryptionKey,
+		);
+
+		await persister.startAutoLoad();
+		await persister.startAutoSave();
+
+		const fetchMock = global.fetch as unknown as ReturnType<typeof vi.fn>;
+		const putCall = fetchMock.mock.calls.find(
+			(call: unknown[]) => (call[1] as { method?: string })?.method === 'PUT',
+		);
+
+		expect(putCall).toBeUndefined();
 	});
 
 	it('loads persisted data and decrypts it', async () => {
@@ -334,7 +399,7 @@ describe('createSecurePartyKitPersister', () => {
 		expect(onIgnoredError).toHaveBeenCalledTimes(1);
 	});
 
-	it('migrates existing local data into encrypted room', async () => {
+	it('saves local data into encrypted room after initial load', async () => {
 		const store = createStore();
 		const roomName = 'existing-room';
 		const encryptionKey = await getEncryptionKey(roomName);
@@ -348,8 +413,6 @@ describe('createSecurePartyKitPersister', () => {
 		});
 		(connection as unknown as { name: string }).name = 'tinybase';
 
-		store.setCell('diaperChanges', 'row1', 'notes', 'existing note');
-
 		const persister = createSecurePartyKitPersister(
 			store,
 			connection,
@@ -357,6 +420,7 @@ describe('createSecurePartyKitPersister', () => {
 		);
 
 		await persister.load();
+		store.setCell('diaperChanges', 'row1', 'notes', 'existing note');
 		await persister.save();
 
 		const fetchMock = global.fetch as unknown as ReturnType<typeof vi.fn>;

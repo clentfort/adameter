@@ -29,6 +29,7 @@ export function createSecurePartyKitPersister(
 	encryptionKey: CryptoKey,
 	onIgnoredError?: (error: unknown) => void,
 ) {
+	let hasSuccessfullyLoadedPersistedData = false;
 	const { host, room } = connection.partySocketOptions;
 	const protocol = getStoreProtocol(host);
 	const storeUrl = `${protocol}://${host}/parties/${connection.name}/${room}${STORE_PATH}`;
@@ -52,12 +53,20 @@ export function createSecurePartyKitPersister(
 		return result;
 	};
 
-	const getPersisted = async () => getOrSetStore();
+	const getPersisted = async () => {
+		const persisted = await getOrSetStore();
+		hasSuccessfullyLoadedPersistedData = true;
+		return persisted;
+	};
 
 	const setPersisted = async (getContent: () => Content, changes?: Changes) => {
 		if (changes) {
 			const encryptedChanges = await encryptChanges(changes, encryptionKey);
 			connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
+			return;
+		}
+
+		if (!hasSuccessfullyLoadedPersistedData) {
 			return;
 		}
 
