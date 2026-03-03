@@ -65,5 +65,18 @@ test.describe('Room consistency', () => {
 		).toBeVisible({
 			timeout: 10_000,
 		});
+
+		// 5. Delete data on Page A and verify it syncs to Page B
+		await pageA
+			.getByTestId('feeding-history-entry')
+			.first()
+			.getByRole('button', { name: /delete/i })
+			.click();
+		await pageA.getByRole('button', { exact: true, name: /delete/i }).click();
+		await expect(pageA.getByTestId('feeding-history-entry')).toHaveCount(0);
+
+		await expect(pageB.getByTestId('feeding-history-entry')).toHaveCount(0, {
+			timeout: 10_000,
+		});
 	});
 });
