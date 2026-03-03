@@ -1,14 +1,11 @@
-import type {
-	Changes,
-	Content,
-	Tables,
-	Values,
-} from 'tinybase';
+import type { Changes, Content, Tables, Values } from 'tinybase';
 
 const ALGORITHM = 'AES-GCM';
 const IV_LENGTH = 12;
 const UNDEFINED_MARKER = '\uFFFC';
 type EncryptableValue = boolean | number | string | null;
+const TEXT_DECODER = new TextDecoder();
+const TEXT_ENCODER = new TextEncoder();
 
 function uint8ArrayToBase64(array: Uint8Array): string {
 	let binary = '';
@@ -31,8 +28,7 @@ function base64ToUint8Array(base64: string): Uint8Array {
 }
 
 export async function hashRoomId(roomName: string): Promise<string> {
-	const normalizedRoomName = roomName.trim().toLowerCase();
-	const msgUint8 = new TextEncoder().encode(`room:${normalizedRoomName}`);
+	const msgUint8 = TEXT_ENCODER.encode(`room:${roomName}`);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 	const hashArray = Array.from(new Uint8Array(hashBuffer));
 
@@ -40,8 +36,7 @@ export async function hashRoomId(roomName: string): Promise<string> {
 }
 
 export async function getEncryptionKey(roomName: string): Promise<CryptoKey> {
-	const normalizedRoomName = roomName.trim().toLowerCase();
-	const msgUint8 = new TextEncoder().encode(`key:${normalizedRoomName}`);
+	const msgUint8 = TEXT_ENCODER.encode(`key:${roomName}`);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 
 	return crypto.subtle.importKey('raw', hashBuffer, ALGORITHM, false, [
@@ -72,7 +67,7 @@ async function encryptValue(
 	}
 
 	const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
-	const encodedValue = new TextEncoder().encode(serializedValue);
+	const encodedValue = TEXT_ENCODER.encode(serializedValue);
 	const encryptedBuffer = await crypto.subtle.encrypt(
 		{ iv, name: ALGORITHM },
 		key,
@@ -102,7 +97,7 @@ async function decryptValue(
 		key,
 		ciphertext,
 	);
-	const value = new TextDecoder().decode(decryptedBuffer);
+	const value = TEXT_DECODER.decode(decryptedBuffer);
 
 	if (prefix === 's:') {
 		return value;

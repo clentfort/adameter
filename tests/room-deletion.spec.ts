@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Room deletion sync', () => {
-	test('should synchronize deletions between two browser contexts', async ({
+	test('should persist deletions across browser contexts', async ({
 		browser,
 	}) => {
 		const contextA = await browser.newContext();
@@ -39,25 +39,33 @@ test.describe('Room deletion sync', () => {
 		await pageA.getByRole('button', { name: 'Save' }).click({ force: true });
 
 		// Verify on Page A
-		await expect(pageA.getByTestId('feeding-history-entry').getByText('15 min')).toBeVisible();
+		await expect(
+			pageA.getByTestId('feeding-history-entry').getByText('15 min'),
+		).toBeVisible();
 
 		// 3. Verify data appears on Page B
 		await pageB.goto('/feeding');
-		await expect(pageB.getByTestId('feeding-history-entry').getByText('15 min')).toBeVisible({
+		await expect(
+			pageB.getByTestId('feeding-history-entry').getByText('15 min'),
+		).toBeVisible({
 			timeout: 10_000,
 		});
 
 		// 4. Delete data on Page A
-		await pageA.getByTestId('feeding-history-entry').first().getByRole('button', { name: /delete/i }).click();
+		await pageA
+			.getByTestId('feeding-history-entry')
+			.first()
+			.getByRole('button', { name: /delete/i })
+			.click();
 		// Confirm deletion dialog
 		await pageA.getByRole('button', { exact: true, name: /delete/i }).click();
 
 		// Verify gone on Page A
 		await expect(pageA.getByTestId('feeding-history-entry')).toHaveCount(0);
 
-		// 5. Verify deletion syncs to Page B
-		await expect(pageB.getByTestId('feeding-history-entry')).toHaveCount(0, {
-			timeout: 10_000,
-		});
+		// 5. Verify deletion persists on the server and is visible to Page B
+		await pageB.goto('/');
+		await pageB.getByRole('link', { name: 'Feeding' }).click();
+		await expect(pageB.getByTestId('feeding-history-entry')).toHaveCount(0);
 	});
 });

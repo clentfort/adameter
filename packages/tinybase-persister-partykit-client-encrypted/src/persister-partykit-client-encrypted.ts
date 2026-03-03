@@ -29,7 +29,6 @@ export function createSecurePartyKitPersister(
 	encryptionKey: CryptoKey,
 	onIgnoredError?: (error: unknown) => void,
 ) {
-	let lastSaveLoadPromise = Promise.resolve();
 	const { host, room } = connection.partySocketOptions;
 	const protocol = getStoreProtocol(host);
 	const storeUrl = `${protocol}://${host}/parties/${connection.name}/${room}${STORE_PATH}`;
@@ -53,28 +52,16 @@ export function createSecurePartyKitPersister(
 		return result;
 	};
 
-	const getPersisted = async () => {
-		const promise = lastSaveLoadPromise
-			.catch(() => {})
-			.then(() => getOrSetStore());
-		lastSaveLoadPromise = promise;
-		return promise;
-	};
+	const getPersisted = async () => getOrSetStore();
 
 	const setPersisted = async (getContent: () => Content, changes?: Changes) => {
-		const promise = lastSaveLoadPromise.catch(() => {}).then(async () => {
-			if (changes) {
-				const encryptedChanges = await encryptChanges(changes, encryptionKey);
-				connection.send(
-					SET_CHANGES + jsonStringWithUndefined(encryptedChanges),
-				);
-				return;
-			}
+		if (changes) {
+			const encryptedChanges = await encryptChanges(changes, encryptionKey);
+			connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
+			return;
+		}
 
-			await getOrSetStore(getContent());
-		});
-		lastSaveLoadPromise = promise;
-		return promise;
+		await getOrSetStore(getContent());
 	};
 
 	const addPersisterListener = (
@@ -84,7 +71,7 @@ export function createSecurePartyKitPersister(
 		) => void,
 	) => {
 		let lastMessagePromise = Promise.resolve();
-		const messageListener = (event: MessageEvent) => {
+		const messageListener = async (event: MessageEvent) => {
 			const data = event.data;
 
 			if (typeof data === 'string' && data.startsWith(SET_CHANGES)) {
@@ -104,6 +91,8 @@ export function createSecurePartyKitPersister(
 							onIgnoredError?.(error);
 						}
 					});
+
+				await lastMessagePromise;
 			}
 		};
 
