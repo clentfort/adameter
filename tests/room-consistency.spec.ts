@@ -52,13 +52,17 @@ test.describe('Room consistency', () => {
 
 		// Verify on Page A - using scoped locator to avoid strict mode violation
 		const historyEntryA = pageA.getByTestId('feeding-history-entry').first();
-		await expect(historyEntryA.getByText('10 min', { exact: true })).toBeVisible();
+		await expect(
+			historyEntryA.getByText('10 min', { exact: true }),
+		).toBeVisible();
 
 		// 4. Verify data appears on Page B
 		await pageB.goto('/feeding');
 		// If they are in the same room and use the same key, it should sync.
 		const historyEntryB = pageB.getByTestId('feeding-history-entry').first();
-		await expect(historyEntryB.getByText('10 min', { exact: true })).toBeVisible({
+		await expect(
+			historyEntryB.getByText('10 min', { exact: true }),
+		).toBeVisible({
 			timeout: 10_000,
 		});
 	});
