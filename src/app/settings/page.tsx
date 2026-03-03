@@ -1,7 +1,6 @@
 'use client';
 
 import type { ChangeEvent } from 'react';
-import type { Profile } from '@/types/profile';
 import { fbt } from 'fbtee';
 import {
 	Archive,
@@ -36,101 +35,30 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useLanguage } from '@/contexts/i18n-context';
+import { tinybaseContext } from '@/contexts/tinybase-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
-import { useEvents } from '@/hooks/use-events';
-import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
-import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
-import { fromCsv, mergeData, toCsv } from '@/utils/data-transfer/csv';
+import { fromCsv, toCsv } from '@/utils/data-transfer/csv';
 import {
 	createZip,
 	downloadZip,
 	extractFiles,
 } from '@/utils/data-transfer/zip';
 
+const VALUES_EXPORT_FILE_NAME = '__values';
+
 type CsvImportRow = {
-	id: string;
-} & Record<string, boolean | number | string | undefined>;
+	id?: unknown;
+} & Record<string, unknown>;
 
-type ProfileImportRow = CsvImportRow & {
-	color?: string;
-	dob?: string;
-	name?: string;
-	optedOut?: boolean;
-	sex?: string;
-};
-
-function profileToRow(profile: Profile): ProfileImportRow {
-	return {
-		color: profile.color,
-		dob: profile.dob,
-		id: 'profile',
-		name: profile.name,
-		optedOut: profile.optedOut,
-		sex: profile.sex,
-	};
-}
-
-function rowToProfile(row: ProfileImportRow | undefined): Profile | null {
-	if (!row) {
-		return null;
-	}
-
-	const profile: Profile = {};
-
-	if (typeof row.color === 'string' && row.color.length > 0) {
-		profile.color = row.color;
-	}
-
-	if (typeof row.dob === 'string' && row.dob.length > 0) {
-		profile.dob = row.dob;
-	}
-
-	if (typeof row.name === 'string' && row.name.length > 0) {
-		profile.name = row.name;
-	}
-
-	if (typeof row.optedOut === 'boolean') {
-		profile.optedOut = row.optedOut;
-	}
-
-	if (row.sex === 'boy' || row.sex === 'girl') {
-		profile.sex = row.sex;
-	}
-
-	return Object.keys(profile).length > 0 ? profile : null;
-}
-
-function mergeProfiles(
-	existing: Profile | null,
-	imported: Profile | null,
-): Profile | null {
-	if (!existing) {
-		return imported;
-	}
-
-	if (!imported) {
-		return existing;
-	}
-
-	return {
-		...imported,
-		...existing,
-	};
-}
-
-function importRows<T extends { id: string }>(
-	storeState: {
-		update: (item: T) => void;
-		value: readonly T[];
-	},
-	rows: CsvImportRow[],
-) {
-	const mergedRows = mergeData(storeState.value as T[], rows as unknown as T[]);
-	mergedRows.forEach((item) => storeState.update(item));
+function isCellValue(value: unknown): value is boolean | number | string {
+	return (
+		typeof value === 'boolean' ||
+		typeof value === 'number' ||
+		typeof value === 'string'
+	);
 }
 
 export default function SettingsPage() {
@@ -138,6 +66,7 @@ export default function SettingsPage() {
 	const { setTheme, theme } = useTheme();
 	const { locale, setLocale } = useLanguage();
 	const [currency, setCurrency] = useCurrency();
+	const { store } = useContext(tinybaseContext);
 	const { room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
 	const { toast } = useToast();
@@ -154,40 +83,46 @@ export default function SettingsPage() {
 	const [isExporting, setIsExporting] = useState(false);
 	const [isImporting, setIsImporting] = useState(false);
 
-	const diaperChangesState = useDiaperChanges();
-	const diaperProductsState = useDiaperProducts();
-	const eventsState = useEvents();
-	const feedingSessionsState = useFeedingSessions();
-	const growthMeasurementsState = useGrowthMeasurements();
-
-	const dataStores = {
-		diaperChanges: diaperChangesState,
-		diaperProducts: diaperProductsState,
-		events: eventsState,
-		feedingSessions: feedingSessionsState,
-		growthMeasurements: growthMeasurementsState,
-	};
-
 	const handleExport = async () => {
 		setIsExporting(true);
 		try {
-			const files = (
-				[
-					...(profile
-						? [{ data: [profileToRow(profile)], name: 'profile' as const }]
-						: []),
-					{ data: diaperChangesState.value, name: 'diaperChanges' },
-					{ data: diaperProductsState.value, name: 'diaperProducts' },
-					{ data: eventsState.value, name: 'events' },
-					{ data: feedingSessionsState.value, name: 'feedingSessions' },
-					{ data: growthMeasurementsState.value, name: 'growthMeasurements' },
-				] as const
-			)
-				.filter(({ data }) => data.length > 0)
-				.map(({ data, name }) => ({
-					content: toCsv(name, data as unknown as Record<string, unknown>[]),
-					name: `${name}.csv`,
-				}));
+			const [tables, values] = store.getContent();
+			const files = Object.entries(tables)
+				.map(([tableId, table]) => {
+					const rows = Object.entries(table).map(([rowId, row]) => ({
+						...row,
+						id: rowId,
+					}));
+
+					if (rows.length === 0) {
+						return undefined;
+					}
+
+					return {
+						content: toCsv(rows),
+						name: `${tableId}.csv`,
+					};
+				})
+				.filter(
+					(
+						file,
+					): file is {
+						content: string;
+						name: string;
+					} => file !== undefined,
+				);
+
+			const valueRows = Object.entries(values).map(([valueId, value]) => ({
+				id: valueId,
+				value,
+			}));
+
+			if (valueRows.length > 0) {
+				files.push({
+					content: toCsv(valueRows),
+					name: `${VALUES_EXPORT_FILE_NAME}.csv`,
+				});
+			}
 
 			const zipBlob = await createZip(files);
 			downloadZip(zipBlob);
@@ -216,33 +151,42 @@ export default function SettingsPage() {
 			for (const [index, { content, name }] of files.entries()) {
 				const data = fromCsv(content) as CsvImportRow[];
 
-				switch (name) {
-					case 'profile': {
-						const importedProfile = rowToProfile(data[0] as ProfileImportRow);
-						const mergedProfile = mergeProfiles(profile, importedProfile);
-						if (mergedProfile) {
-							setProfile(mergedProfile);
+				store.transaction(() => {
+					if (name === VALUES_EXPORT_FILE_NAME) {
+						for (const row of data) {
+							const valueId = row.id;
+							if (typeof valueId !== 'string' || valueId.length === 0) {
+								continue;
+							}
+
+							const value = row.value;
+							if (isCellValue(value)) {
+								store.setValue(valueId, value);
+							}
 						}
-						break;
+						return;
 					}
-					case 'diaperChanges':
-						importRows(diaperChangesState, data);
-						break;
-					case 'diaperProducts':
-						importRows(diaperProductsState, data);
-						break;
-					case 'events':
-						importRows(eventsState, data);
-						break;
-					case 'feedingSessions':
-						importRows(feedingSessionsState, data);
-						break;
-					case 'growthMeasurements':
-						importRows(growthMeasurementsState, data);
-						break;
-					default:
-						break;
-				}
+
+					for (const row of data) {
+						const rowId = row.id;
+						if (
+							(typeof rowId !== 'string' && typeof rowId !== 'number') ||
+							String(rowId).length === 0
+						) {
+							continue;
+						}
+
+						const normalizedRowId = String(rowId);
+
+						for (const [cellId, cellValue] of Object.entries(row)) {
+							if (cellId === 'id' || !isCellValue(cellValue)) {
+								continue;
+							}
+
+							store.setCell(name, normalizedRowId, cellId, cellValue);
+						}
+					}
+				});
 
 				setImportProgress(Math.round(((index + 1) / fileCount) * 100));
 			}
