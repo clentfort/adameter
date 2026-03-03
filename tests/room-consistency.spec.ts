@@ -18,7 +18,8 @@ test.describe('Room consistency', () => {
 			await page.goto('/');
 		}
 
-		const roomNameBase = 'Consistency-Test-Room';
+		// Use a unique room name for each test run to avoid data accumulation
+		const roomNameBase = `Consistency-Test-Room-${Date.now()}`;
 		const roomNameA = `  ${roomNameBase}  `;
 		const roomNameB = roomNameBase.toLowerCase();
 
@@ -49,14 +50,15 @@ test.describe('Room consistency', () => {
 		await pageA.getByLabel('minutes').fill('10', { force: true });
 		await pageA.getByRole('button', { name: 'Save' }).click({ force: true });
 
-		// Verify on Page A
-		await expect(pageA.getByText('10 min', { exact: true })).toBeVisible();
+		// Verify on Page A - using scoped locator to avoid strict mode violation
+		const historyEntryA = pageA.getByTestId('feeding-history-entry').first();
+		await expect(historyEntryA.getByText('10 min', { exact: true })).toBeVisible();
 
 		// 4. Verify data appears on Page B
 		await pageB.goto('/feeding');
 		// If they are in the same room and use the same key, it should sync.
-		// This is expected to FAIL before the fix.
-		await expect(pageB.getByText('10 min', { exact: true })).toBeVisible({
+		const historyEntryB = pageB.getByTestId('feeding-history-entry').first();
+		await expect(historyEntryB.getByText('10 min', { exact: true })).toBeVisible({
 			timeout: 10_000,
 		});
 	});
