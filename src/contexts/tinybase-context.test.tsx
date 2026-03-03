@@ -254,8 +254,8 @@ describe('TinybaseProvider room sync', () => {
 				.results[0]?.value as RemotePersisterMock;
 
 			expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
+			expect(remotePersister.startAutoSave).toHaveBeenCalledTimes(1);
 			expect(remotePersister.load).toHaveBeenCalledTimes(3);
-			expect(remotePersister.save).toHaveBeenCalledTimes(3);
 		},
 		120_000,
 	);

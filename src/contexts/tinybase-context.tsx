@@ -113,36 +113,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		const hasSavedFullContent = () =>
 			remotePersister?.hasSavedFullContent?.() ?? true;
 
-		const saveFullContentWithRetry = async () => {
-			if (!remotePersister) {
-				return;
-			}
-
-			await remotePersister.save();
-			if (hasSavedFullContent()) {
-				return;
-			}
-
-			for (
-				let retryIndex = 0;
-				retryIndex < INITIAL_REMOTE_LOAD_RETRY_LIMIT;
-				retryIndex++
-			) {
-				if (isDisposed) {
-					return;
-				}
-
-				await new Promise((resolve) => {
-					setTimeout(resolve, INITIAL_REMOTE_LOAD_RETRY_DELAY_MS);
-				});
-
-				await remotePersister.save();
-				if (hasSavedFullContent()) {
-					return;
-				}
-			}
-		};
-
 		const ensureInitialRemoteLoad = async () => {
 			if (!remotePersister) {
 				return false;
@@ -187,7 +157,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				if (isStoreDataEmpty(store)) {
 					store.setContent(localSnapshot);
 					restoredLocal = true;
-				} else if (!hasSavedFullContent()) {
+				} else if (joinStrategy === 'merge' || !hasSavedFullContent()) {
 					mergeStoreContent(store, localSnapshot, deviceId);
 					restoredLocal = true;
 				}
@@ -196,11 +166,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			const migrationResult = await runMigrationsIfNeeded(store, {
 				deviceId,
 			});
-			if (
-				restoredLocal ||
-				(migrationResult.hasChanges && joinStrategy !== 'clear')
-			) {
-				await saveFullContentWithRetry();
+			if (restoredLocal || migrationResult.hasChanges) {
+				return;
 			}
 		};
 
@@ -270,34 +237,13 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
-			const bootstrapResult = reconcileRemoteLoadResult(
-				store,
-				localSnapshot,
-				joinStrategy,
-				deviceId,
-			);
-			const migrationResult = await runMigrationsIfNeeded(store, {
+			await remotePersister.startAutoSave();
+
+			reconcileRemoteLoadResult(store, localSnapshot, joinStrategy, deviceId);
+			await runMigrationsIfNeeded(store, {
 				deviceId,
 			});
 
-			if (
-				joinStrategy !== 'clear' &&
-				localSnapshot &&
-				isStoreDataEmpty(store)
-			) {
-				store.setContent(localSnapshot);
-			}
-
-			if (
-				bootstrapResult.decision === 'restore-local' ||
-				bootstrapResult.decision === 'keep-empty' ||
-				bootstrapResult.decision === 'merge' ||
-				(migrationResult.hasChanges && joinStrategy !== 'clear')
-			) {
-				await saveFullContentWithRetry();
-			}
-
-			await remotePersister.startAutoSave();
 			isInitialRemoteSyncComplete = true;
 
 			if (!isDisposed) {

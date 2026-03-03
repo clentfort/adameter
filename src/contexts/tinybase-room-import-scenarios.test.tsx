@@ -17,6 +17,8 @@ import {
 } from './data-synchronization-context';
 import { TinybaseProvider } from './tinybase-context';
 
+const ROOM_JOIN_STRATEGY_STORAGE_KEY = 'room-join-strategy';
+
 const mocks = vi.hoisted(() => ({
 	createIndexedDbPersister: vi.fn(),
 	createSecurePartyKitPersister: vi.fn(),
@@ -472,17 +474,21 @@ function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
 async function runDeviceSession({
 	autoConnect = false,
 	expectedAfterConnect,
+	expectedAfterImport,
 	expectedInitial,
 	importCount = 0,
 	refreshAfterConnect = false,
 	shouldAddOneEntry = false,
+	shouldImportData = false,
 }: {
 	autoConnect?: boolean;
 	expectedAfterConnect: number;
+	expectedAfterImport?: number;
 	expectedInitial?: number;
 	importCount?: number;
 	refreshAfterConnect?: boolean;
 	shouldAddOneEntry?: boolean;
+	shouldImportData?: boolean;
 }) {
 	render(
 		<DataSynchronizationProvider>
@@ -506,6 +512,15 @@ async function runDeviceSession({
 		expectEventCount(expectedAfterConnect);
 	});
 
+	if (shouldImportData) {
+		fireEvent.click(screen.getByRole('button', { name: 'Import data' }));
+		await waitFor(() => {
+			expectEventCount(
+				expectedAfterImport ?? expectedAfterConnect + importCount,
+			);
+		});
+	}
+
 	if (shouldAddOneEntry) {
 		fireEvent.click(screen.getByRole('button', { name: 'Add one entry' }));
 		await waitFor(() => {
@@ -513,9 +528,12 @@ async function runDeviceSession({
 		});
 	}
 
-	const expectedAfterActions = shouldAddOneEntry
-		? expectedAfterConnect + 1
+	const expectedAfterImportOrConnect = shouldImportData
+		? (expectedAfterImport ?? expectedAfterConnect + importCount)
 		: expectedAfterConnect;
+	const expectedAfterActions = shouldAddOneEntry
+		? expectedAfterImportOrConnect + 1
+		: expectedAfterImportOrConnect;
 
 	if (refreshAfterConnect) {
 		document.dispatchEvent(new Event('visibilitychange'));
@@ -603,5 +621,62 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		expect(harness.getRemoteCount()).toBe(1121);
+	});
+
+	it('keeps imported in-room data after reload', async () => {
+		const harness = setupMultiDeviceHarness([
+			{ count: 0, prefix: 'device-a-empty' },
+			{ count: 500, prefix: 'imported' },
+		]);
+
+		await runDeviceSession({
+			expectedAfterConnect: 0,
+			expectedInitial: 0,
+			importCount: 500,
+			refreshAfterConnect: true,
+			shouldImportData: true,
+		});
+
+		expect(harness.getRemoteCount()).toBe(500);
+
+		await runDeviceSession({
+			autoConnect: true,
+			expectedAfterConnect: 500,
+			expectedInitial: 500,
+			refreshAfterConnect: true,
+		});
+
+		expect(harness.getRemoteCount()).toBe(500);
+	});
+
+	it('auto-rejoin falls back to merge when stored strategy is missing', async () => {
+		const harness = setupSyncHarness({
+			localCount: 1500,
+			remoteCount: 1,
+		});
+
+		localStorage.setItem('room', 'scenario-room');
+		localStorage.removeItem(ROOM_JOIN_STRATEGY_STORAGE_KEY);
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe importCount={0} />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		await waitFor(() => {
+			expectEventCount(1501);
+			expect(harness.getRemoteCount()).toBe(1501);
+		});
+
+		document.dispatchEvent(new Event('visibilitychange'));
+		window.dispatchEvent(new Event('focus'));
+
+		await waitFor(() => {
+			expectEventCount(1501);
+			expect(harness.getRemoteCount()).toBe(1501);
+		});
 	});
 });
