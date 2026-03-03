@@ -13,6 +13,11 @@ import {
 } from './crypto';
 import { createSecurePartyKitPersister } from './persister-partykit-client-encrypted';
 
+type StatefulPersister = ReturnType<typeof createSecurePartyKitPersister> & {
+	hasLoadedPersistedData: () => boolean;
+	hasSavedFullContent: () => boolean;
+};
+
 const mockAddEventListener = vi.fn();
 const mockRemoveEventListener = vi.fn();
 const mockSend = vi.fn();
@@ -143,11 +148,15 @@ describe('createSecurePartyKitPersister', () => {
 			store,
 			connection,
 			encryptionKey,
-		);
+		) as StatefulPersister;
 
+		expect(persister.hasLoadedPersistedData()).toBe(false);
+		expect(persister.hasSavedFullContent()).toBe(false);
 		await persister.load();
+		expect(persister.hasLoadedPersistedData()).toBe(true);
 		store.setCell('table1', 'row1', 'cell1', 'value1');
 		await persister.save();
+		expect(persister.hasSavedFullContent()).toBe(true);
 
 		const fetchMock = global.fetch as unknown as ReturnType<typeof vi.fn>;
 		const putCall = fetchMock.mock.calls.find(
@@ -179,10 +188,13 @@ describe('createSecurePartyKitPersister', () => {
 			store,
 			connection,
 			encryptionKey,
-		);
+		) as StatefulPersister;
 
+		expect(persister.hasLoadedPersistedData()).toBe(false);
+		expect(persister.hasSavedFullContent()).toBe(false);
 		store.setCell('table1', 'row1', 'cell1', 'value1');
 		await persister.save();
+		expect(persister.hasSavedFullContent()).toBe(false);
 
 		const fetchMock = global.fetch as unknown as ReturnType<typeof vi.fn>;
 		const putCall = fetchMock.mock.calls.find(
@@ -214,10 +226,12 @@ describe('createSecurePartyKitPersister', () => {
 			store,
 			connection,
 			encryptionKey,
-		);
+		) as StatefulPersister;
 
 		await persister.startAutoLoad();
 		await persister.startAutoSave();
+		expect(persister.hasLoadedPersistedData()).toBe(false);
+		expect(persister.hasSavedFullContent()).toBe(false);
 
 		const fetchMock = global.fetch as unknown as ReturnType<typeof vi.fn>;
 		const putCall = fetchMock.mock.calls.find(

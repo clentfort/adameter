@@ -30,6 +30,7 @@ export function createSecurePartyKitPersister(
 	onIgnoredError?: (error: unknown) => void,
 ) {
 	let hasSuccessfullyLoadedPersistedData = false;
+	let hasSuccessfullySavedFullContent = false;
 	const { host, room } = connection.partySocketOptions;
 	const protocol = getStoreProtocol(host);
 	const storeUrl = `${protocol}://${host}/parties/${connection.name}/${room}${STORE_PATH}`;
@@ -71,6 +72,7 @@ export function createSecurePartyKitPersister(
 		}
 
 		await getOrSetStore(getContent());
+		hasSuccessfullySavedFullContent = true;
 	};
 
 	const addPersisterListener = (
@@ -117,7 +119,7 @@ export function createSecurePartyKitPersister(
 		connection.removeEventListener(MESSAGE, messageListener as EventListener);
 	};
 
-	return createCustomPersister(
+	const persister = createCustomPersister(
 		store,
 		getPersisted,
 		setPersisted,
@@ -125,4 +127,10 @@ export function createSecurePartyKitPersister(
 		delPersisterListener,
 		onIgnoredError,
 	);
+
+	return {
+		...persister,
+		hasLoadedPersistedData: () => hasSuccessfullyLoadedPersistedData,
+		hasSavedFullContent: () => hasSuccessfullySavedFullContent,
+	};
 }

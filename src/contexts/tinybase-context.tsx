@@ -17,6 +17,7 @@ import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
+import { mergeStoreContent } from '@/lib/tinybase-sync/merge';
 import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
@@ -25,6 +26,11 @@ import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
+
+type RemotePersister = ReturnType<typeof createSecurePartyKitPersister> & {
+	hasLoadedPersistedData?: () => boolean;
+	hasSavedFullContent?: () => boolean;
+};
 
 const defaultStore = createStore();
 
@@ -93,13 +99,80 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		let shouldSkipNextOpenLoad = true;
 		const store = storeRef.current;
 		const deviceId = getDeviceId();
-		let remotePersister:
-			| ReturnType<typeof createSecurePartyKitPersister>
-			| undefined;
+		let remotePersister: RemotePersister | undefined;
 		let connection: PartySocket | undefined;
 		let remoteRefreshPromise = Promise.resolve();
+		const INITIAL_REMOTE_LOAD_RETRY_DELAY_MS = 500;
+		const INITIAL_REMOTE_LOAD_RETRY_LIMIT = 5;
 
 		setIsSyncReady(false);
+
+		const hasLoadedPersistedData = () =>
+			remotePersister?.hasLoadedPersistedData?.() ?? true;
+
+		const hasSavedFullContent = () =>
+			remotePersister?.hasSavedFullContent?.() ?? true;
+
+		const saveFullContentWithRetry = async () => {
+			if (!remotePersister) {
+				return;
+			}
+
+			await remotePersister.save();
+			if (hasSavedFullContent()) {
+				return;
+			}
+
+			for (
+				let retryIndex = 0;
+				retryIndex < INITIAL_REMOTE_LOAD_RETRY_LIMIT;
+				retryIndex++
+			) {
+				if (isDisposed) {
+					return;
+				}
+
+				await new Promise((resolve) => {
+					setTimeout(resolve, INITIAL_REMOTE_LOAD_RETRY_DELAY_MS);
+				});
+
+				await remotePersister.save();
+				if (hasSavedFullContent()) {
+					return;
+				}
+			}
+		};
+
+		const ensureInitialRemoteLoad = async () => {
+			if (!remotePersister) {
+				return false;
+			}
+
+			if (hasLoadedPersistedData()) {
+				return true;
+			}
+
+			for (
+				let retryIndex = 0;
+				retryIndex < INITIAL_REMOTE_LOAD_RETRY_LIMIT;
+				retryIndex++
+			) {
+				if (isDisposed) {
+					return false;
+				}
+
+				await new Promise((resolve) => {
+					setTimeout(resolve, INITIAL_REMOTE_LOAD_RETRY_DELAY_MS);
+				});
+
+				await remotePersister.load();
+				if (hasLoadedPersistedData()) {
+					return true;
+				}
+			}
+
+			return hasLoadedPersistedData();
+		};
 
 		const loadRemoteAndApplyMigrations = async () => {
 			if (!remotePersister || !isInitialRemoteSyncComplete) {
@@ -110,13 +183,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			await remotePersister.load();
 
 			let restoredLocal = false;
-			if (
-				joinStrategy !== 'clear' &&
-				localSnapshot &&
-				isStoreDataEmpty(store)
-			) {
-				store.setContent(localSnapshot);
-				restoredLocal = true;
+			if (joinStrategy !== 'clear' && localSnapshot) {
+				if (isStoreDataEmpty(store)) {
+					store.setContent(localSnapshot);
+					restoredLocal = true;
+				} else if (!hasSavedFullContent()) {
+					mergeStoreContent(store, localSnapshot, deviceId);
+					restoredLocal = true;
+				}
 			}
 
 			const migrationResult = await runMigrationsIfNeeded(store, {
@@ -126,7 +200,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				restoredLocal ||
 				(migrationResult.hasChanges && joinStrategy !== 'clear')
 			) {
-				await remotePersister.save();
+				await saveFullContentWithRetry();
 			}
 		};
 
@@ -185,9 +259,17 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				connection,
 				encryptionKey,
 				() => {},
-			);
+			) as RemotePersister;
 
 			await remotePersister.startAutoLoad();
+			const didLoadRemote = await ensureInitialRemoteLoad();
+			if (!didLoadRemote) {
+				if (!isDisposed) {
+					setIsSyncReady(true);
+				}
+				return;
+			}
+
 			const bootstrapResult = reconcileRemoteLoadResult(
 				store,
 				localSnapshot,
@@ -212,7 +294,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				bootstrapResult.decision === 'merge' ||
 				(migrationResult.hasChanges && joinStrategy !== 'clear')
 			) {
-				await remotePersister.save();
+				await saveFullContentWithRetry();
 			}
 
 			await remotePersister.startAutoSave();
