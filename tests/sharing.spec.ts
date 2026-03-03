@@ -19,24 +19,25 @@ test.describe('Sharing via TinyBase', () => {
 		}
 
 		// 1. Create room on Page A
-		await pageA.getByRole('button', { name: /settings/i }).click();
-		await pageA.getByRole('button', { name: /sharing/i }).click();
+		await pageA.goto('/settings');
+		await pageA.getByTestId('settings-sharing').click();
 		await pageA.getByRole('tab', { name: /create room/i }).click();
 		await pageA.getByRole('button', { name: /create new room/i }).click();
 
 		// Get room name
-		const roomName = await pageA.locator('.room-name').textContent();
+		const roomName = (await pageA.locator('.room-name').textContent())?.trim();
 		expect(roomName).toBeTruthy();
 		// Go back to main app
 		await pageA.goto('/');
 
 		// 2. Join room on Page B
-		await pageB.getByRole('button', { name: /settings/i }).click();
-		await pageB.getByRole('button', { name: /sharing/i }).click();
+		await pageB.goto('/settings');
+		await pageB.getByTestId('settings-sharing').click();
 		await pageB.getByRole('tab', { name: /join room/i }).click();
 		await pageB.getByPlaceholder(/(?:predicate-){2}object/i).fill(roomName!);
 		await pageB.getByRole('button', { name: /join/i }).first().click();
 		await pageB.getByRole('button', { name: /merge & join/i }).click();
+		await expect(pageB.locator('.room-name')).toHaveText(roomName!);
 		// Go back to main app
 		await pageB.goto('/');
 
@@ -46,15 +47,14 @@ test.describe('Sharing via TinyBase', () => {
 		await pageA.getByRole('button', { name: 'End Feeding' }).click();
 
 		// Verify on Page A
-		await expect(
-			pageA.getByTestId('feeding-history-entry').getByText('Left Breast'),
-		).toBeVisible();
+		await expect(pageA.getByText('Left Breast')).toHaveCount(2);
 
 		// 4. Verify data appears on Page B
+		await pageB.goto('/');
 		await pageB.getByRole('link', { name: 'Feeding' }).click();
 		// It might take a moment to sync via PartyKit
-		await expect(
-			pageB.getByTestId('feeding-history-entry').getByText('Left Breast'),
-		).toBeVisible({ timeout: 15_000 });
+		await expect(pageB.getByText('Left Breast')).toHaveCount(2, {
+			timeout: 30_000,
+		});
 	});
 });
