@@ -18,10 +18,7 @@
 			}
 		],
 		"paths": {
-			"@/*": ["./src/*"],
-			"tinybase-persister-partykit-client-encrypted": [
-				"./packages/tinybase-persister-partykit-client-encrypted/src/index.ts"
-			]
+			"@/*": ["./src/*"]
 		},
 		"target": "ES2017"
 	},
