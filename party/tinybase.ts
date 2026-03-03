@@ -33,7 +33,10 @@ export default class TinybasePartyServer extends TinyBasePartyKitServer {
 			if (request.method === 'PUT') {
 				return new Response(bodyText || 'null', {
 					headers,
-					status: response.status === 201 || response.status === 205 ? 200 : response.status,
+					status:
+						response.status === 201 || response.status === 205
+							? 200
+							: response.status,
 				});
 			}
 
