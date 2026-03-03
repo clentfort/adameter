@@ -1,8 +1,14 @@
 import type { Store } from 'tinybase';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+	cleanup,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from '@testing-library/react';
 import { useContext } from 'react';
 import { useStore, useTable, useValue } from 'tinybase/ui-react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STORE_VALUE_PROFILE, TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import {
 	DataSynchronizationContext,
@@ -74,6 +80,10 @@ function RoomSyncProbe() {
 }
 
 describe('TinybaseProvider room sync', () => {
+	afterEach(() => {
+		cleanup();
+	});
+
 	beforeEach(() => {
 		localStorage.clear();
 		mocks.createSecurePartyKitPersister.mockReset();
@@ -89,6 +99,7 @@ describe('TinybaseProvider room sync', () => {
 		mocks.createIndexedDbPersister.mockImplementation((store: Store) => ({
 			destroy: vi.fn(async () => {}),
 			load: vi.fn(async () => {
+				store.setContent([{}, {}]);
 				store.setRow(TABLE_IDS.EVENTS, 'local-event', {
 					deviceId: 'local-device',
 					startDate: '2026-03-03T00:00:00.000Z',
@@ -159,4 +170,71 @@ describe('TinybaseProvider room sync', () => {
 		expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
 		expect(remotePersister.startAutoSave).toHaveBeenCalledTimes(1);
 	});
+
+	it('keeps large local datasets when joining with merge strategy', async () => {
+		// /Users/lentfortc/Downloads/adameter-export(4).zip has ~5.4k data rows.
+		// Use >10x that size to guard against large-import regressions.
+		const LARGE_EVENT_COUNT = 60_000;
+
+		mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
+			destroy: vi.fn(async () => {}),
+			load: vi.fn(async () => {
+				store.setContent([{}, {}]);
+				for (let index = 0; index < LARGE_EVENT_COUNT; index++) {
+					store.setRow(TABLE_IDS.EVENTS, `local-event-${index}`, {
+						deviceId: 'local-device',
+						startDate: '2026-03-03T00:00:00.000Z',
+						title: `e${index}`,
+						type: 'point',
+					});
+				}
+
+				store.setValue(
+					STORE_VALUE_PROFILE,
+					JSON.stringify({
+						color: '#22c55e',
+						name: 'Ada Large',
+					}),
+				);
+			}),
+			startAutoSave: vi.fn(async () => {}),
+			stopAutoSave: vi.fn(async () => {}),
+		}));
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		await waitFor(
+			() => {
+				expect(screen.getByTestId('event-count')).toHaveTextContent(
+					String(LARGE_EVENT_COUNT),
+				);
+				expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
+			},
+			{ timeout: 30_000 },
+		);
+
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		await waitFor(
+			() => {
+				expect(screen.getByTestId('event-count')).toHaveTextContent(
+					String(LARGE_EVENT_COUNT),
+				);
+				expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
+			},
+			{ timeout: 30_000 },
+		);
+
+		const remotePersister = mocks.createSecurePartyKitPersister.mock.results[0]
+			?.value as RemotePersisterMock;
+
+		expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
+		expect(remotePersister.save).toHaveBeenCalledTimes(1);
+	}, 60_000);
 });
