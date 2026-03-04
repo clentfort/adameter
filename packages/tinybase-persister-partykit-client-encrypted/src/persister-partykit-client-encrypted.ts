@@ -55,22 +55,27 @@ export function createSecurePartyKitPersister(
 		return result;
 	};
 
-	const getPersisted = async () => {
+	const getPersisted = async (): Promise<Content | undefined> => {
 		executionChain = executionChain
 			.catch(() => {})
-			.then(async () => {
-				const persisted = await getOrSetStore();
-				hasSuccessfullyLoadedPersistedData = true;
-				return persisted;
-			});
-		return executionChain;
+			.then(() => getOrSetStore());
+		const persisted = (await executionChain) as Content | undefined;
+		if (persisted) {
+			hasSuccessfullyLoadedPersistedData = true;
+		}
+		return persisted;
 	};
 
-	const setPersisted = async (getContent: () => Content, changes?: Changes) => {
+	const setPersisted = async (
+		getContent: () => Content,
+		changes?: Changes,
+	): Promise<void> => {
 		executionChain = executionChain.catch(() => {}).then(async () => {
 			if (changes) {
 				const encryptedChanges = await encryptChanges(changes, encryptionKey);
-				connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
+				connection.send(
+					SET_CHANGES + jsonStringWithUndefined(encryptedChanges),
+				);
 				return;
 			}
 
@@ -81,7 +86,7 @@ export function createSecurePartyKitPersister(
 			await getOrSetStore(getContent());
 			hasSuccessfullySavedFullContent = true;
 		});
-		return executionChain;
+		await executionChain;
 	};
 
 	const addPersisterListener = (
