@@ -12,6 +12,7 @@ import {
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
+import { logger } from '@/lib/logger';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
 	TINYBASE_LOCAL_DB_NAME,
@@ -23,7 +24,6 @@ import {
 	snapshotStoreContentIfNonEmpty,
 } from '@/lib/tinybase-sync/remote-bootstrap';
 import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
-import { logger } from '@/lib/logger';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';

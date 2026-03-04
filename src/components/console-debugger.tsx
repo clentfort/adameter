@@ -54,9 +54,12 @@ export default function ConsoleDebugger() {
 	useEffect(() => {
 		if (!devMode) return;
 
-		return logger.subscribe((entry) => {
+		const unsubscribe = logger.subscribe((entry) => {
 			addLog(entry.method, entry.args, entry.timestamp);
 		});
+		return () => {
+			unsubscribe();
+		};
 	}, [devMode, addLog]);
 
 	if (!devMode) return null;
