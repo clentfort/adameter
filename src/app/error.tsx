@@ -1,8 +1,8 @@
 'use client';
 
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
-import { useDevMode } from '@/hooks/use-dev-mode';
 import { Button } from '@/components/ui/button';
+import { useDevMode } from '@/hooks/use-dev-mode';
 
 export default function Error({
 	error,

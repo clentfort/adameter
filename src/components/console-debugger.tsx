@@ -2,10 +2,10 @@
 
 import { Terminal, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDevMode } from '@/hooks/use-dev-mode';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useDevMode } from '@/hooks/use-dev-mode';
 
 type LogEntry = {
 	args: unknown[];
@@ -20,19 +20,16 @@ export default function ConsoleDebugger() {
 	const [isOpen, setIsOpen] = useState(false);
 	const logsRef = useRef<LogEntry[]>([]);
 
-	const addLog = useCallback(
-		(method: LogEntry['method'], args: unknown[]) => {
-			const newLog: LogEntry = {
-				args,
-				id: Date.now() + Math.random(),
-				method,
-				timestamp: Date.now(),
-			};
-			logsRef.current = [...logsRef.current, newLog].slice(-100);
-			setLogs(logsRef.current);
-		},
-		[],
-	);
+	const addLog = useCallback((method: LogEntry['method'], args: unknown[]) => {
+		const newLog: LogEntry = {
+			args,
+			id: Date.now() + Math.random(),
+			method,
+			timestamp: Date.now(),
+		};
+		logsRef.current = [...logsRef.current, newLog].slice(-100);
+		setLogs(logsRef.current);
+	}, []);
 
 	useEffect(() => {
 		if (!devMode) return;
@@ -114,7 +111,11 @@ export default function ConsoleDebugger() {
 								>
 									<Trash2 className="h-4 w-4" />
 								</Button>
-								<Button onClick={() => setIsOpen(false)} size="icon" variant="ghost">
+								<Button
+									onClick={() => setIsOpen(false)}
+									size="icon"
+									variant="ghost"
+								>
 									<X className="h-5 w-5" />
 								</Button>
 							</div>
@@ -151,8 +152,7 @@ export default function ConsoleDebugger() {
 														<span key={i}>
 															{typeof arg === 'object'
 																? JSON.stringify(arg, null, 2)
-																: String(arg)}
-															{' '}
+																: String(arg)}{' '}
 														</span>
 													))}
 												</div>
