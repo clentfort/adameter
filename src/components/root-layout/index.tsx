@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import { Suspense, useEffect, useRef } from 'react';
 import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
+import ConsoleDebugger from '../console-debugger';
 import ProfilePrompt from '../profile-prompt';
 import { Button } from '../ui/button';
 import { Toaster } from '../ui/toaster';
@@ -175,6 +176,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					{children}
 				</div>
 			</main>
+			<ConsoleDebugger />
 			<Toaster />
 			<Footer />
 		</div>
