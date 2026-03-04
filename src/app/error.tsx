@@ -1,6 +1,5 @@
 'use client';
 
-import { fbt } from 'fbtee';
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
 import { useDevMode } from '@/hooks/use-dev-mode';
 import { Button } from '@/components/ui/button';
@@ -26,8 +25,8 @@ export default function Error({
 				</h2>
 				<p className="text-muted-foreground max-w-[250px] mx-auto">
 					<fbt desc="Error description">
-						An unexpected error occurred. We've been notified and are working to
-						fix it.
+						An unexpected error occurred. We&apos;ve been notified and are
+						working to fix it.
 					</fbt>
 				</p>
 			</div>

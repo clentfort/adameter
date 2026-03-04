@@ -1,6 +1,5 @@
 'use client';
 
-import { fbt } from 'fbtee';
 import { Terminal, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDevMode } from '@/hooks/use-dev-mode';
@@ -39,12 +38,15 @@ export default function ConsoleDebugger() {
 		if (!devMode) return;
 
 		const originalConsole = {
+			/* eslint-disable no-console */
 			error: console.error,
 			info: console.info,
 			log: console.log,
 			warn: console.warn,
+			/* eslint-enable no-console */
 		};
 
+		/* eslint-disable no-console */
 		console.log = (...args: unknown[]) => {
 			addLog('log', args);
 			originalConsole.log(...args);
@@ -61,12 +63,15 @@ export default function ConsoleDebugger() {
 			addLog('info', args);
 			originalConsole.info(...args);
 		};
+		/* eslint-enable no-console */
 
 		return () => {
+			/* eslint-disable no-console */
 			console.log = originalConsole.log;
 			console.error = originalConsole.error;
 			console.warn = originalConsole.warn;
 			console.info = originalConsole.info;
+			/* eslint-enable no-console */
 		};
 	}, [devMode, addLog]);
 
