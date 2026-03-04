@@ -1,6 +1,6 @@
 'use client';
 
-import { Terminal, Trash2, X } from 'lucide-react';
+import { Copy, Terminal, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +30,20 @@ export default function ConsoleDebugger() {
 		logsRef.current = [...logsRef.current, newLog].slice(-100);
 		setLogs(logsRef.current);
 	}, []);
+
+	const copyToClipboard = useCallback(() => {
+		const text = logs
+			.map(
+				(log) =>
+					`[${new Date(log.timestamp).toISOString()}] [${log.method.toUpperCase()}] ${log.args
+						.map((arg) =>
+							typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg),
+						)
+						.join(' ')}`,
+			)
+			.join('\n');
+		void navigator.clipboard.writeText(text);
+	}, [logs]);
 
 	useEffect(() => {
 		if (!devMode) return;
@@ -101,6 +115,14 @@ export default function ConsoleDebugger() {
 								<fbt desc="Console Debugger title">Console Logs</fbt>
 							</CardTitle>
 							<div className="flex items-center gap-2">
+								<Button
+									disabled={logs.length === 0}
+									onClick={copyToClipboard}
+									size="icon"
+									variant="ghost"
+								>
+									<Copy className="h-4 w-4" />
+								</Button>
 								<Button
 									onClick={() => {
 										logsRef.current = [];

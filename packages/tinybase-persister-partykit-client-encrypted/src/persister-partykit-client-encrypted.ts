@@ -36,6 +36,7 @@ export function createSecurePartyKitPersister(
 	const storeUrl = `${protocol}://${host}/parties/${connection.name}/${room}${STORE_PATH}`;
 
 	const getOrSetStore = async (content?: Content) => {
+		const start = performance.now();
 		const body = content
 			? jsonStringWithUndefined(await encryptContent(content, encryptionKey))
 			: undefined;
@@ -48,9 +49,20 @@ export function createSecurePartyKitPersister(
 		const result = await response.json();
 
 		if (result && !content) {
-			return decryptContent(result, encryptionKey);
+			const decrypted = await decryptContent(result, encryptionKey);
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
+			return decrypted;
 		}
 
+		/* eslint-disable no-console */
+		console.log(
+			`[PERF] getOrSetStore (save) took ${(performance.now() - start).toFixed(2)}ms`,
+		);
+		/* eslint-enable no-console */
 		return result;
 	};
 
@@ -89,6 +101,7 @@ export function createSecurePartyKitPersister(
 				lastMessagePromise = lastMessagePromise
 					.catch(() => {})
 					.then(async () => {
+						const start = performance.now();
 						try {
 							const encryptedChanges = jsonParseWithUndefined<Changes>(
 								data.slice(1),
@@ -98,6 +111,11 @@ export function createSecurePartyKitPersister(
 								encryptionKey,
 							);
 							listener(undefined, decryptedChanges);
+							/* eslint-disable no-console */
+							console.log(
+								`[PERF] Incoming message processing took ${(performance.now() - start).toFixed(2)}ms`,
+							);
+							/* eslint-enable no-console */
 						} catch (error) {
 							onIgnoredError?.(error);
 						}

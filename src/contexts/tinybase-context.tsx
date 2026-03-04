@@ -60,11 +60,23 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		);
 
 		const initialize = async () => {
+			const startLoad = performance.now();
 			await localPersister.load();
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] Local IndexedDB load took ${(performance.now() - startLoad).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
 
 			await localPersister.startAutoSave();
 
+			const startMigrations = performance.now();
 			await runMigrationsIfNeeded(store, { deviceId: getDeviceId() });
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] Initial local migrations took ${(performance.now() - startMigrations).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
 
 			if (!isDisposed) {
 				setIsLocalReady(true);
@@ -122,6 +134,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return true;
 			}
 
+			const startTotalLoad = performance.now();
 			for (
 				let retryIndex = 0;
 				retryIndex < INITIAL_REMOTE_LOAD_RETRY_LIMIT;
@@ -135,8 +148,19 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 					setTimeout(resolve, INITIAL_REMOTE_LOAD_RETRY_DELAY_MS);
 				});
 
+				const startAttempt = performance.now();
 				await remotePersister.load();
+				/* eslint-disable no-console */
+				console.log(
+					`[PERF] Remote load attempt ${retryIndex + 1} took ${(performance.now() - startAttempt).toFixed(2)}ms`,
+				);
+				/* eslint-enable no-console */
 				if (hasLoadedPersistedData()) {
+					/* eslint-disable no-console */
+					console.log(
+						`[PERF] Total ensureInitialRemoteLoad took ${(performance.now() - startTotalLoad).toFixed(2)}ms`,
+					);
+					/* eslint-enable no-console */
 					return true;
 				}
 			}
@@ -150,8 +174,15 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 
 			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+			const startRemoteLoad = performance.now();
 			await remotePersister.load();
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] remotePersister.load() (refresh) took ${(performance.now() - startRemoteLoad).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
 
+			const startRestoration = performance.now();
 			let restoredLocal = false;
 			if (joinStrategy !== 'clear' && localSnapshot) {
 				if (isStoreDataEmpty(store)) {
@@ -166,6 +197,11 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			const migrationResult = await runMigrationsIfNeeded(store, {
 				deviceId,
 			});
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] Post-sync restoration and migrations took ${(performance.now() - startRestoration).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
 			if (restoredLocal || migrationResult.hasChanges) {
 				return;
 			}
@@ -206,11 +242,18 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
+			const startConnect = performance.now();
 			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+			const startCrypto = performance.now();
 			const [hashedRoomId, encryptionKey] = await Promise.all([
 				hashRoomId(room),
 				getEncryptionKey(room),
 			]);
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] Room crypto setup took ${(performance.now() - startCrypto).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
 
 			connection = new PartySocket({
 				host: PARTYKIT_HOST,
@@ -228,8 +271,22 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				() => {},
 			) as RemotePersister;
 
+			const startAutoLoad = performance.now();
 			await remotePersister.startAutoLoad();
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] remotePersister.startAutoLoad() took ${(performance.now() - startAutoLoad).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
+
+			const startInitialLoad = performance.now();
 			const didLoadRemote = await ensureInitialRemoteLoad();
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] Initial remote load check took ${(performance.now() - startInitialLoad).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
+
 			if (!didLoadRemote) {
 				if (!isDisposed) {
 					setIsSyncReady(true);
@@ -239,12 +296,31 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			await remotePersister.startAutoSave();
 
+			const startReconcile = performance.now();
 			reconcileRemoteLoadResult(store, localSnapshot, joinStrategy, deviceId);
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] reconcileRemoteLoadResult took ${(performance.now() - startReconcile).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
+
+			const startPostSyncMigrations = performance.now();
 			await runMigrationsIfNeeded(store, {
 				deviceId,
 			});
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] Post-sync migrations took ${(performance.now() - startPostSyncMigrations).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
 
 			isInitialRemoteSyncComplete = true;
+
+			/* eslint-disable no-console */
+			console.log(
+				`[PERF] Total connectRoomSync took ${(performance.now() - startConnect).toFixed(2)}ms`,
+			);
+			/* eslint-enable no-console */
 
 			if (!isDisposed) {
 				setIsSyncReady(true);
