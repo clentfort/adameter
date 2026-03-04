@@ -29,6 +29,7 @@ export function createSecurePartyKitPersister(
 	encryptionKey: CryptoKey,
 	onIgnoredError?: (error: unknown) => void,
 ) {
+	let executionChain = Promise.resolve();
 	let hasSuccessfullyLoadedPersistedData = false;
 	let hasSuccessfullySavedFullContent = false;
 	const { host, room } = connection.partySocketOptions;
@@ -55,24 +56,32 @@ export function createSecurePartyKitPersister(
 	};
 
 	const getPersisted = async () => {
-		const persisted = await getOrSetStore();
-		hasSuccessfullyLoadedPersistedData = true;
-		return persisted;
+		executionChain = executionChain
+			.catch(() => {})
+			.then(async () => {
+				const persisted = await getOrSetStore();
+				hasSuccessfullyLoadedPersistedData = true;
+				return persisted;
+			});
+		return executionChain;
 	};
 
 	const setPersisted = async (getContent: () => Content, changes?: Changes) => {
-		if (changes) {
-			const encryptedChanges = await encryptChanges(changes, encryptionKey);
-			connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
-			return;
-		}
+		executionChain = executionChain.catch(() => {}).then(async () => {
+			if (changes) {
+				const encryptedChanges = await encryptChanges(changes, encryptionKey);
+				connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
+				return;
+			}
 
-		if (!hasSuccessfullyLoadedPersistedData) {
-			return;
-		}
+			if (!hasSuccessfullyLoadedPersistedData) {
+				return;
+			}
 
-		await getOrSetStore(getContent());
-		hasSuccessfullySavedFullContent = true;
+			await getOrSetStore(getContent());
+			hasSuccessfullySavedFullContent = true;
+		});
+		return executionChain;
 	};
 
 	const addPersisterListener = (
@@ -81,12 +90,11 @@ export function createSecurePartyKitPersister(
 			changes: Changes | undefined,
 		) => void,
 	) => {
-		let lastMessagePromise = Promise.resolve();
 		const messageListener = async (event: MessageEvent) => {
 			const data = event.data;
 
 			if (typeof data === 'string' && data.startsWith(SET_CHANGES)) {
-				lastMessagePromise = lastMessagePromise
+				executionChain = executionChain
 					.catch(() => {})
 					.then(async () => {
 						try {
@@ -103,7 +111,7 @@ export function createSecurePartyKitPersister(
 						}
 					});
 
-				await lastMessagePromise;
+				await executionChain;
 			}
 		};
 

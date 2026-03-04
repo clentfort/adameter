@@ -91,7 +91,8 @@ export default function BreastfeedingTracker({
 			breast,
 			durationInSeconds,
 			endTime: endTime.toISOString(),
-			id: resumedSessionOriginalId ?? Date.now().toString(),
+			id:
+				resumedSessionOriginalId ?? new Date(startTime).getTime().toString(),
 			startTime,
 		};
 
@@ -241,7 +242,9 @@ export default function BreastfeedingTracker({
 											1000,
 									),
 									endTime: new Date().toISOString(),
-									id: resumedSessionOriginalId ?? '',
+									id:
+										resumedSessionOriginalId ??
+										new Date(feedingInProgress.startTime).getTime().toString(),
 									startTime: feedingInProgress.startTime,
 								});
 							}}
