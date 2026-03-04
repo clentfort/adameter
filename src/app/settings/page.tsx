@@ -32,11 +32,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useLanguage } from '@/contexts/i18n-context';
 import { tinybaseContext } from '@/contexts/tinybase-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
+import { useDevMode } from '@/hooks/use-dev-mode';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
@@ -80,6 +83,7 @@ export default function SettingsPage() {
 	const { setTheme, theme } = useTheme();
 	const { locale, setLocale } = useLanguage();
 	const [currency, setCurrency] = useCurrency();
+	const [devMode, setDevMode] = useDevMode();
 	const { store } = useContext(tinybaseContext);
 	const { room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
@@ -430,6 +434,24 @@ export default function SettingsPage() {
 								<SelectItem value="USD">$ USD</SelectItem>
 							</SelectContent>
 						</Select>
+					</div>
+
+					<div className="flex items-center justify-between py-2">
+						<div className="space-y-0.5">
+							<Label className="text-sm font-medium" htmlFor="dev-mode">
+								<fbt desc="Label for dev mode setting">Dev Mode</fbt>
+							</Label>
+							<p className="text-xs text-muted-foreground">
+								<fbt desc="Description for dev mode setting">
+									Enable developer tools and error details
+								</fbt>
+							</p>
+						</div>
+						<Switch
+							checked={devMode}
+							id="dev-mode"
+							onCheckedChange={setDevMode}
+						/>
 					</div>
 				</CardContent>
 			</Card>

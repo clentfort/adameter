@@ -11,6 +11,7 @@ import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
 import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
 import ProfilePrompt from '../profile-prompt';
 import { Button } from '../ui/button';
+import ConsoleDebugger from '../console-debugger';
 import { Toaster } from '../ui/toaster';
 import { Footer } from './footer';
 import Navigation from './navigation';
@@ -175,6 +176,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					{children}
 				</div>
 			</main>
+			<ConsoleDebugger />
 			<Toaster />
 			<Footer />
 		</div>
