@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useDevMode } from '@/hooks/use-dev-mode';
+import { logger } from '@/lib/logger';
 
 type LogEntry = {
 	args: unknown[];
@@ -20,16 +21,19 @@ export default function ConsoleDebugger() {
 	const [isOpen, setIsOpen] = useState(false);
 	const logsRef = useRef<LogEntry[]>([]);
 
-	const addLog = useCallback((method: LogEntry['method'], args: unknown[]) => {
-		const newLog: LogEntry = {
-			args,
-			id: Date.now() + Math.random(),
-			method,
-			timestamp: Date.now(),
-		};
-		logsRef.current = [...logsRef.current, newLog].slice(-100);
-		setLogs(logsRef.current);
-	}, []);
+	const addLog = useCallback(
+		(method: LogEntry['method'], args: unknown[], timestamp: number) => {
+			const newLog: LogEntry = {
+				args,
+				id: Math.random(),
+				method,
+				timestamp,
+			};
+			logsRef.current = [...logsRef.current, newLog].slice(-100);
+			setLogs(logsRef.current);
+		},
+		[],
+	);
 
 	const copyToClipboard = useCallback(() => {
 		const text = logs
@@ -50,42 +54,9 @@ export default function ConsoleDebugger() {
 	useEffect(() => {
 		if (!devMode) return;
 
-		const originalConsole = {
-			/* eslint-disable no-console */
-			error: console.error,
-			info: console.info,
-			log: console.log,
-			warn: console.warn,
-			/* eslint-enable no-console */
-		};
-
-		/* eslint-disable no-console */
-		console.log = (...args: unknown[]) => {
-			addLog('log', args);
-			originalConsole.log(...args);
-		};
-		console.error = (...args: unknown[]) => {
-			addLog('error', args);
-			originalConsole.error(...args);
-		};
-		console.warn = (...args: unknown[]) => {
-			addLog('warn', args);
-			originalConsole.warn(...args);
-		};
-		console.info = (...args: unknown[]) => {
-			addLog('info', args);
-			originalConsole.info(...args);
-		};
-		/* eslint-enable no-console */
-
-		return () => {
-			/* eslint-disable no-console */
-			console.log = originalConsole.log;
-			console.error = originalConsole.error;
-			console.warn = originalConsole.warn;
-			console.info = originalConsole.info;
-			/* eslint-enable no-console */
-		};
+		return logger.subscribe((entry) => {
+			addLog(entry.method, entry.args, entry.timestamp);
+		});
 	}, [devMode, addLog]);
 
 	if (!devMode) return null;

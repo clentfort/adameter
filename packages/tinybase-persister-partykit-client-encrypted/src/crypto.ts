@@ -1,4 +1,5 @@
 import type { Changes, Content, Tables, Values } from 'tinybase';
+import { logger } from './logger';
 
 const ALGORITHM = 'AES-GCM';
 const IV_LENGTH = 12;
@@ -145,11 +146,9 @@ export async function encryptContent(
 	const encryptedTables = Object.fromEntries(encryptedTableEntries) as Tables;
 	const encryptedValues = Object.fromEntries(encryptedValueEntries) as Values;
 
-	/* eslint-disable no-console */
-	console.log(
+	logger.log(
 		`[PERF] encryptContent took ${(performance.now() - start).toFixed(2)}ms`,
 	);
-	/* eslint-enable no-console */
 
 	return [encryptedTables, encryptedValues];
 }
@@ -181,11 +180,9 @@ export async function decryptContent(
 	const decryptedTables = Object.fromEntries(decryptedTableEntries) as Tables;
 	const decryptedValues = Object.fromEntries(decryptedValueEntries) as Values;
 
-	/* eslint-disable no-console */
-	console.log(
+	logger.log(
 		`[PERF] decryptContent took ${(performance.now() - start).toFixed(2)}ms`,
 	);
-	/* eslint-enable no-console */
 
 	return [decryptedTables, decryptedValues];
 }
@@ -225,11 +222,9 @@ export async function encryptChanges(
 		encryptedValueEntries,
 	) as Changes[1];
 
-	/* eslint-disable no-console */
-	console.log(
+	logger.log(
 		`[PERF] encryptChanges took ${(performance.now() - start).toFixed(2)}ms`,
 	);
-	/* eslint-enable no-console */
 
 	return [encryptedTableChanges, encryptedValueChanges, internal];
 }
@@ -269,11 +264,9 @@ export async function decryptChanges(
 		decryptedValueEntries,
 	) as Changes[1];
 
-	/* eslint-disable no-console */
-	console.log(
+	logger.log(
 		`[PERF] decryptChanges took ${(performance.now() - start).toFixed(2)}ms`,
 	);
-	/* eslint-enable no-console */
 
 	return [decryptedTableChanges, decryptedValueChanges, internal];
 }

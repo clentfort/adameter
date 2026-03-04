@@ -9,6 +9,7 @@ import {
 	jsonParseWithUndefined,
 	jsonStringWithUndefined,
 } from './crypto';
+import { logger } from './logger';
 
 const MESSAGE = 'message';
 const PUT = 'PUT';
@@ -50,19 +51,15 @@ export function createSecurePartyKitPersister(
 
 		if (result && !content) {
 			const decrypted = await decryptContent(result, encryptionKey);
-			/* eslint-disable no-console */
-			console.log(
+			logger.log(
 				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
 			);
-			/* eslint-enable no-console */
 			return decrypted;
 		}
 
-		/* eslint-disable no-console */
-		console.log(
+		logger.log(
 			`[PERF] getOrSetStore (save) took ${(performance.now() - start).toFixed(2)}ms`,
 		);
-		/* eslint-enable no-console */
 		return result;
 	};
 
@@ -111,11 +108,9 @@ export function createSecurePartyKitPersister(
 								encryptionKey,
 							);
 							listener(undefined, decryptedChanges);
-							/* eslint-disable no-console */
-							console.log(
+							logger.log(
 								`[PERF] Incoming message processing took ${(performance.now() - start).toFixed(2)}ms`,
 							);
-							/* eslint-enable no-console */
 						} catch (error) {
 							onIgnoredError?.(error);
 						}
