@@ -91,8 +91,7 @@ export default function BreastfeedingTracker({
 			breast,
 			durationInSeconds,
 			endTime: endTime.toISOString(),
-			id:
-				resumedSessionOriginalId ?? new Date(startTime).getTime().toString(),
+			id: resumedSessionOriginalId ?? new Date(startTime).getTime().toString(),
 			startTime,
 		};
 

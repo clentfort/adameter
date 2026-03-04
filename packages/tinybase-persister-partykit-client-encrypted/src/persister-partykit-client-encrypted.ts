@@ -56,9 +56,7 @@ export function createSecurePartyKitPersister(
 	};
 
 	const getPersisted = async (): Promise<Content | undefined> => {
-		executionChain = executionChain
-			.catch(() => {})
-			.then(() => getOrSetStore());
+		executionChain = executionChain.catch(() => {}).then(() => getOrSetStore());
 		const persisted = (await executionChain) as Content | undefined;
 		if (persisted) {
 			hasSuccessfullyLoadedPersistedData = true;
@@ -70,22 +68,24 @@ export function createSecurePartyKitPersister(
 		getContent: () => Content,
 		changes?: Changes,
 	): Promise<void> => {
-		executionChain = executionChain.catch(() => {}).then(async () => {
-			if (changes) {
-				const encryptedChanges = await encryptChanges(changes, encryptionKey);
-				connection.send(
-					SET_CHANGES + jsonStringWithUndefined(encryptedChanges),
-				);
-				return;
-			}
+		executionChain = executionChain
+			.catch(() => {})
+			.then(async () => {
+				if (changes) {
+					const encryptedChanges = await encryptChanges(changes, encryptionKey);
+					connection.send(
+						SET_CHANGES + jsonStringWithUndefined(encryptedChanges),
+					);
+					return;
+				}
 
-			if (!hasSuccessfullyLoadedPersistedData) {
-				return;
-			}
+				if (!hasSuccessfullyLoadedPersistedData) {
+					return;
+				}
 
-			await getOrSetStore(getContent());
-			hasSuccessfullySavedFullContent = true;
-		});
+				await getOrSetStore(getContent());
+				hasSuccessfullySavedFullContent = true;
+			});
 		await executionChain;
 	};
 
