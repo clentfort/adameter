@@ -149,7 +149,7 @@ describe('createSecurePartyKitPersister', () => {
 
 		const parsed = jsonParseWithUndefined<Changes>(sentMessage.slice(1));
 		const decrypted = await decryptChanges(parsed, encryptionKey);
-		expect(decrypted[0].table1.row1).toEqual(storeState.table1.row1);
+		expect(decrypted[0]!.table1!.row1).toEqual(storeState.table1.row1);
 		expect(decrypted[1]).toEqual(changes[1]);
 	});
 

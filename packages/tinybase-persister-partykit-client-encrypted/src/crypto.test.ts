@@ -99,7 +99,10 @@ describe('crypto', () => {
 		];
 
 		const encrypted = await encryptChanges(changes, key, () => fullRow);
-		expect((encrypted[0] as any).table1.row1.d).toBeDefined();
+		expect(
+			(encrypted[0] as Record<string, Record<string, Record<string, string>>>)
+				.table1.row1.d,
+		).toBeDefined();
 
 		const decrypted = await decryptChanges(encrypted, key);
 		expect(decrypted[0]).toEqual({

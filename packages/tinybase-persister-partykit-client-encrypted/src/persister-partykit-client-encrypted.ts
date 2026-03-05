@@ -30,7 +30,7 @@ export function createSecurePartyKitPersister(
 	encryptionKey: CryptoKey,
 	onIgnoredError?: (error: unknown) => void,
 ) {
-	let executionChain = Promise.resolve();
+	let executionChain: Promise<any> = Promise.resolve();
 	let hasSuccessfullyLoadedPersistedData = false;
 	let hasSuccessfullySavedFullContent = false;
 	const { host, room } = connection.partySocketOptions;
