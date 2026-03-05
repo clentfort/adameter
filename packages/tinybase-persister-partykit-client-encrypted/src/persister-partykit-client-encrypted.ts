@@ -30,6 +30,7 @@ export function createSecurePartyKitPersister(
 	encryptionKey: CryptoKey,
 	onIgnoredError?: (error: unknown) => void,
 ) {
+	let executionChain = Promise.resolve();
 	let hasSuccessfullyLoadedPersistedData = false;
 	let hasSuccessfullySavedFullContent = false;
 	const { host, room } = connection.partySocketOptions;
@@ -38,50 +39,76 @@ export function createSecurePartyKitPersister(
 
 	const getOrSetStore = async (content?: Content) => {
 		const start = performance.now();
-		const body = content
-			? jsonStringWithUndefined(await encryptContent(content, encryptionKey))
-			: undefined;
+		let encryptTime = 0;
+		let body: string | undefined;
+		if (content) {
+			const startEncrypt = performance.now();
+			body = jsonStringWithUndefined(
+				await encryptContent(content, encryptionKey),
+			);
+			encryptTime = performance.now() - startEncrypt;
+		}
 
+		const startFetch = performance.now();
 		const response = await fetch(storeUrl, {
 			...(body ? { body, method: PUT } : {}),
 			cache: 'no-store',
 			mode: 'cors',
 		});
+		const fetchTime = performance.now() - startFetch;
+
+		const startParse = performance.now();
 		const result = await response.json();
+		const parseTime = performance.now() - startParse;
 
 		if (result && !content) {
+			const startDecrypt = performance.now();
 			const decrypted = await decryptContent(result, encryptionKey);
+			const decryptTime = performance.now() - startDecrypt;
 			logger.log(
-				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
+				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms (fetch: ${fetchTime.toFixed(2)}ms, parse: ${parseTime.toFixed(2)}ms, decrypt: ${decryptTime.toFixed(2)}ms)`,
 			);
 			return decrypted;
 		}
 
 		logger.log(
-			`[PERF] getOrSetStore (save) took ${(performance.now() - start).toFixed(2)}ms`,
+			`[PERF] getOrSetStore (${content ? 'save' : 'load'}) took ${(performance.now() - start).toFixed(2)}ms (encrypt: ${encryptTime.toFixed(2)}ms, fetch: ${fetchTime.toFixed(2)}ms, parse: ${parseTime.toFixed(2)}ms)`,
 		);
 		return result;
 	};
 
-	const getPersisted = async () => {
-		const persisted = await getOrSetStore();
+	const getPersisted = async (): Promise<Content | undefined> => {
+		executionChain = executionChain
+			.catch(() => {})
+			.then(() => getOrSetStore() as Promise<Content | undefined>);
+		const persisted = await executionChain;
 		hasSuccessfullyLoadedPersistedData = true;
 		return persisted;
 	};
 
-	const setPersisted = async (getContent: () => Content, changes?: Changes) => {
-		if (changes) {
-			const encryptedChanges = await encryptChanges(changes, encryptionKey);
-			connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
-			return;
-		}
+	const setPersisted = async (
+		getContent: () => Content,
+		changes?: Changes,
+	): Promise<void> => {
+		executionChain = executionChain.catch(() => {}).then(async () => {
+			if (changes) {
+				const encryptedChanges = await encryptChanges(
+					changes,
+					encryptionKey,
+					(tableId, rowId) => store.getRow(tableId, rowId),
+				);
+				connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
+				return;
+			}
 
-		if (!hasSuccessfullyLoadedPersistedData) {
-			return;
-		}
+			if (!hasSuccessfullyLoadedPersistedData) {
+				return;
+			}
 
-		await getOrSetStore(getContent());
-		hasSuccessfullySavedFullContent = true;
+			await getOrSetStore(getContent());
+			hasSuccessfullySavedFullContent = true;
+		});
+		await executionChain;
 	};
 
 	const addPersisterListener = (
@@ -90,12 +117,11 @@ export function createSecurePartyKitPersister(
 			changes: Changes | undefined,
 		) => void,
 	) => {
-		let lastMessagePromise = Promise.resolve();
 		const messageListener = async (event: MessageEvent) => {
 			const data = event.data;
 
 			if (typeof data === 'string' && data.startsWith(SET_CHANGES)) {
-				lastMessagePromise = lastMessagePromise
+				executionChain = executionChain
 					.catch(() => {})
 					.then(async () => {
 						const start = performance.now();
@@ -116,7 +142,7 @@ export function createSecurePartyKitPersister(
 						}
 					});
 
-				await lastMessagePromise;
+				await executionChain;
 			}
 		};
 

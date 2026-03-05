@@ -48,7 +48,7 @@ describe('crypto', () => {
 		];
 
 		const encrypted = await encryptContent(content, key);
-		expect((encrypted[0] as Content[0]).table1.row1.cell1).toMatch(/^s:/);
+		expect((encrypted[0] as Content[0]).table1.row1.d).toMatch(/^s:/);
 		expect((encrypted[1] as Content[1]).value2).toMatch(/^n:/);
 		expect((encrypted[1] as Content[1]).value3).toMatch(/^b:/);
 		expect((encrypted[1] as Content[1]).value4).toMatch(/^l:/);
@@ -81,6 +81,32 @@ describe('crypto', () => {
 		const decrypted = await decryptChanges(encrypted, key);
 
 		expect(decrypted).toEqual(changes);
+	});
+
+	it('encrypts and decrypts changes with row context', async () => {
+		const key = await getEncryptionKey('test-room');
+		const fullRow = { cell1: 'updated', cell2: 42 };
+		const changes: Changes = [
+			{
+				table1: {
+					row1: {
+						cell1: 'updated',
+					},
+				},
+			},
+			{},
+			1,
+		];
+
+		const encrypted = await encryptChanges(changes, key, () => fullRow);
+		expect((encrypted[0] as any).table1.row1.d).toBeDefined();
+
+		const decrypted = await decryptChanges(encrypted, key);
+		expect(decrypted[0]).toEqual({
+			table1: {
+				row1: fullRow,
+			},
+		});
 	});
 
 	it('supports large string payloads', async () => {
