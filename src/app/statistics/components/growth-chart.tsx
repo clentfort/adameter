@@ -135,13 +135,19 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			let latestHead = null;
 			for (let i = sortedMeasurements.length - 1; i >= 0; i--) {
 				const m = sortedMeasurements[i];
-				if (!latestWeight && m.weight != null) latestWeight = m;
-				if (!latestHeight && m.height != null) latestHeight = m;
-				if (!latestHead && m.headCircumference != null) latestHead = m;
+				if (!latestWeight && m.weight != null && m.weight > 0) latestWeight = m;
+				if (!latestHeight && m.height != null && m.height > 0) latestHeight = m;
+				if (
+					!latestHead &&
+					m.headCircumference != null &&
+					m.headCircumference > 0
+				) {
+					latestHead = m;
+				}
 				if (latestWeight && latestHeight && latestHead) break;
 			}
 
-			if (latestWeight?.weight) {
+			if (latestWeight?.weight && latestWeight.weight > 0) {
 				getPercentile(
 					'weight-for-age',
 					profile.sex,
@@ -152,7 +158,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				setWeightPercentile(null);
 			}
 
-			if (latestHeight?.height) {
+			if (latestHeight?.height && latestHeight.height > 0) {
 				getPercentile(
 					'length-height-for-age',
 					profile.sex,
@@ -163,7 +169,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				setHeightPercentile(null);
 			}
 
-			if (latestHead?.headCircumference) {
+			if (latestHead?.headCircumference && latestHead.headCircumference > 0) {
 				getPercentile(
 					'head-circumference-for-age',
 					profile.sex,
@@ -262,7 +268,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const weightData = useMemo(
 		() =>
 			sortedMeasurements
-				.filter((m) => m.weight !== undefined && m.weight !== null)
+				.filter((m) => m.weight != null && m.weight > 0)
 				.map((m) => ({
 					x: dob
 						? differenceInDays(startOfDay(new Date(m.date)), dob) /
@@ -276,7 +282,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const heightData = useMemo(
 		() =>
 			sortedMeasurements
-				.filter((m) => m.height !== undefined && m.height !== null)
+				.filter((m) => m.height != null && m.height > 0)
 				.map((m) => ({
 					x: dob
 						? differenceInDays(startOfDay(new Date(m.date)), dob) /
@@ -290,10 +296,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const headCircumferenceData = useMemo(
 		() =>
 			sortedMeasurements
-				.filter(
-					(m) =>
-						m.headCircumference !== undefined && m.headCircumference !== null,
-				)
+				.filter((m) => m.headCircumference != null && m.headCircumference > 0)
 				.map((m) => ({
 					x: dob
 						? differenceInDays(startOfDay(new Date(m.date)), dob) /

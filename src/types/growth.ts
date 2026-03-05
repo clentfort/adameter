@@ -4,10 +4,25 @@ import { z } from 'zod';
 export const growthFormSchema = z
 	.object({
 		date: z.string().min(1),
-		headCircumference: z.string(),
-		height: z.string(),
+		headCircumference: z
+			.string()
+			.refine(
+				(v) => v === '' || (!Number.isNaN(Number(v)) && Number(v) > 0),
+				'Must be a positive number',
+			),
+		height: z
+			.string()
+			.refine(
+				(v) => v === '' || (!Number.isNaN(Number(v)) && Number(v) > 0),
+				'Must be a positive number',
+			),
 		notes: z.string(),
-		weight: z.string(),
+		weight: z
+			.string()
+			.refine(
+				(v) => v === '' || (!Number.isNaN(Number(v)) && Number(v) > 0),
+				'Must be a positive number',
+			),
 	})
 	.refine(
 		(values) =>
@@ -15,7 +30,7 @@ export const growthFormSchema = z
 			values.height.length > 0 ||
 			values.headCircumference.length > 0,
 		{
-			message: 'Please enter at least a weight, height, or head circumference.',
+			message: 'AT_LEAST_ONE_REQUIRED',
 			path: ['weight'],
 		},
 	);
