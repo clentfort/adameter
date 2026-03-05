@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { expectStatsCardPrimaryMetric } from '@/test-utils/assertions/stats-card';
 import { createFeedingSessions } from '@/test-utils/factories/feeding-session';
 import FeedingRecords from './feeding-records';
 
@@ -39,19 +40,15 @@ describe('FeedingRecords', () => {
 
 	it('calculates and displays records correctly', () => {
 		vi.setSystemTime(new Date('2024-01-04T12:00:00Z'));
-		render(<FeedingRecords sessions={mockSessions} />);
+		const { container } = render(<FeedingRecords sessions={mockSessions} />);
 
 		expect(screen.getByText('Most feedings in a day')).toBeInTheDocument();
 		expect(screen.getByText('Fewest feedings in a day')).toBeInTheDocument();
 		expect(screen.getByText('Longest feeding day')).toBeInTheDocument();
 		expect(screen.getByText('Shortest feeding day')).toBeInTheDocument();
 
-		expect(
-			screen.getByText('2', { selector: '.text-2xl' }),
-		).toBeInTheDocument();
-		expect(
-			screen.getByText('1', { selector: '.text-2xl' }),
-		).toBeInTheDocument();
+		expectStatsCardPrimaryMetric(container, 2);
+		expectStatsCardPrimaryMetric(container, 1);
 		expect(screen.getByText('40 min')).toBeInTheDocument();
 		expect(screen.getByText('5 min')).toBeInTheDocument();
 	});

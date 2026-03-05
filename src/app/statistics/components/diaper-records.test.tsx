@@ -1,6 +1,7 @@
 import type { DiaperChange } from '@/types/diaper';
 import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { expectStatsCardPrimaryMetric } from '@/test-utils/assertions/stats-card';
 import {
 	createDiaperChange,
 	createDiaperChanges,
@@ -51,7 +52,9 @@ describe('DiaperRecords', () => {
 
 	it('calculates and displays records correctly', () => {
 		vi.setSystemTime(new Date('2024-01-04T12:00:00Z'));
-		render(<DiaperRecords diaperChanges={mockDiaperChanges} />);
+		const { container } = render(
+			<DiaperRecords diaperChanges={mockDiaperChanges} />,
+		);
 
 		expect(
 			screen.getByText('Most diaper changes in a day'),
@@ -60,13 +63,8 @@ describe('DiaperRecords', () => {
 			screen.getByText('Fewest diaper changes in a day'),
 		).toBeInTheDocument();
 
-		// Most: 2, Fewest: 1
-		expect(
-			screen.getByText('2', { selector: '.text-2xl' }),
-		).toBeInTheDocument();
-		expect(
-			screen.getByText('1', { selector: '.text-2xl' }),
-		).toBeInTheDocument();
+		expectStatsCardPrimaryMetric(container, 2);
+		expectStatsCardPrimaryMetric(container, 1);
 	});
 
 	it('excludes diaper changes from today', () => {
@@ -81,11 +79,11 @@ describe('DiaperRecords', () => {
 			}),
 		];
 
-		const { rerender } = render(<DiaperRecords diaperChanges={customMock} />);
+		const { container, rerender } = render(
+			<DiaperRecords diaperChanges={customMock} />,
+		);
 		expect(screen.queryByText('3')).not.toBeInTheDocument();
-		expect(
-			screen.getByText('2', { selector: '.text-2xl' }),
-		).toBeInTheDocument();
+		expectStatsCardPrimaryMetric(container, 2);
 
 		vi.setSystemTime(new Date('2024-01-05T12:00:00Z'));
 		rerender(<DiaperRecords diaperChanges={customMock} />);

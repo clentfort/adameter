@@ -1,6 +1,7 @@
 import type { FeedingSession } from '@/types/feeding';
 import { render, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { expectStatsCardPrimaryMetric } from '@/test-utils/assertions/stats-card';
 import { createFeedingSessions } from '@/test-utils/factories/feeding-session';
 import TotalFeedingsStats from './total-feedings-stats';
 
@@ -27,16 +28,7 @@ describe('TotalFeedingsStats', () => {
 		const statsCard = container.firstChild as HTMLElement;
 
 		expect(within(statsCard).getByText('Total Feedings')).toBeInTheDocument();
-		const totalFeedingsValue = within(statsCard).getByText(
-			(content, element) => {
-				return (
-					element?.tagName.toLowerCase() === 'div' &&
-					element.classList.contains('text-2xl') &&
-					content === '4'
-				);
-			},
-		);
-		expect(totalFeedingsValue).toBeInTheDocument();
+		expectStatsCardPrimaryMetric(statsCard, 4);
 
 		const leftBreastLabelDiv = within(statsCard)
 			.getByText(/Left Breast:/)
@@ -61,16 +53,7 @@ describe('TotalFeedingsStats', () => {
 		);
 		const statsCard = container.firstChild as HTMLElement;
 
-		const totalFeedingsValue = within(statsCard).getByText(
-			(content, element) => {
-				return (
-					element?.tagName.toLowerCase() === 'div' &&
-					element.classList.contains('text-2xl') &&
-					content === '2'
-				);
-			},
-		);
-		expect(totalFeedingsValue).toBeInTheDocument();
+		expectStatsCardPrimaryMetric(statsCard, 2);
 
 		const leftBreastLabelDiv = within(statsCard)
 			.getByText(/Left Breast:/)
@@ -99,16 +82,7 @@ describe('TotalFeedingsStats', () => {
 		);
 		const statsCard = container.firstChild as HTMLElement;
 
-		const totalFeedingsValue = within(statsCard).getByText(
-			(content, element) => {
-				return (
-					element?.tagName.toLowerCase() === 'div' &&
-					element.classList.contains('text-2xl') &&
-					content === '2'
-				);
-			},
-		);
-		expect(totalFeedingsValue).toBeInTheDocument();
+		expectStatsCardPrimaryMetric(statsCard, 2);
 
 		const leftBreastLabelDiv = within(statsCard)
 			.getByText(/Left Breast:/)
@@ -130,16 +104,7 @@ describe('TotalFeedingsStats', () => {
 		);
 		const statsCard = container.firstChild as HTMLElement;
 
-		const totalFeedingsValue = within(statsCard).getByText(
-			(content, element) => {
-				return (
-					element?.tagName.toLowerCase() === 'div' &&
-					element.classList.contains('text-2xl') &&
-					content === '1'
-				);
-			},
-		);
-		expect(totalFeedingsValue).toBeInTheDocument();
+		expectStatsCardPrimaryMetric(statsCard, 1);
 
 		const leftBreastLabelDiv = within(statsCard)
 			.getByText(/Left Breast:/)

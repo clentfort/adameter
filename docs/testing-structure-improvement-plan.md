@@ -26,9 +26,9 @@
 
 ### Phase 3: Hardening
 
-- [ ] Split oversized test files into focused suites by behavior.
-- [ ] Add additional helper assertions for card value extraction in stats tests.
-- [ ] Introduce e2e room-sync page object for multi-context synchronization
+- [x] Split oversized test files into focused suites by behavior.
+- [x] Add additional helper assertions for card value extraction in stats tests.
+- [x] Introduce e2e room-sync page object for multi-context synchronization
       flows.
 
 ## Executed Scope In This Iteration
@@ -41,3 +41,9 @@
 - Introduced shared fixture factories for feeding and diaper domain objects.
 - Refactored the statistics component test suite to consume shared factories and
   reduced local test boilerplate.
+- Introduced shared assertions for primary stats-card values to simplify
+  repeated card-value extraction logic.
+- Added a reusable multi-context room sync page-object helper for Playwright
+  sync tests.
+- Split large room-import scenario tests into focused import-flow and
+  multi-device suites with a shared harness.

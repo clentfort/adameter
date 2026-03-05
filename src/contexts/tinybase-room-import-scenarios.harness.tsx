@@ -9,7 +9,7 @@ import {
 import { useContext } from 'react';
 import { createStore } from 'tinybase';
 import { useStore, useTable } from 'tinybase/ui-react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import {
 	DataSynchronizationContext,
@@ -17,7 +17,7 @@ import {
 } from './data-synchronization-context';
 import { TinybaseProvider } from './tinybase-context';
 
-const ROOM_JOIN_STRATEGY_STORAGE_KEY = 'room-join-strategy';
+export const ROOM_JOIN_STRATEGY_STORAGE_KEY = 'room-join-strategy';
 
 const mocks = vi.hoisted(() => ({
 	createIndexedDbPersister: vi.fn(),
@@ -61,8 +61,15 @@ interface RemotePersisterMock {
 	stopAutoSave: () => Promise<void>;
 }
 
-function expectEventCount(count: number) {
-	expect(screen.getByTestId('event-count').textContent).toBe(String(count));
+interface HarnessOptions {
+	initialLoadFailures?: number;
+	localCount: number;
+	remoteCount: number;
+}
+
+interface LocalSeed {
+	count: number;
+	prefix: string;
 }
 
 function buildEventRow(index: number, prefix: string) {
@@ -132,13 +139,34 @@ function RoomSyncProbe({ importCount }: { importCount: number }) {
 	);
 }
 
-interface HarnessOptions {
-	initialLoadFailures?: number;
-	localCount: number;
-	remoteCount: number;
+export function resetRoomImportScenarioMocks() {
+	localStorage.clear();
+	mocks.createSecurePartyKitPersister.mockReset();
+	mocks.createIndexedDbPersister.mockReset();
+	mocks.getEncryptionKey.mockReset();
+	mocks.hashRoomId.mockReset();
+	mocks.runMigrationsIfNeeded.mockReset();
+
+	mocks.getEncryptionKey.mockResolvedValue({} as CryptoKey);
+	mocks.hashRoomId.mockResolvedValue('hashed-scenario-room');
+	mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
 }
 
-function setupSyncHarness({
+export function expectEventCount(count: number) {
+	expect(screen.getByTestId('event-count').textContent).toBe(String(count));
+}
+
+export function renderRoomSyncProbe(importCount: number) {
+	return render(
+		<DataSynchronizationProvider>
+			<TinybaseProvider>
+				<RoomSyncProbe importCount={importCount} />
+			</TinybaseProvider>
+		</DataSynchronizationProvider>,
+	);
+}
+
+export function setupSyncHarness({
 	initialLoadFailures = 0,
 	localCount,
 	remoteCount,
@@ -221,183 +249,7 @@ function setupSyncHarness({
 	};
 }
 
-describe('room sync scenarios for imported data', () => {
-	afterEach(() => {
-		cleanup();
-	});
-
-	beforeEach(() => {
-		localStorage.clear();
-		mocks.createSecurePartyKitPersister.mockReset();
-		mocks.createIndexedDbPersister.mockReset();
-		mocks.getEncryptionKey.mockReset();
-		mocks.hashRoomId.mockReset();
-		mocks.runMigrationsIfNeeded.mockReset();
-
-		mocks.getEncryptionKey.mockResolvedValue({} as CryptoKey);
-		mocks.hashRoomId.mockResolvedValue('hashed-scenario-room');
-		mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
-	});
-
-	it.each([10, 250, 1500])(
-		'a) import data, then create room keeps %i rows',
-		async (size) => {
-			const harness = setupSyncHarness({
-				initialLoadFailures: 1,
-				localCount: size,
-				remoteCount: 0,
-			});
-
-			render(
-				<DataSynchronizationProvider>
-					<TinybaseProvider>
-						<RoomSyncProbe importCount={size} />
-					</TinybaseProvider>
-				</DataSynchronizationProvider>,
-			);
-
-			await waitFor(() => {
-				expectEventCount(size);
-			});
-
-			fireEvent.click(screen.getByRole('button', { name: 'Connect room' }));
-
-			await waitFor(() => {
-				expectEventCount(size);
-			});
-
-			fireEvent.click(screen.getByRole('button', { name: 'Add one entry' }));
-
-			await waitFor(() => {
-				expectEventCount(size + 1);
-			});
-
-			document.dispatchEvent(new Event('visibilitychange'));
-			window.dispatchEvent(new Event('focus'));
-
-			await waitFor(() => {
-				expectEventCount(size + 1);
-				expect(harness.getRemoteCount()).toBe(size + 1);
-			});
-		},
-	);
-
-	it.each([10, 250, 1500])(
-		'b) create room (empty), then import keeps %i rows',
-		async (size) => {
-			const harness = setupSyncHarness({
-				localCount: 0,
-				remoteCount: 0,
-			});
-
-			render(
-				<DataSynchronizationProvider>
-					<TinybaseProvider>
-						<RoomSyncProbe importCount={size} />
-					</TinybaseProvider>
-				</DataSynchronizationProvider>,
-			);
-
-			await waitFor(() => {
-				expectEventCount(0);
-			});
-
-			fireEvent.click(screen.getByRole('button', { name: 'Connect room' }));
-
-			await waitFor(() => {
-				expectEventCount(0);
-			});
-
-			fireEvent.click(screen.getByRole('button', { name: 'Import data' }));
-
-			await waitFor(() => {
-				expectEventCount(size);
-				expect(harness.getRemoteCount()).toBe(size);
-			});
-
-			document.dispatchEvent(new Event('visibilitychange'));
-			window.dispatchEvent(new Event('focus'));
-
-			await waitFor(() => {
-				expectEventCount(size);
-				expect(harness.getRemoteCount()).toBe(size);
-			});
-		},
-	);
-
-	it.each([10, 250, 1500])(
-		'c) join room that already has imported data keeps %i rows',
-		async (size) => {
-			const harness = setupSyncHarness({
-				localCount: 0,
-				remoteCount: size,
-			});
-
-			render(
-				<DataSynchronizationProvider>
-					<TinybaseProvider>
-						<RoomSyncProbe importCount={size} />
-					</TinybaseProvider>
-				</DataSynchronizationProvider>,
-			);
-
-			await waitFor(() => {
-				expectEventCount(0);
-			});
-
-			fireEvent.click(screen.getByRole('button', { name: 'Connect room' }));
-
-			await waitFor(() => {
-				expectEventCount(size);
-				expect(harness.getRemoteCount()).toBe(size);
-			});
-		},
-	);
-
-	it.each([10, 250, 1500])(
-		'd) join room with imported data merges local imported data for %i rows each side',
-		async (size) => {
-			const harness = setupSyncHarness({
-				localCount: size,
-				remoteCount: size,
-			});
-
-			render(
-				<DataSynchronizationProvider>
-					<TinybaseProvider>
-						<RoomSyncProbe importCount={size} />
-					</TinybaseProvider>
-				</DataSynchronizationProvider>,
-			);
-
-			await waitFor(() => {
-				expectEventCount(size);
-			});
-
-			fireEvent.click(screen.getByRole('button', { name: 'Connect room' }));
-
-			await waitFor(() => {
-				expectEventCount(size * 2);
-				expect(harness.getRemoteCount()).toBe(size * 2);
-			});
-
-			document.dispatchEvent(new Event('visibilitychange'));
-			window.dispatchEvent(new Event('focus'));
-
-			await waitFor(() => {
-				expectEventCount(size * 2);
-				expect(harness.getRemoteCount()).toBe(size * 2);
-			});
-		},
-	);
-});
-
-interface LocalSeed {
-	count: number;
-	prefix: string;
-}
-
-function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
+export function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
 	const remoteStore = createStore();
 	remoteStore.setContent([{}, {}]);
 
@@ -471,7 +323,7 @@ function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
 	};
 }
 
-async function runDeviceSession({
+export async function runDeviceSession({
 	autoConnect = false,
 	expectedAfterConnect,
 	expectedAfterImport,
@@ -490,13 +342,7 @@ async function runDeviceSession({
 	shouldAddOneEntry?: boolean;
 	shouldImportData?: boolean;
 }) {
-	render(
-		<DataSynchronizationProvider>
-			<TinybaseProvider>
-				<RoomSyncProbe importCount={importCount} />
-			</TinybaseProvider>
-		</DataSynchronizationProvider>,
-	);
+	renderRoomSyncProbe(importCount);
 
 	if (expectedInitial !== undefined) {
 		await waitFor(() => {
@@ -545,138 +391,3 @@ async function runDeviceSession({
 
 	cleanup();
 }
-
-describe('multi-device and stale session scenarios', () => {
-	afterEach(() => {
-		cleanup();
-	});
-
-	beforeEach(() => {
-		localStorage.clear();
-		mocks.createSecurePartyKitPersister.mockReset();
-		mocks.createIndexedDbPersister.mockReset();
-		mocks.getEncryptionKey.mockReset();
-		mocks.hashRoomId.mockReset();
-		mocks.runMigrationsIfNeeded.mockReset();
-
-		mocks.getEncryptionKey.mockResolvedValue({} as CryptoKey);
-		mocks.hashRoomId.mockResolvedValue('hashed-scenario-room');
-		mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
-	});
-
-	it('keeps data intact when three devices sync sequentially', async () => {
-		const harness = setupMultiDeviceHarness([
-			{ count: 1500, prefix: 'device-a-import' },
-			{ count: 0, prefix: 'device-b-empty' },
-			{ count: 0, prefix: 'device-c-empty' },
-		]);
-
-		await runDeviceSession({
-			expectedAfterConnect: 1500,
-			expectedInitial: 1500,
-			shouldAddOneEntry: true,
-		});
-
-		localStorage.removeItem('room');
-		await runDeviceSession({
-			expectedAfterConnect: 1501,
-			expectedInitial: 0,
-			shouldAddOneEntry: true,
-		});
-
-		localStorage.setItem('room', 'scenario-room');
-		await runDeviceSession({
-			autoConnect: true,
-			expectedAfterConnect: 1502,
-			refreshAfterConnect: true,
-		});
-
-		expect(harness.getRemoteCount()).toBe(1502);
-	});
-
-	it('merges stale offline imports from a third device without wiping room', async () => {
-		const harness = setupMultiDeviceHarness([
-			{ count: 1000, prefix: 'device-a-import' },
-			{ count: 0, prefix: 'device-b-empty' },
-			{ count: 120, prefix: 'device-c-offline-import' },
-		]);
-
-		await runDeviceSession({
-			expectedAfterConnect: 1000,
-			expectedInitial: 1000,
-			shouldAddOneEntry: true,
-		});
-
-		localStorage.removeItem('room');
-		await runDeviceSession({
-			expectedAfterConnect: 1001,
-			expectedInitial: 0,
-		});
-
-		localStorage.removeItem('room');
-		await runDeviceSession({
-			expectedAfterConnect: 1121,
-			expectedInitial: 120,
-			refreshAfterConnect: true,
-		});
-
-		expect(harness.getRemoteCount()).toBe(1121);
-	});
-
-	it('keeps imported in-room data after reload', async () => {
-		const harness = setupMultiDeviceHarness([
-			{ count: 0, prefix: 'device-a-empty' },
-			{ count: 500, prefix: 'imported' },
-		]);
-
-		await runDeviceSession({
-			expectedAfterConnect: 0,
-			expectedInitial: 0,
-			importCount: 500,
-			refreshAfterConnect: true,
-			shouldImportData: true,
-		});
-
-		expect(harness.getRemoteCount()).toBe(500);
-
-		await runDeviceSession({
-			autoConnect: true,
-			expectedAfterConnect: 500,
-			expectedInitial: 500,
-			refreshAfterConnect: true,
-		});
-
-		expect(harness.getRemoteCount()).toBe(500);
-	});
-
-	it('auto-rejoin falls back to merge when stored strategy is missing', async () => {
-		const harness = setupSyncHarness({
-			localCount: 1500,
-			remoteCount: 1,
-		});
-
-		localStorage.setItem('room', 'scenario-room');
-		localStorage.removeItem(ROOM_JOIN_STRATEGY_STORAGE_KEY);
-
-		render(
-			<DataSynchronizationProvider>
-				<TinybaseProvider>
-					<RoomSyncProbe importCount={0} />
-				</TinybaseProvider>
-			</DataSynchronizationProvider>,
-		);
-
-		await waitFor(() => {
-			expectEventCount(1501);
-			expect(harness.getRemoteCount()).toBe(1501);
-		});
-
-		document.dispatchEvent(new Event('visibilitychange'));
-		window.dispatchEvent(new Event('focus'));
-
-		await waitFor(() => {
-			expectEventCount(1501);
-			expect(harness.getRemoteCount()).toBe(1501);
-		});
-	});
-});
