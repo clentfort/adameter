@@ -157,7 +157,8 @@ export default function MeasurementForm({
 							<div className="text-sm text-red-500">
 								{errors.weight.message === 'AT_LEAST_ONE_REQUIRED' ? (
 									<fbt desc="Message shown when no weight, height, or head circumference is provided. At least one is required">
-										Please enter at least a weight, height, or head circumference.
+										Please enter at least a weight, height, or head
+										circumference.
 									</fbt>
 								) : (
 									errors.weight.message
@@ -165,11 +166,12 @@ export default function MeasurementForm({
 							</div>
 						)}
 
-						{errors.height && errors.height.message !== 'AT_LEAST_ONE_REQUIRED' && (
-							<div className="text-sm text-red-500">
-								{errors.height.message}
-							</div>
-						)}
+						{errors.height &&
+							errors.height.message !== 'AT_LEAST_ONE_REQUIRED' && (
+								<div className="text-sm text-red-500">
+									{errors.height.message}
+								</div>
+							)}
 
 						{errors.headCircumference &&
 							errors.headCircumference.message !== 'AT_LEAST_ONE_REQUIRED' && (
