@@ -3,8 +3,11 @@ import { describe, expect, it } from 'vitest';
 import {
 	decryptChanges,
 	decryptContent,
+	decryptRowContent,
+	decryptValue,
 	encryptChanges,
 	encryptContent,
+	encryptValue,
 	getEncryptionKey,
 	hashRoomId,
 	jsonParseWithUndefined,
@@ -104,6 +107,12 @@ describe('crypto', () => {
 				.table1.row1.d,
 		).toBeDefined();
 
+		const encryptedNoMatch = await encryptChanges(changes, key, () => undefined);
+		expect(
+			(encryptedNoMatch[0] as Record<string, Record<string, Record<string, string>>>)
+				.table1.row1.cell1,
+		).toBeDefined();
+
 		const decrypted = await decryptChanges(encrypted, key);
 		expect(decrypted[0]).toEqual({
 			table1: {
@@ -121,6 +130,10 @@ describe('crypto', () => {
 		const decrypted = await decryptContent(encrypted, key);
 
 		expect((decrypted[1] as Content[1]).large).toBe(largeString);
+
+		await expect(async () => {
+			await decryptContent([{}, { a: 'invalid' }], key);
+		}).rejects.toThrow();
 	});
 
 	it('round-trips undefined values through JSON marker', () => {
@@ -174,5 +187,28 @@ describe('crypto', () => {
 		const decrypted = await decryptChanges(parsed, key);
 
 		expect(decrypted).toEqual(changes);
+	});
+
+	it('handles legacy cell-level encrypted data', async () => {
+		const key = await getEncryptionKey('test-room');
+		const legacyContent = {
+			cell1: await encryptValue('value1', key),
+			cell2: await encryptValue(42, key),
+		};
+
+		const decrypted = await decryptRowContent(legacyContent, key);
+		expect(decrypted).toEqual({
+			cell1: 'value1',
+			cell2: 42,
+		});
+	});
+
+	it('throws on unknown value prefix', async () => {
+		const key = await getEncryptionKey('test-room');
+		const encrypted = await encryptValue('test', key);
+		const modified = 'x:' + encrypted.slice(2);
+		await expect(decryptValue(modified, key)).rejects.toThrow(
+			'Unknown encrypted value prefix',
+		);
 	});
 });

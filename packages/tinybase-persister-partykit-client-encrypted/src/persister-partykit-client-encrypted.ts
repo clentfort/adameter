@@ -17,11 +17,9 @@ const SET_CHANGES = 's';
 const STORE_PATH = '/store';
 
 function getStoreProtocol(host: string): 'http' | 'https' {
-	if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) {
-		return 'http';
-	}
-
-	return 'https';
+	return host.startsWith('localhost') || host.startsWith('127.0.0.1')
+		? 'http'
+		: 'https';
 }
 
 export function createSecurePartyKitPersister(
@@ -30,7 +28,7 @@ export function createSecurePartyKitPersister(
 	encryptionKey: CryptoKey,
 	onIgnoredError?: (error: unknown) => void,
 ) {
-	let executionChain: Promise<any> = Promise.resolve();
+	let executionChain: Promise<unknown> = Promise.resolve();
 	let hasSuccessfullyLoadedPersistedData = false;
 	let hasSuccessfullySavedFullContent = false;
 	const { host, room } = connection.partySocketOptions;
@@ -39,40 +37,27 @@ export function createSecurePartyKitPersister(
 
 	const getOrSetStore = async (content?: Content) => {
 		const start = performance.now();
-		let encryptTime = 0;
-		let body: string | undefined;
-		if (content) {
-			const startEncrypt = performance.now();
-			body = jsonStringWithUndefined(
-				await encryptContent(content, encryptionKey),
-			);
-			encryptTime = performance.now() - startEncrypt;
-		}
+		const body = content
+			? jsonStringWithUndefined(await encryptContent(content, encryptionKey))
+			: undefined;
 
-		const startFetch = performance.now();
 		const response = await fetch(storeUrl, {
 			...(body ? { body, method: PUT } : {}),
 			cache: 'no-store',
 			mode: 'cors',
 		});
-		const fetchTime = performance.now() - startFetch;
-
-		const startParse = performance.now();
 		const result = await response.json();
-		const parseTime = performance.now() - startParse;
 
 		if (result && !content) {
-			const startDecrypt = performance.now();
 			const decrypted = await decryptContent(result, encryptionKey);
-			const decryptTime = performance.now() - startDecrypt;
 			logger.log(
-				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms (fetch: ${fetchTime.toFixed(2)}ms, parse: ${parseTime.toFixed(2)}ms, decrypt: ${decryptTime.toFixed(2)}ms)`,
+				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
 			);
 			return decrypted;
 		}
 
 		logger.log(
-			`[PERF] getOrSetStore (${content ? 'save' : 'load'}) took ${(performance.now() - start).toFixed(2)}ms (encrypt: ${encryptTime.toFixed(2)}ms, fetch: ${fetchTime.toFixed(2)}ms, parse: ${parseTime.toFixed(2)}ms)`,
+			`[PERF] getOrSetStore (save) took ${(performance.now() - start).toFixed(2)}ms`,
 		);
 		return result;
 	};
@@ -81,7 +66,7 @@ export function createSecurePartyKitPersister(
 		executionChain = executionChain
 			.catch(() => {})
 			.then(() => getOrSetStore() as Promise<Content | undefined>);
-		const persisted = await executionChain;
+		const persisted = (await executionChain) as Content | undefined;
 		hasSuccessfullyLoadedPersistedData = true;
 		return persisted;
 	};

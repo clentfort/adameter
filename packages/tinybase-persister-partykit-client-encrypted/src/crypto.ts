@@ -47,7 +47,7 @@ export async function getEncryptionKey(roomName: string): Promise<CryptoKey> {
 	]);
 }
 
-async function encryptValue(
+export async function encryptValue(
 	value: EncryptableValue,
 	key: CryptoKey,
 ): Promise<string> {
@@ -84,7 +84,7 @@ async function encryptValue(
 	return prefix + uint8ArrayToBase64(combined);
 }
 
-async function decryptValue(
+export async function decryptValue(
 	encryptedValue: string,
 	key: CryptoKey,
 ): Promise<EncryptableValue> {
@@ -309,7 +309,10 @@ async function encryptRowContent(row: Record<string, unknown>, key: CryptoKey) {
 	};
 }
 
-async function decryptRowContent(row: Record<string, unknown>, key: CryptoKey) {
+export async function decryptRowContent(
+	row: Record<string, unknown>,
+	key: CryptoKey,
+) {
 	if (row[DATA_CELL_ID] !== undefined) {
 		return jsonParseWithUndefined<Record<string, unknown>>(
 			(await decryptValue(row[DATA_CELL_ID] as string, key)) as string,
