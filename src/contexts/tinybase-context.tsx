@@ -12,6 +12,7 @@ import {
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
+import { logger } from '@/lib/logger';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
 	TINYBASE_LOCAL_DB_NAME,
@@ -60,11 +61,19 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		);
 
 		const initialize = async () => {
+			const startLoad = performance.now();
 			await localPersister.load();
+			logger.log(
+				`[PERF] Local IndexedDB load took ${(performance.now() - startLoad).toFixed(2)}ms`,
+			);
 
 			await localPersister.startAutoSave();
 
+			const startMigrations = performance.now();
 			await runMigrationsIfNeeded(store, { deviceId: getDeviceId() });
+			logger.log(
+				`[PERF] Initial local migrations took ${(performance.now() - startMigrations).toFixed(2)}ms`,
+			);
 
 			if (!isDisposed) {
 				setIsLocalReady(true);
@@ -122,6 +131,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return true;
 			}
 
+			const startTotalLoad = performance.now();
 			for (
 				let retryIndex = 0;
 				retryIndex < INITIAL_REMOTE_LOAD_RETRY_LIMIT;
@@ -135,8 +145,15 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 					setTimeout(resolve, INITIAL_REMOTE_LOAD_RETRY_DELAY_MS);
 				});
 
+				const startAttempt = performance.now();
 				await remotePersister.load();
+				logger.log(
+					`[PERF] Remote load attempt ${retryIndex + 1} took ${(performance.now() - startAttempt).toFixed(2)}ms`,
+				);
 				if (hasLoadedPersistedData()) {
+					logger.log(
+						`[PERF] Total ensureInitialRemoteLoad took ${(performance.now() - startTotalLoad).toFixed(2)}ms`,
+					);
 					return true;
 				}
 			}
@@ -150,8 +167,13 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 
 			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+			const startRemoteLoad = performance.now();
 			await remotePersister.load();
+			logger.log(
+				`[PERF] remotePersister.load() (refresh) took ${(performance.now() - startRemoteLoad).toFixed(2)}ms`,
+			);
 
+			const startRestoration = performance.now();
 			let restoredLocal = false;
 			if (joinStrategy !== 'clear' && localSnapshot) {
 				if (isStoreDataEmpty(store)) {
@@ -166,6 +188,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			const migrationResult = await runMigrationsIfNeeded(store, {
 				deviceId,
 			});
+			logger.log(
+				`[PERF] Post-sync restoration and migrations took ${(performance.now() - startRestoration).toFixed(2)}ms`,
+			);
 			if (restoredLocal || migrationResult.hasChanges) {
 				return;
 			}
@@ -206,11 +231,16 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
+			const startConnect = performance.now();
 			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+			const startCrypto = performance.now();
 			const [hashedRoomId, encryptionKey] = await Promise.all([
 				hashRoomId(room),
 				getEncryptionKey(room),
 			]);
+			logger.log(
+				`[PERF] Room crypto setup took ${(performance.now() - startCrypto).toFixed(2)}ms`,
+			);
 
 			connection = new PartySocket({
 				host: PARTYKIT_HOST,
@@ -228,8 +258,18 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				() => {},
 			) as RemotePersister;
 
+			const startAutoLoad = performance.now();
 			await remotePersister.startAutoLoad();
+			logger.log(
+				`[PERF] remotePersister.startAutoLoad() took ${(performance.now() - startAutoLoad).toFixed(2)}ms`,
+			);
+
+			const startInitialLoad = performance.now();
 			const didLoadRemote = await ensureInitialRemoteLoad();
+			logger.log(
+				`[PERF] Initial remote load check took ${(performance.now() - startInitialLoad).toFixed(2)}ms`,
+			);
+
 			if (!didLoadRemote) {
 				if (!isDisposed) {
 					setIsSyncReady(true);
@@ -239,12 +279,25 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			await remotePersister.startAutoSave();
 
+			const startReconcile = performance.now();
 			reconcileRemoteLoadResult(store, localSnapshot, joinStrategy, deviceId);
+			logger.log(
+				`[PERF] reconcileRemoteLoadResult took ${(performance.now() - startReconcile).toFixed(2)}ms`,
+			);
+
+			const startPostSyncMigrations = performance.now();
 			await runMigrationsIfNeeded(store, {
 				deviceId,
 			});
+			logger.log(
+				`[PERF] Post-sync migrations took ${(performance.now() - startPostSyncMigrations).toFixed(2)}ms`,
+			);
 
 			isInitialRemoteSyncComplete = true;
+
+			logger.log(
+				`[PERF] Total connectRoomSync took ${(performance.now() - startConnect).toFixed(2)}ms`,
+			);
 
 			if (!isDisposed) {
 				setIsSyncReady(true);

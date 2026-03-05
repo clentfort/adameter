@@ -1,4 +1,5 @@
 import type { Changes, Content, Tables, Values } from 'tinybase';
+import { logger } from './logger';
 
 const ALGORITHM = 'AES-GCM';
 const IV_LENGTH = 12;
@@ -122,6 +123,7 @@ export async function encryptContent(
 	content: Content,
 	key: CryptoKey,
 ): Promise<Content> {
+	const start = performance.now();
 	const [tables, values] = content;
 	const [encryptedTableEntries, encryptedValueEntries] = await Promise.all([
 		Promise.all(
@@ -144,6 +146,10 @@ export async function encryptContent(
 	const encryptedTables = Object.fromEntries(encryptedTableEntries) as Tables;
 	const encryptedValues = Object.fromEntries(encryptedValueEntries) as Values;
 
+	logger.log(
+		`[PERF] encryptContent took ${(performance.now() - start).toFixed(2)}ms`,
+	);
+
 	return [encryptedTables, encryptedValues];
 }
 
@@ -151,6 +157,7 @@ export async function decryptContent(
 	content: Content,
 	key: CryptoKey,
 ): Promise<Content> {
+	const start = performance.now();
 	const [tables, values] = content;
 	const [decryptedTableEntries, decryptedValueEntries] = await Promise.all([
 		Promise.all(
@@ -173,6 +180,10 @@ export async function decryptContent(
 	const decryptedTables = Object.fromEntries(decryptedTableEntries) as Tables;
 	const decryptedValues = Object.fromEntries(decryptedValueEntries) as Values;
 
+	logger.log(
+		`[PERF] decryptContent took ${(performance.now() - start).toFixed(2)}ms`,
+	);
+
 	return [decryptedTables, decryptedValues];
 }
 
@@ -180,6 +191,7 @@ export async function encryptChanges(
 	changes: Changes,
 	key: CryptoKey,
 ): Promise<Changes> {
+	const start = performance.now();
 	const [tableChanges, valueChanges, internal] = changes;
 	const [encryptedTableEntries, encryptedValueEntries] = await Promise.all([
 		Promise.all(
@@ -210,6 +222,10 @@ export async function encryptChanges(
 		encryptedValueEntries,
 	) as Changes[1];
 
+	logger.log(
+		`[PERF] encryptChanges took ${(performance.now() - start).toFixed(2)}ms`,
+	);
+
 	return [encryptedTableChanges, encryptedValueChanges, internal];
 }
 
@@ -217,6 +233,7 @@ export async function decryptChanges(
 	changes: Changes,
 	key: CryptoKey,
 ): Promise<Changes> {
+	const start = performance.now();
 	const [tableChanges, valueChanges, internal] = changes;
 	const [decryptedTableEntries, decryptedValueEntries] = await Promise.all([
 		Promise.all(
@@ -246,6 +263,10 @@ export async function decryptChanges(
 	const decryptedValueChanges = Object.fromEntries(
 		decryptedValueEntries,
 	) as Changes[1];
+
+	logger.log(
+		`[PERF] decryptChanges took ${(performance.now() - start).toFixed(2)}ms`,
+	);
 
 	return [decryptedTableChanges, decryptedValueChanges, internal];
 }

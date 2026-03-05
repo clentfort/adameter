@@ -1,11 +1,12 @@
 'use client';
 
-import { Terminal, Trash2, X } from 'lucide-react';
+import { Copy, Terminal, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useDevMode } from '@/hooks/use-dev-mode';
+import { logger } from '@/lib/logger';
 
 type LogEntry = {
 	args: unknown[];
@@ -20,55 +21,44 @@ export default function ConsoleDebugger() {
 	const [isOpen, setIsOpen] = useState(false);
 	const logsRef = useRef<LogEntry[]>([]);
 
-	const addLog = useCallback((method: LogEntry['method'], args: unknown[]) => {
-		const newLog: LogEntry = {
-			args,
-			id: Date.now() + Math.random(),
-			method,
-			timestamp: Date.now(),
-		};
-		logsRef.current = [...logsRef.current, newLog].slice(-100);
-		setLogs(logsRef.current);
-	}, []);
+	const addLog = useCallback(
+		(method: LogEntry['method'], args: unknown[], timestamp: number) => {
+			const newLog: LogEntry = {
+				args,
+				id: Math.random(),
+				method,
+				timestamp,
+			};
+			logsRef.current = [...logsRef.current, newLog].slice(-100);
+			setLogs(logsRef.current);
+		},
+		[],
+	);
+
+	const copyToClipboard = useCallback(() => {
+		const text = logs
+			.map(
+				(log) =>
+					`[${new Date(log.timestamp).toISOString()}] [${log.method.toUpperCase()}] ${log.args
+						.map((arg) =>
+							typeof arg === 'object'
+								? JSON.stringify(arg, null, 2)
+								: String(arg),
+						)
+						.join(' ')}`,
+			)
+			.join('\n');
+		void navigator.clipboard.writeText(text);
+	}, [logs]);
 
 	useEffect(() => {
 		if (!devMode) return;
 
-		const originalConsole = {
-			/* eslint-disable no-console */
-			error: console.error,
-			info: console.info,
-			log: console.log,
-			warn: console.warn,
-			/* eslint-enable no-console */
-		};
-
-		/* eslint-disable no-console */
-		console.log = (...args: unknown[]) => {
-			addLog('log', args);
-			originalConsole.log(...args);
-		};
-		console.error = (...args: unknown[]) => {
-			addLog('error', args);
-			originalConsole.error(...args);
-		};
-		console.warn = (...args: unknown[]) => {
-			addLog('warn', args);
-			originalConsole.warn(...args);
-		};
-		console.info = (...args: unknown[]) => {
-			addLog('info', args);
-			originalConsole.info(...args);
-		};
-		/* eslint-enable no-console */
-
+		const unsubscribe = logger.subscribe((entry) => {
+			addLog(entry.method, entry.args, entry.timestamp);
+		});
 		return () => {
-			/* eslint-disable no-console */
-			console.log = originalConsole.log;
-			console.error = originalConsole.error;
-			console.warn = originalConsole.warn;
-			console.info = originalConsole.info;
-			/* eslint-enable no-console */
+			unsubscribe();
 		};
 	}, [devMode, addLog]);
 
@@ -101,6 +91,14 @@ export default function ConsoleDebugger() {
 								<fbt desc="Console Debugger title">Console Logs</fbt>
 							</CardTitle>
 							<div className="flex items-center gap-2">
+								<Button
+									disabled={logs.length === 0}
+									onClick={copyToClipboard}
+									size="icon"
+									variant="ghost"
+								>
+									<Copy className="h-4 w-4" />
+								</Button>
 								<Button
 									onClick={() => {
 										logsRef.current = [];

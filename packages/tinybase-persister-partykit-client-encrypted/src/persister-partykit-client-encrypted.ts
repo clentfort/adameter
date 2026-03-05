@@ -9,6 +9,7 @@ import {
 	jsonParseWithUndefined,
 	jsonStringWithUndefined,
 } from './crypto';
+import { logger } from './logger';
 
 const MESSAGE = 'message';
 const PUT = 'PUT';
@@ -36,6 +37,7 @@ export function createSecurePartyKitPersister(
 	const storeUrl = `${protocol}://${host}/parties/${connection.name}/${room}${STORE_PATH}`;
 
 	const getOrSetStore = async (content?: Content) => {
+		const start = performance.now();
 		const body = content
 			? jsonStringWithUndefined(await encryptContent(content, encryptionKey))
 			: undefined;
@@ -48,9 +50,16 @@ export function createSecurePartyKitPersister(
 		const result = await response.json();
 
 		if (result && !content) {
-			return decryptContent(result, encryptionKey);
+			const decrypted = await decryptContent(result, encryptionKey);
+			logger.log(
+				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
+			);
+			return decrypted;
 		}
 
+		logger.log(
+			`[PERF] getOrSetStore (save) took ${(performance.now() - start).toFixed(2)}ms`,
+		);
 		return result;
 	};
 
@@ -89,6 +98,7 @@ export function createSecurePartyKitPersister(
 				lastMessagePromise = lastMessagePromise
 					.catch(() => {})
 					.then(async () => {
+						const start = performance.now();
 						try {
 							const encryptedChanges = jsonParseWithUndefined<Changes>(
 								data.slice(1),
@@ -98,6 +108,9 @@ export function createSecurePartyKitPersister(
 								encryptionKey,
 							);
 							listener(undefined, decryptedChanges);
+							logger.log(
+								`[PERF] Incoming message processing took ${(performance.now() - start).toFixed(2)}ms`,
+							);
 						} catch (error) {
 							onIgnoredError?.(error);
 						}
