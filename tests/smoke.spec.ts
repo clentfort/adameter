@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/test';
 
 const pages = [
 	{ name: 'Dashboard', path: '/' },
@@ -13,12 +13,6 @@ const pages = [
 ];
 
 test.describe('Smoke tests - Page Loads', () => {
-	test.beforeEach(async ({ context }) => {
-		await context.addInitScript(() => {
-			window.localStorage.setItem('adameter-skip-profile', 'true');
-		});
-	});
-
 	for (const pageInfo of pages) {
 		test(`should load ${pageInfo.name} page without errors`, async ({
 			page,

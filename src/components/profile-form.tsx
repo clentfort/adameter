@@ -150,11 +150,13 @@ export default function ProfileForm({
 					<div className="flex flex-wrap gap-2">
 						{COLORS.map((colorOption) => (
 							<button
+								aria-label={colorOption}
 								className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all ${colorOption} ${
 									color === colorOption
 										? 'border-slate-900 scale-110'
 										: 'border-transparent hover:scale-105'
 								}`}
+								data-testid={`profile-color-${colorOption.replace('bg-', '')}`}
 								key={colorOption}
 								onClick={() => {
 									setValue('color', colorOption, { shouldValidate: true });

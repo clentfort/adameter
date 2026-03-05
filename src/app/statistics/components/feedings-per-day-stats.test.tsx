@@ -1,45 +1,26 @@
-import type { FeedingSession } from '@/types/feeding';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import {
+	createFeedingSession,
+	createFeedingSessions,
+} from '@/test-utils/factories/feeding-session';
 import FeedingsPerDayStats from './feedings-per-day-stats';
 
-const mockSessions: FeedingSession[] = [
-	{
-		breast: 'left',
-		durationInSeconds: 600,
-		endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
-		id: '1',
-		startTime: new Date('2024-01-01T10:00:00Z').toISOString(), // Day 1
-	},
+const mockSessions = createFeedingSessions([
+	{ breast: 'left', durationInSeconds: 600, startTime: '2024-01-01T10:00:00Z' },
 	{
 		breast: 'right',
 		durationInSeconds: 900,
-		endTime: new Date('2024-01-01T14:15:00Z').toISOString(),
-		id: '2',
-		startTime: new Date('2024-01-01T14:00:00Z').toISOString(), // Day 1
+		startTime: '2024-01-01T14:00:00Z',
 	},
-	{
-		breast: 'left',
-		durationInSeconds: 300,
-		endTime: new Date('2024-01-02T08:05:00Z').toISOString(),
-		id: '3',
-		startTime: new Date('2024-01-02T08:00:00Z').toISOString(), // Day 2
-	},
+	{ breast: 'left', durationInSeconds: 300, startTime: '2024-01-02T08:00:00Z' },
 	{
 		breast: 'right',
 		durationInSeconds: 600,
-		endTime: new Date('2024-01-03T12:10:00Z').toISOString(),
-		id: '4',
-		startTime: new Date('2024-01-03T12:00:00Z').toISOString(), // Day 3
+		startTime: '2024-01-03T12:00:00Z',
 	},
-	{
-		breast: 'left',
-		durationInSeconds: 300,
-		endTime: new Date('2024-01-03T18:05:00Z').toISOString(),
-		id: '5',
-		startTime: new Date('2024-01-03T18:00:00Z').toISOString(), // Day 3
-	},
-]; // 5 sessions over 3 days. Day1: 2, Day2: 1, Day3: 2. Total 5. Avg = 5/3 = 1.666... -> 1.7
+	{ breast: 'left', durationInSeconds: 300, startTime: '2024-01-03T18:00:00Z' },
+]);
 
 describe('FeedingsPerDayStats', () => {
 	it('renders null when no sessions are provided', () => {
@@ -55,36 +36,30 @@ describe('FeedingsPerDayStats', () => {
 	});
 
 	it('handles sessions all on the same day', () => {
-		const sameDaySessions: FeedingSession[] = [
+		const sameDaySessions = createFeedingSessions([
 			{
 				breast: 'left',
 				durationInSeconds: 600,
-				endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
-				id: '1',
-				startTime: new Date('2024-01-01T10:00:00Z').toISOString(),
+				startTime: '2024-01-01T10:00:00Z',
 			},
 			{
 				breast: 'right',
 				durationInSeconds: 900,
-				endTime: new Date('2024-01-01T14:15:00Z').toISOString(),
-				id: '2',
-				startTime: new Date('2024-01-01T14:00:00Z').toISOString(),
+				startTime: '2024-01-01T14:00:00Z',
 			},
-		]; // 2 sessions / 1 day
+		]);
 		render(<FeedingsPerDayStats sessions={sameDaySessions} />);
 		expect(screen.getByText('2.0')).toBeInTheDocument();
 	});
 
 	it('handles a single session', () => {
-		const singleSession: FeedingSession[] = [
-			{
+		const singleSession = [
+			createFeedingSession({
 				breast: 'left',
 				durationInSeconds: 600,
-				endTime: new Date('2024-01-01T10:10:00Z').toISOString(),
-				id: '1',
-				startTime: new Date('2024-01-01T10:00:00Z').toISOString(),
-			},
-		]; // 1 session / 1 day
+				startTime: '2024-01-01T10:00:00Z',
+			}),
+		];
 		render(<FeedingsPerDayStats sessions={singleSession} />);
 		expect(screen.getByText('1.0')).toBeInTheDocument();
 	});

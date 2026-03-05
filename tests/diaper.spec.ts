@@ -1,12 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/test';
 
 test.describe('Diaper Page', () => {
-	test.beforeEach(async ({ context }) => {
-		await context.addInitScript(() => {
-			window.localStorage.setItem('adameter-skip-profile', 'true');
-		});
-	});
-
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/diaper');
 	});

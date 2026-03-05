@@ -1,49 +1,45 @@
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { createDiaperChanges } from '@/test-utils/factories/diaper-change';
 import ReusableSavingsCard from './reusable-savings-card';
 
 vi.mock('@/hooks/use-currency', () => ({
 	useCurrency: () => ['EUR', vi.fn()] as const,
 }));
 
-const allChanges: DiaperChange[] = [
+const allChanges: DiaperChange[] = createDiaperChanges([
 	{
 		containsStool: false,
 		containsUrine: true,
 		diaperProductId: 'product-a',
-		id: 'change-1',
 		timestamp: '2026-02-01T10:00:00.000Z',
 	},
 	{
 		containsStool: false,
 		containsUrine: true,
 		diaperProductId: 'product-r',
-		id: 'change-r-1',
 		timestamp: '2026-02-02T10:00:00.000Z',
 	},
 	{
 		containsStool: true,
 		containsUrine: true,
 		diaperProductId: 'product-b',
-		id: 'change-2',
 		timestamp: '2026-02-03T10:00:00.000Z',
 	},
 	{
 		containsStool: false,
 		containsUrine: true,
 		diaperProductId: 'product-r',
-		id: 'change-r-2',
 		timestamp: '2026-02-04T10:00:00.000Z',
 	},
 	{
 		containsStool: false,
 		containsUrine: false,
-		id: 'change-potty-1',
 		pottyUrine: true,
 		timestamp: '2026-02-05T10:00:00.000Z',
 	},
-];
+]);
 
 const products: DiaperProduct[] = [
 	{ costPerDiaper: 0.3, id: 'product-a', isReusable: false, name: 'Brand A' },
@@ -55,10 +51,6 @@ const products: DiaperProduct[] = [
 		upfrontCost: 0.6,
 	},
 ];
-
-afterEach(() => {
-	cleanup();
-});
 
 describe('ReusableSavingsCard', () => {
 	it('shows total, potty and reusable savings with total cost', () => {

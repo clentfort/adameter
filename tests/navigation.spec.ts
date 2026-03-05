@@ -1,12 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/test';
 
 test.describe('Navigation', () => {
-	test.beforeEach(async ({ context }) => {
-		await context.addInitScript(() => {
-			window.localStorage.setItem('adameter-skip-profile', 'true');
-		});
-	});
-
 	test('should allow navigation while a feeding session is in progress', async ({
 		page,
 	}) => {
@@ -24,22 +18,13 @@ test.describe('Navigation', () => {
 		// Verify the timer is running (at least showing 00:00 or more)
 		await expect(page.getByTestId('feeding-timer')).toBeVisible();
 
-		// Attempt to navigate to the Diaper page via the navigation bar
-		// Use a more robust selector for the navigation link
-		await page
-			.locator('a')
-			.filter({ hasText: /Diaper/ })
-			.click();
+		await page.getByRole('link', { name: 'Diaper' }).click();
 
 		// Check if the navigation was successful
 		await expect(page).toHaveURL(/\/diaper/);
 		await expect(page.getByTestId('quick-urine-button')).toBeVisible();
 
-		// Navigate back to feeding to ensure the session is still active (state persistence)
-		await page
-			.locator('a')
-			.filter({ hasText: /Feeding/ })
-			.click();
+		await page.getByRole('link', { name: 'Feeding' }).click();
 		await expect(page).toHaveURL(/\/feeding/);
 		await expect(
 			page.getByRole('button', { name: 'End Feeding' }),

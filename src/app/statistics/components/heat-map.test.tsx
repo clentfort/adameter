@@ -1,34 +1,20 @@
-import type { FeedingSession } from '@/types/feeding';
-import { cleanup, render, within } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { render, within } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import {
+	createFeedingSession,
+	createFeedingSessions,
+} from '@/test-utils/factories/feeding-session';
 import HeatMap from './heat-map';
 
-const mockSessions: FeedingSession[] = [
-	// Session 1: 00:00 - 00:09 (Intervals 0, 1)
-	{
-		breast: 'left',
-		durationInSeconds: 540,
-		endTime: new Date('2024-01-01T00:09:00Z').toISOString(), // Spans 2 5-min intervals (00:00, 00:05)
-		id: '1',
-		startTime: new Date('2024-01-01T00:00:00Z').toISOString(),
-	},
-	// Session 2: 00:05 - 00:14 (Intervals 1, 2)
+const mockSessions = createFeedingSessions([
+	{ breast: 'left', durationInSeconds: 540, startTime: '2024-01-01T00:00:00Z' },
 	{
 		breast: 'right',
 		durationInSeconds: 540,
-		endTime: new Date('2024-01-01T00:14:00Z').toISOString(), // Spans 2 5-min intervals (00:05, 00:10)
-		id: '2',
-		startTime: new Date('2024-01-01T00:05:00Z').toISOString(),
+		startTime: '2024-01-01T00:05:00Z',
 	},
-	// Session 3: 23:55 - 00:04 (Intervals 287 (day 1), 0 (day 2))
-	{
-		breast: 'left',
-		durationInSeconds: 540,
-		endTime: new Date('2024-01-02T00:04:00Z').toISOString(), // Spans 2 5-min intervals (23:55 day 1, 00:00 day 2)
-		id: '3',
-		startTime: new Date('2024-01-01T23:55:00Z').toISOString(),
-	},
-];
+	{ breast: 'left', durationInSeconds: 540, startTime: '2024-01-01T23:55:00Z' },
+]);
 
 describe('HeatMap', () => {
 	it('renders null when no sessions are provided', () => {
@@ -37,14 +23,12 @@ describe('HeatMap', () => {
 	});
 
 	it('renders the heat map even with a single zero-duration session (maxCount > 0)', () => {
-		const singleZeroDurationSession: FeedingSession[] = [
-			{
+		const singleZeroDurationSession = [
+			createFeedingSession({
 				breast: 'left',
 				durationInSeconds: 0,
-				endTime: new Date('2024-01-01T00:00:00Z').toISOString(), // Falls into 00:00 interval
-				id: '1',
-				startTime: new Date('2024-01-01T00:00:00Z').toISOString(),
-			},
+				startTime: '2024-01-01T00:00:00Z',
+			}),
 		];
 		const { container } = render(
 			<HeatMap sessions={singleZeroDurationSession} />,
@@ -77,11 +61,6 @@ describe('HeatMap', () => {
 	it('assigns correct titles (tooltips) to interval divs reflecting counts', () => {
 		const { container } = render(<HeatMap sessions={mockSessions} />);
 		const heatMapCard = container.firstChild as HTMLElement;
-		// Interval 0 (00:00): Sessions 1 and 3 (midnight span) -> count 2
-		// Interval 1 (00:05): Sessions 1 and 2 -> count 2
-		// Interval 2 (00:10): Session 2 -> count 1
-		// Interval 287 (23:55): Session 3 -> count 1
-
 		const intervalElementsContainer = within(heatMapCard).getByTitle(
 			'00:00 Uhr: 2 Mahlzeiten',
 		).parentElement;
@@ -100,7 +79,6 @@ describe('HeatMap', () => {
 				'title',
 				'00:10 Uhr: 1 Mahlzeit',
 			);
-			// ... other intervals would be "0 Mahlzeiten" or "1 Mahlzeit"
 			expect(intervalElementsContainer.children[287]).toHaveAttribute(
 				'title',
 				'23:55 Uhr: 1 Mahlzeit',
@@ -112,8 +90,7 @@ describe('HeatMap', () => {
 		const { container } = render(<HeatMap sessions={mockSessions} />);
 		const heatMapCard = container.firstChild as HTMLElement;
 
-		// Use getAllByText for time markers as they might appear in tooltips too
-		expect(within(heatMapCard).getAllByText('00:00')[0]).toBeInTheDocument(); // Get the first instance, assuming it's the marker
+		expect(within(heatMapCard).getAllByText('00:00')[0]).toBeInTheDocument();
 		expect(within(heatMapCard).getByText('03:00')).toBeInTheDocument();
 		expect(within(heatMapCard).getByText('06:00')).toBeInTheDocument();
 		expect(within(heatMapCard).getByText('09:00')).toBeInTheDocument();
@@ -140,11 +117,6 @@ describe('HeatMap', () => {
 		const { container } = render(<HeatMap sessions={mockSessions} />);
 		const heatMapCard = container.firstChild as HTMLElement;
 
-		// maxCount will be 2 for mockSessions
-		// Interval 0 (count 2): intensity 1.0 -> bg-right-breast
-		// Interval 2 (count 1): intensity 0.5 -> bg-right-breast/45 (0.4 <= intensity < 0.6)
-		// Interval 3 (count 0): intensity 0 -> bg-muted/60
-
 		const intervalElementsContainer = within(heatMapCard).getByTitle(
 			'00:00 Uhr: 2 Mahlzeiten',
 		).parentElement;
@@ -156,15 +128,11 @@ describe('HeatMap', () => {
 			);
 			expect(intervalElementsContainer.children[1]).toHaveClass(
 				'bg-right-breast',
-			); // count 2
+			);
 			expect(intervalElementsContainer.children[2]).toHaveClass(
 				'bg-right-breast/45',
-			); // count 1
-			expect(intervalElementsContainer.children[3]).toHaveClass('bg-muted/60'); // count 0
+			);
+			expect(intervalElementsContainer.children[3]).toHaveClass('bg-muted/60');
 		}
-	});
-
-	afterEach(() => {
-		cleanup();
 	});
 });

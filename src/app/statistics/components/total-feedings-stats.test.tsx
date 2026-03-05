@@ -1,41 +1,18 @@
 import type { FeedingSession } from '@/types/feeding';
-import { cleanup, render, within } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { render, within } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { createFeedingSessions } from '@/test-utils/factories/feeding-session';
 import TotalFeedingsStats from './total-feedings-stats';
 
-const mockSessions: FeedingSession[] = [
+const mockSessions: FeedingSession[] = createFeedingSessions([
+	{ breast: 'left', durationInSeconds: 600 },
+	{ breast: 'right', durationInSeconds: 900 },
+	{ breast: 'left', durationInSeconds: 300 },
 	{
-		breast: 'left',
-		durationInSeconds: 600,
-		endTime: new Date().toISOString(),
-		id: '1',
-		startTime: new Date().toISOString(),
-	},
-	{
-		breast: 'right',
-		durationInSeconds: 900,
-		endTime: new Date().toISOString(),
-		id: '2',
-		startTime: new Date().toISOString(),
-	},
-	{
-		breast: 'left',
+		breast: 'bottle' as unknown as FeedingSession['breast'],
 		durationInSeconds: 300,
-		endTime: new Date().toISOString(),
-		id: '3',
-		startTime: new Date().toISOString(),
 	},
-	{
-		breast: 'bottle' as FeedingSession['breast'], // Should be ignored by left/right counts but included in total
-		durationInSeconds: 300,
-		endTime: new Date().toISOString(),
-		id: '4',
-		startTime: new Date().toISOString(),
-	},
-];
-// Total sessions: 4
-// Left: 2
-// Right: 1
+]);
 
 describe('TotalFeedingsStats', () => {
 	it('renders null when no sessions are provided', () => {
@@ -44,8 +21,6 @@ describe('TotalFeedingsStats', () => {
 	});
 
 	it('displays total feedings and counts for left/right breast correctly', () => {
-		render(<TotalFeedingsStats sessions={mockSessions} />);
-
 		const { container } = render(
 			<TotalFeedingsStats sessions={mockSessions} />,
 		);
@@ -80,7 +55,7 @@ describe('TotalFeedingsStats', () => {
 		const leftOnlySessions: FeedingSession[] = [
 			{ ...mockSessions[0], breast: 'left' },
 			{ ...mockSessions[2], breast: 'left' },
-		]; // Total 2, Left 2, Right 0
+		];
 		const { container } = render(
 			<TotalFeedingsStats sessions={leftOnlySessions} />,
 		);
@@ -95,7 +70,7 @@ describe('TotalFeedingsStats', () => {
 				);
 			},
 		);
-		expect(totalFeedingsValue).toBeInTheDocument(); // Total count
+		expect(totalFeedingsValue).toBeInTheDocument();
 
 		const leftBreastLabelDiv = within(statsCard)
 			.getByText(/Left Breast:/)
@@ -110,9 +85,15 @@ describe('TotalFeedingsStats', () => {
 
 	it('handles sessions with no specific breast (e.g., bottle)', () => {
 		const bottleOnlySessions: FeedingSession[] = [
-			{ ...mockSessions[0], breast: 'bottle' as FeedingSession['breast'] },
-			{ ...mockSessions[1], breast: 'bottle' as FeedingSession['breast'] },
-		]; // Total 2, Left 0, Right 0
+			{
+				...mockSessions[0],
+				breast: 'bottle' as unknown as FeedingSession['breast'],
+			},
+			{
+				...mockSessions[1],
+				breast: 'bottle' as unknown as FeedingSession['breast'],
+			},
+		];
 		const { container } = render(
 			<TotalFeedingsStats sessions={bottleOnlySessions} />,
 		);
@@ -127,7 +108,7 @@ describe('TotalFeedingsStats', () => {
 				);
 			},
 		);
-		expect(totalFeedingsValue).toBeInTheDocument(); // Total
+		expect(totalFeedingsValue).toBeInTheDocument();
 
 		const leftBreastLabelDiv = within(statsCard)
 			.getByText(/Left Breast:/)
@@ -143,7 +124,7 @@ describe('TotalFeedingsStats', () => {
 	it('handles a single session', () => {
 		const singleSession: FeedingSession[] = [
 			{ ...mockSessions[0], breast: 'right' },
-		]; // Total 1, Right 1, Left 0
+		];
 		const { container } = render(
 			<TotalFeedingsStats sessions={singleSession} />,
 		);
@@ -158,7 +139,7 @@ describe('TotalFeedingsStats', () => {
 				);
 			},
 		);
-		expect(totalFeedingsValue).toBeInTheDocument(); // Total
+		expect(totalFeedingsValue).toBeInTheDocument();
 
 		const leftBreastLabelDiv = within(statsCard)
 			.getByText(/Left Breast:/)
@@ -169,9 +150,5 @@ describe('TotalFeedingsStats', () => {
 			.getByText(/Right Breast:/)
 			.closest('div');
 		expect(within(rightBreastLabelDiv!).getByText('1')).toBeInTheDocument();
-	});
-
-	afterEach(() => {
-		cleanup();
 	});
 });

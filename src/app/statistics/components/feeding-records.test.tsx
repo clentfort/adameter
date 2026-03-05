@@ -1,45 +1,27 @@
-import type { FeedingSession } from '@/types/feeding';
-import { cleanup, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createFeedingSessions } from '@/test-utils/factories/feeding-session';
 import FeedingRecords from './feeding-records';
 
-const mockSessions: FeedingSession[] = [
-	{
-		breast: 'left',
-		durationInSeconds: 600,
-		endTime: '2024-01-01T10:10:00Z',
-		id: '1',
-		startTime: '2024-01-01T10:00:00Z', // Day 1: 10min
-	},
+const mockSessions = createFeedingSessions([
+	{ breast: 'left', durationInSeconds: 600, startTime: '2024-01-01T10:00:00Z' },
 	{
 		breast: 'right',
 		durationInSeconds: 900,
-		endTime: '2024-01-01T14:15:00Z',
-		id: '2',
-		startTime: '2024-01-01T14:00:00Z', // Day 1: 15min. Total Day 1: 2 feedings, 25min
+		startTime: '2024-01-01T14:00:00Z',
 	},
-	{
-		breast: 'left',
-		durationInSeconds: 300,
-		endTime: '2024-01-02T08:05:00Z',
-		id: '3',
-		startTime: '2024-01-02T08:00:00Z', // Day 2: 5min. Total Day 2: 1 feeding, 5min
-	},
+	{ breast: 'left', durationInSeconds: 300, startTime: '2024-01-02T08:00:00Z' },
 	{
 		breast: 'right',
 		durationInSeconds: 1200,
-		endTime: '2024-01-03T12:20:00Z',
-		id: '4',
-		startTime: '2024-01-03T12:00:00Z', // Day 3: 20min
+		startTime: '2024-01-03T12:00:00Z',
 	},
 	{
 		breast: 'left',
 		durationInSeconds: 1200,
-		endTime: '2024-01-03T18:20:00Z',
-		id: '5',
-		startTime: '2024-01-03T18:00:00Z', // Day 3: 20min. Total Day 3: 2 feedings, 40min
+		startTime: '2024-01-03T18:00:00Z',
 	},
-];
+]);
 
 describe('FeedingRecords', () => {
 	beforeEach(() => {
@@ -47,7 +29,6 @@ describe('FeedingRecords', () => {
 	});
 
 	afterEach(() => {
-		cleanup();
 		vi.useRealTimers();
 	});
 

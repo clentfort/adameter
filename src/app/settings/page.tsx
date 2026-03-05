@@ -271,7 +271,12 @@ export default function SettingsPage() {
 								<fbt desc="Text indicating the current room">
 									Currently connected to:{' '}
 									<fbt:param name="roomName">
-										<span className="font-bold room-name">{room}</span>
+										<span
+											className="font-bold room-name"
+											data-testid="settings-room-name"
+										>
+											{room}
+										</span>
 									</fbt:param>
 								</fbt>
 							) : (

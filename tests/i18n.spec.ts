@@ -1,12 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/test';
 
 test.describe('Internationalization', () => {
-	test.beforeEach(async ({ context }) => {
-		await context.addInitScript(() => {
-			window.localStorage.setItem('adameter-skip-profile', 'true');
-		});
-	});
-
 	test('should switch language from English to German and back', async ({
 		page,
 	}) => {
@@ -22,8 +16,6 @@ test.describe('Internationalization', () => {
 		await page.getByRole('option', { name: 'German' }).click();
 
 		// 3. Verify German text
-		// Wait for the select to close and any re-renders
-		await page.waitForTimeout(500);
 		await page.getByTestId('back-button').click();
 		// Wait for the main settings to show up before clicking back again
 		await expect(
@@ -44,7 +36,6 @@ test.describe('Internationalization', () => {
 		await page.getByRole('option', { name: /English|Englisch/ }).click();
 
 		// 6. Go back to home and verify English text again
-		await page.waitForTimeout(500);
 		await page.getByTestId('back-button').click();
 		await page.getByTestId('back-button').click();
 		await expect(page.getByText('Last Feeding')).toBeVisible();

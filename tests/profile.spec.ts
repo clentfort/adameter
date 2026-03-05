@@ -12,8 +12,7 @@ test.describe('Child Profile', () => {
 		await page.getByLabel(/Sex/).click();
 		await page.getByRole('option', { name: 'Girl' }).click();
 
-		// Click a color (e.g., Pink)
-		await page.locator('.bg-pink-500').click();
+		await page.getByTestId('profile-color-pink-500').click();
 
 		await page.getByRole('button', { name: 'Save Profile' }).click();
 
@@ -30,7 +29,7 @@ test.describe('Child Profile', () => {
 
 		// Change name and color
 		await page.getByLabel(/Name/).fill('Ada Lovelace');
-		await page.locator('.bg-blue-500').click();
+		await page.getByTestId('profile-color-blue-500').click();
 		await page.getByRole('button', { name: 'Save Profile' }).click();
 
 		// Should be back to main settings
@@ -71,9 +70,9 @@ test.describe('Child Profile', () => {
 			.click();
 
 		// Wait for room to be created (room name should appear)
-		await expect(
-			page.locator('.room-name').filter({ hasText: /(?:[a-z]+-){2}[a-z]+/ }),
-		).toBeVisible();
+		await expect(page.getByTestId('settings-room-name')).toHaveText(
+			/(?:[a-z]+-){2}[a-z]+/,
+		);
 
 		// Verify profile prompt doesn't reappear
 		await page.goto('/');
