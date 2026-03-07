@@ -1,58 +1,7 @@
 import type { Tooth } from '@/types/teething';
-import { useCallback, useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeToothForStore } from '@/lib/tinybase-sync/entity-row-schemas';
-import { fromTable } from '@/lib/tinybase-sync/migration-utils';
-import { getDeviceId } from '@/utils/device-id';
+import { useTinybaseEntityTable } from './use-tinybase-entity-table';
 
-export const useTeething = () => {
-	const store = useStore()!;
-	const table = useTable(TABLE_IDS.TEETHING, store);
-
-	const value = useMemo(() => fromTable<Tooth>(table), [table]);
-
-	const add = useCallback(
-		(item: Tooth) => {
-			const cells = sanitizeToothForStore(item);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.TEETHING, item.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
-		},
-		[store],
-	);
-
-	const update = useCallback(
-		(item: Tooth) => {
-			const cells = sanitizeToothForStore(item);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.TEETHING, item.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
-		},
-		[store],
-	);
-
-	const remove = useCallback(
-		(id: string) => {
-			store.delRow(TABLE_IDS.TEETHING, id);
-		},
-		[store],
-	);
-
-	return {
-		add,
-		remove,
-		update,
-		value,
-	} as const;
-};
+export const useTeething = () =>
+	useTinybaseEntityTable<Tooth>(TABLE_IDS.TEETHING, sanitizeToothForStore);

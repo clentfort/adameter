@@ -1,6 +1,10 @@
 'use client';
 
-import type { DiaperProduct, DiaperProductFormValues } from '@/types/diaper';
+import type {
+	DiaperProduct,
+	DiaperProductFormData,
+	DiaperProductFormValues,
+} from '@/types/diaper';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { useEffect } from 'react';
@@ -9,10 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import {
-	diaperProductSchema,
-	parseDiaperProductFormValues,
-} from '@/types/diaper';
+import { diaperProductFormToDataSchema } from '@/types/diaper';
 
 interface ProductFormProps {
 	initialData?: Partial<DiaperProduct>;
@@ -43,10 +44,10 @@ export default function ProductForm({
 		reset,
 		setValue,
 		watch,
-	} = useForm<DiaperProductFormValues>({
+	} = useForm<DiaperProductFormValues, undefined, DiaperProductFormData>({
 		defaultValues: getDefaultValues(initialData),
 		mode: 'onChange',
-		resolver: zodResolver(diaperProductSchema),
+		resolver: zodResolver(diaperProductFormToDataSchema),
 	});
 
 	const isReusable = watch('isReusable');
@@ -55,9 +56,7 @@ export default function ProductForm({
 		reset(getDefaultValues(initialData));
 	}, [initialData, reset]);
 
-	const handleSave = (values: DiaperProductFormValues) => {
-		const parsedValues = parseDiaperProductFormValues(values);
-
+	const handleSave = (parsedValues: DiaperProductFormData) => {
 		onSave({
 			...(initialData as DiaperProduct),
 			costPerDiaper: parsedValues.costPerDiaper,
