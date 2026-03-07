@@ -1,6 +1,7 @@
 'use client';
 
 import type { ChangeEvent } from 'react';
+import type { DiaperProduct } from '@/types/diaper';
 import { fbt } from 'fbtee';
 import {
 	Archive,
@@ -40,7 +41,12 @@ import { useLanguage } from '@/contexts/i18n-context';
 import { tinybaseContext } from '@/contexts/tinybase-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDevMode } from '@/hooks/use-dev-mode';
-import { useDiaperProducts } from '@/hooks/use-diaper-products';
+import {
+	useDiaperProduct,
+	useRemoveDiaperProduct,
+	useSortedDiaperProductIds,
+	useUpsertDiaperProduct,
+} from '@/hooks/use-diaper-products';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
 import { sanitizeImportedRow } from '@/lib/tinybase-sync/entity-row-schemas';
@@ -57,6 +63,14 @@ type CsvImportRow = {
 	id?: unknown;
 	valueJson?: unknown;
 };
+
+interface DiaperProductListItemProps {
+	currency: Currency;
+	onDelete: (productId: string) => void;
+	onEdit: (productId: string) => void;
+	onToggleArchived: (product: DiaperProduct) => void;
+	productId: string;
+}
 
 function isCellValue(value: unknown): value is boolean | number | string {
 	return (
@@ -77,6 +91,94 @@ function parseValueFromJson(valueJson: unknown) {
 	} catch {
 		return undefined;
 	}
+}
+
+function DiaperProductListItem({
+	currency,
+	onDelete,
+	onEdit,
+	onToggleArchived,
+	productId,
+}: DiaperProductListItemProps) {
+	const product = useDiaperProduct(productId);
+
+	if (!product) {
+		return null;
+	}
+
+	return (
+		<div
+			className={`flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm ${product.archived ? 'opacity-60' : ''}`}
+		>
+			<div
+				className="flex-grow cursor-pointer"
+				onClick={() => onEdit(product.id)}
+			>
+				<div className="flex items-center gap-2">
+					<p className="font-medium">{product.name}</p>
+					{product.isReusable && (
+						<span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">
+							<fbt desc="Badge for reusable diapers">Reusable</fbt>
+						</span>
+					)}
+				</div>
+				<p className="text-xs text-muted-foreground">
+					{product.costPerDiaper !== undefined ? (
+						<fbt desc="Cost per diaper display">
+							Cost per item:{' '}
+							<fbt:param name="currency">
+								{currency === 'GBP' ? '£' : currency === 'EUR' ? '€' : '$'}
+							</fbt:param>
+							<fbt:param name="cost">
+								{product.costPerDiaper.toFixed(2)}
+							</fbt:param>
+						</fbt>
+					) : (
+						<fbt desc="Text showing no cost is set">No cost set</fbt>
+					)}
+				</p>
+				{product.isReusable && (
+					<p className="text-xs text-muted-foreground">
+						{typeof product.upfrontCost === 'number' ? (
+							<fbt desc="Reusable diaper upfront cost display">
+								Upfront cost:{' '}
+								<fbt:param name="currency">
+									{currency === 'GBP' ? '£' : currency === 'EUR' ? '€' : '$'}
+								</fbt:param>
+								<fbt:param name="upfrontCost">
+									{product.upfrontCost.toFixed(2)}
+								</fbt:param>
+							</fbt>
+						) : (
+							<fbt desc="Text showing no upfront cost is set for reusable diapers">
+								No upfront cost set
+							</fbt>
+						)}
+					</p>
+				)}
+			</div>
+			<div className="flex items-center gap-2">
+				<Button
+					onClick={() => onToggleArchived(product)}
+					size="icon"
+					variant="ghost"
+				>
+					{product.archived ? (
+						<Plus className="h-4 w-4" />
+					) : (
+						<Archive className="h-4 w-4 text-muted-foreground" />
+					)}
+				</Button>
+				<Button
+					onClick={() => onDelete(product.id)}
+					size="icon"
+					variant="ghost"
+				>
+					<Trash2 className="h-4 w-4 text-destructive" />
+				</Button>
+			</div>
+		</div>
+	);
 }
 
 export default function SettingsPage() {
@@ -473,34 +575,29 @@ export default function SettingsPage() {
 		</div>
 	);
 
-	const {
-		add: addProduct,
-		remove: removeProduct,
-		update: updateProduct,
-		value: products,
-	} = useDiaperProducts();
+	const upsertProduct = useUpsertDiaperProduct();
+	const removeProduct = useRemoveDiaperProduct();
+	const productIds = useSortedDiaperProductIds();
 	const [editingProductId, setEditingProductId] = useState<string | null>(null);
 	const [isAddingProduct, setIsAddingProduct] = useState(false);
+	const editingProduct = useDiaperProduct(editingProductId ?? undefined);
 
 	const renderDiapers = () => {
 		if (isAddingProduct || editingProductId) {
-			const initialData = editingProductId
-				? products.find((p) => p.id === editingProductId)
-				: {};
 			return (
 				<Card>
 					<CardContent>
 						<ProductForm
-							initialData={initialData}
+							initialData={editingProduct ?? {}}
 							onCancel={() => {
 								setIsAddingProduct(false);
 								setEditingProductId(null);
 							}}
 							onSave={(data) => {
 								if (editingProductId) {
-									updateProduct(data);
+									upsertProduct(data);
 								} else {
-									addProduct(data);
+									upsertProduct(data);
 								}
 								setIsAddingProduct(false);
 								setEditingProductId(null);
@@ -510,12 +607,6 @@ export default function SettingsPage() {
 				</Card>
 			);
 		}
-
-		const sortedProducts = [...products].sort((a, b) => {
-			if (a.archived && !b.archived) return 1;
-			if (!a.archived && b.archived) return -1;
-			return a.name.localeCompare(b.name);
-		});
 
 		return (
 			<div className="space-y-4 w-full">
@@ -528,89 +619,20 @@ export default function SettingsPage() {
 				</Button>
 
 				<div className="space-y-2">
-					{sortedProducts.map((product) => (
-						<div
-							className={`flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm ${product.archived ? 'opacity-60' : ''}`}
-							key={product.id}
-						>
-							<div
-								className="flex-grow cursor-pointer"
-								onClick={() => setEditingProductId(product.id)}
-							>
-								<div className="flex items-center gap-2">
-									<p className="font-medium">{product.name}</p>
-									{product.isReusable && (
-										<span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">
-											<fbt desc="Badge for reusable diapers">Reusable</fbt>
-										</span>
-									)}
-								</div>
-								<p className="text-xs text-muted-foreground">
-									{product.costPerDiaper !== undefined ? (
-										<fbt desc="Cost per diaper display">
-											Cost per item:{' '}
-											<fbt:param name="currency">
-												{currency === 'GBP'
-													? '£'
-													: currency === 'EUR'
-														? '€'
-														: '$'}
-											</fbt:param>
-											<fbt:param name="cost">
-												{product.costPerDiaper.toFixed(2)}
-											</fbt:param>
-										</fbt>
-									) : (
-										<fbt desc="Text showing no cost is set">No cost set</fbt>
-									)}
-								</p>
-								{product.isReusable && (
-									<p className="text-xs text-muted-foreground">
-										{typeof product.upfrontCost === 'number' ? (
-											<fbt desc="Reusable diaper upfront cost display">
-												Upfront cost:{' '}
-												<fbt:param name="currency">
-													{currency === 'GBP'
-														? '£'
-														: currency === 'EUR'
-															? '€'
-															: '$'}
-												</fbt:param>
-												<fbt:param name="upfrontCost">
-													{product.upfrontCost.toFixed(2)}
-												</fbt:param>
-											</fbt>
-										) : (
-											<fbt desc="Text showing no upfront cost is set for reusable diapers">
-												No upfront cost set
-											</fbt>
-										)}
-									</p>
-								)}
-							</div>
-							<div className="flex items-center gap-2">
-								<Button
-									onClick={() =>
-										updateProduct({ ...product, archived: !product.archived })
-									}
-									size="icon"
-									variant="ghost"
-								>
-									{product.archived ? (
-										<Plus className="h-4 w-4" />
-									) : (
-										<Archive className="h-4 w-4 text-muted-foreground" />
-									)}
-								</Button>
-								<Button
-									onClick={() => removeProduct(product.id)}
-									size="icon"
-									variant="ghost"
-								>
-									<Trash2 className="h-4 w-4 text-destructive" />
-								</Button>
-							</div>
-						</div>
+					{productIds.map((productId) => (
+						<DiaperProductListItem
+							currency={currency}
+							key={productId}
+							onDelete={removeProduct}
+							onEdit={setEditingProductId}
+							onToggleArchived={(product) => {
+								upsertProduct({
+									...product,
+									archived: !product.archived,
+								});
+							}}
+							productId={productId}
+						/>
 					))}
 				</div>
 			</div>

@@ -2,15 +2,32 @@ import type { DiaperChange } from '@/types/diaper';
 import { format, isValid, parseISO } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useState } from 'react';
+import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
 import Markdown from '@/components/markdown';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useDiaperProducts } from '@/hooks/use-diaper-products';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
+
+function DiaperProductName({ productId }: { productId: string }) {
+	const store = useStore()!;
+	const productName = useCell(
+		TABLE_IDS.DIAPER_PRODUCTS,
+		productId,
+		'name',
+		store,
+	);
+
+	return typeof productName === 'string' && productName.length > 0 ? (
+		<>{productName}</>
+	) : (
+		<>{fbt('Unknown Product', 'Label for missing product')}</>
+	);
+}
 
 function formatChangeTime(timestamp: unknown) {
 	if (typeof timestamp !== 'string') {
@@ -29,7 +46,6 @@ export default function DiaperHistoryList() {
 	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
 	const [changeToEdit, setChangeToEdit] = useState<DiaperChange | null>(null);
 	const { remove, update, value: changes } = useDiaperChanges();
-	const { value: products } = useDiaperProducts();
 
 	return (
 		<>
@@ -139,9 +155,9 @@ export default function DiaperHistoryList() {
 												</fbt>
 												:{' '}
 												<span className="font-medium">
-													{products.find((p) => p.id === change.diaperProductId)
-														?.name ||
-														fbt('Unknown Product', 'Label for missing product')}
+													<DiaperProductName
+														productId={change.diaperProductId}
+													/>
 												</span>
 											</p>
 										)}
