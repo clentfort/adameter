@@ -1,7 +1,13 @@
 import type { Row } from 'tinybase';
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import { useCallback, useMemo } from 'react';
-import { useRow, useStore, useTable } from 'tinybase/ui-react';
+import { useMemo } from 'react';
+import {
+	useDelRowCallback,
+	useRow,
+	useSetRowCallback,
+	useStore,
+	useTable,
+} from 'tinybase/ui-react';
 import { getFrecencySortedProductIds } from '@/app/diaper/utils/get-frecency-sorted-product-ids';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperProductForStore } from '@/lib/tinybase-sync/entity-row-schemas';
@@ -15,33 +21,19 @@ function toDiaperProduct(id: string, row: Row): DiaperProduct {
 }
 
 export function useUpsertDiaperProduct() {
-	const store = useStore()!;
-
-	return useCallback(
-		(product: DiaperProduct) => {
+	return useSetRowCallback<DiaperProduct>(
+		TABLE_IDS.DIAPER_PRODUCTS,
+		(product) => product.id,
+		(product) => {
 			const cells = sanitizeDiaperProductForStore(product);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, product.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
+			return cells ? { ...cells, deviceId: getDeviceId() } : {};
 		},
-		[store],
+		[],
 	);
 }
 
 export function useRemoveDiaperProduct() {
-	const store = useStore()!;
-
-	return useCallback(
-		(id: string) => {
-			store.delRow(TABLE_IDS.DIAPER_PRODUCTS, id);
-		},
-		[store],
-	);
+	return useDelRowCallback<string>(TABLE_IDS.DIAPER_PRODUCTS, (id) => id);
 }
 
 export function useDiaperProduct(productId: string | undefined) {

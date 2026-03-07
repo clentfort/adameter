@@ -1,7 +1,13 @@
 import type { Row } from 'tinybase';
 import type { GrowthMeasurement } from '@/types/growth';
-import { useCallback, useMemo } from 'react';
-import { useRow, useStore, useTable } from 'tinybase/ui-react';
+import { useMemo } from 'react';
+import {
+	useDelRowCallback,
+	useRow,
+	useSetRowCallback,
+	useStore,
+	useTable,
+} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeGrowthMeasurementForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { getDeviceId } from '@/utils/device-id';
@@ -14,33 +20,19 @@ function toGrowthMeasurement(id: string, row: Row): GrowthMeasurement {
 }
 
 export function useUpsertGrowthMeasurement() {
-	const store = useStore()!;
-
-	return useCallback(
-		(measurement: GrowthMeasurement) => {
+	return useSetRowCallback<GrowthMeasurement>(
+		TABLE_IDS.GROWTH_MEASUREMENTS,
+		(measurement) => measurement.id,
+		(measurement) => {
 			const cells = sanitizeGrowthMeasurementForStore(measurement);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, measurement.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
+			return cells ? { ...cells, deviceId: getDeviceId() } : {};
 		},
-		[store],
+		[],
 	);
 }
 
 export function useRemoveGrowthMeasurement() {
-	const store = useStore()!;
-
-	return useCallback(
-		(id: string) => {
-			store.delRow(TABLE_IDS.GROWTH_MEASUREMENTS, id);
-		},
-		[store],
-	);
+	return useDelRowCallback<string>(TABLE_IDS.GROWTH_MEASUREMENTS, (id) => id);
 }
 
 export function useGrowthMeasurement(measurementId: string | undefined) {

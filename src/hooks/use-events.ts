@@ -1,7 +1,13 @@
 import type { Row } from 'tinybase';
 import type { Event } from '@/types/event';
-import { useCallback, useMemo } from 'react';
-import { useRow, useStore, useTable } from 'tinybase/ui-react';
+import { useMemo } from 'react';
+import {
+	useDelRowCallback,
+	useRow,
+	useSetRowCallback,
+	useStore,
+	useTable,
+} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeEventForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { getDeviceId } from '@/utils/device-id';
@@ -14,33 +20,19 @@ function toEvent(id: string, row: Row): Event {
 }
 
 export function useUpsertEvent() {
-	const store = useStore()!;
-
-	return useCallback(
-		(event: Event) => {
+	return useSetRowCallback<Event>(
+		TABLE_IDS.EVENTS,
+		(event) => event.id,
+		(event) => {
 			const cells = sanitizeEventForStore(event);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.EVENTS, event.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
+			return cells ? { ...cells, deviceId: getDeviceId() } : {};
 		},
-		[store],
+		[],
 	);
 }
 
 export function useRemoveEvent() {
-	const store = useStore()!;
-
-	return useCallback(
-		(id: string) => {
-			store.delRow(TABLE_IDS.EVENTS, id);
-		},
-		[store],
-	);
+	return useDelRowCallback<string>(TABLE_IDS.EVENTS, (id) => id);
 }
 
 export function useEvent(eventId: string | undefined) {

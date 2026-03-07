@@ -1,7 +1,12 @@
 import type { Row } from 'tinybase';
 import type { Tooth } from '@/types/teething';
-import { useCallback, useMemo } from 'react';
-import { useRow, useStore, useTable } from 'tinybase/ui-react';
+import { useMemo } from 'react';
+import {
+	useRow,
+	useSetRowCallback,
+	useStore,
+	useTable,
+} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeToothForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { getDeviceId } from '@/utils/device-id';
@@ -14,21 +19,14 @@ function toTooth(id: string, row: Row): Tooth {
 }
 
 export function useUpsertTooth() {
-	const store = useStore()!;
-
-	return useCallback(
-		(tooth: Tooth) => {
+	return useSetRowCallback<Tooth>(
+		TABLE_IDS.TEETHING,
+		(tooth) => tooth.id,
+		(tooth) => {
 			const cells = sanitizeToothForStore(tooth);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.TEETHING, tooth.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
+			return cells ? { ...cells, deviceId: getDeviceId() } : {};
 		},
-		[store],
+		[],
 	);
 }
 

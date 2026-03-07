@@ -1,7 +1,13 @@
 import type { Row } from 'tinybase';
 import type { DiaperChange } from '@/types/diaper';
-import { useCallback, useMemo } from 'react';
-import { useRow, useStore, useTable } from 'tinybase/ui-react';
+import { useMemo } from 'react';
+import {
+	useDelRowCallback,
+	useRow,
+	useSetRowCallback,
+	useStore,
+	useTable,
+} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperChangeForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { getDeviceId } from '@/utils/device-id';
@@ -19,33 +25,19 @@ interface DiaperChangeListEntry {
 }
 
 export function useUpsertDiaperChange() {
-	const store = useStore()!;
-
-	return useCallback(
-		(change: DiaperChange) => {
+	return useSetRowCallback<DiaperChange>(
+		TABLE_IDS.DIAPER_CHANGES,
+		(change) => change.id,
+		(change) => {
 			const cells = sanitizeDiaperChangeForStore(change);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
+			return cells ? { ...cells, deviceId: getDeviceId() } : {};
 		},
-		[store],
+		[],
 	);
 }
 
 export function useRemoveDiaperChange() {
-	const store = useStore()!;
-
-	return useCallback(
-		(id: string) => {
-			store.delRow(TABLE_IDS.DIAPER_CHANGES, id);
-		},
-		[store],
-	);
+	return useDelRowCallback<string>(TABLE_IDS.DIAPER_CHANGES, (id) => id);
 }
 
 export function useDiaperChange(changeId: string | undefined) {

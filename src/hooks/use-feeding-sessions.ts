@@ -1,7 +1,13 @@
 import type { Row } from 'tinybase';
 import type { FeedingSession } from '@/types/feeding';
-import { useCallback, useMemo } from 'react';
-import { useRow, useStore, useTable } from 'tinybase/ui-react';
+import { useMemo } from 'react';
+import {
+	useDelRowCallback,
+	useRow,
+	useSetRowCallback,
+	useStore,
+	useTable,
+} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeFeedingSessionForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { getDeviceId } from '@/utils/device-id';
@@ -19,33 +25,19 @@ interface FeedingSessionListEntry {
 }
 
 export function useUpsertFeedingSession() {
-	const store = useStore()!;
-
-	return useCallback(
-		(session: FeedingSession) => {
+	return useSetRowCallback<FeedingSession>(
+		TABLE_IDS.FEEDING_SESSIONS,
+		(session) => session.id,
+		(session) => {
 			const cells = sanitizeFeedingSessionForStore(session);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.FEEDING_SESSIONS, session.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
+			return cells ? { ...cells, deviceId: getDeviceId() } : {};
 		},
-		[store],
+		[],
 	);
 }
 
 export function useRemoveFeedingSession() {
-	const store = useStore()!;
-
-	return useCallback(
-		(id: string) => {
-			store.delRow(TABLE_IDS.FEEDING_SESSIONS, id);
-		},
-		[store],
-	);
+	return useDelRowCallback<string>(TABLE_IDS.FEEDING_SESSIONS, (id) => id);
 }
 
 export function useFeedingSession(sessionId: string | undefined) {
