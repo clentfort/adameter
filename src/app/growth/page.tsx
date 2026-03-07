@@ -7,7 +7,7 @@ import {
 	useRemoveGrowthMeasurement,
 	useUpsertGrowthMeasurement,
 } from '@/hooks/use-growth-measurements';
-import { useTeething } from '@/hooks/use-teething';
+import { useTeethSnapshot, useUpsertTooth } from '@/hooks/use-teething';
 import MeasurementForm from './components/growth-form';
 import GrowthHistoryList from './components/growth-history-list';
 import TeethingDialog from './components/teething-dialog';
@@ -18,7 +18,8 @@ export default function GrowthPage() {
 	const upsertGrowthMeasurement = useUpsertGrowthMeasurement();
 	const removeGrowthMeasurement = useRemoveGrowthMeasurement();
 	const measurements = useGrowthMeasurementsSnapshot();
-	const { update: updateTooth, value: teeth } = useTeething();
+	const upsertTooth = useUpsertTooth();
+	const teeth = useTeethSnapshot();
 
 	return (
 		<>
@@ -55,7 +56,7 @@ export default function GrowthPage() {
 						measurements={measurements}
 						onMeasurementDelete={removeGrowthMeasurement}
 						onMeasurementUpdate={upsertGrowthMeasurement}
-						onToothUpdate={updateTooth}
+						onToothUpdate={upsertTooth}
 						teeth={teeth}
 					/>
 				</div>
