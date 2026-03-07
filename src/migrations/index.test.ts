@@ -9,6 +9,7 @@ import { migrations, runMigrations } from './index';
 import { MIGRATION_IDS } from './manifest';
 
 const RENAME_MIGRATION_ID = '2026-03-01-rename-diaper-abnormalities-to-notes';
+const FIX_COSTS_MIGRATION_ID = '2026-03-07-fix-diaper-product-costs';
 
 describe('runMigrations', () => {
 	it('keeps manifest ids in sync with registered migrations', () => {
@@ -26,7 +27,10 @@ describe('runMigrations', () => {
 
 		const result = runMigrations(store, { deviceId: 'device-1' });
 
-		expect(result.appliedMigrationIds).toEqual([RENAME_MIGRATION_ID]);
+		expect(result.appliedMigrationIds).toEqual([
+			RENAME_MIGRATION_ID,
+			FIX_COSTS_MIGRATION_ID,
+		]);
 		expect(result.hasChanges).toBe(true);
 		expect(result.skippedMigrationIds).toEqual([]);
 
@@ -66,7 +70,10 @@ describe('runMigrations', () => {
 
 		expect(secondRun.appliedMigrationIds).toEqual([]);
 		expect(secondRun.hasChanges).toBe(false);
-		expect(secondRun.skippedMigrationIds).toEqual([RENAME_MIGRATION_ID]);
+		expect(secondRun.skippedMigrationIds).toEqual([
+			RENAME_MIGRATION_ID,
+			FIX_COSTS_MIGRATION_ID,
+		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy notes',
 		);

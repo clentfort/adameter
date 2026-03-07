@@ -9,6 +9,7 @@ import {
 	MIGRATION_ROW_CELLS,
 } from '@/lib/tinybase-sync/constants';
 import { renameDiaperAbnormalitiesToNotesMigration } from './2026-03-01-rename-diaper-abnormalities-to-notes';
+import { fixDiaperProductCostsMigration } from './2026-03-07-fix-diaper-product-costs';
 
 /**
  * Ordered migration list (oldest -> newest).
@@ -17,6 +18,7 @@ import { renameDiaperAbnormalitiesToNotesMigration } from './2026-03-01-rename-d
  */
 export const migrations: readonly Migration[] = [
 	renameDiaperAbnormalitiesToNotesMigration,
+	fixDiaperProductCostsMigration,
 ];
 
 export function runMigrations(

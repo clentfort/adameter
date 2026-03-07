@@ -542,7 +542,7 @@ export default function SettingsPage() {
 									)}
 								</div>
 								<p className="text-xs text-muted-foreground">
-									{product.costPerDiaper !== undefined ? (
+									{typeof product.costPerDiaper === 'number' ? (
 										<fbt desc="Cost per diaper display">
 											Cost per item:{' '}
 											<fbt:param name="currency">

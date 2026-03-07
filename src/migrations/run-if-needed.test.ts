@@ -4,6 +4,7 @@ import { INTERNAL_TABLE_IDS, TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { hasPendingMigrations, runMigrationsIfNeeded } from './run-if-needed';
 
 const RENAME_MIGRATION_ID = '2026-03-01-rename-diaper-abnormalities-to-notes';
+const FIX_COSTS_MIGRATION_ID = '2026-03-07-fix-diaper-product-costs';
 
 describe('runMigrationsIfNeeded', () => {
 	it('detects pending migrations from migration metadata', () => {
@@ -14,12 +15,20 @@ describe('runMigrationsIfNeeded', () => {
 			appliedAt: Date.now(),
 			description: 'already applied',
 		});
+		store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, FIX_COSTS_MIGRATION_ID, {
+			appliedAt: Date.now(),
+			description: 'already applied',
+		});
 		expect(hasPendingMigrations(store)).toBe(false);
 	});
 
 	it('returns quickly when latest migration is already applied', async () => {
 		const store = createStore();
 		store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, RENAME_MIGRATION_ID, {
+			appliedAt: Date.now(),
+			description: 'already applied',
+		});
+		store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, FIX_COSTS_MIGRATION_ID, {
 			appliedAt: Date.now(),
 			description: 'already applied',
 		});
@@ -48,7 +57,10 @@ describe('runMigrationsIfNeeded', () => {
 			deviceId: 'device-migrate',
 		});
 
-		expect(result.appliedMigrationIds).toEqual([RENAME_MIGRATION_ID]);
+		expect(result.appliedMigrationIds).toEqual([
+			RENAME_MIGRATION_ID,
+			FIX_COSTS_MIGRATION_ID,
+		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy note',
 		);

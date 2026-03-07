@@ -5,6 +5,7 @@
  */
 export const MIGRATION_IDS = [
 	'2026-03-01-rename-diaper-abnormalities-to-notes',
+	'2026-03-07-fix-diaper-product-costs',
 ] as const;
 
 export const LATEST_MIGRATION_ID =
