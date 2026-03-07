@@ -3,12 +3,12 @@
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useEvents } from '@/hooks/use-events';
+import { useUpsertEvent } from '@/hooks/use-events';
 import EventForm from './components/event-form';
 import EventsList from './components/events-list';
 
 export default function EventsPage() {
-	const { add } = useEvents();
+	const upsertEvent = useUpsertEvent();
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	return (
 		<>
@@ -34,7 +34,7 @@ export default function EventsPage() {
 				<EventForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(event) => {
-						add(event);
+						upsertEvent(event);
 						setIsAddEntryDialogOpen(false);
 					}}
 					title={
