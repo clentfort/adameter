@@ -47,13 +47,13 @@ describe('IndexedGrowthHistoryList', () => {
 		render(<IndexedGrowthHistoryList />, { wrapper: TestWrapper });
 
 		// Check for dates
-		expect(screen.getByText(/Monday, 15. January 2024/i)).toBeDefined();
-		expect(screen.getByText(/Wednesday, 10. January 2024/i)).toBeDefined();
+		expect(screen.getByText(/monday, 15. january 2024/i)).toBeDefined();
+		expect(screen.getByText(/wednesday, 10. january 2024/i)).toBeDefined();
 
 		// Check for entries
 		expect(screen.getByText(/4500 g/i)).toBeDefined();
 		expect(screen.getByText(/4400 g/i)).toBeDefined();
-		expect(screen.getByText(/Tooth 51/i)).toBeDefined();
+		expect(screen.getByText(/tooth 51/i)).toBeDefined();
 	});
 
 	it('should render empty state when no data is present', () => {
@@ -66,6 +66,6 @@ describe('IndexedGrowthHistoryList', () => {
 			</Provider>,
 		);
 
-		expect(screen.getByText(/No history recorded yet/i)).toBeDefined();
+		expect(screen.getByText(/no history recorded yet/i)).toBeDefined();
 	});
 });

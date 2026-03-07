@@ -2,6 +2,7 @@
 
 import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
+import type { Indexes } from 'tinybase';
 import { format, parseISO } from 'date-fns';
 import { useMemo, useState } from 'react';
 import { useSliceRowIds, useStore } from 'tinybase/ui-react';
@@ -256,7 +257,7 @@ export default function IndexedGrowthHistoryList() {
 
 interface DateSectionProps {
 	dateKey: string;
-	indexes: any;
+	indexes: Indexes | undefined;
 	onMeasurementDelete: (id: string) => void;
 	onMeasurementEdit: (measurement: GrowthMeasurement) => void;
 	onToothDelete: (tooth: Tooth) => void;
