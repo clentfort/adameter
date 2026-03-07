@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Event, EventFormValues } from '@/types/event';
+import type { Event, EventFormData, EventFormValues } from '@/types/event';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { useEffect } from 'react';
@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { eventFormSchema, parseEventFormValues } from '@/types/event';
+import { eventFormToDataSchema } from '@/types/event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 
@@ -67,12 +67,15 @@ export default function EventForm({
 }: EventFromProps) {
 	const event = 'event' in props ? props.event : undefined;
 
-	const { handleSubmit, register, reset, setValue, watch } =
-		useForm<EventFormValues>({
-			defaultValues: getDefaultValues(event),
-			mode: 'onChange',
-			resolver: zodResolver(eventFormSchema),
-		});
+	const { handleSubmit, register, reset, setValue, watch } = useForm<
+		EventFormValues,
+		undefined,
+		EventFormData
+	>({
+		defaultValues: getDefaultValues(event),
+		mode: 'onChange',
+		resolver: zodResolver(eventFormToDataSchema),
+	});
 
 	const eventType = watch('type');
 	const hasEndDate = watch('hasEndDate');
@@ -82,9 +85,7 @@ export default function EventForm({
 		reset(getDefaultValues(event));
 	}, [event, reset]);
 
-	const handleSave = (values: EventFormValues) => {
-		const parsedValues = parseEventFormValues(values);
-
+	const handleSave = (parsedValues: EventFormData) => {
 		const newEvent: Event = {
 			...event,
 			color: parsedValues.color,

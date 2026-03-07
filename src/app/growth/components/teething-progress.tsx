@@ -1,6 +1,6 @@
 import type { Tooth } from '@/types/teething';
 import { useState } from 'react';
-import { useTeething } from '@/hooks/use-teething';
+import { useTeethSnapshot, useUpsertTooth } from '@/hooks/use-teething';
 import { cn } from '@/lib/utils';
 import { getToothName } from '../utils/teething';
 import TeethingForm from './teething-form';
@@ -11,7 +11,8 @@ const LOWER_RIGHT = [85, 84, 83, 82, 81];
 const LOWER_LEFT = [71, 72, 73, 74, 75];
 
 export default function TeethingProgress() {
-	const { update, value: teeth } = useTeething();
+	const upsertTooth = useUpsertTooth();
+	const teeth = useTeethSnapshot();
 	const [selectedToothId, setSelectedToothId] = useState<number | null>(null);
 
 	const getTooth = (toothId: number): Tooth => {
@@ -24,7 +25,7 @@ export default function TeethingProgress() {
 	};
 
 	const handleSave = (tooth: Tooth) => {
-		update(tooth);
+		upsertTooth(tooth);
 	};
 
 	const toothName = selectedToothId ? getToothName(selectedToothId) : '';

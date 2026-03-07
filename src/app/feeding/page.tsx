@@ -3,7 +3,11 @@
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import {
+	useRemoveFeedingSession,
+	useSortedFeedingSessionListEntries,
+	useUpsertFeedingSession,
+} from '@/hooks/use-feeding-sessions';
 import { useNextBreast } from '@/hooks/use-next-breast';
 import FeedingForm from './components/feeding-form';
 import HistoryList from './components/feeding-history-list';
@@ -12,7 +16,9 @@ import { useResumableSession } from './hooks/use-resumable-session';
 
 export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
-	const { add, remove, update, value: sessions } = useFeedingSessions();
+	const upsertFeedingSession = useUpsertFeedingSession();
+	const removeFeedingSession = useRemoveFeedingSession();
+	const sessionEntries = useSortedFeedingSessionListEntries();
 	const nextBreast = useNextBreast();
 	const resumableSession = useResumableSession();
 
@@ -21,8 +27,8 @@ export default function Feedings() {
 			<div className="w-full">
 				<BreastfeedingTracker
 					nextBreast={nextBreast}
-					onCreateSession={add}
-					onUpdateSession={update}
+					onCreateSession={upsertFeedingSession}
+					onUpdateSession={upsertFeedingSession}
 					resumableSession={resumableSession}
 				/>
 
@@ -43,9 +49,9 @@ export default function Feedings() {
 						</Button>
 					</div>
 					<HistoryList
-						onSessionDelete={remove}
-						onSessionUpdate={update}
-						sessions={sessions}
+						onSessionDelete={removeFeedingSession}
+						onSessionUpdate={upsertFeedingSession}
+						sessionEntries={sessionEntries}
 					/>
 				</div>
 			</div>
@@ -54,7 +60,7 @@ export default function Feedings() {
 				<FeedingForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(change) => {
-						add(change);
+						upsertFeedingSession(change);
 						setIsAddEntryDialogOpen(false);
 					}}
 					title={

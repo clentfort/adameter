@@ -1,27 +1,22 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, MockedFunction, vi } from 'vitest';
 import { DiaperChange } from '@/types/diaper';
-import { useDiaperChanges } from './use-diaper-changes';
+import { useLatestDiaperChangeRecord } from './use-diaper-changes';
 import { useLatestDiaperChange } from './use-latest-diaper-change';
 
-// Mock useDiaperChanges
+// Mock useLatestDiaperChangeRecord
 vi.mock('./use-diaper-changes', () => ({
-	useDiaperChanges: vi.fn(),
+	useLatestDiaperChangeRecord: vi.fn(),
 }));
 
-const mockUseDiaperChanges = useDiaperChanges as MockedFunction<
-	typeof useDiaperChanges
->;
+const mockUseLatestDiaperChangeRecord =
+	useLatestDiaperChangeRecord as MockedFunction<
+		typeof useLatestDiaperChangeRecord
+	>;
 
 describe('useLatestDiaperChange', () => {
 	it('should return undefined if there are no diaper changes', () => {
-		mockUseDiaperChanges.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: [],
-		});
+		mockUseLatestDiaperChangeRecord.mockReturnValue(undefined);
 
 		const { result } = renderHook(() => useLatestDiaperChange());
 		expect(result.current).toBeUndefined();
@@ -34,158 +29,76 @@ describe('useLatestDiaperChange', () => {
 			id: '1',
 			timestamp: '2023-01-01T12:00:00Z',
 		};
-		mockUseDiaperChanges.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: [singleChange],
-		});
+		mockUseLatestDiaperChangeRecord.mockReturnValue(singleChange);
 
 		const { result } = renderHook(() => useLatestDiaperChange());
 		expect(result.current).toEqual(singleChange);
 	});
 
 	it('should return the latest diaper change when newest is at the end', () => {
-		const changes: DiaperChange[] = [
-			{
-				containsStool: false,
-				containsUrine: true,
-				id: '1',
-				timestamp: '2023-01-01T10:00:00Z',
-			},
-			{
-				containsStool: true,
-				containsUrine: false,
-				id: '2',
-				timestamp: '2023-01-01T11:00:00Z',
-			},
-			{
-				containsStool: true,
-				containsUrine: true,
-				id: '3',
-				timestamp: '2023-01-01T12:00:00Z',
-			}, // Newest
-		];
-		mockUseDiaperChanges.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: changes,
-		});
+		const latestChange: DiaperChange = {
+			containsStool: true,
+			containsUrine: true,
+			id: '3',
+			timestamp: '2023-01-01T12:00:00Z',
+		};
+		mockUseLatestDiaperChangeRecord.mockReturnValue(latestChange);
 
 		const { result } = renderHook(() => useLatestDiaperChange());
-		expect(result.current).toEqual(changes[2]);
+		expect(result.current).toEqual(latestChange);
 	});
 
 	it('should return the latest diaper change when newest is at the beginning', () => {
-		const changes: DiaperChange[] = [
-			{
-				containsStool: true,
-				containsUrine: true,
-				id: '3',
-				timestamp: '2023-01-01T12:00:00Z',
-			}, // Newest
-			{
-				containsStool: false,
-				containsUrine: true,
-				id: '1',
-				timestamp: '2023-01-01T10:00:00Z',
-			},
-			{
-				containsStool: true,
-				containsUrine: false,
-				id: '2',
-				timestamp: '2023-01-01T11:00:00Z',
-			},
-		];
-		mockUseDiaperChanges.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: changes,
-		});
+		const latestChange: DiaperChange = {
+			containsStool: true,
+			containsUrine: true,
+			id: '3',
+			timestamp: '2023-01-01T12:00:00Z',
+		};
+		mockUseLatestDiaperChangeRecord.mockReturnValue(latestChange);
 
 		const { result } = renderHook(() => useLatestDiaperChange());
-		expect(result.current).toEqual(changes[0]);
+		expect(result.current).toEqual(latestChange);
 	});
 
 	it('should return the latest diaper change when newest is in the middle', () => {
-		const changes: DiaperChange[] = [
-			{
-				containsStool: false,
-				containsUrine: true,
-				id: '1',
-				timestamp: '2023-01-01T10:00:00Z',
-			},
-			{
-				containsStool: true,
-				containsUrine: true,
-				id: '3',
-				timestamp: '2023-01-01T12:00:00Z',
-			}, // Newest
-			{
-				containsStool: true,
-				containsUrine: false,
-				id: '2',
-				timestamp: '2023-01-01T11:00:00Z',
-			},
-		];
-		mockUseDiaperChanges.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: changes,
-		});
+		const latestChange: DiaperChange = {
+			containsStool: true,
+			containsUrine: true,
+			id: '3',
+			timestamp: '2023-01-01T12:00:00Z',
+		};
+		mockUseLatestDiaperChangeRecord.mockReturnValue(latestChange);
 
 		const { result } = renderHook(() => useLatestDiaperChange());
-		expect(result.current).toEqual(changes[1]);
+		expect(result.current).toEqual(latestChange);
 	});
 
-	it('should update when diaper changes array reference changes', () => {
-		const initialChanges: DiaperChange[] = [
-			{
-				containsStool: false,
-				containsUrine: true,
-				id: '1',
-				timestamp: '2023-01-01T10:00:00Z',
-			},
-		];
-		const nextChanges: DiaperChange[] = [
-			...initialChanges,
-			{
-				containsStool: true,
-				containsUrine: true,
-				id: '2',
-				timestamp: '2023-01-01T11:00:00Z',
-			}, // Newest
-		];
+	it('should update when latest diaper change record changes', () => {
+		const initialChange: DiaperChange = {
+			containsStool: false,
+			containsUrine: true,
+			id: '1',
+			timestamp: '2023-01-01T10:00:00Z',
+		};
+		const nextChange: DiaperChange = {
+			containsStool: true,
+			containsUrine: true,
+			id: '2',
+			timestamp: '2023-01-01T11:00:00Z',
+		};
 
-		const mockDiaperChangesHook = mockUseDiaperChanges.mockReturnValue({
-			add: vi.fn(),
-			remove: vi.fn(),
-
-			update: vi.fn(),
-			value: initialChanges,
-		});
+		const mockLatestRecord =
+			mockUseLatestDiaperChangeRecord.mockReturnValue(initialChange);
 
 		const { rerender, result } = renderHook(() => useLatestDiaperChange());
-		expect(result.current).toEqual(initialChanges[0]);
+		expect(result.current).toEqual(initialChange);
 
 		act(() => {
-			mockDiaperChangesHook.mockReturnValue({
-				add: vi.fn(),
-				remove: vi.fn(),
-
-				update: vi.fn(),
-				value: nextChanges,
-			});
+			mockLatestRecord.mockReturnValue(nextChange);
 		});
 		rerender();
 
-		expect(result.current).toEqual(nextChanges[1]);
+		expect(result.current).toEqual(nextChange);
 	});
 });

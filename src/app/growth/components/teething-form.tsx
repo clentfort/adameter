@@ -1,4 +1,8 @@
-import type { TeethingFormValues, Tooth } from '@/types/teething';
+import type {
+	TeethingFormData,
+	TeethingFormValues,
+	Tooth,
+} from '@/types/teething';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { useEffect } from 'react';
@@ -14,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { parseTeethingFormValues, teethingFormSchema } from '@/types/teething';
+import { teethingFormToDataSchema } from '@/types/teething';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
 interface TeethingFormProps {
@@ -37,19 +41,21 @@ export default function TeethingForm({
 	tooth,
 	toothName,
 }: TeethingFormProps) {
-	const { handleSubmit, register, reset } = useForm<TeethingFormValues>({
+	const { handleSubmit, register, reset } = useForm<
+		TeethingFormValues,
+		undefined,
+		TeethingFormData
+	>({
 		defaultValues: getDefaultValues(tooth),
 		mode: 'onChange',
-		resolver: zodResolver(teethingFormSchema),
+		resolver: zodResolver(teethingFormToDataSchema),
 	});
 
 	useEffect(() => {
 		reset(getDefaultValues(tooth));
 	}, [reset, tooth]);
 
-	const handleSave = (values: TeethingFormValues) => {
-		const parsedValues = parseTeethingFormValues(values);
-
+	const handleSave = (parsedValues: TeethingFormData) => {
 		onSave({
 			...tooth,
 			date: parsedValues.date,

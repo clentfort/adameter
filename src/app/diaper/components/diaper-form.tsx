@@ -1,9 +1,13 @@
 import type { ReactNode } from 'react';
-import type { DiaperChange, DiaperFormValues } from '@/types/diaper';
+import type {
+	DiaperChange,
+	DiaperFormData,
+	DiaperFormValues,
+} from '@/types/diaper';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { Plus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
@@ -25,12 +29,15 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useDiaperProducts } from '@/hooks/use-diaper-products';
-import { diaperFormSchema, parseDiaperFormValues } from '@/types/diaper';
+import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
+import {
+	useDiaperProduct,
+	useFrecencySortedDiaperProductIds,
+	useUpsertDiaperProduct,
+} from '@/hooks/use-diaper-products';
+import { diaperFormToDataSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
-import { getFrecencySortedProducts } from '../utils/get-frecency-sorted-products';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
 export interface AddDiaperProps {
@@ -49,6 +56,34 @@ export interface EditDiaperProps {
 }
 
 type DiaperFormProps = AddDiaperProps | EditDiaperProps;
+
+interface DiaperProductSelectItemProps {
+	currentProductId: string | undefined;
+	productId: string;
+	selectedProductId: string;
+}
+
+function DiaperProductSelectItem({
+	currentProductId,
+	productId,
+	selectedProductId,
+}: DiaperProductSelectItemProps) {
+	const product = useDiaperProduct(productId);
+
+	if (!product) {
+		return null;
+	}
+
+	if (
+		product.archived &&
+		product.id !== selectedProductId &&
+		product.id !== currentProductId
+	) {
+		return null;
+	}
+
+	return <SelectItem value={product.id}>{product.name}</SelectItem>;
+}
 
 function getDefaultValues(
 	change: DiaperChange | undefined,
@@ -81,13 +116,9 @@ export default function DiaperForm({
 	title,
 	...props
 }: DiaperFormProps) {
-	const { add: addProduct, value: products } = useDiaperProducts();
-	const { value: changes } = useDiaperChanges();
-
-	const sortedProducts = useMemo(
-		() => getFrecencySortedProducts(products, changes),
-		[products, changes],
-	);
+	const upsertProduct = useUpsertDiaperProduct();
+	const changes = useDiaperChangesSnapshot();
+	const sortedProductIds = useFrecencySortedDiaperProductIds(changes);
 
 	const [isAddingProduct, setIsAddingProduct] = useState(false);
 	const change = 'change' in props ? props.change : undefined;
@@ -96,32 +127,32 @@ export default function DiaperForm({
 		'presetDiaperProductId' in props ? props.presetDiaperProductId : undefined;
 	const presetType = 'presetType' in props ? props.presetType : undefined;
 
-	const { handleSubmit, register, reset, setValue, watch } =
-		useForm<DiaperFormValues>({
-			defaultValues: getDefaultValues(
-				change,
-				presetDiaperProductId,
-				presetType,
-			),
-			mode: 'onChange',
-			resolver: zodResolver(diaperFormSchema),
-		});
+	const { handleSubmit, register, reset, setValue, watch } = useForm<
+		DiaperFormValues,
+		undefined,
+		DiaperFormData
+	>({
+		defaultValues: getDefaultValues(change, presetDiaperProductId, presetType),
+		mode: 'onChange',
+		resolver: zodResolver(diaperFormToDataSchema),
+	});
 
 	const containsUrine = watch('containsUrine');
 	const containsStool = watch('containsStool');
 	const pottyUrine = watch('pottyUrine');
 	const pottyStool = watch('pottyStool');
 	const hasLeakage = watch('leakage');
-	const diaperProductId = watch('diaperProductId');
+	const diaperProductId = watch('diaperProductId') ?? '';
+	const selectedProduct = useDiaperProduct(
+		diaperProductId.length > 0 ? diaperProductId : undefined,
+	);
 	const temperature = watch('temperature');
 
 	useEffect(() => {
 		reset(getDefaultValues(change, presetDiaperProductId, presetType));
 	}, [change, presetDiaperProductId, presetType, reset]);
 
-	const handleSave = (values: DiaperFormValues) => {
-		const parsedValues = parseDiaperFormValues(values);
-
+	const handleSave = (parsedValues: DiaperFormData) => {
 		const updatedChange: DiaperChange = {
 			...change,
 			containsStool: parsedValues.containsStool,
@@ -293,21 +324,19 @@ export default function DiaperForm({
 														Select Product
 													</fbt>
 												}
-											/>
+											>
+												{selectedProduct?.name}
+											</SelectValue>
 										</SelectTrigger>
 										<SelectContent>
-											{sortedProducts
-												.filter(
-													(product) =>
-														!product.archived ||
-														product.id === diaperProductId ||
-														product.id === change?.diaperProductId,
-												)
-												.map((product) => (
-													<SelectItem key={product.id} value={product.id}>
-														{product.name}
-													</SelectItem>
-												))}
+											{sortedProductIds.map((productId) => (
+												<DiaperProductSelectItem
+													currentProductId={change?.diaperProductId}
+													key={productId}
+													productId={productId}
+													selectedProductId={diaperProductId}
+												/>
+											))}
 										</SelectContent>
 									</Select>
 								</div>
@@ -400,7 +429,7 @@ export default function DiaperForm({
 						<ProductForm
 							onCancel={() => setIsAddingProduct(false)}
 							onSave={(product) => {
-								addProduct(product);
+								upsertProduct(product);
 								setValue('diaperProductId', product.id, {
 									shouldValidate: true,
 								});

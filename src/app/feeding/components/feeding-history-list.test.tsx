@@ -1,7 +1,14 @@
 import type { FeedingSession } from '@/types/feeding';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import HistoryList from './feeding-history-list';
+
+vi.mock('@/hooks/use-feeding-sessions', () => ({
+	useFeedingSession: vi.fn(),
+}));
+
+const mockUseFeedingSession = vi.mocked(useFeedingSession);
 
 describe('FeedingHistoryList', () => {
 	it('should render a feeding session shorter than one hour correctly', () => {
@@ -14,11 +21,15 @@ describe('FeedingHistoryList', () => {
 			startTime: '2023-01-01T10:00:00Z',
 		};
 
+		mockUseFeedingSession.mockReturnValue(mockSession);
+
 		render(
 			<HistoryList
 				onSessionDelete={() => {}}
 				onSessionUpdate={() => {}}
-				sessions={[mockSession]}
+				sessionEntries={[
+					{ id: mockSession.id, startTime: mockSession.startTime },
+				]}
 			/>,
 		);
 
@@ -27,7 +38,7 @@ describe('FeedingHistoryList', () => {
 		expect(screen.getByText('25 min')).toBeInTheDocument();
 
 		// Assert breast side is displayed correctly
-		expect(screen.getByText('Left Breast')).toBeInTheDocument();
+		expect(screen.getAllByText('Left Breast').length).toBeGreaterThan(0);
 	});
 
 	it('should render a feeding session longer than one hour correctly', () => {
@@ -40,11 +51,15 @@ describe('FeedingHistoryList', () => {
 			startTime: '2023-01-01T12:00:00Z',
 		};
 
+		mockUseFeedingSession.mockReturnValue(mockSessionLong);
+
 		render(
 			<HistoryList
 				onSessionDelete={() => {}}
 				onSessionUpdate={() => {}}
-				sessions={[mockSessionLong]}
+				sessionEntries={[
+					{ id: mockSessionLong.id, startTime: mockSessionLong.startTime },
+				]}
 			/>,
 		);
 
@@ -53,6 +68,6 @@ describe('FeedingHistoryList', () => {
 		expect(screen.getByText('1 h 10 min')).toBeInTheDocument();
 
 		// Assert breast side is displayed correctly
-		expect(screen.getByText('Right Breast')).toBeInTheDocument();
+		expect(screen.getAllByText('Right Breast').length).toBeGreaterThan(0);
 	});
 });

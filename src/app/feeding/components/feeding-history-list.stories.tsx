@@ -38,11 +38,16 @@ const sampleSessions: FeedingSession[] = [
 	createSession('s5', 'left', time(48, 0), 18),
 ];
 
+const sessionEntries = sampleSessions.map((session) => ({
+	id: session.id,
+	startTime: session.startTime,
+}));
+
 const meta: Meta<typeof HistoryList> = {
 	argTypes: {
 		onSessionDelete: { action: 'sessionDeleted' },
 		onSessionUpdate: { action: 'sessionUpdated' },
-		sessions: { control: 'object' },
+		sessionEntries: { control: 'object' },
 	},
 	component: HistoryList,
 	parameters: {
@@ -59,7 +64,7 @@ export const Default: Story = {
 	args: {
 		onSessionDelete: () => {},
 		onSessionUpdate: () => {},
-		sessions: [...sampleSessions],
+		sessionEntries: [...sessionEntries],
 	},
 };
 
@@ -67,7 +72,7 @@ export const Empty: Story = {
 	args: {
 		onSessionDelete: () => {},
 		onSessionUpdate: () => {},
-		sessions: [],
+		sessionEntries: [],
 	},
 };
 
@@ -75,7 +80,9 @@ export const SingleSessionLeft: Story = {
 	args: {
 		onSessionDelete: () => {},
 		onSessionUpdate: () => {},
-		sessions: [sampleSessions[0]],
+		sessionEntries: [
+			{ id: sampleSessions[0].id, startTime: sampleSessions[0].startTime },
+		],
 	},
 };
 
@@ -83,7 +90,9 @@ export const SingleSessionRight: Story = {
 	args: {
 		onSessionDelete: () => {},
 		onSessionUpdate: () => {},
-		sessions: [sampleSessions[1]],
+		sessionEntries: [
+			{ id: sampleSessions[1].id, startTime: sampleSessions[1].startTime },
+		],
 	},
 };
 
@@ -91,13 +100,17 @@ export const SessionCrossingMidnight: Story = {
 	args: {
 		onSessionDelete: () => {},
 		onSessionUpdate: () => {},
-		sessions: [
-			createSession(
-				'midnight-crosser',
-				'left',
-				new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 50),
-				30,
-			),
+		sessionEntries: [
+			{
+				id: 'midnight-crosser',
+				startTime: new Date(
+					now.getFullYear(),
+					now.getMonth(),
+					now.getDate() - 1,
+					23,
+					50,
+				).toISOString(),
+			},
 		],
 	},
 };
@@ -106,7 +119,10 @@ export const DeleteSessionInteraction: Story = {
 	args: {
 		onSessionDelete: () => {},
 		onSessionUpdate: () => {},
-		sessions: [sampleSessions[0], sampleSessions[1]],
+		sessionEntries: [
+			{ id: sampleSessions[0].id, startTime: sampleSessions[0].startTime },
+			{ id: sampleSessions[1].id, startTime: sampleSessions[1].startTime },
+		],
 	},
 };
 
@@ -114,6 +130,8 @@ export const EditSessionInteraction: Story = {
 	args: {
 		onSessionDelete: () => {},
 		onSessionUpdate: () => {},
-		sessions: [sampleSessions[0]],
+		sessionEntries: [
+			{ id: sampleSessions[0].id, startTime: sampleSessions[0].startTime },
+		],
 	},
 };

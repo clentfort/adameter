@@ -16,7 +16,7 @@ import {
 import { useMemo } from 'react';
 import LineChart from '@/components/charts/line-chart';
 import { useProfile } from '@/hooks/use-profile';
-import { useTeething } from '@/hooks/use-teething';
+import { useTeethSnapshot } from '@/hooks/use-teething';
 
 const DAYS_PER_MONTH = 30.4375;
 
@@ -30,7 +30,7 @@ export default function FeedingActivityChart({
 	sessions,
 }: FeedingActivityChartProps) {
 	const [profile] = useProfile();
-	const { value: teeth } = useTeething();
+	const teeth = useTeethSnapshot();
 
 	const dob = useMemo(
 		() => (profile?.dob ? startOfDay(new Date(profile.dob)) : null),
