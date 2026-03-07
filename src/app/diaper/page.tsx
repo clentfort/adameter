@@ -7,7 +7,6 @@ import ReactConfetti from 'react-confetti';
 import { Button } from '@/components/ui/button';
 import {
 	useDiaperChangesSnapshot,
-	useSortedDiaperChangeListEntries,
 	useUpsertDiaperChange,
 } from '@/hooks/use-diaper-changes';
 import DiaperForm from './components/diaper-form';
@@ -20,7 +19,6 @@ export default function DiaperPage() {
 	const [showConfetti, setShowConfetti] = useState(false);
 
 	const diaperChanges = useDiaperChangesSnapshot();
-	const diaperChangeEntries = useSortedDiaperChangeListEntries();
 	const upsertDiaperChange = useUpsertDiaperChange();
 	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
 
@@ -73,7 +71,7 @@ export default function DiaperPage() {
 								<fbt common>Add Entry</fbt>
 							</Button>
 						</div>
-						<DiaperHistoryList diaperChangeEntries={diaperChangeEntries} />
+						<DiaperHistoryList />
 					</div>
 				</div>
 			</div>

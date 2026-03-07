@@ -1,7 +1,11 @@
 import type { FeedingSession } from '@/types/feeding';
 import { render, screen } from '@testing-library/react';
+import { createStore } from 'tinybase';
+import { Provider } from 'tinybase/ui-react';
 import { describe, expect, it, vi } from 'vitest';
+import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import HistoryList from './feeding-history-list';
 
 vi.mock('@/hooks/use-feeding-sessions', () => ({
@@ -9,6 +13,34 @@ vi.mock('@/hooks/use-feeding-sessions', () => ({
 }));
 
 const mockUseFeedingSession = vi.mocked(useFeedingSession);
+
+function createStoreWithSessions(sessions: FeedingSession[]) {
+	const store = createStore();
+	for (const session of sessions) {
+		store.setRow(TABLE_IDS.FEEDING_SESSIONS, session.id, {
+			breast: session.breast,
+			durationInSeconds: session.durationInSeconds,
+			endTime: session.endTime,
+			startTime: session.startTime,
+		});
+	}
+	return store;
+}
+
+function TestWrapper({
+	children,
+	sessions,
+}: {
+	children: React.ReactNode;
+	sessions: FeedingSession[];
+}) {
+	const store = createStoreWithSessions(sessions);
+	return (
+		<Provider store={store}>
+			<TinybaseIndexesProvider>{children}</TinybaseIndexesProvider>
+		</Provider>
+	);
+}
 
 describe('FeedingHistoryList', () => {
 	it('should render a feeding session shorter than one hour correctly', () => {
@@ -24,13 +56,9 @@ describe('FeedingHistoryList', () => {
 		mockUseFeedingSession.mockReturnValue(mockSession);
 
 		render(
-			<HistoryList
-				onSessionDelete={() => {}}
-				onSessionUpdate={() => {}}
-				sessionEntries={[
-					{ id: mockSession.id, startTime: mockSession.startTime },
-				]}
-			/>,
+			<TestWrapper sessions={[mockSession]}>
+				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+			</TestWrapper>,
 		);
 
 		// Assert duration is formatted correctly by formatDurationAbbreviated
@@ -54,13 +82,9 @@ describe('FeedingHistoryList', () => {
 		mockUseFeedingSession.mockReturnValue(mockSessionLong);
 
 		render(
-			<HistoryList
-				onSessionDelete={() => {}}
-				onSessionUpdate={() => {}}
-				sessionEntries={[
-					{ id: mockSessionLong.id, startTime: mockSessionLong.startTime },
-				]}
-			/>,
+			<TestWrapper sessions={[mockSessionLong]}>
+				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+			</TestWrapper>,
 		);
 
 		// Assert duration is formatted correctly by formatDurationAbbreviated

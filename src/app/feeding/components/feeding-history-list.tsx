@@ -2,17 +2,17 @@ import type { FeedingSession } from '@/types/feeding';
 import { format, isSameDay } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import IndexedHistoryList from '@/components/indexed-history-list';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
+import { useFeedingSessionsByDate } from '@/hooks/use-tinybase-indexes';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import FeedingForm from './feeding-form';
 
 interface HistoryListProps {
 	onSessionDelete: (sessionId: string) => void;
 	onSessionUpdate: (session: FeedingSession) => void;
-	sessionEntries: ReadonlyArray<{ id: string; startTime: string }>;
 }
 
 function FeedingHistoryEntry({
@@ -94,27 +94,28 @@ function FeedingHistoryEntry({
 export default function HistoryList({
 	onSessionDelete,
 	onSessionUpdate,
-	sessionEntries = [],
 }: HistoryListProps) {
 	const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 	const [sessionToEditId, setSessionToEditId] = useState<string | null>(null);
 	const sessionToEdit = useFeedingSession(sessionToEditId ?? undefined);
+	const { dateKeys, indexes, indexId } = useFeedingSessionsByDate();
 
 	return (
 		<>
-			<HistoryListInternal
-				dateAccessor={(sessionEntry) => sessionEntry.startTime}
-				entries={sessionEntries}
+			<IndexedHistoryList
+				dateKeys={dateKeys}
+				indexes={indexes}
+				indexId={indexId}
 			>
-				{(sessionEntry) => (
+				{(sessionId) => (
 					<FeedingHistoryEntry
-						key={sessionEntry.id}
+						key={sessionId}
 						onDelete={setSessionToDelete}
 						onEdit={setSessionToEditId}
-						sessionId={sessionEntry.id}
+						sessionId={sessionId}
 					/>
 				)}
-			</HistoryListInternal>
+			</IndexedHistoryList>
 			{sessionToDelete && (
 				<DeleteEntryDialog
 					entry={sessionToDelete}

@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	useRemoveFeedingSession,
-	useSortedFeedingSessionListEntries,
 	useUpsertFeedingSession,
 } from '@/hooks/use-feeding-sessions';
 import FeedingForm from './components/feeding-form';
@@ -18,7 +17,6 @@ export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const upsertFeedingSession = useUpsertFeedingSession();
 	const removeFeedingSession = useRemoveFeedingSession();
-	const sessionEntries = useSortedFeedingSessionListEntries();
 	const nextBreast = useNextBreast();
 	const resumableSession = useResumableSession();
 
@@ -51,7 +49,6 @@ export default function Feedings() {
 					<HistoryList
 						onSessionDelete={removeFeedingSession}
 						onSessionUpdate={upsertFeedingSession}
-						sessionEntries={sessionEntries}
 					/>
 				</div>
 			</div>

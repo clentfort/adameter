@@ -3,22 +3,19 @@ import { fbt } from 'fbtee';
 import { useState } from 'react';
 import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import HistoryListInternal from '@/components/history-list';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import IndexedHistoryList from '@/components/indexed-history-list';
 import Markdown from '@/components/markdown';
 import {
 	useDiaperChange,
 	useRemoveDiaperChange,
 	useUpsertDiaperChange,
 } from '@/hooks/use-diaper-changes';
+import { useDiaperChangesByDate } from '@/hooks/use-tinybase-indexes';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
-
-interface DiaperHistoryListProps {
-	diaperChangeEntries: ReadonlyArray<{ id: string; timestamp: string }>;
-}
 
 function DiaperProductName({ productId }: { productId: string }) {
 	const store = useStore()!;
@@ -187,30 +184,30 @@ function DiaperHistoryEntry({
 	);
 }
 
-export default function DiaperHistoryList({
-	diaperChangeEntries,
-}: DiaperHistoryListProps) {
+export default function DiaperHistoryList() {
 	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
 	const [changeToEditId, setChangeToEditId] = useState<string | null>(null);
 	const removeDiaperChange = useRemoveDiaperChange();
 	const upsertDiaperChange = useUpsertDiaperChange();
 	const changeToEdit = useDiaperChange(changeToEditId ?? undefined);
+	const { dateKeys, indexes, indexId } = useDiaperChangesByDate();
 
 	return (
 		<>
-			<HistoryListInternal
-				dateAccessor={(changeEntry) => changeEntry.timestamp}
-				entries={diaperChangeEntries}
+			<IndexedHistoryList
+				dateKeys={dateKeys}
+				indexes={indexes}
+				indexId={indexId}
 			>
-				{(changeEntry) => (
+				{(changeId) => (
 					<DiaperHistoryEntry
-						changeId={changeEntry.id}
-						key={changeEntry.id}
+						changeId={changeId}
+						key={changeId}
 						onDelete={setChangeToDelete}
 						onEdit={setChangeToEditId}
 					/>
 				)}
-			</HistoryListInternal>
+			</IndexedHistoryList>
 			{changeToDelete && (
 				<DeleteEntryDialog
 					entry={changeToDelete}
