@@ -2,7 +2,11 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import {
+	useGrowthMeasurementsSnapshot,
+	useRemoveGrowthMeasurement,
+	useUpsertGrowthMeasurement,
+} from '@/hooks/use-growth-measurements';
 import { useTeething } from '@/hooks/use-teething';
 import MeasurementForm from './components/growth-form';
 import GrowthHistoryList from './components/growth-history-list';
@@ -11,7 +15,9 @@ import TeethingDialog from './components/teething-dialog';
 export default function GrowthPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const [isTeethingDialogOpen, setIsTeethingDialogOpen] = useState(false);
-	const { add, remove, update, value: measurements } = useGrowthMeasurements();
+	const upsertGrowthMeasurement = useUpsertGrowthMeasurement();
+	const removeGrowthMeasurement = useRemoveGrowthMeasurement();
+	const measurements = useGrowthMeasurementsSnapshot();
 	const { update: updateTooth, value: teeth } = useTeething();
 
 	return (
@@ -47,8 +53,8 @@ export default function GrowthPage() {
 
 					<GrowthHistoryList
 						measurements={measurements}
-						onMeasurementDelete={remove}
-						onMeasurementUpdate={update}
+						onMeasurementDelete={removeGrowthMeasurement}
+						onMeasurementUpdate={upsertGrowthMeasurement}
 						onToothUpdate={updateTooth}
 						teeth={teeth}
 					/>
@@ -63,7 +69,7 @@ export default function GrowthPage() {
 				<MeasurementForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(measurement) => {
-						add(measurement);
+						upsertGrowthMeasurement(measurement);
 						setIsAddEntryDialogOpen(false);
 					}}
 					title={
