@@ -47,13 +47,14 @@ export function TinybaseMetricsProvider({
 		m.setMetricDefinition(
 			METRIC_IDS.DIAPER_CHANGES_TOTAL,
 			TABLE_IDS.DIAPER_CHANGES,
-			'count',
+			'sum',
+			() => 1,
 		);
 
 		m.setMetricDefinition(
 			METRIC_IDS.DIAPER_CHANGES_TODAY,
 			TABLE_IDS.DIAPER_CHANGES,
-			'count',
+			'sum',
 			(getCell) => {
 				const timestamp = getCell('timestamp');
 				return typeof timestamp === 'string' && timestamp.startsWith(today)
@@ -65,14 +66,14 @@ export function TinybaseMetricsProvider({
 		m.setMetricDefinition(
 			METRIC_IDS.DIAPER_URINE_COUNT,
 			TABLE_IDS.DIAPER_CHANGES,
-			'count',
+			'sum',
 			(getCell) => (getCell('containsUrine') ? 1 : 0),
 		);
 
 		m.setMetricDefinition(
 			METRIC_IDS.DIAPER_STOOL_COUNT,
 			TABLE_IDS.DIAPER_CHANGES,
-			'count',
+			'sum',
 			(getCell) => (getCell('containsStool') ? 1 : 0),
 		);
 
@@ -80,13 +81,14 @@ export function TinybaseMetricsProvider({
 		m.setMetricDefinition(
 			METRIC_IDS.FEEDING_SESSIONS_TOTAL,
 			TABLE_IDS.FEEDING_SESSIONS,
-			'count',
+			'sum',
+			() => 1,
 		);
 
 		m.setMetricDefinition(
 			METRIC_IDS.FEEDING_SESSIONS_TODAY,
 			TABLE_IDS.FEEDING_SESSIONS,
-			'count',
+			'sum',
 			(getCell) => {
 				const startTime = getCell('startTime');
 				return typeof startTime === 'string' && startTime.startsWith(today)
@@ -106,7 +108,8 @@ export function TinybaseMetricsProvider({
 		m.setMetricDefinition(
 			METRIC_IDS.GROWTH_MEASUREMENTS_TOTAL,
 			TABLE_IDS.GROWTH_MEASUREMENTS,
-			'count',
+			'sum',
+			() => 1,
 		);
 
 		m.setMetricDefinition(
@@ -127,7 +130,7 @@ export function TinybaseMetricsProvider({
 		m.setMetricDefinition(
 			METRIC_IDS.TEETH_ERUPTED_COUNT,
 			TABLE_IDS.TEETHING,
-			'count',
+			'sum',
 			(getCell) => (getCell('date') ? 1 : 0),
 		);
 
