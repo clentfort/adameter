@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useDiaperProductsSnapshot } from '@/hooks/use-diaper-products';
 import { useEventsSnapshot } from '@/hooks/use-events';
 import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
@@ -34,7 +34,7 @@ import TotalFeedingsStats from './components/total-feedings-stats';
 import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
 export default function StatisticsPage() {
-	const { value: diaperChanges } = useDiaperChanges();
+	const diaperChanges = useDiaperChangesSnapshot();
 	const diaperProducts = useDiaperProductsSnapshot();
 	const events = useEventsSnapshot();
 	const measurements = useGrowthMeasurementsSnapshot();

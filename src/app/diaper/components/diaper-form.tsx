@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
+import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import {
 	useDiaperProduct,
 	useFrecencySortedDiaperProductIds,
@@ -117,7 +117,7 @@ export default function DiaperForm({
 	...props
 }: DiaperFormProps) {
 	const upsertProduct = useUpsertDiaperProduct();
-	const { value: changes } = useDiaperChanges();
+	const changes = useDiaperChangesSnapshot();
 	const sortedProductIds = useFrecencySortedDiaperProductIds(changes);
 
 	const [isAddingProduct, setIsAddingProduct] = useState(false);
