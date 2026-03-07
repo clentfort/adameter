@@ -1,6 +1,6 @@
 import type { Store } from 'tinybase';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import type { Migration } from './types';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 
 export const fixDiaperProductCostsMigration: Migration = {
 	description:
