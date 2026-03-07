@@ -15,7 +15,7 @@ import {
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProductsSnapshot } from '@/hooks/use-diaper-products';
 import { useEventsSnapshot } from '@/hooks/use-events';
-import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
+import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
@@ -38,7 +38,7 @@ export default function StatisticsPage() {
 	const diaperProducts = useDiaperProductsSnapshot();
 	const events = useEventsSnapshot();
 	const { value: measurements } = useGrowthMeasurements();
-	const { value: sessions } = useFeedingSessions();
+	const sessions = useFeedingSessionsSnapshot();
 
 	const [timeRange, setTimeRange] = useState<TimeRange>('7');
 	const [customRange, setCustomRange] = useState({
