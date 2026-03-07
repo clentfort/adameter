@@ -504,7 +504,7 @@ export default function SettingsPage() {
 		const sortedProducts = [...products].sort((a, b) => {
 			if (a.archived && !b.archived) return 1;
 			if (!a.archived && b.archived) return -1;
-			return a.name.localeCompare(b.name);
+			return (a.name || '').localeCompare(b.name || '');
 		});
 
 		return (
@@ -528,7 +528,13 @@ export default function SettingsPage() {
 								onClick={() => setEditingProductId(product.id)}
 							>
 								<div className="flex items-center gap-2">
-									<p className="font-medium">{product.name}</p>
+									<p className="font-medium">
+										{product.name || (
+											<fbt desc="Fallback for missing product name">
+												Unnamed Product
+											</fbt>
+										)}
+									</p>
 									{product.isReusable && (
 										<span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">
 											<fbt desc="Badge for reusable diapers">Reusable</fbt>
