@@ -14,7 +14,7 @@ default source of truth for commands and conventions.
 
 - Next.js 16 (App Router), React 19, TypeScript (`strict: true`)
 - Tailwind CSS 4 + shadcn/ui primitives in `src/components/ui`
-- State: Valtio + Yjs + PartyKit (`party/index.ts`)
+- State: TinyBase + PartyKit (`party/tinybase.ts`) with IndexedDB persistence
 - Testing: Vitest + Testing Library + jsdom
 - i18n: `fbtee` with translation files in `translations/*.json`
 - Package manager: `pnpm` (CI uses pnpm 10 and Node 24)
