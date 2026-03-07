@@ -43,6 +43,7 @@ import { useDevMode } from '@/hooks/use-dev-mode';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { fromCsv, toCsv } from '@/utils/data-transfer/csv';
 import {
 	createZip,
@@ -179,7 +180,21 @@ export default function SettingsPage() {
 
 						const normalizedRowId = String(rowId);
 
-						for (const [cellId, cellValue] of Object.entries(row)) {
+						const finalRow = { ...row } as Record<string, unknown>;
+						if (name === TABLE_IDS.DIAPER_PRODUCTS) {
+							const costPerDiaper = finalRow.costPerDiaper;
+							if (typeof costPerDiaper === 'string') {
+								const num = Number.parseFloat(costPerDiaper);
+								if (!Number.isNaN(num)) finalRow.costPerDiaper = num;
+							}
+							const upfrontCost = finalRow.upfrontCost;
+							if (typeof upfrontCost === 'string') {
+								const num = Number.parseFloat(upfrontCost);
+								if (!Number.isNaN(num)) finalRow.upfrontCost = num;
+							}
+						}
+
+						for (const [cellId, cellValue] of Object.entries(finalRow)) {
 							if (cellId === 'id' || !isCellValue(cellValue)) {
 								continue;
 							}

@@ -9,27 +9,22 @@ export const useDiaperProducts = () => {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.DIAPER_PRODUCTS, store);
 
-	const value = useMemo(() => {
-		const products = fromTable<DiaperProduct>(table);
-		return products.map((product) => ({
-			...product,
-			costPerDiaper:
-				typeof product.costPerDiaper === 'string'
-					? Number.parseFloat(product.costPerDiaper)
-					: product.costPerDiaper,
-			upfrontCost:
-				typeof product.upfrontCost === 'string'
-					? Number.parseFloat(product.upfrontCost)
-					: product.upfrontCost,
-		}));
-	}, [table]);
+	const value = useMemo(() => fromTable<DiaperProduct>(table), [table]);
 
 	const add = useCallback(
 		(item: DiaperProduct) => {
 			const { id, ...cells } = item;
 			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
 				...cells,
+				costPerDiaper:
+					typeof cells.costPerDiaper === 'string'
+						? Number.parseFloat(cells.costPerDiaper)
+						: cells.costPerDiaper,
 				deviceId: getDeviceId(),
+				upfrontCost:
+					typeof cells.upfrontCost === 'string'
+						? Number.parseFloat(cells.upfrontCost)
+						: cells.upfrontCost,
 			} as unknown as Record<string, string | number | boolean>);
 		},
 		[store],
@@ -40,7 +35,15 @@ export const useDiaperProducts = () => {
 			const { id, ...cells } = item;
 			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
 				...cells,
+				costPerDiaper:
+					typeof cells.costPerDiaper === 'string'
+						? Number.parseFloat(cells.costPerDiaper)
+						: cells.costPerDiaper,
 				deviceId: getDeviceId(),
+				upfrontCost:
+					typeof cells.upfrontCost === 'string'
+						? Number.parseFloat(cells.upfrontCost)
+						: cells.upfrontCost,
 			} as unknown as Record<string, string | number | boolean>);
 		},
 		[store],

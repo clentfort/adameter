@@ -27,36 +27,34 @@ export const diaperFormSchema = z.object({
 
 export type DiaperFormValues = z.infer<typeof diaperFormSchema>;
 
+const numericStringSchema = z
+	.union([z.string(), z.number()])
+	.optional()
+	.transform((value) => {
+		if (value === undefined || value === null || value === '') {
+			return undefined;
+		}
+		if (typeof value === 'number') {
+			return value;
+		}
+		const parsed = Number.parseFloat(value);
+		return Number.isNaN(parsed) ? undefined : parsed;
+	});
+
 export const diaperProductSchema = z.object({
-	costPerDiaper: z
-		.string()
-		.optional()
-		.refine(
-			(value) =>
-				value === undefined ||
-				value.length === 0 ||
-				!Number.isNaN(Number(value)),
-			{
-				message: 'Cost per diaper must be a number',
-			},
-		),
+	costPerDiaper: numericStringSchema,
 	isReusable: z.boolean(),
 	name: z.string().min(1),
-	upfrontCost: z
-		.string()
-		.optional()
-		.refine(
-			(value) =>
-				value === undefined ||
-				value.length === 0 ||
-				!Number.isNaN(Number(value)),
-			{
-				message: 'Upfront cost must be a number',
-			},
-		),
+	upfrontCost: numericStringSchema,
 });
 
-export type DiaperProductFormValues = z.infer<typeof diaperProductSchema>;
+export type DiaperProductFormValues = z.input<typeof diaperProductSchema>;
+
+export const diaperProductDataSchema = diaperProductSchema.extend({
+	archived: z.boolean().optional(),
+	deviceId: z.string().optional(),
+	id: z.string(),
+});
 
 export interface DiaperProduct extends BaseEntity {
 	/** Whether the product is archived. */

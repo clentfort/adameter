@@ -53,29 +53,14 @@ export default function ProductForm({
 	}, [initialData, reset]);
 
 	const handleSave = (values: DiaperProductFormValues) => {
-		const parsedCostPerDiaper = values.costPerDiaper
-			? Number.parseFloat(values.costPerDiaper)
-			: undefined;
-		const parsedUpfrontCost = values.upfrontCost
-			? Number.parseFloat(values.upfrontCost)
-			: undefined;
-
+		const parsed = diaperProductSchema.parse(values);
 		onSave({
 			...(initialData as DiaperProduct),
-			costPerDiaper:
-				typeof parsedCostPerDiaper === 'number' &&
-				Number.isFinite(parsedCostPerDiaper)
-					? parsedCostPerDiaper
-					: undefined,
+			costPerDiaper: parsed.costPerDiaper,
 			id: initialData?.id ?? crypto.randomUUID(),
-			isReusable: values.isReusable,
-			name: values.name,
-			upfrontCost:
-				values.isReusable &&
-				typeof parsedUpfrontCost === 'number' &&
-				Number.isFinite(parsedUpfrontCost)
-					? parsedUpfrontCost
-					: undefined,
+			isReusable: parsed.isReusable,
+			name: parsed.name,
+			upfrontCost: parsed.isReusable ? parsed.upfrontCost : undefined,
 		});
 	};
 
