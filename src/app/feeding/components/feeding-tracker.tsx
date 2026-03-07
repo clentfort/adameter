@@ -83,8 +83,9 @@ export default function BreastfeedingTracker({
 		}
 		const { breast, startTime } = feedingInProgress;
 		const endTime = new Date();
-		const durationInSeconds = Math.floor(
-			(endTime.getTime() - new Date(startTime).getTime()) / 1000,
+		const durationInSeconds = Math.max(
+			1,
+			Math.floor((endTime.getTime() - new Date(startTime).getTime()) / 1000),
 		);
 
 		const session: FeedingSession = {

@@ -58,7 +58,13 @@ export default function FeedingForm({
 	}, [feeding, reset]);
 
 	const handleSave = (values: FeedingFormValues) => {
-		const parsedValues = parseFeedingFormValues(values);
+		let parsedValues: ReturnType<typeof parseFeedingFormValues>;
+
+		try {
+			parsedValues = parseFeedingFormValues(values);
+		} catch {
+			return;
+		}
 
 		const updatedSession: FeedingSession = {
 			...feeding,
