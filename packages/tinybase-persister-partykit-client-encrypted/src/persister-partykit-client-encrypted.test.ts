@@ -72,8 +72,9 @@ describe('createSecurePartyKitPersister', () => {
 		store.setRow('table1', 'row1', storeState.table1.row1);
 
 		const changes: Changes = [{ table1: { row1: { cell1: 'value1' } } }, {}, 1];
-		await (persister as unknown as { save: (changes: Changes) => Promise<void> })
-			.save(changes);
+		await (
+			persister as unknown as { save: (changes: Changes) => Promise<void> }
+		).save(changes);
 
 		expect(mockSend).toHaveBeenCalledTimes(1);
 		const sentMessage = mockSend.mock.calls[0][0] as string;
@@ -137,8 +138,9 @@ describe('createSecurePartyKitPersister', () => {
 			1,
 		];
 
-		await (persister as unknown as { save: (changes: Changes) => Promise<void> })
-			.save(changes);
+		await (
+			persister as unknown as { save: (changes: Changes) => Promise<void> }
+		).save(changes);
 
 		expect(mockSend).toHaveBeenCalledTimes(1);
 		const sentMessage = mockSend.mock.calls[0][0] as string;
@@ -147,8 +149,18 @@ describe('createSecurePartyKitPersister', () => {
 
 		const parsed = jsonParseWithUndefined<Changes>(sentMessage.slice(1));
 		const decrypted = await decryptChanges(parsed, encryptionKey);
-		expect(decrypted[0]!.table1!.row1).toEqual(storeState.table1.row1);
+		expect(decrypted[0]!.table1!.row1).toStrictEqual({
+			...storeState.table1.row1,
+			deletedCell: undefined,
+		});
 		expect(decrypted[1]).toEqual(changes[1]);
+
+		const remoteStore = createStore();
+		remoteStore.setCell('table1', 'row1', 'deletedCell', 'stale-value');
+		remoteStore.applyChanges(decrypted);
+		expect(
+			remoteStore.getCell('table1', 'row1', 'deletedCell'),
+		).toBeUndefined();
 	});
 
 	it('encrypts full content before PUT save', async () => {
@@ -463,9 +475,9 @@ describe('createSecurePartyKitPersister', () => {
 		);
 
 		await persister.load().catch(() => {});
-		await (
-			persister as unknown as { save: () => Promise<void> }
-		).save().catch(() => {});
+		await (persister as unknown as { save: () => Promise<void> })
+			.save()
+			.catch(() => {});
 	});
 
 	it('uses https for non-local hosts', async () => {

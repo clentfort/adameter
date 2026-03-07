@@ -1,5 +1,5 @@
 import type { Changes, Content } from 'tinybase';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
 	decryptChanges,
 	decryptContent,
@@ -60,6 +60,30 @@ describe('crypto', () => {
 		expect(decrypted).toEqual(content);
 	});
 
+	it('encrypts each row only once for full table content', async () => {
+		const key = await getEncryptionKey('test-room');
+		const encryptSpy = vi.spyOn(crypto.subtle, 'encrypt');
+		const content: Content = [
+			{
+				table1: {
+					row1: { a: '1', b: '2', c: '3' },
+					row2: { a: '4', b: '5', c: '6' },
+				},
+				table2: {
+					row1: { x: '7', y: '8' },
+				},
+			},
+			{ value1: 'v1', value2: 2 },
+		];
+
+		try {
+			await encryptContent(content, key);
+			expect(encryptSpy).toHaveBeenCalledTimes(5);
+		} finally {
+			encryptSpy.mockRestore();
+		}
+	});
+
 	it('encrypts and decrypts changes with deletions', async () => {
 		const key = await getEncryptionKey('test-room');
 		const changes: Changes = [
@@ -94,6 +118,7 @@ describe('crypto', () => {
 				table1: {
 					row1: {
 						cell1: 'updated',
+						deletedCell: undefined,
 					},
 				},
 			},
@@ -107,16 +132,27 @@ describe('crypto', () => {
 				.table1.row1.d,
 		).toBeDefined();
 
-		const encryptedNoMatch = await encryptChanges(changes, key, () => undefined);
+		const encryptedNoMatch = await encryptChanges(
+			changes,
+			key,
+			() => undefined,
+		);
 		expect(
-			(encryptedNoMatch[0] as Record<string, Record<string, Record<string, string>>>)
-				.table1.row1.cell1,
+			(
+				encryptedNoMatch[0] as Record<
+					string,
+					Record<string, Record<string, string>>
+				>
+			).table1.row1.cell1,
 		).toBeDefined();
 
 		const decrypted = await decryptChanges(encrypted, key);
 		expect(decrypted[0]).toEqual({
 			table1: {
-				row1: fullRow,
+				row1: {
+					...fullRow,
+					deletedCell: undefined,
+				},
 			},
 		});
 	});

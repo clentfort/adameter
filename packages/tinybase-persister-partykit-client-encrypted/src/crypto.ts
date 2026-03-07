@@ -191,7 +191,10 @@ export async function decryptContent(
 export async function encryptChanges(
 	changes: Changes,
 	key: CryptoKey,
-	getRow?: (tableId: string, rowId: string) => Record<string, unknown> | undefined,
+	getRow?: (
+		tableId: string,
+		rowId: string,
+	) => Record<string, unknown> | undefined,
 ): Promise<Changes> {
 	const start = performance.now();
 	const [tableChanges, valueChanges, internal] = changes;
@@ -333,7 +336,10 @@ async function encryptChangedTable(
 	tableId: string,
 	table: Record<string, Record<string, unknown> | undefined> | undefined,
 	key: CryptoKey,
-	getRow?: (tableId: string, rowId: string) => Record<string, unknown> | undefined,
+	getRow?: (
+		tableId: string,
+		rowId: string,
+	) => Record<string, unknown> | undefined,
 ) {
 	if (table === undefined) {
 		return undefined;
@@ -372,7 +378,10 @@ async function encryptChangedRow(
 	rowId: string,
 	row: Record<string, unknown> | undefined,
 	key: CryptoKey,
-	getRow?: (tableId: string, rowId: string) => Record<string, unknown> | undefined,
+	getRow?: (
+		tableId: string,
+		rowId: string,
+	) => Record<string, unknown> | undefined,
 ) {
 	if (row === undefined) {
 		return undefined;
@@ -381,7 +390,7 @@ async function encryptChangedRow(
 	if (getRow) {
 		const fullRow = getRow(tableId, rowId);
 		if (fullRow) {
-			return encryptRowContent(fullRow, key);
+			return encryptRowContent(mergeRowWithDeletionMarkers(fullRow, row), key);
 		}
 	}
 
@@ -419,6 +428,21 @@ async function decryptChangedRow(
 	);
 
 	return Object.fromEntries(decryptedCellEntries);
+}
+
+function mergeRowWithDeletionMarkers(
+	fullRow: Record<string, unknown>,
+	rowChanges: Record<string, unknown>,
+) {
+	const mergedRow: Record<string, unknown> = { ...fullRow };
+
+	for (const [cellId, cellValue] of Object.entries(rowChanges)) {
+		if (cellValue === undefined) {
+			mergedRow[cellId] = undefined;
+		}
+	}
+
+	return mergedRow;
 }
 
 export function jsonStringWithUndefined(value: unknown): string {
