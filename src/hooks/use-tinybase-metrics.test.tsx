@@ -2,8 +2,8 @@ import { renderHook } from '@testing-library/react';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
 import { describe, expect, it } from 'vitest';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { TinybaseMetricsProvider } from '@/contexts/tinybase-metrics-context';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import {
 	useDiaperChangesToday,
 	useDiaperChangesTotal,

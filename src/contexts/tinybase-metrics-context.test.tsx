@@ -12,7 +12,9 @@ import {
 function createTestStore() {
 	const store = createStore();
 	const today = new Date().toISOString().split('T')[0];
-	const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+	const yesterday = new Date(Date.now() - 86_400_000)
+		.toISOString()
+		.split('T')[0];
 
 	// Diaper changes
 	store.setRow(TABLE_IDS.DIAPER_CHANGES, 'diaper-1', {
