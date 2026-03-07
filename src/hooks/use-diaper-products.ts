@@ -9,7 +9,20 @@ export const useDiaperProducts = () => {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.DIAPER_PRODUCTS, store);
 
-	const value = useMemo(() => fromTable<DiaperProduct>(table), [table]);
+	const value = useMemo(() => {
+		const products = fromTable<DiaperProduct>(table);
+		return products.map((product) => ({
+			...product,
+			costPerDiaper:
+				typeof product.costPerDiaper === 'string'
+					? Number.parseFloat(product.costPerDiaper)
+					: product.costPerDiaper,
+			upfrontCost:
+				typeof product.upfrontCost === 'string'
+					? Number.parseFloat(product.upfrontCost)
+					: product.upfrontCost,
+		}));
+	}, [table]);
 
 	const add = useCallback(
 		(item: DiaperProduct) => {

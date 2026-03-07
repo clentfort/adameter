@@ -542,7 +542,7 @@ export default function SettingsPage() {
 									)}
 								</div>
 								<p className="text-xs text-muted-foreground">
-									{typeof product.costPerDiaper === 'number' ? (
+									{product.costPerDiaper !== undefined ? (
 										<fbt desc="Cost per diaper display">
 											Cost per item:{' '}
 											<fbt:param name="currency">
@@ -562,7 +562,7 @@ export default function SettingsPage() {
 								</p>
 								{product.isReusable && (
 									<p className="text-xs text-muted-foreground">
-										{typeof product.upfrontCost === 'number' ? (
+										{product.upfrontCost !== undefined ? (
 											<fbt desc="Reusable diaper upfront cost display">
 												Upfront cost:{' '}
 												<fbt:param name="currency">
