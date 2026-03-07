@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { teethingFormSchema } from '@/types/teething';
+import { parseTeethingFormValues, teethingFormSchema } from '@/types/teething';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
 interface TeethingFormProps {
@@ -48,10 +48,12 @@ export default function TeethingForm({
 	}, [reset, tooth]);
 
 	const handleSave = (values: TeethingFormValues) => {
+		const parsedValues = parseTeethingFormValues(values);
+
 		onSave({
 			...tooth,
-			date: new Date(`${values.date}T12:00:00`).toISOString(),
-			notes: values.notes || undefined,
+			date: parsedValues.date,
+			notes: parsedValues.notes,
 		});
 		onClose();
 	};

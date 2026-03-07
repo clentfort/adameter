@@ -1,62 +1,125 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
+import {
+	numericInputField,
+	optionalBooleanCell,
+	optionalNumberCell,
+	optionalNumberFromInputField,
+	optionalStringCell,
+	requiredBooleanField,
+	requiredNameField,
+} from './schema-utils';
+
+const diaperProductSharedSchema = z.object({
+	costPerDiaper: optionalNumberCell,
+	isReusable: requiredBooleanField,
+	name: requiredNameField,
+	upfrontCost: optionalNumberCell,
+});
+
+const diaperChangeSharedSchema = z.object({
+	containsStool: requiredBooleanField,
+	containsUrine: requiredBooleanField,
+	diaperProductId: optionalStringCell,
+	leakage: optionalBooleanCell,
+	notes: optionalStringCell,
+	pottyStool: optionalBooleanCell,
+	pottyUrine: optionalBooleanCell,
+	temperature: optionalNumberCell,
+});
 
 export const diaperFormSchema = z.object({
-	containsStool: z.boolean(),
-	containsUrine: z.boolean(),
+	containsStool: requiredBooleanField,
+	containsUrine: requiredBooleanField,
 	date: z.string().min(1),
 	diaperProductId: z.string().optional(),
-	leakage: z.boolean(),
+	leakage: requiredBooleanField,
 	notes: z.string().optional(),
-	pottyStool: z.boolean(),
-	pottyUrine: z.boolean(),
-	temperature: z
-		.string()
-		.optional()
-		.refine(
-			(value) =>
-				value === undefined ||
-				value.length === 0 ||
-				!Number.isNaN(Number(value)),
-			{
-				message: 'Temperature must be a number',
-			},
-		),
+	pottyStool: requiredBooleanField,
+	pottyUrine: requiredBooleanField,
+	temperature: numericInputField('Temperature must be a number'),
 	time: z.string().min(1),
 });
 
 export type DiaperFormValues = z.infer<typeof diaperFormSchema>;
 
+export const diaperFormToDataSchema = diaperFormSchema.transform((values) => {
+	const [year, month, day] = values.date.split('-').map(Number);
+	const [hours, minutes] = values.time.split(':').map(Number);
+	const timestamp = new Date(year, month - 1, day, hours, minutes);
+
+	return diaperChangeSharedSchema
+		.extend({
+			diaperBrand: optionalStringCell,
+			timestamp: z.string().min(1),
+		})
+		.parse({
+			containsStool: values.containsStool,
+			containsUrine: values.containsUrine,
+			diaperProductId: values.diaperProductId,
+			leakage: values.leakage ? true : undefined,
+			notes: values.notes,
+			pottyStool: values.pottyStool,
+			pottyUrine: values.pottyUrine,
+			temperature: optionalNumberFromInputField(
+				'Temperature must be a number',
+			).parse(values.temperature),
+			timestamp: timestamp.toISOString(),
+		});
+});
+
 export const diaperProductSchema = z.object({
-	costPerDiaper: z
-		.string()
-		.optional()
-		.refine(
-			(value) =>
-				value === undefined ||
-				value.length === 0 ||
-				!Number.isNaN(Number(value)),
-			{
-				message: 'Cost per diaper must be a number',
-			},
-		),
-	isReusable: z.boolean(),
-	name: z.string().min(1),
-	upfrontCost: z
-		.string()
-		.optional()
-		.refine(
-			(value) =>
-				value === undefined ||
-				value.length === 0 ||
-				!Number.isNaN(Number(value)),
-			{
-				message: 'Upfront cost must be a number',
-			},
-		),
+	costPerDiaper: numericInputField('Cost per diaper must be a number'),
+	isReusable: requiredBooleanField,
+	name: requiredNameField,
+	upfrontCost: numericInputField('Upfront cost must be a number'),
 });
 
 export type DiaperProductFormValues = z.infer<typeof diaperProductSchema>;
+
+export const diaperProductFormToDataSchema = diaperProductSchema.transform(
+	(values) =>
+		diaperProductSharedSchema.parse({
+			costPerDiaper: optionalNumberFromInputField(
+				'Cost per diaper must be a number',
+			).parse(values.costPerDiaper),
+			isReusable: values.isReusable,
+			name: values.name,
+			upfrontCost: values.isReusable
+				? optionalNumberFromInputField('Upfront cost must be a number').parse(
+						values.upfrontCost,
+					)
+				: undefined,
+		}),
+);
+
+export const diaperProductDataSchema = diaperProductSharedSchema.extend({
+	archived: optionalBooleanCell,
+});
+
+export const diaperChangeDataSchema = diaperChangeSharedSchema.extend({
+	diaperBrand: optionalStringCell,
+	timestamp: z.string().min(1),
+});
+
+export type DiaperProductData = z.infer<typeof diaperProductDataSchema>;
+export type DiaperChangeData = z.infer<typeof diaperChangeDataSchema>;
+export type DiaperProductFormData = z.infer<
+	typeof diaperProductFormToDataSchema
+>;
+export type DiaperFormData = z.infer<typeof diaperFormToDataSchema>;
+
+export function parseDiaperProductFormValues(
+	values: DiaperProductFormValues,
+): DiaperProductFormData {
+	return diaperProductFormToDataSchema.parse(values);
+}
+
+export function parseDiaperFormValues(
+	values: DiaperFormValues,
+): DiaperFormData {
+	return diaperFormToDataSchema.parse(values);
+}
 
 export interface DiaperProduct extends BaseEntity {
 	/** Whether the product is archived. */

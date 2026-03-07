@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { growthFormSchema } from '@/types/growth';
+import { growthFormSchema, parseGrowthFormValues } from '@/types/growth';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
 interface EditGrowthFormProps {
@@ -69,23 +69,16 @@ export default function MeasurementForm({
 	}, [measurement, reset]);
 
 	const handleSave = (values: GrowthFormValues) => {
-		const headCircumference = values.headCircumference
-			? Number.parseFloat(values.headCircumference)
-			: undefined;
-		const height = values.height ? Number.parseFloat(values.height) : undefined;
-		const weight = values.weight ? Number.parseFloat(values.weight) : undefined;
+		const parsedValues = parseGrowthFormValues(values);
 
 		const newMeasurement: GrowthMeasurement = {
 			...measurement,
-			date: new Date(`${values.date}T12:00:00`).toISOString(),
-			headCircumference:
-				headCircumference && headCircumference > 0
-					? headCircumference
-					: undefined,
-			height: height && height > 0 ? height : undefined,
+			date: parsedValues.date,
+			headCircumference: parsedValues.headCircumference,
+			height: parsedValues.height,
 			id: measurement?.id || Date.now().toString(),
-			notes: values.notes || undefined,
-			weight: weight && weight > 0 ? weight : undefined,
+			notes: parsedValues.notes,
+			weight: parsedValues.weight,
 		};
 
 		onSave(newMeasurement);

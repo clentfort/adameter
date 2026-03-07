@@ -43,6 +43,7 @@ import { useDevMode } from '@/hooks/use-dev-mode';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
+import { sanitizeImportedRow } from '@/lib/tinybase-sync/entity-row-schemas';
 import { fromCsv, toCsv } from '@/utils/data-transfer/csv';
 import {
 	createZip,
@@ -178,6 +179,15 @@ export default function SettingsPage() {
 						}
 
 						const normalizedRowId = String(rowId);
+						const sanitizedRow = sanitizeImportedRow(name, row);
+						if (sanitizedRow === null) {
+							continue;
+						}
+
+						if (sanitizedRow) {
+							store.setRow(name, normalizedRowId, sanitizedRow);
+							continue;
+						}
 
 						for (const [cellId, cellValue] of Object.entries(row)) {
 							if (cellId === 'id' || !isCellValue(cellValue)) {

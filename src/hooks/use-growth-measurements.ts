@@ -2,6 +2,7 @@ import type { GrowthMeasurement } from '@/types/growth';
 import { useCallback, useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { sanitizeGrowthMeasurementForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
 
@@ -13,22 +14,30 @@ export const useGrowthMeasurements = () => {
 
 	const add = useCallback(
 		(item: GrowthMeasurement) => {
-			const { id, ...cells } = item;
-			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, id, {
+			const cells = sanitizeGrowthMeasurementForStore(item);
+			if (!cells) {
+				return;
+			}
+
+			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, item.id, {
 				...cells,
 				deviceId: getDeviceId(),
-			} as unknown as Record<string, string | number | boolean>);
+			});
 		},
 		[store],
 	);
 
 	const update = useCallback(
 		(item: GrowthMeasurement) => {
-			const { id, ...cells } = item;
-			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, id, {
+			const cells = sanitizeGrowthMeasurementForStore(item);
+			if (!cells) {
+				return;
+			}
+
+			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, item.id, {
 				...cells,
 				deviceId: getDeviceId(),
-			} as unknown as Record<string, string | number | boolean>);
+			});
 		},
 		[store],
 	);

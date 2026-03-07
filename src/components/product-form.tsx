@@ -9,7 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { diaperProductSchema } from '@/types/diaper';
+import {
+	diaperProductSchema,
+	parseDiaperProductFormValues,
+} from '@/types/diaper';
 
 interface ProductFormProps {
 	initialData?: Partial<DiaperProduct>;
@@ -53,29 +56,15 @@ export default function ProductForm({
 	}, [initialData, reset]);
 
 	const handleSave = (values: DiaperProductFormValues) => {
-		const parsedCostPerDiaper = values.costPerDiaper
-			? Number.parseFloat(values.costPerDiaper)
-			: undefined;
-		const parsedUpfrontCost = values.upfrontCost
-			? Number.parseFloat(values.upfrontCost)
-			: undefined;
+		const parsedValues = parseDiaperProductFormValues(values);
 
 		onSave({
 			...(initialData as DiaperProduct),
-			costPerDiaper:
-				typeof parsedCostPerDiaper === 'number' &&
-				Number.isFinite(parsedCostPerDiaper)
-					? parsedCostPerDiaper
-					: undefined,
+			costPerDiaper: parsedValues.costPerDiaper,
 			id: initialData?.id ?? crypto.randomUUID(),
-			isReusable: values.isReusable,
-			name: values.name,
-			upfrontCost:
-				values.isReusable &&
-				typeof parsedUpfrontCost === 'number' &&
-				Number.isFinite(parsedUpfrontCost)
-					? parsedUpfrontCost
-					: undefined,
+			isReusable: parsedValues.isReusable,
+			name: parsedValues.name,
+			upfrontCost: parsedValues.upfrontCost,
 		});
 	};
 

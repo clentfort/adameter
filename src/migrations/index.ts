@@ -9,6 +9,9 @@ import {
 	MIGRATION_ROW_CELLS,
 } from '@/lib/tinybase-sync/constants';
 import { renameDiaperAbnormalitiesToNotesMigration } from './2026-03-01-rename-diaper-abnormalities-to-notes';
+import { normalizeDiaperStoreRowsMigration } from './2026-03-07-normalize-diaper-store-rows';
+import { normalizeEntityStoreRowsMigration } from './2026-03-07-normalize-entity-store-rows';
+import { removeLegacyJsonCellsMigration } from './2026-03-07-remove-legacy-json-cells';
 
 /**
  * Ordered migration list (oldest -> newest).
@@ -17,6 +20,9 @@ import { renameDiaperAbnormalitiesToNotesMigration } from './2026-03-01-rename-d
  */
 export const migrations: readonly Migration[] = [
 	renameDiaperAbnormalitiesToNotesMigration,
+	removeLegacyJsonCellsMigration,
+	normalizeDiaperStoreRowsMigration,
+	normalizeEntityStoreRowsMigration,
 ];
 
 export function runMigrations(

@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { eventFormSchema } from '@/types/event';
+import { eventFormSchema, parseEventFormValues } from '@/types/event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 
@@ -83,24 +83,17 @@ export default function EventForm({
 	}, [event, reset]);
 
 	const handleSave = (values: EventFormValues) => {
-		const startDateTime = new Date(`${values.startDate}T${values.startTime}`);
-		let endDateTime = values.hasEndDate
-			? new Date(`${values.endDate}T${values.endTime}`)
-			: undefined;
-
-		if (endDateTime && endDateTime <= startDateTime) {
-			endDateTime = new Date(startDateTime.getTime() + 3_600_000);
-		}
+		const parsedValues = parseEventFormValues(values);
 
 		const newEvent: Event = {
 			...event,
-			color: values.color,
-			description: values.description || undefined,
-			endDate: endDateTime?.toISOString(),
+			color: parsedValues.color,
+			description: parsedValues.description,
+			endDate: parsedValues.endDate,
 			id: event?.id || Date.now().toString(),
-			startDate: startDateTime.toISOString(),
-			title: values.title,
-			type: values.type,
+			startDate: parsedValues.startDate,
+			title: parsedValues.title,
+			type: parsedValues.type,
 		};
 
 		onSave(newEvent);
