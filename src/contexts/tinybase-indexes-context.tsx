@@ -16,6 +16,7 @@ export const INDEX_IDS = {
 	EVENTS_BY_DATE: 'eventsByDate',
 	FEEDING_SESSIONS_BY_DATE: 'feedingSessionsByDate',
 	GROWTH_MEASUREMENTS_BY_DATE: 'growthMeasurementsByDate',
+	TEETH_BY_DATE: 'teethByDate',
 } as const;
 
 /**
@@ -119,12 +120,22 @@ export function TinybaseIndexesProvider({
 			descendingRowIdSorter,
 		);
 
-		// Growth measurements grouped by date, sorted by timestamp descending
+		// Growth measurements grouped by date, sorted by date descending
 		indexes.setIndexDefinition(
 			INDEX_IDS.GROWTH_MEASUREMENTS_BY_DATE,
 			TABLE_IDS.GROWTH_MEASUREMENTS,
-			(getCell) => getDateSliceId(getCell, 'timestamp'),
-			(getCell) => getTimestampSortKey(getCell, 'timestamp'),
+			(getCell) => getDateSliceId(getCell, 'date'),
+			(getCell) => getTimestampSortKey(getCell, 'date'),
+			descendingSliceIdSorter,
+			descendingRowIdSorter,
+		);
+
+		// Teeth grouped by date, sorted by date descending
+		indexes.setIndexDefinition(
+			INDEX_IDS.TEETH_BY_DATE,
+			TABLE_IDS.TEETHING,
+			(getCell) => getDateSliceId(getCell, 'date'),
+			(getCell) => getTimestampSortKey(getCell, 'date'),
 			descendingSliceIdSorter,
 			descendingRowIdSorter,
 		);
