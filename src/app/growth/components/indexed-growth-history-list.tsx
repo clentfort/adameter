@@ -1,8 +1,8 @@
 'use client';
 
+import type { Indexes } from 'tinybase';
 import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
-import type { Indexes } from 'tinybase';
 import { format, parseISO } from 'date-fns';
 import { useMemo, useState } from 'react';
 import { useSliceRowIds, useStore } from 'tinybase/ui-react';
@@ -10,8 +10,10 @@ import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
 import Markdown from '@/components/markdown';
-import { INDEX_IDS } from '@/contexts/tinybase-indexes-context';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import {
+	INDEX_IDS,
+	useTinybaseIndexes,
+} from '@/contexts/tinybase-indexes-context';
 import {
 	useGrowthMeasurement,
 	useRemoveGrowthMeasurement,
@@ -22,7 +24,7 @@ import {
 	useGrowthMeasurementsByDate,
 	useTeethByDate,
 } from '@/hooks/use-tinybase-indexes';
-import { useTinybaseIndexes } from '@/contexts/tinybase-indexes-context';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { getToothName } from '../utils/teething';
 import MeasurementForm from './growth-form';
 import TeethingForm from './teething-form';
@@ -283,7 +285,11 @@ function DateSection({
 	const interleaved = useMemo(() => {
 		const items = [
 			...growthRowIds.map((id) => ({
-				date: store?.getCell(TABLE_IDS.GROWTH_MEASUREMENTS, id, 'date') as string,
+				date: store?.getCell(
+					TABLE_IDS.GROWTH_MEASUREMENTS,
+					id,
+					'date',
+				) as string,
 				id,
 				type: 'growth' as const,
 			})),
