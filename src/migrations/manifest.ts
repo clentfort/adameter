@@ -5,6 +5,9 @@
  */
 export const MIGRATION_IDS = [
 	'2026-03-01-rename-diaper-abnormalities-to-notes',
+	'2026-03-07-remove-legacy-json-cells',
+	'2026-03-07-normalize-diaper-store-rows',
+	'2026-03-07-normalize-entity-store-rows',
 ] as const;
 
 export const LATEST_MIGRATION_ID =

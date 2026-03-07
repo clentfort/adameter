@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { sanitizeDiaperProductForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { DiaperProduct } from '@/types/diaper';
 import { getDeviceId } from '@/utils/device-id';
@@ -13,22 +14,30 @@ export const useDiaperProducts = () => {
 
 	const add = useCallback(
 		(item: DiaperProduct) => {
-			const { id, ...cells } = item;
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
+			const cells = sanitizeDiaperProductForStore(item);
+			if (!cells) {
+				return;
+			}
+
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, item.id, {
 				...cells,
 				deviceId: getDeviceId(),
-			} as unknown as Record<string, string | number | boolean>);
+			});
 		},
 		[store],
 	);
 
 	const update = useCallback(
 		(item: DiaperProduct) => {
-			const { id, ...cells } = item;
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
+			const cells = sanitizeDiaperProductForStore(item);
+			if (!cells) {
+				return;
+			}
+
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, item.id, {
 				...cells,
 				deviceId: getDeviceId(),
-			} as unknown as Record<string, string | number | boolean>);
+			});
 		},
 		[store],
 	);

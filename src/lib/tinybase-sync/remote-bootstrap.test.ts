@@ -1,6 +1,6 @@
 import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
-import { ROW_JSON_CELL, ROW_ORDER_CELL, TABLE_IDS } from './constants';
+import { ROW_ORDER_CELL, TABLE_IDS } from './constants';
 import {
 	reconcileRemoteLoadResult,
 	snapshotStoreContentIfNonEmpty,
@@ -81,12 +81,9 @@ describe('remote-bootstrap', () => {
 
 function setEventRow(store: ReturnType<typeof createStore>, id: string) {
 	store.setRow(TABLE_IDS.EVENTS, id, {
-		[ROW_JSON_CELL]: JSON.stringify({
-			id,
-			startDate: '2026-02-08T00:00:00.000Z',
-			title: id,
-			type: 'point',
-		}),
 		[ROW_ORDER_CELL]: 0,
+		startDate: '2026-02-08T00:00:00.000Z',
+		title: id,
+		type: 'point',
 	});
 }

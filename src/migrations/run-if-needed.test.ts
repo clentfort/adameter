@@ -4,25 +4,39 @@ import { INTERNAL_TABLE_IDS, TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { hasPendingMigrations, runMigrationsIfNeeded } from './run-if-needed';
 
 const RENAME_MIGRATION_ID = '2026-03-01-rename-diaper-abnormalities-to-notes';
+const REMOVE_LEGACY_JSON_CELLS_MIGRATION_ID =
+	'2026-03-07-remove-legacy-json-cells';
+const NORMALIZE_DIAPER_ROWS_MIGRATION_ID =
+	'2026-03-07-normalize-diaper-store-rows';
+const NORMALIZE_ENTITY_ROWS_MIGRATION_ID =
+	'2026-03-07-normalize-entity-store-rows';
 
 describe('runMigrationsIfNeeded', () => {
 	it('detects pending migrations from migration metadata', () => {
 		const store = createStore();
 		expect(hasPendingMigrations(store)).toBe(true);
 
-		store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, RENAME_MIGRATION_ID, {
-			appliedAt: Date.now(),
-			description: 'already applied',
-		});
+		store.setRow(
+			INTERNAL_TABLE_IDS.MIGRATIONS,
+			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+			{
+				appliedAt: Date.now(),
+				description: 'already applied',
+			},
+		);
 		expect(hasPendingMigrations(store)).toBe(false);
 	});
 
 	it('returns quickly when latest migration is already applied', async () => {
 		const store = createStore();
-		store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, RENAME_MIGRATION_ID, {
-			appliedAt: Date.now(),
-			description: 'already applied',
-		});
+		store.setRow(
+			INTERNAL_TABLE_IDS.MIGRATIONS,
+			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+			{
+				appliedAt: Date.now(),
+				description: 'already applied',
+			},
+		);
 
 		const result = await runMigrationsIfNeeded(store, {
 			deviceId: 'device-fast-path',
@@ -48,12 +62,95 @@ describe('runMigrationsIfNeeded', () => {
 			deviceId: 'device-migrate',
 		});
 
-		expect(result.appliedMigrationIds).toEqual([RENAME_MIGRATION_ID]);
+		expect(result.appliedMigrationIds).toEqual([
+			RENAME_MIGRATION_ID,
+			REMOVE_LEGACY_JSON_CELLS_MIGRATION_ID,
+			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
+			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy note',
 		);
 		expect(
 			store.hasRow(INTERNAL_TABLE_IDS.MIGRATIONS, RENAME_MIGRATION_ID),
 		).toBe(true);
+		expect(
+			store.hasRow(
+				INTERNAL_TABLE_IDS.MIGRATIONS,
+				REMOVE_LEGACY_JSON_CELLS_MIGRATION_ID,
+			),
+		).toBe(true);
+		expect(
+			store.hasRow(
+				INTERNAL_TABLE_IDS.MIGRATIONS,
+				NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
+			),
+		).toBe(true);
+		expect(
+			store.hasRow(
+				INTERNAL_TABLE_IDS.MIGRATIONS,
+				NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+			),
+		).toBe(true);
+	});
+
+	it('cleans existing diaper product rows with blank optional values', async () => {
+		const store = createStore();
+		store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
+			costPerDiaper: '',
+			deviceId: 'device-1',
+			isReusable: false,
+			name: 'Pampers',
+			upfrontCost: '',
+		});
+
+		await runMigrationsIfNeeded(store, {
+			deviceId: 'device-cleanup',
+		});
+
+		expect(store.getRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1')).toEqual({
+			deviceId: 'device-1',
+			isReusable: false,
+			name: 'Pampers',
+		});
+	});
+
+	it('removes legacy json cells from existing rows', async () => {
+		const store = createStore();
+		store.setRow(TABLE_IDS.EVENTS, 'e1', {
+			json: '{"title":"Legacy"}',
+			startDate: '2026-03-01T08:00:00.000Z',
+			title: 'Legacy',
+			type: 'point',
+		});
+
+		await runMigrationsIfNeeded(store, {
+			deviceId: 'device-json-cleanup',
+		});
+
+		expect(store.getCell(TABLE_IDS.EVENTS, 'e1', 'json')).toBeUndefined();
+		expect(store.getCell(TABLE_IDS.EVENTS, 'e1', 'title')).toBe('Legacy');
+	});
+
+	it('normalizes invalid optional cells for non-diaper entities', async () => {
+		const store = createStore();
+		store.setRow(TABLE_IDS.EVENTS, 'e1', {
+			color: '#123456',
+			description: '',
+			startDate: '2026-03-07T08:00:00.000Z',
+			title: 'Checkup',
+			type: 'point',
+		});
+
+		await runMigrationsIfNeeded(store, {
+			deviceId: 'device-entity-cleanup',
+		});
+
+		expect(store.getRow(TABLE_IDS.EVENTS, 'e1')).toEqual({
+			color: '#123456',
+			startDate: '2026-03-07T08:00:00.000Z',
+			title: 'Checkup',
+			type: 'point',
+		});
 	});
 });

@@ -2,6 +2,7 @@ import type { Event } from '@/types/event';
 import { useCallback, useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { sanitizeEventForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
 
@@ -13,22 +14,30 @@ export const useEvents = () => {
 
 	const add = useCallback(
 		(item: Event) => {
-			const { id, ...cells } = item;
-			store.setRow(TABLE_IDS.EVENTS, id, {
+			const cells = sanitizeEventForStore(item);
+			if (!cells) {
+				return;
+			}
+
+			store.setRow(TABLE_IDS.EVENTS, item.id, {
 				...cells,
 				deviceId: getDeviceId(),
-			} as unknown as Record<string, string | number | boolean>);
+			});
 		},
 		[store],
 	);
 
 	const update = useCallback(
 		(item: Event) => {
-			const { id, ...cells } = item;
-			store.setRow(TABLE_IDS.EVENTS, id, {
+			const cells = sanitizeEventForStore(item);
+			if (!cells) {
+				return;
+			}
+
+			store.setRow(TABLE_IDS.EVENTS, item.id, {
 				...cells,
 				deviceId: getDeviceId(),
-			} as unknown as Record<string, string | number | boolean>);
+			});
 		},
 		[store],
 	);
