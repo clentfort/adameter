@@ -37,6 +37,16 @@ export const growthFormSchema = z
 
 export type GrowthFormValues = z.infer<typeof growthFormSchema>;
 
+export const growthMeasurementSchema = z.object({
+	date: z.string(),
+	deviceId: z.string().optional(),
+	headCircumference: z.number().optional(),
+	height: z.number().optional(),
+	id: z.string(),
+	notes: z.string().optional(),
+	weight: z.number().optional(),
+});
+
 export interface GrowthMeasurement extends BaseEntity {
 	// ISO string
 	date: string;

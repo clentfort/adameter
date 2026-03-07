@@ -15,6 +15,15 @@ export const feedingFormSchema = z.object({
 
 export type FeedingFormValues = z.infer<typeof feedingFormSchema>;
 
+export const feedingSessionSchema = z.object({
+	breast: z.enum(['left', 'right']),
+	deviceId: z.string().optional(),
+	durationInSeconds: z.number(),
+	endTime: z.string(),
+	id: z.string(),
+	startTime: z.string(),
+});
+
 export interface FeedingSession extends BaseEntity {
 	breast: 'left' | 'right';
 	durationInSeconds: number;

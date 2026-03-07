@@ -56,6 +56,20 @@ export const diaperProductDataSchema = diaperProductSchema.extend({
 	id: z.string(),
 });
 
+export const diaperChangeSchema = z.object({
+	containsStool: z.boolean(),
+	containsUrine: z.boolean(),
+	deviceId: z.string().optional(),
+	diaperProductId: z.string().optional(),
+	id: z.string(),
+	leakage: z.boolean().optional(),
+	notes: z.string().optional(),
+	pottyStool: z.boolean().optional(),
+	pottyUrine: z.boolean().optional(),
+	temperature: numericStringSchema,
+	timestamp: z.string(),
+});
+
 export interface DiaperProduct extends BaseEntity {
 	/** Whether the product is archived. */
 	archived?: boolean;

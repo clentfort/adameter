@@ -8,6 +8,14 @@ export const teethingFormSchema = z.object({
 
 export type TeethingFormValues = z.infer<typeof teethingFormSchema>;
 
+export const toothSchema = z.object({
+	date: z.string().optional(),
+	deviceId: z.string().optional(),
+	id: z.string(),
+	notes: z.string().optional(),
+	toothId: z.number(),
+});
+
 export interface Tooth extends BaseEntity {
 	date?: string; // ISO date of eruption
 	notes?: string;

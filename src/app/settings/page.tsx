@@ -44,6 +44,11 @@ import { useDiaperProducts } from '@/hooks/use-diaper-products';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { diaperChangeSchema, diaperProductDataSchema } from '@/types/diaper';
+import { eventSchema } from '@/types/event';
+import { feedingSessionSchema } from '@/types/feeding';
+import { growthMeasurementSchema } from '@/types/growth';
+import { toothSchema } from '@/types/teething';
 import { fromCsv, toCsv } from '@/utils/data-transfer/csv';
 import {
 	createZip,
@@ -179,19 +184,31 @@ export default function SettingsPage() {
 						}
 
 						const normalizedRowId = String(rowId);
+						let finalRow: Record<string, unknown> = { ...row };
 
-						const finalRow = { ...row } as Record<string, unknown>;
-						if (name === TABLE_IDS.DIAPER_PRODUCTS) {
-							const costPerDiaper = finalRow.costPerDiaper;
-							if (typeof costPerDiaper === 'string') {
-								const num = Number.parseFloat(costPerDiaper);
-								if (!Number.isNaN(num)) finalRow.costPerDiaper = num;
+						try {
+							switch (name) {
+								case TABLE_IDS.DIAPER_PRODUCTS:
+									finalRow = diaperProductDataSchema.parse(row);
+									break;
+								case TABLE_IDS.DIAPER_CHANGES:
+									finalRow = diaperChangeSchema.parse(row);
+									break;
+								case TABLE_IDS.FEEDING_SESSIONS:
+									finalRow = feedingSessionSchema.parse(row);
+									break;
+								case TABLE_IDS.GROWTH_MEASUREMENTS:
+									finalRow = growthMeasurementSchema.parse(row);
+									break;
+								case TABLE_IDS.TEETHING:
+									finalRow = toothSchema.parse(row);
+									break;
+								case TABLE_IDS.EVENTS:
+									finalRow = eventSchema.parse(row);
+									break;
 							}
-							const upfrontCost = finalRow.upfrontCost;
-							if (typeof upfrontCost === 'string') {
-								const num = Number.parseFloat(upfrontCost);
-								if (!Number.isNaN(num)) finalRow.upfrontCost = num;
-							}
+						} catch {
+							// If parsing fails, fall back to raw data but at least we tried to normalize
 						}
 
 						for (const [cellId, cellValue] of Object.entries(finalRow)) {

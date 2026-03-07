@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { fromTable } from '@/lib/tinybase-sync/migration-utils';
-import { DiaperProduct } from '@/types/diaper';
+import { DiaperProduct, diaperProductDataSchema } from '@/types/diaper';
 import { getDeviceId } from '@/utils/device-id';
 
 export const useDiaperProducts = () => {
@@ -13,18 +13,11 @@ export const useDiaperProducts = () => {
 
 	const add = useCallback(
 		(item: DiaperProduct) => {
-			const { id, ...cells } = item;
+			const parsed = diaperProductDataSchema.parse(item);
+			const { id, ...cells } = parsed;
 			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
 				...cells,
-				costPerDiaper:
-					typeof cells.costPerDiaper === 'string'
-						? Number.parseFloat(cells.costPerDiaper)
-						: cells.costPerDiaper,
 				deviceId: getDeviceId(),
-				upfrontCost:
-					typeof cells.upfrontCost === 'string'
-						? Number.parseFloat(cells.upfrontCost)
-						: cells.upfrontCost,
 			} as unknown as Record<string, string | number | boolean>);
 		},
 		[store],
@@ -32,18 +25,11 @@ export const useDiaperProducts = () => {
 
 	const update = useCallback(
 		(item: DiaperProduct) => {
-			const { id, ...cells } = item;
+			const parsed = diaperProductDataSchema.parse(item);
+			const { id, ...cells } = parsed;
 			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, id, {
 				...cells,
-				costPerDiaper:
-					typeof cells.costPerDiaper === 'string'
-						? Number.parseFloat(cells.costPerDiaper)
-						: cells.costPerDiaper,
 				deviceId: getDeviceId(),
-				upfrontCost:
-					typeof cells.upfrontCost === 'string'
-						? Number.parseFloat(cells.upfrontCost)
-						: cells.upfrontCost,
 			} as unknown as Record<string, string | number | boolean>);
 		},
 		[store],

@@ -15,6 +15,17 @@ export const eventFormSchema = z.object({
 
 export type EventFormValues = z.infer<typeof eventFormSchema>;
 
+export const eventSchema = z.object({
+	color: z.string().optional(),
+	description: z.string().optional(),
+	deviceId: z.string().optional(),
+	endDate: z.string().optional(),
+	id: z.string(),
+	startDate: z.string(),
+	title: z.string(),
+	type: z.enum(['point', 'period']),
+});
+
 export interface Event extends BaseEntity {
 	// point = single date, period = start to end date
 	color?: string;
