@@ -1,8 +1,11 @@
 import type { DiaperChange } from '@/types/diaper';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useLastUsedDiaperProduct } from '@/hooks/use-last-used-diaper-product';
+import {
+	useDiaperChangesSnapshot,
+	useUpsertDiaperChange,
+} from '@/hooks/use-diaper-changes';
+import { useLastUsedDiaperProduct } from '../hooks/use-last-used-diaper-product';
 import DiaperForm from './diaper-form';
 
 interface DiaperTrackerProps {
@@ -16,8 +19,8 @@ export default function DiaperTracker({
 	const [selectedType, setSelectedType] = useState<'urine' | 'stool' | null>(
 		null,
 	);
-	const diaperChangesHook = useDiaperChanges(); // Renamed to avoid conflict with diaperChanges prop if that was intended
-	const { add } = diaperChangesHook;
+	const diaperChanges = useDiaperChangesSnapshot();
+	const upsertDiaperChange = useUpsertDiaperChange();
 	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
 
 	const handleQuickChange = (type: 'urine' | 'stool') => {
@@ -52,8 +55,8 @@ export default function DiaperTracker({
 					onClose={() => setIsDetailsDialogOpen(false)}
 					onSave={(change) => {
 						setIsDetailsDialogOpen(false);
-						add(change);
-						const currentTotalChanges = diaperChangesHook.value.length;
+						upsertDiaperChange(change);
+						const currentTotalChanges = diaperChanges.length;
 						checkAndTriggerConfetti(change, currentTotalChanges);
 					}}
 					presetDiaperProductId={lastUsedDiaperProduct}

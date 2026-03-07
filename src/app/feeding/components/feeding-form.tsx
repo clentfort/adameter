@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react';
-import type { FeedingFormValues, FeedingSession } from '@/types/feeding';
+import type {
+	FeedingFormValues,
+	FeedingSession,
+	FeedingSessionFormData,
+} from '@/types/feeding';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -14,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { feedingFormSchema, parseFeedingFormValues } from '@/types/feeding';
+import { feedingSessionFormToDataSchema } from '@/types/feeding';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 
@@ -44,12 +48,15 @@ export default function FeedingForm({
 	onSave,
 	title,
 }: FeedingFormProps) {
-	const { handleSubmit, register, reset, setValue, watch } =
-		useForm<FeedingFormValues>({
-			defaultValues: getDefaultValues(feeding),
-			mode: 'onChange',
-			resolver: zodResolver(feedingFormSchema),
-		});
+	const { handleSubmit, register, reset, setValue, watch } = useForm<
+		FeedingFormValues,
+		undefined,
+		FeedingSessionFormData
+	>({
+		defaultValues: getDefaultValues(feeding),
+		mode: 'onChange',
+		resolver: zodResolver(feedingSessionFormToDataSchema),
+	});
 
 	const breast = watch('breast');
 
@@ -57,15 +64,7 @@ export default function FeedingForm({
 		reset(getDefaultValues(feeding));
 	}, [feeding, reset]);
 
-	const handleSave = (values: FeedingFormValues) => {
-		let parsedValues: ReturnType<typeof parseFeedingFormValues>;
-
-		try {
-			parsedValues = parseFeedingFormValues(values);
-		} catch {
-			return;
-		}
-
+	const handleSave = (parsedValues: FeedingSessionFormData) => {
 		const updatedSession: FeedingSession = {
 			...feeding,
 			breast: parsedValues.breast,

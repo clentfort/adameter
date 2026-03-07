@@ -12,11 +12,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { useDiaperChanges } from '@/hooks/use-diaper-changes';
-import { useDiaperProducts } from '@/hooks/use-diaper-products';
-import { useEvents } from '@/hooks/use-events';
-import { useFeedingSessions } from '@/hooks/use-feeding-sessions';
-import { useGrowthMeasurements } from '@/hooks/use-growth-measurements';
+import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
+import { useDiaperProductsSnapshot } from '@/hooks/use-diaper-products';
+import { useEventsSnapshot } from '@/hooks/use-events';
+import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
+import { useGrowthMeasurementsSnapshot } from '@/hooks/use-growth-measurements';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
 import DiaperRecords from './components/diaper-records';
@@ -34,11 +34,11 @@ import TotalFeedingsStats from './components/total-feedings-stats';
 import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
 export default function StatisticsPage() {
-	const { value: diaperChanges } = useDiaperChanges();
-	const { value: diaperProducts } = useDiaperProducts();
-	const { value: events } = useEvents();
-	const { value: measurements } = useGrowthMeasurements();
-	const { value: sessions } = useFeedingSessions();
+	const diaperChanges = useDiaperChangesSnapshot();
+	const diaperProducts = useDiaperProductsSnapshot();
+	const events = useEventsSnapshot();
+	const measurements = useGrowthMeasurementsSnapshot();
+	const sessions = useFeedingSessionsSnapshot();
 
 	const [timeRange, setTimeRange] = useState<TimeRange>('7');
 	const [customRange, setCustomRange] = useState({

@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react';
-import type { GrowthFormValues, GrowthMeasurement } from '@/types/growth';
+import type {
+	GrowthFormData,
+	GrowthFormValues,
+	GrowthMeasurement,
+} from '@/types/growth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { useEffect } from 'react';
@@ -15,7 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { growthFormSchema, parseGrowthFormValues } from '@/types/growth';
+import { growthFormToDataSchema } from '@/types/growth';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
 interface EditGrowthFormProps {
@@ -58,19 +62,17 @@ export default function MeasurementForm({
 		handleSubmit,
 		register,
 		reset,
-	} = useForm<GrowthFormValues>({
+	} = useForm<GrowthFormValues, undefined, GrowthFormData>({
 		defaultValues: getDefaultValues(measurement),
 		mode: 'onChange',
-		resolver: zodResolver(growthFormSchema),
+		resolver: zodResolver(growthFormToDataSchema),
 	});
 
 	useEffect(() => {
 		reset(getDefaultValues(measurement));
 	}, [measurement, reset]);
 
-	const handleSave = (values: GrowthFormValues) => {
-		const parsedValues = parseGrowthFormValues(values);
-
+	const handleSave = (parsedValues: GrowthFormData) => {
 		const newMeasurement: GrowthMeasurement = {
 			...measurement,
 			date: parsedValues.date,

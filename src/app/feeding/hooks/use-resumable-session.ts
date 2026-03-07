@@ -1,7 +1,7 @@
 import type { FeedingSession } from '@/types/feeding';
 import { differenceInMinutes } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
-import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
+import { useLatestFeedingSessionRecord } from '@/hooks/use-feeding-sessions';
 
 const RESUME_WINDOW_IN_MINUTES = 5;
 
@@ -10,7 +10,7 @@ const getIsResumable = (session: FeedingSession) =>
 	RESUME_WINDOW_IN_MINUTES;
 
 export function useResumableSession(): FeedingSession | undefined {
-	const latestFeedingSession = useLatestFeedingSession();
+	const latestFeedingSession = useLatestFeedingSessionRecord();
 	const [resumableSession, setResumableSession] = useState<
 		FeedingSession | undefined
 	>();

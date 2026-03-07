@@ -1,58 +1,76 @@
+import type { Row } from 'tinybase';
 import type { Event } from '@/types/event';
-import { useCallback, useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
+import { useMemo } from 'react';
+import {
+	useDelRowCallback,
+	useRow,
+	useSetRowCallback,
+	useStore,
+	useTable,
+} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeEventForStore } from '@/lib/tinybase-sync/entity-row-schemas';
-import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
 
-export const useEvents = () => {
+function toEvent(id: string, row: Row): Event {
+	return {
+		...row,
+		id,
+	} as Event;
+}
+
+export function useUpsertEvent() {
+	return useSetRowCallback<Event>(
+		TABLE_IDS.EVENTS,
+		(event) => event.id,
+		(event) => {
+			const cells = sanitizeEventForStore(event);
+			return cells ? { ...cells, deviceId: getDeviceId() } : {};
+		},
+		[],
+	);
+}
+
+export function useRemoveEvent() {
+	return useDelRowCallback<string>(TABLE_IDS.EVENTS, (id) => id);
+}
+
+export function useEvent(eventId: string | undefined) {
+	const store = useStore()!;
+	const row = useRow(TABLE_IDS.EVENTS, eventId ?? '', store);
+
+	return useMemo(() => {
+		if (!eventId || Object.keys(row).length === 0) {
+			return undefined;
+		}
+
+		return toEvent(eventId, row);
+	}, [eventId, row]);
+}
+
+export function useSortedEventIds() {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.EVENTS, store);
 
-	const value = useMemo(() => fromTable<Event>(table), [table]);
-
-	const add = useCallback(
-		(item: Event) => {
-			const cells = sanitizeEventForStore(item);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.EVENTS, item.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
-		},
-		[store],
+	return useMemo(
+		() =>
+			Object.entries(table)
+				.sort(([, a], [, b]) => {
+					const aStart = typeof a.startDate === 'string' ? a.startDate : '';
+					const bStart = typeof b.startDate === 'string' ? b.startDate : '';
+					return bStart.localeCompare(aStart);
+				})
+				.map(([eventId]) => eventId),
+		[table],
 	);
+}
 
-	const update = useCallback(
-		(item: Event) => {
-			const cells = sanitizeEventForStore(item);
-			if (!cells) {
-				return;
-			}
+export function useEventsSnapshot() {
+	const store = useStore()!;
+	const table = useTable(TABLE_IDS.EVENTS, store);
 
-			store.setRow(TABLE_IDS.EVENTS, item.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
-		},
-		[store],
+	return useMemo(
+		() => Object.entries(table).map(([eventId, row]) => toEvent(eventId, row)),
+		[table],
 	);
-
-	const remove = useCallback(
-		(id: string) => {
-			store.delRow(TABLE_IDS.EVENTS, id);
-		},
-		[store],
-	);
-
-	return {
-		add,
-		remove,
-		update,
-		value,
-	} as const;
-};
+}

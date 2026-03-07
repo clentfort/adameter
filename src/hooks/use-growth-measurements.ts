@@ -1,58 +1,62 @@
+import type { Row } from 'tinybase';
 import type { GrowthMeasurement } from '@/types/growth';
-import { useCallback, useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
+import { useMemo } from 'react';
+import {
+	useDelRowCallback,
+	useRow,
+	useSetRowCallback,
+	useStore,
+	useTable,
+} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeGrowthMeasurementForStore } from '@/lib/tinybase-sync/entity-row-schemas';
-import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
 
-export const useGrowthMeasurements = () => {
+function toGrowthMeasurement(id: string, row: Row): GrowthMeasurement {
+	return {
+		...row,
+		id,
+	} as GrowthMeasurement;
+}
+
+export function useUpsertGrowthMeasurement() {
+	return useSetRowCallback<GrowthMeasurement>(
+		TABLE_IDS.GROWTH_MEASUREMENTS,
+		(measurement) => measurement.id,
+		(measurement) => {
+			const cells = sanitizeGrowthMeasurementForStore(measurement);
+			return cells ? { ...cells, deviceId: getDeviceId() } : {};
+		},
+		[],
+	);
+}
+
+export function useRemoveGrowthMeasurement() {
+	return useDelRowCallback<string>(TABLE_IDS.GROWTH_MEASUREMENTS, (id) => id);
+}
+
+export function useGrowthMeasurement(measurementId: string | undefined) {
+	const store = useStore()!;
+	const row = useRow(TABLE_IDS.GROWTH_MEASUREMENTS, measurementId ?? '', store);
+
+	return useMemo(() => {
+		if (!measurementId || Object.keys(row).length === 0) {
+			return undefined;
+		}
+
+		return toGrowthMeasurement(measurementId, row);
+	}, [measurementId, row]);
+}
+
+export function useGrowthMeasurementsSnapshot() {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.GROWTH_MEASUREMENTS, store);
 
-	const value = useMemo(() => fromTable<GrowthMeasurement>(table), [table]);
-
-	const add = useCallback(
-		(item: GrowthMeasurement) => {
-			const cells = sanitizeGrowthMeasurementForStore(item);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, item.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
-		},
-		[store],
+	return useMemo(
+		() =>
+			Object.entries(table).map(([measurementId, row]) =>
+				toGrowthMeasurement(measurementId, row),
+			),
+		[table],
 	);
-
-	const update = useCallback(
-		(item: GrowthMeasurement) => {
-			const cells = sanitizeGrowthMeasurementForStore(item);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, item.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
-		},
-		[store],
-	);
-
-	const remove = useCallback(
-		(id: string) => {
-			store.delRow(TABLE_IDS.GROWTH_MEASUREMENTS, id);
-		},
-		[store],
-	);
-
-	return {
-		add,
-		remove,
-		update,
-		value,
-	} as const;
-};
+}

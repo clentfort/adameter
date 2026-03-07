@@ -1,58 +1,108 @@
+import type { Row } from 'tinybase';
 import type { FeedingSession } from '@/types/feeding';
-import { useCallback, useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
+import { useMemo } from 'react';
+import {
+	useDelRowCallback,
+	useRow,
+	useSetRowCallback,
+	useStore,
+	useTable,
+} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeFeedingSessionForStore } from '@/lib/tinybase-sync/entity-row-schemas';
-import { fromTable } from '@/lib/tinybase-sync/migration-utils';
 import { getDeviceId } from '@/utils/device-id';
 
-export const useFeedingSessions = () => {
+function toFeedingSession(id: string, row: Row): FeedingSession {
+	return {
+		...row,
+		id,
+	} as FeedingSession;
+}
+
+interface FeedingSessionListEntry {
+	id: string;
+	startTime: string;
+}
+
+export function useUpsertFeedingSession() {
+	return useSetRowCallback<FeedingSession>(
+		TABLE_IDS.FEEDING_SESSIONS,
+		(session) => session.id,
+		(session) => {
+			const cells = sanitizeFeedingSessionForStore(session);
+			return cells ? { ...cells, deviceId: getDeviceId() } : {};
+		},
+		[],
+	);
+}
+
+export function useRemoveFeedingSession() {
+	return useDelRowCallback<string>(TABLE_IDS.FEEDING_SESSIONS, (id) => id);
+}
+
+export function useFeedingSession(sessionId: string | undefined) {
+	const store = useStore()!;
+	const row = useRow(TABLE_IDS.FEEDING_SESSIONS, sessionId ?? '', store);
+
+	return useMemo(() => {
+		if (!sessionId || Object.keys(row).length === 0) {
+			return undefined;
+		}
+
+		return toFeedingSession(sessionId, row);
+	}, [row, sessionId]);
+}
+
+export function useSortedFeedingSessionListEntries() {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
 
-	const value = useMemo(() => fromTable<FeedingSession>(table), [table]);
+	return useMemo(
+		() =>
+			Object.entries(table)
+				.sort(([, a], [, b]) => {
+					const aStart = typeof a.startTime === 'string' ? a.startTime : '';
+					const bStart = typeof b.startTime === 'string' ? b.startTime : '';
+					return bStart.localeCompare(aStart);
+				})
+				.map(
+					([sessionId, row]) =>
+						({
+							id: sessionId,
+							startTime: typeof row.startTime === 'string' ? row.startTime : '',
+						}) satisfies FeedingSessionListEntry,
+				),
+		[table],
+	);
+}
 
-	const add = useCallback(
-		(item: FeedingSession) => {
-			const cells = sanitizeFeedingSessionForStore(item);
-			if (!cells) {
-				return;
+export function useFeedingSessionsSnapshot() {
+	const store = useStore()!;
+	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
+
+	return useMemo(
+		() =>
+			Object.entries(table).map(([sessionId, row]) =>
+				toFeedingSession(sessionId, row),
+			),
+		[table],
+	);
+}
+
+export function useLatestFeedingSessionRecord() {
+	const store = useStore()!;
+	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
+
+	return useMemo(() => {
+		let latestSession: FeedingSession | undefined;
+
+		for (const [sessionId, row] of Object.entries(table)) {
+			const session = toFeedingSession(sessionId, row);
+			if (!latestSession || session.endTime > latestSession.endTime) {
+				latestSession = session;
 			}
+		}
 
-			store.setRow(TABLE_IDS.FEEDING_SESSIONS, item.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
-		},
-		[store],
-	);
-
-	const update = useCallback(
-		(item: FeedingSession) => {
-			const cells = sanitizeFeedingSessionForStore(item);
-			if (!cells) {
-				return;
-			}
-
-			store.setRow(TABLE_IDS.FEEDING_SESSIONS, item.id, {
-				...cells,
-				deviceId: getDeviceId(),
-			});
-		},
-		[store],
-	);
-
-	const remove = useCallback(
-		(id: string) => {
-			store.delRow(TABLE_IDS.FEEDING_SESSIONS, id);
-		},
-		[store],
-	);
-
-	return {
-		add,
-		remove,
-		update,
-		value,
-	} as const;
-};
+		return latestSession;
+	}, [table]);
+}
