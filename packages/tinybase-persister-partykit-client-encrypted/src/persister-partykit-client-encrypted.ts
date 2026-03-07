@@ -17,11 +17,9 @@ const SET_CHANGES = 's';
 const STORE_PATH = '/store';
 
 function getStoreProtocol(host: string): 'http' | 'https' {
-	if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) {
-		return 'http';
-	}
-
-	return 'https';
+	return host.startsWith('localhost') || host.startsWith('127.0.0.1')
+		? 'http'
+		: 'https';
 }
 
 export function createSecurePartyKitPersister(
@@ -30,6 +28,7 @@ export function createSecurePartyKitPersister(
 	encryptionKey: CryptoKey,
 	onIgnoredError?: (error: unknown) => void,
 ) {
+	let executionChain: Promise<unknown> = Promise.resolve();
 	let hasSuccessfullyLoadedPersistedData = false;
 	let hasSuccessfullySavedFullContent = false;
 	const { host, room } = connection.partySocketOptions;
@@ -63,25 +62,42 @@ export function createSecurePartyKitPersister(
 		return result;
 	};
 
-	const getPersisted = async () => {
-		const persisted = await getOrSetStore();
+	const getPersisted = async (): Promise<Content | undefined> => {
+		executionChain = executionChain
+			.catch(() => {})
+			.then(() => getOrSetStore() as Promise<Content | undefined>);
+		const persisted = (await executionChain) as Content | undefined;
 		hasSuccessfullyLoadedPersistedData = true;
 		return persisted;
 	};
 
-	const setPersisted = async (getContent: () => Content, changes?: Changes) => {
-		if (changes) {
-			const encryptedChanges = await encryptChanges(changes, encryptionKey);
-			connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
-			return;
-		}
+	const setPersisted = async (
+		getContent: () => Content,
+		changes?: Changes,
+	): Promise<void> => {
+		executionChain = executionChain
+			.catch(() => {})
+			.then(async () => {
+				if (changes) {
+					const encryptedChanges = await encryptChanges(
+						changes,
+						encryptionKey,
+						(tableId, rowId) => store.getRow(tableId, rowId),
+					);
+					connection.send(
+						SET_CHANGES + jsonStringWithUndefined(encryptedChanges),
+					);
+					return;
+				}
 
-		if (!hasSuccessfullyLoadedPersistedData) {
-			return;
-		}
+				if (!hasSuccessfullyLoadedPersistedData) {
+					return;
+				}
 
-		await getOrSetStore(getContent());
-		hasSuccessfullySavedFullContent = true;
+				await getOrSetStore(getContent());
+				hasSuccessfullySavedFullContent = true;
+			});
+		await executionChain;
 	};
 
 	const addPersisterListener = (
@@ -90,12 +106,11 @@ export function createSecurePartyKitPersister(
 			changes: Changes | undefined,
 		) => void,
 	) => {
-		let lastMessagePromise = Promise.resolve();
 		const messageListener = async (event: MessageEvent) => {
 			const data = event.data;
 
 			if (typeof data === 'string' && data.startsWith(SET_CHANGES)) {
-				lastMessagePromise = lastMessagePromise
+				executionChain = executionChain
 					.catch(() => {})
 					.then(async () => {
 						const start = performance.now();
@@ -116,7 +131,7 @@ export function createSecurePartyKitPersister(
 						}
 					});
 
-				await lastMessagePromise;
+				await executionChain;
 			}
 		};
 

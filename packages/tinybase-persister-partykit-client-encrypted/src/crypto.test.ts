@@ -1,10 +1,13 @@
 import type { Changes, Content } from 'tinybase';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
 	decryptChanges,
 	decryptContent,
+	decryptRowContent,
+	decryptValue,
 	encryptChanges,
 	encryptContent,
+	encryptValue,
 	getEncryptionKey,
 	hashRoomId,
 	jsonParseWithUndefined,
@@ -48,13 +51,37 @@ describe('crypto', () => {
 		];
 
 		const encrypted = await encryptContent(content, key);
-		expect((encrypted[0] as Content[0]).table1.row1.cell1).toMatch(/^s:/);
+		expect((encrypted[0] as Content[0]).table1.row1.d).toMatch(/^s:/);
 		expect((encrypted[1] as Content[1]).value2).toMatch(/^n:/);
 		expect((encrypted[1] as Content[1]).value3).toMatch(/^b:/);
 		expect((encrypted[1] as Content[1]).value4).toMatch(/^l:/);
 
 		const decrypted = await decryptContent(encrypted, key);
 		expect(decrypted).toEqual(content);
+	});
+
+	it('encrypts each row only once for full table content', async () => {
+		const key = await getEncryptionKey('test-room');
+		const encryptSpy = vi.spyOn(crypto.subtle, 'encrypt');
+		const content: Content = [
+			{
+				table1: {
+					row1: { a: '1', b: '2', c: '3' },
+					row2: { a: '4', b: '5', c: '6' },
+				},
+				table2: {
+					row1: { x: '7', y: '8' },
+				},
+			},
+			{ value1: 'v1', value2: 2 },
+		];
+
+		try {
+			await encryptContent(content, key);
+			expect(encryptSpy).toHaveBeenCalledTimes(5);
+		} finally {
+			encryptSpy.mockRestore();
+		}
 	});
 
 	it('encrypts and decrypts changes with deletions', async () => {
@@ -83,6 +110,53 @@ describe('crypto', () => {
 		expect(decrypted).toEqual(changes);
 	});
 
+	it('encrypts and decrypts changes with row context', async () => {
+		const key = await getEncryptionKey('test-room');
+		const fullRow = { cell1: 'updated', cell2: 42 };
+		const changes: Changes = [
+			{
+				table1: {
+					row1: {
+						cell1: 'updated',
+						deletedCell: undefined,
+					},
+				},
+			},
+			{},
+			1,
+		];
+
+		const encrypted = await encryptChanges(changes, key, () => fullRow);
+		expect(
+			(encrypted[0] as Record<string, Record<string, Record<string, string>>>)
+				.table1.row1.d,
+		).toBeDefined();
+
+		const encryptedNoMatch = await encryptChanges(
+			changes,
+			key,
+			() => undefined,
+		);
+		expect(
+			(
+				encryptedNoMatch[0] as Record<
+					string,
+					Record<string, Record<string, string>>
+				>
+			).table1.row1.cell1,
+		).toBeDefined();
+
+		const decrypted = await decryptChanges(encrypted, key);
+		expect(decrypted[0]).toEqual({
+			table1: {
+				row1: {
+					...fullRow,
+					deletedCell: undefined,
+				},
+			},
+		});
+	});
+
 	it('supports large string payloads', async () => {
 		const key = await getEncryptionKey('test-room');
 		const largeString = 'a'.repeat(100_000);
@@ -92,6 +166,10 @@ describe('crypto', () => {
 		const decrypted = await decryptContent(encrypted, key);
 
 		expect((decrypted[1] as Content[1]).large).toBe(largeString);
+
+		await expect(async () => {
+			await decryptContent([{}, { a: 'invalid' }], key);
+		}).rejects.toThrow();
 	});
 
 	it('round-trips undefined values through JSON marker', () => {
@@ -145,5 +223,28 @@ describe('crypto', () => {
 		const decrypted = await decryptChanges(parsed, key);
 
 		expect(decrypted).toEqual(changes);
+	});
+
+	it('handles legacy cell-level encrypted data', async () => {
+		const key = await getEncryptionKey('test-room');
+		const legacyContent = {
+			cell1: await encryptValue('value1', key),
+			cell2: await encryptValue(42, key),
+		};
+
+		const decrypted = await decryptRowContent(legacyContent, key);
+		expect(decrypted).toEqual({
+			cell1: 'value1',
+			cell2: 42,
+		});
+	});
+
+	it('throws on unknown value prefix', async () => {
+		const key = await getEncryptionKey('test-room');
+		const encrypted = await encryptValue('test', key);
+		const modified = 'x:' + encrypted.slice(2);
+		await expect(decryptValue(modified, key)).rejects.toThrow(
+			'Unknown encrypted value prefix',
+		);
 	});
 });

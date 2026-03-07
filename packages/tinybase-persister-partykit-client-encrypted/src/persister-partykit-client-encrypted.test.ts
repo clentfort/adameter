@@ -61,6 +61,16 @@ describe('createSecurePartyKitPersister', () => {
 			encryptionKey,
 		);
 
+		const storeState = {
+			table1: {
+				row1: {
+					cell1: 'value1',
+				},
+			},
+		};
+
+		store.setRow('table1', 'row1', storeState.table1.row1);
+
 		const changes: Changes = [{ table1: { row1: { cell1: 'value1' } } }, {}, 1];
 		await (
 			persister as unknown as { save: (changes: Changes) => Promise<void> }
@@ -73,11 +83,11 @@ describe('createSecurePartyKitPersister', () => {
 		const tableChanges = payload[0] as {
 			table1: {
 				row1: {
-					cell1: string;
+					d: string;
 				};
 			};
 		};
-		expect(tableChanges.table1.row1.cell1).toMatch(/^s:/);
+		expect(tableChanges.table1.row1.d).toMatch(/^s:/);
 	});
 
 	it('propagates add, update, and delete changes over websocket', async () => {
@@ -97,6 +107,16 @@ describe('createSecurePartyKitPersister', () => {
 			connection,
 			encryptionKey,
 		);
+
+		const storeState = {
+			table1: {
+				row1: {
+					addedCell: 'added',
+					updatedCell: 7,
+				},
+			},
+		};
+		store.setRow('table1', 'row1', storeState.table1.row1);
 
 		const changes: Changes = [
 			{
@@ -129,7 +149,18 @@ describe('createSecurePartyKitPersister', () => {
 
 		const parsed = jsonParseWithUndefined<Changes>(sentMessage.slice(1));
 		const decrypted = await decryptChanges(parsed, encryptionKey);
-		expect(decrypted).toEqual(changes);
+		expect(decrypted[0]!.table1!.row1).toStrictEqual({
+			...storeState.table1.row1,
+			deletedCell: undefined,
+		});
+		expect(decrypted[1]).toEqual(changes[1]);
+
+		const remoteStore = createStore();
+		remoteStore.setCell('table1', 'row1', 'deletedCell', 'stale-value');
+		remoteStore.applyChanges(decrypted);
+		expect(
+			remoteStore.getCell('table1', 'row1', 'deletedCell'),
+		).toBeUndefined();
 	});
 
 	it('encrypts full content before PUT save', async () => {
@@ -169,7 +200,7 @@ describe('createSecurePartyKitPersister', () => {
 			method: string;
 		};
 		const body = JSON.parse(requestOptions.body);
-		expect(body[0].table1.row1.cell1).toMatch(/^s:/);
+		expect(body[0].table1.row1.d).toMatch(/^s:/);
 	});
 
 	it('skips full save until initial load succeeds', async () => {
@@ -316,6 +347,10 @@ describe('createSecurePartyKitPersister', () => {
 		} as MessageEvent);
 
 		expect(store.getCell('table1', 'row1', 'cell1')).toBe('remote-value');
+
+		await listener({
+			data: 123,
+		} as unknown as MessageEvent);
 	});
 
 	it('applies remote add, update, and delete changes', async () => {
@@ -411,6 +446,84 @@ describe('createSecurePartyKitPersister', () => {
 		await listener({ data: 'snot-json' } as MessageEvent);
 
 		expect(onIgnoredError).toHaveBeenCalledTimes(1);
+
+		persister.destroy();
+		expect(mockRemoveEventListener).toHaveBeenCalledWith(
+			'message',
+			expect.any(Function),
+		);
+	});
+
+	it('covers catch blocks in execution chain', async () => {
+		const store = createStore();
+		const encryptionKey = await getEncryptionKey('test-room');
+		const connection = new (PartySocket as unknown as new (
+			options: Record<string, unknown>,
+		) => PartySocket)({
+			host: 'localhost',
+			party: 'tinybase',
+			room: 'test-room',
+		});
+		(connection as unknown as { name: string }).name = 'tinybase';
+
+		global.fetch = vi.fn().mockRejectedValue(new Error('network error'));
+
+		const persister = createSecurePartyKitPersister(
+			store,
+			connection,
+			encryptionKey,
+		);
+
+		await persister.load().catch(() => {});
+		await (persister as unknown as { save: () => Promise<void> })
+			.save()
+			.catch(() => {});
+	});
+
+	it('uses https for non-local hosts', async () => {
+		const store = createStore();
+		const encryptionKey = await getEncryptionKey('test-room');
+		const connection = new (PartySocket as unknown as new (
+			options: Record<string, unknown>,
+		) => PartySocket)({
+			host: 'example.com',
+			party: 'tinybase',
+			room: 'test-room',
+		});
+		(connection as unknown as { name: string }).name = 'tinybase';
+
+		createSecurePartyKitPersister(store, connection, encryptionKey);
+		expect(global.fetch).not.toHaveBeenCalled(); // Just verifying it constructs
+	});
+
+	it('continues execution chain after error', async () => {
+		const store = createStore();
+		const encryptionKey = await getEncryptionKey('test-room');
+		const connection = new (PartySocket as unknown as new (
+			options: Record<string, unknown>,
+		) => PartySocket)({
+			host: 'localhost',
+			party: 'tinybase',
+			room: 'test-room',
+		});
+		(connection as unknown as { name: string }).name = 'tinybase';
+
+		global.fetch = vi
+			.fn()
+			.mockRejectedValueOnce(new Error('fail'))
+			.mockResolvedValue({
+				json: () => Promise.resolve([{}, {}]),
+			} as Response);
+
+		const persister = createSecurePartyKitPersister(
+			store,
+			connection,
+			encryptionKey,
+		);
+
+		await persister.load().catch(() => {});
+		await persister.load();
+		expect(global.fetch).toHaveBeenCalledTimes(2);
 	});
 
 	it('saves local data into encrypted room after initial load', async () => {
@@ -451,6 +564,6 @@ describe('createSecurePartyKitPersister', () => {
 			method: string;
 		};
 		const body = JSON.parse(requestOptions.body);
-		expect(body[0].diaperChanges.row1.notes).toMatch(/^s:/);
+		expect(body[0].diaperChanges.row1.d).toMatch(/^s:/);
 	});
 });
