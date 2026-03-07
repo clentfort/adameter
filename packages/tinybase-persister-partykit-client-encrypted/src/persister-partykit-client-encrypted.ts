@@ -75,24 +75,28 @@ export function createSecurePartyKitPersister(
 		getContent: () => Content,
 		changes?: Changes,
 	): Promise<void> => {
-		executionChain = executionChain.catch(() => {}).then(async () => {
-			if (changes) {
-				const encryptedChanges = await encryptChanges(
-					changes,
-					encryptionKey,
-					(tableId, rowId) => store.getRow(tableId, rowId),
-				);
-				connection.send(SET_CHANGES + jsonStringWithUndefined(encryptedChanges));
-				return;
-			}
+		executionChain = executionChain
+			.catch(() => {})
+			.then(async () => {
+				if (changes) {
+					const encryptedChanges = await encryptChanges(
+						changes,
+						encryptionKey,
+						(tableId, rowId) => store.getRow(tableId, rowId),
+					);
+					connection.send(
+						SET_CHANGES + jsonStringWithUndefined(encryptedChanges),
+					);
+					return;
+				}
 
-			if (!hasSuccessfullyLoadedPersistedData) {
-				return;
-			}
+				if (!hasSuccessfullyLoadedPersistedData) {
+					return;
+				}
 
-			await getOrSetStore(getContent());
-			hasSuccessfullySavedFullContent = true;
-		});
+				await getOrSetStore(getContent());
+				hasSuccessfullySavedFullContent = true;
+			});
 		await executionChain;
 	};
 
