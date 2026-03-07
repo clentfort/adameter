@@ -10,6 +10,7 @@ import {
 	encryptValue,
 	getEncryptionKey,
 	hashRoomId,
+	hasLegacyRowEncryption,
 	jsonParseWithUndefined,
 	jsonStringWithUndefined,
 } from './crypto';
@@ -58,6 +59,37 @@ describe('crypto', () => {
 
 		const decrypted = await decryptContent(encrypted, key);
 		expect(decrypted).toEqual(content);
+	});
+
+	it('detects legacy and packed row encryption formats', async () => {
+		const key = await getEncryptionKey('test-room');
+		const packedContent = await encryptContent(
+			[
+				{
+					table1: {
+						row1: {
+							cell1: 'value1',
+						},
+					},
+				},
+				{},
+			],
+			key,
+		);
+
+		expect(hasLegacyRowEncryption(packedContent)).toBe(false);
+
+		const legacyContent: Content = [
+			{
+				table1: {
+					row1: {
+						cell1: await encryptValue('value1', key),
+					},
+				},
+			},
+			{},
+		];
+		expect(hasLegacyRowEncryption(legacyContent)).toBe(true);
 	});
 
 	it('encrypts each row only once for full table content', async () => {
@@ -236,6 +268,18 @@ describe('crypto', () => {
 		expect(decrypted).toEqual({
 			cell1: 'value1',
 			cell2: 42,
+		});
+	});
+
+	it('handles legacy cell-level data when cell id is d', async () => {
+		const key = await getEncryptionKey('test-room');
+		const legacyContent = {
+			d: await encryptValue('value1', key),
+		};
+
+		const decrypted = await decryptRowContent(legacyContent, key);
+		expect(decrypted).toEqual({
+			d: 'value1',
 		});
 	});
 

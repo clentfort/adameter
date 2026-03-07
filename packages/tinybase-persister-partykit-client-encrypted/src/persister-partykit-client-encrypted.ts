@@ -6,6 +6,7 @@ import {
 	decryptContent,
 	encryptChanges,
 	encryptContent,
+	hasLegacyRowEncryption,
 	jsonParseWithUndefined,
 	jsonStringWithUndefined,
 } from './crypto';
@@ -31,30 +32,24 @@ export function createSecurePartyKitPersister(
 	let executionChain: Promise<unknown> = Promise.resolve();
 	let hasSuccessfullyLoadedPersistedData = false;
 	let hasSuccessfullySavedFullContent = false;
+	let hasPendingLegacyRowEncryptionMigration = false;
 	const { host, room } = connection.partySocketOptions;
 	const protocol = getStoreProtocol(host);
 	const storeUrl = `${protocol}://${host}/parties/${connection.name}/${room}${STORE_PATH}`;
 
-	const getOrSetStore = async (content?: Content) => {
+	const saveStore = async (content: Content) => {
 		const start = performance.now();
-		const body = content
-			? jsonStringWithUndefined(await encryptContent(content, encryptionKey))
-			: undefined;
+		const body = jsonStringWithUndefined(
+			await encryptContent(content, encryptionKey),
+		);
 
 		const response = await fetch(storeUrl, {
-			...(body ? { body, method: PUT } : {}),
+			body,
 			cache: 'no-store',
+			method: PUT,
 			mode: 'cors',
 		});
 		const result = await response.json();
-
-		if (result && !content) {
-			const decrypted = await decryptContent(result, encryptionKey);
-			logger.log(
-				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
-			);
-			return decrypted;
-		}
 
 		logger.log(
 			`[PERF] getOrSetStore (save) took ${(performance.now() - start).toFixed(2)}ms`,
@@ -62,13 +57,74 @@ export function createSecurePartyKitPersister(
 		return result;
 	};
 
-	const getPersisted = async (): Promise<Content | undefined> => {
+	const loadStore = async () => {
+		const start = performance.now();
+		const response = await fetch(storeUrl, {
+			cache: 'no-store',
+			mode: 'cors',
+		});
+		const result = (await response.json()) as Content | undefined;
+
+		if (result) {
+			const hasLegacyRowEncryptionFormat = hasLegacyRowEncryption(result);
+			const decrypted = await decryptContent(result, encryptionKey);
+			logger.log(
+				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
+			);
+			return {
+				hasLegacyRowEncryptionFormat,
+				persisted: decrypted,
+			};
+		}
+
+		logger.log(
+			`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
+		);
+		return {
+			hasLegacyRowEncryptionFormat: false,
+			persisted: result,
+		};
+	};
+
+	const queueLegacyRowEncryptionMigration = (content: Content) => {
+		if (hasPendingLegacyRowEncryptionMigration) {
+			return;
+		}
+
+		hasPendingLegacyRowEncryptionMigration = true;
 		executionChain = executionChain
 			.catch(() => {})
-			.then(() => getOrSetStore() as Promise<Content | undefined>);
-		const persisted = (await executionChain) as Content | undefined;
+			.then(async () => {
+				const start = performance.now();
+				await saveStore(content);
+				hasSuccessfullySavedFullContent = true;
+				logger.log(
+					`[PERF] Legacy row encryption migration took ${(performance.now() - start).toFixed(2)}ms`,
+				);
+			})
+			.catch((error) => {
+				onIgnoredError?.(error);
+			})
+			.finally(() => {
+				hasPendingLegacyRowEncryptionMigration = false;
+			});
+	};
+
+	const getPersisted = async (): Promise<Content | undefined> => {
+		executionChain = executionChain.catch(() => {}).then(loadStore);
+		const persistedState = (await executionChain) as Awaited<
+			ReturnType<typeof loadStore>
+		>;
 		hasSuccessfullyLoadedPersistedData = true;
-		return persisted;
+
+		if (
+			persistedState.hasLegacyRowEncryptionFormat &&
+			persistedState.persisted
+		) {
+			queueLegacyRowEncryptionMigration(persistedState.persisted);
+		}
+
+		return persistedState.persisted;
 	};
 
 	const setPersisted = async (
@@ -94,7 +150,7 @@ export function createSecurePartyKitPersister(
 					return;
 				}
 
-				await getOrSetStore(getContent());
+				await saveStore(getContent());
 				hasSuccessfullySavedFullContent = true;
 			});
 		await executionChain;

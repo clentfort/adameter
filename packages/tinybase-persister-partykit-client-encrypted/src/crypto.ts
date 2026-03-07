@@ -188,6 +188,22 @@ export async function decryptContent(
 	return [decryptedTables, decryptedValues];
 }
 
+export function hasLegacyRowEncryption(content: Content): boolean {
+	const [tables] = content;
+
+	for (const table of Object.values(tables)) {
+		for (const row of Object.values(
+			table as Record<string, Record<string, unknown>>,
+		)) {
+			if (!isPackedEncryptedRow(row)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 export async function encryptChanges(
 	changes: Changes,
 	key: CryptoKey,
@@ -316,10 +332,8 @@ export async function decryptRowContent(
 	row: Record<string, unknown>,
 	key: CryptoKey,
 ) {
-	if (row[DATA_CELL_ID] !== undefined) {
-		return jsonParseWithUndefined<Record<string, unknown>>(
-			(await decryptValue(row[DATA_CELL_ID] as string, key)) as string,
-		);
+	if (isPackedEncryptedRow(row)) {
+		return decryptPackedEncryptedRow(row, key);
 	}
 
 	const transformedCellEntries = await Promise.all(
@@ -414,10 +428,8 @@ async function decryptChangedRow(
 		return undefined;
 	}
 
-	if (row[DATA_CELL_ID] !== undefined) {
-		return jsonParseWithUndefined<Record<string, unknown>>(
-			(await decryptValue(row[DATA_CELL_ID] as string, key)) as string,
-		);
+	if (isPackedEncryptedRow(row)) {
+		return decryptPackedEncryptedRow(row, key);
 	}
 
 	const decryptedCellEntries = await Promise.all(
@@ -428,6 +440,34 @@ async function decryptChangedRow(
 	);
 
 	return Object.fromEntries(decryptedCellEntries);
+}
+
+async function decryptPackedEncryptedRow(
+	row: Record<string, unknown>,
+	key: CryptoKey,
+) {
+	const decryptedDataCellValue = await decryptValue(
+		row[DATA_CELL_ID] as string,
+		key,
+	);
+
+	if (typeof decryptedDataCellValue !== 'string') {
+		throw new Error('Encrypted row payload must decrypt to a string');
+	}
+
+	try {
+		return jsonParseWithUndefined<Record<string, unknown>>(
+			decryptedDataCellValue,
+		);
+	} catch {
+		return {
+			[DATA_CELL_ID]: decryptedDataCellValue,
+		};
+	}
+}
+
+function isPackedEncryptedRow(row: Record<string, unknown>) {
+	return Object.keys(row).length === 1 && row[DATA_CELL_ID] !== undefined;
 }
 
 function mergeRowWithDeletionMarkers(

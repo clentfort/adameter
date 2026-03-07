@@ -6,6 +6,7 @@ import {
 	decryptChanges,
 	encryptChanges,
 	encryptContent,
+	encryptValue,
 	getEncryptionKey,
 	hashRoomId,
 	jsonParseWithUndefined,
@@ -21,6 +22,21 @@ type StatefulPersister = ReturnType<typeof createSecurePartyKitPersister> & {
 const mockAddEventListener = vi.fn();
 const mockRemoveEventListener = vi.fn();
 const mockSend = vi.fn();
+
+async function waitForMockCallCount(
+	mock: ReturnType<typeof vi.fn>,
+	minimumCallCount: number,
+) {
+	for (let attempt = 0; attempt < 20; attempt++) {
+		if (mock.mock.calls.length >= minimumCallCount) {
+			return;
+		}
+
+		await new Promise((resolve) => {
+			setTimeout(resolve, 0);
+		});
+	}
+}
 
 function MockPartySocket(this: Record<string, unknown>, options: unknown) {
 	this.addEventListener = mockAddEventListener;
@@ -310,6 +326,111 @@ describe('createSecurePartyKitPersister', () => {
 
 		await persister.load();
 		expect(store.getCell('table1', 'row1', 'cell1')).toBe('real-value');
+	});
+
+	it('migrates legacy encrypted rows to packed row format after load', async () => {
+		const store = createStore();
+		const encryptionKey = await getEncryptionKey('test-room');
+		const encryptedLegacyCellValue = await encryptValue(
+			'legacy-value',
+			encryptionKey,
+		);
+		const connection = new (PartySocket as unknown as new (
+			options: Record<string, unknown>,
+		) => PartySocket)({
+			host: 'localhost',
+			party: 'tinybase',
+			room: 'test-room',
+		});
+		(connection as unknown as { name: string }).name = 'tinybase';
+
+		const fetchMock = vi
+			.fn()
+			.mockResolvedValueOnce({
+				json: () =>
+					Promise.resolve([
+						{
+							table1: {
+								row1: {
+									cell1: encryptedLegacyCellValue,
+								},
+							},
+						},
+						{},
+					]),
+			} as Response)
+			.mockResolvedValue({
+				json: () => Promise.resolve([{}, {}]),
+			} as Response);
+		global.fetch = fetchMock;
+
+		const persister = createSecurePartyKitPersister(
+			store,
+			connection,
+			encryptionKey,
+		);
+
+		await persister.load();
+		expect(store.getCell('table1', 'row1', 'cell1')).toBe('legacy-value');
+
+		await waitForMockCallCount(fetchMock, 2);
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+
+		const putCall = fetchMock.mock.calls.find(
+			(call: unknown[]) => (call[1] as { method?: string })?.method === 'PUT',
+		);
+		expect(putCall).toBeDefined();
+
+		const requestOptions = (putCall as unknown[])[1] as {
+			body: string;
+			method: string;
+		};
+		const body = JSON.parse(requestOptions.body);
+		expect(body[0].table1.row1.d).toMatch(/^s:/);
+	});
+
+	it('skips migration when rows are already packed', async () => {
+		const store = createStore();
+		const encryptionKey = await getEncryptionKey('test-room');
+		const connection = new (PartySocket as unknown as new (
+			options: Record<string, unknown>,
+		) => PartySocket)({
+			host: 'localhost',
+			party: 'tinybase',
+			room: 'test-room',
+		});
+		(connection as unknown as { name: string }).name = 'tinybase';
+
+		const packedEncryptedContent = await encryptContent(
+			[
+				{
+					table1: {
+						row1: {
+							cell1: 'packed-value',
+						},
+					},
+				},
+				{},
+			],
+			encryptionKey,
+		);
+
+		const fetchMock = vi.fn().mockResolvedValue({
+			json: () => Promise.resolve(packedEncryptedContent),
+		} as Response);
+		global.fetch = fetchMock;
+
+		const persister = createSecurePartyKitPersister(
+			store,
+			connection,
+			encryptionKey,
+		);
+
+		await persister.load();
+		expect(store.getCell('table1', 'row1', 'cell1')).toBe('packed-value');
+
+		await waitForMockCallCount(fetchMock, 1);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
 	});
 
 	it('decrypts incoming websocket messages', async () => {
