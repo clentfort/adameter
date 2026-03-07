@@ -7,8 +7,8 @@ import '@/i18n';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, useEffect, useRef } from 'react';
-import { useLatestDiaperChange } from '@/hooks/use-latest-diaper-change';
-import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
+import { useLatestDiaperChangeRecord } from '@/hooks/use-diaper-changes';
+import { useLatestFeedingSessionRecord } from '@/hooks/use-feeding-sessions';
 import ConsoleDebugger from '../console-debugger';
 import ProfilePrompt from '../profile-prompt';
 import { Button } from '../ui/button';
@@ -23,8 +23,8 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
-	const latestFeedingSession = useLatestFeedingSession();
-	const latestDiaperChange = useLatestDiaperChange();
+	const latestFeedingSession = useLatestFeedingSessionRecord();
+	const latestDiaperChange = useLatestDiaperChangeRecord();
 	const pathname = usePathname();
 	const containerRef = useRef<HTMLDivElement>(null);
 

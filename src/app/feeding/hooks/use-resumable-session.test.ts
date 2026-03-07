@@ -2,12 +2,12 @@ import type { FeedingSession } from '@/types/feeding';
 import { act, renderHook } from '@testing-library/react';
 import { subMinutes } from 'date-fns';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useLatestFeedingSession } from '@/hooks/use-latest-feeding-session';
+import { useLatestFeedingSessionRecord } from '@/hooks/use-feeding-sessions';
 import { useResumableSession } from './use-resumable-session';
 
-vi.mock('@/hooks/use-latest-feeding-session');
+vi.mock('@/hooks/use-feeding-sessions');
 
-const mockUseLatestFeedingSession = vi.mocked(useLatestFeedingSession);
+const mockUseLatestFeedingSession = vi.mocked(useLatestFeedingSessionRecord);
 
 describe('useResumableSession', () => {
 	beforeEach(() => {

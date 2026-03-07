@@ -5,7 +5,7 @@ import {
 	useDiaperChangesSnapshot,
 	useUpsertDiaperChange,
 } from '@/hooks/use-diaper-changes';
-import { useLastUsedDiaperProduct } from '@/hooks/use-last-used-diaper-product';
+import { useLastUsedDiaperProduct } from '../hooks/use-last-used-diaper-product';
 import DiaperForm from './diaper-form';
 
 interface DiaperTrackerProps {

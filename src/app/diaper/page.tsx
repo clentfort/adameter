@@ -10,10 +10,10 @@ import {
 	useSortedDiaperChangeListEntries,
 	useUpsertDiaperChange,
 } from '@/hooks/use-diaper-changes';
-import { useLastUsedDiaperProduct } from '@/hooks/use-last-used-diaper-product';
 import DiaperForm from './components/diaper-form';
 import DiaperHistoryList from './components/diaper-history-list';
 import DiaperTracker from './components/diaper-tracker';
+import { useLastUsedDiaperProduct } from './hooks/use-last-used-diaper-product';
 
 export default function DiaperPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);

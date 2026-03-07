@@ -8,10 +8,10 @@ import {
 	useSortedFeedingSessionListEntries,
 	useUpsertFeedingSession,
 } from '@/hooks/use-feeding-sessions';
-import { useNextBreast } from '@/hooks/use-next-breast';
 import FeedingForm from './components/feeding-form';
 import HistoryList from './components/feeding-history-list';
 import BreastfeedingTracker from './components/feeding-tracker';
+import { useNextBreast } from './hooks/use-next-breast';
 import { useResumableSession } from './hooks/use-resumable-session';
 
 export default function Feedings() {
