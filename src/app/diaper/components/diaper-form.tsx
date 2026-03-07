@@ -27,7 +27,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useDiaperChanges } from '@/hooks/use-diaper-changes';
 import { useDiaperProducts } from '@/hooks/use-diaper-products';
-import { diaperFormSchema } from '@/types/diaper';
+import { diaperFormSchema, parseDiaperFormValues } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 import { getFrecencySortedProducts } from '../utils/get-frecency-sorted-products';
@@ -120,24 +120,20 @@ export default function DiaperForm({
 	}, [change, presetDiaperProductId, presetType, reset]);
 
 	const handleSave = (values: DiaperFormValues) => {
-		const [year, month, day] = values.date.split('-').map(Number);
-		const [hours, minutes] = values.time.split(':').map(Number);
-		const timestamp = new Date(year, month - 1, day, hours, minutes);
+		const parsedValues = parseDiaperFormValues(values);
 
 		const updatedChange: DiaperChange = {
 			...change,
-			containsStool: values.containsStool,
-			containsUrine: values.containsUrine,
-			diaperProductId: values.diaperProductId || undefined,
+			containsStool: parsedValues.containsStool,
+			containsUrine: parsedValues.containsUrine,
+			diaperProductId: parsedValues.diaperProductId,
 			id: change?.id || Date.now().toString(),
-			leakage: values.leakage || undefined,
-			notes: values.notes || undefined,
-			pottyStool: values.pottyStool,
-			pottyUrine: values.pottyUrine,
-			temperature: values.temperature
-				? Number.parseFloat(values.temperature)
-				: undefined,
-			timestamp: timestamp.toISOString(),
+			leakage: parsedValues.leakage,
+			notes: parsedValues.notes,
+			pottyStool: parsedValues.pottyStool,
+			pottyUrine: parsedValues.pottyUrine,
+			temperature: parsedValues.temperature,
+			timestamp: parsedValues.timestamp,
 		};
 
 		onSave(updatedChange);

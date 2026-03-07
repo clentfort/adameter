@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { feedingFormSchema } from '@/types/feeding';
+import { feedingFormSchema, parseFeedingFormValues } from '@/types/feeding';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
 
@@ -58,22 +58,15 @@ export default function FeedingForm({
 	}, [feeding, reset]);
 
 	const handleSave = (values: FeedingFormValues) => {
-		const durationInMinutes = Number(values.duration);
-		const [year, month, day] = values.date.split('-').map(Number);
-		const [hours, minutes] = values.time.split(':').map(Number);
-
-		const startTime = new Date(year, month - 1, day, hours, minutes);
-		const endTime = new Date(
-			startTime.getTime() + durationInMinutes * 60 * 1000,
-		);
+		const parsedValues = parseFeedingFormValues(values);
 
 		const updatedSession: FeedingSession = {
 			...feeding,
-			breast: values.breast,
-			durationInSeconds: durationInMinutes * 60,
-			endTime: endTime.toISOString(),
+			breast: parsedValues.breast,
+			durationInSeconds: parsedValues.durationInSeconds,
+			endTime: parsedValues.endTime,
 			id: feeding?.id ?? Date.now().toString(),
-			startTime: startTime.toISOString(),
+			startTime: parsedValues.startTime,
 		};
 
 		onSave(updatedSession);

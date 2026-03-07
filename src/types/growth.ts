@@ -1,5 +1,29 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
+import {
+	optionalPositiveNumberCell,
+	optionalPositiveNumberFromInputField,
+	optionalTextField,
+} from './schema-utils';
+
+const growthMeasurementSharedSchema = z
+	.object({
+		date: z.string().min(1),
+		headCircumference: optionalPositiveNumberCell,
+		height: optionalPositiveNumberCell,
+		notes: optionalTextField,
+		weight: optionalPositiveNumberCell,
+	})
+	.refine(
+		(values) =>
+			values.weight !== undefined ||
+			values.height !== undefined ||
+			values.headCircumference !== undefined,
+		{
+			message: 'AT_LEAST_ONE_REQUIRED',
+			path: ['weight'],
+		},
+	);
 
 export const growthFormSchema = z
 	.object({
@@ -36,6 +60,33 @@ export const growthFormSchema = z
 	);
 
 export type GrowthFormValues = z.infer<typeof growthFormSchema>;
+
+export const growthFormToDataSchema = growthFormSchema.transform((values) =>
+	growthMeasurementSharedSchema.parse({
+		date: new Date(`${values.date}T12:00:00`).toISOString(),
+		headCircumference: optionalPositiveNumberFromInputField(
+			'Must be a positive number',
+		).parse(values.headCircumference),
+		height: optionalPositiveNumberFromInputField(
+			'Must be a positive number',
+		).parse(values.height),
+		notes: values.notes,
+		weight: optionalPositiveNumberFromInputField(
+			'Must be a positive number',
+		).parse(values.weight),
+	}),
+);
+
+export const growthMeasurementDataSchema = growthMeasurementSharedSchema;
+
+export type GrowthMeasurementData = z.infer<typeof growthMeasurementDataSchema>;
+export type GrowthFormData = z.infer<typeof growthFormToDataSchema>;
+
+export function parseGrowthFormValues(
+	values: GrowthFormValues,
+): GrowthFormData {
+	return growthFormToDataSchema.parse(values);
+}
 
 export interface GrowthMeasurement extends BaseEntity {
 	// ISO string
