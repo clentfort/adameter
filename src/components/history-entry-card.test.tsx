@@ -31,7 +31,7 @@ describe('HistoryEntryCard', () => {
 		expect(timeElement).toHaveClass('text-muted-foreground');
 	});
 
-	it('renders emoji when provided', () => {
+	it('renders emoji when provided as string', () => {
 		render(
 			<HistoryEntryCard emoji="👶" formattedTime="12:34">
 				<p>Test content</p>
@@ -39,6 +39,36 @@ describe('HistoryEntryCard', () => {
 		);
 
 		expect(screen.getByText('👶')).toBeInTheDocument();
+	});
+
+	it('renders multiple emojis when provided as ReactNode', () => {
+		render(
+			<HistoryEntryCard
+				emoji={
+					<div>
+						<span>👶</span>
+						<span>🚽</span>
+					</div>
+				}
+				formattedTime="12:34"
+			>
+				<p>Test content</p>
+			</HistoryEntryCard>,
+		);
+
+		expect(screen.getByText('👶')).toBeInTheDocument();
+		expect(screen.getByText('🚽')).toBeInTheDocument();
+	});
+
+	it('renders rightContent when provided', () => {
+		render(
+			<HistoryEntryCard formattedTime="12:34" rightContent={<b>15 Min</b>}>
+				<p>Test content</p>
+			</HistoryEntryCard>,
+		);
+
+		expect(screen.getByText('15 Min')).toBeInTheDocument();
+		expect(screen.getByText('15 Min').tagName).toBe('B');
 	});
 
 	it('calls onEdit when edit button is clicked', () => {

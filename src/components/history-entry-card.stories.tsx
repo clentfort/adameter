@@ -17,25 +17,32 @@ export const Diaper: Story = {
 				<p>Product: Luvs</p>
 			</div>
 		),
-		emoji: '👶',
+		emoji: (
+			<div className="flex flex-col items-center">
+				<span>👶</span>
+				<span>🚽</span>
+			</div>
+		),
 		formattedTime: '10:30 AM',
 		onDelete: () => {},
 		onEdit: () => {},
-		title: 'Urine & Stool',
+		title: (
+			<div className="flex flex-col">
+				<span className="text-sm">Urine & Stool</span>
+				<span className="text-xs opacity-90">Potty: Urine</span>
+			</div>
+		),
 		variant: 'diaper',
 	},
 };
 
 export const Feeding: Story = {
 	args: {
-		children: (
-			<div className="text-right flex flex-col items-end">
-				<p className="font-bold">15 min</p>
-			</div>
-		),
+		children: null,
 		formattedTime: '12:00 PM',
 		onDelete: () => {},
 		onEdit: () => {},
+		rightContent: <p className="font-bold">15 min</p>,
 		title: 'Left Breast',
 		variant: 'feeding',
 	},

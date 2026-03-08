@@ -49,6 +49,11 @@ function FeedingHistoryEntry({
 			formattedTime={format(new Date(session.startTime), 'p')}
 			onDelete={() => onDelete(session.id)}
 			onEdit={() => onEdit(session.id)}
+			rightContent={
+				<p className="font-bold">
+					{formatDurationAbbreviated(session.durationInSeconds)}
+				</p>
+			}
 			title={
 				<p className={`font-medium ${textColor}`}>
 					{isLeftBreast ? (
@@ -64,25 +69,16 @@ function FeedingHistoryEntry({
 			}
 			variant="feeding"
 		>
-			<div className="flex justify-between items-start">
-				<div>
-					{crossesMidnight && (
-						<p className="text-xs text-muted-foreground">
-							<span className="font-medium">
-								<fbt desc="Label for a note">Note</fbt>:
-							</span>{' '}
-							<fbt desc="A note describing that the feeding session crosses midnight">
-								This session crosses midnight
-							</fbt>
-						</p>
-					)}
-				</div>
-				<div className="text-right flex flex-col items-end">
-					<p className="font-bold">
-						{formatDurationAbbreviated(session.durationInSeconds)}
-					</p>
-				</div>
-			</div>
+			{crossesMidnight && (
+				<p className="text-xs text-muted-foreground">
+					<span className="font-medium">
+						<fbt desc="Label for a note">Note</fbt>:
+					</span>{' '}
+					<fbt desc="A note describing that the feeding session crosses midnight">
+						This session crosses midnight
+					</fbt>
+				</p>
+			)}
 		</HistoryEntryCard>
 	);
 }

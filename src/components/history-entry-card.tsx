@@ -37,10 +37,11 @@ interface HistoryEntryCardProps {
 	children: ReactNode;
 	className?: string;
 	'data-testid'?: string;
-	emoji?: string;
+	emoji?: ReactNode;
 	formattedTime?: string;
 	onDelete?: () => void;
 	onEdit?: () => void;
+	rightContent?: ReactNode;
 	style?: CSSProperties;
 	title?: ReactNode;
 	variant?: HistoryEntryVariant;
@@ -54,6 +55,7 @@ export function HistoryEntryCard({
 	formattedTime,
 	onDelete,
 	onEdit,
+	rightContent,
 	style,
 	title,
 	variant = 'event',
@@ -66,36 +68,49 @@ export function HistoryEntryCard({
 			data-testid={dataTestId}
 			style={style}
 		>
-			<div className="flex justify-between items-start">
-				<div className="flex-1">
-					<div className="flex items-center gap-2">
+			<div className="flex justify-between items-start gap-2">
+				<div className="flex-1 min-w-0">
+					<div className="flex items-start gap-2">
 						{emoji && (
-							<span aria-hidden="true" role="img">
+							<div aria-hidden="true" className="shrink-0 mt-1" role="img">
 								{emoji}
-							</span>
+							</div>
 						)}
-						<div className="flex flex-col">
-							{title && <div className="font-medium text-lg">{title}</div>}
-							{formattedTime && (
-								<p
-									className={cn(
-										'font-medium',
-										title ? 'text-xs text-muted-foreground' : 'text-lg',
+						<div className="flex-1 min-w-0">
+							<div className="flex justify-between items-start gap-2">
+								<div className="flex flex-col min-w-0">
+									{title && (
+										<div className="font-medium text-lg leading-tight">
+											{title}
+										</div>
 									)}
-								>
-									{formattedTime}
-								</p>
-							)}
+									{formattedTime && (
+										<p
+											className={cn(
+												'font-medium',
+												title ? 'text-xs text-muted-foreground' : 'text-lg',
+											)}
+										>
+											{formattedTime}
+										</p>
+									)}
+								</div>
+								<div className="flex flex-col items-end shrink-0 gap-1">
+									{(onEdit || onDelete) && (
+										<div className="flex gap-1 shrink-0">
+											{onEdit && <EditIconButton onClick={onEdit} />}
+											{onDelete && <DeleteIconButton onClick={onDelete} />}
+										</div>
+									)}
+									{rightContent && (
+										<div className="shrink-0 text-right">{rightContent}</div>
+									)}
+								</div>
+							</div>
+							<div className="mt-2 space-y-1">{children}</div>
 						</div>
 					</div>
-					<div className="mt-2 space-y-1">{children}</div>
 				</div>
-				{(onEdit || onDelete) && (
-					<div className="flex gap-1 mt-2 shrink-0">
-						{onEdit && <EditIconButton onClick={onEdit} />}
-						{onDelete && <DeleteIconButton onClick={onDelete} />}
-					</div>
-				)}
 			</div>
 		</div>
 	);
