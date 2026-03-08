@@ -1,19 +1,10 @@
 import type { Indexes } from 'tinybase';
-import { format, parseISO } from 'date-fns';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useSliceRowIds } from 'tinybase/ui-react';
+import { formatSectionDate } from '@/utils/format-history-date';
 
 const INITIAL_VISIBLE_DATE_SECTIONS = 14;
 const DATE_SECTIONS_INCREMENT = 14;
-
-function formatSectionDate(dateKey: string) {
-	const parsedDate = parseISO(dateKey);
-	if (Number.isNaN(parsedDate.getTime())) {
-		return dateKey;
-	}
-
-	return format(parsedDate, 'EEEE, d. MMMM yyyy');
-}
 
 interface DateSectionProps {
 	children: (rowId: string) => React.ReactNode;
