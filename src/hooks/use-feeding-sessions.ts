@@ -53,29 +53,6 @@ export function useFeedingSession(sessionId: string | undefined) {
 	}, [row, sessionId]);
 }
 
-export function useSortedFeedingSessionListEntries() {
-	const store = useStore()!;
-	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
-
-	return useMemo(
-		() =>
-			Object.entries(table)
-				.sort(([, a], [, b]) => {
-					const aStart = typeof a.startTime === 'string' ? a.startTime : '';
-					const bStart = typeof b.startTime === 'string' ? b.startTime : '';
-					return bStart.localeCompare(aStart);
-				})
-				.map(
-					([sessionId, row]) =>
-						({
-							id: sessionId,
-							startTime: typeof row.startTime === 'string' ? row.startTime : '',
-						}) satisfies FeedingSessionListEntry,
-				),
-		[table],
-	);
-}
-
 export function useFeedingSessionsSnapshot() {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);

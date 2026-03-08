@@ -1,10 +1,8 @@
 import type { DiaperChange } from '@/types/diaper';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-	useDiaperChangesSnapshot,
-	useUpsertDiaperChange,
-} from '@/hooks/use-diaper-changes';
+import { useUpsertDiaperChange } from '@/hooks/use-diaper-changes';
+import { useDiaperChangesTotal } from '@/hooks/use-tinybase-metrics';
 import { useLastUsedDiaperProduct } from '../hooks/use-last-used-diaper-product';
 import DiaperForm from './diaper-form';
 
@@ -19,7 +17,7 @@ export default function DiaperTracker({
 	const [selectedType, setSelectedType] = useState<'urine' | 'stool' | null>(
 		null,
 	);
-	const diaperChanges = useDiaperChangesSnapshot();
+	const totalChanges = useDiaperChangesTotal();
 	const upsertDiaperChange = useUpsertDiaperChange();
 	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
 
@@ -56,8 +54,7 @@ export default function DiaperTracker({
 					onSave={(change) => {
 						setIsDetailsDialogOpen(false);
 						upsertDiaperChange(change);
-						const currentTotalChanges = diaperChanges.length;
-						checkAndTriggerConfetti(change, currentTotalChanges);
+						checkAndTriggerConfetti(change, totalChanges);
 					}}
 					presetDiaperProductId={lastUsedDiaperProduct}
 					presetType={selectedType ?? undefined}
