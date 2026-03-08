@@ -4,21 +4,13 @@ import type {
 	GrowthFormValues,
 	GrowthMeasurement,
 } from '@/types/growth';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
+import { DateTimeInputs } from '@/components/form/date-time-inputs';
+import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useEntityForm } from '@/hooks/use-entity-form';
 import { growthFormToDataSchema } from '@/types/growth';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
@@ -57,20 +49,16 @@ export default function MeasurementForm({
 }: MeasurementFormProps) {
 	const measurement = 'measurement' in props ? props.measurement : undefined;
 
+	const form = useEntityForm<GrowthFormValues, undefined, GrowthFormData>(
+		growthFormToDataSchema,
+		() => getDefaultValues(measurement),
+		[measurement],
+	);
+
 	const {
 		formState: { errors },
-		handleSubmit,
 		register,
-		reset,
-	} = useForm<GrowthFormValues, undefined, GrowthFormData>({
-		defaultValues: getDefaultValues(measurement),
-		mode: 'onChange',
-		resolver: zodResolver(growthFormToDataSchema),
-	});
-
-	useEffect(() => {
-		reset(getDefaultValues(measurement));
-	}, [measurement, reset]);
+	} = form;
 
 	const handleSave = (parsedValues: GrowthFormData) => {
 		const newMeasurement: GrowthMeasurement = {
@@ -88,21 +76,21 @@ export default function MeasurementForm({
 	};
 
 	return (
-		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
-			<DialogContent className="sm:max-w-[425px]">
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-				</DialogHeader>
-				<form onSubmit={handleSubmit(handleSave)}>
-					<div className="grid gap-4 py-4">
-						<div className="space-y-2">
-							<Label htmlFor="date">
-								<fbt common>Date</fbt>
-							</Label>
-							<Input id="date" type="date" {...register('date')} />
-						</div>
+		<EntityFormDialog
+			form={form}
+			onClose={onClose}
+			onSave={handleSave}
+			title={title}
+		>
+			<div className="grid gap-4 py-4">
+				<DateTimeInputs
+					dateField="date"
+					dateId="date"
+					errors={errors}
+					register={register}
+				/>
 
-						<div className="grid grid-cols-1 gap-4">
+				<div className="grid grid-cols-1 gap-4">
 							<div className="space-y-2">
 								<Label htmlFor="weight">
 									<fbt desc="Label for a body weight input">Weight (g)</fbt>
@@ -175,33 +163,23 @@ export default function MeasurementForm({
 								</div>
 							)}
 
-						<div className="space-y-2">
-							<Label htmlFor="notes">
-								<fbt desc="Label for an optional notes textarea">
-									Notes (optional)
-								</fbt>
-							</Label>
-							<Textarea
-								id="notes"
-								placeholder={fbt(
-									'Additional information',
-									'Placeholder for a text input for notes',
-								)}
-								rows={3}
-								{...register('notes')}
-							/>
-						</div>
-					</div>
-					<DialogFooter>
-						<Button onClick={onClose} type="button" variant="outline">
-							<fbt common>Cancel</fbt>
-						</Button>
-						<Button type="submit">
-							<fbt common>Save</fbt>
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogContent>
-		</Dialog>
+				<div className="space-y-2">
+					<Label htmlFor="notes">
+						<fbt desc="Label for an optional notes textarea">
+							Notes (optional)
+						</fbt>
+					</Label>
+					<Textarea
+						id="notes"
+						placeholder={fbt(
+							'Additional information',
+							'Placeholder for a text input for notes',
+						)}
+						rows={3}
+						{...register('notes')}
+					/>
+				</div>
+			</div>
+		</EntityFormDialog>
 	);
 }

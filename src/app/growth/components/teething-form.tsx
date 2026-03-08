@@ -3,21 +3,13 @@ import type {
 	TeethingFormValues,
 	Tooth,
 } from '@/types/teething';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { DateTimeInputs } from '@/components/form/date-time-inputs';
+import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import { Button } from '@/components/ui/button';
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useEntityForm } from '@/hooks/use-entity-form';
 import { teethingFormToDataSchema } from '@/types/teething';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
@@ -41,19 +33,13 @@ export default function TeethingForm({
 	tooth,
 	toothName,
 }: TeethingFormProps) {
-	const { handleSubmit, register, reset } = useForm<
+	const form = useEntityForm<
 		TeethingFormValues,
 		undefined,
 		TeethingFormData
-	>({
-		defaultValues: getDefaultValues(tooth),
-		mode: 'onChange',
-		resolver: zodResolver(teethingFormToDataSchema),
-	});
+	>(teethingFormToDataSchema, () => getDefaultValues(tooth), [tooth]);
 
-	useEffect(() => {
-		reset(getDefaultValues(tooth));
-	}, [reset, tooth]);
+	const { register } = form;
 
 	const handleSave = (parsedValues: TeethingFormData) => {
 		onSave({
@@ -74,50 +60,50 @@ export default function TeethingForm({
 	};
 
 	return (
-		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
-			<DialogContent className="sm:max-w-[425px]">
-				<DialogHeader>
-					<DialogTitle>
-						<fbt desc="Edit teething progress title">
-							Edit Teething: <fbt:param name="toothName">{toothName}</fbt:param>{' '}
-							(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
-						</fbt>
-					</DialogTitle>
-				</DialogHeader>
-				<form onSubmit={handleSubmit(handleSave)}>
-					<div className="grid gap-4 py-4">
-						<div className="space-y-2">
-							<Label htmlFor="date">
-								<fbt desc="Date of eruption">Eruption Date</fbt>
-							</Label>
-							<Input id="date" type="date" {...register('date')} />
-						</div>
+		<EntityFormDialog
+			footer={
+				<div className="flex justify-between w-full mt-6">
+					<Button onClick={handleClear} type="button" variant="outline">
+						<fbt desc="Clear teething data">Clear</fbt>
+					</Button>
+					<Button data-testid="save-button" type="submit">
+						<fbt common>Save</fbt>
+					</Button>
+				</div>
+			}
+			form={form}
+			onClose={onClose}
+			onSave={handleSave}
+			title={
+				<fbt desc="Edit teething progress title">
+					Edit Teething: <fbt:param name="toothName">{toothName}</fbt:param> (
+					<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
+				</fbt>
+			}
+		>
+			<div className="grid gap-4 py-4">
+				<DateTimeInputs
+					dateField="date"
+					dateId="date"
+					dateLabel={<fbt desc="Date of eruption">Eruption Date</fbt>}
+					register={register}
+				/>
 
-						<div className="space-y-2">
-							<Label htmlFor="notes">
-								<fbt common>Notes</fbt>
-							</Label>
-							<Textarea
-								id="notes"
-								placeholder={fbt(
-									'Additional information',
-									'Placeholder for a text input for notes',
-								)}
-								rows={3}
-								{...register('notes')}
-							/>
-						</div>
-					</div>
-					<DialogFooter className="flex justify-between sm:justify-between">
-						<Button onClick={handleClear} type="button" variant="outline">
-							<fbt desc="Clear teething data">Clear</fbt>
-						</Button>
-						<Button type="submit">
-							<fbt common>Save</fbt>
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogContent>
-		</Dialog>
+				<div className="space-y-2">
+					<Label htmlFor="notes">
+						<fbt common>Notes</fbt>
+					</Label>
+					<Textarea
+						id="notes"
+						placeholder={fbt(
+							'Additional information',
+							'Placeholder for a text input for notes',
+						)}
+						rows={3}
+						{...register('notes')}
+					/>
+				</div>
+			</div>
+		</EntityFormDialog>
 	);
 }

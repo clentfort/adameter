@@ -4,17 +4,16 @@ import type {
 	DiaperFormData,
 	DiaperFormValues,
 } from '@/types/diaper';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { DateTimeInputs } from '@/components/form/date-time-inputs';
+import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
-	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
@@ -35,6 +34,7 @@ import {
 	useFrecencySortedDiaperProductIds,
 	useUpsertDiaperProduct,
 } from '@/hooks/use-diaper-products';
+import { useEntityForm } from '@/hooks/use-entity-form';
 import { diaperFormToDataSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
@@ -127,15 +127,13 @@ export default function DiaperForm({
 		'presetDiaperProductId' in props ? props.presetDiaperProductId : undefined;
 	const presetType = 'presetType' in props ? props.presetType : undefined;
 
-	const { handleSubmit, register, reset, setValue, watch } = useForm<
-		DiaperFormValues,
-		undefined,
-		DiaperFormData
-	>({
-		defaultValues: getDefaultValues(change, presetDiaperProductId, presetType),
-		mode: 'onChange',
-		resolver: zodResolver(diaperFormToDataSchema),
-	});
+	const form = useEntityForm<DiaperFormValues, undefined, DiaperFormData>(
+		diaperFormToDataSchema,
+		() => getDefaultValues(change, presetDiaperProductId, presetType),
+		[change, presetDiaperProductId, presetType],
+	);
+
+	const { formState, register, setValue, watch } = form;
 
 	const containsUrine = watch('containsUrine');
 	const containsStool = watch('containsStool');
@@ -147,10 +145,6 @@ export default function DiaperForm({
 		diaperProductId.length > 0 ? diaperProductId : undefined,
 	);
 	const temperature = watch('temperature');
-
-	useEffect(() => {
-		reset(getDefaultValues(change, presetDiaperProductId, presetType));
-	}, [change, presetDiaperProductId, presetType, reset]);
 
 	const handleSave = (parsedValues: DiaperFormData) => {
 		const updatedChange: DiaperChange = {
@@ -172,242 +166,223 @@ export default function DiaperForm({
 	};
 
 	return (
-		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
-			<DialogContent className="sm:max-w-[425px]">
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-				</DialogHeader>
-				<form onSubmit={handleSubmit(handleSave)}>
-					<div className="grid gap-4 py-2">
-						<div className="space-y-3">
-							<div className="grid grid-cols-3 gap-3 items-center">
-								<div />
-								<div className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-									<fbt desc="Urine column header">Urine</fbt>
-								</div>
-								<div className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-									<fbt desc="Stool column header">Stool</fbt>
-								</div>
-
-								<div className="text-sm font-medium">
-									<fbt desc="Label for the diaper row in the contents matrix">
-										Diaper
-									</fbt>
-								</div>
-								<Button
-									className={`h-12 w-full transition-all ${
-										containsUrine
-											? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
-											: 'bg-background hover:bg-muted text-muted-foreground'
-									}`}
-									data-testid="toggle-diaper-urine"
-									onClick={() => {
-										setValue('containsUrine', !containsUrine, {
-											shouldValidate: true,
-										});
-									}}
-									type="button"
-									variant="outline"
-								>
-									<span className="text-xl">💧</span>
-								</Button>
-								<Button
-									className={`h-12 w-full transition-all ${
-										containsStool
-											? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
-											: 'bg-background hover:bg-muted text-muted-foreground'
-									}`}
-									data-testid="toggle-diaper-stool"
-									onClick={() => {
-										setValue('containsStool', !containsStool, {
-											shouldValidate: true,
-										});
-									}}
-									type="button"
-									variant="outline"
-								>
-									<span className="text-xl">💩</span>
-								</Button>
-
-								<div className="text-sm font-medium">
-									<fbt desc="Label for the potty row in the contents matrix">
-										Potty
-									</fbt>
-								</div>
-								<Button
-									className={`h-12 w-full transition-all ${
-										pottyUrine
-											? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
-											: 'bg-background hover:bg-muted text-muted-foreground'
-									}`}
-									data-testid="toggle-potty-urine"
-									onClick={() => {
-										setValue('pottyUrine', !pottyUrine, {
-											shouldValidate: true,
-										});
-									}}
-									type="button"
-									variant="outline"
-								>
-									<span className="text-xl">💧</span>
-								</Button>
-								<Button
-									className={`h-12 w-full transition-all ${
-										pottyStool
-											? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
-											: 'bg-background hover:bg-muted text-muted-foreground'
-									}`}
-									data-testid="toggle-potty-stool"
-									onClick={() => {
-										setValue('pottyStool', !pottyStool, {
-											shouldValidate: true,
-										});
-									}}
-									type="button"
-									variant="outline"
-								>
-									<span className="text-xl">💩</span>
-								</Button>
+		<>
+			<EntityFormDialog
+				form={form}
+				onClose={onClose}
+				onSave={handleSave}
+				title={title}
+			>
+				<div className="grid gap-4 py-2">
+					<div className="space-y-3">
+						<div className="grid grid-cols-3 gap-3 items-center">
+							<div />
+							<div className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+								<fbt desc="Urine column header">Urine</fbt>
+							</div>
+							<div className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+								<fbt desc="Stool column header">Stool</fbt>
 							</div>
 
-							<div className="flex items-center space-x-2">
-								<Switch
-									checked={hasLeakage}
-									id="edit-leakage"
-									onCheckedChange={(checked) => {
-										setValue('leakage', checked, { shouldValidate: true });
-									}}
-								/>
-								<Label htmlFor="edit-leakage">
-									<fbt desc="Label for a switch button that indicates that a diaper has leaked">
-										Diaper leaked
-									</fbt>
-								</Label>
+							<div className="text-sm font-medium">
+								<fbt desc="Label for the diaper row in the contents matrix">
+									Diaper
+								</fbt>
 							</div>
+							<Button
+								className={`h-12 w-full transition-all ${
+									containsUrine
+										? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
+										: 'bg-background hover:bg-muted text-muted-foreground'
+								}`}
+								data-testid="toggle-diaper-urine"
+								onClick={() => {
+									setValue('containsUrine', !containsUrine, {
+										shouldValidate: true,
+									});
+								}}
+								type="button"
+								variant="outline"
+							>
+								<span className="text-xl">💧</span>
+							</Button>
+							<Button
+								className={`h-12 w-full transition-all ${
+									containsStool
+										? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
+										: 'bg-background hover:bg-muted text-muted-foreground'
+								}`}
+								data-testid="toggle-diaper-stool"
+								onClick={() => {
+									setValue('containsStool', !containsStool, {
+										shouldValidate: true,
+									});
+								}}
+								type="button"
+								variant="outline"
+							>
+								<span className="text-xl">💩</span>
+							</Button>
+
+							<div className="text-sm font-medium">
+								<fbt desc="Label for the potty row in the contents matrix">
+									Potty
+								</fbt>
+							</div>
+							<Button
+								className={`h-12 w-full transition-all ${
+									pottyUrine
+										? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
+										: 'bg-background hover:bg-muted text-muted-foreground'
+								}`}
+								data-testid="toggle-potty-urine"
+								onClick={() => {
+									setValue('pottyUrine', !pottyUrine, {
+										shouldValidate: true,
+									});
+								}}
+								type="button"
+								variant="outline"
+							>
+								<span className="text-xl">💧</span>
+							</Button>
+							<Button
+								className={`h-12 w-full transition-all ${
+									pottyStool
+										? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
+										: 'bg-background hover:bg-muted text-muted-foreground'
+								}`}
+								data-testid="toggle-potty-stool"
+								onClick={() => {
+									setValue('pottyStool', !pottyStool, {
+										shouldValidate: true,
+									});
+								}}
+								type="button"
+								variant="outline"
+							>
+								<span className="text-xl">💩</span>
+							</Button>
 						</div>
 
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label htmlFor="edit-date">
-									<fbt common>Date</fbt>
-								</Label>
-								<Input id="edit-date" type="date" {...register('date')} />
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="edit-time">
-									<fbt common>Time</fbt>
-								</Label>
-								<Input id="edit-time" type="time" {...register('time')} />
-							</div>
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="edit-diaper-product">
-								<fbt desc="Label on a select that allows the user to pick a diaper product">
-									Product
+						<div className="flex items-center space-x-2">
+							<Switch
+								checked={hasLeakage}
+								id="edit-leakage"
+								onCheckedChange={(checked) => {
+									setValue('leakage', checked, { shouldValidate: true });
+								}}
+							/>
+							<Label htmlFor="edit-leakage">
+								<fbt desc="Label for a switch button that indicates that a diaper has leaked">
+									Diaper leaked
 								</fbt>
 							</Label>
-							<div className="flex gap-2">
-								<div className="flex-grow">
-									<Select
-										onValueChange={(value) => {
-											setValue('diaperProductId', value ?? '', {
-												shouldValidate: true,
-											});
-										}}
-										value={diaperProductId}
-									>
-										<SelectTrigger id="edit-diaper-product">
-											<SelectValue
-												placeholder={
-													<fbt desc="Placeholder text on a select that allows the user to pick a diaper product">
-														Select Product
-													</fbt>
-												}
-											>
-												{selectedProduct?.name}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											{sortedProductIds.map((productId) => (
-												<DiaperProductSelectItem
-													currentProductId={change?.diaperProductId}
-													key={productId}
-													productId={productId}
-													selectedProductId={diaperProductId}
-												/>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-								<Button
-									onClick={() => setIsAddingProduct(true)}
-									size="icon"
-									type="button"
-									variant="outline"
-								>
-									<Plus className="h-4 w-4" />
-								</Button>
-							</div>
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="edit-temperature">
-								<fbt desc="Label on an input to specificy the body temperature in degree Celsius">
-									Temperature (°C)
-								</fbt>
-							</Label>
-							<Input
-								className={
-									temperature &&
-									isAbnormalTemperature(Number.parseFloat(temperature))
-										? 'border-red-500'
-										: ''
-								}
-								id="edit-temperature"
-								placeholder={fbt(
-									'e.g. 37.2',
-									'Placeholder text for an input to set the body temperature in degree Celsius',
-								)}
-								step="0.1"
-								type="number"
-								{...register('temperature')}
-							/>
-							{temperature &&
-								isAbnormalTemperature(Number.parseFloat(temperature)) && (
-									<p className="text-xs text-red-500 mt-1">
-										<fbt desc="A warning that the temperature is outside the normal range">
-											Warning: Temperature outside normal range (36.5°C -
-											37.5°C)
-										</fbt>
-									</p>
-								)}
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="edit-notes">
-								<fbt desc="Label for a textbox to note any notes">Notes</fbt>
-							</Label>
-							<Textarea
-								id="edit-notes"
-								placeholder={fbt(
-									'e.g. redness, rash, etc.',
-									'Placeholder text for a textbox to note any notes',
-								)}
-								{...register('notes')}
-							/>
 						</div>
 					</div>
-					<DialogFooter>
-						<Button onClick={onClose} type="button" variant="outline">
-							<fbt common>Cancel</fbt>
-						</Button>
-						<Button data-testid="save-button" type="submit">
-							<fbt common>Save</fbt>
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogContent>
+
+					<DateTimeInputs
+						dateField="date"
+						errors={formState.errors}
+						register={register}
+						timeField="time"
+					/>
+
+					<div className="space-y-2">
+						<Label htmlFor="edit-diaper-product">
+							<fbt desc="Label on a select that allows the user to pick a diaper product">
+								Product
+							</fbt>
+						</Label>
+						<div className="flex gap-2">
+							<div className="flex-grow">
+								<Select
+									onValueChange={(value) => {
+										setValue('diaperProductId', value ?? '', {
+											shouldValidate: true,
+										});
+									}}
+									value={diaperProductId}
+								>
+									<SelectTrigger id="edit-diaper-product">
+										<SelectValue
+											placeholder={
+												<fbt desc="Placeholder text on a select that allows the user to pick a diaper product">
+													Select Product
+												</fbt>
+											}
+										>
+											{selectedProduct?.name}
+										</SelectValue>
+									</SelectTrigger>
+									<SelectContent>
+										{sortedProductIds.map((productId) => (
+											<DiaperProductSelectItem
+												currentProductId={change?.diaperProductId}
+												key={productId}
+												productId={productId}
+												selectedProductId={diaperProductId}
+											/>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+							<Button
+								onClick={() => setIsAddingProduct(true)}
+								size="icon"
+								type="button"
+								variant="outline"
+							>
+								<Plus className="h-4 w-4" />
+							</Button>
+						</div>
+					</div>
+
+					<div className="space-y-2">
+						<Label htmlFor="edit-temperature">
+							<fbt desc="Label on an input to specificy the body temperature in degree Celsius">
+								Temperature (°C)
+							</fbt>
+						</Label>
+						<Input
+							className={
+								temperature && isAbnormalTemperature(Number.parseFloat(temperature))
+									? 'border-red-500'
+									: ''
+							}
+							id="edit-temperature"
+							placeholder={fbt(
+								'e.g. 37.2',
+								'Placeholder text for an input to set the body temperature in degree Celsius',
+							)}
+							step="0.1"
+							type="number"
+							{...register('temperature')}
+						/>
+						{temperature && isAbnormalTemperature(Number.parseFloat(temperature)) && (
+							<p className="text-xs text-red-500 mt-1">
+								<fbt desc="A warning that the temperature is outside the normal range">
+									Warning: Temperature outside normal range (36.5°C - 37.5°C)
+								</fbt>
+							</p>
+						)}
+					</div>
+
+					<div className="space-y-2">
+						<Label htmlFor="edit-notes">
+							<fbt desc="Label for a textbox to note any notes">Notes</fbt>
+						</Label>
+						<Textarea
+							id="edit-notes"
+							placeholder={fbt(
+								'e.g. redness, rash, etc.',
+								'Placeholder text for a textbox to note any notes',
+							)}
+							{...register('notes')}
+						/>
+					</div>
+				</div>
+			</EntityFormDialog>
 
 			{isAddingProduct && (
 				<Dialog
@@ -439,6 +414,6 @@ export default function DiaperForm({
 					</DialogContent>
 				</Dialog>
 			)}
-		</Dialog>
+		</>
 	);
 }
