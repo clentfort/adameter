@@ -1,7 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { STORE_VALUE_DEV_MODE } from '@/lib/tinybase-sync/constants';
-import { createTestStore, TinyBaseTestWrapper } from '@/test-utils/tinybase-test-wrapper';
+import {
+	createTestStore,
+	TinyBaseTestWrapper,
+} from '@/test-utils/tinybase-test-wrapper';
 import { useDevMode } from './use-dev-mode';
 
 describe('useDevMode', () => {

@@ -2,7 +2,10 @@ import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { createTestStore, TinyBaseTestWrapper } from '@/test-utils/tinybase-test-wrapper';
+import {
+	createTestStore,
+	TinyBaseTestWrapper,
+} from '@/test-utils/tinybase-test-wrapper';
 import {
 	useDiaperProduct,
 	useDiaperProductsSnapshot,
@@ -79,9 +82,21 @@ describe('useDiaperProducts', () => {
 	describe('useSortedDiaperProductIds', () => {
 		it('should return product IDs sorted by archived status and name', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', { archived: true, isReusable: false, name: 'B' });
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p2', { archived: false, isReusable: false, name: 'C' });
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p3', { archived: false, isReusable: false, name: 'A' });
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
+				archived: true,
+				isReusable: false,
+				name: 'B',
+			});
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p2', {
+				archived: false,
+				isReusable: false,
+				name: 'C',
+			});
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p3', {
+				archived: false,
+				isReusable: false,
+				name: 'A',
+			});
 
 			const { result } = renderHook(() => useSortedDiaperProductIds(), {
 				wrapper: ({ children }) => (
@@ -97,8 +112,14 @@ describe('useDiaperProducts', () => {
 	describe('useFrecencySortedDiaperProductIds', () => {
 		it('should return frecency sorted product IDs', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', { isReusable: false, name: 'P1' });
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p2', { isReusable: false, name: 'P2' });
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
+				isReusable: false,
+				name: 'P1',
+			});
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p2', {
+				isReusable: false,
+				name: 'P2',
+			});
 
 			const changes = [
 				{ productId: 'p1', timestamp: '2024-01-01T10:00:00Z' },

@@ -2,7 +2,10 @@ import type { DiaperChange } from '@/types/diaper';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { createTestStore, TinyBaseTestWrapper } from '@/test-utils/tinybase-test-wrapper';
+import {
+	createTestStore,
+	TinyBaseTestWrapper,
+} from '@/test-utils/tinybase-test-wrapper';
 import {
 	useDiaperChange,
 	useDiaperChangesSnapshot,

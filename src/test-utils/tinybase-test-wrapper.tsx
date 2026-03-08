@@ -1,5 +1,6 @@
+import type { Store } from 'tinybase';
 import React, { useMemo } from 'react';
-import { createStore, type Store } from 'tinybase';
+import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
 
 export function createTestStore() {

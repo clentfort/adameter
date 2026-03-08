@@ -2,7 +2,10 @@ import type { Event } from '@/types/event';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { createTestStore, TinyBaseTestWrapper } from '@/test-utils/tinybase-test-wrapper';
+import {
+	createTestStore,
+	TinyBaseTestWrapper,
+} from '@/test-utils/tinybase-test-wrapper';
 import {
 	useEvent,
 	useEventsSnapshot,
@@ -80,8 +83,12 @@ describe('useEvents', () => {
 	describe('useSortedEventIds', () => {
 		it('should return event IDs sorted by startDate descending', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.EVENTS, 'e1', { startDate: '2024-01-01T10:00:00Z' });
-			store.setRow(TABLE_IDS.EVENTS, 'e2', { startDate: '2024-01-01T11:00:00Z' });
+			store.setRow(TABLE_IDS.EVENTS, 'e1', {
+				startDate: '2024-01-01T10:00:00Z',
+			});
+			store.setRow(TABLE_IDS.EVENTS, 'e2', {
+				startDate: '2024-01-01T11:00:00Z',
+			});
 
 			const { result } = renderHook(() => useSortedEventIds(), {
 				wrapper: ({ children }) => (
