@@ -33,6 +33,10 @@ interface TinybaseMetricsProviderProps {
 	children: React.ReactNode;
 }
 
+function getToday() {
+	return new Date().toISOString().split('T')[0];
+}
+
 export function TinybaseMetricsProvider({
 	children,
 }: TinybaseMetricsProviderProps) {
@@ -40,8 +44,6 @@ export function TinybaseMetricsProvider({
 
 	const metrics = useCreateMetrics(store, (store) => {
 		const m = createMetrics(store);
-
-		const today = new Date().toISOString().split('T')[0];
 
 		// Diaper metrics
 		m.setMetricDefinition(
@@ -57,6 +59,7 @@ export function TinybaseMetricsProvider({
 			'sum',
 			(getCell) => {
 				const timestamp = getCell('timestamp');
+				const today = getToday();
 				return typeof timestamp === 'string' && timestamp.startsWith(today)
 					? 1
 					: 0;
@@ -91,6 +94,7 @@ export function TinybaseMetricsProvider({
 			'sum',
 			(getCell) => {
 				const startTime = getCell('startTime');
+				const today = getToday();
 				return typeof startTime === 'string' && startTime.startsWith(today)
 					? 1
 					: 0;
