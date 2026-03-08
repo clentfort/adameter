@@ -212,6 +212,7 @@ export default function StatisticsPage() {
 					</div>
 				)}
 			</div>
+
 			{filteredSessions.length === 0 &&
 			filteredDiaperChanges.length === 0 &&
 			measurements.length === 0 ? (
