@@ -12,11 +12,16 @@ type Story = StoryObj<typeof meta>;
 
 export const Diaper: Story = {
 	args: {
-		children: <p>Urine & Stool</p>,
+		children: (
+			<div className="mt-2 text-sm space-y-1">
+				<p>Product: Luvs</p>
+			</div>
+		),
 		emoji: '👶',
 		formattedTime: '10:30 AM',
 		onDelete: () => {},
 		onEdit: () => {},
+		title: 'Urine & Stool',
 		variant: 'diaper',
 	},
 };
@@ -24,14 +29,14 @@ export const Diaper: Story = {
 export const Feeding: Story = {
 	args: {
 		children: (
-			<div className="space-y-1">
-				<p>Left Breast</p>
-				<p className="text-sm font-bold">15 min</p>
+			<div className="text-right flex flex-col items-end">
+				<p className="font-bold">15 min</p>
 			</div>
 		),
 		formattedTime: '12:00 PM',
 		onDelete: () => {},
 		onEdit: () => {},
+		title: 'Left Breast',
 		variant: 'feeding',
 	},
 };
@@ -39,7 +44,7 @@ export const Feeding: Story = {
 export const Growth: Story = {
 	args: {
 		children: (
-			<div className="space-y-1">
+			<div className="mt-2 space-y-1">
 				<p className="text-sm">Weight: 4500 g</p>
 				<p className="text-sm">Height: 55 cm</p>
 			</div>
@@ -54,11 +59,16 @@ export const Growth: Story = {
 
 export const Teething: Story = {
 	args: {
-		children: <p className="text-sm">Tooth Erupted: Upper Left Central (61)</p>,
+		children: (
+			<div className="mt-2 space-y-1">
+				<p className="text-sm">Upper Left Central (61)</p>
+			</div>
+		),
 		emoji: '🦷',
 		formattedTime: '05. April 2024',
 		onDelete: () => {},
 		onEdit: () => {},
+		title: 'Tooth Erupted',
 		variant: 'teething',
 	},
 };
@@ -66,14 +76,14 @@ export const Teething: Story = {
 export const Event: Story = {
 	args: {
 		children: (
-			<div className="space-y-1">
-				<p className="text-lg font-medium">Fever</p>
+			<div className="mt-1">
 				<p className="text-sm text-muted-foreground">High temperature</p>
 			</div>
 		),
 		onDelete: () => {},
 		onEdit: () => {},
 		style: { borderLeftColor: '#ef4444', borderLeftWidth: '4px' },
+		title: 'Fever',
 		variant: 'event',
 	},
 };

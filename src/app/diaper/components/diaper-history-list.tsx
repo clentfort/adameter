@@ -85,46 +85,47 @@ function DiaperHistoryEntry({
 			formattedTime={formatChangeTime(change.timestamp)}
 			onDelete={() => onDelete(change.id)}
 			onEdit={() => onEdit(change.id)}
+			title={
+				<div
+					className={`font-medium ${textColor} flex flex-wrap items-center gap-x-3 gap-y-1`}
+				>
+					{hasDiaper && (
+						<div className="flex items-center gap-1">
+							<span className="text-sm">
+								{change.containsUrine && change.containsStool ? (
+									<fbt desc="Urine and stool in diaper">Urine & Stool</fbt>
+								) : change.containsUrine ? (
+									<fbt desc="Urine in diaper">Urine</fbt>
+								) : (
+									<fbt desc="Stool in diaper">Stool</fbt>
+								)}
+							</span>
+						</div>
+					)}
+					{hasPotty && (
+						<div className="flex items-center gap-1">
+							<span className="text-sm">
+								{change.pottyUrine && change.pottyStool ? (
+									<fbt desc="Urine and stool in potty">Urine & Stool</fbt>
+								) : change.pottyUrine ? (
+									<fbt desc="Urine in potty">Urine</fbt>
+								) : (
+									<fbt desc="Stool in potty">Stool</fbt>
+								)}
+							</span>
+						</div>
+					)}
+					{!hasDiaper && !hasPotty && (
+						<div className="flex items-center gap-1">
+							<span className="text-sm italic">
+								<fbt desc="Dry diaper">Dry</fbt>
+							</span>
+						</div>
+					)}
+				</div>
+			}
 			variant="diaper"
 		>
-			<div
-				className={`font-medium ${textColor} flex flex-wrap items-center gap-x-3 gap-y-1`}
-			>
-				{hasDiaper && (
-					<div className="flex items-center gap-1">
-						<span className="text-sm">
-							{change.containsUrine && change.containsStool ? (
-								<fbt desc="Urine and stool in diaper">Urine & Stool</fbt>
-							) : change.containsUrine ? (
-								<fbt desc="Urine in diaper">Urine</fbt>
-							) : (
-								<fbt desc="Stool in diaper">Stool</fbt>
-							)}
-						</span>
-					</div>
-				)}
-				{hasPotty && (
-					<div className="flex items-center gap-1">
-						<span className="text-sm">
-							{change.pottyUrine && change.pottyStool ? (
-								<fbt desc="Urine and stool in potty">Urine & Stool</fbt>
-							) : change.pottyUrine ? (
-								<fbt desc="Urine in potty">Urine</fbt>
-							) : (
-								<fbt desc="Stool in potty">Stool</fbt>
-							)}
-						</span>
-					</div>
-				)}
-				{!hasDiaper && !hasPotty && (
-					<div className="flex items-center gap-1">
-						<span className="text-sm italic">
-							<fbt desc="Dry diaper">Dry</fbt>
-						</span>
-					</div>
-				)}
-			</div>
-
 			<div className="mt-2 text-sm space-y-1">
 				{change.temperature && (
 					<p

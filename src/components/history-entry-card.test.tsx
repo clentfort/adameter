@@ -18,6 +18,19 @@ describe('HistoryEntryCard', () => {
 		expect(screen.getByText('Test content')).toBeInTheDocument();
 	});
 
+	it('renders title and formatted time as sub-heading', () => {
+		render(
+			<HistoryEntryCard formattedTime="12:34" title="Main Title">
+				<p>Test content</p>
+			</HistoryEntryCard>,
+		);
+
+		expect(screen.getByText('Main Title')).toBeInTheDocument();
+		const timeElement = screen.getByText('12:34');
+		expect(timeElement).toHaveClass('text-xs');
+		expect(timeElement).toHaveClass('text-muted-foreground');
+	});
+
 	it('renders emoji when provided', () => {
 		render(
 			<HistoryEntryCard emoji="👶" formattedTime="12:34">
@@ -66,6 +79,17 @@ describe('HistoryEntryCard', () => {
 		const card = container.firstChild as HTMLElement;
 		expect(card).toHaveClass('border-amber-200');
 		expect(card).toHaveClass('bg-amber-50/50');
+	});
+
+	it('applies border-border for event variant', () => {
+		const { container } = render(
+			<HistoryEntryCard variant="event">
+				<p>Test content</p>
+			</HistoryEntryCard>,
+		);
+
+		const card = container.firstChild as HTMLElement;
+		expect(card).toHaveClass('border-border');
 	});
 
 	it('applies custom className and style', () => {

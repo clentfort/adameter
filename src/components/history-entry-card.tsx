@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
-import { cn } from '@/lib/utils';
 
 export type HistoryEntryVariant =
 	| 'diaper'
@@ -18,7 +18,7 @@ const variantStyles: Record<
 		bg: 'bg-amber-50/50 dark:bg-amber-950/20',
 		border: 'border-amber-200',
 	},
-	event: { bg: '', border: 'border-gray-200' },
+	event: { bg: '', border: 'border-border' },
 	feeding: {
 		bg: 'bg-blue-50/50 dark:bg-blue-950/20',
 		border: 'border-blue-200',
@@ -34,15 +34,16 @@ const variantStyles: Record<
 };
 
 interface HistoryEntryCardProps {
-	'children': ReactNode;
-	'className'?: string;
+	children: ReactNode;
+	className?: string;
 	'data-testid'?: string;
-	'emoji'?: string;
-	'formattedTime'?: string;
-	'onDelete'?: () => void;
-	'onEdit'?: () => void;
-	'style'?: CSSProperties;
-	'variant'?: HistoryEntryVariant;
+	emoji?: string;
+	formattedTime?: string;
+	onDelete?: () => void;
+	onEdit?: () => void;
+	style?: CSSProperties;
+	title?: ReactNode;
+	variant?: HistoryEntryVariant;
 }
 
 export function HistoryEntryCard({
@@ -54,6 +55,7 @@ export function HistoryEntryCard({
 	onDelete,
 	onEdit,
 	style,
+	title,
 	variant = 'event',
 }: HistoryEntryCardProps) {
 	const { bg, border } = variantStyles[variant];
@@ -66,18 +68,26 @@ export function HistoryEntryCard({
 		>
 			<div className="flex justify-between items-start">
 				<div className="flex-1">
-					{(emoji || formattedTime) && (
-						<div className="flex items-center gap-2">
-							{emoji && (
-								<span aria-hidden="true" role="img">
-									{emoji}
-								</span>
-							)}
+					<div className="flex items-center gap-2">
+						{emoji && (
+							<span aria-hidden="true" role="img">
+								{emoji}
+							</span>
+						)}
+						<div className="flex flex-col">
+							{title && <div className="font-medium text-lg">{title}</div>}
 							{formattedTime && (
-								<p className="font-medium text-lg">{formattedTime}</p>
+								<p
+									className={cn(
+										'font-medium',
+										title ? 'text-xs text-muted-foreground' : 'text-lg',
+									)}
+								>
+									{formattedTime}
+								</p>
 							)}
 						</div>
-					)}
+					</div>
 					<div className="mt-2 space-y-1">{children}</div>
 				</div>
 				{(onEdit || onDelete) && (

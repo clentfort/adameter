@@ -40,10 +40,10 @@ function EventListItem({
 				borderLeftColor: event.color || '#6366f1',
 				borderLeftWidth: '4px',
 			}}
+			title={event.title}
 			variant="event"
 		>
 			<div>
-				<p className="font-medium text-lg">{event.title}</p>
 				{event.description && (
 					<Markdown className="text-sm text-muted-foreground mt-1">
 						{event.description}

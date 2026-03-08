@@ -49,21 +49,23 @@ function FeedingHistoryEntry({
 			formattedTime={format(new Date(session.startTime), 'p')}
 			onDelete={() => onDelete(session.id)}
 			onEdit={() => onEdit(session.id)}
+			title={
+				<p className={`font-medium ${textColor}`}>
+					{isLeftBreast ? (
+						<fbt desc="Label indicating a feeding was done with the left breast">
+							Left Breast
+						</fbt>
+					) : (
+						<fbt desc="Label indicating a feeding was done with the right breast">
+							Right Breast
+						</fbt>
+					)}
+				</p>
+			}
 			variant="feeding"
 		>
 			<div className="flex justify-between items-start">
 				<div>
-					<p className={`font-medium ${textColor}`}>
-						{isLeftBreast ? (
-							<fbt desc="Label indicating a feeding was done with the left breast">
-								Left Breast
-							</fbt>
-						) : (
-							<fbt desc="Label indicating a feeding was done with the right breast">
-								Right Breast
-							</fbt>
-						)}
-					</p>
 					{crossesMidnight && (
 						<p className="text-xs text-muted-foreground">
 							<span className="font-medium">
