@@ -4,21 +4,14 @@ import type {
 	GrowthFormValues,
 	GrowthMeasurement,
 } from '@/types/growth';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
+import { useMemo } from 'react';
+import { DateTimeInputs } from '@/components/form/date-time-inputs';
+import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useEntityForm } from '@/hooks/use-entity-form';
 import { growthFormToDataSchema } from '@/types/growth';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
@@ -57,20 +50,20 @@ export default function MeasurementForm({
 }: MeasurementFormProps) {
 	const measurement = 'measurement' in props ? props.measurement : undefined;
 
+	const defaultValues = useMemo(
+		() => getDefaultValues(measurement),
+		[measurement],
+	);
+
+	const form = useEntityForm<GrowthFormValues, undefined, GrowthFormData>(
+		growthFormToDataSchema,
+		defaultValues,
+	);
+
 	const {
 		formState: { errors },
-		handleSubmit,
 		register,
-		reset,
-	} = useForm<GrowthFormValues, undefined, GrowthFormData>({
-		defaultValues: getDefaultValues(measurement),
-		mode: 'onChange',
-		resolver: zodResolver(growthFormToDataSchema),
-	});
-
-	useEffect(() => {
-		reset(getDefaultValues(measurement));
-	}, [measurement, reset]);
+	} = form;
 
 	const handleSave = (parsedValues: GrowthFormData) => {
 		const newMeasurement: GrowthMeasurement = {
@@ -88,120 +81,103 @@ export default function MeasurementForm({
 	};
 
 	return (
-		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
-			<DialogContent className="sm:max-w-[425px]">
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-				</DialogHeader>
-				<form onSubmit={handleSubmit(handleSave)}>
-					<div className="grid gap-4 py-4">
-						<div className="space-y-2">
-							<Label htmlFor="date">
-								<fbt common>Date</fbt>
-							</Label>
-							<Input id="date" type="date" {...register('date')} />
-						</div>
+		<EntityFormDialog
+			form={form}
+			onClose={onClose}
+			onSave={handleSave}
+			title={title}
+		>
+			<div className="grid gap-4 py-4">
+				<DateTimeInputs
+					dateField="date"
+					dateId="date"
+					errors={errors}
+					register={register}
+				/>
 
-						<div className="grid grid-cols-1 gap-4">
-							<div className="space-y-2">
-								<Label htmlFor="weight">
-									<fbt desc="Label for a body weight input">Weight (g)</fbt>
-								</Label>
-								<Input
-									id="weight"
-									placeholder={fbt(
-										'e.g. 3500',
-										'Placeholder for a weight input',
-									)}
-									type="number"
-									{...register('weight')}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="height">
-									<fbt desc="Label for a body height input">Height (cm)</fbt>
-								</Label>
-								<Input
-									id="height"
-									placeholder={fbt('e.g. 50', 'Placeholder for a height input')}
-									step="0.1"
-									type="number"
-									{...register('height')}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="headCircumference">
-									<fbt desc="Label for a head circumference input">
-										Head Circumference (cm)
-									</fbt>
-								</Label>
-								<Input
-									id="headCircumference"
-									placeholder={fbt(
-										'e.g. 35',
-										'Placeholder for a head circumference input',
-									)}
-									step="0.1"
-									type="number"
-									{...register('headCircumference')}
-								/>
-							</div>
-						</div>
-
-						{errors.weight && (
-							<div className="text-sm text-red-500">
-								{errors.weight.message === 'AT_LEAST_ONE_REQUIRED' ? (
-									<fbt desc="Message shown when no weight, height, or head circumference is provided. At least one is required">
-										Please enter at least a weight, height, or head
-										circumference.
-									</fbt>
-								) : (
-									errors.weight.message
-								)}
-							</div>
-						)}
-
-						{errors.height &&
-							errors.height.message !== 'AT_LEAST_ONE_REQUIRED' && (
-								<div className="text-sm text-red-500">
-									{errors.height.message}
-								</div>
-							)}
-
-						{errors.headCircumference &&
-							errors.headCircumference.message !== 'AT_LEAST_ONE_REQUIRED' && (
-								<div className="text-sm text-red-500">
-									{errors.headCircumference.message}
-								</div>
-							)}
-
-						<div className="space-y-2">
-							<Label htmlFor="notes">
-								<fbt desc="Label for an optional notes textarea">
-									Notes (optional)
-								</fbt>
-							</Label>
-							<Textarea
-								id="notes"
-								placeholder={fbt(
-									'Additional information',
-									'Placeholder for a text input for notes',
-								)}
-								rows={3}
-								{...register('notes')}
-							/>
-						</div>
+				<div className="grid grid-cols-1 gap-4">
+					<div className="space-y-2">
+						<Label htmlFor="weight">
+							<fbt desc="Label for a body weight input">Weight (g)</fbt>
+						</Label>
+						<Input
+							id="weight"
+							placeholder={fbt('e.g. 3500', 'Placeholder for a weight input')}
+							type="number"
+							{...register('weight')}
+						/>
 					</div>
-					<DialogFooter>
-						<Button onClick={onClose} type="button" variant="outline">
-							<fbt common>Cancel</fbt>
-						</Button>
-						<Button type="submit">
-							<fbt common>Save</fbt>
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogContent>
-		</Dialog>
+					<div className="space-y-2">
+						<Label htmlFor="height">
+							<fbt desc="Label for a body height input">Height (cm)</fbt>
+						</Label>
+						<Input
+							id="height"
+							placeholder={fbt('e.g. 50', 'Placeholder for a height input')}
+							step="0.1"
+							type="number"
+							{...register('height')}
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="headCircumference">
+							<fbt desc="Label for a head circumference input">
+								Head Circumference (cm)
+							</fbt>
+						</Label>
+						<Input
+							id="headCircumference"
+							placeholder={fbt(
+								'e.g. 35',
+								'Placeholder for a head circumference input',
+							)}
+							step="0.1"
+							type="number"
+							{...register('headCircumference')}
+						/>
+					</div>
+				</div>
+
+				{errors.weight && (
+					<div className="text-sm text-red-500">
+						{errors.weight.message === 'AT_LEAST_ONE_REQUIRED' ? (
+							<fbt desc="Message shown when no weight, height, or head circumference is provided. At least one is required">
+								Please enter at least a weight, height, or head circumference.
+							</fbt>
+						) : (
+							errors.weight.message
+						)}
+					</div>
+				)}
+
+				{errors.height && errors.height.message !== 'AT_LEAST_ONE_REQUIRED' && (
+					<div className="text-sm text-red-500">{errors.height.message}</div>
+				)}
+
+				{errors.headCircumference &&
+					errors.headCircumference.message !== 'AT_LEAST_ONE_REQUIRED' && (
+						<div className="text-sm text-red-500">
+							{errors.headCircumference.message}
+						</div>
+					)}
+
+				<div className="space-y-2">
+					<Label htmlFor="notes">
+						<fbt desc="Label for an optional notes textarea">
+							Notes (optional)
+						</fbt>
+					</Label>
+					<Textarea
+						id="notes"
+						placeholder={fbt(
+							'Additional information',
+							'Placeholder for a text input for notes',
+						)}
+						rows={3}
+						{...register('notes')}
+					/>
+				</div>
+			</div>
+		</EntityFormDialog>
 	);
 }
