@@ -1,4 +1,11 @@
-import { format, isSameYear, isToday, isYesterday, isValid, parseISO } from 'date-fns';
+import {
+	format,
+	isSameYear,
+	isToday,
+	isValid,
+	isYesterday,
+	parseISO,
+} from 'date-fns';
 import { fbt } from 'fbtee';
 
 /**
@@ -16,7 +23,10 @@ export function formatSectionDate(dateKey: string): string {
 		return fbt('Today', 'Label for today in history section').toString();
 	}
 	if (isYesterday(date)) {
-		return fbt('Yesterday', 'Label for yesterday in history section').toString();
+		return fbt(
+			'Yesterday',
+			'Label for yesterday in history section',
+		).toString();
 	}
 
 	const today = new Date();
