@@ -12,57 +12,57 @@ export type HistoryEntryVariant =
 
 const variantStyles: Record<
 	HistoryEntryVariant,
-	{ border: string; bg: string }
+	{ bg: string; border: string; }
 > = {
 	diaper: {
-		border: 'border-amber-200',
 		bg: 'bg-amber-50/50 dark:bg-amber-950/20',
+		border: 'border-amber-200',
 	},
+	event: { bg: '', border: 'border-gray-200' },
 	feeding: {
-		border: 'border-blue-200',
 		bg: 'bg-blue-50/50 dark:bg-blue-950/20',
+		border: 'border-blue-200',
 	},
 	growth: {
-		border: 'border-green-200',
 		bg: 'bg-green-50/50 dark:bg-green-950/20',
+		border: 'border-green-200',
 	},
 	teething: {
-		border: 'border-purple-200',
 		bg: 'bg-purple-50/50 dark:bg-purple-950/20',
+		border: 'border-purple-200',
 	},
-	event: { border: 'border-gray-200', bg: '' },
 };
 
 interface HistoryEntryCardProps {
 	children: ReactNode;
-	variant?: HistoryEntryVariant;
+	className?: string;
+	'data-testid'?: string;
 	emoji?: string;
 	formattedTime?: string;
-	onEdit?: () => void;
 	onDelete?: () => void;
-	className?: string;
+	onEdit?: () => void;
 	style?: CSSProperties;
-	'data-testid'?: string;
+	variant?: HistoryEntryVariant;
 }
 
 export function HistoryEntryCard({
 	children,
-	variant = 'event',
+	className,
+	'data-testid': dataTestId,
 	emoji,
 	formattedTime,
-	onEdit,
 	onDelete,
-	className,
+	onEdit,
 	style,
-	'data-testid': dataTestId,
+	variant = 'event',
 }: HistoryEntryCardProps) {
-	const { border, bg } = variantStyles[variant];
+	const { bg, border } = variantStyles[variant];
 
 	return (
 		<div
 			className={cn('border rounded-lg p-4 shadow-xs', border, bg, className)}
-			style={style}
 			data-testid={dataTestId}
+			style={style}
 		>
 			<div className="flex justify-between items-start">
 				<div className="flex-1">
