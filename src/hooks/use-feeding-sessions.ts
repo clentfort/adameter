@@ -14,6 +14,7 @@ function toFeedingSession(id: string, row: Row): FeedingSession | null {
 	});
 
 	if (!result.success) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Invalid feeding session data for id ${id}:`,
 			result.error.issues,

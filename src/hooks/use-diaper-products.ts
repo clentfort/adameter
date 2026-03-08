@@ -15,6 +15,7 @@ function toDiaperProduct(id: string, row: Row): DiaperProduct | null {
 	});
 
 	if (!result.success) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Invalid diaper product data for id ${id}:`,
 			result.error.issues,

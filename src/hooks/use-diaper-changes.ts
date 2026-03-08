@@ -14,6 +14,7 @@ function toDiaperChange(id: string, row: Row): DiaperChange | null {
 	});
 
 	if (!result.success) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Invalid diaper change data for id ${id}:`,
 			result.error.issues,

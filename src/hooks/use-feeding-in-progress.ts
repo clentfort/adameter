@@ -42,6 +42,7 @@ function parseFeedingInProgress(value: unknown): FeedingInProgress | null {
 		const result = feedingInProgressSchema.safeParse(parsed);
 
 		if (!result.success) {
+			// eslint-disable-next-line no-console
 			console.warn('Invalid feeding in progress data:', result.error.issues);
 			return null;
 		}

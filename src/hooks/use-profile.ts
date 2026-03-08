@@ -34,6 +34,7 @@ function parseProfile(value: unknown): Profile | null {
 		const result = profileSchema.safeParse(parsed);
 
 		if (!result.success) {
+			// eslint-disable-next-line no-console
 			console.warn('Invalid profile data:', result.error.issues);
 			return null;
 		}

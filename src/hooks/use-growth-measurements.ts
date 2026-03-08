@@ -12,6 +12,7 @@ function toGrowthMeasurement(id: string, row: Row): GrowthMeasurement | null {
 	});
 
 	if (!result.success) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Invalid growth measurement data for id ${id}:`,
 			result.error.issues,

@@ -12,6 +12,7 @@ function toTooth(id: string, row: Row): Tooth | null {
 	});
 
 	if (!result.success) {
+		// eslint-disable-next-line no-console
 		console.warn(`Invalid tooth data for id ${id}:`, result.error.issues);
 		return null;
 	}

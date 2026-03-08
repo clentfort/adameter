@@ -14,6 +14,7 @@ function toEvent(id: string, row: Row): Event | null {
 	});
 
 	if (!result.success) {
+		// eslint-disable-next-line no-console
 		console.warn(`Invalid event data for id ${id}:`, result.error.issues);
 		return null;
 	}
@@ -40,9 +41,9 @@ export function useSortedEventIds() {
 	return useMemo(
 		() =>
 			Object.entries(table)
-				.map(([id, row]) => ({ id, entity: toEvent(id, row) }))
+				.map(([id, row]) => ({ entity: toEvent(id, row), id }))
 				.filter(
-					(item): item is { id: string; entity: Event } => item.entity !== null,
+					(item): item is { entity: Event; id: string } => item.entity !== null,
 				)
 				.sort((a, b) => {
 					return b.entity.startDate.localeCompare(a.entity.startDate);

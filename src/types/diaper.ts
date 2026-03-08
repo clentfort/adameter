@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { baseEntitySchema } from './base-entity';
+import { baseEntitySchema, type BaseEntity } from './base-entity';
 import {
 	numericInputField,
 	optionalBooleanCell,
