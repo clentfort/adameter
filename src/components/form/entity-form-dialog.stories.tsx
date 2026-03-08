@@ -12,6 +12,11 @@ export default meta;
 type Story = StoryObj<typeof EntityFormDialog>;
 
 export const Default: Story = {
+	args: {
+		onClose: () => {},
+		onSave: () => {},
+		title: 'Entity Form',
+	},
 	render: (args) => {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const form = useForm({
@@ -22,10 +27,5 @@ export const Default: Story = {
 				<div className="py-4">Form Content Goes Here</div>
 			</EntityFormDialog>
 		);
-	},
-	args: {
-		onClose: () => console.log('close'),
-		onSave: (data) => console.log('save', data),
-		title: 'Entity Form',
 	},
 };

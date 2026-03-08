@@ -3,7 +3,6 @@ import type { Event, EventFormData, EventFormValues } from '@/types/event';
 import { fbt } from 'fbtee';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';

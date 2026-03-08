@@ -20,6 +20,7 @@ export const Default: Story = {
 				time: '12:00',
 			},
 		});
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return <DateTimeInputs {...args} register={register as any} />;
 	},
 };

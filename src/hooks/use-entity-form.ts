@@ -6,9 +6,11 @@ import { useForm } from 'react-hook-form';
 
 export function useEntityForm<
 	TFieldValues extends FieldValues = FieldValues,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	TContext = any,
 	TTransformedValues extends FieldValues | undefined = undefined,
 >(
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	schema: ZodType<any, any, any>,
 	getDefaultValues: () => DefaultValues<TFieldValues>,
 	deps: unknown[] = [],

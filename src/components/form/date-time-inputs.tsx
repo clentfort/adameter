@@ -1,4 +1,3 @@
-import { fbt } from 'fbtee';
 import type {
 	FieldErrors,
 	FieldValues,

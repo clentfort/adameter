@@ -12,7 +12,7 @@ function TestDialog({
 	onSave,
 }: {
 	onClose: () => void;
-	onSave: (data: any) => void;
+	onSave: (data: { name: string }, event?: React.BaseSyntheticEvent) => void;
 }) {
 	const form = useForm({
 		defaultValues: { name: 'test' },

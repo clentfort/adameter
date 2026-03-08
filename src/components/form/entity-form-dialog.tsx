@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
-import { fbt } from 'fbtee';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -16,6 +15,7 @@ interface EntityFormDialogProps<
 > {
 	children: ReactNode;
 	footer?: ReactNode;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	form: UseFormReturn<TFieldValues, any, TTransformedValues>;
 	onClose: () => void;
 	onSave: (
@@ -23,7 +23,7 @@ interface EntityFormDialogProps<
 			? TFieldValues
 			: TTransformedValues,
 		event?: React.BaseSyntheticEvent,
-	) => void;
+	) => Promise<void> | void;
 	title: ReactNode;
 }
 
@@ -48,7 +48,10 @@ export function EntityFormDialog<
 				</DialogHeader>
 				<form
 					onSubmit={(e) => {
-						void handleSubmit(onSave as any)(e);
+						void handleSubmit((data, event) =>
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							onSave(data as unknown as any, event),
+						)(e);
 					}}
 				>
 					{children}
