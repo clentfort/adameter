@@ -28,7 +28,6 @@ import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
 import ReusableSavingsCard from './components/reusable-savings-card';
-import StatisticsSummary from './components/statistics-summary';
 import TimeBetweenStats from './components/time-between-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
@@ -213,8 +212,6 @@ export default function StatisticsPage() {
 					</div>
 				)}
 			</div>
-
-			<StatisticsSummary />
 
 			{filteredSessions.length === 0 &&
 			filteredDiaperChanges.length === 0 &&
