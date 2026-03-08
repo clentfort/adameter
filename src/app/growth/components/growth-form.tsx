@@ -50,7 +50,10 @@ export default function MeasurementForm({
 }: MeasurementFormProps) {
 	const measurement = 'measurement' in props ? props.measurement : undefined;
 
-	const defaultValues = useMemo(() => getDefaultValues(measurement), [measurement]);
+	const defaultValues = useMemo(
+		() => getDefaultValues(measurement),
+		[measurement],
+	);
 
 	const form = useEntityForm<GrowthFormValues, undefined, GrowthFormData>(
 		growthFormToDataSchema,
