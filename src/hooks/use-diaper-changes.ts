@@ -53,29 +53,6 @@ export function useDiaperChange(changeId: string | undefined) {
 	}, [changeId, row]);
 }
 
-export function useSortedDiaperChangeListEntries() {
-	const store = useStore()!;
-	const table = useTable(TABLE_IDS.DIAPER_CHANGES, store);
-
-	return useMemo(
-		() =>
-			Object.entries(table)
-				.sort(([, a], [, b]) => {
-					const aTimestamp = typeof a.timestamp === 'string' ? a.timestamp : '';
-					const bTimestamp = typeof b.timestamp === 'string' ? b.timestamp : '';
-					return bTimestamp.localeCompare(aTimestamp);
-				})
-				.map(
-					([changeId, row]) =>
-						({
-							id: changeId,
-							timestamp: typeof row.timestamp === 'string' ? row.timestamp : '',
-						}) satisfies DiaperChangeListEntry,
-				),
-		[table],
-	);
-}
-
 export function useDiaperChangesSnapshot() {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.DIAPER_CHANGES, store);

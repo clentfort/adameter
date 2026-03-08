@@ -5,10 +5,8 @@ import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import ReactConfetti from 'react-confetti';
 import { Button } from '@/components/ui/button';
-import {
-	useDiaperChangesSnapshot,
-	useUpsertDiaperChange,
-} from '@/hooks/use-diaper-changes';
+import { useUpsertDiaperChange } from '@/hooks/use-diaper-changes';
+import { useDiaperChangesTotal } from '@/hooks/use-tinybase-metrics';
 import DiaperForm from './components/diaper-form';
 import DiaperHistoryList from './components/diaper-history-list';
 import DiaperTracker from './components/diaper-tracker';
@@ -18,7 +16,7 @@ export default function DiaperPage() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const [showConfetti, setShowConfetti] = useState(false);
 
-	const diaperChanges = useDiaperChangesSnapshot();
+	const totalChanges = useDiaperChangesTotal();
 	const upsertDiaperChange = useUpsertDiaperChange();
 	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
 
@@ -81,8 +79,7 @@ export default function DiaperPage() {
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(change) => {
 						upsertDiaperChange(change);
-						const currentTotalChanges = diaperChanges.length;
-						checkAndTriggerConfetti(change, currentTotalChanges);
+						checkAndTriggerConfetti(change, totalChanges);
 						setIsAddEntryDialogOpen(false);
 					}}
 					presetDiaperProductId={lastUsedDiaperProduct}
