@@ -1,5 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
-import { format, isSameDay } from 'date-fns';
+import { isSameDay } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import DeleteIconButton from '@/components/icon-buttons/delete';
@@ -8,6 +8,7 @@ import IndexedHistoryList from '@/components/indexed-history-list';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { useFeedingSessionsByDate } from '@/hooks/use-tinybase-indexes';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
+import { formatEntryTime } from '@/utils/format-history-date';
 import FeedingForm from './feeding-form';
 
 interface HistoryListProps {
@@ -79,7 +80,7 @@ function FeedingHistoryEntry({
 						<fbt desc="Label indicating when a feeding session started">
 							Start
 						</fbt>
-						: {format(new Date(session.startTime), 'p')}
+						: {formatEntryTime(session.startTime)}
 					</p>
 					<div className="flex gap-1 mt-2">
 						<EditIconButton onClick={() => onEdit(session.id)} />

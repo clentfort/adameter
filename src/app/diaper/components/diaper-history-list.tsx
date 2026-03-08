@@ -1,4 +1,3 @@
-import { format, isValid, parseISO } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useState } from 'react';
 import { useCell, useStore } from 'tinybase/ui-react';
@@ -14,6 +13,7 @@ import {
 } from '@/hooks/use-diaper-changes';
 import { useDiaperChangesByDate } from '@/hooks/use-tinybase-indexes';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { formatEntryTime } from '@/utils/format-history-date';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
 
@@ -31,19 +31,6 @@ function DiaperProductName({ productId }: { productId: string }) {
 	) : (
 		<>{fbt('Unknown Product', 'Label for missing product')}</>
 	);
-}
-
-function formatChangeTime(timestamp: unknown) {
-	if (typeof timestamp !== 'string') {
-		return '';
-	}
-
-	const parsedTimestamp = parseISO(timestamp);
-	if (!isValid(parsedTimestamp)) {
-		return timestamp;
-	}
-
-	return format(parsedTimestamp, 'p');
 }
 
 function DiaperHistoryEntry({
@@ -128,7 +115,7 @@ function DiaperHistoryEntry({
 						)}
 					</div>
 					<p className="text-xs text-muted-foreground">
-						{formatChangeTime(change.timestamp)}
+						{formatEntryTime(change.timestamp)}
 					</p>
 
 					<div className="mt-2 text-sm space-y-1">

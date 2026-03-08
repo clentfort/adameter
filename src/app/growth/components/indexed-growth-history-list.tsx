@@ -3,7 +3,6 @@
 import type { Indexes } from 'tinybase';
 import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
-import { format, parseISO } from 'date-fns';
 import { useMemo, useState } from 'react';
 import { useSliceRowIds, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
@@ -25,18 +24,13 @@ import {
 	useTeethByDate,
 } from '@/hooks/use-tinybase-indexes';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import {
+	formatDisplayDate,
+	formatSectionDate,
+} from '@/utils/format-history-date';
 import { getToothName } from '../utils/teething';
 import MeasurementForm from './growth-form';
 import TeethingForm from './teething-form';
-
-function formatSectionDate(dateKey: string) {
-	const parsedDate = parseISO(dateKey);
-	if (Number.isNaN(parsedDate.getTime())) {
-		return dateKey;
-	}
-
-	return format(parsedDate, 'EEEE, d. MMMM yyyy');
-}
 
 interface GrowthHistoryEntryProps {
 	onDelete: (id: string) => void;
@@ -64,7 +58,7 @@ function GrowthHistoryEntry({
 							📏
 						</span>
 						<p className="font-medium text-lg">
-							{format(date, 'dd. MMMM yyyy')}
+							{formatDisplayDate(measurement.date)}
 						</p>
 					</div>
 					<div className="mt-2 space-y-1">
@@ -136,7 +130,7 @@ function TeethingHistoryEntry({
 							🦷
 						</span>
 						<p className="font-medium text-lg">
-							{format(date, 'dd. MMMM yyyy')}
+							{formatDisplayDate(tooth.date)}
 						</p>
 					</div>
 					<div className="mt-2 space-y-1">
