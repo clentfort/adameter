@@ -3,11 +3,7 @@ import { useForm } from 'react-hook-form';
 import { describe, expect, it } from 'vitest';
 import { DateTimeInputs } from './date-time-inputs';
 
-function TestForm({
-	timeField,
-}: {
-	timeField?: 'time';
-}) {
+function TestForm({ timeField }: { timeField?: 'time' }) {
 	const { register } = useForm({
 		defaultValues: {
 			date: '2023-01-01',

@@ -1,8 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { EntityFormDialog } from './entity-form-dialog';
 
 const schema = z.object({ name: z.string() });

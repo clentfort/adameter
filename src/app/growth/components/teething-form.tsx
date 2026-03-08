@@ -33,11 +33,11 @@ export default function TeethingForm({
 	tooth,
 	toothName,
 }: TeethingFormProps) {
-	const form = useEntityForm<
-		TeethingFormValues,
-		undefined,
-		TeethingFormData
-	>(teethingFormToDataSchema, () => getDefaultValues(tooth), [tooth]);
+	const form = useEntityForm<TeethingFormValues, undefined, TeethingFormData>(
+		teethingFormToDataSchema,
+		() => getDefaultValues(tooth),
+		[tooth],
+	);
 
 	const { register } = form;
 

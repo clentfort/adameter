@@ -91,77 +91,70 @@ export default function MeasurementForm({
 				/>
 
 				<div className="grid grid-cols-1 gap-4">
-							<div className="space-y-2">
-								<Label htmlFor="weight">
-									<fbt desc="Label for a body weight input">Weight (g)</fbt>
-								</Label>
-								<Input
-									id="weight"
-									placeholder={fbt(
-										'e.g. 3500',
-										'Placeholder for a weight input',
-									)}
-									type="number"
-									{...register('weight')}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="height">
-									<fbt desc="Label for a body height input">Height (cm)</fbt>
-								</Label>
-								<Input
-									id="height"
-									placeholder={fbt('e.g. 50', 'Placeholder for a height input')}
-									step="0.1"
-									type="number"
-									{...register('height')}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="headCircumference">
-									<fbt desc="Label for a head circumference input">
-										Head Circumference (cm)
-									</fbt>
-								</Label>
-								<Input
-									id="headCircumference"
-									placeholder={fbt(
-										'e.g. 35',
-										'Placeholder for a head circumference input',
-									)}
-									step="0.1"
-									type="number"
-									{...register('headCircumference')}
-								/>
-							</div>
-						</div>
+					<div className="space-y-2">
+						<Label htmlFor="weight">
+							<fbt desc="Label for a body weight input">Weight (g)</fbt>
+						</Label>
+						<Input
+							id="weight"
+							placeholder={fbt('e.g. 3500', 'Placeholder for a weight input')}
+							type="number"
+							{...register('weight')}
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="height">
+							<fbt desc="Label for a body height input">Height (cm)</fbt>
+						</Label>
+						<Input
+							id="height"
+							placeholder={fbt('e.g. 50', 'Placeholder for a height input')}
+							step="0.1"
+							type="number"
+							{...register('height')}
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="headCircumference">
+							<fbt desc="Label for a head circumference input">
+								Head Circumference (cm)
+							</fbt>
+						</Label>
+						<Input
+							id="headCircumference"
+							placeholder={fbt(
+								'e.g. 35',
+								'Placeholder for a head circumference input',
+							)}
+							step="0.1"
+							type="number"
+							{...register('headCircumference')}
+						/>
+					</div>
+				</div>
 
-						{errors.weight && (
-							<div className="text-sm text-red-500">
-								{errors.weight.message === 'AT_LEAST_ONE_REQUIRED' ? (
-									<fbt desc="Message shown when no weight, height, or head circumference is provided. At least one is required">
-										Please enter at least a weight, height, or head
-										circumference.
-									</fbt>
-								) : (
-									errors.weight.message
-								)}
-							</div>
+				{errors.weight && (
+					<div className="text-sm text-red-500">
+						{errors.weight.message === 'AT_LEAST_ONE_REQUIRED' ? (
+							<fbt desc="Message shown when no weight, height, or head circumference is provided. At least one is required">
+								Please enter at least a weight, height, or head circumference.
+							</fbt>
+						) : (
+							errors.weight.message
 						)}
+					</div>
+				)}
 
-						{errors.height &&
-							errors.height.message !== 'AT_LEAST_ONE_REQUIRED' && (
-								<div className="text-sm text-red-500">
-									{errors.height.message}
-								</div>
-							)}
+				{errors.height && errors.height.message !== 'AT_LEAST_ONE_REQUIRED' && (
+					<div className="text-sm text-red-500">{errors.height.message}</div>
+				)}
 
-						{errors.headCircumference &&
-							errors.headCircumference.message !== 'AT_LEAST_ONE_REQUIRED' && (
-								<div className="text-sm text-red-500">
-									{errors.headCircumference.message}
-								</div>
-							)}
+				{errors.headCircumference &&
+					errors.headCircumference.message !== 'AT_LEAST_ONE_REQUIRED' && (
+						<div className="text-sm text-red-500">
+							{errors.headCircumference.message}
+						</div>
+					)}
 
 				<div className="space-y-2">
 					<Label htmlFor="notes">

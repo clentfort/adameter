@@ -346,7 +346,8 @@ export default function DiaperForm({
 						</Label>
 						<Input
 							className={
-								temperature && isAbnormalTemperature(Number.parseFloat(temperature))
+								temperature &&
+								isAbnormalTemperature(Number.parseFloat(temperature))
 									? 'border-red-500'
 									: ''
 							}
@@ -359,13 +360,14 @@ export default function DiaperForm({
 							type="number"
 							{...register('temperature')}
 						/>
-						{temperature && isAbnormalTemperature(Number.parseFloat(temperature)) && (
-							<p className="text-xs text-red-500 mt-1">
-								<fbt desc="A warning that the temperature is outside the normal range">
-									Warning: Temperature outside normal range (36.5°C - 37.5°C)
-								</fbt>
-							</p>
-						)}
+						{temperature &&
+							isAbnormalTemperature(Number.parseFloat(temperature)) && (
+								<p className="text-xs text-red-500 mt-1">
+									<fbt desc="A warning that the temperature is outside the normal range">
+										Warning: Temperature outside normal range (36.5°C - 37.5°C)
+									</fbt>
+								</p>
+							)}
 					</div>
 
 					<div className="space-y-2">
