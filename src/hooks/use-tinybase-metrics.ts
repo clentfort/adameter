@@ -6,57 +6,56 @@ import {
 	useTinybaseMetrics,
 } from '@/contexts/tinybase-metrics-context';
 
-export function useDiaperChangesToday() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.DIAPER_CHANGES_TODAY, metrics) ?? 0;
+/**
+ * Factory function to create a hook that returns a specific metric value.
+ */
+function createMetricHook<T extends number | undefined = number>(
+	metricId: string,
+	defaultValue: T = 0 as T,
+) {
+	return function useMetricValue(): T {
+		const metrics = useTinybaseMetrics();
+		return (useMetric(metricId, metrics) ?? defaultValue) as T;
+	};
 }
 
-export function useDiaperChangesTotal() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.DIAPER_CHANGES_TOTAL, metrics) ?? 0;
-}
+// Diaper metrics
+export const useDiaperChangesToday = createMetricHook(
+	METRIC_IDS.DIAPER_CHANGES_TODAY,
+);
+export const useDiaperChangesTotal = createMetricHook(
+	METRIC_IDS.DIAPER_CHANGES_TOTAL,
+);
+export const useDiaperStoolCount = createMetricHook(
+	METRIC_IDS.DIAPER_STOOL_COUNT,
+);
+export const useDiaperUrineCount = createMetricHook(
+	METRIC_IDS.DIAPER_URINE_COUNT,
+);
 
-export function useDiaperStoolCount() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.DIAPER_STOOL_COUNT, metrics) ?? 0;
-}
+// Feeding metrics
+export const useFeedingSessionsToday = createMetricHook(
+	METRIC_IDS.FEEDING_SESSIONS_TODAY,
+);
+export const useFeedingSessionsTotal = createMetricHook(
+	METRIC_IDS.FEEDING_SESSIONS_TOTAL,
+);
+export const useFeedingAvgDuration = createMetricHook(
+	METRIC_IDS.FEEDING_AVG_DURATION,
+);
 
-export function useDiaperUrineCount() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.DIAPER_URINE_COUNT, metrics) ?? 0;
-}
+// Growth metrics
+export const useGrowthMaxHeight = createMetricHook(
+	METRIC_IDS.GROWTH_MAX_HEIGHT,
+);
+export const useGrowthMaxWeight = createMetricHook(
+	METRIC_IDS.GROWTH_MAX_WEIGHT,
+);
+export const useGrowthMeasurementsTotal = createMetricHook(
+	METRIC_IDS.GROWTH_MEASUREMENTS_TOTAL,
+);
 
-export function useFeedingSessionsToday() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.FEEDING_SESSIONS_TODAY, metrics) ?? 0;
-}
-
-export function useFeedingSessionsTotal() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.FEEDING_SESSIONS_TOTAL, metrics) ?? 0;
-}
-
-export function useFeedingAvgDuration() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.FEEDING_AVG_DURATION, metrics) ?? 0;
-}
-
-export function useGrowthMaxHeight() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.GROWTH_MAX_HEIGHT, metrics) ?? 0;
-}
-
-export function useGrowthMaxWeight() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.GROWTH_MAX_WEIGHT, metrics) ?? 0;
-}
-
-export function useGrowthMeasurementsTotal() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.GROWTH_MEASUREMENTS_TOTAL, metrics) ?? 0;
-}
-
-export function useTeethEruptedCount() {
-	const metrics = useTinybaseMetrics();
-	return useMetric(METRIC_IDS.TEETH_ERUPTED_COUNT, metrics) ?? 0;
-}
+// Teething metrics
+export const useTeethEruptedCount = createMetricHook(
+	METRIC_IDS.TEETH_ERUPTED_COUNT,
+);
