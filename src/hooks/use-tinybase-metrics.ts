@@ -45,8 +45,12 @@ export const useFeedingAvgDuration = createMetricHook(
 );
 
 // Growth metrics
-export const useGrowthMaxHeight = createMetricHook(METRIC_IDS.GROWTH_MAX_HEIGHT);
-export const useGrowthMaxWeight = createMetricHook(METRIC_IDS.GROWTH_MAX_WEIGHT);
+export const useGrowthMaxHeight = createMetricHook(
+	METRIC_IDS.GROWTH_MAX_HEIGHT,
+);
+export const useGrowthMaxWeight = createMetricHook(
+	METRIC_IDS.GROWTH_MAX_WEIGHT,
+);
 export const useGrowthMeasurementsTotal = createMetricHook(
 	METRIC_IDS.GROWTH_MEASUREMENTS_TOTAL,
 );
