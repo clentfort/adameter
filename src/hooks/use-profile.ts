@@ -1,8 +1,8 @@
 import type { Profile } from '@/types/profile';
-import { profileSchema } from '@/types/profile';
 import { useMemo } from 'react';
 import { useSetValueCallback, useValue } from 'tinybase/ui-react';
 import { STORE_VALUE_PROFILE } from '@/lib/tinybase-sync/constants';
+import { profileSchema } from '@/types/profile';
 
 export const useProfile = () => {
 	const currentJson = useValue(STORE_VALUE_PROFILE);

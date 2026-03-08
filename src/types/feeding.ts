@@ -1,5 +1,6 @@
+import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
-import { baseEntitySchema, type BaseEntity } from './base-entity';
+import { baseEntitySchema } from './base-entity';
 import { positiveNumericInputField } from './schema-utils';
 
 const breastSchema = z.enum(['left', 'right']);
