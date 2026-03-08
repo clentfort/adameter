@@ -1,16 +1,10 @@
 import type { Row } from 'tinybase';
 import type { FeedingSession } from '@/types/feeding';
 import { useMemo } from 'react';
-import {
-	useDelRowCallback,
-	useRow,
-	useSetRowCallback,
-	useStore,
-	useTable,
-} from 'tinybase/ui-react';
+import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeFeedingSessionForStore } from '@/lib/tinybase-sync/entity-row-schemas';
-import { getDeviceId } from '@/utils/device-id';
+import { createEntityHooks } from './create-entity-hooks';
 
 function toFeedingSession(id: string, row: Row): FeedingSession {
 	return {
@@ -19,52 +13,17 @@ function toFeedingSession(id: string, row: Row): FeedingSession {
 	} as FeedingSession;
 }
 
-interface FeedingSessionListEntry {
-	id: string;
-	startTime: string;
-}
+const feedingSessionHooks = createEntityHooks<FeedingSession>({
+	sanitize: sanitizeFeedingSessionForStore,
+	tableId: TABLE_IDS.FEEDING_SESSIONS,
+	toEntity: toFeedingSession,
+});
 
-export function useUpsertFeedingSession() {
-	return useSetRowCallback<FeedingSession>(
-		TABLE_IDS.FEEDING_SESSIONS,
-		(session) => session.id,
-		(session) => {
-			const cells = sanitizeFeedingSessionForStore(session);
-			return cells ? { ...cells, deviceId: getDeviceId() } : {};
-		},
-		[],
-	);
-}
-
-export function useRemoveFeedingSession() {
-	return useDelRowCallback<string>(TABLE_IDS.FEEDING_SESSIONS, (id) => id);
-}
-
-export function useFeedingSession(sessionId: string | undefined) {
-	const store = useStore()!;
-	const row = useRow(TABLE_IDS.FEEDING_SESSIONS, sessionId ?? '', store);
-
-	return useMemo(() => {
-		if (!sessionId || Object.keys(row).length === 0) {
-			return undefined;
-		}
-
-		return toFeedingSession(sessionId, row);
-	}, [row, sessionId]);
-}
-
-export function useFeedingSessionsSnapshot() {
-	const store = useStore()!;
-	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
-
-	return useMemo(
-		() =>
-			Object.entries(table).map(([sessionId, row]) =>
-				toFeedingSession(sessionId, row),
-			),
-		[table],
-	);
-}
+export const useUpsertFeedingSession = feedingSessionHooks.useUpsert;
+export const useRemoveFeedingSession = feedingSessionHooks.useRemove;
+export const useFeedingSession = feedingSessionHooks.useOne;
+export const useFeedingSessionsSnapshot = feedingSessionHooks.useSnapshot;
+export const useFeedingSessionIds = feedingSessionHooks.useIds;
 
 export function useLatestFeedingSessionRecord() {
 	const store = useStore()!;

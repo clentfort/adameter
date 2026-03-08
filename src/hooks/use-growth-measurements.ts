@@ -1,16 +1,8 @@
 import type { Row } from 'tinybase';
 import type { GrowthMeasurement } from '@/types/growth';
-import { useMemo } from 'react';
-import {
-	useDelRowCallback,
-	useRow,
-	useSetRowCallback,
-	useStore,
-	useTable,
-} from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeGrowthMeasurementForStore } from '@/lib/tinybase-sync/entity-row-schemas';
-import { getDeviceId } from '@/utils/device-id';
+import { createEntityHooks } from './create-entity-hooks';
 
 function toGrowthMeasurement(id: string, row: Row): GrowthMeasurement {
 	return {
@@ -19,44 +11,14 @@ function toGrowthMeasurement(id: string, row: Row): GrowthMeasurement {
 	} as GrowthMeasurement;
 }
 
-export function useUpsertGrowthMeasurement() {
-	return useSetRowCallback<GrowthMeasurement>(
-		TABLE_IDS.GROWTH_MEASUREMENTS,
-		(measurement) => measurement.id,
-		(measurement) => {
-			const cells = sanitizeGrowthMeasurementForStore(measurement);
-			return cells ? { ...cells, deviceId: getDeviceId() } : {};
-		},
-		[],
-	);
-}
+const growthMeasurementHooks = createEntityHooks<GrowthMeasurement>({
+	sanitize: sanitizeGrowthMeasurementForStore,
+	tableId: TABLE_IDS.GROWTH_MEASUREMENTS,
+	toEntity: toGrowthMeasurement,
+});
 
-export function useRemoveGrowthMeasurement() {
-	return useDelRowCallback<string>(TABLE_IDS.GROWTH_MEASUREMENTS, (id) => id);
-}
-
-export function useGrowthMeasurement(measurementId: string | undefined) {
-	const store = useStore()!;
-	const row = useRow(TABLE_IDS.GROWTH_MEASUREMENTS, measurementId ?? '', store);
-
-	return useMemo(() => {
-		if (!measurementId || Object.keys(row).length === 0) {
-			return undefined;
-		}
-
-		return toGrowthMeasurement(measurementId, row);
-	}, [measurementId, row]);
-}
-
-export function useGrowthMeasurementsSnapshot() {
-	const store = useStore()!;
-	const table = useTable(TABLE_IDS.GROWTH_MEASUREMENTS, store);
-
-	return useMemo(
-		() =>
-			Object.entries(table).map(([measurementId, row]) =>
-				toGrowthMeasurement(measurementId, row),
-			),
-		[table],
-	);
-}
+export const useUpsertGrowthMeasurement = growthMeasurementHooks.useUpsert;
+export const useRemoveGrowthMeasurement = growthMeasurementHooks.useRemove;
+export const useGrowthMeasurement = growthMeasurementHooks.useOne;
+export const useGrowthMeasurementsSnapshot = growthMeasurementHooks.useSnapshot;
+export const useGrowthMeasurementIds = growthMeasurementHooks.useIds;
