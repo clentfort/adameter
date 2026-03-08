@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { describe, expect, it, vi } from 'vitest';
 import {
 	formatDisplayDate,
