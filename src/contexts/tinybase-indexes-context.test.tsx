@@ -33,7 +33,7 @@ function createTestStore() {
 	});
 
 	store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-1', {
-		timestamp: '2024-01-15T11:00:00Z',
+		date: '2024-01-15T11:00:00Z',
 		weight: 4500,
 	});
 

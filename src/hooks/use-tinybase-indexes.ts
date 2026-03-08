@@ -20,6 +20,21 @@ export function useDiaperChangesByDate() {
 }
 
 /**
+ * Hook to get teeth grouped by date using TinyBase Indexes.
+ * Returns sorted date keys (most recent first) and a function to get row IDs for each date.
+ */
+export function useTeethByDate() {
+	const indexes = useTinybaseIndexes();
+	const dateKeys = useSliceIds(INDEX_IDS.TEETH_BY_DATE, indexes);
+
+	return {
+		dateKeys,
+		indexes,
+		indexId: INDEX_IDS.TEETH_BY_DATE,
+	};
+}
+
+/**
  * Hook to get events grouped by date using TinyBase Indexes.
  * Returns sorted date keys (most recent first) and a function to get row IDs for each date.
  */

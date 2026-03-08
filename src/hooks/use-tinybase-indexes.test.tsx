@@ -13,6 +13,7 @@ import {
 	useEventsByDate,
 	useFeedingSessionsByDate,
 	useGrowthMeasurementsByDate,
+	useTeethByDate,
 } from './use-tinybase-indexes';
 
 function createTestStore() {
@@ -54,12 +55,22 @@ function createTestStore() {
 
 	// Add growth measurements
 	store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-1', {
-		timestamp: '2024-01-15T11:00:00Z',
+		date: '2024-01-15T11:00:00Z',
 		weight: 4500,
 	});
 	store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-2', {
-		timestamp: '2024-01-10T11:00:00Z',
+		date: '2024-01-10T11:00:00Z',
 		weight: 4400,
+	});
+
+	// Add teeth
+	store.setRow(TABLE_IDS.TEETHING, 'tooth-51', {
+		date: '2024-02-01T10:00:00Z',
+		toothId: 51,
+	});
+	store.setRow(TABLE_IDS.TEETHING, 'tooth-61', {
+		date: '2024-02-05T10:00:00Z',
+		toothId: 61,
 	});
 
 	return store;
@@ -118,6 +129,18 @@ describe('useGrowthMeasurementsByDate', () => {
 
 		expect(result.current.dateKeys).toEqual(['2024-01-15', '2024-01-10']);
 		expect(result.current.indexId).toBe(INDEX_IDS.GROWTH_MEASUREMENTS_BY_DATE);
+		expect(result.current.indexes).toBeDefined();
+	});
+});
+
+describe('useTeethByDate', () => {
+	it('should return date keys sorted in descending order', () => {
+		const { result } = renderHook(() => useTeethByDate(), {
+			wrapper: TestWrapper,
+		});
+
+		expect(result.current.dateKeys).toEqual(['2024-02-05', '2024-02-01']);
+		expect(result.current.indexId).toBe(INDEX_IDS.TEETH_BY_DATE);
 		expect(result.current.indexes).toBeDefined();
 	});
 });

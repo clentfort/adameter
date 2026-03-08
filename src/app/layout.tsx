@@ -9,6 +9,7 @@ import { I18nProvider } from '@/contexts/i18n-context';
 import { TinybaseProvider } from '@/contexts/tinybase-context';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { TinybaseMetricsProvider } from '@/contexts/tinybase-metrics-context';
+import { TinybaseQueriesProvider } from '@/contexts/tinybase-queries-context';
 
 export const metadata: Metadata = {
 	description: 'An app for tracking baby activities',
@@ -33,9 +34,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 						<DataSynchronizationProvider>
 							<TinybaseProvider>
 								<TinybaseIndexesProvider>
-									<TinybaseMetricsProvider>
-										<RootLayout>{children}</RootLayout>
-									</TinybaseMetricsProvider>
+									<TinybaseQueriesProvider>
+										<TinybaseMetricsProvider>
+											<RootLayout>{children}</RootLayout>
+										</TinybaseMetricsProvider>
+									</TinybaseQueriesProvider>
 								</TinybaseIndexesProvider>
 							</TinybaseProvider>
 						</DataSynchronizationProvider>
