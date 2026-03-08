@@ -20,7 +20,7 @@ describe('useProfile', () => {
 			),
 		});
 
-		const profile = { name: 'Baby Ada', birthday: '2024-01-01' };
+		const profile = { birthday: '2024-01-01', name: 'Baby Ada' };
 
 		act(() => {
 			result.current[1](profile);

@@ -1,3 +1,4 @@
+import type { FeedingSession } from '@/types/feeding';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -30,7 +31,7 @@ describe('useFeedingSessions', () => {
 				endTime: '2024-01-01T10:10:00Z',
 				id: 'f1',
 				startTime: '2024-01-01T10:00:00Z',
-			} as any;
+			} as FeedingSession;
 
 			act(() => {
 				result.current(newSession);

@@ -1,3 +1,4 @@
+import type { Tooth } from '@/types/teething';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -20,16 +21,16 @@ describe('useTeething', () => {
 
 			act(() => {
 				result.current({
+					date: '2024-01-01',
 					id: 't51',
 					toothId: 51,
-					date: '2024-01-01',
-				} as any);
+				} as Tooth);
 			});
 
 			expect(store.getRow(TABLE_IDS.TEETHING, 't51')).toEqual({
-				toothId: 51,
 				date: '2024-01-01',
 				deviceId: 'test-device-id',
+				toothId: 51,
 			});
 		});
 	});
@@ -37,7 +38,10 @@ describe('useTeething', () => {
 	describe('useTooth', () => {
 		it('should return the tooth record for valid id', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.TEETHING, 't51', { toothId: 51, date: '2024-01-01' });
+			store.setRow(TABLE_IDS.TEETHING, 't51', {
+				date: '2024-01-01',
+				toothId: 51,
+			});
 
 			const { result } = renderHook(() => useTooth('t51'), {
 				wrapper: ({ children }) => (
@@ -46,9 +50,9 @@ describe('useTeething', () => {
 			});
 
 			expect(result.current).toEqual({
+				date: '2024-01-01',
 				id: 't51',
 				toothId: 51,
-				date: '2024-01-01',
 			});
 		});
 	});
@@ -65,7 +69,10 @@ describe('useTeething', () => {
 			});
 
 			expect(result.current).toHaveLength(1);
-			expect(result.current[0].id).toBe('t51');
+			expect(result.current[0]).toEqual({
+				id: 't51',
+				toothId: 51,
+			});
 		});
 	});
 });

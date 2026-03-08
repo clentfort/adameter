@@ -1,3 +1,4 @@
+import type { DiaperChange } from '@/types/diaper';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -30,7 +31,7 @@ describe('useDiaperChanges', () => {
 				containsUrine: true,
 				id: 'd1',
 				timestamp: '2024-01-01T10:00:00Z',
-			} as any;
+			} as DiaperChange;
 
 			act(() => {
 				result.current(newChange);
@@ -63,7 +64,7 @@ describe('useDiaperChanges', () => {
 					containsUrine: true,
 					id: 'd1',
 					timestamp: '2024-01-01T10:00:00Z',
-				} as any);
+				} as DiaperChange);
 			});
 
 			expect(store.getRow(TABLE_IDS.DIAPER_CHANGES, 'd1')).toEqual({
@@ -126,8 +127,8 @@ describe('useDiaperChanges', () => {
 			});
 
 			expect(result.current).toEqual({
-				id: 'd1',
 				containsUrine: true,
+				id: 'd1',
 				timestamp: '2024-01-01T10:00:00Z',
 			});
 		});
@@ -144,9 +145,11 @@ describe('useDiaperChanges', () => {
 		it('should return all diaper changes', () => {
 			const store = createTestStore();
 			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd1', {
+				containsUrine: true,
 				timestamp: '2024-01-01T10:00:00Z',
 			});
 			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd2', {
+				containsUrine: true,
 				timestamp: '2024-01-01T11:00:00Z',
 			});
 
@@ -158,10 +161,12 @@ describe('useDiaperChanges', () => {
 
 			expect(result.current).toHaveLength(2);
 			expect(result.current).toContainEqual({
+				containsUrine: true,
 				id: 'd1',
 				timestamp: '2024-01-01T10:00:00Z',
 			});
 			expect(result.current).toContainEqual({
+				containsUrine: true,
 				id: 'd2',
 				timestamp: '2024-01-01T11:00:00Z',
 			});

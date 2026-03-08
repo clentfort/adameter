@@ -1,3 +1,4 @@
+import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -30,7 +31,7 @@ describe('useDiaperProducts', () => {
 					id: 'p1',
 					isReusable: false,
 					name: 'Pampers',
-				} as any);
+				} as DiaperProduct);
 			});
 
 			expect(store.getRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1')).toEqual({
@@ -102,7 +103,7 @@ describe('useDiaperProducts', () => {
 			const changes = [
 				{ productId: 'p1', timestamp: '2024-01-01T10:00:00Z' },
 				{ productId: 'p1', timestamp: '2024-01-01T11:00:00Z' },
-			] as any;
+			] as unknown as DiaperChange[];
 
 			const { result } = renderHook(
 				() => useFrecencySortedDiaperProductIds(changes),

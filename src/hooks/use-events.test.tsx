@@ -1,3 +1,4 @@
+import type { Event } from '@/types/event';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -30,7 +31,7 @@ describe('useEvents', () => {
 					startDate: '2024-01-01T10:00:00Z',
 					title: 'Nap',
 					type: 'point',
-				} as any);
+				} as Event);
 			});
 
 			expect(store.getRow(TABLE_IDS.EVENTS, 'e1')).toEqual({

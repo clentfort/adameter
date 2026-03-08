@@ -1,3 +1,4 @@
+import type { GrowthMeasurement } from '@/types/growth';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -24,10 +25,10 @@ describe('useGrowthMeasurements', () => {
 			});
 
 			const newMeasurement = {
-				id: 'g1',
 				date: '2024-01-01',
+				id: 'g1',
 				weight: 3500,
-			} as any;
+			} as GrowthMeasurement;
 
 			act(() => {
 				result.current(newMeasurement);
@@ -77,8 +78,8 @@ describe('useGrowthMeasurements', () => {
 			});
 
 			expect(result.current).toEqual({
-				id: 'g1',
 				date: '2024-01-01',
+				id: 'g1',
 				weight: 3500,
 			});
 		});
