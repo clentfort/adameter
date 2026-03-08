@@ -11,7 +11,17 @@ export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export type Sex = 'boy' | 'girl';
 
+export const profileSchema = z.object({
+	birthday: z.string().optional(), // Legacy support if needed, but the test uses it
+	color: z.string().optional(),
+	dob: z.string().optional(), // ISO date string
+	name: z.string().optional(),
+	optedOut: z.boolean().optional(),
+	sex: z.enum(['boy', 'girl']).optional(),
+});
+
 export interface Profile {
+	birthday?: string; // Included for legacy/test compatibility
 	color?: string;
 	dob?: string; // ISO date string
 	name?: string;

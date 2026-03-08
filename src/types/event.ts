@@ -1,5 +1,5 @@
-import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
+import { baseEntitySchema, type BaseEntity } from './base-entity';
 import {
 	optionalStringCell,
 	optionalTextField,
@@ -52,6 +52,8 @@ export const eventFormToDataSchema = eventFormSchema.transform((values) => {
 });
 
 export const eventDataSchema = eventSharedSchema;
+
+export const eventSchema = baseEntitySchema.extend(eventDataSchema.shape);
 
 export type EventData = z.infer<typeof eventDataSchema>;
 export type EventFormData = z.infer<typeof eventFormToDataSchema>;

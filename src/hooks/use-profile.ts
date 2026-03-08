@@ -1,4 +1,5 @@
 import type { Profile } from '@/types/profile';
+import { profileSchema } from '@/types/profile';
 import { useMemo } from 'react';
 import { useSetValueCallback, useValue } from 'tinybase/ui-react';
 import { STORE_VALUE_PROFILE } from '@/lib/tinybase-sync/constants';
@@ -29,7 +30,15 @@ function parseProfile(value: unknown): Profile | null {
 	}
 
 	try {
-		return JSON.parse(value) as Profile;
+		const parsed = JSON.parse(value);
+		const result = profileSchema.safeParse(parsed);
+
+		if (!result.success) {
+			console.warn('Invalid profile data:', result.error.issues);
+			return null;
+		}
+
+		return result.data;
 	} catch {
 		return null;
 	}

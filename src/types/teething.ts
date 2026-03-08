@@ -1,5 +1,5 @@
-import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
+import { baseEntitySchema, type BaseEntity } from './base-entity';
 import {
 	integerCell,
 	optionalStringCell,
@@ -28,6 +28,8 @@ export const teethingFormToDataSchema = teethingFormSchema.transform((values) =>
 export const toothDataSchema = teethingSharedSchema.extend({
 	toothId: integerCell,
 });
+
+export const toothSchema = baseEntitySchema.extend(toothDataSchema.shape);
 
 export type ToothData = z.infer<typeof toothDataSchema>;
 export type TeethingFormData = z.infer<typeof teethingFormToDataSchema>;

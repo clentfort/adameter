@@ -119,6 +119,7 @@ describe('useDiaperChanges', () => {
 		it('should return the diaper change for valid id', () => {
 			const store = createTestStore();
 			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd1', {
+				containsStool: false,
 				containsUrine: true,
 				timestamp: '2024-01-01T10:00:00Z',
 			});
@@ -130,6 +131,7 @@ describe('useDiaperChanges', () => {
 			});
 
 			expect(result.current).toEqual({
+				containsStool: false,
 				containsUrine: true,
 				id: 'd1',
 				timestamp: '2024-01-01T10:00:00Z',
@@ -148,10 +150,12 @@ describe('useDiaperChanges', () => {
 		it('should return all diaper changes', () => {
 			const store = createTestStore();
 			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd1', {
+				containsStool: false,
 				containsUrine: true,
 				timestamp: '2024-01-01T10:00:00Z',
 			});
 			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd2', {
+				containsStool: false,
 				containsUrine: true,
 				timestamp: '2024-01-01T11:00:00Z',
 			});
@@ -164,11 +168,13 @@ describe('useDiaperChanges', () => {
 
 			expect(result.current).toHaveLength(2);
 			expect(result.current).toContainEqual({
+				containsStool: false,
 				containsUrine: true,
 				id: 'd1',
 				timestamp: '2024-01-01T10:00:00Z',
 			});
 			expect(result.current).toContainEqual({
+				containsStool: false,
 				containsUrine: true,
 				id: 'd2',
 				timestamp: '2024-01-01T11:00:00Z',
@@ -187,6 +193,8 @@ describe('useDiaperChanges', () => {
 
 			act(() => {
 				store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd1', {
+					containsStool: false,
+					containsUrine: true,
 					timestamp: '2024-01-01T10:00:00Z',
 				});
 			});
@@ -212,9 +220,13 @@ describe('useDiaperChanges', () => {
 		it('should return the latest diaper change', () => {
 			const store = createTestStore();
 			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd1', {
+				containsStool: false,
+				containsUrine: true,
 				timestamp: '2024-01-01T10:00:00Z',
 			});
 			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd2', {
+				containsStool: false,
+				containsUrine: true,
 				timestamp: '2024-01-01T11:00:00Z',
 			});
 

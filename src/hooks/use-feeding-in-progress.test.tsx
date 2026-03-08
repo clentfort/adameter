@@ -42,7 +42,7 @@ describe('useFeedingInProgress', () => {
 		const store = createTestStore();
 		store.setValue(
 			STORE_VALUE_FEEDING_IN_PROGRESS,
-			JSON.stringify({ breast: 'left' }),
+			JSON.stringify({ breast: 'left', startTime: '2024-01-01T10:00:00Z' }),
 		);
 
 		const { result } = renderHook(() => useFeedingInProgress(), {

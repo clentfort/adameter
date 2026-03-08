@@ -2,13 +2,24 @@ import type { Row } from 'tinybase';
 import type { GrowthMeasurement } from '@/types/growth';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeGrowthMeasurementForStore } from '@/lib/tinybase-sync/entity-row-schemas';
+import { growthMeasurementSchema } from '@/types/growth';
 import { createEntityHooks } from './create-entity-hooks';
 
-function toGrowthMeasurement(id: string, row: Row): GrowthMeasurement {
-	return {
+function toGrowthMeasurement(id: string, row: Row): GrowthMeasurement | null {
+	const result = growthMeasurementSchema.safeParse({
 		...row,
 		id,
-	} as GrowthMeasurement;
+	});
+
+	if (!result.success) {
+		console.warn(
+			`Invalid growth measurement data for id ${id}:`,
+			result.error.issues,
+		);
+		return null;
+	}
+
+	return result.data;
 }
 
 const growthMeasurementHooks = createEntityHooks<GrowthMeasurement>({
