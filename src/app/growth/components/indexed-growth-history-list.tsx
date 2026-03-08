@@ -82,7 +82,9 @@ function GrowthHistoryEntry({
 				{measurement.headCircumference && (
 					<p className="text-sm">
 						<span className="font-medium">
-							<fbt desc="Head circumference of the baby">Head Circumference</fbt>
+							<fbt desc="Head circumference of the baby">
+								Head Circumference
+							</fbt>
 						</span>{' '}
 						{measurement.headCircumference} cm
 					</p>

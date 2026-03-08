@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { cn } from '@/lib/utils';
 import DeleteIconButton from '@/components/icon-buttons/delete';
 import EditIconButton from '@/components/icon-buttons/edit';
+import { cn } from '@/lib/utils';
 
 export type HistoryEntryVariant =
 	| 'diaper'
@@ -12,7 +12,7 @@ export type HistoryEntryVariant =
 
 const variantStyles: Record<
 	HistoryEntryVariant,
-	{ bg: string; border: string; }
+	{ bg: string; border: string }
 > = {
 	diaper: {
 		bg: 'bg-amber-50/50 dark:bg-amber-950/20',
@@ -34,15 +34,15 @@ const variantStyles: Record<
 };
 
 interface HistoryEntryCardProps {
-	children: ReactNode;
-	className?: string;
+	'children': ReactNode;
+	'className'?: string;
 	'data-testid'?: string;
-	emoji?: string;
-	formattedTime?: string;
-	onDelete?: () => void;
-	onEdit?: () => void;
-	style?: CSSProperties;
-	variant?: HistoryEntryVariant;
+	'emoji'?: string;
+	'formattedTime'?: string;
+	'onDelete'?: () => void;
+	'onEdit'?: () => void;
+	'style'?: CSSProperties;
+	'variant'?: HistoryEntryVariant;
 }
 
 export function HistoryEntryCard({
