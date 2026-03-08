@@ -2,11 +2,11 @@ import type { FeedingSession } from '@/types/feeding';
 import { format, isSameDay } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import DeleteIconButton from '@/components/icon-buttons/delete';
-import EditIconButton from '@/components/icon-buttons/edit';
+import { HistoryEntryCard } from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { useFeedingSessionsByDate } from '@/hooks/use-tinybase-indexes';
+import { cn } from '@/lib/utils';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import FeedingForm from './feeding-form';
 
@@ -31,10 +31,6 @@ function FeedingHistoryEntry({
 	}
 
 	const isLeftBreast = session.breast === 'left';
-	const borderColor = isLeftBreast
-		? 'border-left-breast/30'
-		: 'border-right-breast/30';
-	const bgColor = isLeftBreast ? 'bg-left-breast/5' : 'bg-right-breast/5';
 	const textColor = isLeftBreast
 		? 'text-left-breast-dark'
 		: 'text-right-breast-dark';
@@ -43,9 +39,17 @@ function FeedingHistoryEntry({
 	const crossesMidnight = !isSameDay(startDate, endDate);
 
 	return (
-		<div
-			className={`border rounded-lg p-4 shadow-xs ${borderColor} ${bgColor}`}
+		<HistoryEntryCard
+			className={cn(
+				isLeftBreast
+					? 'border-left-breast/30 bg-left-breast/5'
+					: 'border-right-breast/30 bg-right-breast/5',
+			)}
 			data-testid="feeding-history-entry"
+			formattedTime={format(new Date(session.startTime), 'p')}
+			onDelete={() => onDelete(session.id)}
+			onEdit={() => onEdit(session.id)}
+			variant="feeding"
 		>
 			<div className="flex justify-between items-start">
 				<div>
@@ -75,19 +79,9 @@ function FeedingHistoryEntry({
 					<p className="font-bold">
 						{formatDurationAbbreviated(session.durationInSeconds)}
 					</p>
-					<p className="text-xs text-muted-foreground">
-						<fbt desc="Label indicating when a feeding session started">
-							Start
-						</fbt>
-						: {format(new Date(session.startTime), 'p')}
-					</p>
-					<div className="flex gap-1 mt-2">
-						<EditIconButton onClick={() => onEdit(session.id)} />
-						<DeleteIconButton onClick={() => onDelete(session.id)} />
-					</div>
 				</div>
 			</div>
-		</div>
+		</HistoryEntryCard>
 	);
 }
 

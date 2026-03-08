@@ -2,8 +2,7 @@ import { format } from 'date-fns';
 import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import DeleteIconButton from '@/components/icon-buttons/delete';
-import EditIconButton from '@/components/icon-buttons/edit';
+import { HistoryEntryCard } from '@/components/history-entry-card';
 import Markdown from '@/components/markdown';
 import {
 	useEvent,
@@ -33,60 +32,56 @@ function EventListItem({
 	const isOngoing = event.type === 'period' && !event.endDate;
 
 	return (
-		<div
-			className="border rounded-lg p-4 shadow-xs"
+		<HistoryEntryCard
 			data-testid="event-entry"
+			onDelete={() => onDelete(event.id)}
+			onEdit={() => onEdit(event.id)}
 			style={{
 				borderLeftColor: event.color || '#6366f1',
 				borderLeftWidth: '4px',
 			}}
+			variant="event"
 		>
-			<div className="flex justify-between items-start">
-				<div>
-					<p className="font-medium text-lg">{event.title}</p>
-					{event.description && (
-						<Markdown className="text-sm text-muted-foreground mt-1">
-							{event.description}
-						</Markdown>
-					)}
-					<div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-						<Calendar className="h-4 w-4" />
-						<span>
-							{format(startDate, 'dd.MM.yyyy')}
-							{event.type === 'period' && endDate && (
-								<>
-									<ArrowRight className="h-3 w-3 inline mx-1" />
-									{format(endDate, 'dd.MM.yyyy')}
-								</>
-							)}
-							{isOngoing && (
-								<span className="ml-1 text-xs">
-									<fbt desc="Label on an event that is still ongoing">
-										ongoing
-									</fbt>
-								</span>
-							)}
-						</span>
-					</div>
-					<div className="flex items-center gap-1 text-sm text-muted-foreground">
-						<Clock className="h-4 w-4" />
-						<span>
-							{format(startDate, 'HH:mm')}
-							{event.type === 'period' && endDate && (
-								<>
-									<ArrowRight className="h-3 w-3 inline mx-1" />
-									{format(endDate, 'HH:mm')}
-								</>
-							)}
-						</span>
-					</div>
+			<div>
+				<p className="font-medium text-lg">{event.title}</p>
+				{event.description && (
+					<Markdown className="text-sm text-muted-foreground mt-1">
+						{event.description}
+					</Markdown>
+				)}
+				<div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
+					<Calendar className="h-4 w-4" />
+					<span>
+						{format(startDate, 'dd.MM.yyyy')}
+						{event.type === 'period' && endDate && (
+							<>
+								<ArrowRight className="h-3 w-3 inline mx-1" />
+								{format(endDate, 'dd.MM.yyyy')}
+							</>
+						)}
+						{isOngoing && (
+							<span className="ml-1 text-xs">
+								<fbt desc="Label on an event that is still ongoing">
+									ongoing
+								</fbt>
+							</span>
+						)}
+					</span>
 				</div>
-				<div className="flex gap-1">
-					<EditIconButton onClick={() => onEdit(event.id)} />
-					<DeleteIconButton onClick={() => onDelete(event.id)} />
+				<div className="flex items-center gap-1 text-sm text-muted-foreground">
+					<Clock className="h-4 w-4" />
+					<span>
+						{format(startDate, 'HH:mm')}
+						{event.type === 'period' && endDate && (
+							<>
+								<ArrowRight className="h-3 w-3 inline mx-1" />
+								{format(endDate, 'HH:mm')}
+							</>
+						)}
+					</span>
 				</div>
 			</div>
-		</div>
+		</HistoryEntryCard>
 	);
 }
 
