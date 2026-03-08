@@ -4,6 +4,7 @@ import type {
 	Tooth,
 } from '@/types/teething';
 import { fbt } from 'fbtee';
+import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import { Button } from '@/components/ui/button';
@@ -33,10 +34,11 @@ export default function TeethingForm({
 	tooth,
 	toothName,
 }: TeethingFormProps) {
+	const defaultValues = useMemo(() => getDefaultValues(tooth), [tooth]);
+
 	const form = useEntityForm<TeethingFormValues, undefined, TeethingFormData>(
 		teethingFormToDataSchema,
-		() => getDefaultValues(tooth),
-		[tooth],
+		defaultValues,
 	);
 
 	const { register } = form;

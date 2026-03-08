@@ -13,25 +13,25 @@ describe('useEntityForm', () => {
 	it('initializes with default values', () => {
 		const { result } = renderHook(() =>
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			useEntityForm(schema as any, getDefaultValuesInitial),
+			useEntityForm(schema as any, { name: 'initial' }),
 		);
 
 		expect(result.current.getValues()).toEqual({ name: 'initial' });
 	});
 
-	it('resets when deps change', () => {
+	it('resets when props change', () => {
 		const { rerender, result } = renderHook(
-			({ dep, name }) =>
+			({ name }) =>
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				useEntityForm(schema as any, () => ({ name }), [dep]),
+				useEntityForm(schema as any, { name }),
 			{
-				initialProps: { dep: 1, name: 'first' },
+				initialProps: { name: 'first' },
 			},
 		);
 
 		expect(result.current.getValues()).toEqual({ name: 'first' });
 
-		rerender({ dep: 2, name: 'second' });
+		rerender({ name: 'second' });
 
 		expect(result.current.getValues()).toEqual({ name: 'second' });
 	});

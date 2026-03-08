@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Event, EventFormData, EventFormValues } from '@/types/event';
 import { fbt } from 'fbtee';
+import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import { Input } from '@/components/ui/input';
@@ -59,10 +60,11 @@ export default function EventForm({
 }: EventFromProps) {
 	const event = 'event' in props ? props.event : undefined;
 
+	const defaultValues = useMemo(() => getDefaultValues(event), [event]);
+
 	const form = useEntityForm<EventFormValues, undefined, EventFormData>(
 		eventFormToDataSchema,
-		() => getDefaultValues(event),
-		[event],
+		defaultValues,
 	);
 
 	const { register, setValue, watch } = form;

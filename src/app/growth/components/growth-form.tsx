@@ -5,6 +5,7 @@ import type {
 	GrowthMeasurement,
 } from '@/types/growth';
 import { fbt } from 'fbtee';
+import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import { Input } from '@/components/ui/input';
@@ -49,10 +50,11 @@ export default function MeasurementForm({
 }: MeasurementFormProps) {
 	const measurement = 'measurement' in props ? props.measurement : undefined;
 
+	const defaultValues = useMemo(() => getDefaultValues(measurement), [measurement]);
+
 	const form = useEntityForm<GrowthFormValues, undefined, GrowthFormData>(
 		growthFormToDataSchema,
-		() => getDefaultValues(measurement),
-		[measurement],
+		defaultValues,
 	);
 
 	const {

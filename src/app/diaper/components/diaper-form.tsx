@@ -6,7 +6,7 @@ import type {
 } from '@/types/diaper';
 import { fbt } from 'fbtee';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import ProductForm from '@/components/product-form';
@@ -127,10 +127,14 @@ export default function DiaperForm({
 		'presetDiaperProductId' in props ? props.presetDiaperProductId : undefined;
 	const presetType = 'presetType' in props ? props.presetType : undefined;
 
-	const form = useEntityForm<DiaperFormValues, undefined, DiaperFormData>(
-		diaperFormToDataSchema,
+	const defaultValues = useMemo(
 		() => getDefaultValues(change, presetDiaperProductId, presetType),
 		[change, presetDiaperProductId, presetType],
+	);
+
+	const form = useEntityForm<DiaperFormValues, undefined, DiaperFormData>(
+		diaperFormToDataSchema,
+		defaultValues,
 	);
 
 	const { formState, register, setValue, watch } = form;

@@ -4,6 +4,7 @@ import type {
 	FeedingSession,
 	FeedingSessionFormData,
 } from '@/types/feeding';
+import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import { Button } from '@/components/ui/button';
@@ -41,11 +42,13 @@ export default function FeedingForm({
 	onSave,
 	title,
 }: FeedingFormProps) {
+	const defaultValues = useMemo(() => getDefaultValues(feeding), [feeding]);
+
 	const form = useEntityForm<
 		FeedingFormValues,
 		undefined,
 		FeedingSessionFormData
-	>(feedingSessionFormToDataSchema, () => getDefaultValues(feeding), [feeding]);
+	>(feedingSessionFormToDataSchema, defaultValues);
 
 	const { formState, register, setValue, watch } = form;
 
