@@ -1,7 +1,7 @@
 import type { DefaultValues, FieldValues } from 'react-hook-form';
 import type { ZodType } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 export function useEntityForm<
@@ -15,18 +15,12 @@ export function useEntityForm<
 	getDefaultValues: () => DefaultValues<TFieldValues>,
 	deps: unknown[] = [],
 ) {
-	const form = useForm<TFieldValues, TContext, TTransformedValues>({
-		defaultValues: getDefaultValues(),
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const values = useMemo(getDefaultValues, deps);
+
+	return useForm<TFieldValues, TContext, TTransformedValues>({
 		mode: 'onChange',
 		resolver: zodResolver(schema),
+		values: values as TFieldValues,
 	});
-
-	const { reset } = form;
-
-	useEffect(() => {
-		reset(getDefaultValues());
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, deps);
-
-	return form;
 }
