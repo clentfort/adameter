@@ -14,7 +14,8 @@ describe('TeethingForm', () => {
 	const mockOnClose = vi.fn();
 
 	const tooth: Tooth = {
-		toothId: '51',
+		id: '1',
+		toothId: 51,
 	};
 
 	const baseProps = {
@@ -43,7 +44,7 @@ describe('TeethingForm', () => {
 		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
 		const savedTooth = mockOnSave.mock.calls[0][0];
 		expect(savedTooth.notes).toBe('First tooth!');
-		expect(savedTooth.toothId).toBe('51');
+		expect(savedTooth.toothId).toBe(51);
 		expect(mockOnClose).toHaveBeenCalledTimes(1);
 	});
 });
