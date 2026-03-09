@@ -178,7 +178,7 @@ export default function DiaperHistoryList() {
 	const removeDiaperChange = useRemoveDiaperChange();
 	const upsertDiaperChange = useUpsertDiaperChange();
 	const changeToEdit = useDiaperChange(changeToEditId ?? undefined);
-	const { dateKeys, indexes, indexId } = useDiaperChangesByDate();
+	const { dateKeys, indexes, indexId = '' } = useDiaperChangesByDate();
 
 	return (
 		<>

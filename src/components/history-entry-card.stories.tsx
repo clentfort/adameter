@@ -2,34 +2,37 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { HistoryEntryCard } from './history-entry-card';
 
 const meta: Meta<typeof HistoryEntryCard> = {
+	argTypes: {
+		onDelete: { action: 'deleted' },
+		onEdit: { action: 'edited' },
+		variant: {
+			control: 'select',
+			options: ['diaper', 'feeding', 'growth', 'teething', 'event'],
+		},
+	},
 	component: HistoryEntryCard,
-	tags: ['autodocs'],
 	title: 'Components/HistoryEntryCard',
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof HistoryEntryCard>;
+
+export const Default: Story = {
+	args: {
+		children: <p>Generic history entry content.</p>,
+		formattedTime: '12:34 PM',
+		variant: 'event',
+	},
+};
 
 export const Diaper: Story = {
 	args: {
-		children: (
-			<div className="mt-2 text-sm space-y-1">
-				<p>Product: Luvs</p>
-			</div>
-		),
-		emoji: (
-			<div className="flex flex-col items-center">
-				<span>👶</span>
-				<span>🚽</span>
-			</div>
-		),
-		formattedTime: '10:30 AM',
-		onDelete: () => {},
-		onEdit: () => {},
+		children: <p className="text-sm">Detailed notes about the change.</p>,
+		emoji: '👶',
+		formattedTime: '10:15 AM',
 		title: (
-			<div className="flex flex-col">
-				<span className="text-sm">Urine & Stool</span>
-				<span className="text-xs opacity-90">Potty: Urine</span>
+			<div className="text-yellow-800">
+				<p>Urine & Stool</p>
 			</div>
 		),
 		variant: 'diaper',
@@ -38,59 +41,47 @@ export const Diaper: Story = {
 
 export const Feeding: Story = {
 	args: {
-		children: null,
-		formattedTime: '12:00 PM',
-		onDelete: () => {},
-		onEdit: () => {},
-		rightContent: <p className="font-bold">15 min</p>,
-		title: 'Left Breast',
+		children: (
+			<div className="flex flex-col">
+				<p className="font-bold text-lg">15 min</p>
+				<p className="text-xs text-muted-foreground">Note: session crosses midnight</p>
+			</div>
+		),
+		formattedTime: '2:30 PM',
+		title: <p className="text-left-breast-dark">Left Breast</p>,
 		variant: 'feeding',
-	},
-};
-
-export const Growth: Story = {
-	args: {
-		children: (
-			<div className="mt-2 space-y-1">
-				<p className="text-sm">Weight: 4500 g</p>
-				<p className="text-sm">Height: 55 cm</p>
-			</div>
-		),
-		emoji: '📏',
-		formattedTime: '02. April 2024',
-		onDelete: () => {},
-		onEdit: () => {},
-		variant: 'growth',
-	},
-};
-
-export const Teething: Story = {
-	args: {
-		children: (
-			<div className="mt-2 space-y-1">
-				<p className="text-sm">Upper Left Central (61)</p>
-			</div>
-		),
-		emoji: '🦷',
-		formattedTime: '05. April 2024',
-		onDelete: () => {},
-		onEdit: () => {},
-		title: 'Tooth Erupted',
-		variant: 'teething',
 	},
 };
 
 export const Event: Story = {
 	args: {
 		children: (
-			<div className="mt-1">
-				<p className="text-sm text-muted-foreground">High temperature</p>
+			<div className="text-sm text-muted-foreground">
+				<p>Doctor's appointment at the clinic.</p>
 			</div>
 		),
-		onDelete: () => {},
-		onEdit: () => {},
-		style: { borderLeftColor: '#ef4444', borderLeftWidth: '4px' },
-		title: 'Fever',
+		formattedTime: '09:00 AM',
+		title: 'Pediatrician Visit',
 		variant: 'event',
+	},
+};
+
+export const MultiEmojiDiaper: Story = {
+	args: {
+		children: <p className="text-sm">Potty training progress!</p>,
+		emoji: (
+			<div className="flex items-center gap-0.5">
+				<span>👶</span>
+				<span>🚽</span>
+			</div>
+		),
+		formattedTime: '8:42 PM',
+		title: (
+			<div className="text-amber-700">
+				<p>Urine</p>
+				<p className="text-xs opacity-90">Potty: Stool</p>
+			</div>
+		),
+		variant: 'diaper',
 	},
 };

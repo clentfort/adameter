@@ -49,11 +49,6 @@ function FeedingHistoryEntry({
 			formattedTime={format(new Date(session.startTime), 'p')}
 			onDelete={() => onDelete(session.id)}
 			onEdit={() => onEdit(session.id)}
-			rightContent={
-				<p className="font-bold">
-					{formatDurationAbbreviated(session.durationInSeconds)}
-				</p>
-			}
 			title={
 				<p className={`font-medium ${textColor}`}>
 					{isLeftBreast ? (
@@ -69,6 +64,9 @@ function FeedingHistoryEntry({
 			}
 			variant="feeding"
 		>
+			<p className="font-bold text-lg">
+				{formatDurationAbbreviated(session.durationInSeconds)}
+			</p>
 			{crossesMidnight && (
 				<p className="text-xs text-muted-foreground">
 					<span className="font-medium">
@@ -90,7 +88,7 @@ export default function HistoryList({
 	const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 	const [sessionToEditId, setSessionToEditId] = useState<string | null>(null);
 	const sessionToEdit = useFeedingSession(sessionToEditId ?? undefined);
-	const { dateKeys, indexes, indexId } = useFeedingSessionsByDate();
+	const { dateKeys, indexes, indexId = '' } = useFeedingSessionsByDate();
 
 	return (
 		<>
