@@ -43,11 +43,14 @@ describe('Data loss reproduction', () => {
 			{ table1: { row1: { cell1: 'remote-value' } } },
 			{},
 		];
-		const encryptedRemoteContent = await encryptContent(remoteContent, encryptionKey);
+		const encryptedRemoteContent = await encryptContent(
+			remoteContent,
+			encryptionKey,
+		);
 
 		// Mock a slow fetch for the load operation
-		let resolveLoad: (value: any) => void;
-		const loadPromise = new Promise((resolve) => {
+		let resolveLoad: (value: Response) => void;
+		const loadPromise = new Promise<Response>((resolve) => {
 			resolveLoad = resolve;
 		});
 
@@ -77,17 +80,76 @@ describe('Data loss reproduction', () => {
 		resolveLoad!({
 			json: () => Promise.resolve(encryptedRemoteContent),
 			ok: true,
-		});
+		} as Response);
 
-		const result = await loadFinishedPromise;
+		await loadFinishedPromise;
 
-		// Verify fluent API identity
-		expect(result).toBe(persister);
-
-		// The remote content should be merged or applied, but row2 should NOT be lost
+		// The remote content should be applied
 		expect(store.getCell('table1', 'row1', 'cell1')).toBe('remote-value');
 
-		// This is the expected behavior we want to verify (and currently might be failing)
+		// EXPECTATION: Local changes made during load should NOT be lost.
+		// Currently, this fails because load() overwrites the entire store.
+		expect(store.getCell('table1', 'row2', 'cell2')).toBe('local-value');
+	});
+
+	it('should not lose local changes made during startAutoLoad', async () => {
+		const store = createStore();
+		const encryptionKey = await getEncryptionKey('test-room');
+		const connection = new (PartySocket as unknown as new (
+			options: Record<string, unknown>,
+		) => PartySocket)({
+			host: 'localhost',
+			party: 'tinybase',
+			room: 'test-room',
+		});
+		(connection as unknown as { name: string }).name = 'tinybase';
+
+		const remoteContent: Content = [
+			{ table1: { row1: { cell1: 'remote-value' } } },
+			{},
+		];
+		const encryptedRemoteContent = await encryptContent(
+			remoteContent,
+			encryptionKey,
+		);
+
+		let resolveLoad: (value: Response) => void;
+		const loadPromise = new Promise<Response>((resolve) => {
+			resolveLoad = resolve;
+		});
+
+		global.fetch = vi.fn().mockImplementation((url: string) => {
+			if (url.includes('/store') && !url.includes('method: "PUT"')) {
+				return loadPromise;
+			}
+			return Promise.resolve({
+				json: () => Promise.resolve([{}, {}]),
+			} as Response);
+		});
+
+		const persister = createSecurePartyKitPersister(
+			store,
+			connection,
+			encryptionKey,
+		);
+
+		const autoLoadFinishedPromise = persister.startAutoLoad();
+
+		// While startAutoLoad is pending its initial load, make a local change
+		store.setCell('table1', 'row2', 'cell2', 'local-value');
+
+		resolveLoad!({
+			json: () => Promise.resolve(encryptedRemoteContent),
+			ok: true,
+		} as Response);
+
+		await autoLoadFinishedPromise;
+
+		// The remote content should be applied
+		expect(store.getCell('table1', 'row1', 'cell1')).toBe('remote-value');
+
+		// EXPECTATION: Local changes made during background sync should NOT be lost.
+		// Currently, this fails because the initial load overwrites the entire store.
 		expect(store.getCell('table1', 'row2', 'cell2')).toBe('local-value');
 	});
 });

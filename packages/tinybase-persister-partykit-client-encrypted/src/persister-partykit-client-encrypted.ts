@@ -1,5 +1,5 @@
 import type PartySocket from 'partysocket';
-import type { Changes, Content, Store, Tables, Values } from 'tinybase';
+import type { Changes, Content, Store } from 'tinybase';
 import { createCustomPersister } from 'tinybase/persisters';
 import {
 	decryptChanges,
@@ -212,72 +212,9 @@ export function createSecurePartyKitPersister(
 		onIgnoredError,
 	);
 
-	const wrapper = {
+	return {
 		...persister,
 		hasLoadedPersistedData: () => hasSuccessfullyLoadedPersistedData,
 		hasSavedFullContent: () => hasSuccessfullySavedFullContent,
-		load: async (
-			initialTables?: Tables,
-			initialValues?: Values,
-		): Promise<any> => {
-			const bufferedTableChanges: Changes[0] = {};
-			const bufferedValueChanges: Changes[1] = {};
-			let isIgnoring = false;
-
-			const tablesListenerId = store.addCellListener(
-				null,
-				null,
-				null,
-				(
-					_store,
-					tableId,
-					rowId,
-					cellId,
-					newCell,
-					oldCell,
-					_getCellChange,
-				) => {
-					if (isIgnoring) {
-						return;
-					}
-
-					bufferedTableChanges[tableId] ??= {};
-					bufferedTableChanges[tableId]![rowId] ??= {};
-					bufferedTableChanges[tableId]![rowId]![cellId] =
-						newCell === oldCell ? undefined : newCell;
-				},
-			);
-
-			const valuesListenerId = store.addValueListener(
-				null,
-				(_store, valueId, newValue, oldValue) => {
-					if (isIgnoring) {
-						return;
-					}
-
-					bufferedValueChanges[valueId] =
-						newValue === oldValue ? undefined : newValue;
-				},
-			);
-
-			try {
-				const persistedContent = await getPersisted();
-				store.transaction(() => {
-					isIgnoring = true;
-					store.setContent(
-						persistedContent ?? [initialTables ?? {}, initialValues ?? {}],
-					);
-					isIgnoring = false;
-					store.applyChanges([bufferedTableChanges, bufferedValueChanges, 1]);
-				});
-			} finally {
-				store.delListener(tablesListenerId);
-				store.delListener(valuesListenerId);
-			}
-
-			return wrapper;
-		},
 	};
-
-	return wrapper;
 }
