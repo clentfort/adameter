@@ -1,5 +1,6 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
+import { baseEntitySchema } from './base-entity';
 import { positiveNumericInputField } from './schema-utils';
 
 const breastSchema = z.enum(['left', 'right']);
@@ -41,6 +42,10 @@ export const feedingSessionFormToDataSchema = feedingFormSchema.transform(
 );
 
 export const feedingSessionDataSchema = feedingSessionSharedSchema;
+
+export const feedingSessionSchema = baseEntitySchema.extend(
+	feedingSessionDataSchema.shape,
+);
 
 export type FeedingSessionData = z.infer<typeof feedingSessionDataSchema>;
 export type FeedingSessionFormData = z.infer<

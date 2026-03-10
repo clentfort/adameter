@@ -49,7 +49,11 @@ describe('useEvents', () => {
 	describe('useRemoveEvent', () => {
 		it('should remove an event', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.EVENTS, 'e1', { type: 'nap' });
+			store.setRow(TABLE_IDS.EVENTS, 'e1', {
+				startDate: '2024-01-01T10:00:00Z',
+				title: 'Nap',
+				type: 'point',
+			});
 
 			const { result } = renderHook(() => useRemoveEvent(), {
 				wrapper: ({ children }) => (
@@ -68,7 +72,11 @@ describe('useEvents', () => {
 	describe('useEvent', () => {
 		it('should return the event for valid id', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.EVENTS, 'e1', { type: 'nap' });
+			store.setRow(TABLE_IDS.EVENTS, 'e1', {
+				startDate: '2024-01-01T10:00:00Z',
+				title: 'Nap',
+				type: 'point',
+			});
 
 			const { result } = renderHook(() => useEvent('e1'), {
 				wrapper: ({ children }) => (
@@ -76,7 +84,12 @@ describe('useEvents', () => {
 				),
 			});
 
-			expect(result.current).toEqual({ id: 'e1', type: 'nap' });
+			expect(result.current).toEqual({
+				id: 'e1',
+				startDate: '2024-01-01T10:00:00Z',
+				title: 'Nap',
+				type: 'point',
+			});
 		});
 	});
 
@@ -85,9 +98,13 @@ describe('useEvents', () => {
 			const store = createTestStore();
 			store.setRow(TABLE_IDS.EVENTS, 'e1', {
 				startDate: '2024-01-01T10:00:00Z',
+				title: 'Nap 1',
+				type: 'point',
 			});
 			store.setRow(TABLE_IDS.EVENTS, 'e2', {
 				startDate: '2024-01-01T11:00:00Z',
+				title: 'Nap 2',
+				type: 'point',
 			});
 
 			const { result } = renderHook(() => useSortedEventIds(), {
@@ -103,7 +120,11 @@ describe('useEvents', () => {
 	describe('useEventsSnapshot', () => {
 		it('should return all events', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.EVENTS, 'e1', { type: 'nap' });
+			store.setRow(TABLE_IDS.EVENTS, 'e1', {
+				startDate: '2024-01-01T10:00:00Z',
+				title: 'Nap',
+				type: 'point',
+			});
 
 			const { result } = renderHook(() => useEventsSnapshot(), {
 				wrapper: ({ children }) => (

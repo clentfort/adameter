@@ -4,13 +4,25 @@ import { useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeFeedingSessionForStore } from '@/lib/tinybase-sync/entity-row-schemas';
+import { feedingSessionSchema } from '@/types/feeding';
 import { createEntityHooks } from './create-entity-hooks';
 
-function toFeedingSession(id: string, row: Row): FeedingSession {
-	return {
+function toFeedingSession(id: string, row: Row): FeedingSession | null {
+	const result = feedingSessionSchema.safeParse({
 		...row,
 		id,
-	} as FeedingSession;
+	});
+
+	if (!result.success) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			`Invalid feeding session data for id ${id}:`,
+			result.error.issues,
+		);
+		return null;
+	}
+
+	return result.data;
 }
 
 const feedingSessionHooks = createEntityHooks<FeedingSession>({
@@ -34,6 +46,9 @@ export function useLatestFeedingSessionRecord() {
 
 		for (const [sessionId, row] of Object.entries(table)) {
 			const session = toFeedingSession(sessionId, row);
+			if (!session) {
+				continue;
+			}
 			if (!latestSession || session.endTime > latestSession.endTime) {
 				latestSession = session;
 			}

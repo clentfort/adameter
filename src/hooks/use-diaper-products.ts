@@ -5,13 +5,25 @@ import { useStore, useTable } from 'tinybase/ui-react';
 import { getFrecencySortedProductIds } from '@/app/diaper/utils/get-frecency-sorted-product-ids';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperProductForStore } from '@/lib/tinybase-sync/entity-row-schemas';
+import { diaperProductSchema } from '@/types/diaper';
 import { createEntityHooks } from './create-entity-hooks';
 
-function toDiaperProduct(id: string, row: Row): DiaperProduct {
-	return {
+function toDiaperProduct(id: string, row: Row): DiaperProduct | null {
+	const result = diaperProductSchema.safeParse({
 		...row,
 		id,
-	} as DiaperProduct;
+	});
+
+	if (!result.success) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			`Invalid diaper product data for id ${id}:`,
+			result.error.issues,
+		);
+		return null;
+	}
+
+	return result.data;
 }
 
 const diaperProductHooks = createEntityHooks<DiaperProduct>({

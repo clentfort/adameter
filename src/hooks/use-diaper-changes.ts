@@ -4,13 +4,25 @@ import { useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperChangeForStore } from '@/lib/tinybase-sync/entity-row-schemas';
+import { diaperChangeSchema } from '@/types/diaper';
 import { createEntityHooks } from './create-entity-hooks';
 
-function toDiaperChange(id: string, row: Row): DiaperChange {
-	return {
+function toDiaperChange(id: string, row: Row): DiaperChange | null {
+	const result = diaperChangeSchema.safeParse({
 		...row,
 		id,
-	} as DiaperChange;
+	});
+
+	if (!result.success) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			`Invalid diaper change data for id ${id}:`,
+			result.error.issues,
+		);
+		return null;
+	}
+
+	return result.data;
 }
 
 const diaperChangeHooks = createEntityHooks<DiaperChange>({
@@ -34,6 +46,9 @@ export function useLatestDiaperChangeRecord() {
 
 		for (const [changeId, row] of Object.entries(table)) {
 			const change = toDiaperChange(changeId, row);
+			if (!change) {
+				continue;
+			}
 			if (!latestChange || change.timestamp > latestChange.timestamp) {
 				latestChange = change;
 			}

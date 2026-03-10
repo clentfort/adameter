@@ -4,13 +4,22 @@ import { useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeEventForStore } from '@/lib/tinybase-sync/entity-row-schemas';
+import { eventSchema } from '@/types/event';
 import { createEntityHooks } from './create-entity-hooks';
 
-function toEvent(id: string, row: Row): Event {
-	return {
+function toEvent(id: string, row: Row): Event | null {
+	const result = eventSchema.safeParse({
 		...row,
 		id,
-	} as Event;
+	});
+
+	if (!result.success) {
+		// eslint-disable-next-line no-console
+		console.warn(`Invalid event data for id ${id}:`, result.error.issues);
+		return null;
+	}
+
+	return result.data;
 }
 
 const eventHooks = createEntityHooks<Event>({
@@ -32,12 +41,14 @@ export function useSortedEventIds() {
 	return useMemo(
 		() =>
 			Object.entries(table)
-				.sort(([, a], [, b]) => {
-					const aStart = typeof a.startDate === 'string' ? a.startDate : '';
-					const bStart = typeof b.startDate === 'string' ? b.startDate : '';
-					return bStart.localeCompare(aStart);
+				.map(([id, row]) => ({ entity: toEvent(id, row), id }))
+				.filter(
+					(item): item is { entity: Event; id: string } => item.entity !== null,
+				)
+				.sort((a, b) => {
+					return b.entity.startDate.localeCompare(a.entity.startDate);
 				})
-				.map(([eventId]) => eventId),
+				.map((item) => item.id),
 		[table],
 	);
 }

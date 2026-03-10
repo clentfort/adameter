@@ -48,7 +48,10 @@ describe('useDiaperProducts', () => {
 	describe('useRemoveDiaperProduct', () => {
 		it('should remove a diaper product', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', { name: 'Pampers' });
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
+				isReusable: false,
+				name: 'Pampers',
+			});
 
 			const { result } = renderHook(() => useRemoveDiaperProduct(), {
 				wrapper: ({ children }) => (
@@ -67,7 +70,10 @@ describe('useDiaperProducts', () => {
 	describe('useDiaperProduct', () => {
 		it('should return the diaper product for valid id', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', { name: 'Pampers' });
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
+				isReusable: false,
+				name: 'Pampers',
+			});
 
 			const { result } = renderHook(() => useDiaperProduct('p1'), {
 				wrapper: ({ children }) => (
@@ -75,7 +81,11 @@ describe('useDiaperProducts', () => {
 				),
 			});
 
-			expect(result.current).toEqual({ id: 'p1', name: 'Pampers' });
+			expect(result.current).toEqual({
+				id: 'p1',
+				isReusable: false,
+				name: 'Pampers',
+			});
 		});
 	});
 
@@ -142,7 +152,10 @@ describe('useDiaperProducts', () => {
 	describe('useDiaperProductsSnapshot', () => {
 		it('should return all diaper products', () => {
 			const store = createTestStore();
-			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', { name: 'P1' });
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
+				isReusable: false,
+				name: 'P1',
+			});
 
 			const { result } = renderHook(() => useDiaperProductsSnapshot(), {
 				wrapper: ({ children }) => (

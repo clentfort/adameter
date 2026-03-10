@@ -1,5 +1,6 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
+import { baseEntitySchema } from './base-entity';
 import {
 	optionalPositiveNumberCell,
 	optionalPositiveNumberFromInputField,
@@ -78,6 +79,10 @@ export const growthFormToDataSchema = growthFormSchema.transform((values) =>
 );
 
 export const growthMeasurementDataSchema = growthMeasurementSharedSchema;
+
+export const growthMeasurementSchema = baseEntitySchema.extend(
+	growthMeasurementDataSchema.shape,
+);
 
 export type GrowthMeasurementData = z.infer<typeof growthMeasurementDataSchema>;
 export type GrowthFormData = z.infer<typeof growthFormToDataSchema>;

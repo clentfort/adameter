@@ -54,6 +54,9 @@ describe('useFeedingSessions', () => {
 		it('should remove a feeding session by id', () => {
 			const store = createTestStore();
 			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'f1', {
+				breast: 'left',
+				durationInSeconds: 600,
+				endTime: '2024-01-01T10:10:00Z',
 				startTime: '2024-01-01T10:00:00Z',
 			});
 
@@ -82,6 +85,9 @@ describe('useFeedingSessions', () => {
 		it('should return the feeding session for valid id', () => {
 			const store = createTestStore();
 			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'f1', {
+				breast: 'left',
+				durationInSeconds: 600,
+				endTime: '2024-01-01T10:10:00Z',
 				startTime: '2024-01-01T10:00:00Z',
 			});
 
@@ -92,6 +98,9 @@ describe('useFeedingSessions', () => {
 			});
 
 			expect(result.current).toEqual({
+				breast: 'left',
+				durationInSeconds: 600,
+				endTime: '2024-01-01T10:10:00Z',
 				id: 'f1',
 				startTime: '2024-01-01T10:00:00Z',
 			});
@@ -102,6 +111,9 @@ describe('useFeedingSessions', () => {
 		it('should return all feeding sessions', () => {
 			const store = createTestStore();
 			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'f1', {
+				breast: 'left',
+				durationInSeconds: 600,
+				endTime: '2024-01-01T10:10:00Z',
 				startTime: '2024-01-01T10:00:00Z',
 			});
 
@@ -120,10 +132,16 @@ describe('useFeedingSessions', () => {
 		it('should return the latest feeding session by endTime', () => {
 			const store = createTestStore();
 			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'f1', {
+				breast: 'left',
+				durationInSeconds: 600,
 				endTime: '2024-01-01T10:30:00Z',
+				startTime: '2024-01-01T10:20:00Z',
 			});
 			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'f2', {
+				breast: 'right',
+				durationInSeconds: 600,
 				endTime: '2024-01-01T11:30:00Z',
+				startTime: '2024-01-01T11:20:00Z',
 			});
 
 			const { result } = renderHook(() => useLatestFeedingSessionRecord(), {

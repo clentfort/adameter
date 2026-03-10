@@ -1,5 +1,6 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
+import { baseEntitySchema } from './base-entity';
 import {
 	numericInputField,
 	optionalBooleanCell,
@@ -68,16 +69,16 @@ export const diaperFormToDataSchema = diaperFormSchema.transform((values) => {
 		});
 });
 
-export const diaperProductSchema = z.object({
+export const diaperProductFormSchema = z.object({
 	costPerDiaper: numericInputField('Cost per diaper must be a number'),
 	isReusable: requiredBooleanField,
 	name: requiredNameField,
 	upfrontCost: numericInputField('Upfront cost must be a number'),
 });
 
-export type DiaperProductFormValues = z.infer<typeof diaperProductSchema>;
+export type DiaperProductFormValues = z.infer<typeof diaperProductFormSchema>;
 
-export const diaperProductFormToDataSchema = diaperProductSchema.transform(
+export const diaperProductFormToDataSchema = diaperProductFormSchema.transform(
 	(values) =>
 		diaperProductSharedSchema.parse({
 			costPerDiaper: optionalNumberFromInputField(
@@ -97,10 +98,18 @@ export const diaperProductDataSchema = diaperProductSharedSchema.extend({
 	archived: optionalBooleanCell,
 });
 
+export const diaperProductSchema = baseEntitySchema.extend(
+	diaperProductDataSchema.shape,
+);
+
 export const diaperChangeDataSchema = diaperChangeSharedSchema.extend({
 	diaperBrand: optionalStringCell,
 	timestamp: z.string().min(1),
 });
+
+export const diaperChangeSchema = baseEntitySchema.extend(
+	diaperChangeDataSchema.shape,
+);
 
 export type DiaperProductData = z.infer<typeof diaperProductDataSchema>;
 export type DiaperChangeData = z.infer<typeof diaperChangeDataSchema>;
