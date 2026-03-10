@@ -181,9 +181,6 @@ src/translations/
 # Partykit
 .partykit/
 
-*storybook.log
-storybook-static
-
 # Playwright
 /playwright-report/
 /test-results/
