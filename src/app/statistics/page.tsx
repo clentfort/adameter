@@ -256,7 +256,12 @@ export default function StatisticsPage() {
 								/>
 								<HeatMap className="col-span-2" sessions={filteredSessions} />
 							</div>
-							<FeedingActivity className="mt-4" sessions={sessions} />
+						<FeedingActivity
+							className="mt-4"
+							primaryRange={primary}
+							secondaryRange={secondary}
+							sessions={sessions}
+						/>
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<FeedingRecords sessions={sessions} />
 							</div>
