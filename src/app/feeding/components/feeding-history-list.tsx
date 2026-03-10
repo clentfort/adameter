@@ -62,9 +62,8 @@ function FeedingHistoryEntry({
 					)}
 				</p>
 			}
-			variant="feeding"
 		>
-			<p className="font-bold text-lg">
+			<p>
 				{formatDurationAbbreviated(session.durationInSeconds)}
 			</p>
 			{crossesMidnight && (

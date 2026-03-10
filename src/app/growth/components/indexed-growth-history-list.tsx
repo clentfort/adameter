@@ -56,11 +56,20 @@ function GrowthHistoryEntry({
 
 	return (
 		<HistoryEntryCard
-			emoji="📏"
+			className="border-green-200/50 bg-green-50/50 dark:bg-green-950/20"
 			formattedTime={format(date, 'dd. MMMM yyyy')}
 			onDelete={() => onDelete(measurement.id)}
 			onEdit={() => onEdit(measurement)}
-			variant="growth"
+			title={
+				<div className="flex items-center gap-2">
+					<span aria-hidden="true" role="img">
+						📏
+					</span>
+					<span>
+						<fbt desc="Label for a growth measurement">Measurement</fbt>
+					</span>
+				</div>
+			}
 		>
 			<div className="mt-2 space-y-1">
 				{measurement.weight && (
@@ -118,22 +127,25 @@ function TeethingHistoryEntry({
 
 	return (
 		<HistoryEntryCard
-			emoji="🦷"
+			className="border-purple-200/50 bg-purple-50/50 dark:bg-purple-950/20"
 			formattedTime={format(date, 'dd. MMMM yyyy')}
 			onDelete={() => onDelete(tooth)}
 			onEdit={() => onEdit(tooth)}
-			variant="teething"
+			title={
+				<div className="flex items-center gap-2">
+					<span aria-hidden="true" role="img">
+						🦷
+					</span>
+					<span>
+						<fbt desc="Label for a teething entry">Tooth Erupted</fbt>
+					</span>
+				</div>
+			}
 		>
 			<div className="mt-2 space-y-1">
 				<p className="text-sm">
-					<fbt desc="Tooth erupted message">
-						<fbt:param name="label">
-							<span className="font-medium">Tooth Erupted</span>
-						</fbt:param>
-						:
-						<fbt:param name="toothName">
-							{getToothName(tooth.toothId)}
-						</fbt:param>{' '}
+					<fbt desc="Tooth name with FDI code">
+						<fbt:param name="toothName">{getToothName(tooth.toothId)}</fbt:param>{' '}
 						(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
 					</fbt>
 				</p>

@@ -74,56 +74,57 @@ function DiaperHistoryEntry({
 	return (
 		<HistoryEntryCard
 			className={cn(
-				isStool && 'border-amber-700/30 bg-amber-700/5',
-				hasPotty && !hasDiaper && 'border-blue-400/30 bg-blue-400/5',
-				!isStool &&
-					!(hasPotty && !hasDiaper) &&
-					'border-yellow-400/30 bg-yellow-400/5',
+				isStool
+					? 'border-amber-700/30 bg-amber-700/5'
+					: hasPotty && !hasDiaper
+						? 'border-blue-400/30 bg-blue-400/5'
+						: 'border-yellow-400/30 bg-yellow-400/5',
 			)}
 			data-testid="diaper-history-entry"
-			emoji={
-				<div className="flex items-center gap-0.5">
-					{hasDiaper && <span>👶</span>}
-					{hasPotty && <span>🚽</span>}
-					{!hasDiaper && !hasPotty && <span>🧷</span>}
-				</div>
-			}
 			formattedTime={formatChangeTime(change.timestamp)}
 			onDelete={() => onDelete(change.id)}
 			onEdit={() => onEdit(change.id)}
 			title={
-				<div className={cn('font-medium flex flex-col', textColor)}>
-					{hasDiaper && (
-						<span className="text-sm leading-tight">
-							{change.containsUrine && change.containsStool ? (
-								<fbt desc="Urine and stool in diaper">Urine & Stool</fbt>
-							) : change.containsUrine ? (
-								<fbt desc="Urine in diaper">Urine</fbt>
-							) : (
-								<fbt desc="Stool in diaper">Stool</fbt>
-							)}
-						</span>
-					)}
-					{hasPotty && (
-						<span className="text-xs leading-tight opacity-90">
-							<fbt desc="Label for potty entry">Potty</fbt>:{' '}
-							{change.pottyUrine && change.pottyStool ? (
-								<fbt desc="Urine and stool in potty">Urine & Stool</fbt>
-							) : change.pottyUrine ? (
-								<fbt desc="Urine in potty">Urine</fbt>
-							) : (
-								<fbt desc="Stool in potty">Stool</fbt>
-							)}
-						</span>
-					)}
-					{!hasDiaper && !hasPotty && (
-						<span className="text-sm italic leading-tight">
-							<fbt desc="Dry diaper">Dry</fbt>
-						</span>
-					)}
+				<div className="flex items-start gap-2">
+					<div aria-hidden="true" className="shrink-0 mt-1" role="img">
+						<div className="flex items-center gap-0.5">
+							{hasDiaper && <span>👶</span>}
+							{hasPotty && <span>🚽</span>}
+							{!hasDiaper && !hasPotty && <span>🧷</span>}
+						</div>
+					</div>
+					<div className={cn('font-medium flex flex-col', textColor)}>
+						{hasDiaper && (
+							<span className="text-sm leading-tight">
+								{change.containsUrine && change.containsStool ? (
+									<fbt desc="Urine and stool in diaper">Urine & Stool</fbt>
+								) : change.containsUrine ? (
+									<fbt desc="Urine in diaper">Urine</fbt>
+								) : (
+									<fbt desc="Stool in diaper">Stool</fbt>
+								)}
+							</span>
+						)}
+						{hasPotty && (
+							<span className="text-xs leading-tight opacity-90">
+								<fbt desc="Label for potty entry">Potty</fbt>:{' '}
+								{change.pottyUrine && change.pottyStool ? (
+									<fbt desc="Urine and stool in potty">Urine & Stool</fbt>
+								) : change.pottyUrine ? (
+									<fbt desc="Urine in potty">Urine</fbt>
+								) : (
+									<fbt desc="Stool in potty">Stool</fbt>
+								)}
+							</span>
+						)}
+						{!hasDiaper && !hasPotty && (
+							<span className="text-sm italic leading-tight">
+								<fbt desc="Dry diaper">Dry</fbt>
+							</span>
+						)}
+					</div>
 				</div>
 			}
-			variant="diaper"
 		>
 			<div className="mt-2 text-sm space-y-1">
 				{change.temperature && (

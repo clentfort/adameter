@@ -33,6 +33,7 @@ function EventListItem({
 
 	return (
 		<HistoryEntryCard
+			className="border-border"
 			data-testid="event-entry"
 			onDelete={() => onDelete(event.id)}
 			onEdit={() => onEdit(event.id)}
@@ -41,7 +42,6 @@ function EventListItem({
 				borderLeftWidth: '4px',
 			}}
 			title={event.title}
-			variant="event"
 		>
 			<div>
 				{event.description && (

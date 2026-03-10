@@ -6,7 +6,7 @@ import { HistoryEntryCard } from './history-entry-card';
 describe('HistoryEntryCard', () => {
 	it('renders children correctly', () => {
 		render(
-			<HistoryEntryCard>
+			<HistoryEntryCard onDelete={vi.fn()} onEdit={vi.fn()}>
 				<div data-testid="test-child">Test Content</div>
 			</HistoryEntryCard>,
 		);
@@ -15,7 +15,15 @@ describe('HistoryEntryCard', () => {
 	});
 
 	it('renders formattedTime as title when title prop is not provided', () => {
-		render(<HistoryEntryCard formattedTime="12:00 PM">Content</HistoryEntryCard>);
+		render(
+			<HistoryEntryCard
+				formattedTime="12:00 PM"
+				onDelete={vi.fn()}
+				onEdit={vi.fn()}
+			>
+				Content
+			</HistoryEntryCard>,
+		);
 		const timeElement = screen.getByText('12:00 PM');
 		expect(timeElement).toBeInTheDocument();
 		expect(timeElement).toHaveClass('text-lg');
@@ -23,7 +31,12 @@ describe('HistoryEntryCard', () => {
 
 	it('renders title and small formattedTime when both are provided', () => {
 		render(
-			<HistoryEntryCard formattedTime="12:00 PM" title="Main Title">
+			<HistoryEntryCard
+				formattedTime="12:00 PM"
+				onDelete={vi.fn()}
+				onEdit={vi.fn()}
+				title="Main Title"
+			>
 				Content
 			</HistoryEntryCard>,
 		);
@@ -32,23 +45,13 @@ describe('HistoryEntryCard', () => {
 		expect(timeElement).toHaveClass('text-xs');
 	});
 
-	it('renders emoji correctly', () => {
-		render(<HistoryEntryCard emoji="👶">Content</HistoryEntryCard>);
-		expect(screen.getByText('👶')).toBeInTheDocument();
-	});
-
-	it('applies variant styles correctly with subtle borders', () => {
-		const { container } = render(
-			<HistoryEntryCard variant="diaper">Content</HistoryEntryCard>,
-		);
-		const card = container.firstChild as HTMLElement;
-		expect(card).toHaveClass('border-amber-200/50');
-		expect(card).toHaveClass('bg-amber-50/50');
-	});
-
 	it('calls onEdit when edit button is clicked', async () => {
 		const onEdit = vi.fn();
-		render(<HistoryEntryCard onEdit={onEdit}>Content</HistoryEntryCard>);
+		render(
+			<HistoryEntryCard onDelete={vi.fn()} onEdit={onEdit}>
+				Content
+			</HistoryEntryCard>,
+		);
 
 		const editButton = screen.getByRole('button', { name: /edit/i });
 		await userEvent.click(editButton);
@@ -58,11 +61,31 @@ describe('HistoryEntryCard', () => {
 
 	it('calls onDelete when delete button is clicked', async () => {
 		const onDelete = vi.fn();
-		render(<HistoryEntryCard onDelete={onDelete}>Content</HistoryEntryCard>);
+		render(
+			<HistoryEntryCard onDelete={onDelete} onEdit={vi.fn()}>
+				Content
+			</HistoryEntryCard>,
+		);
 
 		const deleteButton = screen.getByRole('button', { name: /delete/i });
 		await userEvent.click(deleteButton);
 
 		expect(onDelete).toHaveBeenCalledTimes(1);
+	});
+
+	it('applies custom className and style', () => {
+		const { container } = render(
+			<HistoryEntryCard
+				className="custom-class"
+				onDelete={vi.fn()}
+				onEdit={vi.fn()}
+				style={{ opacity: 0.5 }}
+			>
+				Content
+			</HistoryEntryCard>,
+		);
+		const card = container.firstChild as HTMLElement;
+		expect(card).toHaveClass('custom-class');
+		expect(card.style.opacity).toBe('0.5');
 	});
 });
