@@ -70,11 +70,6 @@ Single-test execution (important):
 
 - `pnpm exec tsc --noEmit`
 
-### Storybook
-
-- Dev server: `pnpm storybook`
-- Static build: `pnpm build-storybook`
-
 ### i18n
 
 - Collect source strings: `pnpm run fbtee:collect`
@@ -148,11 +143,6 @@ code.
 - Prefer behavior-focused tests over implementation-detail tests
 - Mock only hard external boundaries
 - Keep tests deterministic (timezone is set to UTC in Vitest config)
-
-### Storybook Conventions
-
-- Add or update `*.stories.tsx` for reusable component changes
-- `@storybook/test` is not installed; avoid `play` functions that require it
 
 ## Quick Pre-PR Checklist
 
