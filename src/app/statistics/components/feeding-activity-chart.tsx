@@ -1,139 +1,231 @@
 'use client';
 
 import type { FeedingSession } from '@/types/feeding';
+import type { DateRange } from '@/utils/get-range-dates';
 import {
-	addMonths,
 	differenceInDays,
 	eachDayOfInterval,
-	endOfDay,
 	format,
 	isAfter,
 	isBefore,
 	isWithinInterval,
-	startOfDay,
-	subYears,
 } from 'date-fns';
 import { useMemo } from 'react';
-import LineChart from '@/components/charts/line-chart';
+import BarChart from '@/components/charts/bar-chart';
 import { useProfile } from '@/hooks/use-profile';
 import { useTeethSnapshot } from '@/hooks/use-teething';
 
-const DAYS_PER_MONTH = 30.4375;
-
 interface FeedingActivityChartProps {
 	className?: string;
+	primaryRange: DateRange;
+	secondaryRange?: DateRange;
 	sessions: FeedingSession[];
 }
 
 export default function FeedingActivityChart({
 	className,
+	primaryRange,
+	secondaryRange,
 	sessions,
 }: FeedingActivityChartProps) {
 	const [profile] = useProfile();
 	const teeth = useTeethSnapshot();
 
-	const dob = useMemo(
-		() => (profile?.dob ? startOfDay(new Date(profile.dob)) : null),
-		[profile],
-	);
+	const { datasets, effectivePrimaryFrom, labels } = useMemo(() => {
+		let effectivePrimaryFrom = primaryRange.from;
+		// If "All Data" (Date(0)), find the first session or default to 30 days ago
+		if (primaryRange.from.getTime() === 0) {
+			if (sessions.length > 0) {
+				const firstSessionTime = sessions.reduce((min, s) => {
+					const t = new Date(s.startTime).getTime();
+					return t < min ? t : min;
+				}, new Date(sessions[0].startTime).getTime());
+				effectivePrimaryFrom = new Date(firstSessionTime);
+			} else {
+				effectivePrimaryFrom = new Date();
+				effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
+			}
+		}
 
-	const { data, endDate, startDate } = useMemo(() => {
-		const now = new Date();
-		const end = endOfDay(now);
-		const start = dob ? startOfDay(dob) : subYears(startOfDay(now), 1);
-
-		const days = eachDayOfInterval({ end, start });
-
-		const durationByDate = sessions.reduce<Record<string, number>>(
-			(acc, session) => {
-				const date = new Date(session.startTime);
-				if (isWithinInterval(date, { end, start })) {
-					const key = format(date, 'yyyy-MM-dd');
-					acc[key] = (acc[key] || 0) + session.durationInSeconds;
-				}
-				return acc;
-			},
-			{},
-		);
-
-		const points = days.map((day) => {
-			const key = format(day, 'yyyy-MM-dd');
-			const durationInSeconds = durationByDate[key] || 0;
-			return {
-				x: dob ? differenceInDays(day, dob) / DAYS_PER_MONTH : day.getTime(),
-				y: durationInSeconds / 3600, // Hours as float for precision
-			};
+		const primaryDays = eachDayOfInterval({
+			end: primaryRange.to,
+			start: effectivePrimaryFrom,
 		});
 
-		return { data: points, endDate: end, startDate: start };
-	}, [sessions, dob]);
+		const primaryDurationByDate = sessions.reduce<
+			Record<string, { left: number; right: number }>
+		>((acc, session) => {
+			const date = new Date(session.startTime);
+			if (
+				isWithinInterval(date, {
+					end: primaryRange.to,
+					start: effectivePrimaryFrom,
+				})
+			) {
+				const key = format(date, 'yyyy-MM-dd');
+				if (!acc[key]) acc[key] = { left: 0, right: 0 };
+				if (session.breast === 'left') {
+					acc[key].left += session.durationInSeconds;
+				} else {
+					acc[key].right += session.durationInSeconds;
+				}
+			}
+			return acc;
+		}, {});
+
+		const primaryLeftData = primaryDays.map((day) => {
+			const key = format(day, 'yyyy-MM-dd');
+			return (primaryDurationByDate[key]?.left || 0) / 3600;
+		});
+
+		const primaryRightData = primaryDays.map((day) => {
+			const key = format(day, 'yyyy-MM-dd');
+			return (primaryDurationByDate[key]?.right || 0) / 3600;
+		});
+
+		const labels = primaryDays.map((day) => format(day, 'yyyy-MM-dd'));
+
+		const datasets = [
+			{
+				backgroundColor: '#6366f1', // Indigo-500
+				data: primaryLeftData,
+				label: (
+					<fbt desc="Legend label for primary left breast duration">
+						Left Breast
+					</fbt>
+				).toString(),
+				stack: 'primary',
+			},
+			{
+				backgroundColor: '#ec4899', // Pink-500
+				data: primaryRightData,
+				label: (
+					<fbt desc="Legend label for primary right breast duration">
+						Right Breast
+					</fbt>
+				).toString(),
+				stack: 'primary',
+			},
+		];
+
+		if (secondaryRange) {
+			const secondaryDays = eachDayOfInterval({
+				end: secondaryRange.to,
+				start: secondaryRange.from,
+			});
+
+			const secondaryDurationByDate = sessions.reduce<
+				Record<string, { left: number; right: number }>
+			>((acc, session) => {
+				const date = new Date(session.startTime);
+				if (
+					isWithinInterval(date, {
+						end: secondaryRange.to,
+						start: secondaryRange.from,
+					})
+				) {
+					const key = format(date, 'yyyy-MM-dd');
+					if (!acc[key]) acc[key] = { left: 0, right: 0 };
+					if (session.breast === 'left') {
+						acc[key].left += session.durationInSeconds;
+					} else {
+						acc[key].right += session.durationInSeconds;
+					}
+				}
+				return acc;
+			}, {});
+
+			const secondaryLeftData = secondaryDays.map((day) => {
+				const key = format(day, 'yyyy-MM-dd');
+				return (secondaryDurationByDate[key]?.left || 0) / 3600;
+			});
+
+			const secondaryRightData = secondaryDays.map((day) => {
+				const key = format(day, 'yyyy-MM-dd');
+				return (secondaryDurationByDate[key]?.right || 0) / 3600;
+			});
+
+			datasets.push(
+				{
+					backgroundColor: 'rgba(148, 163, 184, 0.4)', // Slate-400 with opacity
+					data: secondaryLeftData,
+					label: (
+						<fbt desc="Legend label for secondary left breast duration">
+							Left Breast (Prev)
+						</fbt>
+					).toString(),
+					stack: 'secondary',
+				},
+				{
+					backgroundColor: 'rgba(203, 213, 225, 0.4)', // Slate-300 with opacity
+					data: secondaryRightData,
+					label: (
+						<fbt desc="Legend label for secondary right breast duration">
+							Right Breast (Prev)
+						</fbt>
+					).toString(),
+					stack: 'secondary',
+				},
+			);
+		}
+
+		return { datasets, effectivePrimaryFrom, labels };
+	}, [sessions, primaryRange, secondaryRange]);
 
 	const verticalLines = useMemo(() => {
-		if (!dob) return [];
-
 		return teeth
 			.filter((tooth) => tooth.date)
 			.map((tooth) => {
 				const date = new Date(tooth.date!);
-				if (isBefore(date, startDate) || isAfter(date, endDate)) return null;
+				if (
+					isBefore(date, effectivePrimaryFrom) ||
+					isAfter(date, primaryRange.to)
+				) {
+					return null;
+				}
 
 				return {
 					label: '🦷',
-					x: differenceInDays(date, dob) / DAYS_PER_MONTH,
+					x: differenceInDays(date, effectivePrimaryFrom),
 				};
 			})
 			.filter(Boolean) as { color?: string; label?: string; x: number }[];
-	}, [teeth, dob, startDate, endDate]);
+	}, [teeth, effectivePrimaryFrom, primaryRange.to]);
 
 	return (
 		<div className={className}>
-			<LineChart
-				backgroundColor="rgba(99, 102, 241, 0.1)"
-				borderColor="#6366f1"
-				data={data}
-				datasetLabel={
-					<fbt desc="Dataset label for feeding duration in the chart legend">
-						Duration
-					</fbt>
-				}
+			<BarChart
+				datasets={datasets}
 				emptyStateMessage={
 					<fbt desc="Message shown when no feeding data is available for the chart">
-						No feeding data available for the past year.
+						No feeding data available for the selected range.
 					</fbt>
 				}
-				pointRadius={0}
-				title={
+				grouped={false}
+				labels={labels}
+				title={(
 					<fbt desc="Chart title for feeding duration">Feeding Duration</fbt>
-				}
+				).toString()}
 				verticalLines={verticalLines}
-				xAxisLabel={
-					dob ? (
-						<fbt desc="Label for the age axis on feeding chart">
-							Age (months)
-						</fbt>
-					) : (
-						<fbt desc="Label for the date axis on feeding chart">Date</fbt>
-					)
-				}
-				xAxisTickCallback={
-					dob
-						? (value) => {
-								const monthDate = addMonths(dob, Math.round(Number(value)));
-								return format(monthDate, 'MMM');
-							}
-						: undefined
-				}
-				xAxisType={dob ? 'linear' : 'time'}
-				xMax={dob ? differenceInDays(endDate, dob) / DAYS_PER_MONTH : undefined}
-				xMin={dob ? 0 : undefined}
-				yAxisLabel={
+				xAxisLabel={(
+					<fbt desc="Label for the date axis on feeding chart">Date</fbt>
+				).toString()}
+				yAxisLabel={(
 					<fbt desc="Label for the Y-axis showing feeding duration in hours">
 						Duration (h)
 					</fbt>
-				}
+				).toString()}
 				yAxisUnit="h"
 				yMin={0}
 			/>
+			{secondaryRange && (
+				<div className="text-[10px] text-muted-foreground mt-1 text-center italic">
+					<fbt desc="Note explaining overlapping bars in chart">
+						Note: Overlapping bars show current range (opaque) vs comparison
+						range (transparent).
+					</fbt>
+				</div>
+			)}
 		</div>
 	);
 }
