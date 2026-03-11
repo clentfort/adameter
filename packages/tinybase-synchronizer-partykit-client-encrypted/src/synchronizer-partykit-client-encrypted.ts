@@ -1,7 +1,6 @@
 import type { MergeableStore } from 'tinybase';
 import type { Message, Send, Synchronizer } from 'tinybase/synchronizers';
-import PartySocket from 'partysocket';
-import { getUniqueId } from 'tinybase';
+import type PartySocket from 'partysocket';
 import { createCustomSynchronizer } from 'tinybase/synchronizers';
 import {
 	decryptValue,
@@ -42,10 +41,12 @@ export function createSecurePartyKitSynchronizer(
 		(receive) => {
 			messageListener = (async (event: MessageEvent) => {
 				let data = event.data;
-				if (data instanceof Blob) {
-					data = await data.text();
-				} else if (data instanceof ArrayBuffer) {
-					data = new TextDecoder().decode(data);
+				if (Object.prototype.toString.call(data) === '[object Blob]') {
+					data = await (data as Blob).text();
+				} else if (
+					Object.prototype.toString.call(data) === '[object ArrayBuffer]'
+				) {
+					data = new TextDecoder().decode(data as ArrayBuffer);
 				}
 
 				if (typeof data === 'string' && data.startsWith(SYNC_MESSAGE)) {
@@ -77,8 +78,8 @@ export function createSecurePartyKitSynchronizer(
 						onIgnoredError?.(error);
 					}
 				}
-			}) as unknown as (event: any) => void;
-			connection.addEventListener('message', messageListener);
+			}) as unknown as (event: Event) => void;
+			connection.addEventListener('message', messageListener as (event: Event) => void);
 		},
 		() => {
 			if (messageListener) {

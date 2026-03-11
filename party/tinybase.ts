@@ -18,8 +18,8 @@ export default class TinybasePartyServer extends TinyBasePartyKitServer {
 		connection: Connection,
 	): Promise<void> {
 		let data = message;
-		if (data instanceof Uint8Array) {
-			data = new TextDecoder().decode(data);
+		if (Object.prototype.toString.call(data) === '[object Uint8Array]') {
+			data = new TextDecoder().decode(data as Uint8Array);
 		}
 
 		if (typeof data === 'string' && data.startsWith('y')) {

@@ -89,7 +89,10 @@ export function createSecurePartyKitPersister(
 			// that this is a MergeableChange set, which triggers a merge instead
 			// of a setContent operation. This prevents local changes from being
 			// overwritten by the remote load.
-			return [...persisted, 1] as any;
+			return [
+				...persisted,
+				1,
+			] as unknown as MergeableContent;
 		}
 
 		return undefined;

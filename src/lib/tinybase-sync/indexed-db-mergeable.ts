@@ -44,7 +44,7 @@ export function createMergeableIndexedDbPersister(
 				'readonly',
 			);
 
-			const valuesThing: any = {};
+			const valuesThing: Record<string, unknown> = {};
 			await new Promise((resolve, reject) => {
 				const request = transaction.objectStore(VALUES_STORE).openCursor();
 				request.onsuccess = (event) => {
@@ -59,13 +59,16 @@ export function createMergeableIndexedDbPersister(
 				request.onerror = () => reject(request.error);
 			});
 
-			const valuesMeta = await new Promise<any>((resolve) => {
+			const valuesMeta = await new Promise<unknown>((resolve) => {
 				const request = transaction.objectStore(METADATA_STORE).get('values');
 				request.onsuccess = () => resolve(request.result);
 				request.onerror = () => resolve(undefined);
 			});
 
-			const tablesThing: any = {};
+			const tablesThing: Record<
+				string,
+				[Record<string, unknown>, string, number]
+			> = {};
 			await new Promise((resolve, reject) => {
 				const request = transaction.objectStore(TABLES_STORE).openCursor();
 				request.onsuccess = (event) => {
@@ -74,8 +77,8 @@ export function createMergeableIndexedDbPersister(
 						const key = cursor.key as string;
 						const slashIndex = key.indexOf('/');
 						if (slashIndex !== -1) {
-							const tableId = key.substring(0, slashIndex);
-							const rowId = key.substring(slashIndex + 1);
+							const tableId = key.slice(0, slashIndex);
+							const rowId = key.slice(slashIndex + 1);
 							if (!tablesThing[tableId]) {
 								tablesThing[tableId] = [{}, '', 0];
 							}
@@ -91,7 +94,7 @@ export function createMergeableIndexedDbPersister(
 
 			const tableIds = Object.keys(tablesThing);
 			for (const tableId of tableIds) {
-				const tableMeta = await new Promise<any>((resolve) => {
+				const tableMeta = await new Promise<unknown>((resolve) => {
 					const request = transaction
 						.objectStore(METADATA_STORE)
 						.get(`table:${tableId}`);
@@ -104,7 +107,7 @@ export function createMergeableIndexedDbPersister(
 				}
 			}
 
-			const tablesMeta = await new Promise<any>((resolve) => {
+			const tablesMeta = await new Promise<unknown>((resolve) => {
 				const request = transaction.objectStore(METADATA_STORE).get('tables');
 				request.onsuccess = () => resolve(request.result);
 				request.onerror = () => resolve(undefined);
