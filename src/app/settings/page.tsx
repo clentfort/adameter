@@ -188,7 +188,7 @@ export default function SettingsPage() {
 	const [currency, setCurrency] = useCurrency();
 	const [devMode, setDevMode] = useDevMode();
 	const { store } = useContext(tinybaseContext);
-	const { room } = useContext(DataSynchronizationContext);
+	const { leaveRoom, room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
 	const { toast } = useToast();
 
@@ -201,6 +201,23 @@ export default function SettingsPage() {
 	};
 
 	const [isLoading, setIsLoading] = useState(false);
+
+	const handleFactoryReset = async () => {
+		setIsLoading(true);
+		try {
+			store.setContent([{}, {}]);
+			leaveRoom();
+			toast.success(
+				fbt('App reset successfully.', 'Success message for factory reset'),
+			);
+		} catch {
+			toast.error(
+				fbt('Failed to reset app.', 'Error message for factory reset failure'),
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	const handleExport = async () => {
 		setIsLoading(true);
@@ -699,6 +716,33 @@ export default function SettingsPage() {
 						onChange={handleImport}
 						type="file"
 					/>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>
+						<fbt desc="Factory reset card title">Factory Reset</fbt>
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="mb-4 text-sm">
+						<fbt desc="Factory reset description">
+							Clear all local data and disconnect from any shared room. This
+							action cannot be undone.
+						</fbt>
+					</p>
+					<Button
+						disabled={isLoading}
+						onClick={handleFactoryReset}
+						variant="destructive"
+					>
+						{isLoading ? (
+							<fbt desc="Resetting button text">Resetting...</fbt>
+						) : (
+							<fbt desc="Reset button text">Factory Reset</fbt>
+						)}
+					</Button>
 				</CardContent>
 			</Card>
 		</div>
