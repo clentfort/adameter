@@ -265,11 +265,10 @@ export default function SettingsPage() {
 
 			// 4. Reload the app to use the new empty database
 			window.location.reload();
-		} catch (error) {
+		} catch {
 			toast.error(
 				fbt('Failed to reset app.', 'Error message for factory reset failure'),
 			);
-			console.error('Factory reset error:', error);
 		} finally {
 			setIsLoading(false);
 		}
