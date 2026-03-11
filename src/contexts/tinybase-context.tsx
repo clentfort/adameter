@@ -10,12 +10,11 @@ import {
 	hashRoomId,
 } from 'tinybase-persister-partykit-client-encrypted';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
-import { resolvePartykitHost } from '@/lib/partykit-host';
-import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
 import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
 import { logger } from '@/lib/logger';
-import { PARTYKIT_HOST } from '@/lib/partykit-host';
+import { PARTYKIT_HOST, resolvePartykitHost } from '@/lib/partykit-host';
+import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
 import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
@@ -75,7 +74,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				isStoreDataEmpty(store)
 			) {
 				try {
-					const productionHost = resolvePartykitHost({ vercelEnv: 'production' });
+					const productionHost = resolvePartykitHost({
+						vercelEnv: 'production',
+					});
 					await cloneRoomData(
 						process.env.NEXT_PUBLIC_MAIN_ROOM_NAME,
 						productionHost,
