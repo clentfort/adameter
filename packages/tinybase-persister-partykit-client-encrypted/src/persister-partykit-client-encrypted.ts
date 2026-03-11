@@ -1,21 +1,15 @@
 import type PartySocket from 'partysocket';
-import type { Changes, Content, Store } from 'tinybase';
+import type { MergeableContent, MergeableStore } from 'tinybase';
 import { createCustomPersister } from 'tinybase/persisters';
 import {
-	decryptChanges,
-	decryptContent,
-	encryptChanges,
-	encryptContent,
-	hasLegacyRowEncryption,
-	jsonParseWithUndefined,
+	decryptMergeableContent,
+	encryptMergeableContent,
 	jsonStringWithUndefined,
 } from './crypto';
 import { logger } from './logger';
 
-const MESSAGE = 'message';
 const PUT = 'PUT';
-const SET_CHANGES = 's';
-const STORE_PATH = '/store';
+const STORE_PATH = '/mergeable-store';
 
 function getStoreProtocol(host: string): 'http' | 'https' {
 	return host.startsWith('localhost') || host.startsWith('127.0.0.1')
@@ -24,7 +18,7 @@ function getStoreProtocol(host: string): 'http' | 'https' {
 }
 
 export function createSecurePartyKitPersister(
-	store: Store,
+	store: MergeableStore,
 	connection: PartySocket,
 	encryptionKey: CryptoKey,
 	onIgnoredError?: (error: unknown) => void,
@@ -32,15 +26,14 @@ export function createSecurePartyKitPersister(
 	let executionChain: Promise<unknown> = Promise.resolve();
 	let hasSuccessfullyLoadedPersistedData = false;
 	let hasSuccessfullySavedFullContent = false;
-	let hasPendingLegacyRowEncryptionMigration = false;
 	const { host, room } = connection.partySocketOptions;
 	const protocol = getStoreProtocol(host);
 	const storeUrl = `${protocol}://${host}/parties/${connection.name}/${room}${STORE_PATH}`;
 
-	const saveStore = async (content: Content) => {
+	const saveStore = async (content: MergeableContent) => {
 		const start = performance.now();
 		const body = jsonStringWithUndefined(
-			await encryptContent(content, encryptionKey),
+			await encryptMergeableContent(content, encryptionKey),
 		);
 
 		const response = await fetch(storeUrl, {
@@ -63,16 +56,14 @@ export function createSecurePartyKitPersister(
 			cache: 'no-store',
 			mode: 'cors',
 		});
-		const result = (await response.json()) as Content | undefined;
+		const result = (await response.json()) as string | undefined;
 
 		if (result) {
-			const hasLegacyRowEncryptionFormat = hasLegacyRowEncryption(result);
-			const decrypted = await decryptContent(result, encryptionKey);
+			const decrypted = await decryptMergeableContent(result, encryptionKey);
 			logger.log(
 				`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
 			);
 			return {
-				hasLegacyRowEncryptionFormat,
 				persisted: decrypted,
 			};
 		}
@@ -81,71 +72,26 @@ export function createSecurePartyKitPersister(
 			`[PERF] getOrSetStore (load) took ${(performance.now() - start).toFixed(2)}ms`,
 		);
 		return {
-			hasLegacyRowEncryptionFormat: false,
 			persisted: result,
 		};
 	};
 
-	const queueLegacyRowEncryptionMigration = (content: Content) => {
-		if (hasPendingLegacyRowEncryptionMigration) {
-			return;
-		}
-
-		hasPendingLegacyRowEncryptionMigration = true;
-		executionChain = executionChain
-			.catch(() => {})
-			.then(async () => {
-				const start = performance.now();
-				await saveStore(content);
-				hasSuccessfullySavedFullContent = true;
-				logger.log(
-					`[PERF] Legacy row encryption migration took ${(performance.now() - start).toFixed(2)}ms`,
-				);
-			})
-			.catch((error) => {
-				onIgnoredError?.(error);
-			})
-			.finally(() => {
-				hasPendingLegacyRowEncryptionMigration = false;
-			});
-	};
-
-	const getPersisted = async (): Promise<Content | undefined> => {
+	const getPersisted = async (): Promise<MergeableContent | undefined> => {
 		executionChain = executionChain.catch(() => {}).then(loadStore);
 		const persistedState = (await executionChain) as Awaited<
 			ReturnType<typeof loadStore>
 		>;
 		hasSuccessfullyLoadedPersistedData = true;
 
-		if (
-			persistedState.hasLegacyRowEncryptionFormat &&
-			persistedState.persisted
-		) {
-			queueLegacyRowEncryptionMigration(persistedState.persisted);
-		}
-
-		return persistedState.persisted;
+		return persistedState.persisted as MergeableContent | undefined;
 	};
 
 	const setPersisted = async (
-		getContent: () => Content,
-		changes?: Changes,
+		getContent: () => MergeableContent,
 	): Promise<void> => {
 		executionChain = executionChain
 			.catch(() => {})
 			.then(async () => {
-				if (changes) {
-					const encryptedChanges = await encryptChanges(
-						changes,
-						encryptionKey,
-						(tableId, rowId) => store.getRow(tableId, rowId),
-					);
-					connection.send(
-						SET_CHANGES + jsonStringWithUndefined(encryptedChanges),
-					);
-					return;
-				}
-
 				if (!hasSuccessfullyLoadedPersistedData) {
 					return;
 				}
@@ -156,60 +102,14 @@ export function createSecurePartyKitPersister(
 		await executionChain;
 	};
 
-	const addPersisterListener = (
-		listener: (
-			content: Content | undefined,
-			changes: Changes | undefined,
-		) => void,
-	) => {
-		const messageListener = async (event: MessageEvent) => {
-			const data = event.data;
-
-			if (typeof data === 'string' && data.startsWith(SET_CHANGES)) {
-				executionChain = executionChain
-					.catch(() => {})
-					.then(async () => {
-						const start = performance.now();
-						try {
-							const encryptedChanges = jsonParseWithUndefined<Changes>(
-								data.slice(1),
-							);
-							const decryptedChanges = await decryptChanges(
-								encryptedChanges,
-								encryptionKey,
-							);
-							listener(undefined, decryptedChanges);
-							logger.log(
-								`[PERF] Incoming message processing took ${(performance.now() - start).toFixed(2)}ms`,
-							);
-						} catch (error) {
-							onIgnoredError?.(error);
-						}
-					});
-
-				await executionChain;
-			}
-		};
-
-		connection.addEventListener(
-			MESSAGE,
-			messageListener as unknown as EventListener,
-		);
-
-		return messageListener as unknown as EventListener;
-	};
-
-	const delPersisterListener = (messageListener: unknown) => {
-		connection.removeEventListener(MESSAGE, messageListener as EventListener);
-	};
-
 	const persister = createCustomPersister(
 		store,
 		getPersisted,
 		setPersisted,
-		addPersisterListener,
-		delPersisterListener,
+		() => {},
+		() => {},
 		onIgnoredError,
+		2, // Persists.MergeableStoreOnly
 	);
 
 	return {

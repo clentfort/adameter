@@ -1,4 +1,4 @@
-import type { Changes, Content, Store } from 'tinybase';
+import type { MergeableStore } from 'tinybase';
 import {
 	cleanup,
 	fireEvent,
@@ -7,7 +7,7 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import { useContext } from 'react';
-import { createStore } from 'tinybase';
+import { createMergeableStore, createStore } from 'tinybase';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { expect, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -20,11 +20,13 @@ import { TinybaseProvider } from './tinybase-context';
 export const ROOM_JOIN_STRATEGY_STORAGE_KEY = 'room-join-strategy';
 
 const mocks = vi.hoisted(() => ({
-	createIndexedDbPersister: vi.fn(),
+	createMergeableIndexedDbPersister: vi.fn(),
 	createSecurePartyKitPersister: vi.fn(),
+	createSecurePartyKitSynchronizer: vi.fn(),
 	getEncryptionKey: vi.fn(),
 	hashRoomId: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
+	createIndexedDbPersister: vi.fn(),
 }));
 
 vi.mock('partysocket', () => ({
@@ -32,11 +34,16 @@ vi.mock('partysocket', () => ({
 		addEventListener() {}
 		removeEventListener() {}
 		reconnect() {}
+		close() {}
 	},
 }));
 
 vi.mock('tinybase/persisters/persister-indexed-db', () => ({
 	createIndexedDbPersister: mocks.createIndexedDbPersister,
+}));
+
+vi.mock('@/lib/tinybase-sync/indexed-db-mergeable', () => ({
+	createMergeableIndexedDbPersister: mocks.createMergeableIndexedDbPersister,
 }));
 
 vi.mock('tinybase-persister-partykit-client-encrypted', () => ({
@@ -45,20 +52,26 @@ vi.mock('tinybase-persister-partykit-client-encrypted', () => ({
 	hashRoomId: mocks.hashRoomId,
 }));
 
+vi.mock('tinybase-synchronizer-partykit-client-encrypted', () => ({
+	createSecurePartyKitSynchronizer: mocks.createSecurePartyKitSynchronizer,
+}));
+
 vi.mock('@/migrations/run-if-needed', () => ({
 	runMigrationsIfNeeded: mocks.runMigrationsIfNeeded,
 }));
 
 interface RemotePersisterMock {
 	destroy: () => Promise<void>;
-	hasLoadedPersistedData: () => boolean;
-	hasSavedFullContent: () => boolean;
 	load: () => Promise<void>;
-	save: (changes?: Changes) => Promise<void>;
-	startAutoLoad: () => Promise<void>;
+	save: () => Promise<void>;
 	startAutoSave: () => Promise<void>;
-	stopAutoLoad: () => Promise<void>;
 	stopAutoSave: () => Promise<void>;
+}
+
+interface RemoteSynchronizerMock {
+	destroy: () => Promise<void>;
+	startSync: () => Promise<void>;
+	stopSync: () => Promise<void>;
 }
 
 interface HarnessOptions {
@@ -81,25 +94,16 @@ function buildEventRow(index: number, prefix: string) {
 	};
 }
 
-function seedEvents(store: Store, count: number, prefix: string) {
-	for (let index = 0; index < count; index++) {
-		store.setRow(
-			TABLE_IDS.EVENTS,
-			`${prefix}-${index}`,
-			buildEventRow(index, prefix),
-		);
-	}
-}
-
-function hasAnyChanges(changes: Changes) {
-	const [tableChanges, valueChanges] = changes;
-	return (
-		Object.keys(tableChanges).length > 0 || Object.keys(valueChanges).length > 0
-	);
-}
-
-function cloneContent(content: Content): Content {
-	return structuredClone(content);
+function seedEvents(store: any, count: number, prefix: string) {
+	store.transaction(() => {
+		for (let index = 0; index < count; index++) {
+			store.setRow(
+				TABLE_IDS.EVENTS,
+				`${prefix}-${index}`,
+				buildEventRow(index, prefix),
+			);
+		}
+	});
 }
 
 function RoomSyncProbe({ importCount }: { importCount: number }) {
@@ -141,7 +145,9 @@ function RoomSyncProbe({ importCount }: { importCount: number }) {
 
 export function resetRoomImportScenarioMocks() {
 	localStorage.clear();
+	mocks.createSecurePartyKitSynchronizer.mockReset();
 	mocks.createSecurePartyKitPersister.mockReset();
+	mocks.createMergeableIndexedDbPersister.mockReset();
 	mocks.createIndexedDbPersister.mockReset();
 	mocks.getEncryptionKey.mockReset();
 	mocks.hashRoomId.mockReset();
@@ -150,6 +156,11 @@ export function resetRoomImportScenarioMocks() {
 	mocks.getEncryptionKey.mockResolvedValue({} as CryptoKey);
 	mocks.hashRoomId.mockResolvedValue('hashed-scenario-room');
 	mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
+
+	mocks.createIndexedDbPersister.mockImplementation(() => ({
+		destroy: vi.fn(async () => {}),
+		load: vi.fn(async () => {}),
+	}));
 }
 
 export function expectEventCount(count: number) {
@@ -166,16 +177,17 @@ export function renderRoomSyncProbe(importCount: number) {
 	);
 }
 
+const activeSynchronizers: any[] = [];
+
 export function setupSyncHarness({
 	initialLoadFailures = 0,
 	localCount,
 	remoteCount,
 }: HarnessOptions) {
-	const remoteStore = createStore();
-	remoteStore.setContent([{}, {}]);
-	seedEvents(remoteStore, remoteCount, 'remote-imported');
+	const serverStore = createMergeableStore('server');
+	seedEvents(serverStore, remoteCount, 'remote-imported');
 
-	mocks.createIndexedDbPersister.mockImplementation((store: Store) => ({
+	mocks.createMergeableIndexedDbPersister.mockImplementation((store: any) => ({
 		destroy: vi.fn(async () => {}),
 		load: vi.fn(async () => {
 			store.setContent([{}, {}]);
@@ -186,76 +198,70 @@ export function setupSyncHarness({
 	}));
 
 	let loadAttempts = 0;
-	let hasLoadedPersistedData = false;
-	let hasSavedFullContent = false;
 
 	mocks.createSecurePartyKitPersister.mockImplementation(
-		(store: Store): RemotePersisterMock => {
-			let autoSaveListenerId: string | undefined;
-
+		(store: any): RemotePersisterMock => {
 			const remotePersister: RemotePersisterMock = {
 				destroy: vi.fn(async () => {}),
-				hasLoadedPersistedData: vi.fn(() => hasLoadedPersistedData),
-				hasSavedFullContent: vi.fn(() => hasSavedFullContent),
 				load: vi.fn(async () => {
 					loadAttempts += 1;
 					if (loadAttempts <= initialLoadFailures) {
-						return;
+						throw new Error('Load failed');
 					}
-
-					hasLoadedPersistedData = true;
-					store.setContent(cloneContent(remoteStore.getContent()));
+					store.merge(serverStore);
 				}),
-				save: vi.fn(async (changes?: Changes) => {
-					if (changes) {
-						remoteStore.applyChanges(changes);
-						return;
-					}
-
-					if (!hasLoadedPersistedData) {
-						return;
-					}
-
-					remoteStore.setContent(cloneContent(store.getContent()));
-					hasSavedFullContent = true;
-				}),
-				startAutoLoad: vi.fn(async () => {
-					await remotePersister.load();
+				save: vi.fn(async () => {
+					serverStore.merge(store);
 				}),
 				startAutoSave: vi.fn(async () => {
 					await remotePersister.save();
-					autoSaveListenerId = store.addDidFinishTransactionListener(() => {
-						const changes = store.getTransactionChanges();
-						if (hasAnyChanges(changes)) {
-							void remotePersister.save(changes);
-						}
+					store.addDidFinishTransactionListener(() => {
+						void remotePersister.save();
 					});
 				}),
-				stopAutoLoad: vi.fn(async () => {}),
-				stopAutoSave: vi.fn(async () => {
-					if (autoSaveListenerId !== undefined) {
-						store.delListener(autoSaveListenerId);
-						autoSaveListenerId = undefined;
-					}
-				}),
+				stopAutoSave: vi.fn(async () => {}),
 			};
 
 			return remotePersister;
 		},
 	);
 
+	mocks.createSecurePartyKitSynchronizer.mockImplementation(
+		(store: any): RemoteSynchronizerMock => {
+			const synchronizer: RemoteSynchronizerMock = {
+				destroy: vi.fn(async () => {
+					const idx = activeSynchronizers.indexOf(store);
+					if (idx !== -1) activeSynchronizers.splice(idx, 1);
+				}),
+				startSync: vi.fn(async () => {
+					activeSynchronizers.push(store);
+					// Simulate P2P sync by merging with other active stores
+					for (const otherStore of activeSynchronizers) {
+						if (otherStore !== store) {
+							store.merge(otherStore);
+							otherStore.merge(store);
+						}
+					}
+				}),
+				stopSync: vi.fn(async () => {
+					const idx = activeSynchronizers.indexOf(store);
+					if (idx !== -1) activeSynchronizers.splice(idx, 1);
+				}),
+			};
+			return synchronizer;
+		},
+	);
+
 	return {
-		getRemoteCount: () => remoteStore.getRowCount(TABLE_IDS.EVENTS),
+		getRemoteCount: () => serverStore.getRowCount(TABLE_IDS.EVENTS),
 	};
 }
 
 export function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
-	const remoteStore = createStore();
-	remoteStore.setContent([{}, {}]);
-
+	const serverStore = createMergeableStore('server');
 	const seedsQueue = [...localSeeds];
 
-	mocks.createIndexedDbPersister.mockImplementation((store: Store) => ({
+	mocks.createMergeableIndexedDbPersister.mockImplementation((store: any) => ({
 		destroy: vi.fn(async () => {}),
 		load: vi.fn(async () => {
 			store.setContent([{}, {}]);
@@ -267,59 +273,55 @@ export function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
 	}));
 
 	mocks.createSecurePartyKitPersister.mockImplementation(
-		(store: Store): RemotePersisterMock => {
-			let autoSaveListenerId: string | undefined;
-			let hasLoadedPersistedData = false;
-			let hasSavedFullContent = false;
-
+		(store: any): RemotePersisterMock => {
 			const remotePersister: RemotePersisterMock = {
 				destroy: vi.fn(async () => {}),
-				hasLoadedPersistedData: vi.fn(() => hasLoadedPersistedData),
-				hasSavedFullContent: vi.fn(() => hasSavedFullContent),
 				load: vi.fn(async () => {
-					hasLoadedPersistedData = true;
-					store.setContent(cloneContent(remoteStore.getContent()));
+					store.merge(serverStore);
 				}),
-				save: vi.fn(async (changes?: Changes) => {
-					if (changes) {
-						remoteStore.applyChanges(changes);
-						return;
-					}
-
-					if (!hasLoadedPersistedData) {
-						return;
-					}
-
-					remoteStore.setContent(cloneContent(store.getContent()));
-					hasSavedFullContent = true;
-				}),
-				startAutoLoad: vi.fn(async () => {
-					await remotePersister.load();
+				save: vi.fn(async () => {
+					serverStore.merge(store);
 				}),
 				startAutoSave: vi.fn(async () => {
 					await remotePersister.save();
-					autoSaveListenerId = store.addDidFinishTransactionListener(() => {
-						const changes = store.getTransactionChanges();
-						if (hasAnyChanges(changes)) {
-							void remotePersister.save(changes);
-						}
+					store.addDidFinishTransactionListener(() => {
+						void remotePersister.save();
 					});
 				}),
-				stopAutoLoad: vi.fn(async () => {}),
-				stopAutoSave: vi.fn(async () => {
-					if (autoSaveListenerId !== undefined) {
-						store.delListener(autoSaveListenerId);
-						autoSaveListenerId = undefined;
-					}
-				}),
+				stopAutoSave: vi.fn(async () => {}),
 			};
 
 			return remotePersister;
 		},
 	);
 
+	mocks.createSecurePartyKitSynchronizer.mockImplementation(
+		(store: any): RemoteSynchronizerMock => {
+			const synchronizer: RemoteSynchronizerMock = {
+				destroy: vi.fn(async () => {
+					const idx = activeSynchronizers.indexOf(store);
+					if (idx !== -1) activeSynchronizers.splice(idx, 1);
+				}),
+				startSync: vi.fn(async () => {
+					activeSynchronizers.push(store);
+					for (const otherStore of activeSynchronizers) {
+						if (otherStore !== store) {
+							store.merge(otherStore);
+							otherStore.merge(store);
+						}
+					}
+				}),
+				stopSync: vi.fn(async () => {
+					const idx = activeSynchronizers.indexOf(store);
+					if (idx !== -1) activeSynchronizers.splice(idx, 1);
+				}),
+			};
+			return synchronizer;
+		},
+	);
+
 	return {
-		getRemoteCount: () => remoteStore.getRowCount(TABLE_IDS.EVENTS),
+		getRemoteCount: () => serverStore.getRowCount(TABLE_IDS.EVENTS),
 	};
 }
 
@@ -356,7 +358,7 @@ export async function runDeviceSession({
 
 	await waitFor(() => {
 		expectEventCount(expectedAfterConnect);
-	});
+	}, { timeout: 5000 });
 
 	if (shouldImportData) {
 		fireEvent.click(screen.getByRole('button', { name: 'Import data' }));

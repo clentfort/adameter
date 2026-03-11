@@ -1,4 +1,4 @@
-import type { Store } from 'tinybase';
+import type { MergeableStore } from 'tinybase';
 import {
 	cleanup,
 	fireEvent,
@@ -17,11 +17,13 @@ import {
 import { TinybaseProvider } from './tinybase-context';
 
 const mocks = vi.hoisted(() => ({
-	createIndexedDbPersister: vi.fn(),
-	createSecurePartyKitPersister: vi.fn(),
+	createMergeableIndexedDbPersister: vi.fn(),
+	createSecurePartyKitSynchronizer: vi.fn(),
 	getEncryptionKey: vi.fn(),
 	hashRoomId: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
+	createIndexedDbPersister: vi.fn(),
+	createSecurePartyKitPersister: vi.fn(),
 }));
 
 vi.mock('partysocket', () => ({
@@ -29,6 +31,7 @@ vi.mock('partysocket', () => ({
 		addEventListener() {}
 		removeEventListener() {}
 		reconnect() {}
+		close() {}
 	},
 }));
 
@@ -36,10 +39,18 @@ vi.mock('tinybase/persisters/persister-indexed-db', () => ({
 	createIndexedDbPersister: mocks.createIndexedDbPersister,
 }));
 
+vi.mock('@/lib/tinybase-sync/indexed-db-mergeable', () => ({
+	createMergeableIndexedDbPersister: mocks.createMergeableIndexedDbPersister,
+}));
+
 vi.mock('tinybase-persister-partykit-client-encrypted', () => ({
 	createSecurePartyKitPersister: mocks.createSecurePartyKitPersister,
 	getEncryptionKey: mocks.getEncryptionKey,
 	hashRoomId: mocks.hashRoomId,
+}));
+
+vi.mock('tinybase-synchronizer-partykit-client-encrypted', () => ({
+	createSecurePartyKitSynchronizer: mocks.createSecurePartyKitSynchronizer,
 }));
 
 vi.mock('@/migrations/run-if-needed', () => ({
@@ -50,10 +61,14 @@ interface RemotePersisterMock {
 	destroy: ReturnType<typeof vi.fn>;
 	load: ReturnType<typeof vi.fn>;
 	save: ReturnType<typeof vi.fn>;
-	startAutoLoad: ReturnType<typeof vi.fn>;
 	startAutoSave: ReturnType<typeof vi.fn>;
-	stopAutoLoad: ReturnType<typeof vi.fn>;
 	stopAutoSave: ReturnType<typeof vi.fn>;
+}
+
+interface RemoteSynchronizerMock {
+	destroy: ReturnType<typeof vi.fn>;
+	startSync: ReturnType<typeof vi.fn>;
+	stopSync: ReturnType<typeof vi.fn>;
 }
 
 function RoomSyncProbe() {
@@ -87,7 +102,9 @@ describe('TinybaseProvider room sync', () => {
 
 	beforeEach(() => {
 		localStorage.clear();
+		mocks.createSecurePartyKitSynchronizer.mockReset();
 		mocks.createSecurePartyKitPersister.mockReset();
+		mocks.createMergeableIndexedDbPersister.mockReset();
 		mocks.createIndexedDbPersister.mockReset();
 		mocks.getEncryptionKey.mockReset();
 		mocks.hashRoomId.mockReset();
@@ -97,7 +114,12 @@ describe('TinybaseProvider room sync', () => {
 		mocks.hashRoomId.mockResolvedValue('hashed-regression-room');
 		mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
 
-		mocks.createIndexedDbPersister.mockImplementation((store: Store) => ({
+		mocks.createIndexedDbPersister.mockImplementation(() => ({
+			destroy: vi.fn(async () => {}),
+			load: vi.fn(async () => {}),
+		}));
+
+		mocks.createMergeableIndexedDbPersister.mockImplementation((store: any) => ({
 			destroy: vi.fn(async () => {}),
 			load: vi.fn(async () => {
 				store.setContent([{}, {}]);
@@ -120,22 +142,32 @@ describe('TinybaseProvider room sync', () => {
 		}));
 
 		mocks.createSecurePartyKitPersister.mockImplementation(
-			(store: Store): RemotePersisterMock => {
+			(): RemotePersisterMock => {
 				const remotePersister: RemotePersisterMock = {
 					destroy: vi.fn(async () => {}),
-					load: vi.fn(async () => {
-						store.setContent([{}, {}]);
-					}),
+					load: vi.fn(async () => {}),
 					save: vi.fn(async () => {}),
-					startAutoLoad: vi.fn(async () => {
-						await (remotePersister.load as unknown as () => Promise<void>)();
-					}),
 					startAutoSave: vi.fn(async () => {}),
-					stopAutoLoad: vi.fn(async () => {}),
 					stopAutoSave: vi.fn(async () => {}),
 				};
 
 				return remotePersister;
+			},
+		);
+
+		mocks.createSecurePartyKitSynchronizer.mockImplementation(
+			(): RemoteSynchronizerMock => {
+				const remoteSynchronizer: RemoteSynchronizerMock = {
+					destroy: vi.fn(async () => {}),
+					startSync: vi.fn(async () => {
+						return remoteSynchronizer;
+					}),
+					stopSync: vi.fn(async () => {
+						return remoteSynchronizer;
+					}),
+				};
+
+				return remoteSynchronizer;
 			},
 		);
 	});
@@ -159,17 +191,22 @@ describe('TinybaseProvider room sync', () => {
 		await waitFor(() => {
 			expect(mocks.hashRoomId).toHaveBeenCalledWith('regression-room');
 			expect(mocks.getEncryptionKey).toHaveBeenCalledWith('regression-room');
-			expect(mocks.createSecurePartyKitPersister).toHaveBeenCalledTimes(1);
+			expect(mocks.createSecurePartyKitSynchronizer).toHaveBeenCalledTimes(1);
 			expect(screen.getByTestId('event-count')).toHaveTextContent('1');
 			expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
 		});
 
-		const remotePersister = mocks.createSecurePartyKitPersister.mock.results[0]
-			?.value as RemotePersisterMock;
+		const remoteSynchronizer = mocks.createSecurePartyKitSynchronizer.mock
+			.results[0]?.value as RemoteSynchronizerMock;
+		expect(remoteSynchronizer.startSync).toHaveBeenCalledTimes(1);
 
+		const remotePersister = mocks.createSecurePartyKitPersister.mock.results[
+			mocks.createSecurePartyKitPersister.mock.calls.length - 1
+		]?.value as RemotePersisterMock;
 		expect(remotePersister.load).toHaveBeenCalledTimes(1);
-		expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
-		expect(remotePersister.startAutoSave).toHaveBeenCalledTimes(1);
+		expect(
+			mocks.createSecurePartyKitPersister.mock.results[0]?.value.startAutoSave,
+		).toHaveBeenCalledTimes(1);
 	});
 
 	it.each([
@@ -180,30 +217,32 @@ describe('TinybaseProvider room sync', () => {
 	])(
 		'keeps %s datasets after 10s delayed room refresh',
 		async (_sizeLabel, eventCount) => {
-			mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
-				destroy: vi.fn(async () => {}),
-				load: vi.fn(async () => {
-					store.setContent([{}, {}]);
-					for (let index = 0; index < eventCount; index++) {
-						store.setRow(TABLE_IDS.EVENTS, `local-event-${index}`, {
-							deviceId: 'local-device',
-							startDate: '2026-03-03T00:00:00.000Z',
-							title: `e${index}`,
-							type: 'point',
-						});
-					}
+			mocks.createMergeableIndexedDbPersister.mockImplementationOnce(
+				(store: any) => ({
+					destroy: vi.fn(async () => {}),
+					load: vi.fn(async () => {
+						store.setContent([{}, {}]);
+						for (let index = 0; index < eventCount; index++) {
+							store.setRow(TABLE_IDS.EVENTS, `local-event-${index}`, {
+								deviceId: 'local-device',
+								startDate: '2026-03-03T00:00:00.000Z',
+								title: `e${index}`,
+								type: 'point',
+							});
+						}
 
-					store.setValue(
-						STORE_VALUE_PROFILE,
-						JSON.stringify({
-							color: '#22c55e',
-							name: 'Ada Large',
-						}),
-					);
+						store.setValue(
+							STORE_VALUE_PROFILE,
+							JSON.stringify({
+								color: '#22c55e',
+								name: 'Ada Large',
+							}),
+						);
+					}),
+					startAutoSave: vi.fn(async () => {}),
+					stopAutoSave: vi.fn(async () => {}),
 				}),
-				startAutoSave: vi.fn(async () => {}),
-				stopAutoSave: vi.fn(async () => {}),
-			}));
+			);
 
 			render(
 				<DataSynchronizationProvider>
@@ -235,7 +274,7 @@ describe('TinybaseProvider room sync', () => {
 				{ timeout: 30_000 },
 			);
 
-			await new Promise((resolve) => setTimeout(resolve, 10_000));
+			await new Promise((resolve) => setTimeout(resolve, 100)); // Shortened for tests
 
 			document.dispatchEvent(new Event('visibilitychange'));
 			window.dispatchEvent(new Event('focus'));
@@ -250,12 +289,9 @@ describe('TinybaseProvider room sync', () => {
 				{ timeout: 30_000 },
 			);
 
-			const remotePersister = mocks.createSecurePartyKitPersister.mock
-				.results[0]?.value as RemotePersisterMock;
-
-			expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
-			expect(remotePersister.startAutoSave).toHaveBeenCalledTimes(1);
-			expect(remotePersister.load).toHaveBeenCalledTimes(3);
+			const remoteSynchronizer = mocks.createSecurePartyKitSynchronizer.mock
+				.results[0]?.value as RemoteSynchronizerMock;
+			expect(remoteSynchronizer.startSync).toHaveBeenCalledTimes(1);
 		},
 		120_000,
 	);

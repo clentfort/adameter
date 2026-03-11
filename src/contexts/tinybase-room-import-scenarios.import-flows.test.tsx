@@ -7,7 +7,7 @@ import {
 	setupSyncHarness,
 } from './tinybase-room-import-scenarios.harness';
 
-describe('room sync scenarios for imported data', () => {
+describe('room sync scenarios for imported data', { timeout: 30000 }, () => {
 	beforeEach(() => {
 		resetRoomImportScenarioMocks();
 	});

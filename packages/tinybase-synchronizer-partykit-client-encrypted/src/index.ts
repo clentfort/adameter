@@ -10,4 +10,4 @@ export {
 	jsonParseWithUndefined,
 	jsonStringWithUndefined,
 } from './crypto';
-export { createSecurePartyKitPersister } from './persister-partykit-client-encrypted';
+export { createSecurePartyKitSynchronizer } from './synchronizer-partykit-client-encrypted';
