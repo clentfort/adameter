@@ -17,6 +17,7 @@ import { PARTYKIT_HOST, resolvePartykitHost } from '@/lib/partykit-host';
 import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
 import {
 	TINYBASE_LOCAL_DB_NAME,
+	TINYBASE_LOCAL_DB_NAME_STORAGE_KEY,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
 import { mergeStoreContent } from '@/lib/tinybase-sync/merge';
@@ -56,10 +57,11 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		let isDisposed = false;
 
 		const store = storeRef.current;
-		const localPersister = createIndexedDbPersister(
-			store,
-			TINYBASE_LOCAL_DB_NAME,
-		);
+		const localDbName =
+			(typeof window !== 'undefined' &&
+				localStorage.getItem(TINYBASE_LOCAL_DB_NAME_STORAGE_KEY)) ||
+			TINYBASE_LOCAL_DB_NAME;
+		const localPersister = createIndexedDbPersister(store, localDbName);
 
 		const initialize = async () => {
 			const startLoad = performance.now();

@@ -59,6 +59,10 @@ import {
 } from '@/hooks/use-diaper-products';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
+import {
+	TINYBASE_LOCAL_DB_NAME,
+	TINYBASE_LOCAL_DB_NAME_STORAGE_KEY,
+} from '@/lib/tinybase-sync/constants';
 import { sanitizeImportedRow } from '@/lib/tinybase-sync/entity-row-schemas';
 import { fromCsv, toCsv } from '@/utils/data-transfer/csv';
 import {
@@ -218,16 +222,54 @@ export default function SettingsPage() {
 	const handleFactoryReset = async () => {
 		setIsLoading(true);
 		try {
-			store.setContent([{}, {}]);
+			// 1. Disconnect from room
 			leaveRoom();
+
+			// 2. Export data
+			const [tables, values] = store.getContent();
+			const files = Object.entries(tables).map(([tableId, table]) => {
+				const rows = Object.entries(table).map(([rowId, row]) => ({
+					...row,
+					id: rowId,
+				}));
+
+				return {
+					content: toCsv(rows),
+					name: `${tableId}.csv`,
+				};
+			});
+
+			const valueRows = Object.entries(values).map(([valueId, value]) => ({
+				id: valueId,
+				valueJson: JSON.stringify(value),
+			}));
+
+			if (valueRows.length > 0) {
+				files.push({
+					content: toCsv(valueRows),
+					name: `${VALUES_EXPORT_FILE_NAME}.csv`,
+				});
+			}
+
+			const zipBlob = await createZip(files);
+			downloadZip(zipBlob);
+
+			// 3. Rename IndexedDB (by switching to a new name in localStorage)
+			const newDbName = `${TINYBASE_LOCAL_DB_NAME}-${Date.now()}`;
+			localStorage.setItem(TINYBASE_LOCAL_DB_NAME_STORAGE_KEY, newDbName);
+
 			toast.success(
 				fbt('App reset successfully.', 'Success message for factory reset'),
 			);
 			setIsResetDialogOpen(false);
-		} catch {
+
+			// 4. Reload the app to use the new empty database
+			window.location.reload();
+		} catch (error) {
 			toast.error(
 				fbt('Failed to reset app.', 'Error message for factory reset failure'),
 			);
+			console.error('Factory reset error:', error);
 		} finally {
 			setIsLoading(false);
 		}
