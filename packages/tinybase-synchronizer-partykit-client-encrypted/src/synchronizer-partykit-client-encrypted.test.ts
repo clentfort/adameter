@@ -1,5 +1,5 @@
-import { createMergeableStore } from 'tinybase';
 import PartySocket from 'partysocket';
+import { createMergeableStore } from 'tinybase';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getEncryptionKey } from './crypto';
 import { createSecurePartyKitSynchronizer } from './synchronizer-partykit-client-encrypted';
@@ -41,6 +41,8 @@ describe('createSecurePartyKitSynchronizer', () => {
 			store,
 			connection,
 			encryptionKey,
+			undefined,
+			0.1,
 		);
 
 		await synchronizer.startSync();
@@ -66,6 +68,8 @@ describe('createSecurePartyKitSynchronizer', () => {
 			store,
 			connection,
 			encryptionKey,
+			undefined,
+			0.1,
 		);
 
 		await synchronizer.startSync();
@@ -81,7 +85,10 @@ describe('createSecurePartyKitSynchronizer', () => {
 		// Message.GetContentHashes = 1
 		const payload = ['other-client', null, 'request-1', 1, null];
 		const { encryptValue } = await import('./crypto');
-		const encrypted = await encryptValue(JSON.stringify(payload), encryptionKey);
+		const encrypted = await encryptValue(
+			JSON.stringify(payload),
+			encryptionKey,
+		);
 
 		await listener({
 			data: 'y' + encrypted,
@@ -89,7 +96,7 @@ describe('createSecurePartyKitSynchronizer', () => {
 
 		// If it reached the synchronizer, it should have triggered a response
 		// (Wait for async processing)
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await new Promise((resolve) => setTimeout(resolve, 100));
 
 		// Should have sent a response (more than once due to initial sync messages)
 		expect(mockSend.mock.calls.length).toBeGreaterThan(1);

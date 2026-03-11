@@ -58,7 +58,7 @@
 		"tailwindcss": "^4.1.4",
 		"tinybase": "^7.3.3",
 		"tinybase-persister-partykit-client-encrypted": "workspace:*",
-		"tinybase-synchronizer-partykit-client-encrypted": "link:packages/tinybase-synchronizer-partykit-client-encrypted",
+		"tinybase-synchronizer-partykit-client-encrypted": "workspace:*",
 		"tw-animate-css": "^1.2.8",
 		"zod": "^4.0.0"
 	},

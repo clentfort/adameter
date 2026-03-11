@@ -1,4 +1,3 @@
-import type { MergeableStore } from 'tinybase';
 import {
 	cleanup,
 	fireEvent,
@@ -7,6 +6,7 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import { useContext } from 'react';
+import { type MergeableStore } from 'tinybase';
 import { useStore, useTable, useValue } from 'tinybase/ui-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STORE_VALUE_PROFILE, TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -123,24 +123,25 @@ describe('TinybaseProvider room sync', () => {
 			(store: MergeableStore) => ({
 				destroy: vi.fn(async () => {}),
 				load: vi.fn(async () => {
-				store.setContent([{}, {}]);
-				store.setRow(TABLE_IDS.EVENTS, 'local-event', {
-					deviceId: 'local-device',
-					startDate: '2026-03-03T00:00:00.000Z',
-					title: 'Local event',
-					type: 'point',
-				});
-				store.setValue(
-					STORE_VALUE_PROFILE,
-					JSON.stringify({
-						color: '#22c55e',
-						name: 'Ada',
-					}),
-				);
+					store.setContent([{}, {}]);
+					store.setRow(TABLE_IDS.EVENTS, 'local-event', {
+						deviceId: 'local-device',
+						startDate: '2026-03-03T00:00:00.000Z',
+						title: 'Local event',
+						type: 'point',
+					});
+					store.setValue(
+						STORE_VALUE_PROFILE,
+						JSON.stringify({
+							color: '#22c55e',
+							name: 'Ada',
+						}),
+					);
+				}),
+				startAutoSave: vi.fn(async () => {}),
+				stopAutoSave: vi.fn(async () => {}),
 			}),
-			startAutoSave: vi.fn(async () => {}),
-			stopAutoSave: vi.fn(async () => {}),
-		}));
+		);
 
 		mocks.createSecurePartyKitPersister.mockImplementation(
 			(): RemotePersisterMock => {

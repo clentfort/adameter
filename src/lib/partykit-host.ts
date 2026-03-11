@@ -15,6 +15,17 @@ export function resolvePartykitHost({
 	vercelGitCommitRef,
 	vercelPrId,
 }: ResolvePartykitHostOptions = {}) {
+	if (
+		typeof window !== 'undefined' &&
+		(window.location.hostname === 'localhost' ||
+			window.location.hostname === '127.0.0.1') &&
+		!vercelEnv &&
+		!explicitHost &&
+		process.env.NODE_ENV !== 'test'
+	) {
+		return 'localhost:1999';
+	}
+
 	if (explicitHost) {
 		return normalizePartykitHost(explicitHost);
 	}
@@ -54,7 +65,11 @@ export const PARTYKIT_HOST = resolvePartykitHost({
 	vercelGitCommitRef: process.env.VERCEL_GIT_COMMIT_REF,
 	vercelPrId: process.env.VERCEL_GIT_PULL_REQUEST_ID,
 });
-export const PARTYKIT_URL = `https://${PARTYKIT_HOST}`;
+
+export const PARTYKIT_URL =
+	PARTYKIT_HOST.startsWith('localhost') || PARTYKIT_HOST.startsWith('127.0.0.1')
+		? `http://${PARTYKIT_HOST}`
+		: `https://${PARTYKIT_HOST}`;
 
 function normalizePartykitHost(host: string) {
 	return host.replace(/^https?:\/\//, '').replace(/\/$/, '');

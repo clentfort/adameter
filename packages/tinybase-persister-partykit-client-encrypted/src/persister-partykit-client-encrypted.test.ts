@@ -130,7 +130,10 @@ describe('createSecurePartyKitPersister', () => {
 		(connection as unknown as { name: string }).name = 'tinybase';
 
 		const content = store.getMergeableContent();
-		const encryptedContent = await encryptMergeableContent(content, encryptionKey);
+		const encryptedContent = await encryptMergeableContent(
+			content,
+			encryptionKey,
+		);
 
 		global.fetch = vi.fn().mockResolvedValueOnce({
 			json: () => Promise.resolve(encryptedContent),

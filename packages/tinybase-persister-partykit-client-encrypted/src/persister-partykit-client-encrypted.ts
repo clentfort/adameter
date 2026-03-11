@@ -78,12 +78,21 @@ export function createSecurePartyKitPersister(
 
 	const getPersisted = async (): Promise<MergeableContent | undefined> => {
 		executionChain = executionChain.catch(() => {}).then(loadStore);
-		const persistedState = (await executionChain) as Awaited<
-			ReturnType<typeof loadStore>
-		>;
+		const persistedState = (await executionChain) as {
+			persisted: MergeableContent | string | undefined;
+		};
 		hasSuccessfullyLoadedPersistedData = true;
 
-		return persistedState.persisted as MergeableContent | undefined;
+		const persisted = persistedState.persisted;
+		if (Array.isArray(persisted)) {
+			// By returning a 3-element tuple [tables, values, 1], we tell TinyBase
+			// that this is a MergeableChange set, which triggers a merge instead
+			// of a setContent operation. This prevents local changes from being
+			// overwritten by the remote load.
+			return [...persisted, 1] as any;
+		}
+
+		return undefined;
 	};
 
 	const setPersisted = async (

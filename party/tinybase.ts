@@ -13,12 +13,23 @@ export default class TinybasePartyServer extends TinyBasePartyKitServer {
 		this.config.responseHeaders = TINYBASE_CORS_HEADERS;
 	}
 
-	async onMessage(message: string, connection: Connection) {
-		if (message.startsWith('y')) {
-			this.room.broadcast(message, [connection.id]);
+	async onMessage(
+		message: string | Uint8Array,
+		connection: Connection,
+	): Promise<void> {
+		let data = message;
+		if (data instanceof Uint8Array) {
+			data = new TextDecoder().decode(data);
+		}
+
+		if (typeof data === 'string' && data.startsWith('y')) {
+			// Relay encrypted sync messages to all other peers
+			this.room.broadcast(data, [connection.id]);
 			return;
 		}
-		await super.onMessage(message, connection);
+
+		// Fallback to super for standard TinyBase snapshot messages
+		await super.onMessage(data as string, connection);
 	}
 
 	async onRequest(request: Request) {

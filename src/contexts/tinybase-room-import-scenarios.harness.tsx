@@ -107,7 +107,7 @@ function seedEvents(store: MergeableStore, count: number, prefix: string) {
 }
 
 function RoomSyncProbe({ importCount }: { importCount: number }) {
-	const store = useStore()!;
+	const store = useStore()! as unknown as MergeableStore;
 	const events = useTable(TABLE_IDS.EVENTS, store);
 	const { joinRoom } = useContext(DataSynchronizationContext);
 	const eventCount = events ? Object.keys(events).length : 0;
@@ -363,9 +363,12 @@ export async function runDeviceSession({
 		fireEvent.click(screen.getByRole('button', { name: 'Connect room' }));
 	}
 
-	await waitFor(() => {
-		expectEventCount(expectedAfterConnect);
-	}, { timeout: 5000 });
+	await waitFor(
+		() => {
+			expectEventCount(expectedAfterConnect);
+		},
+		{ timeout: 5000 },
+	);
 
 	if (shouldImportData) {
 		fireEvent.click(screen.getByRole('button', { name: 'Import data' }));

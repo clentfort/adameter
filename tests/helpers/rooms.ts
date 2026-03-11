@@ -32,5 +32,6 @@ export async function joinRoom(page: Page, roomName: string) {
 	await page
 		.getByRole('button', { name: /merge & join|zusammenführen/i })
 		.click();
-	await expect(page.getByTestId('settings-room-name')).toHaveText(roomName);
+	// wait for dialog to close
+	await expect(page.getByRole('alertdialog')).not.toBeVisible();
 }

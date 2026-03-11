@@ -1,7 +1,8 @@
-import { getUniqueId, type MergeableStore } from 'tinybase';
-import { createCustomSynchronizer } from 'tinybase/synchronizers';
+import type { MergeableStore } from 'tinybase';
 import type { Message, Send, Synchronizer } from 'tinybase/synchronizers';
-import type PartySocket from 'partysocket';
+import PartySocket from 'partysocket';
+import { getUniqueId } from 'tinybase';
+import { createCustomSynchronizer } from 'tinybase/synchronizers';
 import {
 	decryptValue,
 	encryptValue,
@@ -17,9 +18,9 @@ export function createSecurePartyKitSynchronizer(
 	connection: PartySocket,
 	encryptionKey: CryptoKey,
 	onIgnoredError?: (error: unknown) => void,
-	requestTimeoutSeconds = 1,
+	requestTimeoutSeconds = 2,
 ): Synchronizer {
-	const myClientId = getUniqueId();
+	const myClientId = connection.id;
 	let messageListener: ((event: MessageEvent) => void) | undefined;
 
 	const send: Send = async (toClientId, requestId, message, body) => {
@@ -39,8 +40,14 @@ export function createSecurePartyKitSynchronizer(
 		store,
 		send,
 		(receive) => {
-			messageListener = async (event: MessageEvent) => {
-				const data = event.data;
+			messageListener = (async (event: MessageEvent) => {
+				let data = event.data;
+				if (data instanceof Blob) {
+					data = await data.text();
+				} else if (data instanceof ArrayBuffer) {
+					data = new TextDecoder().decode(data);
+				}
+
 				if (typeof data === 'string' && data.startsWith(SYNC_MESSAGE)) {
 					const start = performance.now();
 					try {
@@ -70,18 +77,12 @@ export function createSecurePartyKitSynchronizer(
 						onIgnoredError?.(error);
 					}
 				}
-			};
-			connection.addEventListener(
-				'message',
-				messageListener as unknown as EventListener,
-			);
+			}) as unknown as (event: any) => void;
+			connection.addEventListener('message', messageListener);
 		},
 		() => {
 			if (messageListener) {
-				connection.removeEventListener(
-					'message',
-					messageListener as unknown as EventListener,
-				);
+				connection.removeEventListener('message', messageListener);
 			}
 		},
 		requestTimeoutSeconds,

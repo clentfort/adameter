@@ -3,7 +3,7 @@
 import type { MergeableStore } from 'tinybase';
 import PartySocket from 'partysocket';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { createMergeableStore, createStore } from 'tinybase';
+import { createMergeableStore, createStore, getUniqueId } from 'tinybase';
 import {
 	createSecurePartyKitPersister,
 	getEncryptionKey,
@@ -17,9 +17,13 @@ import { logger } from '@/lib/logger';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
 	TINYBASE_LOCAL_DB_NAME,
+	TINYBASE_MERGEABLE_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
-import { createMergeableIndexedDbPersister } from '@/lib/tinybase-sync/indexed-db-mergeable';
+import {
+	createMergeableBlobIndexedDbPersister,
+	createMergeableIndexedDbPersister,
+} from '@/lib/tinybase-sync/indexed-db-mergeable';
 import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
@@ -52,27 +56,42 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		const store = storeRef.current;
 		const localPersister = createMergeableIndexedDbPersister(
 			store,
-			TINYBASE_LOCAL_DB_NAME,
+			TINYBASE_MERGEABLE_DB_NAME,
 		);
 
 		const initialize = async () => {
 			const startLoad = performance.now();
 			await localPersister.load();
 
-			// Migration logic: if mergeable store is empty, try loading from legacy IndexedDB format
+			// Migration logic:
 			if (isStoreDataEmpty(store)) {
-				const oldStore = createStore();
-				const oldPersister = createIndexedDbPersister(
-					oldStore,
+				// 1. Try loading from the temporary "blob" mergeable format if it exists (from my previous unfinished work)
+				const blobPersister = createMergeableBlobIndexedDbPersister(
+					store,
 					TINYBASE_LOCAL_DB_NAME,
 				);
-				await oldPersister.load();
-				if (!isStoreDataEmpty(oldStore)) {
-					store.setContent(oldStore.getContent());
-					await localPersister.save();
-					logger.log('Migrated data from legacy IndexedDB format');
+				await blobPersister.load();
+
+				if (isStoreDataEmpty(store)) {
+					// 2. Try loading from legacy TinyBase Store (unmergeable) IndexedDB format
+					const oldStore = createStore();
+					const oldPersister = createIndexedDbPersister(
+						oldStore,
+						TINYBASE_LOCAL_DB_NAME,
+					);
+					await oldPersister.load();
+					if (!isStoreDataEmpty(oldStore)) {
+						store.setContent(oldStore.getContent());
+						logger.log('Migrated data from legacy IndexedDB format');
+					}
+					await oldPersister.destroy();
+				} else {
+					logger.log('Migrated data from temporary blob mergeable format');
 				}
-				await oldPersister.destroy();
+
+				if (!isStoreDataEmpty(store)) {
+					await localPersister.save();
+				}
 			}
 
 			logger.log(
@@ -149,6 +168,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			connection = new PartySocket({
 				host: PARTYKIT_HOST,
+				id: getUniqueId(),
 				party: TINYBASE_PARTYKIT_PARTY,
 				room: hashedRoomId,
 			});
@@ -176,42 +196,45 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				store.setContent([{}, {}]);
 			}
 
-			if (joinStrategy === 'merge' && !isStoreDataEmpty(store)) {
-				const tempStore = createMergeableStore();
-				const tempPersister = createSecurePartyKitPersister(
-					tempStore,
-					connection,
-					encryptionKey,
-				);
-				try {
-					await tempPersister.load();
-					if (!isStoreDataEmpty(tempStore)) {
-						store.merge(tempStore);
-					}
-				} catch (error) {
-					logger.error('Error loading remote store for merge:', error);
-				} finally {
-					await tempPersister.destroy();
-				}
-			} else {
-				try {
-					await remotePersister.load();
-				} catch (error) {
-					logger.error('Error loading remote store:', error);
-				}
+			try {
+				// Loading the remote state ensures the persister is correctly initialized
+				// and marked as having loaded data, allowing auto-save to start immediately.
+				// Merging is handled internally by the persister's getPersisted() override.
+				await remotePersister.load();
+			} catch (error) {
+				logger.error('Error loading remote store:', error);
 			}
 
 			logger.log(
-				`[PERF] Initial remote load/merge took ${(performance.now() - startRemoteLoad).toFixed(2)}ms`,
+				`[PERF] Initial remote load took ${(performance.now() - startRemoteLoad).toFixed(2)}ms`,
 			);
 
+			// Unblock the UI as soon as the initial remote data is merged.
+			// P2P sync and background persistence will continue in parallel.
+			if (!isDisposed) {
+				setIsSyncReady(true);
+			}
+
+			// Start backing up local changes to the remote snapshot as soon as possible.
+			await remotePersister.startAutoSave();
+
 			const startSync = performance.now();
-			await synchronizer.startSync();
+
+			// Peer synchronization (P2P via WebSockets)
+			try {
+				if (connection.readyState !== PartySocket.OPEN) {
+					await new Promise((resolve) => {
+						connection?.addEventListener('open', resolve, { once: true });
+					});
+				}
+				await synchronizer.startSync();
+			} catch (error) {
+				logger.error('Error starting synchronizer:', error);
+			}
+
 			logger.log(
 				`[PERF] synchronizer.startSync() took ${(performance.now() - startSync).toFixed(2)}ms`,
 			);
-
-			await remotePersister.startAutoSave();
 
 			// Post-sync migrations if needed
 			const startPostSyncMigrations = performance.now();
@@ -225,10 +248,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			logger.log(
 				`[PERF] Total connectRoomSync took ${(performance.now() - startConnect).toFixed(2)}ms`,
 			);
-
-			if (!isDisposed) {
-				setIsSyncReady(true);
-			}
 		};
 
 		void connectRoomSync().catch((error) => {

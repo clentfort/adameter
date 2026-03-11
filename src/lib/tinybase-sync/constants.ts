@@ -1,6 +1,7 @@
 export { TINYBASE_PARTYKIT_PARTY } from './partykit-parties';
 
 export const TINYBASE_LOCAL_DB_NAME = 'adameter-tinybase';
+export const TINYBASE_MERGEABLE_DB_NAME = 'adameter-tinybase-mergeable';
 
 export const STORE_VALUE_CURRENCY = 'currency';
 export const STORE_VALUE_DEV_MODE = 'devMode';
