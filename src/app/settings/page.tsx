@@ -230,7 +230,7 @@ export default function SettingsPage() {
 			await backupPersister.destroy();
 
 			// 4. Clear the store and save to main DB
-			store.delContent();
+			store.delTables().delValues();
 			const mainPersister = createIndexedDbPersister(
 				store,
 				TINYBASE_LOCAL_DB_NAME,
