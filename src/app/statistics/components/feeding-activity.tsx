@@ -1,6 +1,7 @@
 'use client';
 
 import type { FeedingSession } from '@/types/feeding';
+import type { DateRange } from '@/utils/get-range-dates';
 import {
 	Card,
 	CardContent,
@@ -14,11 +15,15 @@ import YearlyActivityHeatMap from './yearly-activity-heat-map';
 
 interface FeedingActivityProps {
 	className?: string;
+	primaryRange: DateRange;
+	secondaryRange?: DateRange;
 	sessions: FeedingSession[];
 }
 
 export default function FeedingActivity({
 	className,
+	primaryRange,
+	secondaryRange,
 	sessions,
 }: FeedingActivityProps) {
 	return (
@@ -26,13 +31,12 @@ export default function FeedingActivity({
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
 					<fbt desc="Title for the feeding activity card showing Duration and Frequency tabs">
-						Feeding Activity (Past Year)
+						Feeding Activity
 					</fbt>
 				</CardTitle>
 				<CardDescription>
 					<fbt desc="Description for the feeding activity card">
-						Visualize total duration and frequency of feedings over the past
-						year.
+						Visualize total duration and frequency of feedings.
 					</fbt>
 				</CardDescription>
 			</CardHeader>
@@ -54,7 +58,12 @@ export default function FeedingActivity({
 					</div>
 
 					<TabsContent className="mt-0" value="duration">
-						<FeedingActivityChart className="px-4 pb-4" sessions={sessions} />
+						<FeedingActivityChart
+							className="px-4 pb-4"
+							primaryRange={primaryRange}
+							secondaryRange={secondaryRange}
+							sessions={sessions}
+						/>
 					</TabsContent>
 					<TabsContent className="mt-0" value="frequency">
 						<YearlyActivityHeatMap
