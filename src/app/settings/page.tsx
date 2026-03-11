@@ -20,6 +20,7 @@ import {
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
+import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
@@ -59,10 +60,7 @@ import {
 } from '@/hooks/use-diaper-products';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
-import {
-	TINYBASE_LOCAL_DB_NAME,
-	TINYBASE_LOCAL_DB_NAME_STORAGE_KEY,
-} from '@/lib/tinybase-sync/constants';
+import { TINYBASE_LOCAL_DB_NAME } from '@/lib/tinybase-sync/constants';
 import { sanitizeImportedRow } from '@/lib/tinybase-sync/entity-row-schemas';
 import { fromCsv } from '@/utils/data-transfer/csv';
 import { exportStoreAsZip } from '@/utils/data-transfer/export';
@@ -225,16 +223,27 @@ export default function SettingsPage() {
 			// 2. Export data
 			await exportStoreAsZip(store);
 
-			// 3. Rename IndexedDB (by switching to a new name in localStorage)
-			const newDbName = `${TINYBASE_LOCAL_DB_NAME}-${Date.now()}`;
-			localStorage.setItem(TINYBASE_LOCAL_DB_NAME_STORAGE_KEY, newDbName);
+			// 3. Create a backup in IndexedDB
+			const backupDbName = `${TINYBASE_LOCAL_DB_NAME}-backup-${Date.now()}`;
+			const backupPersister = createIndexedDbPersister(store, backupDbName);
+			await backupPersister.save();
+			await backupPersister.destroy();
+
+			// 4. Clear the store and save to main DB
+			store.delContent();
+			const mainPersister = createIndexedDbPersister(
+				store,
+				TINYBASE_LOCAL_DB_NAME,
+			);
+			await mainPersister.save();
+			await mainPersister.destroy();
 
 			toast.success(
 				fbt('App reset successfully.', 'Success message for factory reset'),
 			);
 			setIsResetDialogOpen(false);
 
-			// 4. Reload the app to use the new empty database
+			// 5. Reload the app
 			window.location.reload();
 		} catch {
 			toast.error(
