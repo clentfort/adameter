@@ -97,7 +97,7 @@ export default function FeedingActivityChart({
 				stack: 'primary',
 			},
 			{
-				backgroundColor: '#a5b4fc', // Indigo-300
+				backgroundColor: '#ec4899', // Pink-500
 				data: primaryRightData,
 				label: (
 					<fbt desc="Legend label for primary right breast duration">
