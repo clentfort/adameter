@@ -188,16 +188,16 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 					if (!isStoreDataEmpty(tempStore)) {
 						store.merge(tempStore);
 					}
-				} catch (e) {
-					logger.error('Error loading remote store for merge:', e);
+				} catch (error) {
+					logger.error('Error loading remote store for merge:', error);
 				} finally {
 					await tempPersister.destroy();
 				}
 			} else {
 				try {
 					await remotePersister.load();
-				} catch (e) {
-					logger.error('Error loading remote store:', e);
+				} catch (error) {
+					logger.error('Error loading remote store:', error);
 				}
 			}
 
@@ -231,8 +231,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 		};
 
-		void connectRoomSync().catch((e) => {
-			logger.error('Error connecting to room:', e);
+		void connectRoomSync().catch((error) => {
+			logger.error('Error connecting to room:', error);
 			if (!isDisposed) {
 				setIsSyncReady(true);
 			}

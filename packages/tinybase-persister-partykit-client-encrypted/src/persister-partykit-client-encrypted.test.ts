@@ -1,13 +1,7 @@
-import type { MergeableContent } from 'tinybase';
 import PartySocket from 'partysocket';
 import { createMergeableStore } from 'tinybase';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-	getEncryptionKey,
-	hashRoomId,
-	encryptMergeableContent,
-	jsonStringWithUndefined,
-} from './crypto';
+import { encryptMergeableContent, getEncryptionKey } from './crypto';
 import { createSecurePartyKitPersister } from './persister-partykit-client-encrypted';
 
 type StatefulPersister = ReturnType<typeof createSecurePartyKitPersister> & {
@@ -33,11 +27,11 @@ vi.mock('partysocket', () => {
 });
 
 vi.mock('./crypto', async (importOriginal) => {
-	const original = (await importOriginal()) as any;
+	const original = (await importOriginal()) as Record<string, unknown>;
 	return {
 		...original,
-		decryptMergeableContent: vi.fn(async (content) => content),
-		encryptMergeableContent: vi.fn(async (content) =>
+		decryptMergeableContent: vi.fn(async (content: unknown) => content),
+		encryptMergeableContent: vi.fn(async (content: unknown) =>
 			typeof content === 'string' ? content : JSON.stringify(content),
 		),
 	};

@@ -1,11 +1,6 @@
 import { getUniqueId, type MergeableStore } from 'tinybase';
 import { createCustomSynchronizer } from 'tinybase/synchronizers';
-import type {
-	Message,
-	Receive,
-	Send,
-	Synchronizer,
-} from 'tinybase/synchronizers';
+import type { Message, Send, Synchronizer } from 'tinybase/synchronizers';
 import type PartySocket from 'partysocket';
 import {
 	decryptValue,
@@ -35,8 +30,8 @@ export function createSecurePartyKitSynchronizer(
 				encryptionKey,
 			);
 			connection.send(SYNC_MESSAGE + encryptedPayload);
-		} catch (e) {
-			onIgnoredError?.(e);
+		} catch (error) {
+			onIgnoredError?.(error);
 		}
 	};
 
@@ -58,9 +53,9 @@ export function createSecurePartyKitSynchronizer(
 							throw new Error('Decrypted payload is not a string');
 						}
 						const [fromClientId, toClientId, requestId, message, body] =
-							jsonParseWithUndefined<[string, string | null, any, Message, any]>(
-								decryptedPayload,
-							);
+							jsonParseWithUndefined<
+								[string, string | null, string | null, Message, unknown]
+							>(decryptedPayload);
 
 						if (
 							fromClientId !== myClientId &&
@@ -71,16 +66,22 @@ export function createSecurePartyKitSynchronizer(
 								`[PERF] Incoming sync message processing took ${(performance.now() - start).toFixed(2)}ms`,
 							);
 						}
-					} catch (e) {
-						onIgnoredError?.(e);
+					} catch (error) {
+						onIgnoredError?.(error);
 					}
 				}
 			};
-			connection.addEventListener('message', messageListener as any);
+			connection.addEventListener(
+				'message',
+				messageListener as unknown as EventListener,
+			);
 		},
 		() => {
 			if (messageListener) {
-				connection.removeEventListener('message', messageListener as any);
+				connection.removeEventListener(
+					'message',
+					messageListener as unknown as EventListener,
+				);
 			}
 		},
 		requestTimeoutSeconds,

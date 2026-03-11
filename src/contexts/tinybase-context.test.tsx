@@ -17,13 +17,13 @@ import {
 import { TinybaseProvider } from './tinybase-context';
 
 const mocks = vi.hoisted(() => ({
+	createIndexedDbPersister: vi.fn(),
 	createMergeableIndexedDbPersister: vi.fn(),
+	createSecurePartyKitPersister: vi.fn(),
 	createSecurePartyKitSynchronizer: vi.fn(),
 	getEncryptionKey: vi.fn(),
 	hashRoomId: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
-	createIndexedDbPersister: vi.fn(),
-	createSecurePartyKitPersister: vi.fn(),
 }));
 
 vi.mock('partysocket', () => ({
@@ -119,9 +119,10 @@ describe('TinybaseProvider room sync', () => {
 			load: vi.fn(async () => {}),
 		}));
 
-		mocks.createMergeableIndexedDbPersister.mockImplementation((store: any) => ({
-			destroy: vi.fn(async () => {}),
-			load: vi.fn(async () => {
+		mocks.createMergeableIndexedDbPersister.mockImplementation(
+			(store: MergeableStore) => ({
+				destroy: vi.fn(async () => {}),
+				load: vi.fn(async () => {
 				store.setContent([{}, {}]);
 				store.setRow(TABLE_IDS.EVENTS, 'local-event', {
 					deviceId: 'local-device',
@@ -218,7 +219,7 @@ describe('TinybaseProvider room sync', () => {
 		'keeps %s datasets after 10s delayed room refresh',
 		async (_sizeLabel, eventCount) => {
 			mocks.createMergeableIndexedDbPersister.mockImplementationOnce(
-				(store: any) => ({
+				(store: MergeableStore) => ({
 					destroy: vi.fn(async () => {}),
 					load: vi.fn(async () => {
 						store.setContent([{}, {}]);

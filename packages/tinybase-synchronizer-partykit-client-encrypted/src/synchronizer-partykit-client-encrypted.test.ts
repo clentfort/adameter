@@ -70,18 +70,22 @@ describe('createSecurePartyKitSynchronizer', () => {
 
 		await synchronizer.startSync();
 
-		expect(mockAddEventListener).toHaveBeenCalledWith('message', expect.any(Function));
+		expect(mockAddEventListener).toHaveBeenCalledWith(
+			'message',
+			expect.any(Function),
+		);
 		const listener = mockAddEventListener.mock.calls[0][1];
 
 		// Simulate another client's message
 		// Payload: [fromClientId, toClientId, requestId, message, body]
 		// Message.GetContentHashes = 1
 		const payload = ['other-client', null, 'request-1', 1, null];
-		const encrypted = await (await import('./crypto')).encryptValue(JSON.stringify(payload), encryptionKey);
+		const { encryptValue } = await import('./crypto');
+		const encrypted = await encryptValue(JSON.stringify(payload), encryptionKey);
 
 		await listener({
 			data: 'y' + encrypted,
-		});
+		} as MessageEvent);
 
 		// If it reached the synchronizer, it should have triggered a response
 		// (Wait for async processing)

@@ -7,7 +7,7 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import { useContext } from 'react';
-import { createMergeableStore, createStore } from 'tinybase';
+import { createMergeableStore } from 'tinybase';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { expect, vi } from 'vitest';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -20,13 +20,13 @@ import { TinybaseProvider } from './tinybase-context';
 export const ROOM_JOIN_STRATEGY_STORAGE_KEY = 'room-join-strategy';
 
 const mocks = vi.hoisted(() => ({
+	createIndexedDbPersister: vi.fn(),
 	createMergeableIndexedDbPersister: vi.fn(),
 	createSecurePartyKitPersister: vi.fn(),
 	createSecurePartyKitSynchronizer: vi.fn(),
 	getEncryptionKey: vi.fn(),
 	hashRoomId: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
-	createIndexedDbPersister: vi.fn(),
 }));
 
 vi.mock('partysocket', () => ({
@@ -94,7 +94,7 @@ function buildEventRow(index: number, prefix: string) {
 	};
 }
 
-function seedEvents(store: any, count: number, prefix: string) {
+function seedEvents(store: MergeableStore, count: number, prefix: string) {
 	store.transaction(() => {
 		for (let index = 0; index < count; index++) {
 			store.setRow(
@@ -177,7 +177,7 @@ export function renderRoomSyncProbe(importCount: number) {
 	);
 }
 
-const activeSynchronizers: any[] = [];
+const activeSynchronizers: MergeableStore[] = [];
 
 export function setupSyncHarness({
 	initialLoadFailures = 0,
@@ -187,20 +187,22 @@ export function setupSyncHarness({
 	const serverStore = createMergeableStore('server');
 	seedEvents(serverStore, remoteCount, 'remote-imported');
 
-	mocks.createMergeableIndexedDbPersister.mockImplementation((store: any) => ({
-		destroy: vi.fn(async () => {}),
-		load: vi.fn(async () => {
-			store.setContent([{}, {}]);
-			seedEvents(store, localCount, 'local-imported');
+	mocks.createMergeableIndexedDbPersister.mockImplementation(
+		(store: MergeableStore) => ({
+			destroy: vi.fn(async () => {}),
+			load: vi.fn(async () => {
+				store.setContent([{}, {}]);
+				seedEvents(store, localCount, 'local-imported');
+			}),
+			startAutoSave: vi.fn(async () => {}),
+			stopAutoSave: vi.fn(async () => {}),
 		}),
-		startAutoSave: vi.fn(async () => {}),
-		stopAutoSave: vi.fn(async () => {}),
-	}));
+	);
 
 	let loadAttempts = 0;
 
 	mocks.createSecurePartyKitPersister.mockImplementation(
-		(store: any): RemotePersisterMock => {
+		(store: MergeableStore): RemotePersisterMock => {
 			const remotePersister: RemotePersisterMock = {
 				destroy: vi.fn(async () => {}),
 				load: vi.fn(async () => {
@@ -227,7 +229,7 @@ export function setupSyncHarness({
 	);
 
 	mocks.createSecurePartyKitSynchronizer.mockImplementation(
-		(store: any): RemoteSynchronizerMock => {
+		(store: MergeableStore): RemoteSynchronizerMock => {
 			const synchronizer: RemoteSynchronizerMock = {
 				destroy: vi.fn(async () => {
 					const idx = activeSynchronizers.indexOf(store);
@@ -261,19 +263,24 @@ export function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
 	const serverStore = createMergeableStore('server');
 	const seedsQueue = [...localSeeds];
 
-	mocks.createMergeableIndexedDbPersister.mockImplementation((store: any) => ({
-		destroy: vi.fn(async () => {}),
-		load: vi.fn(async () => {
-			store.setContent([{}, {}]);
-			const nextSeed = seedsQueue.shift() ?? { count: 0, prefix: 'empty-seed' };
-			seedEvents(store, nextSeed.count, nextSeed.prefix);
+	mocks.createMergeableIndexedDbPersister.mockImplementation(
+		(store: MergeableStore) => ({
+			destroy: vi.fn(async () => {}),
+			load: vi.fn(async () => {
+				store.setContent([{}, {}]);
+				const nextSeed = seedsQueue.shift() ?? {
+					count: 0,
+					prefix: 'empty-seed',
+				};
+				seedEvents(store, nextSeed.count, nextSeed.prefix);
+			}),
+			startAutoSave: vi.fn(async () => {}),
+			stopAutoSave: vi.fn(async () => {}),
 		}),
-		startAutoSave: vi.fn(async () => {}),
-		stopAutoSave: vi.fn(async () => {}),
-	}));
+	);
 
 	mocks.createSecurePartyKitPersister.mockImplementation(
-		(store: any): RemotePersisterMock => {
+		(store: MergeableStore): RemotePersisterMock => {
 			const remotePersister: RemotePersisterMock = {
 				destroy: vi.fn(async () => {}),
 				load: vi.fn(async () => {
@@ -296,7 +303,7 @@ export function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
 	);
 
 	mocks.createSecurePartyKitSynchronizer.mockImplementation(
-		(store: any): RemoteSynchronizerMock => {
+		(store: MergeableStore): RemoteSynchronizerMock => {
 			const synchronizer: RemoteSynchronizerMock = {
 				destroy: vi.fn(async () => {
 					const idx = activeSynchronizers.indexOf(store);

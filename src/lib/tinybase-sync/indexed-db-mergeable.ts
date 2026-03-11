@@ -13,7 +13,7 @@ export function createMergeableIndexedDbPersister(
 		return new Promise((resolve, reject) => {
 			// Try to open existing database or create it
 			const request = indexedDB.open(dbName);
-			request.onupgradeneeded = (event: any) => {
+			request.onupgradeneeded = () => {
 				const db = request.result;
 				if (!db.objectStoreNames.contains(STORE_NAME)) {
 					db.createObjectStore(STORE_NAME);
@@ -35,8 +35,8 @@ export function createMergeableIndexedDbPersister(
 					request.onsuccess = () => resolve(request.result);
 					request.onerror = () => resolve(undefined);
 				});
-			} catch (e) {
-				onIgnoredError?.(e);
+			} catch (error) {
+				onIgnoredError?.(error);
 				return undefined;
 			}
 		},
@@ -49,8 +49,8 @@ export function createMergeableIndexedDbPersister(
 					request.onsuccess = () => resolve();
 					request.onerror = () => reject(request.error);
 				});
-			} catch (e) {
-				onIgnoredError?.(e);
+			} catch (error) {
+				onIgnoredError?.(error);
 			}
 		},
 		(listener) => {
