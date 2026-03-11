@@ -20,9 +20,20 @@ import {
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
+import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -49,13 +60,11 @@ import {
 } from '@/hooks/use-diaper-products';
 import { useProfile } from '@/hooks/use-profile';
 import { Locale } from '@/i18n';
+import { TINYBASE_LOCAL_DB_NAME } from '@/lib/tinybase-sync/constants';
 import { sanitizeImportedRow } from '@/lib/tinybase-sync/entity-row-schemas';
-import { fromCsv, toCsv } from '@/utils/data-transfer/csv';
-import {
-	createZip,
-	downloadZip,
-	extractFiles,
-} from '@/utils/data-transfer/zip';
+import { fromCsv } from '@/utils/data-transfer/csv';
+import { exportStoreAsZip } from '@/utils/data-transfer/export';
+import { extractFiles } from '@/utils/data-transfer/zip';
 
 const VALUES_EXPORT_FILE_NAME = '__values';
 
@@ -188,9 +197,12 @@ export default function SettingsPage() {
 	const [currency, setCurrency] = useCurrency();
 	const [devMode, setDevMode] = useDevMode();
 	const { store } = useContext(tinybaseContext);
-	const { room } = useContext(DataSynchronizationContext);
+	const { leaveRoom, room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
 	const { toast } = useToast();
+
+	const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+	const [resetConfirmationInput, setResetConfirmationInput] = useState('');
 
 	const [activeSection, setActiveSection] = useState<
 		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers' | 'data'
@@ -202,36 +214,50 @@ export default function SettingsPage() {
 
 	const [isLoading, setIsLoading] = useState(false);
 
+	const handleFactoryReset = async () => {
+		setIsLoading(true);
+		try {
+			// 1. Disconnect from room
+			leaveRoom();
+
+			// 2. Export data
+			await exportStoreAsZip(store);
+
+			// 3. Create a backup in IndexedDB
+			const backupDbName = `${TINYBASE_LOCAL_DB_NAME}-backup-${Date.now()}`;
+			const backupPersister = createIndexedDbPersister(store, backupDbName);
+			await backupPersister.save();
+			await backupPersister.destroy();
+
+			// 4. Clear the store and save to main DB
+			store.delTables().delValues();
+			const mainPersister = createIndexedDbPersister(
+				store,
+				TINYBASE_LOCAL_DB_NAME,
+			);
+			await mainPersister.save();
+			await mainPersister.destroy();
+
+			toast.success(
+				fbt('App reset successfully.', 'Success message for factory reset'),
+			);
+			setIsResetDialogOpen(false);
+
+			// 5. Reload the app
+			window.location.reload();
+		} catch {
+			toast.error(
+				fbt('Failed to reset app.', 'Error message for factory reset failure'),
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	const handleExport = async () => {
 		setIsLoading(true);
 		try {
-			const [tables, values] = store.getContent();
-			const files = Object.entries(tables).map(([tableId, table]) => {
-				const rows = Object.entries(table).map(([rowId, row]) => ({
-					...row,
-					id: rowId,
-				}));
-
-				return {
-					content: toCsv(rows),
-					name: `${tableId}.csv`,
-				};
-			});
-
-			const valueRows = Object.entries(values).map(([valueId, value]) => ({
-				id: valueId,
-				valueJson: JSON.stringify(value),
-			}));
-
-			if (valueRows.length > 0) {
-				files.push({
-					content: toCsv(valueRows),
-					name: `${VALUES_EXPORT_FILE_NAME}.csv`,
-				});
-			}
-
-			const zipBlob = await createZip(files);
-			downloadZip(zipBlob);
+			await exportStoreAsZip(store);
 			toast.success(
 				fbt('Data exported successfully.', 'Export success message'),
 			);
@@ -699,6 +725,101 @@ export default function SettingsPage() {
 						onChange={handleImport}
 						type="file"
 					/>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>
+						<fbt desc="Factory reset card title">Factory Reset</fbt>
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="mb-4 text-sm">
+						<fbt desc="Factory reset description">
+							Clear all local data and disconnect from any shared room. This
+							action cannot be undone.
+						</fbt>
+					</p>
+					<Button
+						disabled={isLoading}
+						onClick={() => {
+							setResetConfirmationInput('');
+							setIsResetDialogOpen(true);
+						}}
+						variant="destructive"
+					>
+						{isLoading ? (
+							<fbt desc="Resetting button text">Resetting...</fbt>
+						) : (
+							<fbt desc="Reset button text">Factory Reset</fbt>
+						)}
+					</Button>
+
+					<AlertDialog
+						onOpenChange={setIsResetDialogOpen}
+						open={isResetDialogOpen}
+					>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>
+									<fbt desc="Title for factory reset confirmation dialog">
+										Are you absolutely sure?
+									</fbt>
+								</AlertDialogTitle>
+								<AlertDialogDescription>
+									<div className="space-y-4">
+										<p>
+											<fbt desc="Warning message for factory reset">
+												This action will permanently delete all your local data
+												and disconnect you from any shared room.
+											</fbt>
+										</p>
+										<div className="space-y-2">
+											<Label htmlFor="reset-confirmation">
+												<fbt desc="Instruction to type a word to confirm reset">
+													Please type{' '}
+													<fbt:param name="confirmationWord">
+														<strong>delete</strong>
+													</fbt:param>{' '}
+													to confirm.
+												</fbt>
+											</Label>
+											<Input
+												id="reset-confirmation"
+												onChange={(e) =>
+													setResetConfirmationInput(e.target.value)
+												}
+												placeholder={fbt(
+													'Type "delete" here',
+													'Placeholder for reset confirmation input',
+												).toString()}
+												value={resetConfirmationInput}
+											/>
+										</div>
+									</div>
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>
+									<fbt common={true}>Cancel</fbt>
+								</AlertDialogCancel>
+								<AlertDialogAction
+									className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+									disabled={
+										isLoading ||
+										resetConfirmationInput.toLowerCase() !==
+											fbt('delete', 'Confirmation word for reset').toString()
+									}
+									onClick={handleFactoryReset}
+								>
+									<fbt desc="Button text to confirm factory reset">
+										Delete everything
+									</fbt>
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 				</CardContent>
 			</Card>
 		</div>
