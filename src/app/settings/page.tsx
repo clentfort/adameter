@@ -23,6 +23,16 @@ import { useContext, useState } from 'react';
 import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -192,6 +202,9 @@ export default function SettingsPage() {
 	const router = useRouter();
 	const { toast } = useToast();
 
+	const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+	const [resetConfirmationInput, setResetConfirmationInput] = useState('');
+
 	const [activeSection, setActiveSection] = useState<
 		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers' | 'data'
 	>('main');
@@ -210,6 +223,7 @@ export default function SettingsPage() {
 			toast.success(
 				fbt('App reset successfully.', 'Success message for factory reset'),
 			);
+			setIsResetDialogOpen(false);
 		} catch {
 			toast.error(
 				fbt('Failed to reset app.', 'Error message for factory reset failure'),
@@ -734,7 +748,10 @@ export default function SettingsPage() {
 					</p>
 					<Button
 						disabled={isLoading}
-						onClick={handleFactoryReset}
+						onClick={() => {
+							setResetConfirmationInput('');
+							setIsResetDialogOpen(true);
+						}}
 						variant="destructive"
 					>
 						{isLoading ? (
@@ -743,6 +760,71 @@ export default function SettingsPage() {
 							<fbt desc="Reset button text">Factory Reset</fbt>
 						)}
 					</Button>
+
+					<AlertDialog
+						onOpenChange={setIsResetDialogOpen}
+						open={isResetDialogOpen}
+					>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>
+									<fbt desc="Title for factory reset confirmation dialog">
+										Are you absolutely sure?
+									</fbt>
+								</AlertDialogTitle>
+								<AlertDialogDescription>
+									<div className="space-y-4">
+										<p>
+											<fbt desc="Warning message for factory reset">
+												This action will permanently delete all your local data
+												and disconnect you from any shared room.
+											</fbt>
+										</p>
+										<div className="space-y-2">
+											<Label htmlFor="reset-confirmation">
+												<fbt desc="Instruction to type a word to confirm reset">
+													Please type{' '}
+													<fbt:param name="confirmationWord">
+														<strong>delete</strong>
+													</fbt:param>{' '}
+													to confirm.
+												</fbt>
+											</Label>
+											<Input
+												id="reset-confirmation"
+												onChange={(e) =>
+													setResetConfirmationInput(e.target.value)
+												}
+												placeholder={fbt(
+													'Type "delete" here',
+													'Placeholder for reset confirmation input',
+												).toString()}
+												value={resetConfirmationInput}
+											/>
+										</div>
+									</div>
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>
+									<fbt common={true}>Cancel</fbt>
+								</AlertDialogCancel>
+								<AlertDialogAction
+									className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+									disabled={
+										isLoading ||
+										resetConfirmationInput.toLowerCase() !==
+											fbt('delete', 'Confirmation word for reset').toString()
+									}
+									onClick={handleFactoryReset}
+								>
+									<fbt desc="Button text to confirm factory reset">
+										Delete everything
+									</fbt>
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 				</CardContent>
 			</Card>
 		</div>
