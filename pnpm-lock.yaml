@@ -105,7 +105,7 @@ importers:
         specifier: workspace:*
         version: link:packages/tinybase-persister-partykit-client-encrypted
       tinybase-synchronizer-partykit-client-encrypted:
-        specifier: link:packages/tinybase-synchronizer-partykit-client-encrypted
+        specifier: workspace:*
         version: link:packages/tinybase-synchronizer-partykit-client-encrypted
       tw-animate-css:
         specifier: ^1.2.8

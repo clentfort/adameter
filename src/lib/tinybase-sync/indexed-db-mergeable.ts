@@ -94,24 +94,36 @@ export function createMergeableIndexedDbPersister(
 
 			const tableIds = Object.keys(tablesThing);
 			for (const tableId of tableIds) {
-				const tableMeta = await new Promise<unknown>((resolve) => {
-					const request = transaction
-						.objectStore(METADATA_STORE)
-						.get(`table:${tableId}`);
-					request.onsuccess = () => resolve(request.result);
-					request.onerror = () => resolve(undefined);
-				});
+				const tableMeta = await new Promise<[string, number] | undefined>(
+					(resolve) => {
+						const request = transaction
+							.objectStore(METADATA_STORE)
+							.get(`table:${tableId}`);
+						request.onsuccess = () => resolve(request.result);
+						request.onerror = () => resolve(undefined);
+					},
+				);
 				if (tableMeta) {
 					tablesThing[tableId][1] = tableMeta[0];
 					tablesThing[tableId][2] = tableMeta[1];
 				}
 			}
 
-			const tablesMeta = await new Promise<unknown>((resolve) => {
-				const request = transaction.objectStore(METADATA_STORE).get('tables');
-				request.onsuccess = () => resolve(request.result);
-				request.onerror = () => resolve(undefined);
-			});
+			const tablesMeta = await new Promise<[string, number] | undefined>(
+				(resolve) => {
+					const request = transaction.objectStore(METADATA_STORE).get('tables');
+					request.onsuccess = () => resolve(request.result);
+					request.onerror = () => resolve(undefined);
+				},
+			);
+
+			const valuesMeta = await new Promise<[string, number] | undefined>(
+				(resolve) => {
+					const request = transaction.objectStore(METADATA_STORE).get('values');
+					request.onsuccess = () => resolve(request.result);
+					request.onerror = () => resolve(undefined);
+				},
+			);
 
 			if (
 				Object.keys(tablesThing).length === 0 &&
@@ -123,8 +135,16 @@ export function createMergeableIndexedDbPersister(
 			}
 
 			return [
-				[tablesThing, tablesMeta?.[0] ?? '', tablesMeta?.[1] ?? 0],
-				[valuesThing, valuesMeta?.[0] ?? '', valuesMeta?.[1] ?? 0],
+				[
+					tablesThing,
+					tablesMeta?.[0] ?? '',
+					tablesMeta?.[1] ?? 0,
+				] as unknown as TablesStamp<true>,
+				[
+					valuesThing,
+					valuesMeta?.[0] ?? '',
+					valuesMeta?.[1] ?? 0,
+				] as unknown as ValuesStamp<true>,
 			] as MergeableContent;
 		} catch (error) {
 			onIgnoredError?.(error);
