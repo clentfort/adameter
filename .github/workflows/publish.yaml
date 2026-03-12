@@ -141,10 +141,40 @@ jobs:
         if: steps.changed.outputs.changed == 'true'
         run: pnpm --filter '${{ matrix.package.name }}' test --run --coverage
 
-      - name: Release package
+      - name: Determine npm release mode
         if: steps.changed.outputs.changed == 'true'
+        id: npm_auth
+        env:
+          HAS_NPM_TOKEN: ${{ secrets.NPM_TOKEN != '' }}
+          PACKAGE_NAME: ${{ matrix.package.name }}
+          PACKAGE_PATH: ${{ matrix.package.path }}
+        run: |
+          if [[ "$HAS_NPM_TOKEN" == 'true' ]]; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "mode=token" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if (cd "$PACKAGE_PATH" && npm view "$PACKAGE_NAME" version >/dev/null 2>&1); then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "mode=trusted-publishing" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice title=Skipping npm release::No NPM_TOKEN configured and $PACKAGE_NAME does not exist on npm yet."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "mode=none" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Release package (token)
+        if: steps.changed.outputs.changed == 'true' && steps.npm_auth.outputs.release == 'true' && steps.npm_auth.outputs.mode == 'token'
         run: pnpm --filter '${{ matrix.package.name }}' release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Release package (trusted publishing)
+        if: steps.changed.outputs.changed == 'true' && steps.npm_auth.outputs.release == 'true' && steps.npm_auth.outputs.mode == 'trusted-publishing'
+        run: pnpm --filter '${{ matrix.package.name }}' release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
