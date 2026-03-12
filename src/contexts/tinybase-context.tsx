@@ -14,7 +14,8 @@ import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-
 import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
 import { logger } from '@/lib/logger';
-import { PARTYKIT_HOST } from '@/lib/partykit-host';
+import { PARTYKIT_HOST, resolvePartykitHost } from '@/lib/partykit-host';
+import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
 import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_MERGEABLE_DB_NAME,
@@ -97,6 +98,27 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			logger.log(
 				`[PERF] Local storage load took ${(performance.now() - startLoad).toFixed(2)}ms`,
 			);
+
+			if (
+				process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview' &&
+				process.env.NEXT_PUBLIC_MAIN_ROOM_NAME &&
+				isStoreDataEmpty(store)
+			) {
+				try {
+					const productionHost = resolvePartykitHost({
+						vercelEnv: 'production',
+					});
+					await cloneRoomData(
+						process.env.NEXT_PUBLIC_MAIN_ROOM_NAME,
+						productionHost,
+						store,
+					);
+					await localPersister.save();
+					logger.log('Auto-cloned data from production in preview environment');
+				} catch (error) {
+					logger.error('Failed to auto-clone data from production:', error);
+				}
+			}
 
 			await localPersister.startAutoSave();
 
