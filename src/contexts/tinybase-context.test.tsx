@@ -17,18 +17,25 @@ import {
 import { TinybaseProvider } from './tinybase-context';
 
 const mocks = vi.hoisted(() => ({
+	createEncryptedPartyKitSynchronizer: vi.fn(),
 	createIndexedDbPersister: vi.fn(),
-	createSecurePartyKitPersister: vi.fn(),
 	getEncryptionKey: vi.fn(),
+	getStoreUrl: vi.fn(),
 	hashRoomId: vi.fn(),
+	loadServerSnapshot: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
+	saveServerSnapshot: vi.fn(),
 }));
 
 vi.mock('partysocket', () => ({
 	default: class MockPartySocket {
+		partySocketOptions = { host: 'localhost:1999', room: 'test-room' };
+		name = 'tinybase';
+		readyState = 1; // WebSocket.OPEN
 		addEventListener() {}
+		close() {}
 		removeEventListener() {}
-		reconnect() {}
+		send() {}
 	},
 }));
 
@@ -36,25 +43,19 @@ vi.mock('tinybase/persisters/persister-indexed-db', () => ({
 	createIndexedDbPersister: mocks.createIndexedDbPersister,
 }));
 
-vi.mock('tinybase-persister-partykit-client-encrypted', () => ({
-	createSecurePartyKitPersister: mocks.createSecurePartyKitPersister,
+vi.mock('tinybase-synchronizer-partykit-client-encrypted', () => ({
+	createEncryptedPartyKitSynchronizer:
+		mocks.createEncryptedPartyKitSynchronizer,
 	getEncryptionKey: mocks.getEncryptionKey,
+	getStoreUrl: mocks.getStoreUrl,
 	hashRoomId: mocks.hashRoomId,
+	loadServerSnapshot: mocks.loadServerSnapshot,
+	saveServerSnapshot: mocks.saveServerSnapshot,
 }));
 
 vi.mock('@/migrations/run-if-needed', () => ({
 	runMigrationsIfNeeded: mocks.runMigrationsIfNeeded,
 }));
-
-interface RemotePersisterMock {
-	destroy: ReturnType<typeof vi.fn>;
-	load: ReturnType<typeof vi.fn>;
-	save: ReturnType<typeof vi.fn>;
-	startAutoLoad: ReturnType<typeof vi.fn>;
-	startAutoSave: ReturnType<typeof vi.fn>;
-	stopAutoLoad: ReturnType<typeof vi.fn>;
-	stopAutoSave: ReturnType<typeof vi.fn>;
-}
 
 function RoomSyncProbe() {
 	const store = useStore()!;
@@ -87,15 +88,28 @@ describe('TinybaseProvider room sync', () => {
 
 	beforeEach(() => {
 		localStorage.clear();
-		mocks.createSecurePartyKitPersister.mockReset();
+		mocks.createEncryptedPartyKitSynchronizer.mockReset();
 		mocks.createIndexedDbPersister.mockReset();
 		mocks.getEncryptionKey.mockReset();
+		mocks.getStoreUrl.mockReset();
 		mocks.hashRoomId.mockReset();
+		mocks.loadServerSnapshot.mockReset();
 		mocks.runMigrationsIfNeeded.mockReset();
+		mocks.saveServerSnapshot.mockReset();
 
 		mocks.getEncryptionKey.mockResolvedValue({} as CryptoKey);
 		mocks.hashRoomId.mockResolvedValue('hashed-regression-room');
+		mocks.getStoreUrl.mockReturnValue(
+			'http://localhost:1999/parties/tinybase/hashed-regression-room/store',
+		);
+		mocks.loadServerSnapshot.mockResolvedValue(false);
+		mocks.saveServerSnapshot.mockResolvedValue(undefined);
 		mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
+
+		mocks.createEncryptedPartyKitSynchronizer.mockResolvedValue({
+			destroy: vi.fn(async () => {}),
+			startSync: vi.fn(async () => {}),
+		});
 
 		mocks.createIndexedDbPersister.mockImplementation((store: Store) => ({
 			destroy: vi.fn(async () => {}),
@@ -118,26 +132,6 @@ describe('TinybaseProvider room sync', () => {
 			startAutoSave: vi.fn(async () => {}),
 			stopAutoSave: vi.fn(async () => {}),
 		}));
-
-		mocks.createSecurePartyKitPersister.mockImplementation(
-			(store: Store): RemotePersisterMock => {
-				const remotePersister: RemotePersisterMock = {
-					destroy: vi.fn(async () => {}),
-					load: vi.fn(async () => {
-						store.setContent([{}, {}]);
-					}),
-					save: vi.fn(async () => {}),
-					startAutoLoad: vi.fn(async () => {
-						await (remotePersister.load as unknown as () => Promise<void>)();
-					}),
-					startAutoSave: vi.fn(async () => {}),
-					stopAutoLoad: vi.fn(async () => {}),
-					stopAutoSave: vi.fn(async () => {}),
-				};
-
-				return remotePersister;
-			},
-		);
 	});
 
 	it('keeps local data when creating/joining a room with merge strategy', async () => {
@@ -159,17 +153,14 @@ describe('TinybaseProvider room sync', () => {
 		await waitFor(() => {
 			expect(mocks.hashRoomId).toHaveBeenCalledWith('regression-room');
 			expect(mocks.getEncryptionKey).toHaveBeenCalledWith('regression-room');
-			expect(mocks.createSecurePartyKitPersister).toHaveBeenCalledTimes(1);
+			expect(mocks.createEncryptedPartyKitSynchronizer).toHaveBeenCalledTimes(
+				1,
+			);
 			expect(screen.getByTestId('event-count')).toHaveTextContent('1');
 			expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
 		});
 
-		const remotePersister = mocks.createSecurePartyKitPersister.mock.results[0]
-			?.value as RemotePersisterMock;
-
-		expect(remotePersister.load).toHaveBeenCalledTimes(1);
-		expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
-		expect(remotePersister.startAutoSave).toHaveBeenCalledTimes(1);
+		expect(mocks.loadServerSnapshot).toHaveBeenCalledTimes(1);
 	});
 
 	it.each([
@@ -178,7 +169,7 @@ describe('TinybaseProvider room sync', () => {
 		['large', 10_000],
 		['huge', 60_000],
 	])(
-		'keeps %s datasets after 10s delayed room refresh',
+		'keeps %s datasets after joining a room',
 		async (_sizeLabel, eventCount) => {
 			mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
 				destroy: vi.fn(async () => {}),
@@ -227,6 +218,9 @@ describe('TinybaseProvider room sync', () => {
 
 			await waitFor(
 				() => {
+					expect(
+						mocks.createEncryptedPartyKitSynchronizer,
+					).toHaveBeenCalledTimes(1);
 					expect(screen.getByTestId('event-count')).toHaveTextContent(
 						String(eventCount),
 					);
@@ -234,28 +228,6 @@ describe('TinybaseProvider room sync', () => {
 				},
 				{ timeout: 30_000 },
 			);
-
-			await new Promise((resolve) => setTimeout(resolve, 10_000));
-
-			document.dispatchEvent(new Event('visibilitychange'));
-			window.dispatchEvent(new Event('focus'));
-
-			await waitFor(
-				() => {
-					expect(screen.getByTestId('event-count')).toHaveTextContent(
-						String(eventCount),
-					);
-					expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
-				},
-				{ timeout: 30_000 },
-			);
-
-			const remotePersister = mocks.createSecurePartyKitPersister.mock
-				.results[0]?.value as RemotePersisterMock;
-
-			expect(remotePersister.startAutoLoad).toHaveBeenCalledTimes(1);
-			expect(remotePersister.startAutoSave).toHaveBeenCalledTimes(1);
-			expect(remotePersister.load).toHaveBeenCalledTimes(3);
 		},
 		120_000,
 	);
