@@ -1,4 +1,9 @@
-import { MergeableContent, MergeableStore } from 'tinybase';
+import {
+	MergeableContent,
+	MergeableStore,
+	TablesStamp,
+	ValuesStamp,
+} from 'tinybase';
 import { createCustomPersister } from 'tinybase/persisters';
 
 const TABLES_STORE = 't';
@@ -57,12 +62,6 @@ export function createMergeableIndexedDbPersister(
 					}
 				};
 				request.onerror = () => reject(request.error);
-			});
-
-			const valuesMeta = await new Promise<unknown>((resolve) => {
-				const request = transaction.objectStore(METADATA_STORE).get('values');
-				request.onsuccess = () => resolve(request.result);
-				request.onerror = () => resolve(undefined);
 			});
 
 			const tablesThing: Record<
