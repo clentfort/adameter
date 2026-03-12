@@ -85,14 +85,15 @@ export function createSecurePartyKitPersister(
 
 		const persisted = persistedState.persisted;
 		if (Array.isArray(persisted)) {
-			// By returning a 3-element tuple [tables, values, 1], we tell TinyBase
-			// that this is a MergeableChange set, which triggers a merge instead
-			// of a setContent operation. This prevents local changes from being
-			// overwritten by the remote load.
-			return [
-				...persisted,
-				1,
-			] as unknown as MergeableContent;
+			// Return a 3-element MergeableChanges tuple [tables, values, 1] rather
+			// than a 2-element MergeableContent tuple. TinyBase's persister internals
+			// check for the trailing `1` to decide between applyMergeableChanges()
+			// and setMergeableContent(). applyMergeableChanges() preserves local-only
+			// rows not present in the remote snapshot, preventing data loss for changes
+			// made while the remote load was in-flight.
+			// The cast is required because getPersisted's return type is MergeableContent
+			// but TinyBase's runtime accepts MergeableChanges here.
+			return [...persisted, 1] as unknown as MergeableContent;
 		}
 
 		return undefined;

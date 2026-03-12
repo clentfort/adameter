@@ -53,7 +53,8 @@ export function createMergeableIndexedDbPersister(
 			await new Promise((resolve, reject) => {
 				const request = transaction.objectStore(VALUES_STORE).openCursor();
 				request.onsuccess = (event) => {
-					const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+					const cursor = (event.target as IDBRequest<IDBCursorWithValue>)
+						.result;
 					if (cursor) {
 						valuesThing[cursor.key as string] = cursor.value;
 						cursor.continue();
@@ -71,7 +72,8 @@ export function createMergeableIndexedDbPersister(
 			await new Promise((resolve, reject) => {
 				const request = transaction.objectStore(TABLES_STORE).openCursor();
 				request.onsuccess = (event) => {
-					const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+					const cursor = (event.target as IDBRequest<IDBCursorWithValue>)
+						.result;
 					if (cursor) {
 						const key = cursor.key as string;
 						const slashIndex = key.indexOf('/');
@@ -199,13 +201,8 @@ export function createMergeableIndexedDbPersister(
 		store,
 		getPersisted,
 		setPersisted,
-		(listener) => {
-			const interval = setInterval(listener, 1000);
-			return interval;
-		},
-		(interval) => {
-			clearInterval(interval);
-		},
+		() => {},
+		() => {},
 		onIgnoredError,
 		2, // Persists.MergeableStoreOnly
 	);
