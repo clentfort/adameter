@@ -7,6 +7,13 @@ import type {
 } from 'partykit/server';
 
 const MESSAGE_SEPARATOR = '\n';
+const SNAPSHOT_KEY = 'snapshot';
+const SNAPSHOT_CHUNK_COUNT_KEY = 'snapshot_chunk_count';
+const SNAPSHOT_CHUNK_KEY_PREFIX = 'snapshot_chunk_';
+
+// Durable Object storage value limit observed in PartyKit runtime.
+const MAX_STORAGE_VALUE_BYTES = 131_072;
+const SNAPSHOT_CHUNK_SIZE_BYTES = 120_000;
 
 /**
  * Configuration for the encrypted synchronizer relay server.
@@ -70,6 +77,81 @@ export class EncryptedSyncRelayServer implements Server {
 
 	constructor(readonly room: Room) {}
 
+	private getSnapshotChunkKey(index: number): string {
+		return `${SNAPSHOT_CHUNK_KEY_PREFIX}${index}`;
+	}
+
+	private getByteLength(value: string): number {
+		return new TextEncoder().encode(value).byteLength;
+	}
+
+	private async getChunkCount(): Promise<number> {
+		const chunkCount = await this.room.storage.get<string>(
+			SNAPSHOT_CHUNK_COUNT_KEY,
+		);
+		if (!chunkCount) {
+			return 0;
+		}
+		const parsed = Number.parseInt(chunkCount, 10);
+		return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+	}
+
+	private async clearChunkedSnapshot(): Promise<void> {
+		const chunkCount = await this.getChunkCount();
+		if (chunkCount > 0) {
+			for (let index = 0; index < chunkCount; index += 1) {
+				await this.room.storage.delete(this.getSnapshotChunkKey(index));
+			}
+		}
+		await this.room.storage.delete(SNAPSHOT_CHUNK_COUNT_KEY);
+	}
+
+	private async readSnapshot(): Promise<string | undefined> {
+		const chunkCount = await this.getChunkCount();
+		if (chunkCount > 0) {
+			const chunks = await Promise.all(
+				Array.from({ length: chunkCount }, async (_value, index) => {
+					return this.room.storage.get<string>(this.getSnapshotChunkKey(index));
+				}),
+			);
+			if (chunks.some((chunk) => chunk == null)) {
+				return undefined;
+			}
+			return chunks.join('');
+		}
+		return this.room.storage.get<string>(SNAPSHOT_KEY);
+	}
+
+	private async writeSnapshot(snapshot: string): Promise<void> {
+		if (this.getByteLength(snapshot) <= MAX_STORAGE_VALUE_BYTES) {
+			await this.room.storage.put(SNAPSHOT_KEY, snapshot);
+			await this.clearChunkedSnapshot();
+			return;
+		}
+
+		await this.clearChunkedSnapshot();
+		const chunks: string[] = [];
+		for (
+			let start = 0;
+			start < snapshot.length;
+			start += SNAPSHOT_CHUNK_SIZE_BYTES
+		) {
+			chunks.push(snapshot.slice(start, start + SNAPSHOT_CHUNK_SIZE_BYTES));
+		}
+
+		for (let index = 0; index < chunks.length; index += 1) {
+			await this.room.storage.put(
+				this.getSnapshotChunkKey(index),
+				chunks[index],
+			);
+		}
+		await this.room.storage.put(
+			SNAPSHOT_CHUNK_COUNT_KEY,
+			String(chunks.length),
+		);
+		await this.room.storage.delete(SNAPSHOT_KEY);
+	}
+
 	async onRequest(request: Request): Promise<Response> {
 		const headers = this.config.responseHeaders ?? DEFAULT_RESPONSE_HEADERS;
 
@@ -85,7 +167,7 @@ export class EncryptedSyncRelayServer implements Server {
 
 		try {
 			if (request.method === 'GET') {
-				const snapshot = await this.room.storage.get<string>('snapshot');
+				const snapshot = await this.readSnapshot();
 				return new Response(snapshot ?? 'null', {
 					headers: { ...headers, 'Content-Type': 'text/plain' },
 					status: 200,
@@ -94,7 +176,7 @@ export class EncryptedSyncRelayServer implements Server {
 
 			if (request.method === 'PUT') {
 				const body = await request.text();
-				await this.room.storage.put('snapshot', body);
+				await this.writeSnapshot(body);
 				return new Response('ok', {
 					headers,
 					status: 200,

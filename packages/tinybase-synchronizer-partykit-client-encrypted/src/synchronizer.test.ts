@@ -87,17 +87,22 @@ describe('loadServerSnapshot', () => {
 		vi.restoreAllMocks();
 	});
 
-	it('returns false when server responds with non-ok status', async () => {
-		mockFetch.mockResolvedValue({ ok: false });
+	it('throws when server responds with non-ok status', async () => {
+		mockFetch.mockResolvedValue({
+			ok: false,
+			status: 500,
+			statusText: 'Internal Server Error',
+			text: () => Promise.resolve('{"error":"boom"}'),
+		});
 		const store = createMockStore();
 
-		const result = await loadServerSnapshot(
-			store as never,
-			'https://example.com/store',
-			encryptionKey,
-		);
-
-		expect(result).toBe(false);
+		await expect(
+			loadServerSnapshot(
+				store as never,
+				'https://example.com/store',
+				encryptionKey,
+			),
+		).rejects.toThrow('Snapshot GET failed (500): {"error":"boom"}');
 		expect(store.applyMergeableChanges).not.toHaveBeenCalled();
 	});
 
@@ -163,7 +168,7 @@ describe('loadServerSnapshot', () => {
 	});
 
 	it('passes correct fetch options', async () => {
-		mockFetch.mockResolvedValue({ ok: false });
+		mockFetch.mockResolvedValue({ ok: true, text: () => Promise.resolve('') });
 		const store = createMockStore();
 
 		await loadServerSnapshot(
@@ -211,5 +216,23 @@ describe('saveServerSnapshot', () => {
 		expect(options.mode).toBe('cors');
 		expect(typeof options.body).toBe('string');
 		expect(options.body.length).toBeGreaterThan(0);
+	});
+
+	it('throws when PUT snapshot fails', async () => {
+		mockFetch.mockResolvedValue({
+			ok: false,
+			status: 500,
+			statusText: 'Internal Server Error',
+			text: () => Promise.resolve('{"error":"too large"}'),
+		});
+		const store = createMockStore();
+
+		await expect(
+			saveServerSnapshot(
+				store as never,
+				'https://example.com/store',
+				encryptionKey,
+			),
+		).rejects.toThrow('Snapshot PUT failed (500): {"error":"too large"}');
 	});
 });

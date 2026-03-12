@@ -21,8 +21,9 @@ function createMockRoom() {
 		}
 	});
 
-	const storageGet = vi.fn<() => Promise<string | undefined>>();
-	const storagePut = vi.fn<() => Promise<void>>();
+	const storageGet = vi.fn<(key: string) => Promise<string | undefined>>();
+	const storagePut = vi.fn<(key: string, value: string) => Promise<void>>();
+	const storageDelete = vi.fn<(key: string) => Promise<void>>();
 
 	return {
 		addConnection(id: string) {
@@ -32,7 +33,7 @@ function createMockRoom() {
 		},
 		broadcast,
 		getConnections: () => connections.values(),
-		storage: { get: storageGet, put: storagePut },
+		storage: { delete: storageDelete, get: storageGet, put: storagePut },
 	};
 }
 
@@ -88,7 +89,9 @@ describe('EncryptedSyncRelayServer', () => {
 			expect(await response.text()).toBe('encrypted-data-here');
 		});
 
-		it('stores snapshot (PUT /store)', async () => {
+		it('stores snapshot in a single value when small enough (PUT /store)', async () => {
+			room.storage.get.mockResolvedValue(undefined);
+
 			const response = await server.onRequest(
 				createRequest('PUT', '/store', 'new-encrypted-snapshot'),
 			);
@@ -97,6 +100,53 @@ describe('EncryptedSyncRelayServer', () => {
 				'snapshot',
 				'new-encrypted-snapshot',
 			);
+			expect(room.storage.delete).toHaveBeenCalledWith('snapshot_chunk_count');
+		});
+
+		it('stores oversized snapshots in chunks (PUT /store)', async () => {
+			room.storage.get.mockResolvedValue(undefined);
+			const bigSnapshot = 'x'.repeat(300_000);
+
+			const response = await server.onRequest(
+				createRequest('PUT', '/store', bigSnapshot),
+			);
+			expect(response.status).toBe(200);
+			expect(room.storage.put).toHaveBeenCalledWith(
+				'snapshot_chunk_0',
+				expect.any(String),
+			);
+			expect(room.storage.put).toHaveBeenCalledWith(
+				'snapshot_chunk_1',
+				expect.any(String),
+			);
+			expect(room.storage.put).toHaveBeenCalledWith(
+				'snapshot_chunk_2',
+				expect.any(String),
+			);
+			expect(room.storage.put).toHaveBeenCalledWith(
+				'snapshot_chunk_count',
+				'3',
+			);
+			expect(room.storage.delete).toHaveBeenCalledWith('snapshot');
+		});
+
+		it('reconstructs chunked snapshots on GET /store', async () => {
+			room.storage.get.mockImplementation(async (key?: string) => {
+				switch (key) {
+					case 'snapshot_chunk_count':
+						return '2';
+					case 'snapshot_chunk_0':
+						return 'abc';
+					case 'snapshot_chunk_1':
+						return 'def';
+					default:
+						return undefined;
+				}
+			});
+
+			const response = await server.onRequest(createRequest('GET', '/store'));
+			expect(response.status).toBe(200);
+			expect(await response.text()).toBe('abcdef');
 		});
 
 		it('returns 405 for unsupported methods', async () => {

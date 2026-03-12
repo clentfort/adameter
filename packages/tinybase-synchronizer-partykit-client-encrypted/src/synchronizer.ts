@@ -29,6 +29,7 @@ type Send = (
 ) => void;
 
 const MESSAGE_SEPARATOR = '\n';
+const REQUEST_TIMEOUT_SECONDS = 1;
 
 function getStoreProtocol(host: string): 'http' | 'https' {
 	return host.startsWith('localhost') || host.startsWith('127.0.0.1')
@@ -104,7 +105,7 @@ export async function createEncryptedPartyKitSynchronizer(
 		send,
 		registerReceive,
 		destroy,
-		1, // requestTimeoutSeconds
+		REQUEST_TIMEOUT_SECONDS,
 		undefined,
 		undefined,
 		onIgnoredError,
@@ -141,7 +142,12 @@ export async function loadServerSnapshot(
 		cache: 'no-store',
 		mode: 'cors',
 	});
-	if (!response.ok) return false;
+	if (!response.ok) {
+		const errorBody = await response.text();
+		throw new Error(
+			`Snapshot GET failed (${response.status}): ${errorBody || response.statusText}`,
+		);
+	}
 
 	const encrypted = await response.text();
 	if (!encrypted || encrypted === 'null') return false;
@@ -169,12 +175,19 @@ export async function saveServerSnapshot(
 	const serialized = jsonStringWithUndefined(content);
 	const encrypted = await encrypt(serialized, encryptionKey);
 
-	await fetch(storeUrl, {
+	const response = await fetch(storeUrl, {
 		body: encrypted,
 		cache: 'no-store',
 		method: 'PUT',
 		mode: 'cors',
 	});
+
+	if (!response.ok) {
+		const errorBody = await response.text();
+		throw new Error(
+			`Snapshot PUT failed (${response.status}): ${errorBody || response.statusText}`,
+		);
+	}
 }
 
 /**

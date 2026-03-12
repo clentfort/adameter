@@ -38,6 +38,21 @@ interface TinybaseProviderProps {
 	children: React.ReactNode;
 }
 
+function getErrorMessage(error: unknown): string {
+	if (typeof error === 'string') {
+		return error;
+	}
+	if (error instanceof Error) {
+		return error.message;
+	}
+	return String(error);
+}
+
+function isExpectedSynchronizerTimeout(error: unknown): boolean {
+	const message = getErrorMessage(error);
+	return message.startsWith('No response from');
+}
+
 export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	const { isHydrated, room } = useContext(DataSynchronizationContext);
 	const storeRef = useRef<MergeableStore>(defaultStore);
@@ -168,11 +183,22 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			await runMigrationsIfNeeded(store, { deviceId });
 
 			// Create the encrypted synchronizer for real-time sync
+			let lastPeerWaitLogTimestamp = 0;
 			synchronizer = await createEncryptedPartyKitSynchronizer(
 				store,
 				connection,
 				encryptionKey,
-				(error: unknown) => logger.error('Synchronizer error:', error),
+				(error: unknown) => {
+					if (isExpectedSynchronizerTimeout(error)) {
+						const now = Date.now();
+						if (now - lastPeerWaitLogTimestamp >= 30_000) {
+							logger.info('Synchronizer waiting for peers:', error);
+							lastPeerWaitLogTimestamp = now;
+						}
+						return;
+					}
+					logger.error('Synchronizer error:', error);
+				},
 			);
 
 			if (isDisposed) {
