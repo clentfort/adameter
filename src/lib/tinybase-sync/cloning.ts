@@ -1,14 +1,15 @@
-import type { Store } from 'tinybase';
+import type { MergeableStore } from 'tinybase';
 import {
-	decryptContent,
+	decrypt,
 	getEncryptionKey,
 	hashRoomId,
-} from 'tinybase-persister-partykit-client-encrypted';
+	jsonParseWithUndefined,
+} from 'tinybase-synchronizer-partykit-client-encrypted';
 
 export async function cloneRoomData(
 	sourceRoomName: string,
 	sourceHost: string,
-	store: Store,
+	store: MergeableStore,
 ) {
 	const hashedRoomId = await hashRoomId(sourceRoomName);
 	const encryptionKey = await getEncryptionKey(sourceRoomName);
@@ -29,16 +30,18 @@ export async function cloneRoomData(
 		throw new Error(`Failed to fetch room data: ${response.statusText}`);
 	}
 
-	const encryptedContent = await response.json();
-
-	if (!encryptedContent) {
+	const encrypted = await response.text();
+	if (!encrypted || encrypted === 'null') {
 		throw new Error('No content found in the source room.');
 	}
 
-	const decryptedContent = await decryptContent(
-		encryptedContent,
-		encryptionKey,
-	);
+	const decrypted = await decrypt(encrypted, encryptionKey);
+	const mergeableContent = jsonParseWithUndefined(decrypted);
+	if (!mergeableContent) {
+		throw new Error('Failed to parse decrypted content.');
+	}
 
-	store.setContent(decryptedContent);
+	store.applyMergeableChanges(
+		mergeableContent as Parameters<typeof store.applyMergeableChanges>[0],
+	);
 }

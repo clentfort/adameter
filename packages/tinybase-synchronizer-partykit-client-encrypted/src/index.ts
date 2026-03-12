@@ -4,4 +4,11 @@ export {
 	loadServerSnapshot,
 	saveServerSnapshot,
 } from './synchronizer';
-export { decrypt, encrypt, getEncryptionKey, hashRoomId } from './crypto';
+export {
+	decrypt,
+	encrypt,
+	getEncryptionKey,
+	hashRoomId,
+	jsonParseWithUndefined,
+	jsonStringWithUndefined,
+} from './crypto';
