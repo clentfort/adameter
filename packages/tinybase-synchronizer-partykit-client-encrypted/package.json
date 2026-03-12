@@ -32,6 +32,7 @@
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
 		"prepack": "pnpm run build",
+		"release": "semantic-release",
 		"test": "vitest",
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
@@ -40,8 +41,13 @@
 		"tinybase": ">=7 <8"
 	},
 	"devDependencies": {
+		"@semantic-release/commit-analyzer": "^13.0.1",
+		"@semantic-release/github": "^11.0.6",
+		"@semantic-release/npm": "^12.0.2",
+		"@semantic-release/release-notes-generator": "^14.0.3",
 		"@types/node": "^24.0.0",
 		"partysocket": "1.1.13",
+		"semantic-release": "^24.2.7",
 		"tinybase": "^7.3.3",
 		"typescript": "^5.9.2",
 		"vitest": "^4.0.0"

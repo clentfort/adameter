@@ -276,12 +276,27 @@ importers:
 
   packages/tinybase-synchronizer-partykit-client-encrypted:
     devDependencies:
+      '@semantic-release/commit-analyzer':
+        specifier: ^13.0.1
+        version: 13.0.1(semantic-release@24.2.9(typescript@5.9.3))
+      '@semantic-release/github':
+        specifier: ^11.0.6
+        version: 11.0.6(semantic-release@24.2.9(typescript@5.9.3))
+      '@semantic-release/npm':
+        specifier: ^12.0.2
+        version: 12.0.2(semantic-release@24.2.9(typescript@5.9.3))
+      '@semantic-release/release-notes-generator':
+        specifier: ^14.0.3
+        version: 14.1.0(semantic-release@24.2.9(typescript@5.9.3))
       '@types/node':
         specifier: ^24.0.0
         version: 24.10.13
       partysocket:
         specifier: 1.1.13
         version: 1.1.13
+      semantic-release:
+        specifier: ^24.2.7
+        version: 24.2.9(typescript@5.9.3)
       tinybase:
         specifier: ^7.3.3
         version: 7.3.4(partykit@0.0.115)(partysocket@1.1.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(yjs@13.6.29)(zod@4.3.6)
@@ -294,12 +309,27 @@ importers:
 
   packages/tinybase-synchronizer-partykit-server-encrypted:
     devDependencies:
+      '@semantic-release/commit-analyzer':
+        specifier: ^13.0.1
+        version: 13.0.1(semantic-release@24.2.9(typescript@5.9.3))
+      '@semantic-release/github':
+        specifier: ^11.0.6
+        version: 11.0.6(semantic-release@24.2.9(typescript@5.9.3))
+      '@semantic-release/npm':
+        specifier: ^12.0.2
+        version: 12.0.2(semantic-release@24.2.9(typescript@5.9.3))
+      '@semantic-release/release-notes-generator':
+        specifier: ^14.0.3
+        version: 14.1.0(semantic-release@24.2.9(typescript@5.9.3))
       '@types/node':
         specifier: ^24.0.0
         version: 24.10.13
       partykit:
         specifier: 0.0.115
         version: 0.0.115
+      semantic-release:
+        specifier: ^24.2.7
+        version: 24.2.9(typescript@5.9.3)
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
