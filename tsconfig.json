@@ -24,6 +24,9 @@
 			],
 			"tinybase-synchronizer-partykit-client-encrypted": [
 				"./packages/tinybase-synchronizer-partykit-client-encrypted/src/index.ts"
+			],
+			"tinybase-synchronizer-partykit-server-encrypted": [
+				"./packages/tinybase-synchronizer-partykit-server-encrypted/src/index.ts"
 			]
 		},
 		"target": "ES2017"
@@ -35,5 +38,8 @@
 		".next/types/**/*.ts",
 		".next/dev/types/**/*.ts"
 	],
-	"exclude": ["node_modules"]
+	"exclude": [
+		"node_modules",
+		"packages/tinybase-synchronizer-partykit-server-encrypted"
+	]
 }
