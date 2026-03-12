@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'party/**'
+      - 'packages/tinybase-synchronizer-partykit-server-encrypted/**'
       - 'partykit.json'
       - 'package.json'
       - 'pnpm-lock.yaml'
