@@ -1,0 +1,49 @@
+{
+	"name": "tinybase-synchronizer-partykit-client-encrypted",
+	"version": "0.0.1",
+	"description": "Encrypted PartyKit client synchronizer for TinyBase using MergeableStore",
+	"type": "module",
+	"sideEffects": false,
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/clentfort/adameter.git",
+		"directory": "packages/tinybase-synchronizer-partykit-client-encrypted"
+	},
+	"license": "MIT",
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"prepack": "pnpm run build",
+		"test": "vitest",
+		"typecheck": "tsc --noEmit -p tsconfig.json"
+	},
+	"peerDependencies": {
+		"partysocket": ">=1 <2",
+		"tinybase": ">=7 <8"
+	},
+	"devDependencies": {
+		"@types/node": "^24.0.0",
+		"partysocket": "1.1.13",
+		"tinybase": "^7.3.3",
+		"typescript": "^5.9.2",
+		"vitest": "^4.0.0"
+	}
+}

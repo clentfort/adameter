@@ -30,6 +30,11 @@ const getPartykitHostForBuild = () => {
 		return explicitHost.replace(/^https?:\/\//, '').replace(/\/$/, '');
 	}
 
+	// In development, use the local PartyKit dev server.
+	if (process.env.NODE_ENV === 'development') {
+		return 'localhost:1999';
+	}
+
 	const vercelEnv = process.env.VERCEL_ENV;
 	if (vercelEnv === 'preview') {
 		const prId = process.env.VERCEL_GIT_PULL_REQUEST_ID;

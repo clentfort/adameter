@@ -22,24 +22,29 @@ describe('multi-device and stale session scenarios', () => {
 			{ count: 0, prefix: 'device-c-empty' },
 		]);
 
+		// Device A: loads 1500 local events, joins room, adds one
 		await runDeviceSession({
 			expectedAfterConnect: 1500,
 			expectedInitial: 1500,
+			flushSnapshot: harness.flushSnapshot,
 			shouldAddOneEntry: true,
 		});
 
+		// Device B: no local data, joins room → gets 1501 from server, adds one
 		localStorage.removeItem('room');
 		await runDeviceSession({
 			expectedAfterConnect: 1501,
 			expectedInitial: 0,
+			flushSnapshot: harness.flushSnapshot,
 			shouldAddOneEntry: true,
 		});
 
+		// Device C: auto-rejoin → gets 1502 from server
 		localStorage.setItem('room', 'scenario-room');
 		await runDeviceSession({
 			autoConnect: true,
 			expectedAfterConnect: 1502,
-			refreshAfterConnect: true,
+			flushSnapshot: harness.flushSnapshot,
 		});
 
 		expect(harness.getRemoteCount()).toBe(1502);
@@ -52,23 +57,28 @@ describe('multi-device and stale session scenarios', () => {
 			{ count: 120, prefix: 'device-c-offline-import' },
 		]);
 
+		// Device A: loads 1000, joins room, adds one
 		await runDeviceSession({
 			expectedAfterConnect: 1000,
 			expectedInitial: 1000,
+			flushSnapshot: harness.flushSnapshot,
 			shouldAddOneEntry: true,
 		});
 
+		// Device B: no local data, joins room → gets 1001
 		localStorage.removeItem('room');
 		await runDeviceSession({
 			expectedAfterConnect: 1001,
 			expectedInitial: 0,
+			flushSnapshot: harness.flushSnapshot,
 		});
 
+		// Device C: has 120 offline imports, joins room → merges to 1121
 		localStorage.removeItem('room');
 		await runDeviceSession({
 			expectedAfterConnect: 1121,
 			expectedInitial: 120,
-			refreshAfterConnect: true,
+			flushSnapshot: harness.flushSnapshot,
 		});
 
 		expect(harness.getRemoteCount()).toBe(1121);
@@ -80,21 +90,23 @@ describe('multi-device and stale session scenarios', () => {
 			{ count: 500, prefix: 'imported' },
 		]);
 
+		// First session: join room, import 500 rows
 		await runDeviceSession({
 			expectedAfterConnect: 0,
 			expectedInitial: 0,
+			flushSnapshot: harness.flushSnapshot,
 			importCount: 500,
-			refreshAfterConnect: true,
 			shouldImportData: true,
 		});
 
 		expect(harness.getRemoteCount()).toBe(500);
 
+		// Second session: reload with room set → data comes back from server
 		await runDeviceSession({
 			autoConnect: true,
 			expectedAfterConnect: 500,
 			expectedInitial: 500,
-			refreshAfterConnect: true,
+			flushSnapshot: harness.flushSnapshot,
 		});
 
 		expect(harness.getRemoteCount()).toBe(500);
@@ -113,15 +125,8 @@ describe('multi-device and stale session scenarios', () => {
 
 		await waitFor(() => {
 			expectEventCount(1501);
-			expect(harness.getRemoteCount()).toBe(1501);
 		});
 
-		document.dispatchEvent(new Event('visibilitychange'));
-		window.dispatchEvent(new Event('focus'));
-
-		await waitFor(() => {
-			expectEventCount(1501);
-			expect(harness.getRemoteCount()).toBe(1501);
-		});
+		expect(harness.getRemoteCount()).toBe(1501);
 	});
 });

@@ -1,42 +1,34 @@
 'use client';
 
-import type { Store } from 'tinybase';
+import type { MergeableStore } from 'tinybase';
+import type { Synchronizer } from 'tinybase/synchronizers';
 import PartySocket from 'partysocket';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { createStore } from 'tinybase';
+import { createMergeableStore } from 'tinybase';
 import {
-	createSecurePartyKitPersister,
+	createEncryptedPartyKitSynchronizer,
 	getEncryptionKey,
+	getStoreUrl,
 	hashRoomId,
-} from 'tinybase-persister-partykit-client-encrypted';
+	loadServerSnapshot,
+	saveServerSnapshot,
+} from 'tinybase-synchronizer-partykit-client-encrypted';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
 import { logger } from '@/lib/logger';
-import { PARTYKIT_HOST, resolvePartykitHost } from '@/lib/partykit-host';
-import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
+import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
-import { mergeStoreContent } from '@/lib/tinybase-sync/merge';
-import {
-	reconcileRemoteLoadResult,
-	snapshotStoreContentIfNonEmpty,
-} from '@/lib/tinybase-sync/remote-bootstrap';
-import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
 
-type RemotePersister = ReturnType<typeof createSecurePartyKitPersister> & {
-	hasLoadedPersistedData?: () => boolean;
-	hasSavedFullContent?: () => boolean;
-};
+const defaultStore = createMergeableStore();
 
-const defaultStore = createStore();
-
-export const tinybaseContext = createContext<{ store: Store }>({
+export const tinybaseContext = createContext<{ store: MergeableStore }>({
 	store: defaultStore,
 });
 
@@ -45,10 +37,8 @@ interface TinybaseProviderProps {
 }
 
 export function TinybaseProvider({ children }: TinybaseProviderProps) {
-	const { isHydrated, joinStrategy, room } = useContext(
-		DataSynchronizationContext,
-	);
-	const storeRef = useRef<Store>(defaultStore);
+	const { isHydrated, room } = useContext(DataSynchronizationContext);
+	const storeRef = useRef<MergeableStore>(defaultStore);
 	const [isLocalReady, setIsLocalReady] = useState(false);
 	const [isSyncReady, setIsSyncReady] = useState(false);
 
@@ -67,27 +57,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			logger.log(
 				`[PERF] Local IndexedDB load took ${(performance.now() - startLoad).toFixed(2)}ms`,
 			);
-
-			if (
-				process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview' &&
-				process.env.NEXT_PUBLIC_MAIN_ROOM_NAME &&
-				isStoreDataEmpty(store)
-			) {
-				try {
-					const productionHost = resolvePartykitHost({
-						vercelEnv: 'production',
-					});
-					await cloneRoomData(
-						process.env.NEXT_PUBLIC_MAIN_ROOM_NAME,
-						productionHost,
-						store,
-					);
-					await localPersister.save();
-					logger.log('Auto-cloned data from production in preview environment');
-				} catch (error) {
-					logger.error('Failed to auto-clone data from production:', error);
-				}
-			}
 
 			await localPersister.startAutoSave();
 
@@ -126,199 +95,90 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		}
 
 		let isDisposed = false;
-		let isInitialRemoteSyncComplete = false;
-		let shouldSkipNextOpenLoad = true;
+		let synchronizer: Synchronizer | undefined;
+		let connection: PartySocket | undefined;
+		let snapshotSaveInterval: ReturnType<typeof setInterval> | undefined;
 		const store = storeRef.current;
 		const deviceId = getDeviceId();
-		let remotePersister: RemotePersister | undefined;
-		let connection: PartySocket | undefined;
-		let remoteRefreshPromise = Promise.resolve();
-		const INITIAL_REMOTE_LOAD_RETRY_DELAY_MS = 500;
-		const INITIAL_REMOTE_LOAD_RETRY_LIMIT = 5;
 
 		setIsSyncReady(false);
 
-		const hasLoadedPersistedData = () =>
-			remotePersister?.hasLoadedPersistedData?.() ?? true;
-
-		const hasSavedFullContent = () =>
-			remotePersister?.hasSavedFullContent?.() ?? true;
-
-		const ensureInitialRemoteLoad = async () => {
-			if (!remotePersister) {
-				return false;
-			}
-
-			if (hasLoadedPersistedData()) {
-				return true;
-			}
-
-			const startTotalLoad = performance.now();
-			for (
-				let retryIndex = 0;
-				retryIndex < INITIAL_REMOTE_LOAD_RETRY_LIMIT;
-				retryIndex++
-			) {
-				if (isDisposed) {
-					return false;
-				}
-
-				await new Promise((resolve) => {
-					setTimeout(resolve, INITIAL_REMOTE_LOAD_RETRY_DELAY_MS);
-				});
-
-				const startAttempt = performance.now();
-				await remotePersister.load();
-				logger.log(
-					`[PERF] Remote load attempt ${retryIndex + 1} took ${(performance.now() - startAttempt).toFixed(2)}ms`,
-				);
-				if (hasLoadedPersistedData()) {
-					logger.log(
-						`[PERF] Total ensureInitialRemoteLoad took ${(performance.now() - startTotalLoad).toFixed(2)}ms`,
-					);
-					return true;
-				}
-			}
-
-			return hasLoadedPersistedData();
-		};
-
-		const loadRemoteAndApplyMigrations = async () => {
-			if (!remotePersister || !isInitialRemoteSyncComplete) {
-				return;
-			}
-
-			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
-			const startRemoteLoad = performance.now();
-			await remotePersister.load();
-			logger.log(
-				`[PERF] remotePersister.load() (refresh) took ${(performance.now() - startRemoteLoad).toFixed(2)}ms`,
-			);
-
-			const startRestoration = performance.now();
-			let restoredLocal = false;
-			if (joinStrategy !== 'clear' && localSnapshot) {
-				if (isStoreDataEmpty(store)) {
-					store.setContent(localSnapshot);
-					restoredLocal = true;
-				} else if (joinStrategy === 'merge' || !hasSavedFullContent()) {
-					mergeStoreContent(store, localSnapshot, deviceId);
-					restoredLocal = true;
-				}
-			}
-
-			const migrationResult = await runMigrationsIfNeeded(store, {
-				deviceId,
-			});
-			logger.log(
-				`[PERF] Post-sync restoration and migrations took ${(performance.now() - startRestoration).toFixed(2)}ms`,
-			);
-			if (restoredLocal || migrationResult.hasChanges) {
-				return;
-			}
-		};
-
-		const scheduleRemoteRefresh = async () => {
-			remoteRefreshPromise = remoteRefreshPromise
-				.catch(() => {})
-				.then(loadRemoteAndApplyMigrations);
-
-			await remoteRefreshPromise;
-		};
-
-		const onOpen = () => {
-			if (!isInitialRemoteSyncComplete) {
-				return;
-			}
-
-			if (shouldSkipNextOpenLoad) {
-				shouldSkipNextOpenLoad = false;
-				return;
-			}
-
-			void scheduleRemoteRefresh().catch(() => {});
-		};
-
-		const onVisibilityChange = () => {
-			if (document.visibilityState !== 'visible') {
-				return;
-			}
-
-			connection?.reconnect();
-			void scheduleRemoteRefresh().catch(() => {});
-		};
-
 		const connectRoomSync = async () => {
-			if (isDisposed) {
-				return;
-			}
+			if (isDisposed) return;
 
 			const startConnect = performance.now();
-			const localSnapshot = snapshotStoreContentIfNonEmpty(store);
-			const startCrypto = performance.now();
+
 			const [hashedRoomId, encryptionKey] = await Promise.all([
 				hashRoomId(room),
 				getEncryptionKey(room),
 			]);
-			logger.log(
-				`[PERF] Room crypto setup took ${(performance.now() - startCrypto).toFixed(2)}ms`,
-			);
 
 			connection = new PartySocket({
 				host: PARTYKIT_HOST,
 				party: TINYBASE_PARTYKIT_PARTY,
 				room: hashedRoomId,
 			});
-			connection.addEventListener('open', onOpen);
-			document.addEventListener('visibilitychange', onVisibilityChange);
-			window.addEventListener('focus', onVisibilityChange);
 
-			remotePersister = createSecurePartyKitPersister(
+			const storeUrl = getStoreUrl(connection);
+
+			// Bootstrap: load encrypted snapshot from server and MERGE into
+			// the local MergeableStore.  Because this is a CRDT merge (not a
+			// replace), any data the user added locally while offline is
+			// preserved — the HLC timestamps decide which cell value wins.
+			try {
+				const startBootstrap = performance.now();
+				const didLoad = await loadServerSnapshot(
+					store,
+					storeUrl,
+					encryptionKey,
+				);
+				logger.log(
+					`[PERF] Server snapshot bootstrap took ${(performance.now() - startBootstrap).toFixed(2)}ms (loaded=${didLoad})`,
+				);
+			} catch (error) {
+				logger.error('Failed to load server snapshot:', error);
+			}
+
+			if (isDisposed) return;
+
+			// Run migrations after merging remote data
+			await runMigrationsIfNeeded(store, { deviceId });
+
+			// Create the encrypted synchronizer for real-time sync
+			synchronizer = await createEncryptedPartyKitSynchronizer(
 				store,
 				connection,
 				encryptionKey,
-				() => {},
-			) as RemotePersister;
-
-			const startAutoLoad = performance.now();
-			await remotePersister.startAutoLoad();
-			logger.log(
-				`[PERF] remotePersister.startAutoLoad() took ${(performance.now() - startAutoLoad).toFixed(2)}ms`,
+				(error: unknown) => logger.error('Synchronizer error:', error),
 			);
 
-			const startInitialLoad = performance.now();
-			const didLoadRemote = await ensureInitialRemoteLoad();
-			logger.log(
-				`[PERF] Initial remote load check took ${(performance.now() - startInitialLoad).toFixed(2)}ms`,
-			);
-
-			if (!didLoadRemote) {
-				if (!isDisposed) {
-					setIsSyncReady(true);
-				}
+			if (isDisposed) {
+				await synchronizer!.destroy();
 				return;
 			}
 
-			await remotePersister.startAutoSave();
-
-			const startReconcile = performance.now();
-			reconcileRemoteLoadResult(store, localSnapshot, joinStrategy, deviceId);
-			logger.log(
-				`[PERF] reconcileRemoteLoadResult took ${(performance.now() - startReconcile).toFixed(2)}ms`,
-			);
-
-			const startPostSyncMigrations = performance.now();
-			await runMigrationsIfNeeded(store, {
-				deviceId,
-			});
-			logger.log(
-				`[PERF] Post-sync migrations took ${(performance.now() - startPostSyncMigrations).toFixed(2)}ms`,
-			);
-
-			isInitialRemoteSyncComplete = true;
+			// Start CRDT sync.  This exchanges hashes with any connected
+			// peers and applies diffs — all through encrypted messages.
+			await synchronizer!.startSync();
 
 			logger.log(
 				`[PERF] Total connectRoomSync took ${(performance.now() - startConnect).toFixed(2)}ms`,
+			);
+
+			// Periodically save an encrypted snapshot so that future clients
+			// can bootstrap when no peers are online.
+			const SNAPSHOT_SAVE_INTERVAL_MS = 30_000;
+			snapshotSaveInterval = setInterval(() => {
+				void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
+					(error: unknown) =>
+						logger.error('Failed to save server snapshot:', error),
+				);
+			}, SNAPSHOT_SAVE_INTERVAL_MS);
+
+			// Save an initial snapshot immediately
+			void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
+				(error: unknown) =>
+					logger.error('Failed to save initial server snapshot:', error),
 			);
 
 			if (!isDisposed) {
@@ -334,19 +194,13 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 		return () => {
 			isDisposed = true;
-			connection?.removeEventListener('open', onOpen);
-			document.removeEventListener('visibilitychange', onVisibilityChange);
-			window.removeEventListener('focus', onVisibilityChange);
-
-			if (!remotePersister) {
-				return;
+			if (snapshotSaveInterval) {
+				clearInterval(snapshotSaveInterval);
 			}
-
-			void remotePersister.stopAutoLoad();
-			void remotePersister.stopAutoSave();
-			void remotePersister.destroy();
+			if (!synchronizer) return;
+			void synchronizer.destroy();
 		};
-	}, [isHydrated, isLocalReady, joinStrategy, room]);
+	}, [isHydrated, isLocalReady, room]);
 
 	if (!isHydrated || !isLocalReady || !isSyncReady) {
 		return <SplashScreen />;

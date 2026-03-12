@@ -1,4 +1,4 @@
-import type { Changes, Content, Store } from 'tinybase';
+import type { Store } from 'tinybase';
 import {
 	cleanup,
 	fireEvent,
@@ -20,18 +20,25 @@ import { TinybaseProvider } from './tinybase-context';
 export const ROOM_JOIN_STRATEGY_STORAGE_KEY = 'room-join-strategy';
 
 const mocks = vi.hoisted(() => ({
+	createEncryptedPartyKitSynchronizer: vi.fn(),
 	createIndexedDbPersister: vi.fn(),
-	createSecurePartyKitPersister: vi.fn(),
 	getEncryptionKey: vi.fn(),
+	getStoreUrl: vi.fn(),
 	hashRoomId: vi.fn(),
+	loadServerSnapshot: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
+	saveServerSnapshot: vi.fn(),
 }));
 
 vi.mock('partysocket', () => ({
 	default: class MockPartySocket {
+		partySocketOptions = { host: 'localhost:1999', room: 'test-room' };
+		name = 'tinybase';
+		readyState = 1; // WebSocket.OPEN
 		addEventListener() {}
+		close() {}
 		removeEventListener() {}
-		reconnect() {}
+		send() {}
 	},
 }));
 
@@ -39,27 +46,19 @@ vi.mock('tinybase/persisters/persister-indexed-db', () => ({
 	createIndexedDbPersister: mocks.createIndexedDbPersister,
 }));
 
-vi.mock('tinybase-persister-partykit-client-encrypted', () => ({
-	createSecurePartyKitPersister: mocks.createSecurePartyKitPersister,
+vi.mock('tinybase-synchronizer-partykit-client-encrypted', () => ({
+	createEncryptedPartyKitSynchronizer:
+		mocks.createEncryptedPartyKitSynchronizer,
 	getEncryptionKey: mocks.getEncryptionKey,
+	getStoreUrl: mocks.getStoreUrl,
 	hashRoomId: mocks.hashRoomId,
+	loadServerSnapshot: mocks.loadServerSnapshot,
+	saveServerSnapshot: mocks.saveServerSnapshot,
 }));
 
 vi.mock('@/migrations/run-if-needed', () => ({
 	runMigrationsIfNeeded: mocks.runMigrationsIfNeeded,
 }));
-
-interface RemotePersisterMock {
-	destroy: () => Promise<void>;
-	hasLoadedPersistedData: () => boolean;
-	hasSavedFullContent: () => boolean;
-	load: () => Promise<void>;
-	save: (changes?: Changes) => Promise<void>;
-	startAutoLoad: () => Promise<void>;
-	startAutoSave: () => Promise<void>;
-	stopAutoLoad: () => Promise<void>;
-	stopAutoSave: () => Promise<void>;
-}
 
 interface HarnessOptions {
 	initialLoadFailures?: number;
@@ -89,17 +88,6 @@ function seedEvents(store: Store, count: number, prefix: string) {
 			buildEventRow(index, prefix),
 		);
 	}
-}
-
-function hasAnyChanges(changes: Changes) {
-	const [tableChanges, valueChanges] = changes;
-	return (
-		Object.keys(tableChanges).length > 0 || Object.keys(valueChanges).length > 0
-	);
-}
-
-function cloneContent(content: Content): Content {
-	return structuredClone(content);
 }
 
 function RoomSyncProbe({ importCount }: { importCount: number }) {
@@ -141,15 +129,26 @@ function RoomSyncProbe({ importCount }: { importCount: number }) {
 
 export function resetRoomImportScenarioMocks() {
 	localStorage.clear();
-	mocks.createSecurePartyKitPersister.mockReset();
+	mocks.createEncryptedPartyKitSynchronizer.mockReset();
 	mocks.createIndexedDbPersister.mockReset();
 	mocks.getEncryptionKey.mockReset();
+	mocks.getStoreUrl.mockReset();
 	mocks.hashRoomId.mockReset();
+	mocks.loadServerSnapshot.mockReset();
 	mocks.runMigrationsIfNeeded.mockReset();
+	mocks.saveServerSnapshot.mockReset();
 
 	mocks.getEncryptionKey.mockResolvedValue({} as CryptoKey);
 	mocks.hashRoomId.mockResolvedValue('hashed-scenario-room');
+	mocks.getStoreUrl.mockReturnValue(
+		'http://localhost:1999/parties/tinybase/hashed-scenario-room/store',
+	);
 	mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
+
+	mocks.createEncryptedPartyKitSynchronizer.mockResolvedValue({
+		destroy: vi.fn(async () => {}),
+		startSync: vi.fn(async () => {}),
+	});
 }
 
 export function expectEventCount(count: number) {
@@ -186,65 +185,41 @@ export function setupSyncHarness({
 	}));
 
 	let loadAttempts = 0;
-	let hasLoadedPersistedData = false;
-	let hasSavedFullContent = false;
 
-	mocks.createSecurePartyKitPersister.mockImplementation(
-		(store: Store): RemotePersisterMock => {
-			let autoSaveListenerId: string | undefined;
+	// loadServerSnapshot merges remote data into local store (CRDT merge)
+	mocks.loadServerSnapshot.mockImplementation((store: Store) => {
+		loadAttempts += 1;
+		if (loadAttempts <= initialLoadFailures) {
+			return Promise.resolve(false);
+		}
 
-			const remotePersister: RemotePersisterMock = {
-				destroy: vi.fn(async () => {}),
-				hasLoadedPersistedData: vi.fn(() => hasLoadedPersistedData),
-				hasSavedFullContent: vi.fn(() => hasSavedFullContent),
-				load: vi.fn(async () => {
-					loadAttempts += 1;
-					if (loadAttempts <= initialLoadFailures) {
-						return;
-					}
+		// Simulate CRDT merge: add remote rows without replacing local ones
+		const remoteEvents = remoteStore.getTable(TABLE_IDS.EVENTS);
+		if (remoteEvents) {
+			for (const [rowId, row] of Object.entries(remoteEvents)) {
+				store.setRow(TABLE_IDS.EVENTS, rowId, row);
+			}
+		}
+		return Promise.resolve(remoteCount > 0);
+	});
 
-					hasLoadedPersistedData = true;
-					store.setContent(cloneContent(remoteStore.getContent()));
-				}),
-				save: vi.fn(async (changes?: Changes) => {
-					if (changes) {
-						remoteStore.applyChanges(changes);
-						return;
-					}
-
-					if (!hasLoadedPersistedData) {
-						return;
-					}
-
-					remoteStore.setContent(cloneContent(store.getContent()));
-					hasSavedFullContent = true;
-				}),
-				startAutoLoad: vi.fn(async () => {
-					await remotePersister.load();
-				}),
-				startAutoSave: vi.fn(async () => {
-					await remotePersister.save();
-					autoSaveListenerId = store.addDidFinishTransactionListener(() => {
-						const changes = store.getTransactionChanges();
-						if (hasAnyChanges(changes)) {
-							void remotePersister.save(changes);
-						}
-					});
-				}),
-				stopAutoLoad: vi.fn(async () => {}),
-				stopAutoSave: vi.fn(async () => {
-					if (autoSaveListenerId !== undefined) {
-						store.delListener(autoSaveListenerId);
-						autoSaveListenerId = undefined;
-					}
-				}),
-			};
-
-			return remotePersister;
-		},
-	);
+	// saveServerSnapshot captures current store state to remoteStore.
+	// We keep a weak reference to the store so flushSnapshot() can
+	// capture the final state before a session is torn down.
+	let lastStore: Store | undefined;
+	mocks.saveServerSnapshot.mockImplementation((store: Store) => {
+		lastStore = store;
+		remoteStore.setContent(structuredClone(store.getContent()));
+		return Promise.resolve();
+	});
 
 	return {
+		flushSnapshot: () => {
+			if (lastStore) {
+				remoteStore.setContent(structuredClone(lastStore.getContent()));
+				lastStore = undefined;
+			}
+		},
 		getRemoteCount: () => remoteStore.getRowCount(TABLE_IDS.EVENTS),
 	};
 }
@@ -259,66 +234,44 @@ export function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
 		destroy: vi.fn(async () => {}),
 		load: vi.fn(async () => {
 			store.setContent([{}, {}]);
-			const nextSeed = seedsQueue.shift() ?? { count: 0, prefix: 'empty-seed' };
+			const nextSeed = seedsQueue.shift() ?? {
+				count: 0,
+				prefix: 'empty-seed',
+			};
 			seedEvents(store, nextSeed.count, nextSeed.prefix);
 		}),
 		startAutoSave: vi.fn(async () => {}),
 		stopAutoSave: vi.fn(async () => {}),
 	}));
 
-	mocks.createSecurePartyKitPersister.mockImplementation(
-		(store: Store): RemotePersisterMock => {
-			let autoSaveListenerId: string | undefined;
-			let hasLoadedPersistedData = false;
-			let hasSavedFullContent = false;
+	// loadServerSnapshot merges remote data into local store
+	mocks.loadServerSnapshot.mockImplementation((store: Store) => {
+		const remoteEvents = remoteStore.getTable(TABLE_IDS.EVENTS);
+		const hasData =
+			remoteEvents != null && Object.keys(remoteEvents).length > 0;
+		if (hasData) {
+			for (const [rowId, row] of Object.entries(remoteEvents!)) {
+				store.setRow(TABLE_IDS.EVENTS, rowId, row);
+			}
+		}
+		return Promise.resolve(hasData);
+	});
 
-			const remotePersister: RemotePersisterMock = {
-				destroy: vi.fn(async () => {}),
-				hasLoadedPersistedData: vi.fn(() => hasLoadedPersistedData),
-				hasSavedFullContent: vi.fn(() => hasSavedFullContent),
-				load: vi.fn(async () => {
-					hasLoadedPersistedData = true;
-					store.setContent(cloneContent(remoteStore.getContent()));
-				}),
-				save: vi.fn(async (changes?: Changes) => {
-					if (changes) {
-						remoteStore.applyChanges(changes);
-						return;
-					}
-
-					if (!hasLoadedPersistedData) {
-						return;
-					}
-
-					remoteStore.setContent(cloneContent(store.getContent()));
-					hasSavedFullContent = true;
-				}),
-				startAutoLoad: vi.fn(async () => {
-					await remotePersister.load();
-				}),
-				startAutoSave: vi.fn(async () => {
-					await remotePersister.save();
-					autoSaveListenerId = store.addDidFinishTransactionListener(() => {
-						const changes = store.getTransactionChanges();
-						if (hasAnyChanges(changes)) {
-							void remotePersister.save(changes);
-						}
-					});
-				}),
-				stopAutoLoad: vi.fn(async () => {}),
-				stopAutoSave: vi.fn(async () => {
-					if (autoSaveListenerId !== undefined) {
-						store.delListener(autoSaveListenerId);
-						autoSaveListenerId = undefined;
-					}
-				}),
-			};
-
-			return remotePersister;
-		},
-	);
+	// saveServerSnapshot captures current store state.
+	let lastStore: Store | undefined;
+	mocks.saveServerSnapshot.mockImplementation((store: Store) => {
+		lastStore = store;
+		remoteStore.setContent(structuredClone(store.getContent()));
+		return Promise.resolve();
+	});
 
 	return {
+		flushSnapshot: () => {
+			if (lastStore) {
+				remoteStore.setContent(structuredClone(lastStore.getContent()));
+				lastStore = undefined;
+			}
+		},
 		getRemoteCount: () => remoteStore.getRowCount(TABLE_IDS.EVENTS),
 	};
 }
@@ -328,8 +281,8 @@ export async function runDeviceSession({
 	expectedAfterConnect,
 	expectedAfterImport,
 	expectedInitial,
+	flushSnapshot,
 	importCount = 0,
-	refreshAfterConnect = false,
 	shouldAddOneEntry = false,
 	shouldImportData = false,
 }: {
@@ -337,8 +290,8 @@ export async function runDeviceSession({
 	expectedAfterConnect: number;
 	expectedAfterImport?: number;
 	expectedInitial?: number;
+	flushSnapshot?: () => void;
 	importCount?: number;
-	refreshAfterConnect?: boolean;
 	shouldAddOneEntry?: boolean;
 	shouldImportData?: boolean;
 }) {
@@ -374,20 +327,8 @@ export async function runDeviceSession({
 		});
 	}
 
-	const expectedAfterImportOrConnect = shouldImportData
-		? (expectedAfterImport ?? expectedAfterConnect + importCount)
-		: expectedAfterConnect;
-	const expectedAfterActions = shouldAddOneEntry
-		? expectedAfterImportOrConnect + 1
-		: expectedAfterImportOrConnect;
-
-	if (refreshAfterConnect) {
-		document.dispatchEvent(new Event('visibilitychange'));
-		window.dispatchEvent(new Event('focus'));
-		await waitFor(() => {
-			expectEventCount(expectedAfterActions);
-		});
-	}
-
+	// Flush the snapshot before cleanup so the remote store has the
+	// final state (simulates the periodic snapshot save firing).
+	flushSnapshot?.();
 	cleanup();
 }
