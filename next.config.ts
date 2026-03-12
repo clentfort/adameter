@@ -17,7 +17,11 @@ const PARTYKIT_PATHS = [
 const hasPartykitChanges = () => {
 	try {
 		execSync('git fetch origin main --depth=1', { stdio: 'ignore' });
-		const diff = execSync('git diff --name-only origin/main...HEAD', {
+		// Use two-arg form (tree comparison) instead of three-dot syntax
+		// (merge-base). Three-dot needs commit history to find the merge base,
+		// which fails in Vercel's shallow clone. Two-arg only needs the two
+		// tree snapshots which --depth=1 provides.
+		const diff = execSync('git diff --name-only origin/main HEAD', {
 			encoding: 'utf8',
 		});
 		return diff
