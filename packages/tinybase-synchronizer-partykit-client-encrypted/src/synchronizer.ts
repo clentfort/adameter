@@ -29,7 +29,7 @@ type Send = (
 ) => void;
 
 const MESSAGE_SEPARATOR = '\n';
-const REQUEST_TIMEOUT_SECONDS = 5;
+const REQUEST_TIMEOUT_SECONDS = 1;
 
 function getStoreProtocol(host: string): 'http' | 'https' {
 	return host.startsWith('localhost') || host.startsWith('127.0.0.1')
