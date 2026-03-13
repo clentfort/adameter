@@ -3,6 +3,7 @@
 import type { Indexes } from 'tinybase';
 import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
+import { fbt } from 'fbtee';
 import { useMemo, useState } from 'react';
 import { useSliceRowIds, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
@@ -23,10 +24,7 @@ import {
 	useTeethByDate,
 } from '@/hooks/use-tinybase-indexes';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import {
-	formatDisplayDate,
-	formatSectionDate,
-} from '@/utils/format-history-date';
+import { formatSectionDate } from '@/utils/format-history-date';
 import { getToothName } from '../utils/teething';
 import MeasurementForm from './growth-form';
 import TeethingForm from './teething-form';
@@ -46,11 +44,14 @@ function GrowthHistoryEntry({
 
 	if (!measurement) return null;
 
+	const numberFormat = new Intl.NumberFormat(undefined, {
+		maximumFractionDigits: 1,
+	});
+
 	return (
 		<HistoryEntryCard
 			className="border-emerald-600/30 bg-emerald-600/5"
 			data-testid="growth-history-entry"
-			formattedTime={formatDisplayDate(measurement.date)}
 			header={
 				<div className="flex items-center gap-2 text-emerald-700">
 					<span aria-hidden="true" role="img">
@@ -62,39 +63,50 @@ function GrowthHistoryEntry({
 			onDelete={() => onDelete(measurement.id)}
 			onEdit={() => onEdit(measurement)}
 		>
-			<div className="space-y-1">
-				{measurement.weight && (
-					<p className="text-sm">
-						<span className="font-medium">
-							<fbt desc="Weight of the baby">Weight</fbt>
-						</span>{' '}
-						{measurement.weight} g
-					</p>
-				)}
-				{measurement.height && (
-					<p className="text-sm">
-						<span className="font-medium">
-							{<fbt desc="Height of the baby">Height</fbt>}
-						</span>{' '}
-						{measurement.height} cm
-					</p>
-				)}
-				{measurement.headCircumference && (
-					<p className="text-sm">
-						<span className="font-medium">
-							<fbt desc="Head circumference of the baby">
-								Head Circumference
-							</fbt>
-						</span>{' '}
-						{measurement.headCircumference} cm
-					</p>
-				)}
-				{measurement.notes && (
-					<Markdown className="text-sm text-muted-foreground mt-2">
-						{measurement.notes}
-					</Markdown>
-				)}
+			<div className="flex flex-wrap gap-x-4 gap-y-1 text-sm items-center">
+				<div className="flex items-center gap-1">
+					<span title={fbt('Weight', 'Weight tooltip').toString()}>⚖️</span>
+					<span>
+						{measurement.weight ? (
+							<>{numberFormat.format(measurement.weight)} g</>
+						) : (
+							'-'
+						)}
+					</span>
+				</div>
+				<div className="flex items-center gap-1">
+					<span title={fbt('Height', 'Height tooltip').toString()}>📏</span>
+					<span>
+						{measurement.height ? (
+							<>{numberFormat.format(measurement.height)} cm</>
+						) : (
+							'-'
+						)}
+					</span>
+				</div>
+				<div className="flex items-center gap-1">
+					<span
+						title={fbt(
+							'Head Circumference',
+							'Head circumference tooltip',
+						).toString()}
+					>
+						🧠
+					</span>
+					<span>
+						{measurement.headCircumference ? (
+							<>{numberFormat.format(measurement.headCircumference)} cm</>
+						) : (
+							'-'
+						)}
+					</span>
+				</div>
 			</div>
+			{measurement.notes && (
+				<Markdown className="text-sm text-muted-foreground mt-2">
+					{measurement.notes}
+				</Markdown>
+			)}
 		</HistoryEntryCard>
 	);
 }
@@ -117,7 +129,6 @@ function TeethingHistoryEntry({
 	return (
 		<HistoryEntryCard
 			className="border-sky-600/30 bg-sky-600/5"
-			formattedTime={formatDisplayDate(tooth.date)}
 			header={
 				<div className="flex items-center gap-2 text-sky-700">
 					<span aria-hidden="true" role="img">
@@ -129,21 +140,15 @@ function TeethingHistoryEntry({
 			onDelete={() => onDelete(tooth)}
 			onEdit={() => onEdit(tooth)}
 		>
-			<div className="space-y-1">
-				<p className="text-sm">
-					<fbt desc="Tooth erupted message">
-						<fbt:param name="label">
-							<span className="font-medium">Tooth Erupted</span>
-						</fbt:param>
-						:
-						<fbt:param name="toothName">
-							{getToothName(tooth.toothId)}
-						</fbt:param>{' '}
+			<div className="space-y-1 text-sm">
+				<p>
+					<fbt desc="Tooth name and FDI id">
+						<fbt:param name="toothName">{getToothName(tooth.toothId)}</fbt:param>{' '}
 						(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
 					</fbt>
 				</p>
 				{tooth.notes && (
-					<Markdown className="text-sm text-muted-foreground mt-2">
+					<Markdown className="text-muted-foreground mt-2">
 						{tooth.notes}
 					</Markdown>
 				)}

@@ -1,5 +1,6 @@
 import { fbt } from 'fbtee';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
@@ -71,7 +72,26 @@ function DiaperHistoryEntry({
 		<HistoryEntryCard
 			className={`${borderColor} ${bgColor}`}
 			data-testid="diaper-history-entry"
-			formattedTime={formatEntryTime(change.timestamp)}
+			formattedTime={
+				<div className="flex items-center gap-2">
+					<span>{formatEntryTime(change.timestamp)}</span>
+					{change.temperature && (
+						<>
+							<span className="mx-1">•</span>
+							<div
+								className={cn(
+									'flex items-center gap-0.5',
+									isAbnormalTemperature(change.temperature) &&
+										'text-red-600 font-medium',
+								)}
+							>
+								<span>🌡️</span>
+								<span>{change.temperature} °C</span>
+							</div>
+						</>
+					)}
+				</div>
+			}
 			header={
 				<div
 					className={`font-medium ${textColor} flex flex-wrap items-center gap-x-3 gap-y-1`}
@@ -117,46 +137,35 @@ function DiaperHistoryEntry({
 			onEdit={() => onEdit(change.id)}
 		>
 			<div className="text-sm space-y-1">
-				{change.temperature && (
-					<p
-						className={
-							isAbnormalTemperature(change.temperature)
-								? 'text-red-600 font-medium'
-								: ''
-						}
-					>
-						<fbt desc="Label for a measured body temperature in degree Celsius">
-							Temperature (°C)
-						</fbt>
-						: <span className="font-medium">{change.temperature} °C</span>
-						{isAbnormalTemperature(change.temperature) && ' (!)'}
-					</p>
-				)}
-				{change.diaperProductId && (
-					<p>
-						<fbt desc="Label on a field that informs the user about the diaper product used">
-							Product
-						</fbt>
-						:{' '}
-						<span className="font-medium">
-							<DiaperProductName productId={change.diaperProductId} />
-						</span>
-					</p>
-				)}
-				{change.leakage && (
-					<p className="text-amber-600 font-medium">
-						<fbt desc="Short information text that a diaper has leaked">
-							Diaper leaked
-						</fbt>
-					</p>
+				{(change.diaperProductId || change.leakage) && (
+					<div className="flex flex-wrap items-center gap-x-2">
+						{change.diaperProductId && (
+							<p>
+								<fbt desc="Label on a field that informs the user about the diaper product used">
+									Product
+								</fbt>
+								:{' '}
+								<span className="font-medium">
+									<DiaperProductName productId={change.diaperProductId} />
+								</span>
+							</p>
+						)}
+						{change.diaperProductId && change.leakage && (
+							<span className="text-muted-foreground">•</span>
+						)}
+						{change.leakage && (
+							<p className="text-amber-600 font-medium">
+								<fbt desc="Short information text that a diaper has leaked">
+									Diaper leaked
+								</fbt>
+							</p>
+						)}
+					</div>
 				)}
 				{change.notes && (
-					<div className="text-sm">
-						<fbt desc="Prefix to a user defined text on notes on a diaper change (i.e. rashes, redness.)">
-							Notes
-						</fbt>
-						: <Markdown className="text-sm">{change.notes}</Markdown>
-					</div>
+					<Markdown className="text-sm text-muted-foreground">
+						{change.notes}
+					</Markdown>
 				)}
 			</div>
 		</HistoryEntryCard>
