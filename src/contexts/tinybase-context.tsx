@@ -176,9 +176,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 							`[SYNC] Saving debounced snapshot to server... Tables: ${JSON.stringify(tables)}`,
 						);
 						void saveServerSnapshot(store, storeUrl, encryptionKey)
-							.then(() => logger.log('[SYNC] Debounced snapshot saved successfully'))
+							.then(() =>
+								logger.log('[SYNC] Debounced snapshot saved successfully'),
+							)
 							.catch((error: unknown) =>
-								logger.error('Failed to save debounced server snapshot:', error),
+								logger.error(
+									'Failed to save debounced server snapshot:',
+									error,
+								),
 							);
 					}
 				}, 1000); // reduced debounce for faster sync
