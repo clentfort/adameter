@@ -81,7 +81,9 @@ function GrowthHistoryEntry({
 				{measurement.headCircumference && (
 					<p className="text-sm">
 						<span className="font-medium">
-							<fbt desc="Head circumference of the baby">Head Circumference</fbt>
+							<fbt desc="Head circumference of the baby">
+								Head Circumference
+							</fbt>
 						</span>{' '}
 						{measurement.headCircumference} cm
 					</p>
@@ -132,7 +134,9 @@ function TeethingHistoryEntry({
 							<span className="font-medium">Tooth Erupted</span>
 						</fbt:param>
 						:
-						<fbt:param name="toothName">{getToothName(tooth.toothId)}</fbt:param>{' '}
+						<fbt:param name="toothName">
+							{getToothName(tooth.toothId)}
+						</fbt:param>{' '}
 						(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
 					</fbt>
 				</p>

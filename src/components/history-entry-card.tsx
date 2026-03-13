@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import DeleteIconButton from './icon-buttons/delete';
 import EditIconButton from './icon-buttons/edit';
@@ -24,7 +24,7 @@ export default function HistoryEntryCard({
 	onEdit,
 	title,
 	...props
-}: HistoryEntryCardProps & React.ComponentPropsWithoutRef<'div'>) {
+}: HistoryEntryCardProps & Omit<ComponentPropsWithoutRef<'div'>, 'title'>) {
 	return (
 		<div
 			className={cn('border rounded-lg p-4 shadow-xs', className)}
