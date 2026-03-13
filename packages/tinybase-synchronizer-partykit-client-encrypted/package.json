@@ -42,12 +42,12 @@
 	},
 	"devDependencies": {
 		"@semantic-release/commit-analyzer": "^13.0.1",
-		"@semantic-release/github": "^11.0.6",
-		"@semantic-release/npm": "^12.0.2",
+		"@semantic-release/github": "^12.0.0",
+		"@semantic-release/npm": "^13.0.0",
 		"@semantic-release/release-notes-generator": "^14.0.3",
 		"@types/node": "^24.0.0",
 		"partysocket": "1.1.13",
-		"semantic-release": "^24.2.7",
+		"semantic-release": "^25.0.0",
 		"tinybase": "^7.3.3",
 		"typescript": "^5.9.2",
 		"vitest": "^4.0.0"
