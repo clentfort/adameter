@@ -69,8 +69,8 @@ importers:
         specifier: ^5.5.3
         version: 5.5.3
       partysocket:
-        specifier: 1.1.13
-        version: 1.1.13
+        specifier: 1.1.16
+        version: 1.1.16(react@19.2.4)
       qrcode.react:
         specifier: ^4.2.0
         version: 4.2.0(react@19.2.4)
@@ -100,7 +100,7 @@ importers:
         version: 4.2.1
       tinybase:
         specifier: ^7.3.3
-        version: 7.3.5(partykit@0.0.115)(partysocket@1.1.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
+        version: 7.3.5(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
       tinybase-persister-partykit-client-encrypted:
         specifier: workspace:*
         version: link:packages/tinybase-persister-partykit-client-encrypted
@@ -262,14 +262,14 @@ importers:
         specifier: ^28.0.0
         version: 28.1.0
       partysocket:
-        specifier: 1.1.13
-        version: 1.1.13
+        specifier: 1.1.16
+        version: 1.1.16(react@19.2.4)
       semantic-release:
         specifier: ^25.0.0
         version: 25.0.3(typescript@5.9.3)
       tinybase:
         specifier: ^7.3.3
-        version: 7.3.5(partykit@0.0.115)(partysocket@1.1.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
+        version: 7.3.5(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
@@ -295,14 +295,14 @@ importers:
         specifier: ^24.0.0
         version: 24.12.0
       partysocket:
-        specifier: 1.1.13
-        version: 1.1.13
+        specifier: 1.1.16
+        version: 1.1.16(react@19.2.4)
       semantic-release:
         specifier: ^25.0.0
         version: 25.0.3(typescript@5.9.3)
       tinybase:
         specifier: ^7.3.3
-        version: 7.3.5(partykit@0.0.115)(partysocket@1.1.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
+        version: 7.3.5(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
@@ -4799,8 +4799,13 @@ packages:
     resolution: {integrity: sha512-WHmJIZsAzRWrm1lrtU7wcl0tpD4rg2vgmn4+hXGPjU4mnXgFxyjVq2ZzO547xRXa1IbETOP6J9INl/ergR99bA==}
     hasBin: true
 
-  partysocket@1.1.13:
-    resolution: {integrity: sha512-RNXGzc6j0NISGE84+VTHHtbPwmnzZuOYJm9XZ+en+aZlIA2vC4AfwPlYxAHmGGGko3pQF7xRNhoe7bu1Brej4Q==}
+  partysocket@1.1.16:
+    resolution: {integrity: sha512-d7xFv+ZC7x0p/DAHWJ5FhxQhimIx+ucyZY+kxL0cKddLBmK9c4p2tEA/L+dOOrWm6EYrRwrBjKQV0uSzOY9x1w==}
+    peerDependencies:
+      react: '>=17'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   path-exists@3.0.0:
     resolution: {integrity: sha512-bpC7GYwiDYQ4wYLe+FA8lhRjhQCMcQGuSgGGqDkg/QerRWw9CmGRT0iSOVRSZJ29NMLZgIzqaljJ63oaL4NIJQ==}
@@ -10830,9 +10835,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  partysocket@1.1.13:
+  partysocket@1.1.16(react@19.2.4):
     dependencies:
       event-target-polyfill: 0.0.4
+    optionalDependencies:
+      react: 19.2.4
 
   path-exists@3.0.0: {}
 
@@ -11706,10 +11713,10 @@ snapshots:
 
   time-zone@1.0.0: {}
 
-  tinybase@7.3.5(partykit@0.0.115)(partysocket@1.1.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6):
+  tinybase@7.3.5(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6):
     optionalDependencies:
       partykit: 0.0.115
-      partysocket: 1.1.13
+      partysocket: 1.1.16(react@19.2.4)
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
       ws: 8.19.0
