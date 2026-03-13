@@ -458,7 +458,11 @@ export default function DiaperStats({
 														<fbt desc="Per diaper brand cost summary in diaper statistics">
 															Cost:{' '}
 															<fbt:param name="cost">
-																{formatCurrency(stats.totalCost, currency, locale)}
+																{formatCurrency(
+																	stats.totalCost,
+																	currency,
+																	locale,
+																)}
 															</fbt:param>
 														</fbt>
 													</p>

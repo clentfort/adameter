@@ -1,6 +1,5 @@
 import { fbt } from 'fbtee';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
@@ -13,6 +12,7 @@ import {
 } from '@/hooks/use-diaper-changes';
 import { useDiaperChangesByDate } from '@/hooks/use-tinybase-indexes';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { cn } from '@/lib/utils';
 import { formatEntryTime } from '@/utils/format-history-date';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';

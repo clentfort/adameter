@@ -8,8 +8,8 @@ import { useMemo, useState } from 'react';
 import { useSliceRowIds, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
-import { useLanguage } from '@/contexts/i18n-context';
 import Markdown from '@/components/markdown';
+import { useLanguage } from '@/contexts/i18n-context';
 import {
 	INDEX_IDS,
 	useTinybaseIndexes,
@@ -72,9 +72,10 @@ function GrowthHistoryEntry({
 						<span>{numberFormat.format(measurement.weight)} g</span>
 					</div>
 				)}
-				{measurement.weight && (measurement.height || measurement.headCircumference) && (
-					<span className="text-muted-foreground">•</span>
-				)}
+				{measurement.weight &&
+					(measurement.height || measurement.headCircumference) && (
+						<span className="text-muted-foreground">•</span>
+					)}
 				{measurement.height && (
 					<div className="flex items-center gap-1">
 						<span title={fbt('Height', 'Height tooltip').toString()}>📏</span>
@@ -139,7 +140,9 @@ function TeethingHistoryEntry({
 			<div className="space-y-1 text-sm">
 				<p>
 					<fbt desc="Tooth name and FDI id">
-						<fbt:param name="toothName">{getToothName(tooth.toothId)}</fbt:param>{' '}
+						<fbt:param name="toothName">
+							{getToothName(tooth.toothId)}
+						</fbt:param>{' '}
 						(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
 					</fbt>
 				</p>
