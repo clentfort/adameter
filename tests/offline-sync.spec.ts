@@ -266,14 +266,13 @@ test.describe('Offline Synchronization', () => {
 			// 2. Device B goes offline
 			await contextB.setOffline(true);
 
-			// 3. Device A edits the 10-min entry to 30 min and deletes the 20-min
-			//    entry, then wait for the snapshot to be saved
-			const saveAPromise = pageA.waitForResponse(
-				(res) =>
-					res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30_000 },
-			);
-			// Edit the first entry (most-recent first, so 20-min is first — edit it)
+			// 3. Device A edits the 20-min entry to 30 min and deletes the 10-min entry.
+			//    Note: saveAPromise is set up AFTER both changes are confirmed in the
+			//    UI. scheduleSave uses a single debounce timer that resets on every
+			//    store change, so the first PUT after our delete is guaranteed to
+			//    contain both changes — there is no risk of capturing a stale save
+			//    from the setup phase.
+			// Edit the first entry (most-recent first, so 20-min is first)
 			await pageA.getByRole('button', { name: 'Edit' }).first().click();
 			await pageA.getByLabel('minutes').fill('30', { force: true });
 			await pageA.getByRole('button', { name: 'Save' }).click({ force: true });
@@ -287,6 +286,12 @@ test.describe('Offline Synchronization', () => {
 			await expect(
 				pageA.getByText('10 min', { exact: true }),
 			).not.toBeVisible();
+			// Both changes are confirmed; wait for the debounced snapshot save
+			const saveAPromise = pageA.waitForResponse(
+				(res) =>
+					res.url().includes('/store') && res.request().method() === 'PUT',
+				{ timeout: 10_000 },
+			);
 			await saveAPromise;
 
 			// 4. Device A goes offline
