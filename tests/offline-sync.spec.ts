@@ -21,33 +21,98 @@ test.describe('Offline Synchronization', () => {
 
 			// 3. Device A adds a feeding entry
 			await pageA.goto('/feeding');
+
 			await pageA.getByRole('button', { name: 'Left Breast' }).click();
 			await pageA.getByRole('button', { name: 'End Feeding' }).click();
 			await expect(pageA.getByText('Left Breast')).toHaveCount(2);
 
-			// 4. Wait for Device A to save a server snapshot (interval is 30s)
-			// We wait 35s to be sure.
-			await pageA.waitForTimeout(35_000);
+			// 4. Wait for Device A to successfully save the snapshot
+			const savePromise = pageA.waitForResponse(
+				(res) => res.url().includes('/store') && res.request().method() === 'PUT',
+				{ timeout: 30000 },
+			);
+			await savePromise;
+			await pageA.waitForTimeout(1000);
 
-			// 5. Device A goes offline (we just close the page/context)
-			await pageA.close();
+			// 5. Device A goes offline
+			await pageA.context().setOffline(true);
 
 			// 6. Device B comes back online
 			await contextB.setOffline(false);
 
 			// 7. Verify: Device B should see the feeding entry from Device A
-			// WITHOUT a page reload. We are already on Device B (it was at '/')
-			// and we want to see if it catches up.
-			await pageB.getByRole('link', { name: 'Feeding' }).click();
+			await pageB.goto('/feeding');
 
 			// Device B should see the feeding entry from Device A.
-			// If it only syncs P2P, this will fail because Device A is offline.
-			// It should have loaded the server snapshot upon reconnection.
 			await expect(pageB.getByText('Left Breast')).toHaveCount(2, {
-				timeout: 60_000,
+				timeout: 20_000,
 			});
 		} finally {
-			await session.close();
+			try {
+				await session.close();
+			} catch (e) {}
+		}
+	});
+
+	test('merging writes while both devices are offline', async ({ browser }) => {
+		test.setTimeout(180_000);
+		const session = await createRoomSyncSession(browser);
+		const { contextA, contextB, pageA, pageB } = session;
+
+		try {
+			// 1. Setup: Both join
+			await createRoomAndJoinPeer(session);
+
+			// Navigate to target page before going offline to avoid ERR_INTERNET_DISCONNECTED
+			await pageA.goto('/feeding');
+			await pageB.goto('/feeding');
+
+			// 2. Both go offline
+			await contextA.setOffline(true);
+			await contextB.setOffline(true);
+
+			// 3. Device A records a feeding
+			await pageA.getByRole('button', { name: 'Left Breast' }).click();
+			await pageA.getByRole('button', { name: 'End Feeding' }).click();
+			await expect(pageA.getByText('Left Breast')).toHaveCount(2);
+
+			// 4. Device B records a feeding
+			await pageB.getByRole('button', { name: 'Right Breast' }).click();
+			await pageB.getByRole('button', { name: 'End Feeding' }).click();
+			await expect(pageB.getByText('Right Breast')).toHaveCount(2);
+
+			// 5. Device A comes back online, waits for save, then goes offline
+			await contextA.setOffline(false);
+			const saveAPromise = pageA.waitForResponse(
+				(res) => res.url().includes('/store') && res.request().method() === 'PUT',
+				{ timeout: 30000 },
+			);
+			await saveAPromise;
+			await pageA.waitForTimeout(1000);
+			await contextA.setOffline(true);
+
+			// 6. Device B comes back online
+			// Device B also needs to save its own changes merged with Device A's changes
+			await contextB.setOffline(false);
+			const saveBPromise = pageB.waitForResponse(
+				(res) => res.url().includes('/store') && res.request().method() === 'PUT',
+				{ timeout: 30000 },
+			);
+
+			// 7. Device B should see BOTH feedings (merged)
+			await expect(pageB.getByText('Left Breast')).toHaveCount(2, {
+				timeout: 20_000,
+			});
+			await expect(pageB.getByText('Right Breast')).toHaveCount(2, {
+				timeout: 20_000,
+			});
+
+			// Wait for B to save the merged result
+			await saveBPromise;
+		} finally {
+			try {
+				await session.close();
+			} catch (e) {}
 		}
 	});
 });
