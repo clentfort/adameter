@@ -50,7 +50,10 @@ function FeedingHistoryEntry({
 				<div className="flex items-center gap-2">
 					<span>{formatEntryTime(session.startTime)}</span>
 					<span className="mx-1">•</span>
-					<span>{formatDurationAbbreviated(session.durationInSeconds)}</span>
+					<div className="flex items-center gap-0.5">
+						<span>⏳</span>
+						<span>{formatDurationAbbreviated(session.durationInSeconds)}</span>
+					</div>
 				</div>
 			}
 			header={

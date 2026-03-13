@@ -24,6 +24,7 @@ import {
 	PopoverTitle,
 	PopoverTrigger,
 } from '@/components/ui/popover';
+import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
 
@@ -48,8 +49,8 @@ interface ReusableSavingsMetrics {
 	upfrontCostTotal: number;
 }
 
-function formatCurrency(value: number, currency: Currency) {
-	return new Intl.NumberFormat(undefined, {
+function formatCurrency(value: number, currency: Currency, locale: string) {
+	return new Intl.NumberFormat(locale.replace('_', '-'), {
 		currency,
 		maximumFractionDigits: 2,
 		minimumFractionDigits: 2,
@@ -307,6 +308,7 @@ export default function ReusableSavingsCard({
 	products,
 }: ReusableSavingsCardProps) {
 	const [currency] = useCurrency();
+	const { locale } = useLanguage();
 
 	const metrics = calculateReusableSavingsMetrics(
 		allDiaperChanges,
@@ -381,7 +383,7 @@ export default function ReusableSavingsCard({
 								: 'text-red-600 dark:text-red-400',
 						)}
 					>
-						{formatCurrency(metrics.totalSavings, currency)}
+						{formatCurrency(metrics.totalSavings, currency, locale)}
 					</p>
 				</div>
 
@@ -393,7 +395,7 @@ export default function ReusableSavingsCard({
 							</fbt>
 						</p>
 						<p className="text-2xl font-semibold tabular-nums text-blue-950 dark:text-blue-100">
-							{formatCurrency(metrics.pottySavings, currency)}
+							{formatCurrency(metrics.pottySavings, currency, locale)}
 						</p>
 					</div>
 					<div className="rounded-xl border border-rose-300/30 bg-rose-500/10 p-3">
@@ -403,7 +405,7 @@ export default function ReusableSavingsCard({
 							</fbt>
 						</p>
 						<p className="text-2xl font-semibold tabular-nums text-rose-950 dark:text-rose-100">
-							{formatCurrency(metrics.reusableSavings, currency)}
+							{formatCurrency(metrics.reusableSavings, currency, locale)}
 						</p>
 					</div>
 				</div>
@@ -445,7 +447,7 @@ export default function ReusableSavingsCard({
 							</fbt>
 						</span>
 						<span className="tabular-nums text-muted-foreground">
-							{formatCurrency(metrics.totalCost, currency)}
+							{formatCurrency(metrics.totalCost, currency, locale)}
 						</span>
 					</div>
 				</div>

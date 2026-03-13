@@ -37,8 +37,9 @@ test.describe('Room deletion sync', () => {
 			await pageA
 				.getByTestId('feeding-history-entry')
 				.first()
-				.getByRole('button', { name: /delete/i })
+				.getByTestId('history-entry-actions')
 				.click();
+			await pageA.getByRole('menuitem', { name: /delete/i }).click();
 			await pageA.getByRole('button', { exact: true, name: /delete/i }).click();
 
 			await expect(pageA.getByTestId('feeding-history-entry')).toHaveCount(0);

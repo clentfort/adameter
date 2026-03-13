@@ -173,7 +173,7 @@ describe('DiaperHistoryList', () => {
 			</TestWrapper>,
 		);
 
-		expect(screen.getByText('Diaper leaked')).toBeInTheDocument();
+		expect(screen.getByText('leaked')).toBeInTheDocument();
 	});
 
 	it('should render notes when provided', () => {

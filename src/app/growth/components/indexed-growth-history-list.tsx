@@ -8,6 +8,7 @@ import { useMemo, useState } from 'react';
 import { useSliceRowIds, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
+import { useLanguage } from '@/contexts/i18n-context';
 import Markdown from '@/components/markdown';
 import {
 	INDEX_IDS,
@@ -41,10 +42,11 @@ function GrowthHistoryEntry({
 	rowId,
 }: GrowthHistoryEntryProps) {
 	const measurement = useGrowthMeasurement(rowId);
+	const { locale } = useLanguage();
 
 	if (!measurement) return null;
 
-	const numberFormat = new Intl.NumberFormat(undefined, {
+	const numberFormat = new Intl.NumberFormat(locale.replace('_', '-'), {
 		maximumFractionDigits: 1,
 	});
 
@@ -63,44 +65,38 @@ function GrowthHistoryEntry({
 			onDelete={() => onDelete(measurement.id)}
 			onEdit={() => onEdit(measurement)}
 		>
-			<div className="flex flex-wrap gap-x-4 gap-y-1 text-sm items-center">
-				<div className="flex items-center gap-1">
-					<span title={fbt('Weight', 'Weight tooltip').toString()}>⚖️</span>
-					<span>
-						{measurement.weight ? (
-							<>{numberFormat.format(measurement.weight)} g</>
-						) : (
-							'-'
-						)}
-					</span>
-				</div>
-				<div className="flex items-center gap-1">
-					<span title={fbt('Height', 'Height tooltip').toString()}>📏</span>
-					<span>
-						{measurement.height ? (
-							<>{numberFormat.format(measurement.height)} cm</>
-						) : (
-							'-'
-						)}
-					</span>
-				</div>
-				<div className="flex items-center gap-1">
-					<span
-						title={fbt(
-							'Head Circumference',
-							'Head circumference tooltip',
-						).toString()}
-					>
-						🧠
-					</span>
-					<span>
-						{measurement.headCircumference ? (
-							<>{numberFormat.format(measurement.headCircumference)} cm</>
-						) : (
-							'-'
-						)}
-					</span>
-				</div>
+			<div className="flex flex-wrap gap-x-2 gap-y-1 text-sm items-center">
+				{measurement.weight && (
+					<div className="flex items-center gap-1">
+						<span title={fbt('Weight', 'Weight tooltip').toString()}>⚖️</span>
+						<span>{numberFormat.format(measurement.weight)} g</span>
+					</div>
+				)}
+				{measurement.weight && (measurement.height || measurement.headCircumference) && (
+					<span className="text-muted-foreground">•</span>
+				)}
+				{measurement.height && (
+					<div className="flex items-center gap-1">
+						<span title={fbt('Height', 'Height tooltip').toString()}>📏</span>
+						<span>{numberFormat.format(measurement.height)} cm</span>
+					</div>
+				)}
+				{measurement.height && measurement.headCircumference && (
+					<span className="text-muted-foreground">•</span>
+				)}
+				{measurement.headCircumference && (
+					<div className="flex items-center gap-1">
+						<span
+							title={fbt(
+								'Head Circumference',
+								'Head circumference tooltip',
+							).toString()}
+						>
+							🗣️
+						</span>
+						<span>{numberFormat.format(measurement.headCircumference)} cm</span>
+					</div>
+				)}
 			</div>
 			{measurement.notes && (
 				<Markdown className="text-sm text-muted-foreground mt-2">
