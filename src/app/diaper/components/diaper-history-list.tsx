@@ -78,8 +78,8 @@ function DiaperHistoryEntry({
 				>
 					{hasDiaper && (
 						<div className="flex items-center gap-1">
-							<span className="text-base">👶</span>
-							<span className="text-sm">
+							<span>👶</span>
+							<span>
 								{change.containsUrine && change.containsStool ? (
 									<fbt desc="Urine and stool in diaper">Urine & Stool</fbt>
 								) : change.containsUrine ? (
@@ -92,8 +92,8 @@ function DiaperHistoryEntry({
 					)}
 					{hasPotty && (
 						<div className="flex items-center gap-1">
-							<span className="text-base">🚽</span>
-							<span className="text-sm">
+							<span>🚽</span>
+							<span>
 								{change.pottyUrine && change.pottyStool ? (
 									<fbt desc="Urine and stool in potty">Urine & Stool</fbt>
 								) : change.pottyUrine ? (
@@ -106,7 +106,7 @@ function DiaperHistoryEntry({
 					)}
 					{!hasDiaper && !hasPotty && (
 						<div className="flex items-center gap-1">
-							<span className="text-sm italic">
+							<span className="italic">
 								<fbt desc="Dry diaper">Dry</fbt>
 							</span>
 						</div>
