@@ -2,8 +2,7 @@ import type { FeedingSession } from '@/types/feeding';
 import { isSameDay } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import DeleteIconButton from '@/components/icon-buttons/delete';
-import EditIconButton from '@/components/icon-buttons/edit';
+import HistoryEntryCard from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { useFeedingSessionsByDate } from '@/hooks/use-tinybase-indexes';
@@ -44,51 +43,46 @@ function FeedingHistoryEntry({
 	const crossesMidnight = !isSameDay(startDate, endDate);
 
 	return (
-		<div
-			className={`border rounded-lg p-4 shadow-xs ${borderColor} ${bgColor}`}
+		<HistoryEntryCard
+			className={`${borderColor} ${bgColor}`}
 			data-testid="feeding-history-entry"
-		>
-			<div className="flex justify-between items-start">
-				<div>
-					<p className={`font-medium ${textColor}`}>
-						{isLeftBreast ? (
-							<fbt desc="Label indicating a feeding was done with the left breast">
-								Left Breast
-							</fbt>
-						) : (
-							<fbt desc="Label indicating a feeding was done with the right breast">
-								Right Breast
-							</fbt>
-						)}
-					</p>
-					{crossesMidnight && (
-						<p className="text-xs text-muted-foreground">
-							<span className="font-medium">
-								<fbt desc="Label for a note">Note</fbt>:
-							</span>{' '}
-							<fbt desc="A note describing that the feeding session crosses midnight">
-								This session crosses midnight
-							</fbt>
-						</p>
-					)}
-				</div>
-				<div className="text-right flex flex-col items-end">
-					<p className="font-bold">
-						{formatDurationAbbreviated(session.durationInSeconds)}
-					</p>
-					<p className="text-xs text-muted-foreground">
-						<fbt desc="Label indicating when a feeding session started">
-							Start
-						</fbt>
-						: {formatEntryTime(session.startTime)}
-					</p>
-					<div className="flex gap-1 mt-2">
-						<EditIconButton onClick={() => onEdit(session.id)} />
-						<DeleteIconButton onClick={() => onDelete(session.id)} />
+			formattedTime={
+				<div className="flex items-center gap-2">
+					<span>{formatEntryTime(session.startTime)}</span>
+					<span className="mx-1">•</span>
+					<div className="flex items-center gap-0.5">
+						<span>⏳</span>
+						<span>{formatDurationAbbreviated(session.durationInSeconds)}</span>
 					</div>
 				</div>
-			</div>
-		</div>
+			}
+			header={
+				<span className={textColor}>
+					{isLeftBreast ? (
+						<fbt desc="Label indicating a feeding was done with the left breast">
+							Left Breast
+						</fbt>
+					) : (
+						<fbt desc="Label indicating a feeding was done with the right breast">
+							Right Breast
+						</fbt>
+					)}
+				</span>
+			}
+			onDelete={() => onDelete(session.id)}
+			onEdit={() => onEdit(session.id)}
+		>
+			{crossesMidnight && (
+				<p className="text-xs text-muted-foreground">
+					<span className="font-medium">
+						<fbt desc="Label for a note">Note</fbt>:
+					</span>{' '}
+					<fbt desc="A note describing that the feeding session crosses midnight">
+						This session crosses midnight
+					</fbt>
+				</p>
+			)}
+		</HistoryEntryCard>
 	);
 }
 

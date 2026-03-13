@@ -3,12 +3,13 @@
 import type { Indexes } from 'tinybase';
 import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
+import { fbt } from 'fbtee';
 import { useMemo, useState } from 'react';
 import { useSliceRowIds, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import DeleteIconButton from '@/components/icon-buttons/delete';
-import EditIconButton from '@/components/icon-buttons/edit';
+import HistoryEntryCard from '@/components/history-entry-card';
 import Markdown from '@/components/markdown';
+import { useLanguage } from '@/contexts/i18n-context';
 import {
 	INDEX_IDS,
 	useTinybaseIndexes,
@@ -24,10 +25,7 @@ import {
 	useTeethByDate,
 } from '@/hooks/use-tinybase-indexes';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import {
-	formatDisplayDate,
-	formatSectionDate,
-} from '@/utils/format-history-date';
+import { formatSectionDate } from '@/utils/format-history-date';
 import { getToothName } from '../utils/teething';
 import MeasurementForm from './growth-form';
 import TeethingForm from './teething-form';
@@ -44,63 +42,69 @@ function GrowthHistoryEntry({
 	rowId,
 }: GrowthHistoryEntryProps) {
 	const measurement = useGrowthMeasurement(rowId);
+	const { locale } = useLanguage();
 
 	if (!measurement) return null;
 
-	const date = new Date(measurement.date);
+	const numberFormat = new Intl.NumberFormat(locale.replace('_', '-'), {
+		maximumFractionDigits: 1,
+	});
 
 	return (
-		<div className="border rounded-lg p-4 shadow-xs">
-			<div className="flex justify-between items-start">
-				<div>
-					<div className="flex items-center gap-2">
-						<span aria-hidden="true" role="img">
-							📏
+		<HistoryEntryCard
+			className="border-emerald-600/30 bg-emerald-600/5"
+			data-testid="growth-history-entry"
+			header={
+				<div className="flex items-center gap-2 text-emerald-700">
+					<span aria-hidden="true" role="img">
+						📏
+					</span>
+					<fbt desc="Growth measurement entry title">Measurement</fbt>
+				</div>
+			}
+			onDelete={() => onDelete(measurement.id)}
+			onEdit={() => onEdit(measurement)}
+		>
+			<div className="flex flex-wrap gap-x-2 gap-y-1 text-sm items-center">
+				{measurement.weight && (
+					<div className="flex items-center gap-1">
+						<span title={fbt('Weight', 'Weight tooltip').toString()}>⚖️</span>
+						<span>{numberFormat.format(measurement.weight)} g</span>
+					</div>
+				)}
+				{measurement.weight &&
+					(measurement.height || measurement.headCircumference) && (
+						<span className="text-muted-foreground">•</span>
+					)}
+				{measurement.height && (
+					<div className="flex items-center gap-1">
+						<span title={fbt('Height', 'Height tooltip').toString()}>📏</span>
+						<span>{numberFormat.format(measurement.height)} cm</span>
+					</div>
+				)}
+				{measurement.height && measurement.headCircumference && (
+					<span className="text-muted-foreground">•</span>
+				)}
+				{measurement.headCircumference && (
+					<div className="flex items-center gap-1">
+						<span
+							title={fbt(
+								'Head Circumference',
+								'Head circumference tooltip',
+							).toString()}
+						>
+							🗣️
 						</span>
-						<p className="font-medium text-lg">
-							{formatDisplayDate(measurement.date)}
-						</p>
+						<span>{numberFormat.format(measurement.headCircumference)} cm</span>
 					</div>
-					<div className="mt-2 space-y-1">
-						{measurement.weight && (
-							<p className="text-sm">
-								<span className="font-medium">
-									<fbt desc="Weight of the baby">Weight</fbt>
-								</span>{' '}
-								{measurement.weight} g
-							</p>
-						)}
-						{measurement.height && (
-							<p className="text-sm">
-								<span className="font-medium">
-									{<fbt desc="Height of the baby">Height</fbt>}
-								</span>{' '}
-								{measurement.height} cm
-							</p>
-						)}
-						{measurement.headCircumference && (
-							<p className="text-sm">
-								<span className="font-medium">
-									<fbt desc="Head circumference of the baby">
-										Head Circumference
-									</fbt>
-								</span>{' '}
-								{measurement.headCircumference} cm
-							</p>
-						)}
-						{measurement.notes && (
-							<Markdown className="text-sm text-muted-foreground mt-2">
-								{measurement.notes}
-							</Markdown>
-						)}
-					</div>
-				</div>
-				<div className="flex gap-1">
-					<EditIconButton onClick={() => onEdit(measurement)} />
-					<DeleteIconButton onClick={() => onDelete(measurement.id)} />
-				</div>
+				)}
 			</div>
-		</div>
+			{measurement.notes && (
+				<Markdown className="text-sm text-muted-foreground mt-2">
+					{measurement.notes}
+				</Markdown>
+			)}
+		</HistoryEntryCard>
 	);
 }
 
@@ -119,46 +123,36 @@ function TeethingHistoryEntry({
 
 	if (!tooth || !tooth.date) return null;
 
-	const date = new Date(tooth.date);
-
 	return (
-		<div className="border rounded-lg p-4 shadow-xs">
-			<div className="flex justify-between items-start">
-				<div>
-					<div className="flex items-center gap-2">
-						<span aria-hidden="true" role="img">
-							🦷
-						</span>
-						<p className="font-medium text-lg">
-							{formatDisplayDate(tooth.date)}
-						</p>
-					</div>
-					<div className="mt-2 space-y-1">
-						<p className="text-sm">
-							<fbt desc="Tooth erupted message">
-								<fbt:param name="label">
-									<span className="font-medium">Tooth Erupted</span>
-								</fbt:param>
-								:
-								<fbt:param name="toothName">
-									{getToothName(tooth.toothId)}
-								</fbt:param>{' '}
-								(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
-							</fbt>
-						</p>
-						{tooth.notes && (
-							<Markdown className="text-sm text-muted-foreground mt-2">
-								{tooth.notes}
-							</Markdown>
-						)}
-					</div>
+		<HistoryEntryCard
+			className="border-sky-600/30 bg-sky-600/5"
+			header={
+				<div className="flex items-center gap-2 text-sky-700">
+					<span aria-hidden="true" role="img">
+						🦷
+					</span>
+					<fbt desc="Teething entry title">Teething</fbt>
 				</div>
-				<div className="flex gap-1">
-					<EditIconButton onClick={() => onEdit(tooth)} />
-					<DeleteIconButton onClick={() => onDelete(tooth)} />
-				</div>
+			}
+			onDelete={() => onDelete(tooth)}
+			onEdit={() => onEdit(tooth)}
+		>
+			<div className="space-y-1 text-sm">
+				<p>
+					<fbt desc="Tooth name and FDI id">
+						<fbt:param name="toothName">
+							{getToothName(tooth.toothId)}
+						</fbt:param>{' '}
+						(<fbt:param name="fdi">{tooth.toothId}</fbt:param>)
+					</fbt>
+				</p>
+				{tooth.notes && (
+					<Markdown className="text-muted-foreground mt-2">
+						{tooth.notes}
+					</Markdown>
+				)}
 			</div>
-		</div>
+		</HistoryEntryCard>
 	);
 }
 

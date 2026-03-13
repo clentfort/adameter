@@ -4,6 +4,7 @@ import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import ComparisonValue from './comparison-value';
 
@@ -13,8 +14,8 @@ interface DiaperStatsProps {
 	products: DiaperProduct[];
 }
 
-function formatCurrency(value: number, currency: Currency) {
-	return new Intl.NumberFormat(undefined, {
+function formatCurrency(value: number, currency: Currency, locale: string) {
+	return new Intl.NumberFormat(locale.replace('_', '-'), {
 		currency,
 		maximumFractionDigits: 2,
 		minimumFractionDigits: 2,
@@ -115,6 +116,7 @@ export default function DiaperStats({
 	products = [],
 }: DiaperStatsProps) {
 	const [currency] = useCurrency();
+	const { locale } = useLanguage();
 
 	if (diaperChanges.length === 0) {
 		return (
@@ -261,7 +263,7 @@ export default function DiaperStats({
 								</p>
 								<div className="flex items-baseline">
 									<p className="text-2xl font-bold">
-										{formatCurrency(totalCost, currency)}
+										{formatCurrency(totalCost, currency, locale)}
 									</p>
 									{prevMetrics && (
 										<ComparisonValue
@@ -456,7 +458,11 @@ export default function DiaperStats({
 														<fbt desc="Per diaper brand cost summary in diaper statistics">
 															Cost:{' '}
 															<fbt:param name="cost">
-																{formatCurrency(stats.totalCost, currency)}
+																{formatCurrency(
+																	stats.totalCost,
+																	currency,
+																	locale,
+																)}
 															</fbt:param>
 														</fbt>
 													</p>

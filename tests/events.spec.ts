@@ -52,7 +52,8 @@ test.describe('Events Page', () => {
 		await expect(page.getByText('Original Event')).toBeVisible();
 
 		// Edit it
-		await page.getByRole('button', { name: 'Edit' }).first().click();
+		await page.getByTestId('history-entry-actions').first().click();
+		await page.getByRole('menuitem', { name: 'Edit' }).click();
 		await page.getByLabel('Title').fill('Updated Event', { force: true });
 		await page.getByTestId('save-button').click({ force: true });
 
@@ -70,7 +71,8 @@ test.describe('Events Page', () => {
 		await expect(page.getByText('To be deleted')).toBeVisible();
 
 		// Delete it
-		await page.getByRole('button', { name: 'Delete' }).first().click();
+		await page.getByTestId('history-entry-actions').first().click();
+		await page.getByRole('menuitem', { name: 'Delete' }).click();
 		await page
 			.getByRole('alertdialog')
 			.getByRole('button', { name: 'Delete' })

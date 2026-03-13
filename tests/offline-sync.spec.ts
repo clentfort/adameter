@@ -154,7 +154,8 @@ test.describe('Offline Synchronization', () => {
 					res.url().includes('/store') && res.request().method() === 'PUT',
 				{ timeout: 30_000 },
 			);
-			await pageA.getByRole('button', { name: 'Edit' }).first().click();
+			await pageA.getByTestId('history-entry-actions').first().click();
+			await pageA.getByRole('menuitem', { name: 'Edit' }).click();
 			await pageA.getByLabel('minutes').fill('20', { force: true });
 			await pageA.getByRole('button', { name: 'Save' }).click({ force: true });
 			await expect(pageA.getByText('20 min', { exact: true })).toBeVisible();
@@ -210,7 +211,8 @@ test.describe('Offline Synchronization', () => {
 					res.url().includes('/store') && res.request().method() === 'PUT',
 				{ timeout: 30_000 },
 			);
-			await pageA.getByRole('button', { name: 'Delete' }).first().click();
+			await pageA.getByTestId('history-entry-actions').first().click();
+			await pageA.getByRole('menuitem', { name: 'Delete' }).click();
 			await pageA
 				.getByRole('alertdialog')
 				.getByRole('button', { name: 'Delete' })
@@ -273,12 +275,14 @@ test.describe('Offline Synchronization', () => {
 			//    contain both changes — there is no risk of capturing a stale save
 			//    from the setup phase.
 			// Edit the first entry (most-recent first, so 20-min is first)
-			await pageA.getByRole('button', { name: 'Edit' }).first().click();
+			await pageA.getByTestId('history-entry-actions').first().click();
+			await pageA.getByRole('menuitem', { name: 'Edit' }).click();
 			await pageA.getByLabel('minutes').fill('30', { force: true });
 			await pageA.getByRole('button', { name: 'Save' }).click({ force: true });
 			await expect(pageA.getByText('30 min', { exact: true })).toBeVisible();
 			// Delete the other entry
-			await pageA.getByRole('button', { name: 'Delete' }).last().click();
+			await pageA.getByTestId('history-entry-actions').last().click();
+			await pageA.getByRole('menuitem', { name: 'Delete' }).click();
 			await pageA
 				.getByRole('alertdialog')
 				.getByRole('button', { name: 'Delete' })

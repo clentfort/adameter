@@ -62,7 +62,8 @@ test.describe('Diaper Page', () => {
 		await expect(page.getByTestId('diaper-history-entry')).toBeVisible();
 
 		// Click edit button
-		await page.getByRole('button', { name: 'Edit' }).first().click();
+		await page.getByTestId('history-entry-actions').first().click();
+		await page.getByRole('menuitem', { name: 'Edit' }).click();
 
 		// Change details
 		await page.getByLabel('Notes').fill('Updated notes');
@@ -81,7 +82,8 @@ test.describe('Diaper Page', () => {
 		await expect(page.getByTestId('diaper-history-entry')).toBeVisible();
 
 		// Click delete
-		await page.getByRole('button', { name: 'Delete' }).first().click();
+		await page.getByTestId('history-entry-actions').first().click();
+		await page.getByRole('menuitem', { name: 'Delete' }).click();
 
 		// Confirm
 		await page

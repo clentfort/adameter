@@ -1,16 +1,12 @@
 import { format } from 'date-fns';
-import { ArrowRight, Calendar, Clock } from 'lucide-react';
+import { ArrowRight, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import DeleteIconButton from '@/components/icon-buttons/delete';
-import EditIconButton from '@/components/icon-buttons/edit';
+import HistoryEntryCard from '@/components/history-entry-card';
+import IndexedHistoryList from '@/components/indexed-history-list';
 import Markdown from '@/components/markdown';
-import {
-	useEvent,
-	useRemoveEvent,
-	useSortedEventIds,
-	useUpsertEvent,
-} from '@/hooks/use-events';
+import { useEvent, useRemoveEvent, useUpsertEvent } from '@/hooks/use-events';
+import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
 import AddEventDialog from './event-form';
 
 function EventListItem({
@@ -19,7 +15,7 @@ function EventListItem({
 	onEdit,
 }: {
 	eventId: string;
-	onDelete: (eventId: string) => void;
+	onDelete: (id: string) => void;
 	onEdit: (eventId: string) => void;
 }) {
 	const event = useEvent(eventId);
@@ -33,34 +29,22 @@ function EventListItem({
 	const isOngoing = event.type === 'period' && !event.endDate;
 
 	return (
-		<div
-			className="border rounded-lg p-4 shadow-xs"
+		<HistoryEntryCard
 			data-testid="event-entry"
-			style={{
-				borderLeftColor: event.color || '#6366f1',
-				borderLeftWidth: '4px',
-			}}
-		>
-			<div className="flex justify-between items-start">
-				<div>
-					<p className="font-medium text-lg">{event.title}</p>
-					{event.description && (
-						<Markdown className="text-sm text-muted-foreground mt-1">
-							{event.description}
-						</Markdown>
-					)}
-					<div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-						<Calendar className="h-4 w-4" />
+			formattedTime={
+				event.type === 'period' ? (
+					<div className="flex items-center gap-1">
+						<Calendar className="h-3 w-3" />
 						<span>
 							{format(startDate, 'dd.MM.yyyy')}
-							{event.type === 'period' && endDate && (
+							{endDate && (
 								<>
-									<ArrowRight className="h-3 w-3 inline mx-1" />
+									<ArrowRight className="h-2 w-2 inline mx-1" />
 									{format(endDate, 'dd.MM.yyyy')}
 								</>
 							)}
 							{isOngoing && (
-								<span className="ml-1 text-xs">
+								<span className="ml-1 text-[10px]">
 									<fbt desc="Label on an event that is still ongoing">
 										ongoing
 									</fbt>
@@ -68,25 +52,22 @@ function EventListItem({
 							)}
 						</span>
 					</div>
-					<div className="flex items-center gap-1 text-sm text-muted-foreground">
-						<Clock className="h-4 w-4" />
-						<span>
-							{format(startDate, 'HH:mm')}
-							{event.type === 'period' && endDate && (
-								<>
-									<ArrowRight className="h-3 w-3 inline mx-1" />
-									{format(endDate, 'HH:mm')}
-								</>
-							)}
-						</span>
-					</div>
-				</div>
-				<div className="flex gap-1">
-					<EditIconButton onClick={() => onEdit(event.id)} />
-					<DeleteIconButton onClick={() => onDelete(event.id)} />
-				</div>
-			</div>
-		</div>
+				) : null
+			}
+			header={event.title}
+			onDelete={() => onDelete(event.id)}
+			onEdit={() => onEdit(event.id)}
+			style={{
+				borderLeftColor: event.color || '#6366f1',
+				borderLeftWidth: '4px',
+			}}
+		>
+			{event.description && (
+				<Markdown className="text-sm text-muted-foreground">
+					{event.description}
+				</Markdown>
+			)}
+		</HistoryEntryCard>
 	);
 }
 
@@ -95,37 +76,31 @@ export default function EventsList() {
 	const [eventToEditId, setEventToEditId] = useState<string | null>(null);
 	const removeEvent = useRemoveEvent();
 	const upsertEvent = useUpsertEvent();
-	const sortedEventIds = useSortedEventIds();
+	const { dateKeys, indexes, indexId } = useEventsByDate();
 	const eventToEdit = useEvent(eventToEditId ?? undefined);
-
-	if (sortedEventIds.length === 0) {
-		return (
-			<p className="text-muted-foreground text-center py-4">
-				<fbt desc="Info message that no event data has been recorded yet">
-					No events recorded yet.
-				</fbt>
-			</p>
-		);
-	}
 
 	return (
 		<>
-			<div className="space-y-4">
-				{sortedEventIds.map((eventId) => (
+			<IndexedHistoryList
+				dateKeys={dateKeys}
+				indexes={indexes}
+				indexId={indexId}
+			>
+				{(eventId) => (
 					<EventListItem
 						eventId={eventId}
 						key={eventId}
 						onDelete={setEventToDelete}
 						onEdit={setEventToEditId}
 					/>
-				))}
-			</div>
+				)}
+			</IndexedHistoryList>
 			{eventToDelete && (
 				<DeleteEntryDialog
 					entry={eventToDelete}
 					onClose={() => setEventToDelete(null)}
-					onDelete={(event) => {
-						removeEvent(event);
+					onDelete={(id) => {
+						removeEvent(id);
 						setEventToDelete(null);
 					}}
 				/>

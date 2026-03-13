@@ -50,7 +50,8 @@ test.describe('Feeding Page', () => {
 
 		await expect(page.getByText('10 min', { exact: true })).toBeVisible();
 
-		await page.getByRole('button', { name: 'Edit' }).first().click();
+		await page.getByTestId('history-entry-actions').first().click();
+		await page.getByRole('menuitem', { name: 'Edit' }).click();
 
 		await page.getByLabel('minutes').fill('20', { force: true });
 		await page.getByRole('button', { name: 'Save' }).click({ force: true });
@@ -64,7 +65,8 @@ test.describe('Feeding Page', () => {
 
 		await expect(page.getByText('5 min', { exact: true })).toBeVisible();
 
-		await page.getByRole('button', { name: 'Delete' }).first().click();
+		await page.getByTestId('history-entry-actions').first().click();
+		await page.getByRole('menuitem', { name: 'Delete' }).click();
 
 		await page
 			.getByRole('alertdialog')
