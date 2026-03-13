@@ -10,7 +10,7 @@ test.describe('Offline Synchronization', () => {
 	}) => {
 		test.setTimeout(120_000);
 		const session = await createRoomSyncSession(browser);
-		const { pageA, pageB, contextB } = session;
+		const { contextB, pageA, pageB } = session;
 
 		try {
 			// 1. Setup: Device A and Device B share a room
