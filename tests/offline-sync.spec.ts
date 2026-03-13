@@ -28,8 +28,9 @@ test.describe('Offline Synchronization', () => {
 
 			// 4. Wait for Device A to successfully save the snapshot
 			const savePromise = pageA.waitForResponse(
-				(res) => res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30000 },
+				(res) =>
+					res.url().includes('/store') && res.request().method() === 'PUT',
+				{ timeout: 30_000 },
 			);
 			await savePromise;
 			await pageA.waitForTimeout(1000);
@@ -50,7 +51,9 @@ test.describe('Offline Synchronization', () => {
 		} finally {
 			try {
 				await session.close();
-			} catch (e) {}
+			} catch {
+				// Ignore
+			}
 		}
 	});
 
@@ -84,8 +87,9 @@ test.describe('Offline Synchronization', () => {
 			// 5. Device A comes back online, waits for save, then goes offline
 			await contextA.setOffline(false);
 			const saveAPromise = pageA.waitForResponse(
-				(res) => res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30000 },
+				(res) =>
+					res.url().includes('/store') && res.request().method() === 'PUT',
+				{ timeout: 30_000 },
 			);
 			await saveAPromise;
 			await pageA.waitForTimeout(1000);
@@ -95,8 +99,9 @@ test.describe('Offline Synchronization', () => {
 			// Device B also needs to save its own changes merged with Device A's changes
 			await contextB.setOffline(false);
 			const saveBPromise = pageB.waitForResponse(
-				(res) => res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30000 },
+				(res) =>
+					res.url().includes('/store') && res.request().method() === 'PUT',
+				{ timeout: 30_000 },
 			);
 
 			// 7. Device B should see BOTH feedings (merged)
@@ -112,7 +117,9 @@ test.describe('Offline Synchronization', () => {
 		} finally {
 			try {
 				await session.close();
-			} catch (e) {}
+			} catch {
+				// Ignore
+			}
 		}
 	});
 });
