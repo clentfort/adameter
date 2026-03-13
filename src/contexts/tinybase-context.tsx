@@ -135,7 +135,12 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		let isDisposed = false;
 		let synchronizer: Synchronizer | undefined;
 		let connection: PartySocket | undefined;
+		let handleOpen: (() => void) | undefined;
 		let snapshotSaveInterval: ReturnType<typeof setInterval> | undefined;
+		let storeListenerId: string | undefined;
+		let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+		let isBootstrapping = false;
+
 		const store = storeRef.current;
 		const deviceId = getDeviceId();
 
@@ -159,28 +164,66 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			const storeUrl = getStoreUrl(connection);
 
-			// Bootstrap: load encrypted snapshot from server and MERGE into
-			// the local MergeableStore.  Because this is a CRDT merge (not a
-			// replace), any data the user added locally while offline is
-			// preserved — the HLC timestamps decide which cell value wins.
-			try {
-				const startBootstrap = performance.now();
-				const didLoad = await loadServerSnapshot(
-					store,
-					storeUrl,
-					encryptionKey,
-				);
-				logger.log(
-					`[PERF] Server snapshot bootstrap took ${(performance.now() - startBootstrap).toFixed(2)}ms (loaded=${didLoad})`,
-				);
-			} catch (error) {
-				logger.error('Failed to load server snapshot:', error);
-			}
+			// Debounced snapshot save: triggered by any store change while online.
+			// Keeps the server snapshot up-to-date within ~1 second so that peers
+			// coming back online see the latest data even within the 30s interval.
+			const scheduleSave = () => {
+				if (debounceTimer) clearTimeout(debounceTimer);
+				debounceTimer = setTimeout(() => {
+					if (isDisposed || connection?.readyState !== 1) return;
+					void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
+						(error: unknown) =>
+							logger.error('Failed to save debounced snapshot:', error),
+					);
+				}, 1000);
+			};
+
+			// Fetches the server snapshot, CRDT-merges it into the local store,
+			// then saves the merged result back so peers can benefit from the
+			// combined state (important when we had local changes while offline).
+			const bootstrap = async () => {
+				if (isBootstrapping) return;
+				isBootstrapping = true;
+				try {
+					const startBootstrap = performance.now();
+					const didLoad = await loadServerSnapshot(
+						store,
+						storeUrl,
+						encryptionKey,
+					);
+					logger.log(
+						`[PERF] Server snapshot bootstrap took ${(performance.now() - startBootstrap).toFixed(2)}ms (loaded=${didLoad})`,
+					);
+
+					if (didLoad && !isDisposed) {
+						// Push the merged state back so other clients can pick it up.
+						void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
+							(error: unknown) =>
+								logger.error('Failed to save snapshot after bootstrap:', error),
+						);
+					}
+				} catch (error) {
+					logger.error('Failed to load server snapshot:', error);
+				} finally {
+					isBootstrapping = false;
+				}
+
+				if (isDisposed) return;
+
+				// Run migrations after merging remote data
+				await runMigrationsIfNeeded(store, { deviceId });
+			};
+
+			// Initial bootstrap: load + merge the server snapshot before we start sync.
+			// This runs before we register the reconnect listener so migrations always
+			// complete before the synchronizer starts.
+			await bootstrap();
+
+			storeListenerId = store.addDidFinishTransactionListener(() => {
+				scheduleSave();
+			});
 
 			if (isDisposed) return;
-
-			// Run migrations after merging remote data
-			await runMigrationsIfNeeded(store, { deviceId });
 
 			// Create the encrypted synchronizer for real-time sync
 			let lastPeerWaitLogTimestamp = 0;
@@ -214,17 +257,34 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				`[PERF] Total connectRoomSync took ${(performance.now() - startConnect).toFixed(2)}ms`,
 			);
 
+			// Re-bootstrap whenever the WebSocket reconnects.  PartySocket
+			// auto-reconnects after network drops; on each reconnect we re-fetch
+			// the server snapshot so we pick up changes from peers that were
+			// online while we were offline.  We register this listener only
+			// after the initial setup is complete so migrations always finish
+			// before the synchronizer starts.
+			handleOpen = () => {
+				logger.log(
+					'[SYNC] WebSocket reconnected, re-bootstrapping from server snapshot...',
+				);
+				void bootstrap();
+			};
+			connection.addEventListener('open', handleOpen);
+
 			// Periodically save an encrypted snapshot so that future clients
 			// can bootstrap when no peers are online.
 			const SNAPSHOT_SAVE_INTERVAL_MS = 30_000;
 			snapshotSaveInterval = setInterval(() => {
-				void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-					(error: unknown) =>
-						logger.error('Failed to save server snapshot:', error),
-				);
+				if (connection?.readyState === 1) {
+					void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
+						(error: unknown) =>
+							logger.error('Failed to save periodic server snapshot:', error),
+					);
+				}
 			}, SNAPSHOT_SAVE_INTERVAL_MS);
 
-			// Save an initial snapshot immediately
+			// Save an initial snapshot immediately so that the first device to
+			// join a room persists its local data for future peers.
 			void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
 				(error: unknown) =>
 					logger.error('Failed to save initial server snapshot:', error),
@@ -235,7 +295,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 		};
 
-		void connectRoomSync().catch(() => {
+		void connectRoomSync().catch((error) => {
+			logger.error('[SYNC] Failed to connect room sync:', error);
 			if (!isDisposed) {
 				setIsSyncReady(true);
 			}
@@ -246,7 +307,19 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			if (snapshotSaveInterval) {
 				clearInterval(snapshotSaveInterval);
 			}
-			if (!synchronizer) return;
+			if (debounceTimer) {
+				clearTimeout(debounceTimer);
+			}
+			if (connection && handleOpen) {
+				connection.removeEventListener('open', handleOpen);
+			}
+			if (storeListenerId) {
+				store.delListener(storeListenerId);
+			}
+			if (!synchronizer) {
+				if (connection) connection.close();
+				return;
+			}
 			void synchronizer.destroy();
 		};
 	}, [isHydrated, isLocalReady, room]);
