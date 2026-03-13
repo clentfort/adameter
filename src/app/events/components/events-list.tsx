@@ -10,13 +10,15 @@ import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
 import { formatEntryTime } from '@/utils/format-history-date';
 import AddEventDialog from './event-form';
 
+import type { Event } from '@/types/event';
+
 function EventListItem({
 	eventId,
 	onDelete,
 	onEdit,
 }: {
 	eventId: string;
-	onDelete: (eventId: string) => void;
+	onDelete: (id: string) => void;
 	onEdit: (eventId: string) => void;
 }) {
 	const event = useEvent(eventId);
@@ -31,53 +33,54 @@ function EventListItem({
 
 	return (
 		<HistoryEntryCard
+			data-testid="event-entry"
 			formattedTime={formatEntryTime(event.startDate)}
+			header={event.title}
 			onDelete={() => onDelete(event.id)}
 			onEdit={() => onEdit(event.id)}
 			style={{
 				borderLeftColor: event.color || '#6366f1',
 				borderLeftWidth: '4px',
 			}}
-			title={event.title}
 		>
-			<div data-testid="event-entry">
+			<div>
 				{event.description && (
 					<Markdown className="text-sm text-muted-foreground">
 						{event.description}
 					</Markdown>
 				)}
 				<div className="flex flex-col gap-0.5 mt-2">
-					<div className="flex items-center gap-1 text-sm text-muted-foreground">
-						<Calendar className="h-4 w-4" />
-						<span>
-							{format(startDate, 'dd.MM.yyyy')}
-							{event.type === 'period' && endDate && (
-								<>
-									<ArrowRight className="h-3 w-3 inline mx-1" />
-									{format(endDate, 'dd.MM.yyyy')}
-								</>
-							)}
-							{isOngoing && (
-								<span className="ml-1 text-xs">
-									<fbt desc="Label on an event that is still ongoing">
-										ongoing
-									</fbt>
-								</span>
-							)}
-						</span>
-					</div>
-					<div className="flex items-center gap-1 text-sm text-muted-foreground">
-						<Clock className="h-4 w-4" />
-						<span>
-							{format(startDate, 'HH:mm')}
-							{event.type === 'period' && endDate && (
-								<>
-									<ArrowRight className="h-3 w-3 inline mx-1" />
-									{format(endDate, 'HH:mm')}
-								</>
-							)}
-						</span>
-					</div>
+					{event.type === 'period' && (
+						<div className="flex items-center gap-1 text-sm text-muted-foreground">
+							<Calendar className="h-4 w-4" />
+							<span>
+								{format(startDate, 'dd.MM.yyyy')}
+								{endDate && (
+									<>
+										<ArrowRight className="h-3 w-3 inline mx-1" />
+										{format(endDate, 'dd.MM.yyyy')}
+									</>
+								)}
+								{isOngoing && (
+									<span className="ml-1 text-xs">
+										<fbt desc="Label on an event that is still ongoing">
+											ongoing
+										</fbt>
+									</span>
+								)}
+							</span>
+						</div>
+					)}
+					{event.type === 'period' && endDate && (
+						<div className="flex items-center gap-1 text-sm text-muted-foreground">
+							<Clock className="h-4 w-4" />
+							<span>
+								{format(startDate, 'HH:mm')}
+								<ArrowRight className="h-3 w-3 inline mx-1" />
+								{format(endDate, 'HH:mm')}
+							</span>
+						</div>
+					)}
 				</div>
 			</div>
 		</HistoryEntryCard>
@@ -112,8 +115,8 @@ export default function EventsList() {
 				<DeleteEntryDialog
 					entry={eventToDelete}
 					onClose={() => setEventToDelete(null)}
-					onDelete={(event) => {
-						removeEvent(event);
+					onDelete={(id) => {
+						removeEvent(id);
 						setEventToDelete(null);
 					}}
 				/>

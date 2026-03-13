@@ -72,9 +72,7 @@ function DiaperHistoryEntry({
 			className={`${borderColor} ${bgColor}`}
 			data-testid="diaper-history-entry"
 			formattedTime={formatEntryTime(change.timestamp)}
-			onDelete={() => onDelete(change.id)}
-			onEdit={() => onEdit(change.id)}
-			title={
+			header={
 				<div
 					className={`font-medium ${textColor} flex flex-wrap items-center gap-x-3 gap-y-1`}
 				>
@@ -115,6 +113,8 @@ function DiaperHistoryEntry({
 					)}
 				</div>
 			}
+			onDelete={() => onDelete(change.id)}
+			onEdit={() => onEdit(change.id)}
 		>
 			<div className="text-sm space-y-1">
 				{change.temperature && (

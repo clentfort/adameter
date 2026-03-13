@@ -47,9 +47,7 @@ function FeedingHistoryEntry({
 			className={`${borderColor} ${bgColor}`}
 			data-testid="feeding-history-entry"
 			formattedTime={formatEntryTime(session.startTime)}
-			onDelete={() => onDelete(session.id)}
-			onEdit={() => onEdit(session.id)}
-			title={
+			header={
 				<span className={textColor}>
 					{isLeftBreast ? (
 						<fbt desc="Label indicating a feeding was done with the left breast">
@@ -62,6 +60,8 @@ function FeedingHistoryEntry({
 					)}
 				</span>
 			}
+			onDelete={() => onDelete(session.id)}
+			onEdit={() => onEdit(session.id)}
 		>
 			<p>{formatDurationAbbreviated(session.durationInSeconds)}</p>
 			{crossesMidnight && (

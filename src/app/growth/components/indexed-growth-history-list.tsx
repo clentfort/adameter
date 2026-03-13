@@ -50,9 +50,7 @@ function GrowthHistoryEntry({
 		<HistoryEntryCard
 			data-testid="growth-history-entry"
 			formattedTime={formatDisplayDate(measurement.date)}
-			onDelete={() => onDelete(measurement.id)}
-			onEdit={() => onEdit(measurement)}
-			title={
+			header={
 				<div className="flex items-center gap-2">
 					<span aria-hidden="true" role="img">
 						📏
@@ -60,6 +58,8 @@ function GrowthHistoryEntry({
 					<fbt desc="Growth measurement entry title">Measurement</fbt>
 				</div>
 			}
+			onDelete={() => onDelete(measurement.id)}
+			onEdit={() => onEdit(measurement)}
 		>
 			<div className="space-y-1">
 				{measurement.weight && (
@@ -116,9 +116,7 @@ function TeethingHistoryEntry({
 	return (
 		<HistoryEntryCard
 			formattedTime={formatDisplayDate(tooth.date)}
-			onDelete={() => onDelete(tooth)}
-			onEdit={() => onEdit(tooth)}
-			title={
+			header={
 				<div className="flex items-center gap-2">
 					<span aria-hidden="true" role="img">
 						🦷
@@ -126,6 +124,8 @@ function TeethingHistoryEntry({
 					<fbt desc="Teething entry title">Teething</fbt>
 				</div>
 			}
+			onDelete={() => onDelete(tooth)}
+			onEdit={() => onEdit(tooth)}
 		>
 			<div className="space-y-1">
 				<p className="text-sm">
