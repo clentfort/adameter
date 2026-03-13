@@ -238,4 +238,79 @@ test.describe('Offline Synchronization', () => {
 			}
 		}
 	});
+
+	test('edits and deletes made by Device A while Device B is offline are reflected on Device B after a full page reload', async ({
+		browser,
+	}) => {
+		test.setTimeout(120_000);
+		const session = await createRoomSyncSession(browser);
+		const { contextB, pageA, pageB } = session;
+
+		try {
+			// 1. Both devices share a room and see the same initial entries
+			await createRoomAndJoinPeer(session);
+			await addManualFeedingEntry(pageA, { minutes: 10 });
+			await addManualFeedingEntry(pageA, { minutes: 20 });
+			await pageB.goto('/feeding');
+			await expect(
+				pageB
+					.getByTestId('feeding-history-entry')
+					.filter({ hasText: '10 min' }),
+			).toBeVisible({ timeout: 20_000 });
+			await expect(
+				pageB
+					.getByTestId('feeding-history-entry')
+					.filter({ hasText: '20 min' }),
+			).toBeVisible();
+
+			// 2. Device B goes offline
+			await contextB.setOffline(true);
+
+			// 3. Device A edits the 10-min entry to 30 min and deletes the 20-min
+			//    entry, then wait for the snapshot to be saved
+			const saveAPromise = pageA.waitForResponse(
+				(res) =>
+					res.url().includes('/store') && res.request().method() === 'PUT',
+				{ timeout: 30_000 },
+			);
+			// Edit the first entry (most-recent first, so 20-min is first — edit it)
+			await pageA.getByRole('button', { name: 'Edit' }).first().click();
+			await pageA.getByLabel('minutes').fill('30', { force: true });
+			await pageA.getByRole('button', { name: 'Save' }).click({ force: true });
+			await expect(pageA.getByText('30 min', { exact: true })).toBeVisible();
+			// Delete the other entry
+			await pageA.getByRole('button', { name: 'Delete' }).last().click();
+			await pageA
+				.getByRole('alertdialog')
+				.getByRole('button', { name: 'Delete' })
+				.click({ force: true });
+			await expect(
+				pageA.getByText('10 min', { exact: true }),
+			).not.toBeVisible();
+			await saveAPromise;
+
+			// 4. Device A goes offline
+			await pageA.context().setOffline(true);
+
+			// 5. Device B comes back online and does a full page navigation —
+			//    this exercises the initial bootstrap() path (not handleOpen).
+			await contextB.setOffline(false);
+			await pageB.goto('/feeding');
+			await expect(pageB.getByText('30 min', { exact: true })).toBeVisible({
+				timeout: 20_000,
+			});
+			await expect(
+				pageB.getByText('10 min', { exact: true }),
+			).not.toBeVisible();
+			await expect(
+				pageB.getByText('20 min', { exact: true }),
+			).not.toBeVisible();
+		} finally {
+			try {
+				await session.close();
+			} catch {
+				// Ignore
+			}
+		}
+	});
 });
