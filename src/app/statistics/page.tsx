@@ -107,7 +107,7 @@ export default function StatisticsPage() {
 
 	return (
 		<div className="w-full">
-			<div className="flex flex-col gap-4 mb-6">
+			<div className="flex flex-col gap-4 mb-6 sticky top-[var(--header-height-sticky)] z-30 bg-background -mx-4 px-4 py-3 border-b shadow-sm transition-all duration-200">
 				<div className="flex justify-between items-start">
 					<h2 className="text-xl font-semibold pt-1">
 						<fbt desc="Title for the statistics page">Statistics</fbt>
