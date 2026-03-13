@@ -164,31 +164,23 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			const storeUrl = getStoreUrl(connection);
 
-			// Debounced save on changes
+			// Debounced snapshot save: triggered by any store change while online.
+			// Keeps the server snapshot up-to-date within ~1 second so that peers
+			// coming back online see the latest data even within the 30s interval.
 			const scheduleSave = () => {
 				if (debounceTimer) clearTimeout(debounceTimer);
 				debounceTimer = setTimeout(() => {
-					if (isDisposed) return;
-					// Only save if we are currently online, otherwise we'll just save on reconnect
-					if (connection?.readyState === 1) {
-						const tables = store.getTableIds();
-						logger.log(
-							`[SYNC] Saving debounced snapshot to server... Tables: ${JSON.stringify(tables)}`,
-						);
-						void saveServerSnapshot(store, storeUrl, encryptionKey)
-							.then(() =>
-								logger.log('[SYNC] Debounced snapshot saved successfully'),
-							)
-							.catch((error: unknown) =>
-								logger.error(
-									'Failed to save debounced server snapshot:',
-									error,
-								),
-							);
-					}
-				}, 1000); // reduced debounce for faster sync
+					if (isDisposed || connection?.readyState !== 1) return;
+					void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
+						(error: unknown) =>
+							logger.error('Failed to save debounced snapshot:', error),
+					);
+				}, 1000);
 			};
 
+			// Fetches the server snapshot, CRDT-merges it into the local store,
+			// then saves the merged result back so peers can benefit from the
+			// combined state (important when we had local changes while offline).
 			const bootstrap = async () => {
 				if (isBootstrapping) return;
 				isBootstrapping = true;
@@ -200,16 +192,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 						encryptionKey,
 					);
 					logger.log(
-						`[PERF] Server snapshot bootstrap took ${(performance.now() - startBootstrap).toFixed(2)}ms (loaded=${didLoad}, tables=${JSON.stringify(store.getTableIds())})`,
+						`[PERF] Server snapshot bootstrap took ${(performance.now() - startBootstrap).toFixed(2)}ms (loaded=${didLoad})`,
 					);
 
 					if (didLoad && !isDisposed) {
-						// After bootstrapping (merging remote data into local),
-						// save the merged state back to the server.
-						// This is important if we had local changes while offline.
+						// Push the merged state back so other clients can pick it up.
 						void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
 							(error: unknown) =>
-								logger.error('Failed to save snapshot after load:', error),
+								logger.error('Failed to save snapshot after bootstrap:', error),
 						);
 					}
 				} catch (error) {
@@ -224,14 +214,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				await runMigrationsIfNeeded(store, { deviceId });
 			};
 
-			handleOpen = () => {
-				logger.log('[SYNC] Connection opened, bootstrapping...');
-				void bootstrap();
-			};
-
-			connection.addEventListener('open', handleOpen);
-
-			// Initial bootstrap
+			// Initial bootstrap: load + merge the server snapshot before we start sync.
+			// This runs before we register the reconnect listener so migrations always
+			// complete before the synchronizer starts.
 			await bootstrap();
 
 			storeListenerId = store.addDidFinishTransactionListener(() => {
@@ -272,6 +257,20 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				`[PERF] Total connectRoomSync took ${(performance.now() - startConnect).toFixed(2)}ms`,
 			);
 
+			// Re-bootstrap whenever the WebSocket reconnects.  PartySocket
+			// auto-reconnects after network drops; on each reconnect we re-fetch
+			// the server snapshot so we pick up changes from peers that were
+			// online while we were offline.  We register this listener only
+			// after the initial setup is complete so migrations always finish
+			// before the synchronizer starts.
+			handleOpen = () => {
+				logger.log(
+					'[SYNC] WebSocket reconnected, re-bootstrapping from server snapshot...',
+				);
+				void bootstrap();
+			};
+			connection.addEventListener('open', handleOpen);
+
 			// Periodically save an encrypted snapshot so that future clients
 			// can bootstrap when no peers are online.
 			const SNAPSHOT_SAVE_INTERVAL_MS = 30_000;
@@ -284,7 +283,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				}
 			}, SNAPSHOT_SAVE_INTERVAL_MS);
 
-			// Save an initial snapshot immediately
+			// Save an initial snapshot immediately so that the first device to
+			// join a room persists its local data for future peers.
 			void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
 				(error: unknown) =>
 					logger.error('Failed to save initial server snapshot:', error),
