@@ -10,8 +10,6 @@ import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
 import { formatEntryTime } from '@/utils/format-history-date';
 import AddEventDialog from './event-form';
 
-import type { Event } from '@/types/event';
-
 function EventListItem({
 	eventId,
 	onDelete,
