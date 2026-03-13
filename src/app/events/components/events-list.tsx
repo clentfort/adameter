@@ -2,15 +2,12 @@ import { format } from 'date-fns';
 import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
-import DeleteIconButton from '@/components/icon-buttons/delete';
-import EditIconButton from '@/components/icon-buttons/edit';
+import HistoryEntryCard from '@/components/history-entry-card';
+import IndexedHistoryList from '@/components/indexed-history-list';
 import Markdown from '@/components/markdown';
-import {
-	useEvent,
-	useRemoveEvent,
-	useSortedEventIds,
-	useUpsertEvent,
-} from '@/hooks/use-events';
+import { useEvent, useRemoveEvent, useUpsertEvent } from '@/hooks/use-events';
+import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
+import { formatEntryTime } from '@/utils/format-history-date';
 import AddEventDialog from './event-form';
 
 function EventListItem({
@@ -33,23 +30,24 @@ function EventListItem({
 	const isOngoing = event.type === 'period' && !event.endDate;
 
 	return (
-		<div
-			className="border rounded-lg p-4 shadow-xs"
-			data-testid="event-entry"
+		<HistoryEntryCard
+			formattedTime={formatEntryTime(event.startDate)}
+			onDelete={() => onDelete(event.id)}
+			onEdit={() => onEdit(event.id)}
 			style={{
 				borderLeftColor: event.color || '#6366f1',
 				borderLeftWidth: '4px',
 			}}
+			title={event.title}
 		>
-			<div className="flex justify-between items-start">
-				<div>
-					<p className="font-medium text-lg">{event.title}</p>
-					{event.description && (
-						<Markdown className="text-sm text-muted-foreground mt-1">
-							{event.description}
-						</Markdown>
-					)}
-					<div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
+			<div data-testid="event-entry">
+				{event.description && (
+					<Markdown className="text-sm text-muted-foreground">
+						{event.description}
+					</Markdown>
+				)}
+				<div className="flex flex-col gap-0.5 mt-2">
+					<div className="flex items-center gap-1 text-sm text-muted-foreground">
 						<Calendar className="h-4 w-4" />
 						<span>
 							{format(startDate, 'dd.MM.yyyy')}
@@ -81,12 +79,8 @@ function EventListItem({
 						</span>
 					</div>
 				</div>
-				<div className="flex gap-1">
-					<EditIconButton onClick={() => onEdit(event.id)} />
-					<DeleteIconButton onClick={() => onDelete(event.id)} />
-				</div>
 			</div>
-		</div>
+		</HistoryEntryCard>
 	);
 }
 
@@ -95,31 +89,25 @@ export default function EventsList() {
 	const [eventToEditId, setEventToEditId] = useState<string | null>(null);
 	const removeEvent = useRemoveEvent();
 	const upsertEvent = useUpsertEvent();
-	const sortedEventIds = useSortedEventIds();
+	const { dateKeys, indexes, indexId } = useEventsByDate();
 	const eventToEdit = useEvent(eventToEditId ?? undefined);
-
-	if (sortedEventIds.length === 0) {
-		return (
-			<p className="text-muted-foreground text-center py-4">
-				<fbt desc="Info message that no event data has been recorded yet">
-					No events recorded yet.
-				</fbt>
-			</p>
-		);
-	}
 
 	return (
 		<>
-			<div className="space-y-4">
-				{sortedEventIds.map((eventId) => (
+			<IndexedHistoryList
+				dateKeys={dateKeys}
+				indexes={indexes}
+				indexId={indexId}
+			>
+				{(eventId) => (
 					<EventListItem
 						eventId={eventId}
 						key={eventId}
 						onDelete={setEventToDelete}
 						onEdit={setEventToEditId}
 					/>
-				))}
-			</div>
+				)}
+			</IndexedHistoryList>
 			{eventToDelete && (
 				<DeleteEntryDialog
 					entry={eventToDelete}
