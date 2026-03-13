@@ -155,7 +155,7 @@ describe('DiaperHistoryList', () => {
 		);
 
 		const tempElement = screen.getByText(/38.5 °C/);
-		expect(tempElement.closest('p')).toHaveClass('text-red-600');
+		expect(tempElement.parentElement).toHaveClass('text-red-600');
 	});
 
 	it('should render leakage indicator when diaper leaked', () => {

@@ -1,7 +1,6 @@
 import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { Button } from './ui/button';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -50,13 +49,15 @@ export default function HistoryEntryCard({
 				</div>
 				<div className="shrink-0 ml-2">
 					<DropdownMenu>
-						<DropdownMenuTrigger>
-							<Button className="h-8 w-8" size="icon" variant="ghost">
-								<EllipsisVertical className="h-4 w-4" />
-								<span className="sr-only">
-									<fbt desc="Open actions menu">Actions</fbt>
-								</span>
-							</Button>
+						<DropdownMenuTrigger
+							className={cn(
+								'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*=\'size-\'])]:size-4 inline-flex items-center justify-center whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none shrink-0 [&_svg]:shrink-0 outline-none group/button select-none hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 aria-expanded:bg-muted aria-expanded:text-foreground h-8 w-8',
+							)}
+						>
+							<EllipsisVertical className="h-4 w-4" />
+							<span className="sr-only">
+								<fbt desc="Open actions menu">Actions</fbt>
+							</span>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuItem onClick={onEdit}>
