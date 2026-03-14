@@ -1,7 +1,7 @@
 export const STORAGE_KEYS = {
-	PREFERRED_LANGUAGE: 'preferredLanguage',
-	FEEDING_IN_PROGRESS_BACKUP: 'feedingInProgress-backup',
 	DEVICE_ID: 'deviceId',
+	FEEDING_IN_PROGRESS_BACKUP: 'feedingInProgress-backup',
+	PREFERRED_LANGUAGE: 'preferredLanguage',
 	ROOM: 'room',
 	ROOM_JOIN_STRATEGY: 'room-join-strategy',
 	SKIP_PROFILE_PROMPT: 'adameter-skip-profile',

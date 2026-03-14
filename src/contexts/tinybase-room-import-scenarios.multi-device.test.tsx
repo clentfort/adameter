@@ -1,11 +1,10 @@
 import { waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import * as storage from '@/lib/storage';
+import { removeItem, setItem, STORAGE_KEYS } from '@/lib/storage';
 import {
 	expectEventCount,
 	renderRoomSyncProbe,
 	resetRoomImportScenarioMocks,
-	ROOM_JOIN_STRATEGY_STORAGE_KEY,
 	runDeviceSession,
 	setupMultiDeviceHarness,
 	setupSyncHarness,
@@ -32,7 +31,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		// Device B: no local data, joins room → gets 1501 from server, adds one
-		storage.removeItem(storage.STORAGE_KEYS.ROOM);
+		removeItem(STORAGE_KEYS.ROOM);
 		await runDeviceSession({
 			expectedAfterConnect: 1501,
 			expectedInitial: 0,
@@ -41,7 +40,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		// Device C: auto-rejoin → gets 1502 from server
-		storage.setItem(storage.STORAGE_KEYS.ROOM, 'scenario-room');
+		setItem(STORAGE_KEYS.ROOM, 'scenario-room');
 		await runDeviceSession({
 			autoConnect: true,
 			expectedAfterConnect: 1502,
@@ -67,7 +66,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		// Device B: no local data, joins room → gets 1001
-		storage.removeItem(storage.STORAGE_KEYS.ROOM);
+		removeItem(STORAGE_KEYS.ROOM);
 		await runDeviceSession({
 			expectedAfterConnect: 1001,
 			expectedInitial: 0,
@@ -75,7 +74,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		// Device C: has 120 offline imports, joins room → merges to 1121
-		storage.removeItem(storage.STORAGE_KEYS.ROOM);
+		removeItem(STORAGE_KEYS.ROOM);
 		await runDeviceSession({
 			expectedAfterConnect: 1121,
 			expectedInitial: 120,
@@ -119,8 +118,8 @@ describe('multi-device and stale session scenarios', () => {
 			remoteCount: 1,
 		});
 
-		storage.setItem(storage.STORAGE_KEYS.ROOM, 'scenario-room');
-		storage.removeItem(storage.STORAGE_KEYS.ROOM_JOIN_STRATEGY);
+		setItem(STORAGE_KEYS.ROOM, 'scenario-room');
+		removeItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY);
 
 		renderRoomSyncProbe(0);
 

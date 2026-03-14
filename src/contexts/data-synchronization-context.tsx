@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useEffect, useState } from 'react';
-import * as storage from '@/lib/storage';
+import { getItem, removeItem, setItem, STORAGE_KEYS } from '@/lib/storage';
 
 export type JoinStrategy = 'merge' | 'overwrite' | 'clear';
 
@@ -52,10 +52,8 @@ export function DataSynchronizationProvider({
 	};
 
 	useEffect(() => {
-		const restoredRoom = storage.getItem(storage.STORAGE_KEYS.ROOM);
-		const restoredJoinStrategy = storage.getItem(
-			storage.STORAGE_KEYS.ROOM_JOIN_STRATEGY,
-		);
+		const restoredRoom = getItem(STORAGE_KEYS.ROOM);
+		const restoredJoinStrategy = getItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY);
 		if (restoredRoom) {
 			setRoom(restoredRoom);
 			if (isJoinStrategy(restoredJoinStrategy)) {
@@ -74,12 +72,12 @@ export function DataSynchronizationProvider({
 		}
 
 		if (!room) {
-			storage.removeItem(storage.STORAGE_KEYS.ROOM);
-			storage.removeItem(storage.STORAGE_KEYS.ROOM_JOIN_STRATEGY);
+			removeItem(STORAGE_KEYS.ROOM);
+			removeItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY);
 			return;
 		}
-		storage.setItem(storage.STORAGE_KEYS.ROOM, room);
-		storage.setItem(storage.STORAGE_KEYS.ROOM_JOIN_STRATEGY, joinStrategy);
+		setItem(STORAGE_KEYS.ROOM, room);
+		setItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY, joinStrategy);
 	}, [isHydrated, joinStrategy, room]);
 
 	return (

@@ -10,12 +10,12 @@ import { useContext } from 'react';
 import { createStore } from 'tinybase';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { expect, vi } from 'vitest';
+import { clear } from '@/lib/storage';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import {
 	DataSynchronizationContext,
 	DataSynchronizationProvider,
 } from './data-synchronization-context';
-import * as storage from '@/lib/storage';
 import { TinybaseProvider } from './tinybase-context';
 
 export const ROOM_JOIN_STRATEGY_STORAGE_KEY = 'room-join-strategy';
@@ -129,7 +129,7 @@ function RoomSyncProbe({ importCount }: { importCount: number }) {
 }
 
 export function resetRoomImportScenarioMocks() {
-	storage.clear();
+	clear();
 	mocks.createEncryptedPartyKitSynchronizer.mockReset();
 	mocks.createIndexedDbPersister.mockReset();
 	mocks.getEncryptionKey.mockReset();

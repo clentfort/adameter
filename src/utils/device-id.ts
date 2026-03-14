@@ -1,11 +1,11 @@
-import * as storage from '@/lib/storage';
+import { getItem, setItem, STORAGE_KEYS } from '@/lib/storage';
 
 export function getDeviceId(): string {
 	if (typeof window === 'undefined') {
 		return 'server';
 	}
 
-	const existingId = storage.getItem(storage.STORAGE_KEYS.DEVICE_ID);
+	const existingId = getItem(STORAGE_KEYS.DEVICE_ID);
 	if (existingId) {
 		return existingId;
 	}
@@ -15,6 +15,6 @@ export function getDeviceId(): string {
 			? crypto.randomUUID()
 			: `device-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
-	storage.setItem(storage.STORAGE_KEYS.DEVICE_ID, newId);
+	setItem(STORAGE_KEYS.DEVICE_ID, newId);
 	return newId;
 }

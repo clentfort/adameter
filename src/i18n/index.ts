@@ -1,6 +1,6 @@
 import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
-import * as storage from '../lib/storage';
+import { getItem, setItem, STORAGE_KEYS } from '../lib/storage';
 import german from '../translations/de_DE.json';
 import english from '../translations/en_US.json';
 
@@ -42,7 +42,7 @@ export async function setLocale(locale: Locale): Promise<void> {
 		return;
 	}
 
-	storage.setItem(storage.STORAGE_KEYS.PREFERRED_LANGUAGE, locale);
+	setItem(STORAGE_KEYS.PREFERRED_LANGUAGE, locale);
 	viewerContext = { ...viewerContext, locale };
 
 	const dateFnsLocale = localeToDateFnsLocale[locale];
@@ -54,7 +54,7 @@ export async function setLocale(locale: Locale): Promise<void> {
 }
 
 export function getPreferredLocale(): Locale {
-	let locale = storage.getItem(storage.STORAGE_KEYS.PREFERRED_LANGUAGE);
+	let locale = getItem(STORAGE_KEYS.PREFERRED_LANGUAGE);
 
 	if (!locale) {
 		const browserLang = navigator.language;
