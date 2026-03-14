@@ -3680,11 +3680,11 @@
     },
     "c+AwJrPabIgTFg1Hr4ec7A==": {
       "description": "Label on a field that informs the user about the diaper product used",
-      "status": "new",
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Product",
+          "translation": "Produkt",
           "variations": {}
         }
       ],
@@ -3692,11 +3692,11 @@
     },
     "J+sMSdD4U453BoPHvD8yNQ==": {
       "description": "Label for missing product",
-      "status": "new",
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Unknown Product",
+          "translation": "Unbekanntes Produkt",
           "variations": {}
         }
       ],
@@ -3704,11 +3704,11 @@
     },
     "jhuHKQlQgZAPTYWbp9uYfA==": {
       "description": "Label for a button that tracks a urine diaper",
-      "status": "new",
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Urine",
+          "translation": "Urin",
           "variations": {}
         }
       ],
@@ -3716,11 +3716,11 @@
     },
     "+Rr6H4xQjL08P59HU5P99A==": {
       "description": "Label for a button that tracks a stool diaper",
-      "status": "new",
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Stool",
+          "translation": "Stuhl",
           "variations": {}
         }
       ],
@@ -3728,11 +3728,11 @@
     },
     "qXk+yEW940rKu1XW8rmhFw==": {
       "description": "Title for the diaper change entry dialog",
-      "status": "new",
+      "status": "translated",
       "tokens": [],
       "translations": [
         {
-          "translation": "Add Diaper Entry",
+          "translation": "Windeleintrag hinzufügen",
           "variations": {}
         }
       ],
