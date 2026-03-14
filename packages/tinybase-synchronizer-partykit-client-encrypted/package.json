@@ -46,7 +46,7 @@
 		"@semantic-release/npm": "^13.0.0",
 		"@semantic-release/release-notes-generator": "^14.0.3",
 		"@types/node": "^24.0.0",
-		"partysocket": "1.1.13",
+		"partysocket": "1.1.16",
 		"semantic-release": "^25.0.0",
 		"tinybase": "^7.3.3",
 		"typescript": "^5.9.2",
