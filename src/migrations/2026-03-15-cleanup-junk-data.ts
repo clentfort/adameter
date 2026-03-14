@@ -18,6 +18,7 @@ const VALID_VALUE_IDS = new Set<string>([
 	STORE_VALUE_PROFILE,
 ]);
 
+const ENTITY_TABLE_IDS = new Set<string>(Object.values(TABLE_IDS));
 const VALID_TABLE_IDS = new Set<string>([
 	...Object.values(TABLE_IDS),
 	...Object.values(INTERNAL_TABLE_IDS),
@@ -39,7 +40,7 @@ export const cleanupJunkDataMigration: Migration = {
 				}
 
 				// Only sanitize tables we have a schema for (entity tables)
-				if (Object.values(TABLE_IDS).includes(tableId as any)) {
+				if (ENTITY_TABLE_IDS.has(tableId)) {
 					for (const rowId of store.getRowIds(tableId)) {
 						const row = store.getRow(tableId, rowId);
 						const sanitizedRow = sanitizeImportedRow(tableId, {
