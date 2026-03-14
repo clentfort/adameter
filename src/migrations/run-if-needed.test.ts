@@ -10,6 +10,7 @@ const NORMALIZE_DIAPER_ROWS_MIGRATION_ID =
 	'2026-03-07-normalize-diaper-store-rows';
 const NORMALIZE_ENTITY_ROWS_MIGRATION_ID =
 	'2026-03-07-normalize-entity-store-rows';
+const RENAME_EVENT_MIGRATION_ID = '2026-03-24-rename-event-description-to-notes';
 
 describe('runMigrationsIfNeeded', () => {
 	it('detects pending migrations from migration metadata', () => {
@@ -64,6 +65,7 @@ describe('runMigrationsIfNeeded', () => {
 
 		expect(result.appliedMigrationIds).toEqual([
 			RENAME_MIGRATION_ID,
+			RENAME_EVENT_MIGRATION_ID,
 			REMOVE_LEGACY_JSON_CELLS_MIGRATION_ID,
 			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
@@ -136,7 +138,7 @@ describe('runMigrationsIfNeeded', () => {
 		const store = createStore();
 		store.setRow(TABLE_IDS.EVENTS, 'e1', {
 			color: '#123456',
-			description: '',
+			notes: '',
 			startDate: '2026-03-07T08:00:00.000Z',
 			title: 'Checkup',
 			type: 'point',

@@ -15,7 +15,8 @@ const NORMALIZE_DIAPER_ROWS_MIGRATION_ID =
 	'2026-03-07-normalize-diaper-store-rows';
 const NORMALIZE_ENTITY_ROWS_MIGRATION_ID =
 	'2026-03-07-normalize-entity-store-rows';
-const RENAME_EVENT_MIGRATION_ID = '2026-03-24-rename-event-description-to-notes';
+const RENAME_EVENT_MIGRATION_ID =
+	'2026-03-24-rename-event-description-to-notes';
 
 describe('runMigrations', () => {
 	it('keeps manifest ids in sync with registered migrations', () => {
@@ -189,6 +190,8 @@ describe('runMigrations', () => {
 		expect(store.getCell(TABLE_IDS.EVENTS, 'e1', 'notes')).toBe(
 			'Previous description',
 		);
-		expect(store.getCell(TABLE_IDS.EVENTS, 'e1', 'description')).toBeUndefined();
+		expect(
+			store.getCell(TABLE_IDS.EVENTS, 'e1', 'description'),
+		).toBeUndefined();
 	});
 });

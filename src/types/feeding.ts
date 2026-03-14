@@ -1,10 +1,7 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
-import {
-	optionalStringCell,
-	positiveNumericInputField,
-} from './schema-utils';
+import { optionalStringCell, positiveNumericInputField } from './schema-utils';
 
 const breastSchema = z.enum(['left', 'right']);
 
