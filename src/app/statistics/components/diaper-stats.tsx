@@ -2,9 +2,9 @@
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
+import PieChart from '@/components/charts/pie-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import PieChart from '@/components/charts/pie-chart';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import ComparisonValue from './comparison-value';
@@ -414,7 +414,11 @@ export default function DiaperStats({
 														</p>
 														<p className="text-sm font-medium">
 															{stats.costedChanges > 0 ? (
-																formatCurrency(stats.totalCost, currency, locale)
+																formatCurrency(
+																	stats.totalCost,
+																	currency,
+																	locale,
+																)
 															) : (
 																<span className="text-muted-foreground italic">
 																	<fbt desc="Label for missing brand cost">

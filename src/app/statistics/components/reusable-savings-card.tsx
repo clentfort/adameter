@@ -506,7 +506,11 @@ export default function ReusableSavingsCard({
 							</fbt>
 						</span>
 						<span className="tabular-nums">
-							{formatCurrency(metrics.hypotheticalDisposableCost, currency, locale)}
+							{formatCurrency(
+								metrics.hypotheticalDisposableCost,
+								currency,
+								locale,
+							)}
 						</span>
 					</div>
 				</div>

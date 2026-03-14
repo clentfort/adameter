@@ -52,15 +52,13 @@ describe('PottyStreakCards', () => {
 		// Current streak should be 2
 		const currentStreakBox = screen
 			.getByText('Current Potty Streak')
-			.closest('div[data-slot="card-header"]')!
-			.nextElementSibling!;
+			.closest('div[data-slot="card-header"]')!.nextElementSibling!;
 		expect(currentStreakBox).toHaveTextContent('2');
 
 		// Longest streak should be 3
 		const longestStreakBox = screen
 			.getByText('Longest Potty Streak')
-			.closest('div[data-slot="card-header"]')!
-			.nextElementSibling!;
+			.closest('div[data-slot="card-header"]')!.nextElementSibling!;
 		expect(longestStreakBox).toHaveTextContent('3');
 
 		// Check for the date of the longest streak
