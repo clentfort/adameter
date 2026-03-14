@@ -12,6 +12,7 @@ import { renameDiaperAbnormalitiesToNotesMigration } from './2026-03-01-rename-d
 import { normalizeDiaperStoreRowsMigration } from './2026-03-07-normalize-diaper-store-rows';
 import { normalizeEntityStoreRowsMigration } from './2026-03-07-normalize-entity-store-rows';
 import { removeLegacyJsonCellsMigration } from './2026-03-07-remove-legacy-json-cells';
+import { renameEventDescriptionToNotesMigration } from './2026-03-24-rename-event-description-to-notes';
 
 /**
  * Ordered migration list (oldest -> newest).
@@ -23,6 +24,7 @@ export const migrations: readonly Migration[] = [
 	removeLegacyJsonCellsMigration,
 	normalizeDiaperStoreRowsMigration,
 	normalizeEntityStoreRowsMigration,
+	renameEventDescriptionToNotesMigration,
 ];
 
 export function runMigrations(

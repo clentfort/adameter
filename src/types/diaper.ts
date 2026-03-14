@@ -15,6 +15,7 @@ const diaperProductSharedSchema = z.object({
 	costPerDiaper: optionalNumberCell,
 	isReusable: requiredBooleanField,
 	name: requiredNameField,
+	notes: optionalStringCell,
 	upfrontCost: optionalNumberCell,
 });
 
@@ -73,6 +74,7 @@ export const diaperProductFormSchema = z.object({
 	costPerDiaper: numericInputField('Cost per diaper must be a number'),
 	isReusable: requiredBooleanField,
 	name: requiredNameField,
+	notes: z.string().optional(),
 	upfrontCost: numericInputField('Upfront cost must be a number'),
 });
 
@@ -86,6 +88,7 @@ export const diaperProductFormToDataSchema = diaperProductFormSchema.transform(
 			).parse(values.costPerDiaper),
 			isReusable: values.isReusable,
 			name: values.name,
+			notes: values.notes,
 			upfrontCost: values.isReusable
 				? optionalNumberFromInputField('Upfront cost must be a number').parse(
 						values.upfrontCost,
@@ -154,8 +157,6 @@ export interface DiaperChange extends BaseEntity {
 	diaperProductId?: string;
 	/** Optional leakage indicator. */
 	leakage?: boolean;
-	/** Optional user-entered notes shown in the diaper UI. */
-	notes?: string;
 	/** Whether stool went into the potty. */
 	pottyStool?: boolean;
 	/** Whether urine went into the potty. */

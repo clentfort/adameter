@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { diaperProductFormToDataSchema } from '@/types/diaper';
 
 interface ProductFormProps {
@@ -28,6 +29,7 @@ function getDefaultValues(
 		costPerDiaper: initialData?.costPerDiaper?.toString() ?? '',
 		isReusable: initialData?.isReusable ?? false,
 		name: initialData?.name ?? '',
+		notes: initialData?.notes ?? '',
 		upfrontCost: initialData?.upfrontCost?.toString() ?? '',
 	};
 }
@@ -63,6 +65,7 @@ export default function ProductForm({
 			id: initialData?.id ?? crypto.randomUUID(),
 			isReusable: parsedValues.isReusable,
 			name: parsedValues.name,
+			notes: parsedValues.notes,
 			upfrontCost: parsedValues.upfrontCost,
 		});
 	};
@@ -133,6 +136,21 @@ export default function ProductForm({
 					/>
 				</div>
 			)}
+
+			<div className="space-y-2">
+				<Label htmlFor="product-notes">
+					<fbt desc="Label for notes input">Notes (optional)</fbt>
+				</Label>
+				<Textarea
+					id="product-notes"
+					placeholder={fbt(
+						'e.g. skin compatibility, fit, etc.',
+						'Placeholder for product notes',
+					)}
+					rows={3}
+					{...register('notes')}
+				/>
+			</div>
 
 			<div className="flex justify-end gap-2 pt-2">
 				<Button onClick={onCancel} type="button" variant="outline">

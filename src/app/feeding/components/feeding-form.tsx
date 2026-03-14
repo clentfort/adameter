@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
 import { useEntityForm } from '@/hooks/use-entity-form';
 import { feedingSessionFormToDataSchema } from '@/types/feeding';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
@@ -32,6 +33,7 @@ function getDefaultValues(
 		duration: feeding?.durationInSeconds
 			? Math.round(feeding.durationInSeconds / 60).toString()
 			: '',
+		notes: feeding?.notes ?? '',
 		time: dateToTimeInputValue(feeding?.startTime ?? new Date()),
 	};
 }
@@ -61,6 +63,7 @@ export default function FeedingForm({
 			durationInSeconds: parsedValues.durationInSeconds,
 			endTime: parsedValues.endTime,
 			id: feeding?.id ?? Date.now().toString(),
+			notes: parsedValues.notes,
 			startTime: parsedValues.startTime,
 		};
 
@@ -162,6 +165,20 @@ export default function FeedingForm({
 						min="1"
 						type="number"
 						{...register('duration')}
+					/>
+				</div>
+
+				<div className="space-y-2">
+					<Label htmlFor="edit-notes">
+						<fbt desc="Label for a textbox to note any notes">Notes</fbt>
+					</Label>
+					<Textarea
+						id="edit-notes"
+						placeholder={fbt(
+							'e.g. good latch, sleepy, etc.',
+							'Placeholder text for a textbox to note any notes during feeding',
+						)}
+						{...register('notes')}
 					/>
 				</div>
 			</div>
