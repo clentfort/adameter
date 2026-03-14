@@ -31,15 +31,15 @@ describe('entity row schemas', () => {
 		expect(
 			sanitizeEventForStore({
 				color: '#123456',
-				description: '  milestone  ',
 				id: 'event-1',
+				notes: '  milestone  ',
 				startDate: '2026-03-07T08:00:00.000Z',
 				title: '  Checkup  ',
 				type: 'point',
 			}),
 		).toEqual({
 			color: '#123456',
-			description: 'milestone',
+			notes: 'milestone',
 			startDate: '2026-03-07T08:00:00.000Z',
 			title: 'Checkup',
 			type: 'point',

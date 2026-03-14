@@ -1,11 +1,7 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
-import {
-	optionalStringCell,
-	optionalTextField,
-	requiredNameField,
-} from './schema-utils';
+import { optionalStringCell, requiredNameField } from './schema-utils';
 
 const eventTypeSchema = z.enum(['point', 'period']);
 

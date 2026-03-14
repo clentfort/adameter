@@ -4,6 +4,7 @@ import type {
 	FeedingSession,
 	FeedingSessionFormData,
 } from '@/types/feeding';
+import { fbt } from 'fbtee';
 import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';

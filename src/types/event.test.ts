@@ -6,10 +6,10 @@ describe('event schema transforms', () => {
 		expect(
 			parseEventFormValues({
 				color: '#123456',
-				description: '  milestone  ',
 				endDate: '2026-03-07',
 				endTime: '08:30',
 				hasEndDate: true,
+				notes: '  milestone  ',
 				startDate: '2026-03-07',
 				startTime: '08:00',
 				title: '  Checkup  ',
@@ -17,8 +17,8 @@ describe('event schema transforms', () => {
 			}),
 		).toEqual({
 			color: '#123456',
-			description: 'milestone',
 			endDate: '2026-03-07T08:30:00.000Z',
+			notes: 'milestone',
 			startDate: '2026-03-07T08:00:00.000Z',
 			title: 'Checkup',
 			type: 'period',

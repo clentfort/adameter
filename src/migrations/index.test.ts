@@ -35,10 +35,10 @@ describe('runMigrations', () => {
 
 		expect(result.appliedMigrationIds).toEqual([
 			RENAME_MIGRATION_ID,
+			RENAME_EVENT_MIGRATION_ID,
 			REMOVE_LEGACY_JSON_CELLS_MIGRATION_ID,
 			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
-			RENAME_EVENT_MIGRATION_ID,
 		]);
 		expect(result.hasChanges).toBe(true);
 		expect(result.skippedMigrationIds).toEqual([]);
@@ -81,10 +81,10 @@ describe('runMigrations', () => {
 		expect(secondRun.hasChanges).toBe(false);
 		expect(secondRun.skippedMigrationIds).toEqual([
 			RENAME_MIGRATION_ID,
+			RENAME_EVENT_MIGRATION_ID,
 			REMOVE_LEGACY_JSON_CELLS_MIGRATION_ID,
 			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
-			RENAME_EVENT_MIGRATION_ID,
 		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy notes',

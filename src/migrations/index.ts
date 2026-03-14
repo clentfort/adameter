@@ -21,10 +21,10 @@ import { renameEventDescriptionToNotesMigration } from './2026-03-24-rename-even
  */
 export const migrations: readonly Migration[] = [
 	renameDiaperAbnormalitiesToNotesMigration,
+	renameEventDescriptionToNotesMigration,
 	removeLegacyJsonCellsMigration,
 	normalizeDiaperStoreRowsMigration,
 	normalizeEntityStoreRowsMigration,
-	renameEventDescriptionToNotesMigration,
 ];
 
 export function runMigrations(
