@@ -107,6 +107,8 @@ describe('ReusableSavingsCard', () => {
 			/>,
 		);
 
-		expect(screen.queryByText('Reusable Diaper Metrics')).not.toBeInTheDocument();
+		expect(
+			screen.queryByText('Reusable Diaper Metrics'),
+		).not.toBeInTheDocument();
 	});
 });
