@@ -62,9 +62,9 @@ function EventListItem({
 				borderLeftWidth: '4px',
 			}}
 		>
-			{event.description && (
+			{event.notes && (
 				<Markdown className="text-sm text-muted-foreground">
-					{event.description}
+					{event.notes}
 				</Markdown>
 			)}
 		</HistoryEntryCard>

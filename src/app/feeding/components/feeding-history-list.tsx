@@ -72,16 +72,20 @@ function FeedingHistoryEntry({
 			onDelete={() => onDelete(session.id)}
 			onEdit={() => onEdit(session.id)}
 		>
-			{crossesMidnight && (
-				<p className="text-xs text-muted-foreground">
-					<span className="font-medium">
-						<fbt desc="Label for a note">Note</fbt>:
-					</span>{' '}
-					<fbt desc="A note describing that the feeding session crosses midnight">
-						This session crosses midnight
-					</fbt>
-				</p>
-			)}
+			<div className="space-y-1">
+				{session.notes && (
+					<p className="text-sm text-muted-foreground whitespace-pre-wrap">
+						{session.notes}
+					</p>
+				)}
+				{crossesMidnight && (
+					<p className="text-xs text-muted-foreground italic">
+						<fbt desc="A note describing that the feeding session crosses midnight">
+							This session crosses midnight
+						</fbt>
+					</p>
+				)}
+			</div>
 		</HistoryEntryCard>
 	);
 }

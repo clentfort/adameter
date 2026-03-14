@@ -41,10 +41,10 @@ const COLORS = [
 function getDefaultValues(event: Event | undefined): EventFormValues {
 	return {
 		color: event?.color ?? COLORS[0],
-		description: event?.description ?? '',
 		endDate: dateToDateInputValue(event?.endDate ?? new Date()),
 		endTime: dateToTimeInputValue(event?.endDate ?? new Date()),
 		hasEndDate: !!event?.endDate,
+		notes: event?.notes ?? '',
 		startDate: dateToDateInputValue(event?.startDate ?? new Date()),
 		startTime: dateToTimeInputValue(event?.startDate ?? new Date()),
 		title: event?.title ?? '',
@@ -77,9 +77,9 @@ export default function EventForm({
 		const newEvent: Event = {
 			...event,
 			color: parsedValues.color,
-			description: parsedValues.description,
 			endDate: parsedValues.endDate,
 			id: event?.id || Date.now().toString(),
+			notes: parsedValues.notes,
 			startDate: parsedValues.startDate,
 			title: parsedValues.title,
 			type: parsedValues.type,
@@ -112,19 +112,19 @@ export default function EventForm({
 				</div>
 
 				<div className="space-y-2">
-					<Label htmlFor="description">
+					<Label htmlFor="notes">
 						<fbt desc="Label for an optional event description input">
 							Description (optional)
 						</fbt>
 					</Label>
 					<Textarea
-						id="description"
+						id="notes"
 						placeholder={fbt(
 							'Additional details about the event',
 							'Placeholder for event description input',
 						)}
 						rows={3}
-						{...register('description')}
+						{...register('notes')}
 					/>
 				</div>
 

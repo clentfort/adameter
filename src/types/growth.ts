@@ -4,7 +4,7 @@ import { baseEntitySchema } from './base-entity';
 import {
 	optionalPositiveNumberCell,
 	optionalPositiveNumberFromInputField,
-	optionalTextField,
+	optionalStringCell,
 } from './schema-utils';
 
 const growthMeasurementSharedSchema = z
@@ -12,7 +12,7 @@ const growthMeasurementSharedSchema = z
 		date: z.string().min(1),
 		headCircumference: optionalPositiveNumberCell,
 		height: optionalPositiveNumberCell,
-		notes: optionalTextField,
+		notes: optionalStringCell,
 		weight: optionalPositiveNumberCell,
 	})
 	.refine(
@@ -100,7 +100,6 @@ export interface GrowthMeasurement extends BaseEntity {
 	headCircumference?: number;
 	// in centimeters
 	height?: number;
-	notes?: string;
 	// in grams
 	weight?: number;
 }

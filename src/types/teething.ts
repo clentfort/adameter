@@ -1,15 +1,11 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
-import {
-	integerCell,
-	optionalStringCell,
-	optionalTextField,
-} from './schema-utils';
+import { integerCell, optionalStringCell } from './schema-utils';
 
 const teethingSharedSchema = z.object({
 	date: optionalStringCell,
-	notes: optionalTextField,
+	notes: optionalStringCell,
 });
 
 export const teethingFormSchema = z.object({
@@ -43,6 +39,5 @@ export function parseTeethingFormValues(
 
 export interface Tooth extends BaseEntity {
 	date?: string; // ISO date of eruption
-	notes?: string;
 	toothId: number; // FDI number
 }

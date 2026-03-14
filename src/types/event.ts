@@ -1,18 +1,14 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
-import {
-	optionalStringCell,
-	optionalTextField,
-	requiredNameField,
-} from './schema-utils';
+import { optionalStringCell, requiredNameField } from './schema-utils';
 
 const eventTypeSchema = z.enum(['point', 'period']);
 
 const eventSharedSchema = z.object({
 	color: optionalStringCell,
-	description: optionalTextField,
 	endDate: optionalStringCell,
+	notes: optionalStringCell,
 	startDate: z.string().min(1),
 	title: requiredNameField,
 	type: eventTypeSchema,
@@ -20,10 +16,10 @@ const eventSharedSchema = z.object({
 
 export const eventFormSchema = z.object({
 	color: requiredNameField,
-	description: z.string(),
 	endDate: z.string(),
 	endTime: z.string(),
 	hasEndDate: z.boolean(),
+	notes: z.string(),
 	startDate: z.string().min(1),
 	startTime: z.string().min(1),
 	title: requiredNameField,
@@ -44,8 +40,8 @@ export const eventFormToDataSchema = eventFormSchema.transform((values) => {
 
 	return eventSharedSchema.parse({
 		color: values.color,
-		description: values.description,
 		endDate: endDateTime?.toISOString(),
+		notes: values.notes,
 		startDate: startDateTime.toISOString(),
 		title: values.title,
 		type: values.type,
@@ -66,7 +62,6 @@ export function parseEventFormValues(values: EventFormValues): EventFormData {
 export interface Event extends BaseEntity {
 	// point = single date, period = start to end date
 	color?: string;
-	description?: string;
 	// ISO string
 	endDate?: string;
 	startDate: string;
