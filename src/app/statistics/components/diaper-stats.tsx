@@ -179,7 +179,9 @@ export default function DiaperStats({
 		const productCost = productCostById.get(productId);
 		if (typeof productCost === 'number') {
 			brandCounts[productName].totalCost += productCost;
-			brandCounts[productName].costedChanges += 1;
+			brandCounts[
+				brandCounts[productName].totalCost === 0 ? productName : productName
+			].costedChanges += 1;
 		}
 
 		if (change.leakage) {
@@ -380,13 +382,15 @@ export default function DiaperStats({
 														}}
 													/>
 													<p className="text-sm font-semibold">{brand}</p>
-													<span className="text-xs text-muted-foreground ml-auto">
-														{stats.total}{' '}
-														<fbt desc="Label for brand change count">
-															changes
-														</fbt>{' '}
-														({Math.round(brandSharePercent)}%)
-													</span>
+													<div className="flex items-center gap-4 ml-auto">
+														<span className="text-xs text-muted-foreground">
+															{stats.total}{' '}
+															<fbt desc="Label for brand change count">
+																changes
+															</fbt>{' '}
+															({Math.round(brandSharePercent)}%)
+														</span>
+													</div>
 												</div>
 												<div className="grid grid-cols-2 gap-4">
 													<div>

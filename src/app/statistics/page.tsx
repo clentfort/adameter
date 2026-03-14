@@ -19,6 +19,7 @@ import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurementsSnapshot } from '@/hooks/use-growth-measurements';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
+import DiaperActivity from './components/diaper-activity';
 import DiaperRecords from './components/diaper-records';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
@@ -27,13 +28,14 @@ import FeedingRecords from './components/feeding-records';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
+import PottyActivity from './components/potty-activity';
+import PottyRecords from './components/potty-records';
 import PottyStats from './components/potty-stats';
 import PottyStreakCards from './components/potty-streak-cards';
 import ReusableSavingsCard from './components/reusable-savings-card';
 import TimeBetweenStats from './components/time-between-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
-import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
 export default function StatisticsPage() {
 	const diaperChanges = useDiaperChangesSnapshot();
@@ -299,30 +301,15 @@ export default function StatisticsPage() {
 								diaperChanges={filteredDiaperChanges}
 								products={diaperProducts}
 							/>
-							<YearlyActivityHeatMap
+							<DiaperActivity
 								className="mt-4"
-								dates={diaperChanges.map((change) => change.timestamp)}
-								description={
-									<fbt desc="Description for the diaper yearly activity heat map chart">
-										Each square shows how many diaper changes were logged on
-										that day.
-									</fbt>
-								}
-								palette="diaper"
-								title={
-									<fbt desc="Title for the diaper yearly activity heat map chart">
-										Diaper Activity (Past Year)
-									</fbt>
-								}
+								diaperChanges={diaperChanges}
+								primaryRange={primary}
+								secondaryRange={secondary}
 							/>
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<DiaperRecords diaperChanges={diaperChanges} />
 							</div>
-							<ReusableSavingsCard
-								allDiaperChanges={diaperChanges}
-								className="mt-4"
-								products={diaperProducts}
-							/>
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
@@ -341,26 +328,15 @@ export default function StatisticsPage() {
 								comparisonDiaperChanges={comparisonDiaperChanges}
 								diaperChanges={filteredDiaperChanges}
 							/>
-							<YearlyActivityHeatMap
+							<PottyActivity
 								className="mt-4"
-								dates={diaperChanges
-									.filter((c) => c.pottyUrine || c.pottyStool)
-									.map((c) => c.timestamp)}
-								description={
-									<fbt desc="Description for the potty yearly activity heat map chart">
-										Each square shows how many potty successes were logged on
-										that day.
-									</fbt>
-								}
-								palette="feeding"
-								title={
-									<fbt desc="Title for the potty yearly activity heat map chart">
-										Potty Activity (Past Year)
-									</fbt>
-								}
+								diaperChanges={diaperChanges}
+								primaryRange={primary}
+								secondaryRange={secondary}
 							/>
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<PottyStreakCards diaperChanges={diaperChanges} />
+								<PottyRecords diaperChanges={diaperChanges} />
 							</div>
 						</>
 					) : (
@@ -370,6 +346,14 @@ export default function StatisticsPage() {
 							</fbt>
 						</div>
 					)}
+
+					<h3 className="text-lg font-medium mt-8 mb-4">
+						<fbt desc="Subtitle for the cost overview section">Cost</fbt>
+					</h3>
+					<ReusableSavingsCard
+						allDiaperChanges={diaperChanges}
+						products={diaperProducts}
+					/>
 
 					<h3 className="text-lg font-medium mt-8 mb-4">
 						<fbt desc="Subtitle for the growth statistics section">Growth</fbt>

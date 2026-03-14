@@ -58,7 +58,7 @@ describe('ReusableSavingsCard', () => {
 			<ReusableSavingsCard allDiaperChanges={allChanges} products={products} />,
 		);
 
-		expect(screen.getByText('Diaper Savings')).toBeInTheDocument();
+		expect(screen.getByText('Cost Overview')).toBeInTheDocument();
 		expect(screen.getByText('POTTY')).toBeInTheDocument();
 		expect(screen.getByText('REUSABLE')).toBeInTheDocument();
 		expect(screen.getByText('Total Cost')).toBeInTheDocument();
@@ -84,7 +84,7 @@ describe('ReusableSavingsCard', () => {
 			).length,
 		).toBeGreaterThanOrEqual(1);
 
-		// Running Cost
+		// Usage Cost
 		expect(
 			screen.getByText(
 				(content) => /0[,.]80/.test(content) && content.includes('€'),
@@ -94,7 +94,7 @@ describe('ReusableSavingsCard', () => {
 		// Hypothetical Cost
 		expect(
 			screen.getByText(
-				(content) => /1[,.]60/.test(content) && content.includes('€'),
+				(content) => /2[,.]00/.test(content) && content.includes('€'),
 			),
 		).toBeInTheDocument();
 
@@ -109,6 +109,6 @@ describe('ReusableSavingsCard', () => {
 			/>,
 		);
 
-		expect(screen.queryByText('Diaper Savings')).not.toBeInTheDocument();
+		expect(screen.queryByText('Cost Overview')).not.toBeInTheDocument();
 	});
 });

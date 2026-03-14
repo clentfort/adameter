@@ -45,7 +45,7 @@ interface ReusableSavingsMetrics {
 	hypotheticalDisposableCost: number;
 	pottySavings: number;
 	reusableSavings: number;
-	runningCost: number;
+	usageCost: number;
 	totalCost: number;
 	totalSavings: number;
 	upfrontCostTotal: number;
@@ -275,7 +275,7 @@ function calculateReusableSavingsMetrics(
 		}
 	}
 
-	const runningCost = allDiaperChanges.reduce((sum, change) => {
+	const usageCost = allDiaperChanges.reduce((sum, change) => {
 		const productId = change.diaperProductId;
 		if (!productId) {
 			return sum;
@@ -296,14 +296,7 @@ function calculateReusableSavingsMetrics(
 	let hypotheticalDisposableCost = 0;
 	for (const change of allDiaperChanges) {
 		const productId = change.diaperProductId;
-		if (!productId) {
-			continue;
-		}
-
-		const product = productById.get(productId);
-		if (!product) {
-			continue;
-		}
+		const product = productId ? productById.get(productId) : null;
 
 		const timestamp = new Date(change.timestamp);
 		const averageDisposable = getDisposableAverageAround(
@@ -313,7 +306,7 @@ function calculateReusableSavingsMetrics(
 
 		if (averageDisposable !== null) {
 			hypotheticalDisposableCost += averageDisposable;
-		} else if (!product.isReusable && product.costPerDiaper) {
+		} else if (product && !product.isReusable && product.costPerDiaper) {
 			hypotheticalDisposableCost += product.costPerDiaper;
 		}
 	}
@@ -324,8 +317,8 @@ function calculateReusableSavingsMetrics(
 		hypotheticalDisposableCost,
 		pottySavings,
 		reusableSavings,
-		runningCost,
-		totalCost: runningCost + upfrontCostTotal,
+		usageCost,
+		totalCost: usageCost + upfrontCostTotal,
 		totalSavings,
 		upfrontCostTotal,
 	};
@@ -361,7 +354,7 @@ export default function ReusableSavingsCard({
 		<Card className={cn('w-full', className)}>
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
-					<fbt desc="Title for reusable savings card">Diaper Savings</fbt>
+					<fbt desc="Title for reusable savings card">Cost Overview</fbt>
 				</CardTitle>
 				<CardAction>
 					<Popover>
@@ -472,7 +465,7 @@ export default function ReusableSavingsCard({
 					<div className="flex items-center justify-between text-sm">
 						<span className="font-medium text-muted-foreground">
 							<fbt desc="Label for upfront cost in diaper savings card">
-								Fixed Cost (Upfront)
+								Upfront Cost
 							</fbt>
 						</span>
 						<span className="tabular-nums text-muted-foreground">
@@ -481,12 +474,12 @@ export default function ReusableSavingsCard({
 					</div>
 					<div className="flex items-center justify-between text-sm">
 						<span className="font-medium text-muted-foreground">
-							<fbt desc="Label for running cost in diaper savings card">
-								Running Cost (Usage)
+							<fbt desc="Label for usage cost in diaper savings card">
+								Usage Cost
 							</fbt>
 						</span>
 						<span className="tabular-nums text-muted-foreground">
-							{formatCurrency(metrics.runningCost, currency, locale)}
+							{formatCurrency(metrics.usageCost, currency, locale)}
 						</span>
 					</div>
 					<div className="flex items-center justify-between text-sm border-t pt-2 mt-2">

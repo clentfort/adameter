@@ -55,7 +55,7 @@ export default function PieChart({
 				plugins: {
 					legend: {
 						display: true,
-						position: 'bottom',
+						position: 'right',
 					},
 					title: {
 						display: !!title,
@@ -103,7 +103,7 @@ export default function PieChart({
 	}
 
 	return (
-		<div className="h-[300px] w-full">
+		<div className="h-[250px] w-full">
 			<canvas ref={chartRef} role="graphics-document" />
 		</div>
 	);
