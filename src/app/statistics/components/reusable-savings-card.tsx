@@ -1,7 +1,7 @@
 'use client';
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import { differenceInDays, format } from 'date-fns';
+import { addDays, differenceInDays, format } from 'date-fns';
 import { Info } from 'lucide-react';
 import {
 	Card,
@@ -373,20 +373,20 @@ export default function ReusableSavingsCard({
 							{formatCurrency(metrics.upfrontCostTotal, currency, locale)}
 						</span>
 					</div>
-					<div className="flex items-center justify-between text-sm">
-						<span className="font-medium text-muted-foreground">
-							<fbt desc="Label for usage cost">Usage Cost</fbt>
-						</span>
-						<span className="tabular-nums text-muted-foreground">
-							{formatCurrency(metrics.usageCost, currency, locale)}
-						</span>
-					</div>
 					<div className="flex items-center justify-between text-sm border-t pt-2 mt-2">
 						<span className="font-semibold">
 							<fbt desc="Label for total cost">Total Cost</fbt>
 						</span>
 						<span className="tabular-nums font-semibold">
 							{formatCurrency(metrics.totalCost, currency, locale)}
+						</span>
+					</div>
+					<div className="flex items-center justify-between text-sm">
+						<span className="font-medium text-muted-foreground">
+							<fbt desc="Label for usage cost">Usage Cost</fbt>
+						</span>
+						<span className="tabular-nums text-muted-foreground">
+							{formatCurrency(metrics.usageCost, currency, locale)}
 						</span>
 					</div>
 					<div className="flex items-center justify-between text-xs text-muted-foreground pt-1 italic">
