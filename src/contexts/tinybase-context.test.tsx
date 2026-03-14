@@ -9,6 +9,7 @@ import {
 import { useContext } from 'react';
 import { useStore, useTable, useValue } from 'tinybase/ui-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as storage from '@/lib/storage';
 import { STORE_VALUE_PROFILE, TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import {
 	DataSynchronizationContext,
@@ -87,7 +88,7 @@ describe('TinybaseProvider room sync', () => {
 	});
 
 	beforeEach(() => {
-		localStorage.clear();
+		storage.clear();
 		mocks.createEncryptedPartyKitSynchronizer.mockReset();
 		mocks.createIndexedDbPersister.mockReset();
 		mocks.getEncryptionKey.mockReset();

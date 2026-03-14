@@ -1,5 +1,6 @@
 import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
+import * as storage from '../lib/storage';
 import german from '../translations/de_DE.json';
 import english from '../translations/en_US.json';
 
@@ -11,7 +12,6 @@ const allTranslations = {
 };
 
 export type Locale = keyof typeof allTranslations & string;
-const LOCAL_STORAGE_KEY = 'preferredLanguage';
 
 function isSupportedLocale(locale: string): locale is Locale {
 	return Object.keys(allTranslations).includes(locale);
@@ -38,16 +38,11 @@ setupFbtee({
 });
 
 export async function setLocale(locale: Locale): Promise<void> {
-	if (typeof window === 'undefined') {
-		return;
-	}
-
 	if (!isSupportedLocale(locale)) {
 		return;
 	}
 
-	// @TODO(localStorage): Move all local storage access to dedicated module
-	localStorage.setItem(LOCAL_STORAGE_KEY, locale);
+	storage.setItem(storage.STORAGE_KEYS.PREFERRED_LANGUAGE, locale);
 	viewerContext = { ...viewerContext, locale };
 
 	const dateFnsLocale = localeToDateFnsLocale[locale];
@@ -59,11 +54,7 @@ export async function setLocale(locale: Locale): Promise<void> {
 }
 
 export function getPreferredLocale(): Locale {
-	if (typeof window === 'undefined') {
-		return DEFAULT_LOCALE;
-	}
-
-	let locale = localStorage.getItem(LOCAL_STORAGE_KEY);
+	let locale = storage.getItem(storage.STORAGE_KEYS.PREFERRED_LANGUAGE);
 
 	if (!locale) {
 		const browserLang = navigator.language;

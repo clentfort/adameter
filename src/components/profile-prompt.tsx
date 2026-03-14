@@ -9,6 +9,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog';
 import { useProfile } from '@/hooks/use-profile';
+import * as storage from '@/lib/storage';
 import ProfileForm from './profile-form';
 
 export default function ProfilePrompt() {
@@ -26,7 +27,7 @@ export default function ProfilePrompt() {
 	if (
 		profile?.dob ||
 		profile?.optedOut ||
-		window.localStorage.getItem('adameter-skip-profile') === 'true'
+		storage.getItem(storage.STORAGE_KEYS.SKIP_PROFILE_PROMPT) === 'true'
 	) {
 		return null;
 	}

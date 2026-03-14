@@ -1,5 +1,6 @@
 import { waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
+import * as storage from '@/lib/storage';
 import {
 	expectEventCount,
 	renderRoomSyncProbe,
@@ -31,7 +32,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		// Device B: no local data, joins room → gets 1501 from server, adds one
-		localStorage.removeItem('room');
+		storage.removeItem(storage.STORAGE_KEYS.ROOM);
 		await runDeviceSession({
 			expectedAfterConnect: 1501,
 			expectedInitial: 0,
@@ -40,7 +41,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		// Device C: auto-rejoin → gets 1502 from server
-		localStorage.setItem('room', 'scenario-room');
+		storage.setItem(storage.STORAGE_KEYS.ROOM, 'scenario-room');
 		await runDeviceSession({
 			autoConnect: true,
 			expectedAfterConnect: 1502,
@@ -66,7 +67,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		// Device B: no local data, joins room → gets 1001
-		localStorage.removeItem('room');
+		storage.removeItem(storage.STORAGE_KEYS.ROOM);
 		await runDeviceSession({
 			expectedAfterConnect: 1001,
 			expectedInitial: 0,
@@ -74,7 +75,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		// Device C: has 120 offline imports, joins room → merges to 1121
-		localStorage.removeItem('room');
+		storage.removeItem(storage.STORAGE_KEYS.ROOM);
 		await runDeviceSession({
 			expectedAfterConnect: 1121,
 			expectedInitial: 120,
@@ -118,8 +119,8 @@ describe('multi-device and stale session scenarios', () => {
 			remoteCount: 1,
 		});
 
-		localStorage.setItem('room', 'scenario-room');
-		localStorage.removeItem(ROOM_JOIN_STRATEGY_STORAGE_KEY);
+		storage.setItem(storage.STORAGE_KEYS.ROOM, 'scenario-room');
+		storage.removeItem(storage.STORAGE_KEYS.ROOM_JOIN_STRATEGY);
 
 		renderRoomSyncProbe(0);
 
