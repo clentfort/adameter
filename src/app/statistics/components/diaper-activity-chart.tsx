@@ -93,12 +93,10 @@ export default function DiaperActivityChart({
 			}, {});
 
 			const secondaryUrineData = secondaryDays.map(
-				(day) =>
-					-(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0),
+				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0),
 			);
 			const secondaryStoolData = secondaryDays.map(
-				(day) =>
-					-(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0),
+				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0),
 			);
 
 			datasets.push(
