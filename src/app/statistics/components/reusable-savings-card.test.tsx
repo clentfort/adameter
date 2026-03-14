@@ -63,16 +63,41 @@ describe('ReusableSavingsCard', () => {
 		expect(screen.getByText('REUSABLE')).toBeInTheDocument();
 		expect(screen.getByText('Total Cost')).toBeInTheDocument();
 
+		// Total Savings
 		expect(
-			screen.getByText(
+			screen.getAllByText(
 				(content) => /0[,.]60/.test(content) && content.includes('€'),
-			),
-		).toBeInTheDocument();
+			).length,
+		).toBeGreaterThanOrEqual(1);
+
+		// Total Cost
 		expect(
 			screen.getByText(
 				(content) => /1[,.]40/.test(content) && content.includes('€'),
 			),
 		).toBeInTheDocument();
+
+		// Upfront Cost
+		expect(
+			screen.getAllByText(
+				(content) => /0[,.]60/.test(content) && content.includes('€'),
+			).length,
+		).toBeGreaterThanOrEqual(1);
+
+		// Running Cost
+		expect(
+			screen.getByText(
+				(content) => /0[,.]80/.test(content) && content.includes('€'),
+			),
+		).toBeInTheDocument();
+
+		// Hypothetical Cost
+		expect(
+			screen.getByText(
+				(content) => /1[,.]60/.test(content) && content.includes('€'),
+			),
+		).toBeInTheDocument();
+
 		expect(screen.queryByText('Not yet reached')).not.toBeInTheDocument();
 	});
 

@@ -42,8 +42,10 @@ interface SavingsEvent {
 interface ReusableSavingsMetrics {
 	breakEvenDate: Date | null;
 	estimatedBreakEvenDate: Date | null;
+	hypotheticalDisposableCost: number;
 	pottySavings: number;
 	reusableSavings: number;
+	runningCost: number;
 	totalCost: number;
 	totalSavings: number;
 	upfrontCostTotal: number;
@@ -273,7 +275,7 @@ function calculateReusableSavingsMetrics(
 		}
 	}
 
-	const usageCost = allDiaperChanges.reduce((sum, change) => {
+	const runningCost = allDiaperChanges.reduce((sum, change) => {
 		const productId = change.diaperProductId;
 		if (!productId) {
 			return sum;
@@ -291,12 +293,39 @@ function calculateReusableSavingsMetrics(
 		return sum + product.costPerDiaper;
 	}, 0);
 
+	let hypotheticalDisposableCost = 0;
+	for (const change of allDiaperChanges) {
+		const productId = change.diaperProductId;
+		if (!productId) {
+			continue;
+		}
+
+		const product = productById.get(productId);
+		if (!product) {
+			continue;
+		}
+
+		const timestamp = new Date(change.timestamp);
+		const averageDisposable = getDisposableAverageAround(
+			timestamp,
+			disposableChanges,
+		);
+
+		if (averageDisposable !== null) {
+			hypotheticalDisposableCost += averageDisposable;
+		} else if (!product.isReusable && product.costPerDiaper) {
+			hypotheticalDisposableCost += product.costPerDiaper;
+		}
+	}
+
 	return {
 		breakEvenDate,
 		estimatedBreakEvenDate,
+		hypotheticalDisposableCost,
 		pottySavings,
 		reusableSavings,
-		totalCost: usageCost + upfrontCostTotal,
+		runningCost,
+		totalCost: runningCost + upfrontCostTotal,
 		totalSavings,
 		upfrontCostTotal,
 	};
@@ -441,13 +470,43 @@ export default function ReusableSavingsCard({
 						</span>
 					</div>
 					<div className="flex items-center justify-between text-sm">
-						<span className="font-medium">
+						<span className="font-medium text-muted-foreground">
+							<fbt desc="Label for upfront cost in diaper savings card">
+								Fixed Cost (Upfront)
+							</fbt>
+						</span>
+						<span className="tabular-nums text-muted-foreground">
+							{formatCurrency(metrics.upfrontCostTotal, currency, locale)}
+						</span>
+					</div>
+					<div className="flex items-center justify-between text-sm">
+						<span className="font-medium text-muted-foreground">
+							<fbt desc="Label for running cost in diaper savings card">
+								Running Cost (Usage)
+							</fbt>
+						</span>
+						<span className="tabular-nums text-muted-foreground">
+							{formatCurrency(metrics.runningCost, currency, locale)}
+						</span>
+					</div>
+					<div className="flex items-center justify-between text-sm border-t pt-2 mt-2">
+						<span className="font-semibold">
 							<fbt desc="Label for total diaper cost in diaper savings card">
 								Total Cost
 							</fbt>
 						</span>
-						<span className="tabular-nums text-muted-foreground">
+						<span className="tabular-nums font-semibold">
 							{formatCurrency(metrics.totalCost, currency, locale)}
+						</span>
+					</div>
+					<div className="flex items-center justify-between text-xs text-muted-foreground pt-1 italic">
+						<span>
+							<fbt desc="Label for hypothetical disposable cost">
+								Hypothetical Disposable Cost
+							</fbt>
+						</span>
+						<span className="tabular-nums">
+							{formatCurrency(metrics.hypotheticalDisposableCost, currency, locale)}
 						</span>
 					</div>
 				</div>

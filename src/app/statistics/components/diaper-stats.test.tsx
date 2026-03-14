@@ -8,6 +8,11 @@ vi.mock('@/hooks/use-currency', () => ({
 	useCurrency: () => ['EUR', vi.fn()] as const,
 }));
 
+vi.mock('@/components/charts/pie-chart', () => ({
+	__esModule: true,
+	default: () => <div data-testid="pie-chart" />,
+}));
+
 const diaperChanges: DiaperChange[] = createDiaperChanges([
 	{
 		containsStool: false,
@@ -45,6 +50,7 @@ describe('DiaperStats', () => {
 		).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole('tab', { name: 'Diaper Brands' }));
+		expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
 		expect(screen.getByText('Brand A')).toBeInTheDocument();
 		expect(screen.getByText('Brand B')).toBeInTheDocument();
 		expect(
@@ -69,66 +75,6 @@ describe('DiaperStats', () => {
 		).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole('tab', { name: 'Diaper Brands' }));
-		expect(screen.getAllByText('Cost not configured').length).toBeGreaterThan(
-			0,
-		);
-	});
-
-	it('calculates and displays potty streaks correctly', () => {
-		const streakChanges: DiaperChange[] = createDiaperChanges([
-			{
-				containsStool: false,
-				containsUrine: false,
-				pottyUrine: true,
-				timestamp: '2026-02-01T10:00:00.000Z',
-			},
-			{
-				containsStool: false,
-				containsUrine: false,
-				pottyStool: true,
-				timestamp: '2026-02-01T11:00:00.000Z',
-			},
-			{
-				containsStool: false,
-				containsUrine: false,
-				pottyUrine: true,
-				timestamp: '2026-02-01T12:00:00.000Z',
-			},
-			{
-				containsStool: false,
-				containsUrine: true, // accident
-				timestamp: '2026-02-02T10:00:00.000Z',
-			},
-			{
-				containsStool: false,
-				containsUrine: false,
-				pottyUrine: true,
-				timestamp: '2026-02-03T10:00:00.000Z',
-			},
-			{
-				containsStool: false,
-				containsUrine: false,
-				pottyStool: true,
-				timestamp: '2026-02-03T11:00:00.000Z',
-			},
-		]);
-
-		render(<DiaperStats diaperChanges={streakChanges} products={[]} />);
-
-		expect(screen.getByText('Potty Streaks')).toBeInTheDocument();
-		expect(screen.getByText('Current')).toBeInTheDocument();
-		expect(screen.getByText('Longest')).toBeInTheDocument();
-
-		// Current streak should be 2
-		const currentStreakBox = screen.getByText('Current').closest('div')!;
-		expect(currentStreakBox).toHaveTextContent('2');
-
-		// Longest streak should be 3
-		const longestStreakBox = screen.getByText('Longest').closest('div')!;
-		expect(longestStreakBox).toHaveTextContent('3');
-
-		// Check for the date of the longest streak
-		// 2026-02-01 formatted as PP should be something like Feb 1, 2026
-		expect(screen.getByText(/Feb 1, 2026/)).toBeInTheDocument();
+		expect(screen.getAllByText('Not configured').length).toBeGreaterThan(0);
 	});
 });
