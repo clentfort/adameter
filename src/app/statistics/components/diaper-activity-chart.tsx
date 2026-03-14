@@ -101,13 +101,13 @@ export default function DiaperActivityChart({
 
 			datasets.push(
 				{
-					backgroundColor: 'rgba(148, 163, 184, 0.4)', // slate-400
+					backgroundColor: '#94a3b8', // slate-400
 					data: secondaryUrineData,
 					label: 'Urine (Prev)',
 					stack: 'secondary',
 				},
 				{
-					backgroundColor: 'rgba(203, 213, 225, 0.4)', // slate-300
+					backgroundColor: '#cbd5e1', // slate-300
 					data: secondaryStoolData,
 					label: 'Stool (Prev)',
 					stack: 'secondary',

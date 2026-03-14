@@ -126,7 +126,7 @@ export default function FeedingActivityChart({
 
 			datasets.push(
 				{
-					backgroundColor: 'rgba(148, 163, 184, 0.4)', // Slate-400 with opacity
+					backgroundColor: '#94a3b8', // Slate-400
 					data: secondaryLeftData,
 					label: (
 						<fbt desc="Legend label for secondary left breast duration">
@@ -136,7 +136,7 @@ export default function FeedingActivityChart({
 					stack: 'secondary',
 				},
 				{
-					backgroundColor: 'rgba(203, 213, 225, 0.4)', // Slate-300 with opacity
+					backgroundColor: '#cbd5e1', // Slate-300
 					data: secondaryRightData,
 					label: (
 						<fbt desc="Legend label for secondary right breast duration">

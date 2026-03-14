@@ -45,6 +45,7 @@ const products: DiaperProduct[] = [
 	{ costPerDiaper: 0.3, id: 'product-a', isReusable: false, name: 'Brand A' },
 	{ costPerDiaper: 0.5, id: 'product-b', isReusable: false, name: 'Brand B' },
 	{
+		costPerDiaper: 0.4,
 		id: 'product-r',
 		isReusable: true,
 		name: 'Reusable Hero',

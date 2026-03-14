@@ -229,6 +229,7 @@ function calculateReusableSavingsMetrics(
 		const product = productById.get(productId);
 		if (
 			!product ||
+			!product.isReusable ||
 			typeof product.costPerDiaper !== 'number' ||
 			!Number.isFinite(product.costPerDiaper)
 		) {
@@ -330,28 +331,27 @@ export default function ReusableSavingsCard({
 			</CardHeader>
 
 			<CardContent className="space-y-4 p-4 pt-0">
-				<div className="rounded-xl border p-4">
-					<p className="text-muted-foreground text-sm">
-						<fbt desc="Label for total reusable savings">Total Savings</fbt>
-					</p>
-					<p
-						className={cn(
-							'mt-1 text-4xl font-bold leading-none tabular-nums',
-							metrics.totalSavings >= 0
-								? 'text-green-700 dark:text-green-400'
-								: 'text-red-600 dark:text-red-400',
-						)}
-					>
-						{formatCurrency(metrics.totalSavings, currency, locale)}
-					</p>
-				</div>
-
-				<div className="space-y-2 border-t pt-3">
-					<div className="flex items-center justify-between text-sm">
-						<span className="font-medium">
-							<fbt desc="Label for break-even point">Break-even Point</fbt>
-						</span>
-						<span className="tabular-nums text-muted-foreground">
+				<div className="grid grid-cols-2 gap-4">
+					<div className="rounded-xl border p-4">
+						<p className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+							<fbt desc="Label for total reusable savings">Total Savings</fbt>
+						</p>
+						<p
+							className={cn(
+								'mt-1 text-2xl font-bold tabular-nums',
+								metrics.totalSavings >= 0
+									? 'text-green-700 dark:text-green-400'
+									: 'text-red-600 dark:text-red-400',
+							)}
+						>
+							{formatCurrency(metrics.totalSavings, currency, locale)}
+						</p>
+					</div>
+					<div className="rounded-xl border p-4">
+						<p className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+							<fbt desc="Label for break-even point">Break-even</fbt>
+						</p>
+						<p className="mt-1 text-sm font-medium tabular-nums text-muted-foreground">
 							{breakEvenLabel ? (
 								metrics.estimatedBreakEvenDate ? (
 									<fbt desc="Estimated break-even date">
@@ -363,8 +363,11 @@ export default function ReusableSavingsCard({
 							) : (
 								<fbt desc="Break-even not yet reached">Not yet reached</fbt>
 							)}
-						</span>
+						</p>
 					</div>
+				</div>
+
+				<div className="space-y-2 border-t pt-3">
 					<div className="flex items-center justify-between text-sm">
 						<span className="font-medium text-muted-foreground">
 							<fbt desc="Label for upfront cost">Upfront Cost</fbt>
@@ -373,20 +376,20 @@ export default function ReusableSavingsCard({
 							{formatCurrency(metrics.upfrontCostTotal, currency, locale)}
 						</span>
 					</div>
-					<div className="flex items-center justify-between text-sm border-t pt-2 mt-2">
-						<span className="font-semibold">
-							<fbt desc="Label for total cost">Total Cost</fbt>
-						</span>
-						<span className="tabular-nums font-semibold">
-							{formatCurrency(metrics.totalCost, currency, locale)}
-						</span>
-					</div>
 					<div className="flex items-center justify-between text-sm">
 						<span className="font-medium text-muted-foreground">
 							<fbt desc="Label for usage cost">Usage Cost</fbt>
 						</span>
 						<span className="tabular-nums text-muted-foreground">
 							{formatCurrency(metrics.usageCost, currency, locale)}
+						</span>
+					</div>
+					<div className="flex items-center justify-between text-sm border-t pt-2 mt-2">
+						<span className="font-semibold">
+							<fbt desc="Label for total cost">Total Cost</fbt>
+						</span>
+						<span className="tabular-nums font-semibold">
+							{formatCurrency(metrics.totalCost, currency, locale)}
 						</span>
 					</div>
 					<div className="flex items-center justify-between text-xs text-muted-foreground pt-1 italic">
