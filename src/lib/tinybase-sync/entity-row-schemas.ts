@@ -1,6 +1,10 @@
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import type { Event } from '@/types/event';
 import type { FeedingSession } from '@/types/feeding';
+import type {
+	FeedingProduct,
+	FormulaProduct,
+} from '@/types/feeding-products';
 import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
 import {
@@ -9,6 +13,10 @@ import {
 } from '@/types/diaper';
 import { eventDataSchema } from '@/types/event';
 import { feedingSessionDataSchema } from '@/types/feeding';
+import {
+	feedingProductDataSchema,
+	formulaProductDataSchema,
+} from '@/types/feeding-products';
 import { growthMeasurementDataSchema } from '@/types/growth';
 import { toothDataSchema } from '@/types/teething';
 import { TABLE_IDS } from './constants';
@@ -68,6 +76,18 @@ export function sanitizeFeedingSessionForStore(
 	return sanitizeRowWithSchema({ ...session }, feedingSessionDataSchema);
 }
 
+export function sanitizeFormulaProductForStore(
+	product: FormulaProduct,
+): SanitizedRow | null {
+	return sanitizeRowWithSchema({ ...product }, formulaProductDataSchema);
+}
+
+export function sanitizeFeedingProductForStore(
+	product: FeedingProduct,
+): SanitizedRow | null {
+	return sanitizeRowWithSchema({ ...product }, feedingProductDataSchema);
+}
+
 export function sanitizeGrowthMeasurementForStore(
 	measurement: GrowthMeasurement,
 ): SanitizedRow | null {
@@ -96,6 +116,14 @@ export function sanitizeImportedRow(
 
 	if (tableId === TABLE_IDS.FEEDING_SESSIONS) {
 		return sanitizeRowWithSchema(row, feedingSessionDataSchema);
+	}
+
+	if (tableId === TABLE_IDS.FORMULA_PRODUCTS) {
+		return sanitizeRowWithSchema(row, formulaProductDataSchema);
+	}
+
+	if (tableId === TABLE_IDS.FEEDING_PRODUCTS) {
+		return sanitizeRowWithSchema(row, feedingProductDataSchema);
 	}
 
 	if (tableId === TABLE_IDS.GROWTH_MEASUREMENTS) {
