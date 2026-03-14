@@ -97,10 +97,12 @@ export default function PottyActivityChart({
 			}, {});
 
 			const secondaryUrineData = secondaryDays.map(
-				(day) => secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0,
+				(day) =>
+					-(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0),
 			);
 			const secondaryStoolData = secondaryDays.map(
-				(day) => secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0,
+				(day) =>
+					-(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0),
 			);
 
 			datasets.push(
@@ -108,13 +110,13 @@ export default function PottyActivityChart({
 					backgroundColor: '#94a3b8', // slate-400
 					data: secondaryUrineData,
 					label: 'Urine (Prev)',
-					stack: 'secondary',
+					stack: 'comparison',
 				},
 				{
 					backgroundColor: '#cbd5e1', // slate-300
 					data: secondaryStoolData,
 					label: 'Stool (Prev)',
-					stack: 'secondary',
+					stack: 'comparison',
 				},
 			);
 		}
@@ -145,9 +147,19 @@ export default function PottyActivityChart({
 				grouped={false}
 				labels={labels}
 				title="Potty Successes"
+				tooltipLabelFormatter={(context) => {
+					let label = context.dataset.label || '';
+					if (label) {
+						label += ': ';
+					}
+					if (context.parsed.y !== null) {
+						label += Math.abs(context.parsed.y).toString();
+					}
+					return label;
+				}}
 				xAxisLabel="Date"
 				yAxisLabel="Count"
-				yMin={0}
+				yAxisUnit=""
 			/>
 		</div>
 	);

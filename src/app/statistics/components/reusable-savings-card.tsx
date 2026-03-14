@@ -315,14 +315,15 @@ export default function ReusableSavingsCard({
 							<PopoverHeader>
 								<PopoverTitle>
 									<fbt desc="Title for reusable cost explanation">
-										Calculation Details
+										How this is calculated
 									</fbt>
 								</PopoverTitle>
 							</PopoverHeader>
 							<PopoverDescription className="text-xs leading-normal">
 								<fbt desc="Explanation for reusable savings calculation">
-									Compares actual reusable costs against the average cost of
-									disposables used within 7 days of each event.
+									Calculates savings by comparing actual reusable diaper costs
+									(upfront + usage) against the estimated cost of disposables
+									for the same number of changes.
 								</fbt>
 							</PopoverDescription>
 						</PopoverContent>
@@ -347,7 +348,7 @@ export default function ReusableSavingsCard({
 							{formatCurrency(metrics.totalSavings, currency, locale)}
 						</p>
 					</div>
-					<div className="rounded-xl border p-4">
+					<div className="rounded-xl border p-4 flex flex-col justify-center">
 						<p className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 							<fbt desc="Label for break-even point">Break-even</fbt>
 						</p>
