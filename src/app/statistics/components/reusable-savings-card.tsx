@@ -393,7 +393,7 @@ export default function ReusableSavingsCard({
 							{formatCurrency(metrics.totalCost, currency, locale)}
 						</span>
 					</div>
-					<div className="flex items-center justify-between text-xs text-muted-foreground pt-1 italic">
+					<div className="flex items-center justify-between text-xs text-muted-foreground pt-1 italic border-t mt-2">
 						<span>
 							<fbt desc="Label for hypothetical disposable cost">
 								Hypothetical Disposable Cost
