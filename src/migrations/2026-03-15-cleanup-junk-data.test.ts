@@ -9,7 +9,11 @@ describe('cleanupJunkDataMigration', () => {
 		store.setTable('unknownTable', { row1: { cell1: 'junk' } });
 		store.setValue('unknownValue', 'junk');
 		store.setTable(TABLE_IDS.DIAPER_CHANGES, {
-			change1: { containsStool: true, containsUrine: true, timestamp: '2024-01-01T00:00:00Z' },
+			change1: {
+				containsStool: true,
+				containsUrine: true,
+				timestamp: '2024-01-01T00:00:00Z',
+			},
 		});
 		store.setValue('currency', 'USD');
 
