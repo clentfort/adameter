@@ -38,7 +38,7 @@
 	},
 	"peerDependencies": {
 		"partysocket": ">=1 <2",
-		"tinybase": ">=7 <8"
+		"tinybase": ">=7 <9"
 	},
 	"devDependencies": {
 		"@semantic-release/commit-analyzer": "^13.0.1",
@@ -48,7 +48,7 @@
 		"@types/node": "^24.0.0",
 		"partysocket": "1.1.16",
 		"semantic-release": "^25.0.0",
-		"tinybase": "^7.3.3",
+		"tinybase": "^8.0.0",
 		"typescript": "^5.9.2",
 		"vitest": "^4.0.0"
 	}
