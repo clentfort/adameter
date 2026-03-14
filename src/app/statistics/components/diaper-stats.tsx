@@ -1,7 +1,7 @@
 'use client';
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/i18n-context';
@@ -46,6 +46,9 @@ function calculateDiaperMetrics(
 	if (diaperChanges.length === 0) {
 		return {
 			changesPerDay: '0',
+			currentStreak: 0,
+			longestStreak: 0,
+			longestStreakEndTimestamp: undefined as string | undefined,
 			pottyStool: 0,
 			pottyUrine: 0,
 			totalChanges: 0,
@@ -97,8 +100,37 @@ function calculateDiaperMetrics(
 	);
 	const changesPerDay = (totalChanges / daysDiff).toFixed(1);
 
+	const sortedChanges = [...diaperChanges].sort((a, b) =>
+		a.timestamp.localeCompare(b.timestamp),
+	);
+
+	let currentStreak = 0;
+	let longestStreak = 0;
+	let longestStreakEndTimestamp: string | undefined;
+
+	for (const change of sortedChanges) {
+		const isSuccess =
+			(change.pottyUrine || change.pottyStool) &&
+			!change.containsUrine &&
+			!change.containsStool;
+		const isAccident = change.containsUrine || change.containsStool;
+
+		if (isSuccess) {
+			currentStreak++;
+			if (currentStreak >= longestStreak) {
+				longestStreak = currentStreak;
+				longestStreakEndTimestamp = change.timestamp;
+			}
+		} else if (isAccident) {
+			currentStreak = 0;
+		}
+	}
+
 	return {
 		changesPerDay,
+		currentStreak,
+		longestStreak,
+		longestStreakEndTimestamp,
 		pottyStool,
 		pottyUrine,
 		totalChanges,
@@ -149,6 +181,9 @@ export default function DiaperStats({
 
 	const {
 		changesPerDay,
+		currentStreak,
+		longestStreak,
+		longestStreakEndTimestamp,
 		pottyStool,
 		pottyUrine,
 		totalChanges,
@@ -396,6 +431,53 @@ export default function DiaperStats({
 											/>
 										)}
 									</div>
+								</div>
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							<h4 className="text-sm font-semibold">
+								<fbt desc="Title for the potty streaks section in diaper statistics">
+									Potty Streaks
+								</fbt>
+							</h4>
+							<div className="grid grid-cols-2 gap-4">
+								<div className="border rounded-md p-3 bg-green-50 dark:bg-green-800/30">
+									<p className="text-sm text-green-800 dark:text-green-300">
+										<fbt desc="Label for current potty streak">Current</fbt>
+									</p>
+									<div className="flex items-baseline">
+										<p className="text-xl font-bold text-green-800 dark:text-green-300">
+											{currentStreak}
+										</p>
+										{prevMetrics && (
+											<ComparisonValue
+												current={currentStreak}
+												previous={prevMetrics.currentStreak}
+											/>
+										)}
+									</div>
+								</div>
+								<div className="border rounded-md p-3 bg-green-50 dark:bg-green-800/30">
+									<p className="text-sm text-green-800 dark:text-green-300">
+										<fbt desc="Label for longest potty streak">Longest</fbt>
+									</p>
+									<div className="flex items-baseline">
+										<p className="text-xl font-bold text-green-800 dark:text-green-300">
+											{longestStreak}
+										</p>
+										{prevMetrics && (
+											<ComparisonValue
+												current={longestStreak}
+												previous={prevMetrics.longestStreak}
+											/>
+										)}
+									</div>
+									{longestStreakEndTimestamp && (
+										<p className="text-[10px] text-green-600 dark:text-green-400 mt-1">
+											{format(new Date(longestStreakEndTimestamp), 'PP')}
+										</p>
+									)}
 								</div>
 							</div>
 						</div>
