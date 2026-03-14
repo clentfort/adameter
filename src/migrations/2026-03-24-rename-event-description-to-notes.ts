@@ -1,19 +1,6 @@
 import type { Migration } from './types';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 
-/**
- * Snapshot of the event shape before this migration.
- */
-interface EventBefore20260324 {
-	color?: string;
-	description?: string;
-	endDate?: string;
-	id: string;
-	startDate: string;
-	title: string;
-	type: 'point' | 'period';
-}
-
 export const renameEventDescriptionToNotesMigration: Migration = {
 	description:
 		'Rename events.description to events.notes and remove the legacy cell.',

@@ -63,11 +63,6 @@ export const optionalStringCell = z.preprocess(
 
 export const requiredNameField = z.string().trim().min(1);
 
-export const optionalTextField = z.preprocess(
-	emptyStringToUndefined,
-	z.string().trim().min(1).optional(),
-);
-
 export function numericInputField(message: string) {
 	return z
 		.string()

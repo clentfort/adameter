@@ -15,6 +15,7 @@ const NORMALIZE_DIAPER_ROWS_MIGRATION_ID =
 	'2026-03-07-normalize-diaper-store-rows';
 const NORMALIZE_ENTITY_ROWS_MIGRATION_ID =
 	'2026-03-07-normalize-entity-store-rows';
+const CLEANUP_JUNK_DATA_MIGRATION_ID = '2026-03-15-cleanup-junk-data';
 const RENAME_EVENT_MIGRATION_ID =
 	'2026-03-24-rename-event-description-to-notes';
 
@@ -40,6 +41,7 @@ describe('runMigrations', () => {
 			REMOVE_LEGACY_JSON_CELLS_MIGRATION_ID,
 			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+			CLEANUP_JUNK_DATA_MIGRATION_ID,
 		]);
 		expect(result.hasChanges).toBe(true);
 		expect(result.skippedMigrationIds).toEqual([]);
@@ -86,6 +88,7 @@ describe('runMigrations', () => {
 			REMOVE_LEGACY_JSON_CELLS_MIGRATION_ID,
 			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+			CLEANUP_JUNK_DATA_MIGRATION_ID,
 		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy notes',
