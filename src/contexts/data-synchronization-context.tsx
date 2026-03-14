@@ -1,11 +1,9 @@
 'use client';
 
 import { createContext, useEffect, useState } from 'react';
+import { getItem, removeItem, setItem, STORAGE_KEYS } from '@/lib/storage';
 
 export type JoinStrategy = 'merge' | 'overwrite' | 'clear';
-
-const ROOM_STORAGE_KEY = 'room';
-const ROOM_JOIN_STRATEGY_STORAGE_KEY = 'room-join-strategy';
 
 function isJoinStrategy(candidate: string | null): candidate is JoinStrategy {
 	return (
@@ -54,10 +52,8 @@ export function DataSynchronizationProvider({
 	};
 
 	useEffect(() => {
-		const restoredRoom = localStorage.getItem(ROOM_STORAGE_KEY);
-		const restoredJoinStrategy = localStorage.getItem(
-			ROOM_JOIN_STRATEGY_STORAGE_KEY,
-		);
+		const restoredRoom = getItem(STORAGE_KEYS.ROOM);
+		const restoredJoinStrategy = getItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY);
 		if (restoredRoom) {
 			setRoom(restoredRoom);
 			if (isJoinStrategy(restoredJoinStrategy)) {
@@ -76,12 +72,12 @@ export function DataSynchronizationProvider({
 		}
 
 		if (!room) {
-			localStorage.removeItem(ROOM_STORAGE_KEY);
-			localStorage.removeItem(ROOM_JOIN_STRATEGY_STORAGE_KEY);
+			removeItem(STORAGE_KEYS.ROOM);
+			removeItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY);
 			return;
 		}
-		localStorage.setItem(ROOM_STORAGE_KEY, room);
-		localStorage.setItem(ROOM_JOIN_STRATEGY_STORAGE_KEY, joinStrategy);
+		setItem(STORAGE_KEYS.ROOM, room);
+		setItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY, joinStrategy);
 	}, [isHydrated, joinStrategy, room]);
 
 	return (

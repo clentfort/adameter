@@ -16,12 +16,10 @@ export const useFeedingInProgress = () => {
 		(nextFeedingInProgress: FeedingInProgress | null) => {
 			if (nextFeedingInProgress === null) {
 				store.delValue(STORE_VALUE_FEEDING_IN_PROGRESS);
-				localStorage.setItem('feedingInProgress-backup', 'null');
 			} else {
 				const normalized = structuredClone(nextFeedingInProgress);
 				const json = JSON.stringify(normalized);
 				store.setValue(STORE_VALUE_FEEDING_IN_PROGRESS, json);
-				localStorage.setItem('feedingInProgress-backup', json);
 			}
 		},
 		[store],
