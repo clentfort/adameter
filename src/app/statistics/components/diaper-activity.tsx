@@ -1,6 +1,6 @@
 'use client';
 
-import type { DiaperChange } from '@/types/diaper';
+import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
 import {
 	Card,
@@ -11,12 +11,14 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DiaperActivityChart from './diaper-activity-chart';
+import DiaperCostChart from './diaper-cost-chart';
 import YearlyActivityHeatMap from './yearly-activity-heat-map';
 
 interface DiaperActivityProps {
 	className?: string;
 	diaperChanges: DiaperChange[];
 	primaryRange: DateRange;
+	products: DiaperProduct[];
 	secondaryRange?: DateRange;
 }
 
@@ -24,6 +26,7 @@ export default function DiaperActivity({
 	className,
 	diaperChanges,
 	primaryRange,
+	products,
 	secondaryRange,
 }: DiaperActivityProps) {
 	return (
@@ -34,7 +37,7 @@ export default function DiaperActivity({
 				</CardTitle>
 				<CardDescription>
 					<fbt desc="Description for the diaper activity card">
-						Visualize frequency of diaper changes.
+						Visualize frequency and cost of diaper changes.
 					</fbt>
 				</CardDescription>
 			</CardHeader>
@@ -45,6 +48,11 @@ export default function DiaperActivity({
 							<TabsTrigger value="frequency">
 								<fbt desc="Label for the frequency tab in diaper activity stats">
 									Frequency
+								</fbt>
+							</TabsTrigger>
+							<TabsTrigger value="cost">
+								<fbt desc="Label for the cost tab in diaper activity stats">
+									Cost
 								</fbt>
 							</TabsTrigger>
 							<TabsTrigger value="yearly">
@@ -60,6 +68,15 @@ export default function DiaperActivity({
 							className="px-4 pb-4"
 							diaperChanges={diaperChanges}
 							primaryRange={primaryRange}
+							secondaryRange={secondaryRange}
+						/>
+					</TabsContent>
+					<TabsContent className="mt-0" value="cost">
+						<DiaperCostChart
+							className="px-4 pb-4"
+							diaperChanges={diaperChanges}
+							primaryRange={primaryRange}
+							products={products}
 							secondaryRange={secondaryRange}
 						/>
 					</TabsContent>

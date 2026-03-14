@@ -55,18 +55,14 @@ export default function PottyStreakCards({
 					<fbt desc="Label for current potty streak">Current Potty Streak</fbt>
 				}
 			>
-				<div className="text-2xl font-bold text-green-700 dark:text-green-400">
-					{currentStreak}
-				</div>
+				<div className="text-2xl font-bold">{currentStreak}</div>
 			</StatsCard>
 			<StatsCard
 				title={
 					<fbt desc="Label for longest potty streak">Longest Potty Streak</fbt>
 				}
 			>
-				<div className="text-2xl font-bold text-green-700 dark:text-green-400">
-					{longestStreak}
-				</div>
+				<div className="text-2xl font-bold">{longestStreak}</div>
 				{longestStreakEndTimestamp && (
 					<div className="text-xs text-muted-foreground mt-1">
 						{format(new Date(longestStreakEndTimestamp), 'PP')}

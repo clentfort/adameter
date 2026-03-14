@@ -29,7 +29,6 @@ export default function PottyRecords({
 	if (days.length === 0) return null;
 
 	const mostChanges = days.reduce((a, b) => (a[1] >= b[1] ? a : b));
-	const fewestChanges = days.reduce((a, b) => (a[1] <= b[1] ? a : b));
 
 	return (
 		<>
@@ -43,18 +42,6 @@ export default function PottyRecords({
 				<div className="text-2xl font-bold">{mostChanges[1]}</div>
 				<div className="text-sm text-muted-foreground">
 					{format(parseISO(mostChanges[0]), 'PP')}
-				</div>
-			</StatsCard>
-			<StatsCard
-				title={
-					<fbt desc="Title for the day with the fewest potty successes">
-						Fewest potty hits in a day
-					</fbt>
-				}
-			>
-				<div className="text-2xl font-bold">{fewestChanges[1]}</div>
-				<div className="text-sm text-muted-foreground">
-					{format(parseISO(fewestChanges[0]), 'PP')}
 				</div>
 			</StatsCard>
 		</>

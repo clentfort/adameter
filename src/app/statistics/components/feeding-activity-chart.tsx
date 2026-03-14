@@ -85,28 +85,7 @@ export default function FeedingActivityChart({
 
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
 
-		const datasets = [
-			{
-				backgroundColor: '#6366f1', // Indigo-500
-				data: primaryLeftData,
-				label: (
-					<fbt desc="Legend label for primary left breast duration">
-						Left Breast
-					</fbt>
-				).toString(),
-				stack: 'primary',
-			},
-			{
-				backgroundColor: '#ec4899', // Pink-500
-				data: primaryRightData,
-				label: (
-					<fbt desc="Legend label for primary right breast duration">
-						Right Breast
-					</fbt>
-				).toString(),
-				stack: 'primary',
-			},
-		];
+		const datasets = [];
 
 		if (secondaryRange) {
 			const secondaryDays = eachDayOfInterval({
@@ -168,6 +147,29 @@ export default function FeedingActivityChart({
 				},
 			);
 		}
+
+		datasets.push(
+			{
+				backgroundColor: '#6366f1', // Indigo-500
+				data: primaryLeftData,
+				label: (
+					<fbt desc="Legend label for primary left breast duration">
+						Left Breast
+					</fbt>
+				).toString(),
+				stack: 'primary',
+			},
+			{
+				backgroundColor: '#ec4899', // Pink-500
+				data: primaryRightData,
+				label: (
+					<fbt desc="Legend label for primary right breast duration">
+						Right Breast
+					</fbt>
+				).toString(),
+				stack: 'primary',
+			},
+		);
 
 		return { datasets, effectivePrimaryFrom, labels };
 	}, [sessions, primaryRange, secondaryRange]);

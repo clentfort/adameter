@@ -43,35 +43,34 @@ export default function PottyActivityChart({
 			start: effectivePrimaryFrom,
 		});
 
-		const primaryDataByDate = pottyChanges.reduce<Record<string, number>>(
-			(acc, change) => {
-				const date = new Date(change.timestamp);
-				if (
-					isWithinInterval(date, {
-						end: primaryRange.to,
-						start: effectivePrimaryFrom,
-					})
-				) {
-					const key = format(date, 'yyyy-MM-dd');
-					acc[key] = (acc[key] || 0) + 1;
-				}
-				return acc;
-			},
-			{},
+		const primaryDataByDate = pottyChanges.reduce<
+			Record<string, { stool: number; urine: number }>
+		>((acc, change) => {
+			const date = new Date(change.timestamp);
+			if (
+				isWithinInterval(date, {
+					end: primaryRange.to,
+					start: effectivePrimaryFrom,
+				})
+			) {
+				const key = format(date, 'yyyy-MM-dd');
+				if (!acc[key]) acc[key] = { stool: 0, urine: 0 };
+				if (change.pottyUrine) acc[key].urine++;
+				if (change.pottyStool) acc[key].stool++;
+			}
+			return acc;
+		}, {});
+
+		const primaryUrineData = primaryDays.map(
+			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0,
+		);
+		const primaryStoolData = primaryDays.map(
+			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0,
 		);
 
-		const primaryData = primaryDays.map(
-			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')] || 0,
-		);
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
 
-		const datasets = [
-			{
-				backgroundColor: '#3b82f6', // blue-500
-				data: primaryData,
-				label: 'Potty Successes',
-			},
-		];
+		const datasets = [];
 
 		if (secondaryRange) {
 			const secondaryDays = eachDayOfInterval({
@@ -79,33 +78,61 @@ export default function PottyActivityChart({
 				start: secondaryRange.from,
 			});
 
-			const secondaryDataByDate = pottyChanges.reduce<Record<string, number>>(
-				(acc, change) => {
-					const date = new Date(change.timestamp);
-					if (
-						isWithinInterval(date, {
-							end: secondaryRange.to,
-							start: secondaryRange.from,
-						})
-					) {
-						const key = format(date, 'yyyy-MM-dd');
-						acc[key] = (acc[key] || 0) + 1;
-					}
-					return acc;
+			const secondaryDataByDate = pottyChanges.reduce<
+				Record<string, { stool: number; urine: number }>
+			>((acc, change) => {
+				const date = new Date(change.timestamp);
+				if (
+					isWithinInterval(date, {
+						end: secondaryRange.to,
+						start: secondaryRange.from,
+					})
+				) {
+					const key = format(date, 'yyyy-MM-dd');
+					if (!acc[key]) acc[key] = { stool: 0, urine: 0 };
+					if (change.pottyUrine) acc[key].urine++;
+					if (change.pottyStool) acc[key].stool++;
+				}
+				return acc;
+			}, {});
+
+			const secondaryUrineData = secondaryDays.map(
+				(day) => secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0,
+			);
+			const secondaryStoolData = secondaryDays.map(
+				(day) => secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0,
+			);
+
+			datasets.push(
+				{
+					backgroundColor: 'rgba(148, 163, 184, 0.4)', // slate-400
+					data: secondaryUrineData,
+					label: 'Urine (Prev)',
+					stack: 'secondary',
 				},
-				{},
+				{
+					backgroundColor: 'rgba(203, 213, 225, 0.4)', // slate-300
+					data: secondaryStoolData,
+					label: 'Stool (Prev)',
+					stack: 'secondary',
+				},
 			);
-
-			const secondaryData = secondaryDays.map(
-				(day) => secondaryDataByDate[format(day, 'yyyy-MM-dd')] || 0,
-			);
-
-			datasets.push({
-				backgroundColor: 'rgba(148, 163, 184, 0.4)', // slate-400
-				data: secondaryData,
-				label: 'Potty Successes (Prev)',
-			});
 		}
+
+		datasets.push(
+			{
+				backgroundColor: '#3b82f6', // blue-500
+				data: primaryUrineData,
+				label: 'Urine',
+				stack: 'primary',
+			},
+			{
+				backgroundColor: '#a855f7', // purple-500
+				data: primaryStoolData,
+				label: 'Stool',
+				stack: 'primary',
+			},
+		);
 
 		return { datasets, labels };
 	}, [diaperChanges, primaryRange, secondaryRange]);

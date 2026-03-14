@@ -30,6 +30,7 @@ import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
 import PottyActivity from './components/potty-activity';
 import PottyRecords from './components/potty-records';
+import PottySavingsCard from './components/potty-savings-card';
 import PottyStats from './components/potty-stats';
 import PottyStreakCards from './components/potty-streak-cards';
 import ReusableSavingsCard from './components/reusable-savings-card';
@@ -113,6 +114,31 @@ export default function StatisticsPage() {
 		() =>
 			filteredDiaperChanges.filter((c) => c.pottyUrine || c.pottyStool).length,
 		[filteredDiaperChanges],
+	);
+
+	const productById = useMemo(
+		() => new Map(diaperProducts.map((p) => [p.id, p])),
+		[diaperProducts],
+	);
+
+	const disposableChanges = useMemo(
+		() =>
+			diaperChanges
+				.map((change) => {
+					const productId = change.diaperProductId;
+					if (!productId) return null;
+					const product = productById.get(productId);
+					if (!product || product.isReusable || !product.costPerDiaper)
+						return null;
+					return {
+						cost: product.costPerDiaper,
+						timestamp: new Date(change.timestamp),
+					};
+				})
+				.filter(
+					(item): item is { cost: number; timestamp: Date } => item !== null,
+				),
+		[diaperChanges, productById],
 	);
 
 	return (
@@ -305,6 +331,7 @@ export default function StatisticsPage() {
 								className="mt-4"
 								diaperChanges={diaperChanges}
 								primaryRange={primary}
+								products={diaperProducts}
 								secondaryRange={secondary}
 							/>
 							<div className="grid grid-cols-2 gap-4 mt-4">
@@ -337,6 +364,10 @@ export default function StatisticsPage() {
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<PottyStreakCards diaperChanges={diaperChanges} />
 								<PottyRecords diaperChanges={diaperChanges} />
+								<PottySavingsCard
+									diaperChanges={diaperChanges}
+									disposableChanges={disposableChanges}
+								/>
 							</div>
 						</>
 					) : (
@@ -347,11 +378,9 @@ export default function StatisticsPage() {
 						</div>
 					)}
 
-					<h3 className="text-lg font-medium mt-8 mb-4">
-						<fbt desc="Subtitle for the cost overview section">Cost</fbt>
-					</h3>
 					<ReusableSavingsCard
 						allDiaperChanges={diaperChanges}
+						className="mt-8"
 						products={diaperProducts}
 					/>
 
