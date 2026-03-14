@@ -46,7 +46,6 @@ describe('useFeedingSessions', () => {
 				durationInSeconds: 600,
 				endTime: '2024-01-01T10:10:00Z',
 				startTime: '2024-01-01T10:00:00Z',
-				type: 'breast',
 			});
 		});
 	});
@@ -104,7 +103,6 @@ describe('useFeedingSessions', () => {
 				endTime: '2024-01-01T10:10:00Z',
 				id: 'f1',
 				startTime: '2024-01-01T10:00:00Z',
-				type: 'breast',
 			});
 		});
 	});

@@ -54,14 +54,12 @@ describe('entity row schemas', () => {
 				endTime: '2026-03-07T08:10:00.000Z',
 				id: 'feeding-1',
 				startTime: '2026-03-07T08:00:00.000Z',
-				type: 'breast',
 			}),
 		).toEqual({
 			breast: 'left',
 			durationInSeconds: 600,
 			endTime: '2026-03-07T08:10:00.000Z',
 			startTime: '2026-03-07T08:00:00.000Z',
-			type: 'breast',
 		});
 	});
 

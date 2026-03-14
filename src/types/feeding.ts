@@ -1,54 +1,29 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
-import {
-	optionalNumberFromInputField,
-	optionalPositiveNumberCell,
-	optionalStringCell,
-	positiveNumericInputField,
-} from './schema-utils';
-
-export const feedingTypeSchema = z.enum(['breast', 'bottle', 'pumping']);
-export type FeedingType = z.infer<typeof feedingTypeSchema>;
-
-export const milkTypeSchema = z.enum(['pumped', 'formula']);
-export type MilkType = z.infer<typeof milkTypeSchema>;
+import { positiveNumericInputField } from './schema-utils';
 
 const breastSchema = z.enum(['left', 'right']);
 
 const feedingSessionSharedSchema = z.object({
-	amountMl: optionalPositiveNumberCell,
-	bottleId: optionalStringCell,
-	breast: breastSchema.optional(),
-	durationInSeconds: z.number().int().nonnegative(),
+	breast: breastSchema,
+	durationInSeconds: z.number().int().positive(),
 	endTime: z.string().min(1),
-	formulaProductId: optionalStringCell,
-	milkType: milkTypeSchema.optional(),
-	notes: optionalStringCell,
 	startTime: z.string().min(1),
-	teatId: optionalStringCell,
-	type: feedingTypeSchema.default('breast'),
 });
 
 export const feedingFormSchema = z.object({
-	amountMl: positiveNumericInputField('Amount must be a positive number').optional(),
-	bottleId: z.string().optional(),
-	breast: breastSchema.optional(),
+	breast: breastSchema,
 	date: z.string().min(1),
-	duration: positiveNumericInputField('Duration must be a positive number').optional(),
-	formulaProductId: z.string().optional(),
-	milkType: milkTypeSchema.optional(),
-	notes: z.string().optional(),
-	teatId: z.string().optional(),
+	duration: positiveNumericInputField('Duration must be a positive number'),
 	time: z.string().min(1),
-	type: feedingTypeSchema,
 });
 
 export type FeedingFormValues = z.infer<typeof feedingFormSchema>;
 
 export const feedingSessionFormToDataSchema = feedingFormSchema.transform(
 	(values) => {
-		const durationInMinutes = values.duration ? Number(values.duration) : 0;
+		const durationInMinutes = Number(values.duration);
 		const [year, month, day] = values.date.split('-').map(Number);
 		const [hours, minutes] = values.time.split(':').map(Number);
 
@@ -58,17 +33,10 @@ export const feedingSessionFormToDataSchema = feedingFormSchema.transform(
 		);
 
 		return feedingSessionSharedSchema.parse({
-			amountMl: optionalNumberFromInputField('Amount must be a positive number').parse(values.amountMl),
-			bottleId: values.bottleId,
 			breast: values.breast,
-			durationInSeconds: Math.round(durationInMinutes * 60),
+			durationInSeconds: durationInMinutes * 60,
 			endTime: endTime.toISOString(),
-			formulaProductId: values.formulaProductId,
-			milkType: values.milkType,
-			notes: values.notes,
 			startTime: startTime.toISOString(),
-			teatId: values.teatId,
-			type: values.type,
 		});
 	},
 );
@@ -91,15 +59,8 @@ export function parseFeedingFormValues(
 }
 
 export interface FeedingSession extends BaseEntity {
-	amountMl?: number;
-	bottleId?: string;
-	breast?: 'left' | 'right';
+	breast: 'left' | 'right';
 	durationInSeconds: number;
 	endTime: string;
-	formulaProductId?: string;
-	milkType?: 'pumped' | 'formula';
-	notes?: string;
 	startTime: string;
-	teatId?: string;
-	type: 'breast' | 'bottle' | 'pumping';
 }

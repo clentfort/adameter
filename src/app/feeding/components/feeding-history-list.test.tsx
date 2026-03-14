@@ -18,11 +18,10 @@ function createStoreWithSessions(sessions: FeedingSession[]) {
 	const store = createStore();
 	for (const session of sessions) {
 		store.setRow(TABLE_IDS.FEEDING_SESSIONS, session.id, {
-			breast: session.breast as string,
+			breast: session.breast,
 			durationInSeconds: session.durationInSeconds,
 			endTime: session.endTime,
 			startTime: session.startTime,
-			type: session.type,
 		});
 	}
 	return store;
@@ -52,7 +51,6 @@ describe('FeedingHistoryList', () => {
 			endTime: '2023-01-01T10:25:00Z',
 			id: 'test-session-1',
 			startTime: '2023-01-01T10:00:00Z',
-			type: 'breast',
 		};
 
 		mockUseFeedingSession.mockReturnValue(mockSession);
@@ -79,7 +77,6 @@ describe('FeedingHistoryList', () => {
 			endTime: '2023-01-01T13:10:00Z',
 			id: 'test-session-2',
 			startTime: '2023-01-01T12:00:00Z',
-			type: 'breast',
 		};
 
 		mockUseFeedingSession.mockReturnValue(mockSessionLong);

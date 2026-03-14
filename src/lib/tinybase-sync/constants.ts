@@ -11,10 +11,7 @@ export const TABLE_IDS = {
 	DIAPER_CHANGES: 'diaperChanges',
 	DIAPER_PRODUCTS: 'diaperProducts',
 	EVENTS: 'events',
-	FEEDING_PRODUCTS: 'feedingProducts',
 	FEEDING_SESSIONS: 'feedingSessions',
-	FEEDINGS_IN_PROGRESS: 'feedingsInProgress',
-	FORMULA_PRODUCTS: 'formulaProducts',
 	GROWTH_MEASUREMENTS: 'growthMeasurements',
 	TEETHING: 'teething',
 } as const;

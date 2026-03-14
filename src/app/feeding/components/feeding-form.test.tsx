@@ -9,18 +9,6 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import FeedingForm from './feeding-form';
 
-vi.mock('@/hooks/use-formula-products', () => ({
-	useFormulaProductsSnapshot: () => [],
-}));
-
-vi.mock('@/hooks/use-feeding-products', () => ({
-	useFeedingProductsSnapshot: () => [],
-}));
-
-vi.mock('@/hooks/use-profile', () => ({
-	useProfile: () => [{}, vi.fn()],
-}));
-
 describe('FeedingForm', () => {
 	const mockOnSave = vi.fn();
 	const mockOnClose = vi.fn();
@@ -46,13 +34,12 @@ describe('FeedingForm', () => {
 			endTime: '2023-10-27T10:10:00.000Z',
 			id: '1',
 			startTime: '2023-10-27T10:00:00.000Z',
-			type: 'breast',
 		};
 
 		render(<FeedingForm {...baseProps} feeding={initialFeeding} />);
 
 		// Check if initial values are set
-		expect(screen.getByLabelText(/duration/i)).toHaveValue(10);
+		expect(screen.getByLabelText(/minutes/i)).toHaveValue(10);
 
 		// Find the save button and click it
 		const saveButton = screen.getByTestId('save-button');
@@ -69,11 +56,10 @@ describe('FeedingForm', () => {
 		render(<FeedingForm {...baseProps} />);
 
 		// Default should be left breast
-		expect(screen.getByLabelText(/duration/i)).toHaveValue(null);
+		expect(screen.getByLabelText(/minutes/i)).toHaveValue(null);
 
-		const rightRadios = screen.getAllByLabelText(/right/i);
-		fireEvent.click(rightRadios[0]);
-		fireEvent.change(screen.getByLabelText(/duration/i), {
+		fireEvent.click(screen.getByTestId('right-breast-radio'));
+		fireEvent.change(screen.getByLabelText(/minutes/i), {
 			target: { value: '15' },
 		});
 
@@ -88,7 +74,7 @@ describe('FeedingForm', () => {
 	it('does not call onSave if duration is invalid', () => {
 		render(<FeedingForm {...baseProps} />);
 
-		fireEvent.change(screen.getByLabelText(/duration/i), {
+		fireEvent.change(screen.getByLabelText(/minutes/i), {
 			target: { value: '' },
 		});
 		fireEvent.click(screen.getByTestId('save-button'));
