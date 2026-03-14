@@ -10,6 +10,7 @@ const NORMALIZE_DIAPER_ROWS_MIGRATION_ID =
 	'2026-03-07-normalize-diaper-store-rows';
 const NORMALIZE_ENTITY_ROWS_MIGRATION_ID =
 	'2026-03-07-normalize-entity-store-rows';
+const CLEANUP_JUNK_DATA_MIGRATION_ID = '2026-03-15-cleanup-junk-data';
 
 describe('runMigrationsIfNeeded', () => {
 	it('detects pending migrations from migration metadata', () => {
@@ -18,7 +19,7 @@ describe('runMigrationsIfNeeded', () => {
 
 		store.setRow(
 			INTERNAL_TABLE_IDS.MIGRATIONS,
-			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			{
 				appliedAt: Date.now(),
 				description: 'already applied',
@@ -31,7 +32,7 @@ describe('runMigrationsIfNeeded', () => {
 		const store = createStore();
 		store.setRow(
 			INTERNAL_TABLE_IDS.MIGRATIONS,
-			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			{
 				appliedAt: Date.now(),
 				description: 'already applied',
@@ -67,6 +68,7 @@ describe('runMigrationsIfNeeded', () => {
 			REMOVE_LEGACY_JSON_CELLS_MIGRATION_ID,
 			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+			CLEANUP_JUNK_DATA_MIGRATION_ID,
 		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy note',
@@ -90,6 +92,12 @@ describe('runMigrationsIfNeeded', () => {
 			store.hasRow(
 				INTERNAL_TABLE_IDS.MIGRATIONS,
 				NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+			),
+		).toBe(true);
+		expect(
+			store.hasRow(
+				INTERNAL_TABLE_IDS.MIGRATIONS,
+				CLEANUP_JUNK_DATA_MIGRATION_ID,
 			),
 		).toBe(true);
 	});
