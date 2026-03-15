@@ -6,6 +6,7 @@ import HistoryEntryCard from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';
 import Markdown from '@/components/markdown';
 import { useEvent, useRemoveEvent, useUpsertEvent } from '@/hooks/use-events';
+import RelatedActivity from './related-activity';
 import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
 import AddEventDialog from './event-form';
 
@@ -67,6 +68,7 @@ function EventListItem({
 					{event.notes}
 				</Markdown>
 			)}
+			<RelatedActivity event={event} />
 		</HistoryEntryCard>
 	);
 }
