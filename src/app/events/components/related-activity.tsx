@@ -6,6 +6,7 @@ import type { FeedingSession } from '@/types/feeding';
 import { isWithinInterval, parseISO } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useMemo } from 'react';
+import { isAbnormalTemperature } from '@/app/diaper/utils/is-abnormal-temperature';
 import {
 	Accordion,
 	AccordionContent,
@@ -15,7 +16,6 @@ import {
 import { cn } from '@/lib/utils';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import { formatEntryTime } from '@/utils/format-history-date';
-import { isAbnormalTemperature } from '@/app/diaper/utils/is-abnormal-temperature';
 
 interface RelatedActivityProps {
 	event: Event;
@@ -79,9 +79,8 @@ export default function RelatedActivity({
 				<AccordionItem className="border-none" value="related-activity">
 					<AccordionTrigger className="py-2 text-sm font-semibold hover:no-underline">
 						<fbt desc="Label for related activity section in event list">
-							Related Activity (<fbt:param name="count">
-								{relatedItems.length}
-							</fbt:param>)
+							Related Activity
+							(<fbt:param name="count">{relatedItems.length}</fbt:param>)
 						</fbt>
 					</AccordionTrigger>
 					<AccordionContent>
@@ -140,9 +139,11 @@ export default function RelatedActivity({
 														)}
 													</span>
 													<span className="text-muted-foreground font-normal">
-														({formatDurationAbbreviated(
+														(
+														{formatDurationAbbreviated(
 															item.data.durationInSeconds,
-														)})
+														)}
+														)
 													</span>
 												</div>
 											) : (
