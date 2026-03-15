@@ -136,6 +136,7 @@ export default function DiaperActivityChart({
 	return (
 		<div className={className}>
 			<BarChart
+				absYLabels={true}
 				datasets={datasets}
 				emptyStateMessage="No diaper data available for the selected range."
 				grouped={false}

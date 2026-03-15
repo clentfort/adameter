@@ -13,6 +13,7 @@ interface BarDataset {
 }
 
 interface BarChartProps {
+	absYLabels?: boolean;
 	datasets: BarDataset[];
 	emptyStateMessage: React.ReactNode;
 	grouped?: boolean;
@@ -29,6 +30,7 @@ interface BarChartProps {
 }
 
 export default function BarChart({
+	absYLabels = false,
 	datasets,
 	emptyStateMessage,
 	grouped = true,
@@ -164,10 +166,10 @@ export default function BarChart({
 						min: yMin,
 						stacked: true,
 						ticks: {
-							callback:
-								yAxisUnit && typeof yAxisUnit === 'string'
-									? (value) => `${value}${yAxisUnit}`
-									: undefined,
+							callback: (value) => {
+								const val = absYLabels ? Math.abs(Number(value)) : value;
+								return yAxisUnit ? `${val}${yAxisUnit}` : val;
+							},
 						},
 						title: {
 							display: !!yAxisLabel,
@@ -187,6 +189,7 @@ export default function BarChart({
 		yAxisUnit,
 		yMax,
 		yMin,
+		absYLabels,
 		tooltipTitleFormatter,
 		tooltipLabelFormatter,
 		title,

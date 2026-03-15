@@ -140,6 +140,7 @@ export default function PottyActivityChart({
 	return (
 		<div className={className}>
 			<BarChart
+				absYLabels={true}
 				datasets={datasets}
 				emptyStateMessage="No potty data available for the selected range."
 				grouped={false}

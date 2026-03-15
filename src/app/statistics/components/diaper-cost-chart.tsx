@@ -82,13 +82,7 @@ export default function DiaperCostChart({
 		);
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
 
-		const datasets = [
-			{
-				backgroundColor: '#10b981', // emerald-500
-				data: primaryData,
-				label: 'Daily Cost',
-			},
-		];
+		const datasets = [];
 
 		if (secondaryRange) {
 			const secondaryDays = eachDayOfInterval({
@@ -117,15 +111,23 @@ export default function DiaperCostChart({
 			);
 
 			const secondaryData = secondaryDays.map(
-				(day) => secondaryCostByDate[format(day, 'yyyy-MM-dd')] || 0,
+				(day) => -(secondaryCostByDate[format(day, 'yyyy-MM-dd')] || 0),
 			);
 
 			datasets.push({
-				backgroundColor: 'rgba(148, 163, 184, 0.4)', // slate-400
+				backgroundColor: '#94a3b8', // slate-400
 				data: secondaryData,
 				label: 'Daily Cost (Prev)',
+				stack: 'comparison',
 			});
 		}
+
+		datasets.push({
+			backgroundColor: '#10b981', // emerald-500
+			data: primaryData,
+			label: 'Daily Cost',
+			stack: 'primary',
+		});
 
 		return { datasets, labels };
 	}, [diaperChanges, primaryRange, secondaryRange, productCostById]);
@@ -138,9 +140,20 @@ export default function DiaperCostChart({
 				grouped={false}
 				labels={labels}
 				title="Diaper Cost"
+				tooltipLabelFormatter={(context) => {
+					let label = context.dataset.label || '';
+					if (label) {
+						label += ': ';
+					}
+					if (context.parsed.y !== null) {
+						label += `${currency}${Math.abs(context.parsed.y).toFixed(2)}`;
+					}
+					return label;
+				}}
 				xAxisLabel="Date"
 				yAxisLabel={`Cost (${currency})`}
-				yMin={0}
+				yAxisUnit=""
+				yMin={undefined}
 			/>
 		</div>
 	);

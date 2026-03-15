@@ -116,34 +116,34 @@ export default function FeedingActivityChart({
 
 			const secondaryLeftData = secondaryDays.map((day) => {
 				const key = format(day, 'yyyy-MM-dd');
-				return (secondaryDurationByDate[key]?.left || 0) / 3600;
+				return -(secondaryDurationByDate[key]?.left || 0) / 3600;
 			});
 
 			const secondaryRightData = secondaryDays.map((day) => {
 				const key = format(day, 'yyyy-MM-dd');
-				return (secondaryDurationByDate[key]?.right || 0) / 3600;
+				return -(secondaryDurationByDate[key]?.right || 0) / 3600;
 			});
 
 			datasets.push(
 				{
-					backgroundColor: '#94a3b8', // Slate-400
+					backgroundColor: '#94a3b8', // slate-400
 					data: secondaryLeftData,
 					label: (
 						<fbt desc="Legend label for secondary left breast duration">
 							Left Breast (Prev)
 						</fbt>
 					).toString(),
-					stack: 'secondary',
+					stack: 'comparison',
 				},
 				{
-					backgroundColor: '#cbd5e1', // Slate-300
+					backgroundColor: '#cbd5e1', // slate-300
 					data: secondaryRightData,
 					label: (
 						<fbt desc="Legend label for secondary right breast duration">
 							Right Breast (Prev)
 						</fbt>
 					).toString(),
-					stack: 'secondary',
+					stack: 'comparison',
 				},
 			);
 		}
@@ -197,6 +197,7 @@ export default function FeedingActivityChart({
 	return (
 		<div className={className}>
 			<BarChart
+				absYLabels={true}
 				datasets={datasets}
 				emptyStateMessage={
 					<fbt desc="Message shown when no feeding data is available for the chart">
@@ -208,6 +209,16 @@ export default function FeedingActivityChart({
 				title={(
 					<fbt desc="Chart title for feeding duration">Feeding Duration</fbt>
 				).toString()}
+				tooltipLabelFormatter={(context) => {
+					let label = context.dataset.label || '';
+					if (label) {
+						label += ': ';
+					}
+					if (context.parsed.y !== null) {
+						label += `${Math.abs(context.parsed.y).toFixed(1)} h`;
+					}
+					return label;
+				}}
 				verticalLines={verticalLines}
 				xAxisLabel={(
 					<fbt desc="Label for the date axis on feeding chart">Date</fbt>
@@ -217,8 +228,7 @@ export default function FeedingActivityChart({
 						Duration (h)
 					</fbt>
 				).toString()}
-				yAxisUnit="h"
-				yMin={0}
+				yAxisUnit=""
 			/>
 		</div>
 	);
