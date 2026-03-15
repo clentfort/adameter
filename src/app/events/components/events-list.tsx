@@ -1,7 +1,6 @@
 import type { DiaperChange } from '@/types/diaper';
 import type { FeedingSession } from '@/types/feeding';
-import { format } from 'date-fns';
-import { isWithinInterval, parseISO } from 'date-fns';
+import { format, isWithinInterval, parseISO } from 'date-fns';
 import { ArrowRight, Calendar, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
@@ -88,9 +87,8 @@ function EventListItem({
 				<DropdownMenuSubTrigger>
 					<ExternalLink className="mr-2 h-4 w-4" />
 					<fbt desc="Label for menu item to jump to related activity">
-						Related Activity (<fbt:param name="count">
-							{relatedItems.length}
-						</fbt:param>)
+						Related Activity
+						(<fbt:param name="count">{relatedItems.length}</fbt:param>)
 					</fbt>
 				</DropdownMenuSubTrigger>
 				<DropdownMenuSubContent className="max-w-[250px]">
