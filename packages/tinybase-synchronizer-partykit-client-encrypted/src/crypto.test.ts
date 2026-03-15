@@ -83,6 +83,11 @@ describe('encrypt / decrypt', () => {
 
 		await expect(decrypt(encrypted, key2)).rejects.toThrow();
 	});
+
+	it('fails to decrypt with invalid base64 input', async () => {
+		const key = await getEncryptionKey('test-room');
+		await expect(decrypt('not-base64-!@#$', key)).rejects.toThrow();
+	});
 });
 
 describe('jsonStringWithUndefined / jsonParseWithUndefined', () => {
@@ -102,6 +107,22 @@ describe('jsonStringWithUndefined / jsonParseWithUndefined', () => {
 		expect(deserialized.b).toBeUndefined();
 		expect(deserialized.c[1]).toBeUndefined();
 		expect(deserialized.d.e).toBeUndefined();
+	});
+
+	it('round-trips deeply nested undefined values', () => {
+		const value = {
+			a: {
+				b: {
+					c: undefined,
+					d: [undefined, { e: undefined }],
+				},
+			},
+			f: [undefined],
+		};
+
+		const serialized = jsonStringWithUndefined(value);
+		const deserialized = jsonParseWithUndefined<typeof value>(serialized);
+		expect(deserialized).toEqual(value);
 	});
 
 	it('handles plain values without undefined', () => {
