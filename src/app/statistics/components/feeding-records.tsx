@@ -13,13 +13,14 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 	const todayKey = format(new Date(), 'yyyy-MM-dd');
 
 	// Group sessions by day
-	const sessionsByDay = new Map<string, { count: number; duration: number }>();
+	const sessionsByDay = new Map<string, { bottleVolume: number; count: number; duration: number }>();
 	for (const session of sessions) {
 		const day = format(new Date(session.startTime), 'yyyy-MM-dd');
 		if (day === todayKey) continue;
 
-		const current = sessionsByDay.get(day) || { count: 0, duration: 0 };
+		const current = sessionsByDay.get(day) || { bottleVolume: 0, count: 0, duration: 0 };
 		sessionsByDay.set(day, {
+			bottleVolume: current.bottleVolume + (session.amountMl || 0),
 			count: current.count + 1,
 			duration: current.duration + session.durationInSeconds,
 		});
@@ -39,6 +40,9 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 	);
 	const shortestDuration = days.reduce((a, b) =>
 		a[1].duration <= b[1].duration ? a : b,
+	);
+	const mostVolume = days.reduce((a, b) =>
+		a[1].bottleVolume >= b[1].bottleVolume ? a : b,
 	);
 
 	return (
@@ -95,6 +99,22 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 					{format(parseISO(shortestDuration[0]), 'PP')}
 				</div>
 			</StatsCard>
+			{mostVolume[1].bottleVolume > 0 && (
+				<StatsCard
+					title={
+						<fbt desc="Title for the day with the most bottle volume">
+							Most volume in a day
+						</fbt>
+					}
+				>
+					<div className="text-2xl font-bold">
+						{mostVolume[1].bottleVolume}ml
+					</div>
+					<div className="text-sm text-muted-foreground">
+						{format(parseISO(mostVolume[0]), 'PP')}
+					</div>
+				</StatsCard>
+			)}
 		</>
 	);
 }

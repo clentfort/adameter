@@ -52,8 +52,8 @@ export default function FeedingActivityChart({
 			start: effectivePrimaryFrom,
 		});
 
-		const primaryDurationByDate = sessions.reduce<
-			Record<string, { left: number; right: number }>
+		const primaryDataByDate = sessions.reduce<
+			Record<string, { bottle: number; left: number; right: number }>
 		>((acc, session) => {
 			const date = new Date(session.startTime);
 			if (
@@ -63,11 +63,15 @@ export default function FeedingActivityChart({
 				})
 			) {
 				const key = format(date, 'yyyy-MM-dd');
-				if (!acc[key]) acc[key] = { left: 0, right: 0 };
-				if (session.breast === 'left') {
-					acc[key].left += session.durationInSeconds;
-				} else {
-					acc[key].right += session.durationInSeconds;
+				if (!acc[key]) acc[key] = { bottle: 0, left: 0, right: 0 };
+				if (session.type === 'bottle') {
+					acc[key].bottle += (session.amountMl || 0) / 10; // Normalized for display if duration is used elsewhere, but here we stack
+				} else if (session.type === 'breast') {
+					if (session.breast === 'left') {
+						acc[key].left += session.durationInSeconds / 60;
+					} else {
+						acc[key].right += session.durationInSeconds / 60;
+					}
 				}
 			}
 			return acc;
@@ -75,12 +79,17 @@ export default function FeedingActivityChart({
 
 		const primaryLeftData = primaryDays.map((day) => {
 			const key = format(day, 'yyyy-MM-dd');
-			return (primaryDurationByDate[key]?.left || 0) / 3600;
+			return primaryDataByDate[key]?.left || 0;
 		});
 
 		const primaryRightData = primaryDays.map((day) => {
 			const key = format(day, 'yyyy-MM-dd');
-			return (primaryDurationByDate[key]?.right || 0) / 3600;
+			return primaryDataByDate[key]?.right || 0;
+		});
+
+		const primaryBottleData = primaryDays.map((day) => {
+			const key = format(day, 'yyyy-MM-dd');
+			return primaryDataByDate[key]?.bottle || 0;
 		});
 
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
@@ -103,6 +112,14 @@ export default function FeedingActivityChart({
 					<fbt desc="Legend label for primary right breast duration">
 						Right Breast
 					</fbt>
+				).toString(),
+				stack: 'primary',
+			},
+			{
+				backgroundColor: '#3b82f6', // Blue-500
+				data: primaryBottleData,
+				label: (
+					<fbt desc="Legend label for bottle amount">Bottle (10ml units)</fbt>
 				).toString(),
 				stack: 'primary',
 			},
@@ -211,11 +228,10 @@ export default function FeedingActivityChart({
 					<fbt desc="Label for the date axis on feeding chart">Date</fbt>
 				).toString()}
 				yAxisLabel={(
-					<fbt desc="Label for the Y-axis showing feeding duration in hours">
-						Duration (h)
+					<fbt desc="Label for the Y-axis showing feeding intensity">
+						Intensity (min / 10ml)
 					</fbt>
 				).toString()}
-				yAxisUnit="h"
 				yMin={0}
 			/>
 		</div>

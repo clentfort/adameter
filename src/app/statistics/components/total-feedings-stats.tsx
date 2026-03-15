@@ -13,14 +13,18 @@ export default function TotalFeedingsStats({
 }: TotalFeedingsStatsProps) {
 	if (sessions.length === 0) return null;
 
-	const leftCount = sessions.filter((s) => s.breast === 'left').length;
-	const rightCount = sessions.filter((s) => s.breast === 'right').length;
+	const leftCount = sessions.filter((s) => s.type === 'breast' && s.breast === 'left').length;
+	const rightCount = sessions.filter((s) => s.type === 'breast' && s.breast === 'right').length;
+	const bottleCount = sessions.filter((s) => s.type === 'bottle').length;
 
 	const prevLeftCount = comparisonSessions?.filter(
-		(s) => s.breast === 'left',
+		(s) => s.type === 'breast' && s.breast === 'left',
 	).length;
 	const prevRightCount = comparisonSessions?.filter(
-		(s) => s.breast === 'right',
+		(s) => s.type === 'breast' && s.breast === 'right',
+	).length;
+	const prevBottleCount = comparisonSessions?.filter(
+		(s) => s.type === 'bottle',
 	).length;
 
 	return (
@@ -56,6 +60,15 @@ export default function TotalFeedingsStats({
 				: <span className="text-right-breast-dark">{rightCount}</span>
 				{prevRightCount !== undefined && (
 					<ComparisonValue current={rightCount} previous={prevRightCount} />
+				)}
+			</div>
+			<div className="text-xs text-muted-foreground">
+				<fbt desc="Label for the total number of bottle feedings">
+					Bottle
+				</fbt>
+				: <span className="text-blue-700">{bottleCount}</span>
+				{prevBottleCount !== undefined && (
+					<ComparisonValue current={bottleCount} previous={prevBottleCount} />
 				)}
 			</div>
 		</StatsCard>

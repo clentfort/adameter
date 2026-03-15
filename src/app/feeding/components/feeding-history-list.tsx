@@ -1,3 +1,5 @@
+'use client';
+
 import type { FeedingSession } from '@/types/feeding';
 import { isSameDay } from 'date-fns';
 import { useState } from 'react';
@@ -31,13 +33,30 @@ function FeedingHistoryEntry({
 	}
 
 	const isLeftBreast = session.breast === 'left';
-	const borderColor = isLeftBreast
-		? 'border-left-breast/30'
-		: 'border-right-breast/30';
-	const bgColor = isLeftBreast ? 'bg-left-breast/5' : 'bg-right-breast/5';
-	const textColor = isLeftBreast
-		? 'text-left-breast-dark'
-		: 'text-right-breast-dark';
+	const isBottle = session.type === 'bottle';
+	const isPumping = session.type === 'pumping';
+
+	const borderColor = isBottle
+		? 'border-blue-300'
+		: isPumping
+			? 'border-orange-300'
+			: isLeftBreast
+				? 'border-left-breast/30'
+				: 'border-right-breast/30';
+	const bgColor = isBottle
+		? 'bg-blue-50'
+		: isPumping
+			? 'bg-orange-50'
+			: isLeftBreast
+				? 'bg-left-breast/5'
+				: 'bg-right-breast/5';
+	const textColor = isBottle
+		? 'text-blue-700'
+		: isPumping
+			? 'text-orange-700'
+			: isLeftBreast
+				? 'text-left-breast-dark'
+				: 'text-right-breast-dark';
 	const startDate = new Date(session.startTime);
 	const endDate = new Date(session.endTime);
 	const crossesMidnight = !isSameDay(startDate, endDate);
@@ -58,7 +77,19 @@ function FeedingHistoryEntry({
 			}
 			header={
 				<span className={textColor}>
-					{isLeftBreast ? (
+					{isBottle ? (
+						<fbt desc="Label indicating a bottle feeding">Bottle</fbt>
+					) : isPumping ? (
+						session.breast === 'left' ? (
+							<fbt desc="Label indicating a pumping session on the left side">
+								Pumping (Left)
+							</fbt>
+						) : (
+							<fbt desc="Label indicating a pumping session on the right side">
+								Pumping (Right)
+							</fbt>
+						)
+					) : isLeftBreast ? (
 						<fbt desc="Label indicating a feeding was done with the left breast">
 							Left Breast
 						</fbt>
@@ -72,16 +103,31 @@ function FeedingHistoryEntry({
 			onDelete={() => onDelete(session.id)}
 			onEdit={() => onEdit(session.id)}
 		>
-			{crossesMidnight && (
-				<p className="text-xs text-muted-foreground">
-					<span className="font-medium">
-						<fbt desc="Label for a note">Note</fbt>:
-					</span>{' '}
-					<fbt desc="A note describing that the feeding session crosses midnight">
-						This session crosses midnight
-					</fbt>
-				</p>
-			)}
+			<div className="space-y-1">
+				{isBottle && (
+					<p className="text-sm font-medium">
+						{session.amountMl}ml {session.milkType === 'pumped' ? 'Pumped' : 'Formula'}
+					</p>
+				)}
+				{isPumping && session.amountMl && (
+					<p className="text-sm font-medium">{session.amountMl}ml</p>
+				)}
+				{crossesMidnight && (
+					<p className="text-xs text-muted-foreground">
+						<span className="font-medium">
+							<fbt desc="Label for a note">Note</fbt>:
+						</span>{' '}
+						<fbt desc="A note describing that the feeding session crosses midnight">
+							This session crosses midnight
+						</fbt>
+					</p>
+				)}
+				{session.notes && (
+					<p className="text-xs text-muted-foreground italic">
+						{session.notes}
+					</p>
+				)}
+			</div>
 		</HistoryEntryCard>
 	);
 }

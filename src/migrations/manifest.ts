@@ -9,6 +9,7 @@ export const MIGRATION_IDS = [
 	'2026-03-07-normalize-diaper-store-rows',
 	'2026-03-07-normalize-entity-store-rows',
 	'2026-03-15-cleanup-junk-data',
+	'2026-03-24-add-feeding-type-and-bottle',
 ] as const;
 
 export const LATEST_MIGRATION_ID =

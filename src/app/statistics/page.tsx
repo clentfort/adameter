@@ -19,6 +19,7 @@ import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurementsSnapshot } from '@/hooks/use-growth-measurements';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
+import BottleVolumeStats from './components/bottle-volume-stats';
 import DiaperRecords from './components/diaper-records';
 import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
@@ -258,6 +259,10 @@ export default function StatisticsPage() {
 									sessions={filteredSessions}
 								/>
 								<TotalFeedingsStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<BottleVolumeStats
 									comparisonSessions={comparisonSessions}
 									sessions={filteredSessions}
 								/>

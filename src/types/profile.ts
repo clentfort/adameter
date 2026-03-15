@@ -18,6 +18,10 @@ export const profileSchema = z.object({
 	name: z.string().optional(),
 	optedOut: z.boolean().optional(),
 	sex: z.enum(['boy', 'girl']).optional(),
+	showFormula: z.boolean().optional(),
+	showLeftBreast: z.boolean().optional(),
+	showPumpedMilk: z.boolean().optional(),
+	showRightBreast: z.boolean().optional(),
 });
 
 export interface Profile {
@@ -27,4 +31,8 @@ export interface Profile {
 	name?: string;
 	optedOut?: boolean;
 	sex?: Sex;
+	showFormula?: boolean;
+	showLeftBreast?: boolean;
+	showPumpedMilk?: boolean;
+	showRightBreast?: boolean;
 }
