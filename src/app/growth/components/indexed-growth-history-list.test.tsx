@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
 import { describe, expect, it, vi } from 'vitest';
+import { I18nContext } from '@/contexts/i18n-context';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import IndexedGrowthHistoryList from './indexed-growth-history-list';
@@ -54,6 +55,28 @@ describe('IndexedGrowthHistoryList', () => {
 		expect(screen.getByText(/9 lbs 14.7 oz/)).toBeDefined();
 		expect(screen.getByText(/9 lbs 11.2 oz/)).toBeDefined();
 		expect(screen.getByText(/tooth 51/i)).toBeDefined();
+	});
+
+	it('should render weight in grams for German locale', () => {
+		const store = createStore();
+		store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-1', {
+			date: '2024-01-15T11:00:00Z',
+			weight: 4500,
+		});
+
+		render(
+			<I18nContext.Provider
+				value={{ locale: 'de_DE', setLocale: async () => {} }}
+			>
+				<Provider store={store}>
+					<TinybaseIndexesProvider>
+						<IndexedGrowthHistoryList />
+					</TinybaseIndexesProvider>
+				</Provider>
+			</I18nContext.Provider>,
+		);
+
+		expect(screen.getByText(/4.500 g/)).toBeDefined();
 	});
 
 	it('should render empty state when no data is present', () => {

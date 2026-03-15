@@ -2,10 +2,19 @@ import type { DiaperChange } from '@/types/diaper';
 import { render, screen } from '@testing-library/react';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { I18nContext, I18nProvider } from '@/contexts/i18n-context';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import DiaperHistoryList from './diaper-history-list';
+
+vi.mock('@/i18n', async (importOriginal) => {
+	const original = (await importOriginal()) as any;
+	return {
+		...original,
+		getPreferredLocale: () => original.DEFAULT_LOCALE,
+	};
+});
 
 function createStoreWithDiaperChanges(changes: DiaperChange[]) {
 	const store = createStore();
@@ -28,15 +37,19 @@ function createStoreWithDiaperChanges(changes: DiaperChange[]) {
 function TestWrapper({
 	changes,
 	children,
+	locale = 'en_US',
 }: {
 	changes: DiaperChange[];
 	children: React.ReactNode;
+	locale?: 'en_US' | 'de_DE';
 }) {
 	const store = createStoreWithDiaperChanges(changes);
 	return (
-		<Provider store={store}>
-			<TinybaseIndexesProvider>{children}</TinybaseIndexesProvider>
-		</Provider>
+		<I18nProvider>
+			<Provider store={store}>
+				<TinybaseIndexesProvider>{children}</TinybaseIndexesProvider>
+			</Provider>
+		</I18nProvider>
 	);
 }
 
@@ -249,5 +262,31 @@ describe('DiaperHistoryList', () => {
 
 		// Should render all three entries
 		expect(screen.getAllByTestId('diaper-history-entry')).toHaveLength(3);
+	});
+
+	it('should render temperature in Celsius for German locale', () => {
+		const mockChange: DiaperChange = {
+			containsStool: false,
+			containsUrine: true,
+			id: 'change-1',
+			temperature: 36.5,
+			timestamp: '2024-01-15T10:30:00Z',
+		};
+
+		const store = createStoreWithDiaperChanges([mockChange]);
+
+		render(
+			<I18nContext.Provider
+				value={{ locale: 'de_DE', setLocale: async () => {} }}
+			>
+				<Provider store={store}>
+					<TinybaseIndexesProvider>
+						<DiaperHistoryList />
+					</TinybaseIndexesProvider>
+				</Provider>
+			</I18nContext.Provider>,
+		);
+
+		expect(screen.getByText(/36.5 °C/)).toBeInTheDocument();
 	});
 });
