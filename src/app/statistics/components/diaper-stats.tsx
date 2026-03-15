@@ -3,7 +3,6 @@
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
 import PieChart from '@/components/charts/pie-chart';
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';

@@ -2,7 +2,6 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
