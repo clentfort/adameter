@@ -31,20 +31,14 @@ function FeedingHistoryEntry({
 	}
 
 	const isLeftBreast = session.breast === 'left';
-	const borderColor = isLeftBreast
-		? 'border-left-breast/30'
-		: 'border-right-breast/30';
-	const bgColor = isLeftBreast ? 'bg-left-breast/5' : 'bg-right-breast/5';
-	const textColor = isLeftBreast
-		? 'text-left-breast-dark'
-		: 'text-right-breast-dark';
+	const accentColor = isLeftBreast ? '#6366f1' : '#ec4899';
 	const startDate = new Date(session.startTime);
 	const endDate = new Date(session.endTime);
 	const crossesMidnight = !isSameDay(startDate, endDate);
 
 	return (
 		<HistoryEntryCard
-			className={`${borderColor} ${bgColor}`}
+			accentColor={accentColor}
 			data-testid="feeding-history-entry"
 			formattedTime={
 				<div className="flex items-center gap-2">
@@ -57,7 +51,7 @@ function FeedingHistoryEntry({
 				</div>
 			}
 			header={
-				<span className={textColor}>
+				<span>
 					{isLeftBreast ? (
 						<fbt desc="Label indicating a feeding was done with the left breast">
 							Left Breast
