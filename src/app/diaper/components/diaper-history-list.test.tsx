@@ -9,7 +9,7 @@ import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import DiaperHistoryList from './diaper-history-list';
 
 vi.mock('@/i18n', async (importOriginal) => {
-	const original = (await importOriginal()) as any;
+	const original = (await importOriginal()) as Record<string, unknown>;
 	return {
 		...original,
 		getPreferredLocale: () => original.DEFAULT_LOCALE,
