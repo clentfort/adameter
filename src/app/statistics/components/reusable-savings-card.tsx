@@ -1,13 +1,7 @@
 'use client';
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import {
-	addDays,
-	differenceInDays,
-	format,
-	isWithinInterval,
-	subDays,
-} from 'date-fns';
+import { addDays, differenceInDays, format } from 'date-fns';
 import { Info } from 'lucide-react';
 import {
 	Card,
@@ -34,19 +28,16 @@ interface ReusableSavingsCardProps {
 	products: DiaperProduct[];
 }
 
-interface SavingsEvent {
-	contribution: number;
-	timestamp: Date;
-}
-
 interface ReusableSavingsMetrics {
 	breakEvenDate: Date | null;
 	estimatedBreakEvenDate: Date | null;
+	hypotheticalDisposableCost: number;
 	pottySavings: number;
 	reusableSavings: number;
 	totalCost: number;
 	totalSavings: number;
 	upfrontCostTotal: number;
+	usageCost: number;
 }
 
 function formatCurrency(value: number, currency: Currency, locale: string) {
@@ -67,11 +58,9 @@ function getDisposableAverageAround(
 	disposableChanges: Array<{ cost: number; timestamp: Date }>,
 ): number | null {
 	const costs = disposableChanges
-		.filter((disposableChange) =>
-			isWithinInterval(disposableChange.timestamp, {
-				end: addDays(timestamp, 7),
-				start: subDays(timestamp, 7),
-			}),
+		.filter(
+			(disposableChange) =>
+				Math.abs(differenceInDays(disposableChange.timestamp, timestamp)) <= 7,
 		)
 		.map((disposableChange) => disposableChange.cost);
 
@@ -107,14 +96,10 @@ function calculateReusableSavingsMetrics(
 	const disposableChanges = allDiaperChanges
 		.map((change) => {
 			const productId = change.diaperProductId;
-			if (!productId) {
-				return null;
-			}
+			if (!productId) return null;
 
 			const product = productById.get(productId);
-			if (!product || product.isReusable) {
-				return null;
-			}
+			if (!product || product.isReusable) return null;
 
 			if (
 				typeof product.costPerDiaper !== 'number' ||
@@ -123,41 +108,20 @@ function calculateReusableSavingsMetrics(
 				return null;
 			}
 
-			const timestamp = new Date(change.timestamp);
-			if (Number.isNaN(timestamp.getTime())) {
-				return null;
-			}
-
 			return {
 				cost: product.costPerDiaper,
-				timestamp,
+				timestamp: new Date(change.timestamp),
 			};
 		})
-		.filter(
-			(
-				item,
-			): item is {
-				cost: number;
-				timestamp: Date;
-			} => item !== null,
-		);
+		.filter((item): item is { cost: number; timestamp: Date } => item !== null);
 
 	const reusableChanges = allDiaperChanges
 		.map((change) => {
 			const productId = change.diaperProductId;
-			if (!productId) {
-				return null;
-			}
+			if (!productId) return null;
 
 			const product = productById.get(productId);
-			if (!product || !product.isReusable) {
-				return null;
-			}
-
-			const timestamp = new Date(change.timestamp);
-			if (Number.isNaN(timestamp.getTime())) {
-				return null;
-			}
+			if (!product || !product.isReusable) return null;
 
 			return {
 				reusableCost:
@@ -165,16 +129,12 @@ function calculateReusableSavingsMetrics(
 					Number.isFinite(product.costPerDiaper)
 						? product.costPerDiaper
 						: 0,
-				timestamp,
+				timestamp: new Date(change.timestamp),
 			};
 		})
 		.filter(
-			(
-				item,
-			): item is {
-				reusableCost: number;
-				timestamp: Date;
-			} => item !== null,
+			(item): item is { reusableCost: number; timestamp: Date } =>
+				item !== null,
 		);
 
 	const pottyEvents = allDiaperChanges
@@ -182,30 +142,21 @@ function calculateReusableSavingsMetrics(
 			const savedByPotty =
 				(change.pottyUrine && !change.containsUrine) ||
 				(change.pottyStool && !change.containsStool);
-			if (!savedByPotty) {
-				return null;
-			}
+			if (!savedByPotty) return null;
 
-			const timestamp = new Date(change.timestamp);
-			if (Number.isNaN(timestamp.getTime())) {
-				return null;
-			}
-
-			return { timestamp };
+			return { timestamp: new Date(change.timestamp) };
 		})
 		.filter((item): item is { timestamp: Date } => item !== null);
 
 	let reusableSavingsWithoutUpfront = 0;
-	const savingsEvents: SavingsEvent[] = [];
+	const savingsEvents: { contribution: number; timestamp: Date }[] = [];
 
 	for (const reusableChange of reusableChanges) {
 		const averageDisposable = getDisposableAverageAround(
 			reusableChange.timestamp,
 			disposableChanges,
 		);
-		if (averageDisposable === null) {
-			continue;
-		}
+		if (averageDisposable === null) continue;
 
 		const contribution = averageDisposable - reusableChange.reusableCost;
 		reusableSavingsWithoutUpfront += contribution;
@@ -218,9 +169,7 @@ function calculateReusableSavingsMetrics(
 			pottyEvent.timestamp,
 			disposableChanges,
 		);
-		if (averageDisposable === null) {
-			continue;
-		}
+		if (averageDisposable === null) continue;
 
 		pottySavings += averageDisposable;
 		savingsEvents.push({
@@ -275,13 +224,12 @@ function calculateReusableSavingsMetrics(
 
 	const usageCost = allDiaperChanges.reduce((sum, change) => {
 		const productId = change.diaperProductId;
-		if (!productId) {
-			return sum;
-		}
+		if (!productId) return sum;
 
 		const product = productById.get(productId);
 		if (
 			!product ||
+			!product.isReusable ||
 			typeof product.costPerDiaper !== 'number' ||
 			!Number.isFinite(product.costPerDiaper)
 		) {
@@ -291,14 +239,34 @@ function calculateReusableSavingsMetrics(
 		return sum + product.costPerDiaper;
 	}, 0);
 
+	let hypotheticalDisposableCost = 0;
+	for (const change of allDiaperChanges) {
+		const productId = change.diaperProductId;
+		const product = productId ? productById.get(productId) : null;
+
+		const timestamp = new Date(change.timestamp);
+		const averageDisposable = getDisposableAverageAround(
+			timestamp,
+			disposableChanges,
+		);
+
+		if (averageDisposable !== null) {
+			hypotheticalDisposableCost += averageDisposable;
+		} else if (product && !product.isReusable && product.costPerDiaper) {
+			hypotheticalDisposableCost += product.costPerDiaper;
+		}
+	}
+
 	return {
 		breakEvenDate,
 		estimatedBreakEvenDate,
+		hypotheticalDisposableCost,
 		pottySavings,
 		reusableSavings,
 		totalCost: usageCost + upfrontCostTotal,
 		totalSavings,
 		upfrontCostTotal,
+		usageCost,
 	};
 }
 
@@ -315,13 +283,8 @@ export default function ReusableSavingsCard({
 		createProductById(products),
 	);
 
-	if (!metrics) {
-		return null;
-	}
+	if (!metrics) return null;
 
-	const hasExactBreakEven = Boolean(metrics.breakEvenDate);
-	const hasEstimatedBreakEven =
-		!metrics.breakEvenDate && Boolean(metrics.estimatedBreakEvenDate);
 	const breakEvenLabel = metrics.breakEvenDate
 		? format(metrics.breakEvenDate, 'PPP')
 		: metrics.estimatedBreakEvenDate
@@ -332,7 +295,9 @@ export default function ReusableSavingsCard({
 		<Card className={cn('w-full', className)}>
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
-					<fbt desc="Title for reusable savings card">Diaper Savings</fbt>
+					<fbt desc="Title for reusable cost overview card">
+						Reusable Diaper Metrics
+					</fbt>
 				</CardTitle>
 				<CardAction>
 					<Popover>
@@ -343,26 +308,22 @@ export default function ReusableSavingsCard({
 									type="button"
 								>
 									<Info className="size-4" />
-									<span className="sr-only">
-										<fbt desc="Accessible label for diaper savings info button">
-											Diaper savings info
-										</fbt>
-									</span>
 								</button>
 							}
 						/>
 						<PopoverContent className="w-80">
 							<PopoverHeader>
 								<PopoverTitle>
-									<fbt desc="Title for diaper savings explanation popover">
+									<fbt desc="Title for reusable cost explanation">
 										How this is calculated
 									</fbt>
 								</PopoverTitle>
 							</PopoverHeader>
 							<PopoverDescription className="text-xs leading-normal">
-								<fbt desc="Explanation for diaper savings calculation">
-									Savings use the average disposable cost in ±7 days around each
-									reusable or potty event.
+								<fbt desc="Explanation for reusable savings calculation">
+									Calculates savings by comparing actual reusable diaper costs
+									(upfront + usage) against the estimated cost of disposables
+									for the same number of changes.
 								</fbt>
 							</PopoverDescription>
 						</PopoverContent>
@@ -371,83 +332,79 @@ export default function ReusableSavingsCard({
 			</CardHeader>
 
 			<CardContent className="space-y-4 p-4 pt-0">
-				<div className="rounded-xl border p-4">
-					<p className="text-muted-foreground text-sm">
-						<fbt desc="Label for total diaper savings">Total Savings</fbt>
-					</p>
-					<p
-						className={cn(
-							'mt-1 text-4xl font-bold leading-none tabular-nums',
-							metrics.totalSavings >= 0
-								? 'text-green-700 dark:text-green-400'
-								: 'text-red-600 dark:text-red-400',
-						)}
-					>
-						{formatCurrency(metrics.totalSavings, currency, locale)}
-					</p>
-				</div>
-
-				<div className="grid grid-cols-2 gap-3">
-					<div className="rounded-xl border border-blue-300/30 bg-blue-500/10 p-3">
-						<p className="text-[11px] font-semibold tracking-[0.1em] text-blue-700 dark:text-blue-300">
-							<fbt desc="Label for potty savings in diaper savings card">
-								POTTY
-							</fbt>
+				<div className="grid grid-cols-2 gap-4">
+					<div className="rounded-xl border p-4">
+						<p className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+							<fbt desc="Label for total reusable savings">Total Savings</fbt>
 						</p>
-						<p className="text-2xl font-semibold tabular-nums text-blue-950 dark:text-blue-100">
-							{formatCurrency(metrics.pottySavings, currency, locale)}
-						</p>
-					</div>
-					<div className="rounded-xl border border-rose-300/30 bg-rose-500/10 p-3">
-						<p className="text-[11px] font-semibold tracking-[0.1em] text-rose-700 dark:text-rose-300">
-							<fbt desc="Label for reusable savings in diaper savings card">
-								REUSABLE
-							</fbt>
-						</p>
-						<p className="text-2xl font-semibold tabular-nums text-rose-950 dark:text-rose-100">
-							{formatCurrency(metrics.reusableSavings, currency, locale)}
-						</p>
-					</div>
-				</div>
-
-				<div className="space-y-2 border-t pt-3">
-					<div className="flex items-center justify-between text-sm">
-						<span className="font-medium">
-							<fbt desc="Label for break-even point in diaper savings card">
-								Break-even Point
-							</fbt>
-						</span>
-						<span
+						<p
 							className={cn(
-								'tabular-nums text-muted-foreground',
-								!breakEvenLabel && 'italic',
-								hasEstimatedBreakEven && 'italic',
-								hasExactBreakEven && 'font-medium',
+								'mt-1 text-2xl font-bold tabular-nums',
+								metrics.totalSavings >= 0
+									? 'text-green-700 dark:text-green-400'
+									: 'text-red-600 dark:text-red-400',
 							)}
 						>
+							{formatCurrency(metrics.totalSavings, currency, locale)}
+						</p>
+					</div>
+					<div className="rounded-xl border p-4 flex flex-col justify-center">
+						<p className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+							<fbt desc="Label for break-even point">Break-even</fbt>
+						</p>
+						<p className="mt-1 text-sm font-medium tabular-nums text-muted-foreground">
 							{breakEvenLabel ? (
-								hasEstimatedBreakEven ? (
-									<fbt desc="Estimated break-even date in diaper savings card">
+								metrics.estimatedBreakEvenDate ? (
+									<fbt desc="Estimated break-even date">
 										Est. <fbt:param name="date">{breakEvenLabel}</fbt:param>
 									</fbt>
 								) : (
 									breakEvenLabel
 								)
 							) : (
-								<fbt desc="Break-even not yet reached label">
-									Not yet reached
-								</fbt>
+								<fbt desc="Break-even not yet reached">Not yet reached</fbt>
 							)}
+						</p>
+					</div>
+				</div>
+
+				<div className="space-y-2 border-t pt-3">
+					<div className="flex items-center justify-between text-sm">
+						<span className="font-medium text-muted-foreground">
+							<fbt desc="Label for upfront cost">Upfront Cost</fbt>
+						</span>
+						<span className="tabular-nums text-muted-foreground">
+							{formatCurrency(metrics.upfrontCostTotal, currency, locale)}
 						</span>
 					</div>
 					<div className="flex items-center justify-between text-sm">
-						<span className="font-medium">
-							<fbt desc="Label for total diaper cost in diaper savings card">
-								Total Cost
-							</fbt>
+						<span className="font-medium text-muted-foreground">
+							<fbt desc="Label for usage cost">Usage Cost</fbt>
 						</span>
 						<span className="tabular-nums text-muted-foreground">
+							{formatCurrency(metrics.usageCost, currency, locale)}
+						</span>
+					</div>
+					<div className="flex items-center justify-between text-sm border-t pt-2 mt-2">
+						<span className="font-semibold">
+							<fbt desc="Label for total cost">Total Cost</fbt>
+						</span>
+						<span className="tabular-nums font-semibold">
 							{formatCurrency(metrics.totalCost, currency, locale)}
+						</span>
+					</div>
+					<div className="flex items-center justify-between text-xs text-muted-foreground pt-1 italic border-t mt-2">
+						<span>
+							<fbt desc="Label for hypothetical disposable cost">
+								Hypothetical Disposable Cost
+							</fbt>
+						</span>
+						<span className="tabular-nums">
+							{formatCurrency(
+								metrics.hypotheticalDisposableCost,
+								currency,
+								locale,
+							)}
 						</span>
 					</div>
 				</div>

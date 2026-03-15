@@ -1,7 +1,8 @@
 'use client';
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import { differenceInDays, format } from 'date-fns';
+import { differenceInDays } from 'date-fns';
+import PieChart from '@/components/charts/pie-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/i18n-context';
@@ -13,6 +14,14 @@ interface DiaperStatsProps {
 	diaperChanges: DiaperChange[];
 	products: DiaperProduct[];
 }
+
+const BRAND_COLORS = [
+	'#3b82f6', // blue-500
+	'#10b981', // emerald-500
+	'#f59e0b', // amber-500
+	'#8b5cf6', // violet-500
+	'#f43f5e', // rose-500
+];
 
 function formatCurrency(value: number, currency: Currency, locale: string) {
 	return new Intl.NumberFormat(locale.replace('_', '-'), {
@@ -46,14 +55,8 @@ function calculateDiaperMetrics(
 	if (diaperChanges.length === 0) {
 		return {
 			changesPerDay: '0',
-			currentStreak: 0,
-			longestStreak: 0,
-			longestStreakEndTimestamp: undefined as string | undefined,
-			pottyStool: 0,
-			pottyUrine: 0,
 			totalChanges: 0,
 			totalCost: 0,
-			totalPottyHits: 0,
 			urineOnly: 0,
 			withLeakage: 0,
 			withStool: 0,
@@ -66,12 +69,6 @@ function calculateDiaperMetrics(
 	).length;
 	const withStool = diaperChanges.filter((c) => c.containsStool).length;
 	const withLeakage = diaperChanges.filter((c) => c.leakage).length;
-
-	const pottyUrine = diaperChanges.filter((c) => c.pottyUrine).length;
-	const pottyStool = diaperChanges.filter((c) => c.pottyStool).length;
-	const totalPottyHits = diaperChanges.filter(
-		(c) => c.pottyUrine || c.pottyStool,
-	).length;
 
 	let totalCost = 0;
 	for (const change of diaperChanges) {
@@ -100,42 +97,10 @@ function calculateDiaperMetrics(
 	);
 	const changesPerDay = (totalChanges / daysDiff).toFixed(1);
 
-	const sortedChanges = [...diaperChanges].sort((a, b) =>
-		a.timestamp.localeCompare(b.timestamp),
-	);
-
-	let currentStreak = 0;
-	let longestStreak = 0;
-	let longestStreakEndTimestamp: string | undefined;
-
-	for (const change of sortedChanges) {
-		const isSuccess =
-			(change.pottyUrine || change.pottyStool) &&
-			!change.containsUrine &&
-			!change.containsStool;
-		const isAccident = change.containsUrine || change.containsStool;
-
-		if (isSuccess) {
-			currentStreak++;
-			if (currentStreak >= longestStreak) {
-				longestStreak = currentStreak;
-				longestStreakEndTimestamp = change.timestamp;
-			}
-		} else if (isAccident) {
-			currentStreak = 0;
-		}
-	}
-
 	return {
 		changesPerDay,
-		currentStreak,
-		longestStreak,
-		longestStreakEndTimestamp,
-		pottyStool,
-		pottyUrine,
 		totalChanges,
 		totalCost,
-		totalPottyHits,
 		urineOnly,
 		withLeakage,
 		withStool,
@@ -181,14 +146,8 @@ export default function DiaperStats({
 
 	const {
 		changesPerDay,
-		currentStreak,
-		longestStreak,
-		longestStreakEndTimestamp,
-		pottyStool,
-		pottyUrine,
 		totalChanges,
 		totalCost,
-		totalPottyHits,
 		urineOnly,
 		withLeakage,
 		withStool,
@@ -231,6 +190,17 @@ export default function DiaperStats({
 	const sortedBrands = Object.entries(brandCounts)
 		.sort(([, countA], [, countB]) => countB.total - countA.total)
 		.slice(0, 5);
+
+	const pieData = {
+		datasets: [
+			{
+				backgroundColor: BRAND_COLORS,
+				data: sortedBrands.map(([, stats]) => stats.total),
+				label: 'Diaper Brands',
+			},
+		],
+		labels: sortedBrands.map(([brand]) => brand),
+	};
 
 	return (
 		<Card className="w-full">
@@ -376,190 +346,96 @@ export default function DiaperStats({
 								</p>
 							</div>
 						</div>
-
-						<div className="space-y-2">
-							<h4 className="text-sm font-semibold">
-								<fbt desc="Title for the potty training section in diaper statistics">
-									Potty Successes
-								</fbt>
-							</h4>
-							<div className="grid grid-cols-3 gap-4">
-								<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-800/30">
-									<p className="text-sm text-blue-800 dark:text-blue-300">
-										<fbt desc="Label for total potty hits">Total</fbt>
-									</p>
-									<div className="flex items-baseline">
-										<p className="text-xl font-bold text-blue-800 dark:text-blue-300">
-											{totalPottyHits}
-										</p>
-										{prevMetrics && (
-											<ComparisonValue
-												current={totalPottyHits}
-												previous={prevMetrics.totalPottyHits}
-											/>
-										)}
-									</div>
-								</div>
-								<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-800/30">
-									<p className="text-sm text-blue-800 dark:text-blue-300">
-										<fbt desc="Label for potty hits with urine">Urine</fbt>
-									</p>
-									<div className="flex items-baseline">
-										<p className="text-xl font-bold text-blue-800 dark:text-blue-300">
-											{pottyUrine}
-										</p>
-										{prevMetrics && (
-											<ComparisonValue
-												current={pottyUrine}
-												previous={prevMetrics.pottyUrine}
-											/>
-										)}
-									</div>
-								</div>
-								<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-800/30">
-									<p className="text-sm text-blue-800 dark:text-blue-300">
-										<fbt desc="Label for potty hits with stool">Stool</fbt>
-									</p>
-									<div className="flex items-baseline">
-										<p className="text-xl font-bold text-blue-800 dark:text-blue-300">
-											{pottyStool}
-										</p>
-										{prevMetrics && (
-											<ComparisonValue
-												current={pottyStool}
-												previous={prevMetrics.pottyStool}
-											/>
-										)}
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<div className="space-y-2">
-							<h4 className="text-sm font-semibold">
-								<fbt desc="Title for the potty streaks section in diaper statistics">
-									Potty Streaks
-								</fbt>
-							</h4>
-							<div className="grid grid-cols-2 gap-4">
-								<div className="border rounded-md p-3 bg-green-50 dark:bg-green-800/30">
-									<p className="text-sm text-green-800 dark:text-green-300">
-										<fbt desc="Label for current potty streak">Current</fbt>
-									</p>
-									<div className="flex items-baseline">
-										<p className="text-xl font-bold text-green-800 dark:text-green-300">
-											{currentStreak}
-										</p>
-										{prevMetrics && (
-											<ComparisonValue
-												current={currentStreak}
-												previous={prevMetrics.currentStreak}
-											/>
-										)}
-									</div>
-								</div>
-								<div className="border rounded-md p-3 bg-green-50 dark:bg-green-800/30">
-									<p className="text-sm text-green-800 dark:text-green-300">
-										<fbt desc="Label for longest potty streak">Longest</fbt>
-									</p>
-									<div className="flex items-baseline">
-										<p className="text-xl font-bold text-green-800 dark:text-green-300">
-											{longestStreak}
-										</p>
-										{prevMetrics && (
-											<ComparisonValue
-												current={longestStreak}
-												previous={prevMetrics.longestStreak}
-											/>
-										)}
-									</div>
-									{longestStreakEndTimestamp && (
-										<p className="text-[10px] text-green-600 dark:text-green-400 mt-1">
-											{format(new Date(longestStreakEndTimestamp), 'PP')}
-										</p>
-									)}
-								</div>
-							</div>
-						</div>
 					</TabsContent>
 
-					<TabsContent value="brands">
+					<TabsContent className="space-y-6" value="brands">
 						{sortedBrands.length > 0 ? (
-							<div className="space-y-3">
-								{sortedBrands.map(([brand, stats]) => {
-									const brandSharePercent = (stats.total / totalChanges) * 100;
-									const leakagePercentWithinBrand =
-										stats.total > 0 ? (stats.leakage / stats.total) * 100 : 0;
-									const safeLeakagePercent = Math.max(
-										0,
-										Math.min(100, leakagePercentWithinBrand),
-									);
-									const nonLeakagePercent = 100 - safeLeakagePercent;
+							<>
+								<div className="flex justify-center">
+									<PieChart
+										datasets={pieData.datasets}
+										emptyStateMessage={
+											<fbt desc="Empty state message for diaper brand chart">
+												No brand data available
+											</fbt>
+										}
+										labels={pieData.labels}
+									/>
+								</div>
+								<div className="space-y-4">
+									{sortedBrands.map(([brand, stats], index) => {
+										const brandSharePercent =
+											(stats.total / totalChanges) * 100;
+										const leakagePercentWithinBrand =
+											stats.total > 0 ? (stats.leakage / stats.total) * 100 : 0;
 
-									return (
-										<div className="flex items-center" key={brand}>
-											<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
-												<div
-													className="h-4 rounded-full flex"
-													style={{ width: `${brandSharePercent}%` }}
-												>
+										return (
+											<div className="border-t pt-4" key={brand}>
+												<div className="flex items-center gap-2 mb-2">
 													<div
-														className="bg-red-500 dark:bg-red-600 h-4"
-														style={{ width: `${safeLeakagePercent}%` }}
+														className="w-3 h-3 rounded-full"
+														style={{
+															backgroundColor:
+																BRAND_COLORS[index % BRAND_COLORS.length],
+														}}
 													/>
-													<div
-														className="bg-blue-600 dark:bg-blue-500 h-4"
-														style={{ width: `${nonLeakagePercent}%` }}
-													/>
+													<p className="text-sm font-semibold">{brand}</p>
+													<div className="flex items-center gap-4 ml-auto">
+														<span className="text-xs text-muted-foreground">
+															{stats.total}{' '}
+															<fbt desc="Label for brand change count">
+																changes
+															</fbt>{' '}
+															({Math.round(brandSharePercent)}%)
+														</span>
+													</div>
 												</div>
-											</div>
-											<div className="ml-3 min-w-[170px]">
-												<p className="text-sm font-medium">{brand}</p>
-												<p className="text-xs text-muted-foreground">
-													{stats.total} ({Math.round(brandSharePercent)}%)
-												</p>
-												<p className="text-xs text-muted-foreground">
-													<fbt desc="Leakage rate per diaper brand in diaper statistics">
-														Leaked:{' '}
-														<fbt:param name="leakageCount">
-															{stats.leakage}
-														</fbt:param>
-														/{' '}
-														<fbt:param name="totalCount">
-															{stats.total}
-														</fbt:param>{' '}
-														(
-														<fbt:param name="leakagePercent">
-															{Math.round(safeLeakagePercent)}
-														</fbt:param>
-														%)
-													</fbt>
-												</p>
-												{stats.costedChanges > 0 ? (
-													<p className="text-xs text-muted-foreground">
-														<fbt desc="Per diaper brand cost summary in diaper statistics">
-															Cost:{' '}
-															<fbt:param name="cost">
-																{formatCurrency(
+												<div className="grid grid-cols-2 gap-4">
+													<div>
+														<p className="text-xs text-muted-foreground">
+															<fbt desc="Label for brand leakage rate">
+																Leakage Rate
+															</fbt>
+														</p>
+														<p className="text-sm font-medium">
+															{Math.round(leakagePercentWithinBrand)}%
+															<span className="text-[10px] text-muted-foreground ml-1">
+																({stats.leakage}{' '}
+																<fbt desc="Label for brand leak count">
+																	leaks
+																</fbt>
+																)
+															</span>
+														</p>
+													</div>
+													<div>
+														<p className="text-xs text-muted-foreground">
+															<fbt desc="Label for total brand cost">
+																Total Cost
+															</fbt>
+														</p>
+														<p className="text-sm font-medium">
+															{stats.costedChanges > 0 ? (
+																formatCurrency(
 																	stats.totalCost,
 																	currency,
 																	locale,
-																)}
-															</fbt:param>
-														</fbt>
-													</p>
-												) : (
-													<p className="text-xs text-muted-foreground">
-														<fbt desc="Missing cost configuration message for diaper brand statistics">
-															Cost not configured
-														</fbt>
-													</p>
-												)}
+																)
+															) : (
+																<span className="text-muted-foreground italic">
+																	<fbt desc="Label for missing brand cost">
+																		Not configured
+																	</fbt>
+																</span>
+															)}
+														</p>
+													</div>
+												</div>
 											</div>
-										</div>
-									);
-								})}
-							</div>
+										);
+									})}
+								</div>
+							</>
 						) : (
 							<p className="text-muted-foreground text-center py-4">
 								<fbt desc="Message shown when no diaper brand data is available">

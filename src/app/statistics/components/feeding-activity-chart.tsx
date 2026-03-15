@@ -13,6 +13,7 @@ import {
 import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
 import { useProfile } from '@/hooks/use-profile';
+import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 import { useTeethSnapshot } from '@/hooks/use-teething';
 
 interface FeedingActivityChartProps {
@@ -30,6 +31,7 @@ export default function FeedingActivityChart({
 }: FeedingActivityChartProps) {
 	const [profile] = useProfile();
 	const teeth = useTeethSnapshot();
+	const [showComparisonCharts] = useShowComparisonCharts();
 
 	const { datasets, effectivePrimaryFrom, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
@@ -85,30 +87,9 @@ export default function FeedingActivityChart({
 
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
 
-		const datasets = [
-			{
-				backgroundColor: '#6366f1', // Indigo-500
-				data: primaryLeftData,
-				label: (
-					<fbt desc="Legend label for primary left breast duration">
-						Left Breast
-					</fbt>
-				).toString(),
-				stack: 'primary',
-			},
-			{
-				backgroundColor: '#ec4899', // Pink-500
-				data: primaryRightData,
-				label: (
-					<fbt desc="Legend label for primary right breast duration">
-						Right Breast
-					</fbt>
-				).toString(),
-				stack: 'primary',
-			},
-		];
+		const datasets = [];
 
-		if (secondaryRange) {
+		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
 				start: secondaryRange.from,
@@ -137,40 +118,63 @@ export default function FeedingActivityChart({
 
 			const secondaryLeftData = secondaryDays.map((day) => {
 				const key = format(day, 'yyyy-MM-dd');
-				return (secondaryDurationByDate[key]?.left || 0) / 3600;
+				return -(secondaryDurationByDate[key]?.left || 0) / 3600;
 			});
 
 			const secondaryRightData = secondaryDays.map((day) => {
 				const key = format(day, 'yyyy-MM-dd');
-				return (secondaryDurationByDate[key]?.right || 0) / 3600;
+				return -(secondaryDurationByDate[key]?.right || 0) / 3600;
 			});
 
 			datasets.push(
 				{
-					backgroundColor: 'rgba(148, 163, 184, 0.4)', // Slate-400 with opacity
+					backgroundColor: '#94a3b8', // slate-400
 					data: secondaryLeftData,
 					label: (
 						<fbt desc="Legend label for secondary left breast duration">
 							Left Breast (Prev)
 						</fbt>
 					).toString(),
-					stack: 'secondary',
+					stack: 'comparison',
 				},
 				{
-					backgroundColor: 'rgba(203, 213, 225, 0.4)', // Slate-300 with opacity
+					backgroundColor: '#cbd5e1', // slate-300
 					data: secondaryRightData,
 					label: (
 						<fbt desc="Legend label for secondary right breast duration">
 							Right Breast (Prev)
 						</fbt>
 					).toString(),
-					stack: 'secondary',
+					stack: 'comparison',
 				},
 			);
 		}
 
+		datasets.push(
+			{
+				backgroundColor: '#6366f1', // Indigo-500
+				data: primaryLeftData,
+				label: (
+					<fbt desc="Legend label for primary left breast duration">
+						Left Breast
+					</fbt>
+				).toString(),
+				stack: 'primary',
+			},
+			{
+				backgroundColor: '#ec4899', // Pink-500
+				data: primaryRightData,
+				label: (
+					<fbt desc="Legend label for primary right breast duration">
+						Right Breast
+					</fbt>
+				).toString(),
+				stack: 'primary',
+			},
+		);
+
 		return { datasets, effectivePrimaryFrom, labels };
-	}, [sessions, primaryRange, secondaryRange]);
+	}, [sessions, primaryRange, secondaryRange, showComparisonCharts]);
 
 	const verticalLines = useMemo(() => {
 		return teeth
@@ -195,6 +199,7 @@ export default function FeedingActivityChart({
 	return (
 		<div className={className}>
 			<BarChart
+				absYLabels={true}
 				datasets={datasets}
 				emptyStateMessage={
 					<fbt desc="Message shown when no feeding data is available for the chart">
@@ -206,6 +211,16 @@ export default function FeedingActivityChart({
 				title={(
 					<fbt desc="Chart title for feeding duration">Feeding Duration</fbt>
 				).toString()}
+				tooltipLabelFormatter={(context) => {
+					let label = context.dataset.label || '';
+					if (label) {
+						label += ': ';
+					}
+					if (context.parsed.y !== null) {
+						label += `${Math.abs(context.parsed.y).toFixed(1)} h`;
+					}
+					return label;
+				}}
 				verticalLines={verticalLines}
 				xAxisLabel={(
 					<fbt desc="Label for the date axis on feeding chart">Date</fbt>
@@ -215,8 +230,7 @@ export default function FeedingActivityChart({
 						Duration (h)
 					</fbt>
 				).toString()}
-				yAxisUnit="h"
-				yMin={0}
+				yAxisUnit=""
 			/>
 		</div>
 	);

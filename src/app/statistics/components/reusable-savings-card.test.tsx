@@ -45,6 +45,7 @@ const products: DiaperProduct[] = [
 	{ costPerDiaper: 0.3, id: 'product-a', isReusable: false, name: 'Brand A' },
 	{ costPerDiaper: 0.5, id: 'product-b', isReusable: false, name: 'Brand B' },
 	{
+		costPerDiaper: 0.4,
 		id: 'product-r',
 		isReusable: true,
 		name: 'Reusable Hero',
@@ -58,21 +59,44 @@ describe('ReusableSavingsCard', () => {
 			<ReusableSavingsCard allDiaperChanges={allChanges} products={products} />,
 		);
 
-		expect(screen.getByText('Diaper Savings')).toBeInTheDocument();
-		expect(screen.getByText('POTTY')).toBeInTheDocument();
-		expect(screen.getByText('REUSABLE')).toBeInTheDocument();
+		expect(screen.getByText('Reusable Diaper Metrics')).toBeInTheDocument();
 		expect(screen.getByText('Total Cost')).toBeInTheDocument();
 
+		// Total Savings
 		expect(
-			screen.getByText(
+			screen.getAllByText(
 				(content) => /0[,.]60/.test(content) && content.includes('€'),
-			),
-		).toBeInTheDocument();
+			).length,
+		).toBeGreaterThanOrEqual(1);
+
+		// Total Cost
 		expect(
 			screen.getByText(
 				(content) => /1[,.]40/.test(content) && content.includes('€'),
 			),
 		).toBeInTheDocument();
+
+		// Upfront Cost
+		expect(
+			screen.getAllByText(
+				(content) => /0[,.]60/.test(content) && content.includes('€'),
+			).length,
+		).toBeGreaterThanOrEqual(1);
+
+		// Usage Cost
+		expect(
+			screen.getByText(
+				(content) => /0[,.]80/.test(content) && content.includes('€'),
+			),
+		).toBeInTheDocument();
+
+		// Hypothetical Cost
+		expect(
+			screen.getByText(
+				(content) => /2[,.]00/.test(content) && content.includes('€'),
+			),
+		).toBeInTheDocument();
+
 		expect(screen.queryByText('Not yet reached')).not.toBeInTheDocument();
 	});
 
@@ -84,6 +108,8 @@ describe('ReusableSavingsCard', () => {
 			/>,
 		);
 
-		expect(screen.queryByText('Diaper Savings')).not.toBeInTheDocument();
+		expect(
+			screen.queryByText('Reusable Diaper Metrics'),
+		).not.toBeInTheDocument();
 	});
 });
