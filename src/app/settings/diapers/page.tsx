@@ -2,11 +2,18 @@
 
 import type { DiaperProduct } from '@/types/diaper';
 import { fbt } from 'fbtee';
-import { Archive, Plus, Trash2 } from 'lucide-react';
+import { Archive, Plus, ScanBarcode, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { BarcodeScanner } from '@/components/barcode-scanner';
 import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import {
 	useDiaperProduct,
@@ -14,6 +21,7 @@ import {
 	useSortedDiaperProductIds,
 	useUpsertDiaperProduct,
 } from '@/hooks/use-diaper-products';
+import { useStore } from 'tinybase/ui-react';
 import { SettingsHeader } from '../components/settings-header';
 
 interface DiaperProductListItemProps {
@@ -119,7 +127,12 @@ export default function DiapersSettingsPage() {
 	const productIds = useSortedDiaperProductIds();
 	const [editingProductId, setEditingProductId] = useState<string | null>(null);
 	const [isAddingProduct, setIsAddingProduct] = useState(false);
+	const [isScanning, setIsScanning] = useState(false);
+	const [initialFormData, setInitialFormData] = useState<
+		Partial<DiaperProduct>
+	>({});
 	const editingProduct = useDiaperProduct(editingProductId ?? undefined);
+	const store = useStore()!;
 
 	const handleBack = () => {
 		if (isAddingProduct || editingProductId) {
@@ -138,6 +151,23 @@ export default function DiapersSettingsPage() {
 		return fbt('Diaper Products', 'Title for diaper products section');
 	};
 
+	const handleBarcodeScan = (barcode: string) => {
+		setIsScanning(false);
+
+		// Find if a product with this barcode already exists
+		const existingProductId = productIds.find((id) => {
+			const product = store.getRow('diaperProducts', id);
+			return product.barcode === barcode;
+		});
+
+		if (existingProductId) {
+			setEditingProductId(existingProductId);
+		} else {
+			setInitialFormData({ barcode });
+			setIsAddingProduct(true);
+		}
+	};
+
 	return (
 		<>
 			<SettingsHeader
@@ -149,28 +179,39 @@ export default function DiapersSettingsPage() {
 				<Card className="w-full">
 					<CardContent>
 						<ProductForm
-							initialData={editingProduct ?? {}}
+							initialData={editingProduct ?? initialFormData}
 							onCancel={() => {
 								setIsAddingProduct(false);
 								setEditingProductId(null);
+								setInitialFormData({});
 							}}
 							onSave={(data) => {
 								upsertProduct(data);
 								setIsAddingProduct(false);
 								setEditingProductId(null);
+								setInitialFormData({});
 							}}
 						/>
 					</CardContent>
 				</Card>
 			) : (
 				<div className="space-y-4 w-full">
-					<Button
-						className="w-full h-12 flex items-center gap-2 justify-center"
-						onClick={() => setIsAddingProduct(true)}
-					>
-						<Plus className="h-5 w-5" />
-						<fbt desc="Button to add a new diaper product">Add Product</fbt>
-					</Button>
+					<div className="flex gap-2">
+						<Button
+							className="flex-grow h-12 flex items-center gap-2 justify-center"
+							onClick={() => setIsAddingProduct(true)}
+						>
+							<Plus className="h-5 w-5" />
+							<fbt desc="Button to add a new diaper product">Add Product</fbt>
+						</Button>
+						<Button
+							className="w-12 h-12 flex items-center justify-center"
+							onClick={() => setIsScanning(true)}
+							variant="outline"
+						>
+							<ScanBarcode className="h-6 w-6" />
+						</Button>
+					</div>
 
 					<div className="space-y-2">
 						{productIds.map((productId) => (
@@ -191,6 +232,17 @@ export default function DiapersSettingsPage() {
 					</div>
 				</div>
 			)}
+
+			<Dialog onOpenChange={setIsScanning} open={isScanning}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>
+							<fbt desc="Title for barcode scanner dialog">Scan Barcode</fbt>
+						</DialogTitle>
+					</DialogHeader>
+					<BarcodeScanner onScan={handleBarcodeScan} />
+				</DialogContent>
+			</Dialog>
 		</>
 	);
 }

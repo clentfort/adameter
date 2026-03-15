@@ -12,6 +12,7 @@ import {
 } from './schema-utils';
 
 const diaperProductSharedSchema = z.object({
+	barcode: optionalStringCell,
 	costPerDiaper: optionalNumberCell,
 	isReusable: requiredBooleanField,
 	name: requiredNameField,
@@ -71,6 +72,7 @@ export const diaperFormToDataSchema = diaperFormSchema.transform((values) => {
 });
 
 export const diaperProductFormSchema = z.object({
+	barcode: z.string().optional(),
 	costPerDiaper: numericInputField('Cost per diaper must be a number'),
 	isReusable: requiredBooleanField,
 	name: requiredNameField,
@@ -83,6 +85,7 @@ export type DiaperProductFormValues = z.infer<typeof diaperProductFormSchema>;
 export const diaperProductFormToDataSchema = diaperProductFormSchema.transform(
 	(values) =>
 		diaperProductSharedSchema.parse({
+			barcode: values.barcode,
 			costPerDiaper: optionalNumberFromInputField(
 				'Cost per diaper must be a number',
 			).parse(values.costPerDiaper),
@@ -136,6 +139,8 @@ export function parseDiaperFormValues(
 export interface DiaperProduct extends BaseEntity {
 	/** Whether the product is archived. */
 	archived?: boolean;
+	/** Optional barcode of the diaper package. */
+	barcode?: string;
 	/** Cost per diaper in the current currency. */
 	costPerDiaper?: number;
 	/** Whether the diaper is reusable. */
