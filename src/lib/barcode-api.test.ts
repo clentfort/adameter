@@ -1,11 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import { lookupProductByBarcode } from './barcode-api';
 
 global.fetch = vi.fn();
 
 describe('barcode-api', () => {
 	it('should return product name from Open Products Facts', async () => {
-		(fetch as any).mockResolvedValueOnce({
+		(fetch as Mock).mockResolvedValueOnce({
 			json: async () => ({
 				product: { product_name: 'Test Product General' },
 				status: 1,
@@ -21,7 +21,7 @@ describe('barcode-api', () => {
 	});
 
 	it('should fallback to Open Food Facts if Open Products Facts fails', async () => {
-		(fetch as any)
+		(fetch as Mock)
 			.mockResolvedValueOnce({
 				json: async () => ({ status: 0 }),
 				ok: true,
@@ -45,7 +45,7 @@ describe('barcode-api', () => {
 	});
 
 	it('should return null if both APIs fail', async () => {
-		(fetch as any).mockResolvedValue({
+		(fetch as Mock).mockResolvedValue({
 			json: async () => ({ status: 0 }),
 			ok: true,
 		});
@@ -55,7 +55,7 @@ describe('barcode-api', () => {
 	});
 
 	it('should return null on fetch error', async () => {
-		(fetch as any).mockRejectedValue(new Error('Network error'));
+		(fetch as Mock).mockRejectedValue(new Error('Network error'));
 
 		const result = await lookupProductByBarcode('111111111');
 		expect(result).toBeNull();

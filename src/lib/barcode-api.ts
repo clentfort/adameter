@@ -41,8 +41,7 @@ export async function lookupProductByBarcode(
 		}
 
 		return null;
-	} catch (error) {
-		console.error('Error looking up product by barcode:', error);
+	} catch {
 		return null;
 	}
 }

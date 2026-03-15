@@ -1,7 +1,6 @@
 'use client';
 
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
-import { fbt } from 'fbtee';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -23,7 +22,6 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
 			scannerRef.current = html5QrCode;
 
 			const config = {
-				fps: 10,
 				formatsToSupport: [
 					Html5QrcodeSupportedFormats.EAN_13,
 					Html5QrcodeSupportedFormats.EAN_8,
@@ -33,6 +31,7 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
 					Html5QrcodeSupportedFormats.CODE_39,
 					Html5QrcodeSupportedFormats.QR_CODE,
 				],
+				fps: 10,
 				qrbox: { height: 150, width: 250 },
 			};
 
