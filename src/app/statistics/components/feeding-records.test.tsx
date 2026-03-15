@@ -45,6 +45,11 @@ describe('FeedingRecords', () => {
 		expectStatsCardPrimaryMetric(container, 1);
 		expect(screen.getByText('40 min')).toBeInTheDocument();
 		expect(screen.getByText('5 min')).toBeInTheDocument();
+		expect(screen.getByText('Longest gap between feedings')).toBeInTheDocument();
+		// Gap between Jan 1 10:10 (end of 10min) and Jan 1 14:00 (start) = 3h 50m
+		// Gap between Jan 1 14:15 (end of 15min) and Jan 2 08:00 (start) = ~17h 45m
+		// Gap between Jan 2 08:05 (end of 5min) and Jan 3 12:00 (start) = ~27h 55m (Longest)
+		expect(screen.getByText('27 h 55 min')).toBeInTheDocument();
 	});
 	it('excludes sessions from today', () => {
 		vi.setSystemTime(new Date('2024-01-03T12:00:00Z'));

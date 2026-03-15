@@ -269,7 +269,9 @@ export default function StatisticsPage() {
 			) : (
 				<>
 					<h3 className="text-lg font-medium mt-6 mb-4">
-						<fbt desc="Subtitle for the feeding statistics section">Feeding</fbt>
+						<fbt desc="Subtitle for the feeding statistics section">
+							Feeding
+						</fbt>
 					</h3>
 					{filteredSessions.length > 0 ? (
 						<>

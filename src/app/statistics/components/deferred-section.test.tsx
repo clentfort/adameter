@@ -1,15 +1,21 @@
-import { render, screen, act } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { act, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DeferredSection from './deferred-section';
 
 describe('DeferredSection', () => {
 	beforeEach(() => {
-		vi.stubGlobal('requestIdleCallback', vi.fn((cb) => {
-			return setTimeout(cb, 0);
-		}));
-		vi.stubGlobal('cancelIdleCallback', vi.fn((id) => {
-			clearTimeout(id);
-		}));
+		vi.stubGlobal(
+			'requestIdleCallback',
+			vi.fn((cb) => {
+				return setTimeout(cb, 0);
+			}),
+		);
+		vi.stubGlobal(
+			'cancelIdleCallback',
+			vi.fn((id) => {
+				clearTimeout(id);
+			}),
+		);
 	});
 
 	afterEach(() => {
@@ -20,7 +26,7 @@ describe('DeferredSection', () => {
 		render(
 			<DeferredSection fallback={<div>Fallback</div>}>
 				<div>Content</div>
-			</DeferredSection>
+			</DeferredSection>,
 		);
 
 		expect(screen.getByText('Fallback')).toBeInTheDocument();
@@ -31,7 +37,7 @@ describe('DeferredSection', () => {
 		render(
 			<DeferredSection fallback={<div>Fallback</div>}>
 				<div>Content</div>
-			</DeferredSection>
+			</DeferredSection>,
 		);
 
 		await act(async () => {

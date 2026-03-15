@@ -54,11 +54,11 @@ export default function BarChart({
 			typeof window !== 'undefined'
 				? window.requestIdleCallback ||
 					((cb: IdleRequestCallback) => setTimeout(cb, 1))
-				: ((cb: IdleRequestCallback) => setTimeout(cb, 1));
+				: (cb: IdleRequestCallback) => setTimeout(cb, 1);
 		const cic =
 			typeof window !== 'undefined'
 				? window.cancelIdleCallback || ((id: number) => clearTimeout(id))
-				: ((id: number) => clearTimeout(id));
+				: (id: number) => clearTimeout(id);
 
 		const handle = ric(() => {
 			setIsMounted(true);
