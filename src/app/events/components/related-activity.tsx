@@ -3,14 +3,10 @@
 import type { DiaperChange } from '@/types/diaper';
 import type { Event } from '@/types/event';
 import type { FeedingSession } from '@/types/feeding';
-import {
-	endOfDay,
-	isWithinInterval,
-	parseISO,
-	startOfDay,
-} from 'date-fns';
+import { endOfDay, isWithinInterval, parseISO, startOfDay } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useMemo } from 'react';
+import { isAbnormalTemperature } from '@/app/diaper/utils/is-abnormal-temperature';
 import {
 	Accordion,
 	AccordionContent,
@@ -20,7 +16,6 @@ import {
 import { cn } from '@/lib/utils';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import { formatEntryTime } from '@/utils/format-history-date';
-import { isAbnormalTemperature } from '@/app/diaper/utils/is-abnormal-temperature';
 
 interface RelatedActivityProps {
 	event: Event;
@@ -52,7 +47,9 @@ export default function RelatedActivity({
 					};
 
 		const filteredDiapers: ActivityItem[] = diaperChanges
-			.filter((change) => isWithinInterval(parseISO(change.timestamp), interval))
+			.filter((change) =>
+				isWithinInterval(parseISO(change.timestamp), interval),
+			)
 			.map((change) => ({
 				data: change,
 				timestamp: parseISO(change.timestamp),
@@ -84,9 +81,8 @@ export default function RelatedActivity({
 				<AccordionItem className="border-none" value="related-activity">
 					<AccordionTrigger className="py-2 text-sm font-semibold hover:no-underline">
 						<fbt desc="Label for related activity section in event list">
-							Related Activity (<fbt:param name="count">
-								{relatedItems.length}
-							</fbt:param>)
+							Related Activity
+							(<fbt:param name="count">{relatedItems.length}</fbt:param>)
 						</fbt>
 					</AccordionTrigger>
 					<AccordionContent>
@@ -144,9 +140,11 @@ export default function RelatedActivity({
 													)}
 												</span>
 												<span className="text-muted-foreground font-normal">
-													({formatDurationAbbreviated(
+													(
+													{formatDurationAbbreviated(
 														item.data.durationInSeconds,
-													)})
+													)}
+													)
 												</span>
 											</div>
 										) : (

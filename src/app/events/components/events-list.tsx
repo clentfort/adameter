@@ -1,18 +1,18 @@
+import type { DiaperChange } from '@/types/diaper';
+import type { FeedingSession } from '@/types/feeding';
 import { format } from 'date-fns';
 import { ArrowRight, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';
-import type { DiaperChange } from '@/types/diaper';
-import type { FeedingSession } from '@/types/feeding';
 import Markdown from '@/components/markdown';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useEvent, useRemoveEvent, useUpsertEvent } from '@/hooks/use-events';
 import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
 import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
-import RelatedActivity from './related-activity';
 import AddEventDialog from './event-form';
+import RelatedActivity from './related-activity';
 
 function EventListItem({
 	diaperChanges,
