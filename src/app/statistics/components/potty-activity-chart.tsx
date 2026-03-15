@@ -13,7 +13,6 @@ interface PottyActivityChartProps {
 	primaryRange: DateRange;
 	secondaryRange?: DateRange;
 }
-
 export default function PottyActivityChart({
 	className,
 	diaperChanges,
@@ -21,13 +20,11 @@ export default function PottyActivityChart({
 	secondaryRange,
 }: PottyActivityChartProps) {
 	const [showComparisonCharts] = useShowComparisonCharts();
-
 	const { datasets, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
 		const pottyChanges = diaperChanges.filter(
 			(c) => c.pottyUrine || c.pottyStool,
 		);
-
 		if (primaryRange.from.getTime() === 0) {
 			if (pottyChanges.length > 0) {
 				const firstTime = pottyChanges.reduce((min, c) => {
@@ -40,12 +37,10 @@ export default function PottyActivityChart({
 				effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
 			}
 		}
-
 		const primaryDays = eachDayOfInterval({
 			end: primaryRange.to,
 			start: effectivePrimaryFrom,
 		});
-
 		const primaryDataByDate = pottyChanges.reduce<
 			Record<string, { stool: number; urine: number }>
 		>((acc, change) => {
@@ -63,24 +58,19 @@ export default function PottyActivityChart({
 			}
 			return acc;
 		}, {});
-
 		const primaryUrineData = primaryDays.map(
 			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0,
 		);
 		const primaryStoolData = primaryDays.map(
 			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0,
 		);
-
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
-
 		const datasets = [];
-
 		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
 				start: secondaryRange.from,
 			});
-
 			const secondaryDataByDate = pottyChanges.reduce<
 				Record<string, { stool: number; urine: number }>
 			>((acc, change) => {
@@ -98,14 +88,12 @@ export default function PottyActivityChart({
 				}
 				return acc;
 			}, {});
-
 			const secondaryUrineData = secondaryDays.map(
 				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0),
 			);
 			const secondaryStoolData = secondaryDays.map(
 				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0),
 			);
-
 			datasets.push(
 				{
 					backgroundColor: '#94a3b8', // slate-400
@@ -121,7 +109,6 @@ export default function PottyActivityChart({
 				},
 			);
 		}
-
 		datasets.push(
 			{
 				backgroundColor: '#eab308', // yellow-500
@@ -136,10 +123,8 @@ export default function PottyActivityChart({
 				stack: 'primary',
 			},
 		);
-
 		return { datasets, labels };
 	}, [diaperChanges, primaryRange, secondaryRange, showComparisonCharts]);
-
 	return (
 		<div className={className}>
 			<BarChart

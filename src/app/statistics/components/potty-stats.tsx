@@ -1,17 +1,15 @@
 'use client';
 
 import type { DiaperChange } from '@/types/diaper';
-import { useMemo } from 'react';
 import { differenceInDays } from 'date-fns';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { logger } from '@/lib/logger';
 import ComparisonValue from './comparison-value';
 
 interface PottyStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
 	diaperChanges: DiaperChange[];
 }
-
 function calculatePottyMetrics(diaperChanges: DiaperChange[]) {
 	if (diaperChanges.length === 0) {
 		return {
@@ -21,13 +19,11 @@ function calculatePottyMetrics(diaperChanges: DiaperChange[]) {
 			totalPottyHits: 0,
 		};
 	}
-
 	const pottyUrine = diaperChanges.filter((c) => c.pottyUrine).length;
 	const pottyStool = diaperChanges.filter((c) => c.pottyStool).length;
 	const totalPottyHits = diaperChanges.filter(
 		(c) => c.pottyUrine || c.pottyStool,
 	).length;
-
 	const oldestChange = new Date(
 		Math.min(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
 	);
@@ -39,7 +35,6 @@ function calculatePottyMetrics(diaperChanges: DiaperChange[]) {
 		differenceInDays(newestChange, oldestChange) + 1,
 	);
 	const hitsPerDay = (totalPottyHits / daysDiff).toFixed(1);
-
 	return {
 		hitsPerDay,
 		pottyStool,
@@ -47,12 +42,10 @@ function calculatePottyMetrics(diaperChanges: DiaperChange[]) {
 		totalPottyHits,
 	};
 }
-
 export default function PottyStats({
 	comparisonDiaperChanges,
 	diaperChanges = [],
 }: PottyStatsProps) {
-	const start = performance.now();
 	const metrics = useMemo(
 		() => calculatePottyMetrics(diaperChanges),
 		[diaperChanges],
@@ -64,13 +57,7 @@ export default function PottyStats({
 				: null,
 		[comparisonDiaperChanges],
 	);
-
-	logger.log(
-		`[PERF] PottyStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
-	);
-
 	const { hitsPerDay, pottyStool, pottyUrine, totalPottyHits } = metrics;
-
 	return (
 		<Card className="w-full">
 			<CardHeader className="p-4 pb-2">
@@ -111,7 +98,6 @@ export default function PottyStats({
 						</div>
 					</div>
 				</div>
-
 				<div className="grid grid-cols-2 gap-4">
 					<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-800/30">
 						<p className="text-sm text-blue-800 dark:text-blue-300">

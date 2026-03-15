@@ -5,22 +5,17 @@ interface ComparisonValueProps {
 	inverse?: boolean; // If true, increase is considered "bad" (e.g. leakage)
 	previous: number;
 }
-
 export default function ComparisonValue({
 	current,
 	inverse = false,
 	previous,
 }: ComparisonValueProps) {
 	if (previous === 0) return null;
-
 	const diff = current - previous;
 	const percentChange = (diff / previous) * 100;
-
 	// Ignore very small changes
 	if (Math.abs(percentChange) < 0.1) return null;
-
 	const isIncrease = diff > 0;
-
 	const finalColorClass = isIncrease
 		? inverse
 			? 'text-rose-600 dark:text-rose-400'
@@ -28,7 +23,6 @@ export default function ComparisonValue({
 		: inverse
 			? 'text-emerald-600 dark:text-emerald-400'
 			: 'text-rose-600 dark:text-rose-400';
-
 	return (
 		<span
 			className={cn(

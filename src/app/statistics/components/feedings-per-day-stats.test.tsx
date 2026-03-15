@@ -21,20 +21,16 @@ const mockSessions = createFeedingSessions([
 	},
 	{ breast: 'left', durationInSeconds: 300, startTime: '2024-01-03T18:00:00Z' },
 ]);
-
 describe('FeedingsPerDayStats', () => {
 	it('renders null when no sessions are provided', () => {
 		const { container } = render(<FeedingsPerDayStats sessions={[]} />);
 		expect(container.firstChild).toBeNull();
 	});
-
 	it('calculates and displays average feedings per day correctly', () => {
 		render(<FeedingsPerDayStats sessions={mockSessions} />);
-
 		expect(screen.getByText('Feedings Per Day')).toBeInTheDocument();
 		expect(screen.getByText('1.7')).toBeInTheDocument(); // 5 sessions / 3 days
 	});
-
 	it('handles sessions all on the same day', () => {
 		const sameDaySessions = createFeedingSessions([
 			{
@@ -51,7 +47,6 @@ describe('FeedingsPerDayStats', () => {
 		render(<FeedingsPerDayStats sessions={sameDaySessions} />);
 		expect(screen.getByText('2.0')).toBeInTheDocument();
 	});
-
 	it('handles a single session', () => {
 		const singleSession = [
 			createFeedingSession({

@@ -17,7 +17,6 @@ interface MockLineChartProps {
 	yAxisLabel: string;
 	yAxisUnit: string;
 }
-
 const mockLineChart = vi.fn();
 vi.mock('@/components/charts/line-chart', () => ({
 	default: (props: MockLineChartProps) => {
@@ -33,11 +32,9 @@ vi.mock('@/components/charts/line-chart', () => ({
 		);
 	},
 }));
-
 vi.mock('@/hooks/use-profile', () => ({
 	useProfile: () => [{ dob: '2024-01-01', sex: 'boy' }, vi.fn()],
 }));
-
 vi.mock('@/utils/growth-standards', () => ({
 	calculateValue: vi.fn((L, M, S, Z) => M * (1 + L * S * Z)),
 	getGrowthRange: vi.fn(async () => ({ max: 4000, min: 2000 })),
@@ -50,7 +47,6 @@ vi.mock('@/utils/growth-standards', () => ({
 	Z_3RD: -1.88,
 	Z_97TH: 1.88,
 }));
-
 const mockMeasurements: GrowthMeasurement[] = [
 	{
 		date: new Date('2024-01-01T00:00:00Z').toISOString(),
@@ -74,12 +70,10 @@ const mockMeasurements: GrowthMeasurement[] = [
 		headCircumference: 36,
 	},
 ];
-
 describe('GrowthChart', () => {
 	beforeEach(() => {
 		mockLineChart.mockClear();
 	});
-
 	it('renders no data message when no measurements are provided', () => {
 		render(<GrowthChart measurements={[]} />);
 		expect(
@@ -88,14 +82,12 @@ describe('GrowthChart', () => {
 			),
 		).toBeInTheDocument();
 	});
-
 	it('renders titles for weight, height, and head circumference sections', () => {
 		render(<GrowthChart measurements={mockMeasurements} />);
 		expect(screen.getByText('Weight (g)')).toBeInTheDocument();
 		expect(screen.getByText('Height (cm)')).toBeInTheDocument();
 		expect(screen.getByText('Head Circumference (cm)')).toBeInTheDocument();
 	});
-
 	it('passes sorted and filtered weight data to LineChart', () => {
 		const { container } = render(
 			<GrowthChart measurements={mockMeasurements} />,
@@ -111,13 +103,11 @@ describe('GrowthChart', () => {
 		expect(weightChartCall[0].data[2].y).toBe(3500); // 2024-01-15
 		expect(weightChartCall[0].datasetLabel.toString()).toBe('Weight');
 		expect(weightChartCall[0].yAxisUnit).toBe('g');
-
 		const growthCard = container.firstChild as HTMLElement;
 		expect(
 			within(growthCard).getByTestId('mock-line-chart-weight'),
 		).toHaveTextContent('Weight Chart - Data Length: 3');
 	});
-
 	it('passes sorted and filtered height data to LineChart', () => {
 		const { container } = render(
 			<GrowthChart measurements={mockMeasurements} />,
@@ -137,7 +127,6 @@ describe('GrowthChart', () => {
 			within(growthCard).getByTestId('mock-line-chart-height'),
 		).toHaveTextContent('Height Chart - Data Length: 2');
 	});
-
 	it('passes sorted and filtered head circumference data to LineChart', () => {
 		const { container } = render(
 			<GrowthChart measurements={mockMeasurements} />,
@@ -157,7 +146,6 @@ describe('GrowthChart', () => {
 			within(growthCard).getByTestId('mock-line-chart-head circumference'),
 		).toHaveTextContent('Head Circumference Chart - Data Length: 2');
 	});
-
 	it('displays empty state message for charts with no data', () => {
 		const singleMeasurement: GrowthMeasurement[] = [
 			{
@@ -170,7 +158,6 @@ describe('GrowthChart', () => {
 			<GrowthChart measurements={singleMeasurement} />,
 		);
 		const growthCard = container.firstChild as HTMLElement;
-
 		const weightChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Weight',
 		);
@@ -180,7 +167,6 @@ describe('GrowthChart', () => {
 		expect(
 			within(growthCard).getByTestId('mock-line-chart-weight'),
 		).toHaveTextContent('No data available.');
-
 		const heightChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Height',
 		);
@@ -190,7 +176,6 @@ describe('GrowthChart', () => {
 		expect(
 			within(growthCard).getByTestId('mock-line-chart-height'),
 		).toHaveTextContent('No data available.');
-
 		const headChartCall = mockLineChart.mock.calls.find(
 			(call) => call[0].title.toString() === 'Head Circumference',
 		);
@@ -201,16 +186,13 @@ describe('GrowthChart', () => {
 			within(growthCard).getByTestId('mock-line-chart-head circumference'),
 		).toHaveTextContent('No data available.');
 	});
-
 	it('displays percentiles when data is available', async () => {
 		render(<GrowthChart measurements={mockMeasurements} />);
-
 		// Wait for the async getPercentile calls to resolve and the component to re-render
 		// Use findAllByText because P50 appears multiple times (Weight, Height, HC)
 		const elements = await screen.findAllByText('P50', {}, { timeout: 3000 });
 		expect(elements).toHaveLength(3);
 	});
-
 	afterEach(() => {
 		cleanup();
 	});

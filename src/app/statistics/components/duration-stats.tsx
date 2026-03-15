@@ -1,6 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
 import { useMemo } from 'react';
-import { logger } from '@/lib/logger';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
@@ -9,16 +8,13 @@ interface DurationStatsProps {
 	comparisonSessions?: FeedingSession[];
 	sessions: FeedingSession[];
 }
-
 function calculateAvgDuration(sessions: FeedingSession[]) {
 	if (sessions.length === 0) return { left: 0, right: 0, total: 0 };
-
 	let totalDuration = 0;
 	let leftDuration = 0;
 	let rightDuration = 0;
 	let leftCount = 0;
 	let rightCount = 0;
-
 	sessions.forEach((session) => {
 		totalDuration += session.durationInSeconds;
 		if (session.breast === 'left') {
@@ -29,32 +25,23 @@ function calculateAvgDuration(sessions: FeedingSession[]) {
 			rightCount++;
 		}
 	});
-
 	return {
 		left: leftCount > 0 ? Math.round(leftDuration / leftCount) : 0,
 		right: rightCount > 0 ? Math.round(rightDuration / rightCount) : 0,
 		total: Math.round(totalDuration / sessions.length),
 	};
 }
-
 export default function DurationStats({
 	comparisonSessions,
 	sessions = [],
 }: DurationStatsProps) {
-	const start = performance.now();
-
 	const avgDuration = useMemo(() => calculateAvgDuration(sessions), [sessions]);
 	const prevAvgDuration = useMemo(
-		() => (comparisonSessions ? calculateAvgDuration(comparisonSessions) : null),
+		() =>
+			comparisonSessions ? calculateAvgDuration(comparisonSessions) : null,
 		[comparisonSessions],
 	);
-
 	if (sessions.length === 0) return null;
-
-	logger.log(
-		`[PERF] DurationStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
-	);
-
 	return (
 		<StatsCard
 			title={

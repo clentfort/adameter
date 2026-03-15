@@ -1,6 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
 import { useMemo } from 'react';
-import { logger } from '@/lib/logger';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
@@ -8,33 +7,23 @@ interface TotalFeedingsStatsProps {
 	comparisonSessions?: FeedingSession[];
 	sessions: FeedingSession[];
 }
-
 export default function TotalFeedingsStats({
 	comparisonSessions,
 	sessions = [],
 }: TotalFeedingsStatsProps) {
-	const start = performance.now();
-
-	const { leftCount, prevLeftCount, prevRightCount, rightCount } = useMemo(() => {
-		const leftCount = sessions.filter((s) => s.breast === 'left').length;
-		const rightCount = sessions.filter((s) => s.breast === 'right').length;
-
-		const prevLeftCount = comparisonSessions?.filter(
-			(s) => s.breast === 'left',
-		).length;
-		const prevRightCount = comparisonSessions?.filter(
-			(s) => s.breast === 'right',
-		).length;
-
-		return { leftCount, prevLeftCount, prevRightCount, rightCount };
-	}, [sessions, comparisonSessions]);
-
+	const { leftCount, prevLeftCount, prevRightCount, rightCount } =
+		useMemo(() => {
+			const leftCount = sessions.filter((s) => s.breast === 'left').length;
+			const rightCount = sessions.filter((s) => s.breast === 'right').length;
+			const prevLeftCount = comparisonSessions?.filter(
+				(s) => s.breast === 'left',
+			).length;
+			const prevRightCount = comparisonSessions?.filter(
+				(s) => s.breast === 'right',
+			).length;
+			return { leftCount, prevLeftCount, prevRightCount, rightCount };
+		}, [sessions, comparisonSessions]);
 	if (sessions.length === 0) return null;
-
-	logger.log(
-		`[PERF] TotalFeedingsStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
-	);
-
 	return (
 		<StatsCard
 			title={

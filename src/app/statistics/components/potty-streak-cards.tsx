@@ -2,28 +2,25 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import { format } from 'date-fns';
+import { useMemo } from 'react';
 import StatsCard from './stats-card';
 
 interface PottyStreakCardsProps {
 	diaperChanges: DiaperChange[];
 }
-
 function calculatePottyStreaks(diaperChanges: DiaperChange[]) {
 	const sortedChanges = [...diaperChanges].sort((a, b) =>
 		a.timestamp.localeCompare(b.timestamp),
 	);
-
 	let currentStreak = 0;
 	let longestStreak = 0;
 	let longestStreakEndTimestamp: string | undefined;
-
 	for (const change of sortedChanges) {
 		const isSuccess =
 			(change.pottyUrine || change.pottyStool) &&
 			!change.containsUrine &&
 			!change.containsStool;
 		const isAccident = change.containsUrine || change.containsStool;
-
 		if (isSuccess) {
 			currentStreak++;
 			if (currentStreak >= longestStreak) {
@@ -34,20 +31,20 @@ function calculatePottyStreaks(diaperChanges: DiaperChange[]) {
 			currentStreak = 0;
 		}
 	}
-
 	return {
 		currentStreak,
 		longestStreak,
 		longestStreakEndTimestamp,
 	};
 }
-
 export default function PottyStreakCards({
 	diaperChanges = [],
 }: PottyStreakCardsProps) {
-	const { currentStreak, longestStreak, longestStreakEndTimestamp } =
-		calculatePottyStreaks(diaperChanges);
-
+	const { currentStreak, longestStreak, longestStreakEndTimestamp } = useMemo(
+		() => calculatePottyStreaks(diaperChanges),
+		[diaperChanges],
+	);
+	if (diaperChanges.length === 0) return null;
 	return (
 		<>
 			<StatsCard

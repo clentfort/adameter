@@ -34,15 +34,12 @@ import {
 interface GrowthChartProps {
 	measurements: GrowthMeasurement[];
 }
-
 interface RangePoint {
 	x: number; // Age in months
 	yMax: number;
 	yMin: number;
 }
-
 const DAYS_PER_MONTH = 30.4375;
-
 function PercentileBadge({ value }: { value: number }) {
 	return (
 		<Popover>
@@ -81,7 +78,6 @@ function PercentileBadge({ value }: { value: number }) {
 		</Popover>
 	);
 }
-
 export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [profile] = useProfile();
 	const [weightRange, setWeightRange] = useState<RangePoint[]>([]);
@@ -90,7 +86,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [weightPercentile, setWeightPercentile] = useState<number | null>(null);
 	const [heightPercentile, setHeightPercentile] = useState<number | null>(null);
 	const [headPercentile, setHeadPercentile] = useState<number | null>(null);
-
 	const sortedMeasurements = useMemo(
 		() =>
 			[...measurements].sort(
@@ -98,25 +93,20 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			),
 		[measurements],
 	);
-
 	const dob = useMemo(
 		() => (profile?.dob ? startOfDay(new Date(profile.dob)) : null),
 		[profile],
 	);
-
 	const forecastAge = useMemo(() => {
 		if (!dob) return undefined;
-
 		const lastMeasurement = sortedMeasurements.at(-1);
 		const lastMeasureDate = lastMeasurement
 			? startOfDay(new Date(lastMeasurement.date))
 			: dob;
-
 		const currentAgeMonths =
 			differenceInDays(lastMeasureDate, dob) / DAYS_PER_MONTH;
 		return Math.floor(currentAgeMonths / 3) * 3 + 3;
 	}, [dob, sortedMeasurements]);
-
 	useEffect(() => {
 		async function loadRanges() {
 			if (!dob || !profile?.sex || profile.optedOut) {
@@ -128,7 +118,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				setHeadPercentile(null);
 				return;
 			}
-
 			// Calculate percentiles for the latest measurements
 			let latestWeight = null;
 			let latestHeight = null;
@@ -146,7 +135,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				}
 				if (latestWeight && latestHeight && latestHead) break;
 			}
-
 			if (latestWeight?.weight && latestWeight.weight > 0) {
 				getPercentile(
 					'weight-for-age',
@@ -157,7 +145,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			} else {
 				setWeightPercentile(null);
 			}
-
 			if (latestHeight?.height && latestHeight.height > 0) {
 				getPercentile(
 					'length-height-for-age',
@@ -168,7 +155,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			} else {
 				setHeightPercentile(null);
 			}
-
 			if (latestHead?.headCircumference && latestHead.headCircumference > 0) {
 				getPercentile(
 					'head-circumference-for-age',
@@ -179,7 +165,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			} else {
 				setHeadPercentile(null);
 			}
-
 			const firstMeasurement = sortedMeasurements[0];
 			const lastMeasurement = sortedMeasurements.at(-1);
 			const firstMeasureDate = firstMeasurement
@@ -188,11 +173,9 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			const lastMeasureDate = lastMeasurement
 				? startOfDay(new Date(lastMeasurement.date))
 				: dob;
-
 			const startDate = min([dob, firstMeasureDate]);
 			const endDate = addDays(lastMeasureDate, 30);
 			const maxAgeInDays = differenceInDays(endDate, dob);
-
 			const points: Date[] = [];
 			let current = startDate;
 			while (!isAfter(current, endDate)) {
@@ -205,24 +188,19 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			if (!lastPoint || differenceInDays(endDate, lastPoint) > 0) {
 				points.push(endDate);
 			}
-
 			// Load tables once per indicator based on the maximum age in the range
 			const [wTableRes, hTableRes, hcTableRes] = await Promise.all([
 				getGrowthTable('weight-for-age', profile.sex, maxAgeInDays),
 				getGrowthTable('length-height-for-age', profile.sex, maxAgeInDays),
 				getGrowthTable('head-circumference-for-age', profile.sex, maxAgeInDays),
 			]);
-
 			const wRange: RangePoint[] = [];
 			const hRange: RangePoint[] = [];
 			const hcRange: RangePoint[] = [];
-
 			for (const date of points) {
 				const ageInDays = differenceInDays(date, dob);
 				if (ageInDays < 0) continue;
-
 				const ageInMonths = ageInDays / DAYS_PER_MONTH;
-
 				if (wTableRes) {
 					const lms = lookupLms(wTableRes.table, ageInDays);
 					if (lms) {
@@ -233,7 +211,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						});
 					}
 				}
-
 				if (hTableRes) {
 					const lms = lookupLms(hTableRes.table, ageInDays);
 					if (lms) {
@@ -244,7 +221,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						});
 					}
 				}
-
 				if (hcTableRes) {
 					const lms = lookupLms(hcTableRes.table, ageInDays);
 					if (lms) {
@@ -256,15 +232,12 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					}
 				}
 			}
-
 			setWeightRange(wRange);
 			setHeightRange(hRange);
 			setHeadRange(hcRange);
 		}
-
 		loadRanges();
 	}, [dob, profile?.sex, profile?.optedOut, sortedMeasurements]);
-
 	const weightData = useMemo(
 		() =>
 			sortedMeasurements
@@ -278,7 +251,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				})),
 		[sortedMeasurements, dob],
 	);
-
 	const heightData = useMemo(
 		() =>
 			sortedMeasurements
@@ -292,7 +264,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				})),
 		[sortedMeasurements, dob],
 	);
-
 	const headCircumferenceData = useMemo(
 		() =>
 			sortedMeasurements
@@ -306,7 +277,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				})),
 		[sortedMeasurements, dob],
 	);
-
 	if (measurements.length === 0) {
 		return (
 			<Card>
@@ -326,7 +296,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			</Card>
 		);
 	}
-
 	const commonXAxisLabel = dob ? (
 		<fbt desc="Label for the age axis on growth charts">Age (months)</fbt>
 	) : (
@@ -337,13 +306,11 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			No data available.
 		</fbt>
 	);
-
 	const rangeLabel = (
 		<fbt desc="Label for the expected growth range">
 			Expected Range (3rd-97th percentile)
 		</fbt>
 	);
-
 	return (
 		<div className="space-y-4">
 			<Card>
@@ -385,7 +352,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					/>
 				</CardContent>
 			</Card>
-
 			<Card>
 				<CardHeader className="p-4 pb-2">
 					<CardTitle className="text-base">
@@ -425,7 +391,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					/>
 				</CardContent>
 			</Card>
-
 			<Card>
 				<CardHeader className="p-4 pb-2">
 					<CardTitle className="text-base">

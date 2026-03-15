@@ -15,3 +15,22 @@ setupFbtee({
 	hooks: { getViewerContext: () => viewerContext },
 	translations: {},
 });
+
+if (typeof window !== 'undefined') {
+	window.requestIdleCallback =
+		window.requestIdleCallback ||
+		((cb) => {
+			return setTimeout(() => {
+				cb({
+					didTimeout: false,
+					timeRemaining: () => 50,
+				});
+			}, 1) as unknown as number;
+		});
+
+	window.cancelIdleCallback =
+		window.cancelIdleCallback ||
+		((id) => {
+			clearTimeout(id);
+		});
+}

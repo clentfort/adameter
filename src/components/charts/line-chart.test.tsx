@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import LineChart from './line-chart';
 
@@ -40,7 +40,7 @@ describe('LineChart', () => {
 		vi.clearAllMocks();
 	});
 
-	it('should render and initialize chart with minimal props', () => {
+	it('should render and initialize chart with minimal props', async () => {
 		const mockData = [{ x: new Date(), y: 10 }];
 		render(
 			<LineChart
@@ -52,6 +52,10 @@ describe('LineChart', () => {
 				yAxisLabel="Value"
 			/>,
 		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
 
 		expect(screen.getByRole('graphics-document')).toBeInTheDocument();
 		expect(mockChart).toHaveBeenCalledTimes(1);
@@ -81,7 +85,7 @@ describe('LineChart', () => {
 		);
 	});
 
-	it('should destroy chart instance on unmount', () => {
+	it('should destroy chart instance on unmount', async () => {
 		const mockData = [{ x: new Date(), y: 10 }];
 		const { unmount } = render(
 			<LineChart
@@ -93,6 +97,10 @@ describe('LineChart', () => {
 				yAxisLabel="Value"
 			/>,
 		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
 
 		expect(mockChart).toHaveBeenCalledTimes(1);
 		unmount();

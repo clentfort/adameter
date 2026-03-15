@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
-import { logger } from '@/lib/logger';
 import ComparisonValue from './comparison-value';
 
 interface DiaperStatsProps {
@@ -16,7 +15,6 @@ interface DiaperStatsProps {
 	diaperChanges: DiaperChange[];
 	products: DiaperProduct[];
 }
-
 const BRAND_COLORS = [
 	'#3b82f6', // blue-500
 	'#10b981', // emerald-500
@@ -24,7 +22,6 @@ const BRAND_COLORS = [
 	'#8b5cf6', // violet-500
 	'#f43f5e', // rose-500
 ];
-
 function formatCurrency(value: number, currency: Currency, locale: string) {
 	return new Intl.NumberFormat(locale.replace('_', '-'), {
 		currency,
@@ -33,7 +30,6 @@ function formatCurrency(value: number, currency: Currency, locale: string) {
 		style: 'currency',
 	}).format(value);
 }
-
 function createProductCostById(products: DiaperProduct[]) {
 	return new Map(
 		products
@@ -45,11 +41,9 @@ function createProductCostById(products: DiaperProduct[]) {
 			.map((product) => [product.id, product.costPerDiaper as number]),
 	);
 }
-
 function createProductById(products: DiaperProduct[]) {
 	return new Map(products.map((product) => [product.id, product]));
 }
-
 function calculateDiaperMetrics(
 	diaperChanges: DiaperChange[],
 	productCostById: Map<string, number>,
@@ -64,29 +58,24 @@ function calculateDiaperMetrics(
 			withStool: 0,
 		};
 	}
-
 	const totalChanges = diaperChanges.length;
 	const urineOnly = diaperChanges.filter(
 		(c) => c.containsUrine && !c.containsStool,
 	).length;
 	const withStool = diaperChanges.filter((c) => c.containsStool).length;
 	const withLeakage = diaperChanges.filter((c) => c.leakage).length;
-
 	let totalCost = 0;
 	for (const change of diaperChanges) {
 		const productId = change.diaperProductId;
 		if (!productId) {
 			continue;
 		}
-
 		const productCost = productCostById.get(productId);
 		if (typeof productCost !== 'number') {
 			continue;
 		}
-
 		totalCost += productCost;
 	}
-
 	const oldestChange = new Date(
 		Math.min(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
 	);
@@ -98,7 +87,6 @@ function calculateDiaperMetrics(
 		differenceInDays(newestChange, oldestChange) + 1,
 	);
 	const changesPerDay = (totalChanges / daysDiff).toFixed(1);
-
 	return {
 		changesPerDay,
 		totalChanges,
@@ -108,22 +96,18 @@ function calculateDiaperMetrics(
 		withStool,
 	};
 }
-
 export default function DiaperStats({
 	comparisonDiaperChanges,
 	diaperChanges = [],
 	products = [],
 }: DiaperStatsProps) {
-	const start = performance.now();
 	const [currency] = useCurrency();
 	const { locale } = useLanguage();
-
 	const productCostById = useMemo(
 		() => createProductCostById(products),
 		[products],
 	);
 	const productById = useMemo(() => createProductById(products), [products]);
-
 	const metrics = useMemo(
 		() => calculateDiaperMetrics(diaperChanges, productCostById),
 		[diaperChanges, productCostById],
@@ -135,7 +119,6 @@ export default function DiaperStats({
 				: null,
 		[comparisonDiaperChanges, productCostById],
 	);
-
 	const {
 		changesPerDay,
 		totalChanges,
@@ -144,7 +127,6 @@ export default function DiaperStats({
 		withLeakage,
 		withStool,
 	} = metrics;
-
 	const brandCounts: Record<
 		string,
 		{ costedChanges: number; leakage: number; total: number; totalCost: number }
@@ -154,7 +136,6 @@ export default function DiaperStats({
 		if (!productId) {
 			return;
 		}
-
 		const product = productById.get(productId);
 		const productName = product ? product.name : productId;
 		if (!brandCounts[productName]) {
@@ -165,24 +146,19 @@ export default function DiaperStats({
 				totalCost: 0,
 			};
 		}
-
 		brandCounts[productName].total++;
-
 		const productCost = productCostById.get(productId);
 		if (typeof productCost === 'number') {
 			brandCounts[productName].totalCost += productCost;
 			brandCounts[productName].costedChanges += 1;
 		}
-
 		if (change.leakage) {
 			brandCounts[productName].leakage++;
 		}
 	});
-
 	const sortedBrands = Object.entries(brandCounts)
 		.sort(([, countA], [, countB]) => countB.total - countA.total)
 		.slice(0, 5);
-
 	const pieData = useMemo(
 		() => ({
 			datasets: [
@@ -196,7 +172,6 @@ export default function DiaperStats({
 		}),
 		[sortedBrands],
 	);
-
 	if (diaperChanges.length === 0) {
 		return (
 			<Card className="w-full">
@@ -217,11 +192,6 @@ export default function DiaperStats({
 			</Card>
 		);
 	}
-
-	logger.log(
-		`[PERF] DiaperStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
-	);
-
 	return (
 		<Card className="w-full">
 			<CardHeader className="p-4 pb-2">
@@ -245,7 +215,6 @@ export default function DiaperStats({
 							</fbt>
 						</TabsTrigger>
 					</TabsList>
-
 					<TabsContent className="space-y-4" value="overview">
 						<div className="grid grid-cols-2 gap-4">
 							<div className="border rounded-md p-3">
@@ -299,7 +268,6 @@ export default function DiaperStats({
 								</div>
 							</div>
 						</div>
-
 						<div className="grid grid-cols-3 gap-4">
 							<div className="border rounded-md p-3 bg-yellow-50 dark:bg-yellow-800/30">
 								<p className="text-sm text-yellow-800 dark:text-yellow-300">
@@ -367,7 +335,6 @@ export default function DiaperStats({
 							</div>
 						</div>
 					</TabsContent>
-
 					<TabsContent className="space-y-6" value="brands">
 						{sortedBrands.length > 0 ? (
 							<>
@@ -388,7 +355,6 @@ export default function DiaperStats({
 											(stats.total / totalChanges) * 100;
 										const leakagePercentWithinBrand =
 											stats.total > 0 ? (stats.leakage / stats.total) * 100 : 0;
-
 										return (
 											<div className="border-t pt-4" key={brand}>
 												<div className="flex items-center gap-2 mb-2">

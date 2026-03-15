@@ -2,7 +2,7 @@
 
 import type { TimeRange } from '@/utils/get-range-dates';
 import { addDays, format, isWithinInterval } from 'date-fns';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -12,14 +12,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useDiaperProductsSnapshot } from '@/hooks/use-diaper-products';
 import { useEventsSnapshot } from '@/hooks/use-events';
 import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurementsSnapshot } from '@/hooks/use-growth-measurements';
-import { logger } from '@/lib/logger';
+import { cn } from '@/lib/utils';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
+import DeferredSection from './components/deferred-section';
 import DiaperActivity from './components/diaper-activity';
 import DiaperRecords from './components/diaper-records';
 import DiaperStats from './components/diaper-stats';
@@ -40,14 +42,13 @@ import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
 
 export default function StatisticsPage() {
-	const startRender = performance.now();
-
 	const diaperChanges = useDiaperChangesSnapshot();
 	const diaperProducts = useDiaperProductsSnapshot();
 	const events = useEventsSnapshot();
 	const measurements = useGrowthMeasurementsSnapshot();
 	const sessions = useFeedingSessionsSnapshot();
 
+	const [isPending, startTransition] = useTransition();
 	const [timeRange, setTimeRange] = useState<TimeRange>('7');
 	const [customRange, setCustomRange] = useState({
 		from: dateToDateInputValue(addDays(new Date(), -7)),
@@ -65,60 +66,44 @@ export default function StatisticsPage() {
 
 	// Filter sessions based on selected time range
 	const filteredSessions = useMemo(() => {
-		const start = performance.now();
 		const result = sessions.filter((session) =>
 			isWithinInterval(new Date(session.startTime), {
 				end: primary.to,
 				start: primary.from,
 			}),
-		);
-		logger.log(
-			`[PERF] Filtering ${sessions.length} sessions took ${(performance.now() - start).toFixed(2)}ms`,
 		);
 		return result;
 	}, [sessions, primary]);
 
 	const comparisonSessions = useMemo(() => {
 		if (!secondary) return undefined;
-		const start = performance.now();
 		const result = sessions.filter((session) =>
 			isWithinInterval(new Date(session.startTime), {
 				end: secondary.to,
 				start: secondary.from,
 			}),
 		);
-		logger.log(
-			`[PERF] Filtering comparison ${sessions.length} sessions took ${(performance.now() - start).toFixed(2)}ms`,
-		);
 		return result;
 	}, [sessions, secondary]);
 
 	// Filter diaper changes based on selected time range
 	const filteredDiaperChanges = useMemo(() => {
-		const start = performance.now();
 		const result = diaperChanges.filter((change) =>
 			isWithinInterval(new Date(change.timestamp), {
 				end: primary.to,
 				start: primary.from,
 			}),
 		);
-		logger.log(
-			`[PERF] Filtering ${diaperChanges.length} diaper changes took ${(performance.now() - start).toFixed(2)}ms`,
-		);
 		return result;
 	}, [diaperChanges, primary]);
 
 	const comparisonDiaperChanges = useMemo(() => {
 		if (!secondary) return undefined;
-		const start = performance.now();
 		const result = diaperChanges.filter((change) =>
 			isWithinInterval(new Date(change.timestamp), {
 				end: secondary.to,
 				start: secondary.from,
 			}),
-		);
-		logger.log(
-			`[PERF] Filtering comparison ${diaperChanges.length} diaper changes took ${(performance.now() - start).toFixed(2)}ms`,
 		);
 		return result;
 	}, [diaperChanges, secondary]);
@@ -135,7 +120,6 @@ export default function StatisticsPage() {
 	);
 
 	const disposableChanges = useMemo(() => {
-		const start = performance.now();
 		const result = diaperChanges
 			.map((change) => {
 				const productId = change.diaperProductId;
@@ -151,22 +135,13 @@ export default function StatisticsPage() {
 			.filter(
 				(item): item is { cost: number; timestamp: Date } => item !== null,
 			);
-		logger.log(
-			`[PERF] Processing ${diaperChanges.length} diaper changes for cost took ${(performance.now() - start).toFixed(2)}ms`,
-		);
 		return result;
 	}, [diaperChanges, productById]);
 
-	useEffect(() => {
-		logger.log(
-			`[PERF] StatisticsPage full render took ${(performance.now() - startRender).toFixed(2)}ms`,
-		);
-	}, [startRender]);
-
 	return (
-		<div className="w-full">
+		<div className={cn('w-full transition-opacity', isPending && 'opacity-50')}>
 			<div
-				className="flex flex-col gap-4 mb-6 sticky z-30 bg-background -mx-4 px-4 py-3 border-b shadow-sm !transition-none"
+				className="flex flex-col gap-4 mb-6 sticky z-30 bg-background -mx-4 px-4 py-3 border-b shadow-sm transition-all"
 				style={
 					{
 						top: `calc(var(--header-height-expanded) - (var(--header-height-expanded) - var(--header-height-sticky)) * var(--header-scroll-progress))`,
@@ -181,7 +156,9 @@ export default function StatisticsPage() {
 						<Select
 							onValueChange={(value) => {
 								if (value) {
-									setTimeRange(value as TimeRange);
+									startTransition(() => {
+										setTimeRange(value as TimeRange);
+									});
 								}
 							}}
 							value={timeRange}
@@ -292,9 +269,7 @@ export default function StatisticsPage() {
 			) : (
 				<>
 					<h3 className="text-lg font-medium mt-6 mb-4">
-						<fbt desc="Subtitle for the feeding statistics section">
-							Feeding
-						</fbt>
+						<fbt desc="Subtitle for the feeding statistics section">Feeding</fbt>
 					</h3>
 					{filteredSessions.length > 0 ? (
 						<>
@@ -319,14 +294,20 @@ export default function StatisticsPage() {
 									comparisonSessions={comparisonSessions}
 									sessions={filteredSessions}
 								/>
-								<HeatMap className="col-span-2" sessions={filteredSessions} />
+								<DeferredSection
+									fallback={<Skeleton className="h-32 col-span-2" />}
+								>
+									<HeatMap className="col-span-2" sessions={filteredSessions} />
+								</DeferredSection>
 							</div>
-							<FeedingActivity
-								className="mt-4"
-								primaryRange={primary}
-								secondaryRange={secondary}
-								sessions={sessions}
-							/>
+							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
+								<FeedingActivity
+									className="mt-4"
+									primaryRange={primary}
+									secondaryRange={secondary}
+									sessions={sessions}
+								/>
+							</DeferredSection>
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<FeedingRecords sessions={sessions} />
 							</div>
@@ -349,13 +330,15 @@ export default function StatisticsPage() {
 								diaperChanges={filteredDiaperChanges}
 								products={diaperProducts}
 							/>
-							<DiaperActivity
-								className="mt-4"
-								diaperChanges={diaperChanges}
-								primaryRange={primary}
-								products={diaperProducts}
-								secondaryRange={secondary}
-							/>
+							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
+								<DiaperActivity
+									className="mt-4"
+									diaperChanges={diaperChanges}
+									primaryRange={primary}
+									products={diaperProducts}
+									secondaryRange={secondary}
+								/>
+							</DeferredSection>
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<DiaperRecords diaperChanges={diaperChanges} />
 							</div>
@@ -377,12 +360,14 @@ export default function StatisticsPage() {
 								comparisonDiaperChanges={comparisonDiaperChanges}
 								diaperChanges={filteredDiaperChanges}
 							/>
-							<PottyActivity
-								className="mt-4"
-								diaperChanges={diaperChanges}
-								primaryRange={primary}
-								secondaryRange={secondary}
-							/>
+							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
+								<PottyActivity
+									className="mt-4"
+									diaperChanges={diaperChanges}
+									primaryRange={primary}
+									secondaryRange={secondary}
+								/>
+							</DeferredSection>
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<PottyStreakCards diaperChanges={diaperChanges} />
 								<PottyRecords diaperChanges={diaperChanges} />
@@ -400,17 +385,29 @@ export default function StatisticsPage() {
 						</div>
 					)}
 
-					<ReusableSavingsCard
-						allDiaperChanges={diaperChanges}
-						className="mt-8"
-						products={diaperProducts}
-					/>
+					<DeferredSection fallback={<Skeleton className="h-48 mt-8" />}>
+						<ReusableSavingsCard
+							allDiaperChanges={diaperChanges}
+							className="mt-8"
+							products={diaperProducts}
+						/>
+					</DeferredSection>
 
 					<h3 className="text-lg font-medium mt-8 mb-4">
 						<fbt desc="Subtitle for the growth statistics section">Growth</fbt>
 					</h3>
 					{measurements.length > 0 ? (
-						<GrowthChart measurements={[...measurements]} />
+						<DeferredSection
+							fallback={
+								<div className="space-y-4">
+									<Skeleton className="h-64" />
+									<Skeleton className="h-64" />
+									<Skeleton className="h-64" />
+								</div>
+							}
+						>
+							<GrowthChart measurements={[...measurements]} />
+						</DeferredSection>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
 							<fbt desc="Message shown when no growth data is available">

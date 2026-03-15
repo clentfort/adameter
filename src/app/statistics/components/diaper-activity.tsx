@@ -21,7 +21,6 @@ interface DiaperActivityProps {
 	products: DiaperProduct[];
 	secondaryRange?: DateRange;
 }
-
 export default function DiaperActivity({
 	className,
 	diaperChanges,
@@ -62,7 +61,6 @@ export default function DiaperActivity({
 							</TabsTrigger>
 						</TabsList>
 					</div>
-
 					<TabsContent className="mt-0" value="frequency">
 						<DiaperActivityChart
 							className="px-4 pb-4"

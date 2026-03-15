@@ -6,7 +6,6 @@ import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
 import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
-import { logger } from '@/lib/logger';
 
 interface DiaperActivityChartProps {
 	className?: string;
@@ -14,16 +13,13 @@ interface DiaperActivityChartProps {
 	primaryRange: DateRange;
 	secondaryRange?: DateRange;
 }
-
 export default function DiaperActivityChart({
 	className,
 	diaperChanges,
 	primaryRange,
 	secondaryRange,
 }: DiaperActivityChartProps) {
-	const start = performance.now();
 	const [showComparisonCharts] = useShowComparisonCharts();
-
 	const { datasets, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
 		if (primaryRange.from.getTime() === 0) {
@@ -38,12 +34,10 @@ export default function DiaperActivityChart({
 				effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
 			}
 		}
-
 		const primaryDays = eachDayOfInterval({
 			end: primaryRange.to,
 			start: effectivePrimaryFrom,
 		});
-
 		const primaryDataByDate = diaperChanges.reduce<
 			Record<string, { stool: number; urine: number }>
 		>((acc, change) => {
@@ -61,24 +55,19 @@ export default function DiaperActivityChart({
 			}
 			return acc;
 		}, {});
-
 		const primaryUrineData = primaryDays.map(
 			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0,
 		);
 		const primaryStoolData = primaryDays.map(
 			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0,
 		);
-
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
-
 		const datasets = [];
-
 		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
 				start: secondaryRange.from,
 			});
-
 			const secondaryDataByDate = diaperChanges.reduce<
 				Record<string, { stool: number; urine: number }>
 			>((acc, change) => {
@@ -96,14 +85,12 @@ export default function DiaperActivityChart({
 				}
 				return acc;
 			}, {});
-
 			const secondaryUrineData = secondaryDays.map(
 				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0),
 			);
 			const secondaryStoolData = secondaryDays.map(
 				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0),
 			);
-
 			datasets.push(
 				{
 					backgroundColor: '#94a3b8', // slate-400
@@ -119,7 +106,6 @@ export default function DiaperActivityChart({
 				},
 			);
 		}
-
 		datasets.push(
 			{
 				backgroundColor: '#eab308', // yellow-500
@@ -134,14 +120,8 @@ export default function DiaperActivityChart({
 				stack: 'primary',
 			},
 		);
-
 		return { datasets, labels };
 	}, [diaperChanges, primaryRange, secondaryRange, showComparisonCharts]);
-
-	logger.log(
-		`[PERF] DiaperActivityChart calculation took ${(performance.now() - start).toFixed(2)}ms`,
-	);
-
 	return (
 		<div className={className}>
 			<BarChart

@@ -1,7 +1,6 @@
 import type { FeedingSession } from '@/types/feeding';
-import { useMemo } from 'react';
 import { format } from 'date-fns';
-import { logger } from '@/lib/logger';
+import { useMemo } from 'react';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
@@ -9,51 +8,39 @@ interface FeedingsPerDayStatsProps {
 	comparisonSessions?: FeedingSession[];
 	sessions: FeedingSession[];
 }
-
 function calculateAvgFeedingsPerDay(sessions: FeedingSession[]) {
 	if (sessions.length === 0) return 0;
-
 	// Group sessions by day
 	const sessionsByDay = new Map<string, number>();
 	sessions.forEach((session) => {
 		const day = format(new Date(session.startTime), 'yyyy-MM-dd');
 		sessionsByDay.set(day, (sessionsByDay.get(day) || 0) + 1);
 	});
-
 	const days = Array.from(sessionsByDay.keys());
 	const totalDays = days.length;
-
 	if (totalDays === 0) return 0;
-
 	const totalFeedings = Array.from(sessionsByDay.values()).reduce(
 		(sum, count) => sum + count,
 		0,
 	);
 	return totalFeedings / totalDays;
 }
-
 export default function FeedingsPerDayStats({
 	comparisonSessions,
 	sessions = [],
 }: FeedingsPerDayStatsProps) {
-	const start = performance.now();
-
 	const avgFeedingsPerDay = useMemo(
 		() => calculateAvgFeedingsPerDay(sessions),
 		[sessions],
 	);
 	const prevAvgFeedingsPerDay = useMemo(
 		() =>
-			comparisonSessions ? calculateAvgFeedingsPerDay(comparisonSessions) : null,
+			comparisonSessions
+				? calculateAvgFeedingsPerDay(comparisonSessions)
+				: null,
 		[comparisonSessions],
 	);
-
 	if (sessions.length === 0) return null;
-
-	logger.log(
-		`[PERF] FeedingsPerDayStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
-	);
-
 	return (
 		<StatsCard
 			title={

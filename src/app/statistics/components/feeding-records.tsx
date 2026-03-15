@@ -1,19 +1,14 @@
 import type { FeedingSession } from '@/types/feeding';
-import { useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
-import { logger } from '@/lib/logger';
+import { useMemo } from 'react';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import StatsCard from './stats-card';
 
 interface FeedingRecordsProps {
 	sessions: readonly FeedingSession[];
 }
-
 export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
-	const start = performance.now();
-
 	const todayKey = format(new Date(), 'yyyy-MM-dd');
-
 	// Group sessions by day
 	const {
 		fewestSessions,
@@ -29,14 +24,12 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 		for (const session of sessions) {
 			const day = format(new Date(session.startTime), 'yyyy-MM-dd');
 			if (day === todayKey) continue;
-
 			const current = sessionsByDay.get(day) || { count: 0, duration: 0 };
 			sessionsByDay.set(day, {
 				count: current.count + 1,
 				duration: current.duration + session.durationInSeconds,
 			});
 		}
-
 		const days = Array.from(sessionsByDay.entries());
 		if (days.length === 0)
 			return {
@@ -46,7 +39,6 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 				mostSessions: null,
 				shortestDuration: null,
 			};
-
 		const mostSessions = days.reduce((a, b) =>
 			a[1].count >= b[1].count ? a : b,
 		);
@@ -59,23 +51,19 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 		const shortestDuration = days.reduce((a, b) =>
 			a[1].duration <= b[1].duration ? a : b,
 		);
-
 		// Calculate longest gap between two sessions
 		const sortedSessions = [...sessions].sort((a, b) =>
 			a.startTime.localeCompare(b.startTime),
 		);
-
 		let longestGap = { date: '', duration: 0 };
 		for (let i = 1; i < sortedSessions.length; i++) {
 			const previousSession = sortedSessions[i - 1];
 			const currentSession = sortedSessions[i];
-
 			const previousEnd =
 				new Date(previousSession.startTime).getTime() +
 				previousSession.durationInSeconds * 1000;
 			const currentStart = new Date(currentSession.startTime).getTime();
 			const gap = (currentStart - previousEnd) / 1000;
-
 			if (gap > longestGap.duration) {
 				longestGap = {
 					date: currentSession.startTime,
@@ -83,7 +71,6 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 				};
 			}
 		}
-
 		return {
 			fewestSessions,
 			longestDuration,
@@ -92,13 +79,7 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 			shortestDuration,
 		};
 	}, [sessions, todayKey]);
-
 	if (sessions.length === 0 || !mostSessions) return null;
-
-	logger.log(
-		`[PERF] FeedingRecords calculation took ${(performance.now() - start).toFixed(2)}ms`,
-	);
-
 	return (
 		<>
 			{longestGap && longestGap.duration > 0 && (
