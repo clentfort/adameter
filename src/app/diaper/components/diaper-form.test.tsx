@@ -7,6 +7,7 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { I18nContext } from '@/contexts/i18n-context';
 import DiaperForm from './diaper-form';
 
 vi.mock('@/hooks/use-diaper-changes', () => ({
@@ -55,7 +56,7 @@ describe('DiaperForm', () => {
 
 		render(<DiaperForm {...baseProps} change={initialChange} />);
 
-		expect(screen.getByLabelText(/temperature/i)).toHaveValue(37);
+		expect(screen.getByLabelText(/temperature/i)).toHaveValue(98.6);
 		expect(screen.getByLabelText(/notes/i)).toHaveValue('Some notes');
 
 		fireEvent.click(screen.getByTestId('save-button'));
@@ -80,5 +81,29 @@ describe('DiaperForm', () => {
 		const savedChange = mockOnSave.mock.calls[0][0];
 		expect(savedChange.containsUrine).toBe(false);
 		expect(savedChange.containsStool).toBe(true);
+	});
+
+	it('renders temperature in Celsius for German locale', () => {
+		const initialChange: DiaperChange = {
+			containsStool: true,
+			containsUrine: true,
+			id: '1',
+			leakage: false,
+			notes: 'Some notes',
+			pottyStool: false,
+			pottyUrine: false,
+			temperature: 36.5,
+			timestamp: '2023-10-27T10:00:00.000Z',
+		};
+
+		render(
+			<I18nContext.Provider
+				value={{ locale: 'de_DE', setLocale: async () => {} }}
+			>
+				<DiaperForm {...baseProps} change={initialChange} />
+			</I18nContext.Provider>,
+		);
+
+		expect(screen.getByLabelText(/temperature/i)).toHaveValue(36.5);
 	});
 });
