@@ -11,6 +11,7 @@ import {
 interface HistoryEntryCardProps {
 	children?: ReactNode;
 	className?: string;
+	extraActions?: ReactNode;
 	formattedTime?: ReactNode;
 	header: ReactNode;
 	onDelete: () => void;
@@ -25,6 +26,7 @@ interface HistoryEntryCardProps {
 export default function HistoryEntryCard({
 	children,
 	className,
+	extraActions,
 	formattedTime,
 	header,
 	onDelete,
@@ -61,6 +63,7 @@ export default function HistoryEntryCard({
 							</span>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
+							{extraActions}
 							<DropdownMenuItem onClick={onEdit}>
 								<Pencil className="mr-2 h-4 w-4" />
 								<fbt common>Edit</fbt>

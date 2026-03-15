@@ -1,18 +1,27 @@
 import type { DiaperChange } from '@/types/diaper';
 import type { FeedingSession } from '@/types/feeding';
 import { format } from 'date-fns';
-import { ArrowRight, Calendar } from 'lucide-react';
-import { useState } from 'react';
+import { isWithinInterval, parseISO } from 'date-fns';
+import { ArrowRight, Calendar, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';
 import Markdown from '@/components/markdown';
+import {
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useEvent, useRemoveEvent, useUpsertEvent } from '@/hooks/use-events';
 import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
 import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
+import { formatEntryTime } from '@/utils/format-history-date';
 import AddEventDialog from './event-form';
-import RelatedActivity from './related-activity';
 
 function EventListItem({
 	diaperChanges,
@@ -29,6 +38,42 @@ function EventListItem({
 }) {
 	const event = useEvent(eventId);
 
+	const relatedItems = useMemo(() => {
+		if (!event || event.type !== 'period') {
+			return [];
+		}
+
+		const start = parseISO(event.startDate);
+		const interval = {
+			end: event.endDate ? parseISO(event.endDate) : new Date(),
+			start,
+		};
+
+		const filteredDiapers = diaperChanges
+			.filter((change) =>
+				isWithinInterval(parseISO(change.timestamp), interval),
+			)
+			.map((change) => ({
+				data: change,
+				timestamp: parseISO(change.timestamp),
+				type: 'diaper' as const,
+			}));
+
+		const filteredFeedings = feedingSessions
+			.filter((session) =>
+				isWithinInterval(parseISO(session.startTime), interval),
+			)
+			.map((session) => ({
+				data: session,
+				timestamp: parseISO(session.startTime),
+				type: 'feeding' as const,
+			}));
+
+		return [...filteredDiapers, ...filteredFeedings].sort(
+			(a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+		);
+	}, [event, diaperChanges, feedingSessions]);
+
 	if (!event) {
 		return null;
 	}
@@ -37,9 +82,73 @@ function EventListItem({
 	const endDate = event.endDate ? new Date(event.endDate) : null;
 	const isOngoing = event.type === 'period' && !event.endDate;
 
+	const extraActions = relatedItems.length > 0 && (
+		<>
+			<DropdownMenuSub>
+				<DropdownMenuSubTrigger>
+					<ExternalLink className="mr-2 h-4 w-4" />
+					<fbt desc="Label for menu item to jump to related activity">
+						Related Activity (<fbt:param name="count">
+							{relatedItems.length}
+						</fbt:param>)
+					</fbt>
+				</DropdownMenuSubTrigger>
+				<DropdownMenuSubContent className="max-w-[250px]">
+					{relatedItems.map((item) => {
+						const label =
+							item.type === 'feeding' ? (
+								<div className="flex flex-col">
+									<span className="font-medium">
+										{item.data.breast === 'left' ? (
+											<fbt desc="Left breast label">Left Breast</fbt>
+										) : (
+											<fbt desc="Right breast label">Right Breast</fbt>
+										)}
+									</span>
+									<span className="text-[10px] text-muted-foreground">
+										{formatEntryTime(item.timestamp.toISOString())}
+									</span>
+								</div>
+							) : (
+								<div className="flex flex-col">
+									<span className="font-medium">
+										{item.data.containsUrine && item.data.containsStool ? (
+											<fbt desc="Urine & Stool label">Urine & Stool</fbt>
+										) : item.data.containsUrine ? (
+											<fbt desc="Urine label">Urine</fbt>
+										) : item.data.containsStool ? (
+											<fbt desc="Stool label">Stool</fbt>
+										) : (
+											<fbt desc="Dry label">Dry</fbt>
+										)}
+									</span>
+									<span className="text-[10px] text-muted-foreground">
+										{formatEntryTime(item.timestamp.toISOString())}
+									</span>
+								</div>
+							);
+
+						return (
+							<DropdownMenuItem key={item.data.id}>
+								<Link
+									className="w-full"
+									href={item.type === 'feeding' ? '/feeding' : '/diaper'}
+								>
+									{label}
+								</Link>
+							</DropdownMenuItem>
+						);
+					})}
+				</DropdownMenuSubContent>
+			</DropdownMenuSub>
+			<DropdownMenuSeparator />
+		</>
+	);
+
 	return (
 		<HistoryEntryCard
 			data-testid="event-entry"
+			extraActions={extraActions}
 			formattedTime={
 				event.type === 'period' ? (
 					<div className="flex items-center gap-1">
@@ -76,11 +185,6 @@ function EventListItem({
 					{event.notes}
 				</Markdown>
 			)}
-			<RelatedActivity
-				diaperChanges={diaperChanges}
-				event={event}
-				feedingSessions={feedingSessions}
-			/>
 		</HistoryEntryCard>
 	);
 }
