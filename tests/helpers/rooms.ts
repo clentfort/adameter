@@ -2,8 +2,7 @@ import type { Page } from '@playwright/test';
 import { expect } from '../fixtures/test';
 
 export async function openSharingSettings(page: Page) {
-	await page.goto('/settings');
-	await page.getByTestId('settings-sharing').click();
+	await page.goto('/settings/sharing');
 }
 
 export async function createRoom(page: Page) {

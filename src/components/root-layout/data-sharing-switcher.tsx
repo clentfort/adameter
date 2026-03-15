@@ -56,7 +56,9 @@ export function DataSharingContent({ onClose }: { onClose?: () => void }) {
 								Currently connected to:
 							</fbt>
 						</p>
-						<p className="text-xl font-bold">{room}</p>
+						<p className="text-xl font-bold" data-testid="settings-room-name">
+							{room}
+						</p>
 					</div>
 
 					<div className="flex justify-center">

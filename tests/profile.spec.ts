@@ -61,7 +61,7 @@ test.describe('Child Profile', () => {
 
 		// Create a room
 		await page.getByRole('button', { name: /settings/i }).click();
-		await page.getByRole('button', { name: /sharing|teilen/i }).click();
+		await page.getByTestId('settings-sharing').click();
 		await page
 			.getByRole('tab', { name: /create room|raum erstellen/i })
 			.click();
