@@ -27,6 +27,7 @@ export default function TotalDurationStats({
 
 	return (
 		<StatsCard
+			accentColor="#6366f1"
 			title={
 				<fbt desc="Title for the total feeding duration statistics card">
 					Total feeding duration

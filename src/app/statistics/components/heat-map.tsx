@@ -1,11 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import StatsCard from './stats-card';
 
 interface HeatMapProps {
 	className?: string;
@@ -76,21 +70,21 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	});
 
 	return (
-		<Card className={className}>
-			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">
-					<fbt desc="Title for the feeding distribution heat map">
-						Daily Feeding Distribution
-					</fbt>
-				</CardTitle>
-				<CardDescription>
-					<fbt desc="Description for the feeding distribution heat map">
-						Distribution of feeding times throughout the day
-					</fbt>
-				</CardDescription>
-			</CardHeader>
-			<CardContent className="p-4 pt-0">
-				<div className="mt-6 mb-2 rounded-lg border border-border/70 bg-muted/20 p-3 dark:border-zinc-700/80 dark:bg-zinc-900/60">
+		<StatsCard
+			accentColor="#6366f1"
+			className={className}
+			description={
+				<fbt desc="Description for the feeding distribution heat map">
+					Distribution of feeding times throughout the day
+				</fbt>
+			}
+			title={
+				<fbt desc="Title for the feeding distribution heat map">
+					Daily Feeding Distribution
+				</fbt>
+			}
+		>
+			<div className="mt-2 mb-2 rounded-lg border border-border/70 bg-muted/20 p-3 dark:border-zinc-700/80 dark:bg-zinc-900/60">
 					<div className="relative h-16 mb-6">
 						<div className="absolute top-0 left-0 right-0 h-8 flex overflow-hidden rounded-md">
 							{displayIntervals.map((interval, index) => {
@@ -190,7 +184,6 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 						</div>
 					</div>
 				</div>
-			</CardContent>
-		</Card>
+		</StatsCard>
 	);
 }

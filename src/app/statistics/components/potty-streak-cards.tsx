@@ -51,6 +51,7 @@ export default function PottyStreakCards({
 	return (
 		<>
 			<StatsCard
+				accentColor="#1d4ed8"
 				title={
 					<fbt desc="Label for current potty streak">Current Potty Streak</fbt>
 				}
@@ -58,6 +59,7 @@ export default function PottyStreakCards({
 				<div className="text-2xl font-bold">{currentStreak}</div>
 			</StatsCard>
 			<StatsCard
+				accentColor="#1d4ed8"
 				title={
 					<fbt desc="Label for longest potty streak">Longest Potty Streak</fbt>
 				}

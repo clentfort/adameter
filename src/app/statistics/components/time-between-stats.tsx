@@ -53,6 +53,7 @@ export default function TimeBetweenStats({
 
 	return (
 		<StatsCard
+			accentColor="#6366f1"
 			title={
 				<fbt desc="Title for the average time between feedings statistics card">
 					Time Between Feedings

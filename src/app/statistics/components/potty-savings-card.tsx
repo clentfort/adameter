@@ -59,9 +59,10 @@ export default function PottySavingsCard({
 
 	return (
 		<StatsCard
+			accentColor="#15803d"
 			title={<fbt desc="Title for the potty savings card">Potty Savings</fbt>}
 		>
-			<div className="text-2xl font-bold text-green-700 dark:text-green-400">
+			<div className="text-2xl font-bold">
 				{formattedSavings}
 			</div>
 			<div className="text-xs text-muted-foreground mt-1">

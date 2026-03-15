@@ -184,7 +184,7 @@ export default function DataSettingsPage() {
 			/>
 
 			<div className="space-y-4 w-full">
-				<Card>
+				<Card className="bg-white dark:bg-card">
 					<CardHeader>
 						<CardTitle>
 							<fbt desc="Export data card title">Export Data</fbt>
@@ -206,7 +206,7 @@ export default function DataSettingsPage() {
 					</CardContent>
 				</Card>
 
-				<Card>
+				<Card className="bg-white dark:bg-card">
 					<CardHeader>
 						<CardTitle>
 							<fbt desc="Import data card title">Import Data</fbt>
@@ -227,7 +227,7 @@ export default function DataSettingsPage() {
 					</CardContent>
 				</Card>
 
-				<Card>
+				<Card className="bg-white dark:bg-card">
 					<CardHeader>
 						<CardTitle>
 							<fbt desc="Factory reset card title">Factory Reset</fbt>

@@ -2,8 +2,9 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ComparisonValue from './comparison-value';
+import StatsCard from './stats-card';
 
 interface PottyStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
@@ -58,15 +59,15 @@ export default function PottyStats({
 	const { hitsPerDay, pottyStool, pottyUrine, totalPottyHits } = metrics;
 
 	return (
-		<Card className="w-full">
-			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">
-					<fbt desc="Title for the potty statistics card">Potty Statistics</fbt>
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="p-4 pt-0 space-y-4">
+		<StatsCard
+			accentColor="#1d4ed8"
+			title={
+				<fbt desc="Title for the potty statistics card">Potty Statistics</fbt>
+			}
+		>
+			<div className="space-y-4">
 				<div className="grid grid-cols-2 gap-4">
-					<div className="border rounded-md p-3">
+					<div className="border rounded-md p-3 bg-white dark:bg-card">
 						<p className="text-sm text-muted-foreground">
 							<fbt desc="Label for the total number of potty hits">Total</fbt>
 						</p>
@@ -80,7 +81,7 @@ export default function PottyStats({
 							)}
 						</div>
 					</div>
-					<div className="border rounded-md p-3">
+					<div className="border rounded-md p-3 bg-white dark:bg-card">
 						<p className="text-sm text-muted-foreground">
 							<fbt desc="Label for the average number of potty hits per day">
 								Per Day
@@ -99,12 +100,12 @@ export default function PottyStats({
 				</div>
 
 				<div className="grid grid-cols-2 gap-4">
-					<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-800/30">
-						<p className="text-sm text-blue-800 dark:text-blue-300">
+					<div className="border rounded-md p-3 bg-white dark:bg-card">
+						<p className="text-sm text-muted-foreground">
 							<fbt desc="Label for potty hits with urine">Urine</fbt>
 						</p>
 						<div className="flex items-baseline">
-							<p className="text-xl font-bold text-blue-800 dark:text-blue-300">
+							<p className="text-xl font-bold">
 								{pottyUrine}
 							</p>
 							{prevMetrics && (
@@ -115,12 +116,12 @@ export default function PottyStats({
 							)}
 						</div>
 					</div>
-					<div className="border rounded-md p-3 bg-purple-50 dark:bg-purple-800/30">
-						<p className="text-sm text-purple-800 dark:text-purple-300">
+					<div className="border rounded-md p-3 bg-white dark:bg-card">
+						<p className="text-sm text-muted-foreground">
 							<fbt desc="Label for potty hits with stool">Stool</fbt>
 						</p>
 						<div className="flex items-baseline">
-							<p className="text-xl font-bold text-purple-800 dark:text-purple-300">
+							<p className="text-xl font-bold">
 								{pottyStool}
 							</p>
 							{prevMetrics && (
@@ -132,7 +133,7 @@ export default function PottyStats({
 						</div>
 					</div>
 				</div>
-			</CardContent>
-		</Card>
+			</div>
+		</StatsCard>
 	);
 }

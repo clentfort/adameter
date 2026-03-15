@@ -53,6 +53,7 @@ export default function DiaperRecords({
 	return (
 		<>
 			<StatsCard
+				accentColor="#a16207"
 				title={
 					<fbt desc="Title for the day with the most diaper changes">
 						Most diaper changes in a day
@@ -65,6 +66,7 @@ export default function DiaperRecords({
 				</div>
 			</StatsCard>
 			<StatsCard
+				accentColor="#a16207"
 				title={
 					<fbt desc="Title for the day with the fewest diaper changes">
 						Fewest diaper changes in a day

@@ -21,6 +21,7 @@ import {
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
+import StatsCard from './stats-card';
 
 interface ReusableSavingsCardProps {
 	allDiaperChanges: DiaperChange[];
@@ -292,14 +293,13 @@ export default function ReusableSavingsCard({
 			: null;
 
 	return (
-		<Card className={cn('w-full', className)}>
-			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">
+		<StatsCard
+			accentColor="#a16207"
+			title={
+				<div className="flex items-center justify-between w-full">
 					<fbt desc="Title for reusable cost overview card">
 						Reusable Diaper Metrics
 					</fbt>
-				</CardTitle>
-				<CardAction>
 					<Popover>
 						<PopoverTrigger
 							render={
@@ -319,7 +319,7 @@ export default function ReusableSavingsCard({
 									</fbt>
 								</PopoverTitle>
 							</PopoverHeader>
-							<PopoverDescription className="text-xs leading-normal">
+							<PopoverDescription className="text-xs leading-normal font-normal">
 								<fbt desc="Explanation for reusable savings calculation">
 									Calculates savings by comparing actual reusable diaper costs
 									(upfront + usage) against the estimated cost of disposables
@@ -328,12 +328,12 @@ export default function ReusableSavingsCard({
 							</PopoverDescription>
 						</PopoverContent>
 					</Popover>
-				</CardAction>
-			</CardHeader>
-
-			<CardContent className="space-y-4 p-4 pt-0">
+				</div>
+			}
+		>
+			<div className="space-y-4">
 				<div className="grid grid-cols-2 gap-4">
-					<div className="rounded-xl border p-4">
+					<div className="rounded-xl border p-4 bg-white dark:bg-card">
 						<p className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 							<fbt desc="Label for total reusable savings">Total Savings</fbt>
 						</p>
@@ -348,7 +348,7 @@ export default function ReusableSavingsCard({
 							{formatCurrency(metrics.totalSavings, currency, locale)}
 						</p>
 					</div>
-					<div className="rounded-xl border p-4 flex flex-col justify-center">
+					<div className="rounded-xl border p-4 flex flex-col justify-center bg-white dark:bg-card">
 						<p className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 							<fbt desc="Label for break-even point">Break-even</fbt>
 						</p>
@@ -408,7 +408,7 @@ export default function ReusableSavingsCard({
 						</span>
 					</div>
 				</div>
-			</CardContent>
-		</Card>
+			</div>
+		</StatsCard>
 	);
 }

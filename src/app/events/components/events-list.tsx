@@ -30,6 +30,7 @@ function EventListItem({
 
 	return (
 		<HistoryEntryCard
+			accentColor={event.color || '#6366f1'}
 			data-testid="event-entry"
 			formattedTime={
 				event.type === 'period' ? (
@@ -57,10 +58,6 @@ function EventListItem({
 			header={event.title}
 			onDelete={() => onDelete(event.id)}
 			onEdit={() => onEdit(event.id)}
-			style={{
-				borderLeftColor: event.color || '#6366f1',
-				borderLeftWidth: '4px',
-			}}
 		>
 			{event.notes && (
 				<Markdown className="text-sm text-muted-foreground">

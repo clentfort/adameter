@@ -39,7 +39,7 @@ export default function AppearanceSettingsPage() {
 			/>
 
 			<div className="space-y-4 w-full">
-				<Card>
+				<Card className="bg-white dark:bg-card">
 					<CardContent className="space-y-6">
 						<div className="space-y-2">
 							<div className="flex items-center gap-2">

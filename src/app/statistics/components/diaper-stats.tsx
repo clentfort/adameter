@@ -3,11 +3,12 @@
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
 import PieChart from '@/components/charts/pie-chart';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import ComparisonValue from './comparison-value';
+import StatsCard from './stats-card';
 
 interface DiaperStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
@@ -117,22 +118,20 @@ export default function DiaperStats({
 
 	if (diaperChanges.length === 0) {
 		return (
-			<Card className="w-full">
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
-						<fbt desc="Title for the diaper statistics card">
-							Diaper Statistics
-						</fbt>
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
-					<p className="text-muted-foreground text-center py-4">
-						<fbt desc="Message shown when no diaper data is available for the selected time range">
-							No diaper data available for the selected time range.
-						</fbt>
-					</p>
-				</CardContent>
-			</Card>
+			<StatsCard
+				accentColor="#a16207"
+				title={
+					<fbt desc="Title for the diaper statistics card">
+						Diaper Statistics
+					</fbt>
+				}
+			>
+				<p className="text-muted-foreground text-center py-4">
+					<fbt desc="Message shown when no diaper data is available for the selected time range">
+						No diaper data available for the selected time range.
+					</fbt>
+				</p>
+			</StatsCard>
 		);
 	}
 
@@ -203,15 +202,14 @@ export default function DiaperStats({
 	};
 
 	return (
-		<Card className="w-full">
-			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">
-					<fbt desc="Title for the diaper statistics card">
-						Diaper Statistics
-					</fbt>
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="p-4 pt-0">
+		<StatsCard
+			accentColor="#a16207"
+			title={
+				<fbt desc="Title for the diaper statistics card">
+					Diaper Statistics
+				</fbt>
+			}
+		>
 				<Tabs className="w-full" defaultValue="overview">
 					<TabsList className="grid grid-cols-2 mb-4 w-full">
 						<TabsTrigger value="overview">
@@ -228,7 +226,7 @@ export default function DiaperStats({
 
 					<TabsContent className="space-y-4" value="overview">
 						<div className="grid grid-cols-2 gap-4">
-							<div className="border rounded-md p-3">
+							<div className="border rounded-md p-3 bg-white dark:bg-card">
 								<p className="text-sm text-muted-foreground">
 									<fbt desc="Label for the total number of diaper changes">
 										Total
@@ -244,7 +242,7 @@ export default function DiaperStats({
 									)}
 								</div>
 							</div>
-							<div className="border rounded-md p-3">
+							<div className="border rounded-md p-3 bg-white dark:bg-card">
 								<p className="text-sm text-muted-foreground">
 									<fbt desc="Label for the average number of diaper changes per day">
 										Per Day
@@ -260,7 +258,7 @@ export default function DiaperStats({
 									)}
 								</div>
 							</div>
-							<div className="border rounded-md p-3 col-span-2">
+							<div className="border rounded-md p-3 col-span-2 bg-white dark:bg-card">
 								<p className="text-sm text-muted-foreground">
 									<fbt desc="Label for the diaper costs in the selected time range">
 										Cost
@@ -281,14 +279,14 @@ export default function DiaperStats({
 						</div>
 
 						<div className="grid grid-cols-3 gap-4">
-							<div className="border rounded-md p-3 bg-yellow-50 dark:bg-yellow-800/30">
-								<p className="text-sm text-yellow-800 dark:text-yellow-300">
+							<div className="border rounded-md p-3 bg-white dark:bg-card">
+								<p className="text-sm text-muted-foreground">
 									<fbt desc="Label for diaper changes that only contain urine">
 										Urine Only
 									</fbt>
 								</p>
 								<div className="flex items-baseline">
-									<p className="text-xl font-bold text-yellow-800 dark:text-yellow-300">
+									<p className="text-xl font-bold">
 										{urineOnly}
 									</p>
 									{prevMetrics && (
@@ -298,18 +296,18 @@ export default function DiaperStats({
 										/>
 									)}
 								</div>
-								<p className="text-xs text-yellow-600 dark:text-yellow-400">
+								<p className="text-xs text-muted-foreground">
 									{Math.round((urineOnly / totalChanges) * 100)}%
 								</p>
 							</div>
-							<div className="border rounded-md p-3 bg-amber-50 dark:bg-amber-800/30">
-								<p className="text-sm text-amber-800 dark:text-amber-300">
+							<div className="border rounded-md p-3 bg-white dark:bg-card">
+								<p className="text-sm text-muted-foreground">
 									<fbt desc="Label for diaper changes that contain stool">
 										With Stool
 									</fbt>
 								</p>
 								<div className="flex items-baseline">
-									<p className="text-xl font-bold text-amber-800 dark:text-amber-300">
+									<p className="text-xl font-bold">
 										{withStool}
 									</p>
 									{prevMetrics && (
@@ -319,18 +317,18 @@ export default function DiaperStats({
 										/>
 									)}
 								</div>
-								<p className="text-xs text-amber-600 dark:text-amber-400">
+								<p className="text-xs text-muted-foreground">
 									{Math.round((withStool / totalChanges) * 100)}%
 								</p>
 							</div>
-							<div className="border rounded-md p-3 bg-red-50 dark:bg-red-800/30">
-								<p className="text-sm text-red-800 dark:text-red-300">
+							<div className="border rounded-md p-3 bg-white dark:bg-card">
+								<p className="text-sm text-muted-foreground">
 									<fbt desc="Label for diaper changes that had leakage">
 										With Leakage
 									</fbt>
 								</p>
 								<div className="flex items-baseline">
-									<p className="text-xl font-bold text-red-800 dark:text-red-300">
+									<p className="text-xl font-bold">
 										{withLeakage}
 									</p>
 									{prevMetrics && (
@@ -341,7 +339,7 @@ export default function DiaperStats({
 										/>
 									)}
 								</div>
-								<p className="text-xs text-red-600 dark:text-red-400">
+								<p className="text-xs text-muted-foreground">
 									{Math.round((withLeakage / totalChanges) * 100)}%
 								</p>
 							</div>
@@ -445,7 +443,6 @@ export default function DiaperStats({
 						)}
 					</TabsContent>
 				</Tabs>
-			</CardContent>
-		</Card>
+		</StatsCard>
 	);
 }

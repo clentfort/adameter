@@ -9,6 +9,7 @@ import {
 } from './ui/dropdown-menu';
 
 interface HistoryEntryCardProps {
+	accentColor?: string;
 	children?: ReactNode;
 	className?: string;
 	formattedTime?: ReactNode;
@@ -23,23 +24,39 @@ interface HistoryEntryCardProps {
  * content area, and a dropdown menu for actions.
  */
 export default function HistoryEntryCard({
+	accentColor,
 	children,
 	className,
 	formattedTime,
 	header,
 	onDelete,
 	onEdit,
+	style,
 	...props
 }: HistoryEntryCardProps & ComponentPropsWithoutRef<'div'>) {
+	const cardStyle = accentColor
+		? {
+				borderBottomColor: `color-mix(in srgb, ${accentColor}, transparent 70%)`,
+				borderLeftColor: accentColor,
+				borderLeftWidth: '4px',
+				borderRightColor: `color-mix(in srgb, ${accentColor}, transparent 70%)`,
+				borderTopColor: `color-mix(in srgb, ${accentColor}, transparent 70%)`,
+				...style,
+			}
+		: style;
+
 	return (
 		<div
 			className={cn('border rounded-lg p-4 shadow-xs', className)}
 			data-testid="history-entry-card"
+			style={cardStyle}
 			{...props}
 		>
 			<div className="flex justify-between items-start">
 				<div className="flex-1 min-w-0">
-					<div className="text-lg font-medium leading-tight">{header}</div>
+					<div className="text-lg font-medium leading-tight">
+						{header}
+					</div>
 					{formattedTime && (
 						<div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
 							{formattedTime}

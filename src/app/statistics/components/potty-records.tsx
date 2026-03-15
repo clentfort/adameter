@@ -33,6 +33,7 @@ export default function PottyRecords({
 	return (
 		<>
 			<StatsCard
+				accentColor="#1d4ed8"
 				title={
 					<fbt desc="Title for the day with the most potty successes">
 						Most potty hits in a day

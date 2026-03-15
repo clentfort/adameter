@@ -2,15 +2,9 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PottyActivityChart from './potty-activity-chart';
+import StatsCard from './stats-card';
 import YearlyActivityHeatMap from './yearly-activity-heat-map';
 
 interface PottyActivityProps {
@@ -27,18 +21,17 @@ export default function PottyActivity({
 	secondaryRange,
 }: PottyActivityProps) {
 	return (
-		<Card className={className}>
-			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">
-					<fbt desc="Title for the potty activity card">Potty Activity</fbt>
-				</CardTitle>
-				<CardDescription>
-					<fbt desc="Description for the potty activity card">
-						Visualize frequency of potty successes.
-					</fbt>
-				</CardDescription>
-			</CardHeader>
-			<CardContent className="p-0">
+		<StatsCard
+			accentColor="#1d4ed8"
+			className={className}
+			description={
+				<fbt desc="Description for the potty activity card">
+					Visualize frequency of potty successes.
+				</fbt>
+			}
+			title={<fbt desc="Title for the potty activity card">Potty Activity</fbt>}
+		>
+			<div className="-mx-4">
 				<Tabs className="w-full" defaultValue="frequency">
 					<div className="px-4 pt-2">
 						<TabsList className="flex w-full mb-2">
@@ -73,7 +66,7 @@ export default function PottyActivity({
 						/>
 					</TabsContent>
 				</Tabs>
-			</CardContent>
-		</Card>
+			</div>
+		</StatsCard>
 	);
 }

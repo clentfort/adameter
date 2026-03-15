@@ -18,7 +18,7 @@ export default function ProfileSettingsPage() {
 			/>
 
 			<div className="space-y-4 w-full">
-				<Card>
+				<Card className="bg-white dark:bg-card">
 					<CardContent>
 						<ProfileForm
 							initialData={profile}

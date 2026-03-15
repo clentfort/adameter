@@ -146,7 +146,7 @@ export default function DiapersSettingsPage() {
 			/>
 
 			{isAddingProduct || editingProductId ? (
-				<Card className="w-full">
+				<Card className="w-full bg-white dark:bg-card">
 					<CardContent>
 						<ProductForm
 							initialData={editingProduct ?? {}}

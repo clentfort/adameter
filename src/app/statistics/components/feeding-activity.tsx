@@ -2,15 +2,9 @@
 
 import type { FeedingSession } from '@/types/feeding';
 import type { DateRange } from '@/utils/get-range-dates';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FeedingActivityChart from './feeding-activity-chart';
+import StatsCard from './stats-card';
 import YearlyActivityHeatMap from './yearly-activity-heat-map';
 
 interface FeedingActivityProps {
@@ -27,20 +21,21 @@ export default function FeedingActivity({
 	sessions,
 }: FeedingActivityProps) {
 	return (
-		<Card className={className}>
-			<CardHeader className="p-4 pb-2">
-				<CardTitle className="text-base">
-					<fbt desc="Title for the feeding activity card showing Duration and Frequency tabs">
-						Feeding Activity
-					</fbt>
-				</CardTitle>
-				<CardDescription>
-					<fbt desc="Description for the feeding activity card">
-						Visualize total duration and frequency of feedings.
-					</fbt>
-				</CardDescription>
-			</CardHeader>
-			<CardContent className="p-0">
+		<StatsCard
+			accentColor="#6366f1"
+			className={className}
+			description={
+				<fbt desc="Description for the feeding activity card">
+					Visualize total duration and frequency of feedings.
+				</fbt>
+			}
+			title={
+				<fbt desc="Title for the feeding activity card showing Duration and Frequency tabs">
+					Feeding Activity
+				</fbt>
+			}
+		>
+			<div className="-mx-4">
 				<Tabs className="w-full" defaultValue="duration">
 					<div className="px-4 pt-2">
 						<TabsList className="flex w-full mb-2">
@@ -73,7 +68,7 @@ export default function FeedingActivity({
 						/>
 					</TabsContent>
 				</Tabs>
-			</CardContent>
-		</Card>
+			</div>
+		</StatsCard>
 	);
 }

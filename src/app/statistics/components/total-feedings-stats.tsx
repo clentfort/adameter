@@ -25,6 +25,7 @@ export default function TotalFeedingsStats({
 
 	return (
 		<StatsCard
+			accentColor="#6366f1"
 			title={
 				<fbt desc="Title for the total number of feedings statistics card">
 					Total Feedings

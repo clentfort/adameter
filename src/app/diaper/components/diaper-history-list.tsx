@@ -52,25 +52,15 @@ function DiaperHistoryEntry({
 	const hasPotty = change.pottyUrine || change.pottyStool;
 	const isStool = change.containsStool || change.pottyStool;
 
-	const borderColor = isStool
-		? 'border-amber-700/30'
+	const accentColor = isStool
+		? '#b45309' // amber-700
 		: hasPotty && !hasDiaper
-			? 'border-blue-400/30'
-			: 'border-yellow-400/30';
-	const bgColor = isStool
-		? 'bg-amber-700/5'
-		: hasPotty && !hasDiaper
-			? 'bg-blue-400/5'
-			: 'bg-yellow-400/5';
-	const textColor = isStool
-		? 'text-amber-700'
-		: hasPotty && !hasDiaper
-			? 'text-blue-700'
-			: 'text-yellow-800';
+			? '#1d4ed8' // blue-700
+			: '#a16207'; // yellow-700
 
 	return (
 		<HistoryEntryCard
-			className={`${borderColor} ${bgColor}`}
+			accentColor={accentColor}
 			data-testid="diaper-history-entry"
 			formattedTime={
 				<div className="flex items-center gap-2">
@@ -93,9 +83,7 @@ function DiaperHistoryEntry({
 				</div>
 			}
 			header={
-				<div
-					className={`font-medium ${textColor} flex flex-wrap items-center gap-x-3 gap-y-1`}
-				>
+				<div className="flex flex-wrap items-center gap-x-3 gap-y-1">
 					{hasDiaper && (
 						<div className="flex items-center gap-1">
 							<span>👶</span>

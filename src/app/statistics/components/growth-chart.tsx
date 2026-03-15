@@ -7,13 +7,6 @@ import { useEffect, useMemo, useState } from 'react';
 import LineChart from '@/components/charts/line-chart';
 import { Badge } from '@/components/ui/badge';
 import {
-	Card,
-	CardAction,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
-import {
 	Popover,
 	PopoverContent,
 	PopoverDescription,
@@ -22,6 +15,7 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { useProfile } from '@/hooks/use-profile';
+import StatsCard from './stats-card';
 import {
 	calculateValue,
 	getGrowthTable,
@@ -309,21 +303,17 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 
 	if (measurements.length === 0) {
 		return (
-			<Card>
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
-						<fbt desc="Title for the growth chart card">Growth Chart</fbt>
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
-					<p className="text-muted-foreground text-center py-8">
-						<fbt desc="Message shown when no measurements are available for the growth chart">
-							No measurements available. Add measurements to see the growth
-							chart.
-						</fbt>
-					</p>
-				</CardContent>
-			</Card>
+			<StatsCard
+				accentColor="#059669"
+				title={<fbt desc="Title for the growth chart card">Growth Chart</fbt>}
+			>
+				<p className="text-muted-foreground text-center py-8">
+					<fbt desc="Message shown when no measurements are available for the growth chart">
+						No measurements available. Add measurements to see the growth
+						chart.
+					</fbt>
+				</p>
+			</StatsCard>
 		);
 	}
 
@@ -346,20 +336,20 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 
 	return (
 		<div className="space-y-4">
-			<Card>
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
+			<StatsCard
+				accentColor="#6366f1"
+				title={
+					<div className="flex items-center justify-between w-full">
 						<fbt desc="Title for the weight section in the growth chart">
 							Weight (g)
 						</fbt>
-					</CardTitle>
-					{weightPercentile !== null && (
-						<CardAction>
+						{weightPercentile !== null && (
 							<PercentileBadge value={weightPercentile} />
-						</CardAction>
-					)}
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
+						)}
+					</div>
+				}
+			>
+				<div>
 					<LineChart
 						backgroundColor="rgba(99, 102, 241, 0.1)"
 						borderColor="#6366f1"
@@ -383,23 +373,23 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						yAxisUnit="g"
 					/>
-				</CardContent>
-			</Card>
+				</div>
+			</StatsCard>
 
-			<Card>
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
+			<StatsCard
+				accentColor="#ec4899"
+				title={
+					<div className="flex items-center justify-between w-full">
 						<fbt desc="Title for the height section in the growth chart">
 							Height (cm)
 						</fbt>
-					</CardTitle>
-					{heightPercentile !== null && (
-						<CardAction>
+						{heightPercentile !== null && (
 							<PercentileBadge value={heightPercentile} />
-						</CardAction>
-					)}
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
+						)}
+					</div>
+				}
+			>
+				<div>
 					<LineChart
 						backgroundColor="rgba(236, 72, 153, 0.1)"
 						borderColor="#ec4899"
@@ -423,23 +413,23 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						yAxisUnit="cm"
 					/>
-				</CardContent>
-			</Card>
+				</div>
+			</StatsCard>
 
-			<Card>
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
+			<StatsCard
+				accentColor="#3b82f6"
+				title={
+					<div className="flex items-center justify-between w-full">
 						<fbt desc="Title for the head circumference section in the growth chart">
 							Head Circumference (cm)
 						</fbt>
-					</CardTitle>
-					{headPercentile !== null && (
-						<CardAction>
+						{headPercentile !== null && (
 							<PercentileBadge value={headPercentile} />
-						</CardAction>
-					)}
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
+						)}
+					</div>
+				}
+			>
+				<div>
 					<LineChart
 						backgroundColor="rgba(59, 130, 246, 0.1)"
 						borderColor="#3b82f6"
@@ -467,8 +457,8 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						yAxisUnit="cm"
 					/>
-				</CardContent>
-			</Card>
+				</div>
+			</StatsCard>
 		</div>
 	);
 }
