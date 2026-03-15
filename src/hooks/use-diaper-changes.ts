@@ -1,7 +1,9 @@
 import type { Row } from 'tinybase';
 import type { DiaperChange } from '@/types/diaper';
 import { useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
+import { useTable } from "tinybase/ui-react";
+import { useTinybaseStore } from "@/hooks/use-tinybase-store";
+import { } from '@/hooks/use-tinybase-store';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperChangeForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { diaperChangeSchema } from '@/types/diaper';
@@ -38,7 +40,7 @@ export const useDiaperChangesSnapshot = diaperChangeHooks.useSnapshot;
 export const useDiaperChangeIds = diaperChangeHooks.useIds;
 
 export function useLatestDiaperChangeRecord() {
-	const store = useStore()!;
+	const store = useTinybaseStore();
 	const table = useTable(TABLE_IDS.DIAPER_CHANGES, store);
 
 	return useMemo(() => {

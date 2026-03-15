@@ -1,6 +1,7 @@
 import type { Indexes } from 'tinybase';
 import React, { Fragment, useEffect, useState } from 'react';
-import { useSliceRowIds } from 'tinybase/ui-react';
+import { useSliceRowIds } from "tinybase/ui-react";
+import { } from '@/hooks/use-tinybase-store';
 import { formatSectionDate } from '@/utils/format-history-date';
 
 const INITIAL_VISIBLE_DATE_SECTIONS = 14;

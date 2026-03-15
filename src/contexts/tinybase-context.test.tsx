@@ -7,7 +7,9 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import { useContext } from 'react';
-import { useStore, useTable, useValue } from 'tinybase/ui-react';
+import { useTable, useValue } from "tinybase/ui-react";
+import { useTinybaseStore } from "@/hooks/use-tinybase-store";
+import { } from '@/hooks/use-tinybase-store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { clear } from '@/lib/storage';
 import { STORE_VALUE_PROFILE, TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -59,7 +61,7 @@ vi.mock('@/migrations/run-if-needed', () => ({
 }));
 
 function RoomSyncProbe() {
-	const store = useStore()!;
+	const store = useTinybaseStore();
 	const eventTable = useTable(TABLE_IDS.EVENTS, store);
 	const profile = useValue(STORE_VALUE_PROFILE);
 	const { joinRoom } = useContext(DataSynchronizationContext);

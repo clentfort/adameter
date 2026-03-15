@@ -4,7 +4,9 @@ import type { Indexes } from 'tinybase';
 import { format, parseISO } from 'date-fns';
 import { createContext, useContext } from 'react';
 import { createIndexes } from 'tinybase';
-import { useCreateIndexes, useStore } from 'tinybase/ui-react';
+import { useCreateIndexes,  } from "tinybase/ui-react";
+import { useTinybaseStore } from "@/hooks/use-tinybase-store";
+import { } from '@/hooks/use-tinybase-store';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 
 /**
@@ -85,7 +87,7 @@ interface TinybaseIndexesProviderProps {
 export function TinybaseIndexesProvider({
 	children,
 }: TinybaseIndexesProviderProps) {
-	const store = useStore();
+	const store = useTinybaseStore();
 
 	const indexes = useCreateIndexes(store, (store) => {
 		const indexes = createIndexes(store);

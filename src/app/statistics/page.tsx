@@ -1,8 +1,14 @@
 'use client';
 
 import type { TimeRange } from '@/utils/get-range-dates';
-import { addDays, format, isWithinInterval } from 'date-fns';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { addDays, format } from 'date-fns';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+	useTransition,
+} from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -40,28 +46,31 @@ import TotalFeedingsStats from './components/total-feedings-stats';
 
 function DeferredSection({
 	children,
+	delay = 0,
 	fallback,
 }: {
 	children: React.ReactNode;
+	delay?: number;
 	fallback: React.ReactNode;
 }) {
 	const [shouldRender, setShouldRender] = useState(false);
 
 	useEffect(() => {
-		const idleCallback =
-			typeof window !== 'undefined' && 'requestIdleCallback' in window
-				? window.requestIdleCallback
-				: (cb: () => void) => setTimeout(cb, 1);
-		const idleCancel =
-			typeof window !== 'undefined' && 'cancelIdleCallback' in window
-				? window.cancelIdleCallback
-				: (id: any) => clearTimeout(id);
+		const handle = setTimeout(() => {
+			if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+				window.requestIdleCallback(() => setShouldRender(true));
+			} else {
+				setShouldRender(true);
+			}
+		}, delay);
+		return () => clearTimeout(handle);
+	}, [delay]);
 
-		const handle = idleCallback(() => setShouldRender(true));
-		return () => idleCancel(handle as any);
-	}, []);
-
-	return shouldRender ? children : fallback;
+	return shouldRender ? (
+		<div className="animate-in fade-in duration-500">{children}</div>
+	) : (
+		fallback
+	);
 }
 
 export default function StatisticsPage() {
@@ -136,7 +145,9 @@ export default function StatisticsPage() {
 	}, []);
 
 	return (
-		<div className={`w-full transition-opacity ${isPending ? 'opacity-50' : ''}`}>
+		<div
+			className={`w-full transition-opacity duration-300 ${isPending ? 'opacity-50' : ''}`}
+		>
 			<div
 				className="flex flex-col gap-4 mb-6 sticky z-30 bg-background -mx-4 px-4 py-3 border-b shadow-sm !transition-none"
 				style={
@@ -317,6 +328,7 @@ export default function StatisticsPage() {
 					</DeferredSection>
 
 					<DeferredSection
+						delay={100}
 						fallback={
 							<StatsSectionSkeleton
 								title={
@@ -360,6 +372,7 @@ export default function StatisticsPage() {
 					</DeferredSection>
 
 					<DeferredSection
+						delay={200}
 						fallback={
 							<StatsSectionSkeleton
 								title={

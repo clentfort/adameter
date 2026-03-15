@@ -5,9 +5,9 @@ import {
 	useRow,
 	useRowIds,
 	useSetRowCallback,
-	useStore,
 	useTable,
 } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
 import { getDeviceId } from '@/utils/device-id';
 
 interface EntityHooksConfig<T extends { id: string }> {
@@ -38,7 +38,7 @@ export function createEntityHooks<T extends { id: string }>(
 	}
 
 	function useOne(entityId: string | undefined) {
-		const store = useStore()!;
+		const store = useTinybaseStore();
 		const row = useRow(tableId, entityId ?? '', store);
 
 		return useMemo(() => {
@@ -51,7 +51,7 @@ export function createEntityHooks<T extends { id: string }>(
 	}
 
 	function useSnapshot() {
-		const store = useStore()!;
+		const store = useTinybaseStore();
 		const table = useTable(tableId, store);
 
 		return useMemo(
@@ -64,7 +64,7 @@ export function createEntityHooks<T extends { id: string }>(
 	}
 
 	function useIds() {
-		const store = useStore()!;
+		const store = useTinybaseStore();
 		return useRowIds(tableId, store);
 	}
 

@@ -41,8 +41,48 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 		a[1].duration <= b[1].duration ? a : b,
 	);
 
+	// Calculate longest gap between two sessions
+	const sortedSessions = [...sessions].sort((a, b) =>
+		a.startTime.localeCompare(b.startTime),
+	);
+
+	let longestGap = { date: '', duration: 0 };
+	for (let i = 1; i < sortedSessions.length; i++) {
+		const previousSession = sortedSessions[i - 1];
+		const currentSession = sortedSessions[i];
+
+		const previousEnd =
+			new Date(previousSession.startTime).getTime() +
+			previousSession.durationInSeconds * 1000;
+		const currentStart = new Date(currentSession.startTime).getTime();
+		const gap = (currentStart - previousEnd) / 1000;
+
+		if (gap > longestGap.duration) {
+			longestGap = {
+				date: currentSession.startTime,
+				duration: gap,
+			};
+		}
+	}
+
 	return (
 		<>
+			{longestGap.duration > 0 && (
+				<StatsCard
+					title={
+						<fbt desc="Title for the longest time between two feeding sessions">
+							Longest gap between feedings
+						</fbt>
+					}
+				>
+					<div className="text-2xl font-bold">
+						{formatDurationAbbreviated(longestGap.duration)}
+					</div>
+					<div className="text-sm text-muted-foreground">
+						{format(parseISO(longestGap.date), 'PP')}
+					</div>
+				</StatsCard>
+			)}
 			<StatsCard
 				title={
 					<fbt desc="Title for the day with the most feeding sessions">
