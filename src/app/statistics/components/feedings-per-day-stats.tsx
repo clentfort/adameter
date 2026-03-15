@@ -43,7 +43,6 @@ export default function FeedingsPerDayStats({
 
 	return (
 		<StatsCard
-			accentColor="#6366f1"
 			title={
 				<fbt desc="Title for the average number of feedings per day statistics card">
 					Feedings Per Day

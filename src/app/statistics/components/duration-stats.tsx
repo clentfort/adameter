@@ -48,7 +48,6 @@ export default function DurationStats({
 
 	return (
 		<StatsCard
-			accentColor="#6366f1"
 			title={
 				<fbt desc="Title for the average feeding duration statistics card">
 					Average Feeding Duration

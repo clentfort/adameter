@@ -13,7 +13,7 @@ export default function SharingSettingsPage() {
 			/>
 
 			<div className="space-y-4 w-full">
-				<Card className="bg-white dark:bg-card">
+				<Card>
 					<CardContent>
 						<DataSharingContent />
 					</CardContent>

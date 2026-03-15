@@ -11,8 +11,14 @@ import {
 	startOfWeek,
 	subYears,
 } from 'date-fns';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import StatsCard from './stats-card';
 
 interface YearlyActivityHeatMapProps {
 	className?: string;
@@ -194,13 +200,14 @@ export default function YearlyActivityHeatMap({
 	}
 
 	return (
-		<StatsCard
-			accentColor={palette === 'feeding' ? '#6366f1' : '#a16207'}
-			className={className}
-			description={description}
-			title={title}
-		>
-			<div className="-mx-4 -mb-4">{content}</div>
-		</StatsCard>
+		<Card className={className}>
+			{(title || description) && (
+				<CardHeader className="p-4 pb-2">
+					{title && <CardTitle className="text-base">{title}</CardTitle>}
+					{description && <CardDescription>{description}</CardDescription>}
+				</CardHeader>
+			)}
+			<CardContent className="p-0">{content}</CardContent>
+		</Card>
 	);
 }

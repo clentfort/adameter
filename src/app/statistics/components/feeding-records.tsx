@@ -44,7 +44,6 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 	return (
 		<>
 			<StatsCard
-				accentColor="#6366f1"
 				title={
 					<fbt desc="Title for the day with the most feeding sessions">
 						Most feedings in a day
@@ -57,7 +56,6 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 				</div>
 			</StatsCard>
 			<StatsCard
-				accentColor="#6366f1"
 				title={
 					<fbt desc="Title for the day with the fewest feeding sessions">
 						Fewest feedings in a day
@@ -70,7 +68,6 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 				</div>
 			</StatsCard>
 			<StatsCard
-				accentColor="#6366f1"
 				title={
 					<fbt desc="Title for the day with the longest total feeding duration">
 						Longest feeding day
@@ -85,7 +82,6 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 				</div>
 			</StatsCard>
 			<StatsCard
-				accentColor="#6366f1"
 				title={
 					<fbt desc="Title for the day with the shortest total feeding duration">
 						Shortest feeding day

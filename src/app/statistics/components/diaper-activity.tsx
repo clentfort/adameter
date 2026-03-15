@@ -2,10 +2,16 @@
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DiaperActivityChart from './diaper-activity-chart';
 import DiaperCostChart from './diaper-cost-chart';
-import StatsCard from './stats-card';
 import YearlyActivityHeatMap from './yearly-activity-heat-map';
 
 interface DiaperActivityProps {
@@ -24,19 +30,18 @@ export default function DiaperActivity({
 	secondaryRange,
 }: DiaperActivityProps) {
 	return (
-		<StatsCard
-			accentColor="#a16207"
-			className={className}
-			description={
-				<fbt desc="Description for the diaper activity card">
-					Visualize frequency and cost of diaper changes.
-				</fbt>
-			}
-			title={
-				<fbt desc="Title for the diaper activity card">Diaper Activity</fbt>
-			}
-		>
-			<div className="-mx-4">
+		<Card className={className}>
+			<CardHeader className="p-4 pb-2">
+				<CardTitle className="text-base">
+					<fbt desc="Title for the diaper activity card">Diaper Activity</fbt>
+				</CardTitle>
+				<CardDescription>
+					<fbt desc="Description for the diaper activity card">
+						Visualize frequency and cost of diaper changes.
+					</fbt>
+				</CardDescription>
+			</CardHeader>
+			<CardContent className="p-0">
 				<Tabs className="w-full" defaultValue="frequency">
 					<div className="px-4 pt-2">
 						<TabsList className="flex w-full mb-2">
@@ -83,7 +88,7 @@ export default function DiaperActivity({
 						/>
 					</TabsContent>
 				</Tabs>
-			</div>
-		</StatsCard>
+			</CardContent>
+		</Card>
 	);
 }
