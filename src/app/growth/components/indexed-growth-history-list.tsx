@@ -5,9 +5,7 @@ import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
 import { fbt } from 'fbtee';
 import { useMemo, useState } from 'react';
-import { useSliceRowIds } from 'tinybase/ui-react';
-import { useTinybaseStore } from '@/hooks/use-tinybase-store';
-import '@/hooks/use-tinybase-store';
+import { useSliceRowIds, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import Markdown from '@/components/markdown';
@@ -270,7 +268,7 @@ function DateSection({
 		indexes,
 	);
 	const teethRowIds = useSliceRowIds(INDEX_IDS.TEETH_BY_DATE, dateKey, indexes);
-	const store = useTinybaseStore();
+	const store = useStore();
 
 	const interleaved = useMemo(() => {
 		const items = [

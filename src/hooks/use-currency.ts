@@ -1,5 +1,4 @@
 import { useSetValueCallback, useValue } from 'tinybase/ui-react';
-import '@/hooks/use-tinybase-store';
 import { STORE_VALUE_CURRENCY } from '@/lib/tinybase-sync/constants';
 
 export type Currency = 'GBP' | 'EUR' | 'USD';

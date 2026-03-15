@@ -1,14 +1,8 @@
 'use client';
 
 import type { TimeRange } from '@/utils/get-range-dates';
-import { addDays, format } from 'date-fns';
-import {
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-	useTransition,
-} from 'react';
+import { addDays, format, isWithinInterval } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -20,8 +14,10 @@ import {
 } from '@/components/ui/select';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useDiaperProductsSnapshot } from '@/hooks/use-diaper-products';
+import { useEventsSnapshot } from '@/hooks/use-events';
 import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
-import { useStatsData } from '@/hooks/use-stats-data';
+import { useGrowthMeasurementsSnapshot } from '@/hooks/use-growth-measurements';
+import { logger } from '@/lib/logger';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
 import DiaperActivity from './components/diaper-activity';
@@ -39,53 +35,24 @@ import PottySavingsCard from './components/potty-savings-card';
 import PottyStats from './components/potty-stats';
 import PottyStreakCards from './components/potty-streak-cards';
 import ReusableSavingsCard from './components/reusable-savings-card';
-import { StatsSectionSkeleton } from './components/stats-skeleton';
 import TimeBetweenStats from './components/time-between-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
 
-function DeferredSection({
-	children,
-	delay = 0,
-	fallback,
-}: {
-	children: React.ReactNode;
-	delay?: number;
-	fallback: React.ReactNode;
-}) {
-	const [shouldRender, setShouldRender] = useState(false);
-
-	useEffect(() => {
-		const handle = setTimeout(() => {
-			if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-				window.requestIdleCallback(() => setShouldRender(true));
-			} else {
-				setShouldRender(true);
-			}
-		}, delay);
-		return () => clearTimeout(handle);
-	}, [delay]);
-
-	return shouldRender ? (
-		<div className="animate-in fade-in duration-500">{children}</div>
-	) : (
-		fallback
-	);
-}
-
 export default function StatisticsPage() {
-	const [isPending, startTransition] = useTransition();
+	const startRender = performance.now();
+
+	const diaperChanges = useDiaperChangesSnapshot();
+	const diaperProducts = useDiaperProductsSnapshot();
+	const events = useEventsSnapshot();
+	const measurements = useGrowthMeasurementsSnapshot();
+	const sessions = useFeedingSessionsSnapshot();
+
 	const [timeRange, setTimeRange] = useState<TimeRange>('7');
 	const [customRange, setCustomRange] = useState({
 		from: dateToDateInputValue(addDays(new Date(), -7)),
 		to: dateToDateInputValue(new Date()),
 	});
-
-	// Use full snapshots only for things that need historical data (like heatmaps or cost calculations)
-	// but even these could be optimized further.
-	const diaperChanges = useDiaperChangesSnapshot();
-	const diaperProducts = useDiaperProductsSnapshot();
-	const sessions = useFeedingSessionsSnapshot();
 
 	const { primary, secondary } = useMemo(
 		() =>
@@ -96,14 +63,65 @@ export default function StatisticsPage() {
 		[timeRange, customRange],
 	);
 
-	const {
-		primaryDiaperChanges: filteredDiaperChanges,
-		primaryEvents: _events,
-		primaryMeasurements: measurements,
-		primarySessions: filteredSessions,
-		secondaryDiaperChanges: comparisonDiaperChanges,
-		secondarySessions: comparisonSessions,
-	} = useStatsData(primary, secondary);
+	// Filter sessions based on selected time range
+	const filteredSessions = useMemo(() => {
+		const start = performance.now();
+		const result = sessions.filter((session) =>
+			isWithinInterval(new Date(session.startTime), {
+				end: primary.to,
+				start: primary.from,
+			}),
+		);
+		logger.log(
+			`[PERF] Filtering ${sessions.length} sessions took ${(performance.now() - start).toFixed(2)}ms`,
+		);
+		return result;
+	}, [sessions, primary]);
+
+	const comparisonSessions = useMemo(() => {
+		if (!secondary) return undefined;
+		const start = performance.now();
+		const result = sessions.filter((session) =>
+			isWithinInterval(new Date(session.startTime), {
+				end: secondary.to,
+				start: secondary.from,
+			}),
+		);
+		logger.log(
+			`[PERF] Filtering comparison ${sessions.length} sessions took ${(performance.now() - start).toFixed(2)}ms`,
+		);
+		return result;
+	}, [sessions, secondary]);
+
+	// Filter diaper changes based on selected time range
+	const filteredDiaperChanges = useMemo(() => {
+		const start = performance.now();
+		const result = diaperChanges.filter((change) =>
+			isWithinInterval(new Date(change.timestamp), {
+				end: primary.to,
+				start: primary.from,
+			}),
+		);
+		logger.log(
+			`[PERF] Filtering ${diaperChanges.length} diaper changes took ${(performance.now() - start).toFixed(2)}ms`,
+		);
+		return result;
+	}, [diaperChanges, primary]);
+
+	const comparisonDiaperChanges = useMemo(() => {
+		if (!secondary) return undefined;
+		const start = performance.now();
+		const result = diaperChanges.filter((change) =>
+			isWithinInterval(new Date(change.timestamp), {
+				end: secondary.to,
+				start: secondary.from,
+			}),
+		);
+		logger.log(
+			`[PERF] Filtering comparison ${diaperChanges.length} diaper changes took ${(performance.now() - start).toFixed(2)}ms`,
+		);
+		return result;
+	}, [diaperChanges, secondary]);
 
 	const pottyHitsCount = useMemo(
 		() =>
@@ -116,38 +134,37 @@ export default function StatisticsPage() {
 		[diaperProducts],
 	);
 
-	const disposableChanges = useMemo(
-		() =>
-			diaperChanges
-				.map((change) => {
-					const productId = change.diaperProductId;
-					if (!productId) return null;
-					const product = productById.get(productId);
-					if (!product || product.isReusable || !product.costPerDiaper)
-						return null;
-					return {
-						cost: product.costPerDiaper,
-						timestamp: new Date(change.timestamp),
-					};
-				})
-				.filter(
-					(item): item is { cost: number; timestamp: Date } => item !== null,
-				),
-		[diaperChanges, productById],
-	);
+	const disposableChanges = useMemo(() => {
+		const start = performance.now();
+		const result = diaperChanges
+			.map((change) => {
+				const productId = change.diaperProductId;
+				if (!productId) return null;
+				const product = productById.get(productId);
+				if (!product || product.isReusable || !product.costPerDiaper)
+					return null;
+				return {
+					cost: product.costPerDiaper,
+					timestamp: new Date(change.timestamp),
+				};
+			})
+			.filter(
+				(item): item is { cost: number; timestamp: Date } => item !== null,
+			);
+		logger.log(
+			`[PERF] Processing ${diaperChanges.length} diaper changes for cost took ${(performance.now() - start).toFixed(2)}ms`,
+		);
+		return result;
+	}, [diaperChanges, productById]);
 
-	const handleTimeRangeChange = useCallback((value: TimeRange | null) => {
-		if (value) {
-			startTransition(() => {
-				setTimeRange(value);
-			});
-		}
-	}, []);
+	useEffect(() => {
+		logger.log(
+			`[PERF] StatisticsPage full render took ${(performance.now() - startRender).toFixed(2)}ms`,
+		);
+	}, [startRender]);
 
 	return (
-		<div
-			className={`w-full transition-opacity duration-300 ${isPending ? 'opacity-50' : ''}`}
-		>
+		<div className="w-full">
 			<div
 				className="flex flex-col gap-4 mb-6 sticky z-30 bg-background -mx-4 px-4 py-3 border-b shadow-sm !transition-none"
 				style={
@@ -161,7 +178,14 @@ export default function StatisticsPage() {
 						<fbt desc="Title for the statistics page">Statistics</fbt>
 					</h2>
 					<div className="flex flex-col items-end gap-1">
-						<Select onValueChange={handleTimeRangeChange} value={timeRange}>
+						<Select
+							onValueChange={(value) => {
+								if (value) {
+									setTimeRange(value as TimeRange);
+								}
+							}}
+							value={timeRange}
+						>
 							<SelectTrigger className="w-[140px]">
 								<SelectValue
 									placeholder={
@@ -267,154 +291,114 @@ export default function StatisticsPage() {
 				</div>
 			) : (
 				<>
-					<DeferredSection
-						fallback={
-							<StatsSectionSkeleton
-								title={
-									<fbt desc="Subtitle for the feeding statistics section">
-										Feeding
-									</fbt>
-								}
+					<h3 className="text-lg font-medium mt-6 mb-4">
+						<fbt desc="Subtitle for the feeding statistics section">
+							Feeding
+						</fbt>
+					</h3>
+					{filteredSessions.length > 0 ? (
+						<>
+							<div className="grid grid-cols-2 gap-4">
+								<DurationStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<TotalDurationStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<TimeBetweenStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<FeedingsPerDayStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<TotalFeedingsStats
+									comparisonSessions={comparisonSessions}
+									sessions={filteredSessions}
+								/>
+								<HeatMap className="col-span-2" sessions={filteredSessions} />
+							</div>
+							<FeedingActivity
+								className="mt-4"
+								primaryRange={primary}
+								secondaryRange={secondary}
+								sessions={sessions}
 							/>
-						}
-					>
-						<h3 className="text-lg font-medium mt-6 mb-4">
-							<fbt desc="Subtitle for the feeding statistics section">
-								Feeding
+							<div className="grid grid-cols-2 gap-4 mt-4">
+								<FeedingRecords sessions={sessions} />
+							</div>
+						</>
+					) : (
+						<div className="text-center py-4 text-muted-foreground">
+							<fbt desc="Message shown when no feeding data is available for the selected time range">
+								No feeding data available for the selected time range.
 							</fbt>
-						</h3>
-						{filteredSessions.length > 0 ? (
-							<>
-								<div className="grid grid-cols-2 gap-4">
-									<DurationStats
-										comparisonSessions={comparisonSessions}
-										sessions={filteredSessions}
-									/>
-									<TotalDurationStats
-										comparisonSessions={comparisonSessions}
-										sessions={filteredSessions}
-									/>
-									<TimeBetweenStats
-										comparisonSessions={comparisonSessions}
-										sessions={filteredSessions}
-									/>
-									<FeedingsPerDayStats
-										comparisonSessions={comparisonSessions}
-										sessions={filteredSessions}
-									/>
-									<TotalFeedingsStats
-										comparisonSessions={comparisonSessions}
-										sessions={filteredSessions}
-									/>
-									<HeatMap className="col-span-2" sessions={filteredSessions} />
-								</div>
-								<FeedingActivity
-									className="mt-4"
-									primaryRange={primary}
-									secondaryRange={secondary}
-									sessions={sessions}
-								/>
-								<div className="grid grid-cols-2 gap-4 mt-4">
-									<FeedingRecords sessions={sessions} />
-								</div>
-							</>
-						) : (
-							<div className="text-center py-4 text-muted-foreground">
-								<fbt desc="Message shown when no feeding data is available for the selected time range">
-									No feeding data available for the selected time range.
-								</fbt>
-							</div>
-						)}
-					</DeferredSection>
+						</div>
+					)}
 
-					<DeferredSection
-						delay={100}
-						fallback={
-							<StatsSectionSkeleton
-								title={
-									<fbt desc="Subtitle for the diaper statistics section">
-										Diaper
-									</fbt>
-								}
+					<h3 className="text-lg font-medium mt-8 mb-4">
+						<fbt desc="Subtitle for the diaper statistics section">Diaper</fbt>
+					</h3>
+					{filteredDiaperChanges.length > 0 ? (
+						<>
+							<DiaperStats
+								comparisonDiaperChanges={comparisonDiaperChanges}
+								diaperChanges={filteredDiaperChanges}
+								products={diaperProducts}
 							/>
-						}
-					>
-						<h3 className="text-lg font-medium mt-8 mb-4">
-							<fbt desc="Subtitle for the diaper statistics section">
-								Diaper
+							<DiaperActivity
+								className="mt-4"
+								diaperChanges={diaperChanges}
+								primaryRange={primary}
+								products={diaperProducts}
+								secondaryRange={secondary}
+							/>
+							<div className="grid grid-cols-2 gap-4 mt-4">
+								<DiaperRecords diaperChanges={diaperChanges} />
+							</div>
+						</>
+					) : (
+						<div className="text-center py-4 text-muted-foreground">
+							<fbt desc="Message shown when no diaper data is available for the selected time range">
+								No diaper data available for the selected time range.
 							</fbt>
-						</h3>
-						{filteredDiaperChanges.length > 0 ? (
-							<>
-								<DiaperStats
-									comparisonDiaperChanges={comparisonDiaperChanges}
-									diaperChanges={filteredDiaperChanges}
-									products={diaperProducts}
-								/>
-								<DiaperActivity
-									className="mt-4"
-									diaperChanges={diaperChanges}
-									primaryRange={primary}
-									products={diaperProducts}
-									secondaryRange={secondary}
-								/>
-								<div className="grid grid-cols-2 gap-4 mt-4">
-									<DiaperRecords diaperChanges={diaperChanges} />
-								</div>
-							</>
-						) : (
-							<div className="text-center py-4 text-muted-foreground">
-								<fbt desc="Message shown when no diaper data is available for the selected time range">
-									No diaper data available for the selected time range.
-								</fbt>
-							</div>
-						)}
-					</DeferredSection>
+						</div>
+					)}
 
-					<DeferredSection
-						delay={200}
-						fallback={
-							<StatsSectionSkeleton
-								title={
-									<fbt desc="Subtitle for the potty statistics section">
-										Potty
-									</fbt>
-								}
+					<h3 className="text-lg font-medium mt-8 mb-4">
+						<fbt desc="Subtitle for the potty statistics section">Potty</fbt>
+					</h3>
+					{pottyHitsCount > 0 ? (
+						<>
+							<PottyStats
+								comparisonDiaperChanges={comparisonDiaperChanges}
+								diaperChanges={filteredDiaperChanges}
 							/>
-						}
-					>
-						<h3 className="text-lg font-medium mt-8 mb-4">
-							<fbt desc="Subtitle for the potty statistics section">Potty</fbt>
-						</h3>
-						{pottyHitsCount > 0 ? (
-							<>
-								<PottyStats
-									comparisonDiaperChanges={comparisonDiaperChanges}
-									diaperChanges={filteredDiaperChanges}
-								/>
-								<PottyActivity
-									className="mt-4"
+							<PottyActivity
+								className="mt-4"
+								diaperChanges={diaperChanges}
+								primaryRange={primary}
+								secondaryRange={secondary}
+							/>
+							<div className="grid grid-cols-2 gap-4 mt-4">
+								<PottyStreakCards diaperChanges={diaperChanges} />
+								<PottyRecords diaperChanges={diaperChanges} />
+								<PottySavingsCard
 									diaperChanges={diaperChanges}
-									primaryRange={primary}
-									secondaryRange={secondary}
+									disposableChanges={disposableChanges}
 								/>
-								<div className="grid grid-cols-2 gap-4 mt-4">
-									<PottyStreakCards diaperChanges={diaperChanges} />
-									<PottyRecords diaperChanges={diaperChanges} />
-									<PottySavingsCard
-										diaperChanges={diaperChanges}
-										disposableChanges={disposableChanges}
-									/>
-								</div>
-							</>
-						) : (
-							<div className="text-center py-4 text-muted-foreground">
-								<fbt desc="Message shown when no potty data is available for the selected time range">
-									No potty data available for the selected time range.
-								</fbt>
 							</div>
-						)}
-					</DeferredSection>
+						</>
+					) : (
+						<div className="text-center py-4 text-muted-foreground">
+							<fbt desc="Message shown when no potty data is available for the selected time range">
+								No potty data available for the selected time range.
+							</fbt>
+						</div>
+					)}
 
 					<ReusableSavingsCard
 						allDiaperChanges={diaperChanges}

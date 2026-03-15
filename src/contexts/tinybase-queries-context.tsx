@@ -3,9 +3,7 @@
 import type { Queries } from 'tinybase';
 import { createContext, useContext } from 'react';
 import { createQueries } from 'tinybase';
-import { useCreateQueries } from 'tinybase/ui-react';
-import { useTinybaseStore } from '@/hooks/use-tinybase-store';
-import '@/hooks/use-tinybase-store';
+import { useCreateQueries, useStore } from 'tinybase/ui-react';
 
 export const QUERY_IDS = {
 	GROWTH_HISTORY: 'growthHistory',
@@ -24,7 +22,7 @@ interface TinybaseQueriesProviderProps {
 export function TinybaseQueriesProvider({
 	children,
 }: TinybaseQueriesProviderProps) {
-	const store = useTinybaseStore();
+	const store = useStore();
 
 	const queries = useCreateQueries(store, (store) => {
 		const queries = createQueries(store);

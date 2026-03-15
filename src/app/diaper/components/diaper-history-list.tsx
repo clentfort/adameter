@@ -1,8 +1,6 @@
 import { fbt } from 'fbtee';
 import { useState } from 'react';
-import { useCell } from 'tinybase/ui-react';
-import { useTinybaseStore } from '@/hooks/use-tinybase-store';
-import '@/hooks/use-tinybase-store';
+import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';
@@ -20,7 +18,7 @@ import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
 
 function DiaperProductName({ productId }: { productId: string }) {
-	const store = useTinybaseStore();
+	const store = useStore()!;
 	const productName = useCell(
 		TABLE_IDS.DIAPER_PRODUCTS,
 		productId,

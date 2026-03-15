@@ -1,13 +1,11 @@
 import type { FeedingInProgress } from '@/types/feeding-in-progress';
 import { useCallback, useMemo } from 'react';
-import { useValue } from 'tinybase/ui-react';
-import { useTinybaseStore } from '@/hooks/use-tinybase-store';
-import '@/hooks/use-tinybase-store';
+import { useStore, useValue } from 'tinybase/ui-react';
 import { STORE_VALUE_FEEDING_IN_PROGRESS } from '@/lib/tinybase-sync/constants';
 import { feedingInProgressSchema } from '@/types/feeding-in-progress';
 
 export const useFeedingInProgress = () => {
-	const store = useTinybaseStore();
+	const store = useStore()!;
 	const currentJson = useValue(STORE_VALUE_FEEDING_IN_PROGRESS, store);
 	const current = useMemo(
 		() => parseFeedingInProgress(currentJson),

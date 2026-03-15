@@ -1,7 +1,6 @@
 import type { Profile } from '@/types/profile';
 import { useMemo } from 'react';
 import { useSetValueCallback, useValue } from 'tinybase/ui-react';
-import '@/hooks/use-tinybase-store';
 import { STORE_VALUE_PROFILE } from '@/lib/tinybase-sync/constants';
 import { profileSchema } from '@/types/profile';
 

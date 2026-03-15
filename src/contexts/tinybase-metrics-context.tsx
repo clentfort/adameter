@@ -3,9 +3,7 @@
 import type { Metrics } from 'tinybase';
 import { createContext, useContext } from 'react';
 import { createMetrics } from 'tinybase';
-import { useCreateMetrics } from 'tinybase/ui-react';
-import { useTinybaseStore } from '@/hooks/use-tinybase-store';
-import '@/hooks/use-tinybase-store';
+import { useCreateMetrics, useStore } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 
 /**
@@ -42,7 +40,7 @@ function getToday() {
 export function TinybaseMetricsProvider({
 	children,
 }: TinybaseMetricsProviderProps) {
-	const store = useTinybaseStore();
+	const store = useStore();
 
 	const metrics = useCreateMetrics(store, (store) => {
 		const m = createMetrics(store);

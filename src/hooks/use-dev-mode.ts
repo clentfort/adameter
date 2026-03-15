@@ -1,5 +1,4 @@
 import { useSetValueCallback, useValue } from 'tinybase/ui-react';
-import '@/hooks/use-tinybase-store';
 import { STORE_VALUE_DEV_MODE } from '@/lib/tinybase-sync/constants';
 
 export const useDevMode = () => {

@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import '@/hooks/use-tinybase-store';
 import { describe, expect, it, vi } from 'vitest';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';

@@ -8,9 +8,7 @@ import {
 } from '@testing-library/react';
 import { useContext } from 'react';
 import { createStore } from 'tinybase';
-import { useTable } from 'tinybase/ui-react';
-import { useTinybaseStore } from '@/hooks/use-tinybase-store';
-import '@/hooks/use-tinybase-store';
+import { useStore, useTable } from 'tinybase/ui-react';
 import { expect, vi } from 'vitest';
 import { clear } from '@/lib/storage';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -94,7 +92,7 @@ function seedEvents(store: Store, count: number, prefix: string) {
 }
 
 function RoomSyncProbe({ importCount }: { importCount: number }) {
-	const store = useTinybaseStore();
+	const store = useStore()!;
 	const events = useTable(TABLE_IDS.EVENTS, store);
 	const { joinRoom } = useContext(DataSynchronizationContext);
 	const eventCount = events ? Object.keys(events).length : 0;

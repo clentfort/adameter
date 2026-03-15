@@ -1,9 +1,7 @@
 import type { Row } from 'tinybase';
 import type { FeedingSession } from '@/types/feeding';
 import { useMemo } from 'react';
-import { useTable } from 'tinybase/ui-react';
-import { useTinybaseStore } from '@/hooks/use-tinybase-store';
-import '@/hooks/use-tinybase-store';
+import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeFeedingSessionForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { feedingSessionSchema } from '@/types/feeding';
@@ -40,7 +38,7 @@ export const useFeedingSessionsSnapshot = feedingSessionHooks.useSnapshot;
 export const useFeedingSessionIds = feedingSessionHooks.useIds;
 
 export function useLatestFeedingSessionRecord() {
-	const store = useTinybaseStore();
+	const store = useStore()!;
 	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
 
 	return useMemo(() => {

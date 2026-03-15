@@ -1,9 +1,7 @@
 import type { Row } from 'tinybase';
 import type { Event } from '@/types/event';
 import { useMemo } from 'react';
-import { useTable } from 'tinybase/ui-react';
-import { useTinybaseStore } from '@/hooks/use-tinybase-store';
-import '@/hooks/use-tinybase-store';
+import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeEventForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { eventSchema } from '@/types/event';
@@ -37,7 +35,7 @@ export const useEventsSnapshot = eventHooks.useSnapshot;
 export const useEventIds = eventHooks.useIds;
 
 export function useSortedEventIds() {
-	const store = useTinybaseStore();
+	const store = useStore()!;
 	const table = useTable(TABLE_IDS.EVENTS, store);
 
 	return useMemo(
