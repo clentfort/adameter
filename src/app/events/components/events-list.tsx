@@ -4,18 +4,26 @@ import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';
+import type { DiaperChange } from '@/types/diaper';
+import type { FeedingSession } from '@/types/feeding';
 import Markdown from '@/components/markdown';
+import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useEvent, useRemoveEvent, useUpsertEvent } from '@/hooks/use-events';
-import RelatedActivity from './related-activity';
+import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
 import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
+import RelatedActivity from './related-activity';
 import AddEventDialog from './event-form';
 
 function EventListItem({
+	diaperChanges,
 	eventId,
+	feedingSessions,
 	onDelete,
 	onEdit,
 }: {
+	diaperChanges: DiaperChange[];
 	eventId: string;
+	feedingSessions: FeedingSession[];
 	onDelete: (id: string) => void;
 	onEdit: (eventId: string) => void;
 }) {
@@ -68,7 +76,11 @@ function EventListItem({
 					{event.notes}
 				</Markdown>
 			)}
-			<RelatedActivity event={event} />
+			<RelatedActivity
+				diaperChanges={diaperChanges}
+				event={event}
+				feedingSessions={feedingSessions}
+			/>
 		</HistoryEntryCard>
 	);
 }
@@ -81,6 +93,9 @@ export default function EventsList() {
 	const { dateKeys, indexes, indexId } = useEventsByDate();
 	const eventToEdit = useEvent(eventToEditId ?? undefined);
 
+	const diaperChanges = useDiaperChangesSnapshot();
+	const feedingSessions = useFeedingSessionsSnapshot();
+
 	return (
 		<>
 			<IndexedHistoryList
@@ -90,7 +105,9 @@ export default function EventsList() {
 			>
 				{(eventId) => (
 					<EventListItem
+						diaperChanges={diaperChanges}
 						eventId={eventId}
+						feedingSessions={feedingSessions}
 						key={eventId}
 						onDelete={setEventToDelete}
 						onEdit={setEventToEditId}

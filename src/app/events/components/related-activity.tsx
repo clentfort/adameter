@@ -17,8 +17,6 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from '@/components/ui/accordion';
-import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
-import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
 import { cn } from '@/lib/utils';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import { formatEntryTime } from '@/utils/format-history-date';
@@ -32,25 +30,26 @@ type ActivityItem =
 	| { data: DiaperChange; timestamp: Date; type: 'diaper' }
 	| { data: FeedingSession; timestamp: Date; type: 'feeding' };
 
-export default function RelatedActivity({ event }: RelatedActivityProps) {
-	const diaperChanges = useDiaperChangesSnapshot();
-	const feedingSessions = useFeedingSessionsSnapshot();
-
+export default function RelatedActivity({
+	diaperChanges,
+	event,
+	feedingSessions,
+}: RelatedActivityProps & {
+	diaperChanges: DiaperChange[];
+	feedingSessions: FeedingSession[];
+}) {
 	const relatedItems = useMemo(() => {
 		const start = parseISO(event.startDate);
-		let interval: { end: Date; start: Date };
-
-		if (event.type === 'period') {
-			interval = {
-				end: event.endDate ? parseISO(event.endDate) : new Date(),
-				start,
-			};
-		} else {
-			interval = {
-				end: endOfDay(start),
-				start: startOfDay(start),
-			};
-		}
+		const interval =
+			event.type === 'period'
+				? {
+						end: event.endDate ? parseISO(event.endDate) : new Date(),
+						start,
+					}
+				: {
+						end: endOfDay(start),
+						start: startOfDay(start),
+					};
 
 		const filteredDiapers: ActivityItem[] = diaperChanges
 			.filter((change) => isWithinInterval(parseISO(change.timestamp), interval))
@@ -81,8 +80,8 @@ export default function RelatedActivity({ event }: RelatedActivityProps) {
 
 	return (
 		<div className="mt-4 border-t pt-2">
-			<Accordion type="single" collapsible>
-				<AccordionItem value="related-activity" className="border-none">
+			<Accordion>
+				<AccordionItem className="border-none" value="related-activity">
 					<AccordionTrigger className="py-2 text-sm font-semibold hover:no-underline">
 						<fbt desc="Label for related activity section in event list">
 							Related Activity (<fbt:param name="count">
@@ -94,7 +93,6 @@ export default function RelatedActivity({ event }: RelatedActivityProps) {
 						<div className="space-y-3 pt-2">
 							{relatedItems.map((item) => (
 								<div
-									key={item.data.id}
 									className={cn(
 										'text-sm border-l-2 pl-3 py-1 flex flex-col gap-1',
 										item.type === 'feeding'
@@ -105,6 +103,7 @@ export default function RelatedActivity({ event }: RelatedActivityProps) {
 												? 'border-amber-700'
 												: 'border-yellow-400',
 									)}
+									key={item.data.id}
 								>
 									<div className="flex items-center justify-between text-xs text-muted-foreground">
 										<div className="flex items-center gap-2">
