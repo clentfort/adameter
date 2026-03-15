@@ -45,7 +45,32 @@ describe('barcode-api', () => {
 		);
 	});
 
-	it('should return null if both APIs fail', async () => {
+	it('should fallback to Open Beauty Facts if others fail', async () => {
+		(fetch as Mock)
+			.mockResolvedValueOnce({
+				json: async () => ({ status: 0 }),
+				ok: true,
+			})
+			.mockResolvedValueOnce({
+				json: async () => ({ status: 0 }),
+				ok: true,
+			})
+			.mockResolvedValueOnce({
+				json: async () => ({
+					product: { product_name: 'Test Product Beauty' },
+					status: 1,
+				}),
+				ok: true,
+			});
+
+		const result = await lookupProductByBarcode('444555666');
+		expect(result).toEqual({ name: 'Test Product Beauty' });
+		expect(fetch).toHaveBeenCalledWith(
+			'https://world.openbeautyfacts.org/api/v0/product/444555666.json',
+		);
+	});
+
+	it('should return null if all APIs fail', async () => {
 		(fetch as Mock).mockResolvedValue({
 			json: async () => ({ status: 0 }),
 			ok: true,

@@ -25,7 +25,7 @@ export async function lookupProductByBarcode(
 			return { name: data.product.product_name };
 		}
 
-		// Fallback to Open Food Facts just in case
+		// Fallback to Open Food Facts
 		const offResponse = await fetch(
 			`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
 		);
@@ -37,6 +37,21 @@ export async function lookupProductByBarcode(
 			};
 			if (offData.status === 1 && offData.product?.product_name) {
 				return { name: offData.product.product_name };
+			}
+		}
+
+		// Fallback to Open Beauty Facts (sometimes hygiene products are here)
+		const obfResponse = await fetch(
+			`https://world.openbeautyfacts.org/api/v0/product/${barcode}.json`,
+		);
+
+		if (obfResponse.ok) {
+			const obfData = (await obfResponse.json()) as {
+				product?: { product_name?: string };
+				status: number;
+			};
+			if (obfData.status === 1 && obfData.product?.product_name) {
+				return { name: obfData.product.product_name };
 			}
 		}
 
