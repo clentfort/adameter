@@ -4,6 +4,7 @@ import type { DiaperProduct } from '@/types/diaper';
 import { fbt } from 'fbtee';
 import { Archive, Plus, ScanBarcode, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { useStore } from 'tinybase/ui-react';
 import { BarcodeScanner } from '@/components/barcode-scanner';
 import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,6 @@ import {
 	useSortedDiaperProductIds,
 	useUpsertDiaperProduct,
 } from '@/hooks/use-diaper-products';
-import { useStore } from 'tinybase/ui-react';
 import { SettingsHeader } from '../components/settings-header';
 
 interface DiaperProductListItemProps {

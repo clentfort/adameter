@@ -1,4 +1,5 @@
-import { describe, expect, it, vi, type Mock } from 'vitest';
+import type { Mock } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { lookupProductByBarcode } from './barcode-api';
 
 global.fetch = vi.fn();

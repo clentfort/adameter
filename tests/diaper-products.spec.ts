@@ -9,14 +9,18 @@ test.describe('Diaper Products Settings', () => {
 		page,
 	}) => {
 		// Verify the main scan button exists
-		await expect(page.locator('button:has(svg.lucide-scan-barcode)')).toBeVisible();
+		await expect(
+			page.locator('button:has(svg.lucide-scan-barcode)'),
+		).toBeVisible();
 
 		// Click Add Product
 		await page.getByRole('button', { name: 'Add Product' }).click();
 
 		// Verify barcode field exists
 		await expect(page.getByLabel('Barcode')).toBeVisible();
-		await expect(page.locator('button:has(svg.lucide-scan-barcode)')).toBeVisible();
+		await expect(
+			page.locator('button:has(svg.lucide-scan-barcode)'),
+		).toBeVisible();
 
 		// Fill the form
 		await page.getByLabel('Barcode').fill('4015400736412');
@@ -36,7 +40,9 @@ test.describe('Diaper Products Settings', () => {
 		await page.locator('button:has(svg.lucide-scan-barcode)').click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await expect(page.getByText('Scan Barcode')).toBeVisible();
-		await expect(page.getByRole('button', { name: 'Start Barcode Scanner' })).toBeVisible();
+		await expect(
+			page.getByRole('button', { name: 'Start Barcode Scanner' }),
+		).toBeVisible();
 
 		// Close it
 		await page.keyboard.press('Escape');
