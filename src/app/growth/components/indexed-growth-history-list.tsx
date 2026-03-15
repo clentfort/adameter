@@ -24,8 +24,10 @@ import {
 	useGrowthMeasurementsByDate,
 	useTeethByDate,
 } from '@/hooks/use-tinybase-indexes';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { formatSectionDate } from '@/utils/format-history-date';
+import { cmToInches, gramsToLbsOz } from '@/utils/unit-conversions';
 import { getToothName } from '../utils/teething';
 import MeasurementForm from './growth-form';
 import TeethingForm from './teething-form';
@@ -43,12 +45,29 @@ function GrowthHistoryEntry({
 }: GrowthHistoryEntryProps) {
 	const measurement = useGrowthMeasurement(rowId);
 	const { locale } = useLanguage();
+	const unitSystem = useUnitSystem();
+	const isImperial = unitSystem === 'imperial';
 
 	if (!measurement) return null;
 
 	const numberFormat = new Intl.NumberFormat(locale.replace('_', '-'), {
 		maximumFractionDigits: 1,
 	});
+
+	function formatWeight(grams: number) {
+		if (isImperial) {
+			const { lbs, oz } = gramsToLbsOz(grams);
+			return `${lbs} lbs ${numberFormat.format(oz)} oz`;
+		}
+		return `${numberFormat.format(grams)} g`;
+	}
+
+	function formatLength(cm: number) {
+		if (isImperial) {
+			return `${numberFormat.format(cmToInches(cm))} in`;
+		}
+		return `${numberFormat.format(cm)} cm`;
+	}
 
 	return (
 		<HistoryEntryCard
@@ -69,7 +88,7 @@ function GrowthHistoryEntry({
 				{measurement.weight && (
 					<div className="flex items-center gap-1">
 						<span title={fbt('Weight', 'Weight tooltip').toString()}>⚖️</span>
-						<span>{numberFormat.format(measurement.weight)} g</span>
+						<span>{formatWeight(measurement.weight)}</span>
 					</div>
 				)}
 				{measurement.weight &&
@@ -79,7 +98,7 @@ function GrowthHistoryEntry({
 				{measurement.height && (
 					<div className="flex items-center gap-1">
 						<span title={fbt('Height', 'Height tooltip').toString()}>📏</span>
-						<span>{numberFormat.format(measurement.height)} cm</span>
+						<span>{formatLength(measurement.height)}</span>
 					</div>
 				)}
 				{measurement.height && measurement.headCircumference && (
@@ -95,7 +114,7 @@ function GrowthHistoryEntry({
 						>
 							🗣️
 						</span>
-						<span>{numberFormat.format(measurement.headCircumference)} cm</span>
+						<span>{formatLength(measurement.headCircumference)}</span>
 					</div>
 				)}
 			</div>
