@@ -56,7 +56,7 @@
 		"sonner": "^2.0.7",
 		"tailwind-merge": "^3.2.0",
 		"tailwindcss": "^4.1.4",
-		"tinybase": "^7.3.3",
+		"tinybase": "^8.0.0",
 		"tinybase-persister-partykit-client-encrypted": "workspace:*",
 		"tinybase-synchronizer-partykit-client-encrypted": "workspace:*",
 		"tinybase-synchronizer-partykit-server-encrypted": "workspace:*",
