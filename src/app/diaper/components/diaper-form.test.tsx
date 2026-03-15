@@ -55,7 +55,7 @@ describe('DiaperForm', () => {
 
 		render(<DiaperForm {...baseProps} change={initialChange} />);
 
-		expect(screen.getByLabelText(/temperature/i)).toHaveValue(37);
+		expect(screen.getByLabelText(/temperature/i)).toHaveValue(98.6);
 		expect(screen.getByLabelText(/notes/i)).toHaveValue('Some notes');
 
 		fireEvent.click(screen.getByTestId('save-button'));

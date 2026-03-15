@@ -136,7 +136,7 @@ describe('DiaperHistoryList', () => {
 			</TestWrapper>,
 		);
 
-		expect(screen.getByText(/36.5 °C/)).toBeInTheDocument();
+		expect(screen.getByText(/97.7 °F/)).toBeInTheDocument();
 	});
 
 	it('should highlight abnormal temperature', () => {
@@ -154,7 +154,7 @@ describe('DiaperHistoryList', () => {
 			</TestWrapper>,
 		);
 
-		const tempElement = screen.getByText(/38.5 °C/);
+		const tempElement = screen.getByText(/101.3 °F/);
 		expect(tempElement.parentElement).toHaveClass('text-red-600');
 	});
 

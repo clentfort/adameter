@@ -51,8 +51,8 @@ describe('IndexedGrowthHistoryList', () => {
 		expect(screen.getByText(/wednesday, 10. january 2024/i)).toBeDefined();
 
 		// Check for entries
-		expect(screen.getByText(/4,500/)).toBeDefined();
-		expect(screen.getByText(/4,400/)).toBeDefined();
+		expect(screen.getByText(/9 lbs 14.7 oz/)).toBeDefined();
+		expect(screen.getByText(/9 lbs 11.2 oz/)).toBeDefined();
 		expect(screen.getByText(/tooth 51/i)).toBeDefined();
 	});
 
