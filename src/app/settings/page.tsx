@@ -10,6 +10,7 @@ import {
 	Coins,
 	Database,
 	Globe,
+	LayoutGrid,
 	Moon,
 	Package,
 	Plus,
@@ -59,6 +60,7 @@ import {
 	useUpsertDiaperProduct,
 } from '@/hooks/use-diaper-products';
 import { useProfile } from '@/hooks/use-profile';
+import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 import { Locale } from '@/i18n';
 import { TINYBASE_LOCAL_DB_NAME } from '@/lib/tinybase-sync/constants';
 import { sanitizeImportedRow } from '@/lib/tinybase-sync/entity-row-schemas';
@@ -196,6 +198,8 @@ export default function SettingsPage() {
 	const { locale, setLocale } = useLanguage();
 	const [currency, setCurrency] = useCurrency();
 	const [devMode, setDevMode] = useDevMode();
+	const [showComparisonCharts, setShowComparisonCharts] =
+		useShowComparisonCharts();
 	const { store } = useContext(tinybaseContext);
 	const { leaveRoom, room } = useContext(DataSynchronizationContext);
 	const router = useRouter();
@@ -579,22 +583,47 @@ export default function SettingsPage() {
 						</Select>
 					</div>
 
-					<div className="flex items-center justify-between py-2">
-						<div className="space-y-0.5">
-							<Label className="text-sm font-medium" htmlFor="dev-mode">
-								<fbt desc="Label for dev mode setting">Dev Mode</fbt>
-							</Label>
-							<p className="text-xs text-muted-foreground">
-								<fbt desc="Description for dev mode setting">
-									Enable developer tools and error details
-								</fbt>
-							</p>
+					<div className="space-y-4 border-t pt-4">
+						<div className="flex items-center justify-between">
+							<div className="space-y-0.5">
+								<div className="flex items-center gap-2">
+									<LayoutGrid className="h-4 w-4" />
+									<Label className="text-sm font-medium" htmlFor="butterfly">
+										<fbt desc="Label for butterfly charts setting">
+											Butterfly Charts
+										</fbt>
+									</Label>
+								</div>
+								<p className="text-xs text-muted-foreground">
+									<fbt desc="Description for butterfly charts setting">
+										Show comparison data in statistics
+									</fbt>
+								</p>
+							</div>
+							<Switch
+								checked={showComparisonCharts}
+								id="butterfly"
+								onCheckedChange={setShowComparisonCharts}
+							/>
 						</div>
-						<Switch
-							checked={devMode}
-							id="dev-mode"
-							onCheckedChange={setDevMode}
-						/>
+
+						<div className="flex items-center justify-between">
+							<div className="space-y-0.5">
+								<Label className="text-sm font-medium" htmlFor="dev-mode">
+									<fbt desc="Label for dev mode setting">Dev Mode</fbt>
+								</Label>
+								<p className="text-xs text-muted-foreground">
+									<fbt desc="Description for dev mode setting">
+										Enable developer tools and error details
+									</fbt>
+								</p>
+							</div>
+							<Switch
+								checked={devMode}
+								id="dev-mode"
+								onCheckedChange={setDevMode}
+							/>
+						</div>
 					</div>
 				</CardContent>
 			</Card>

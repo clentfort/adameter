@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
 	ROOM: 'room',
 	ROOM_JOIN_STRATEGY: 'room-join-strategy',
 	SKIP_PROFILE_PROMPT: 'adameter-skip-profile',
+	SHOW_COMPARISON_CHARTS: 'adameter-show-comparison',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

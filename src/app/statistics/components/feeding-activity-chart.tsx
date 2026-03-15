@@ -13,6 +13,7 @@ import {
 import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
 import { useProfile } from '@/hooks/use-profile';
+import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 import { useTeethSnapshot } from '@/hooks/use-teething';
 
 interface FeedingActivityChartProps {
@@ -30,6 +31,7 @@ export default function FeedingActivityChart({
 }: FeedingActivityChartProps) {
 	const [profile] = useProfile();
 	const teeth = useTeethSnapshot();
+	const [showComparisonCharts] = useShowComparisonCharts();
 
 	const { datasets, effectivePrimaryFrom, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
@@ -87,7 +89,7 @@ export default function FeedingActivityChart({
 
 		const datasets = [];
 
-		if (secondaryRange) {
+		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
 				start: secondaryRange.from,
@@ -172,7 +174,7 @@ export default function FeedingActivityChart({
 		);
 
 		return { datasets, effectivePrimaryFrom, labels };
-	}, [sessions, primaryRange, secondaryRange]);
+	}, [sessions, primaryRange, secondaryRange, showComparisonCharts]);
 
 	const verticalLines = useMemo(() => {
 		return teeth

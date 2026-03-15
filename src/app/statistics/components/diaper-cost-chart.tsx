@@ -5,6 +5,7 @@ import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
 import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
 import { useCurrency } from '@/hooks/use-currency';
+import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 
 interface DiaperCostChartProps {
 	className?: string;
@@ -22,6 +23,7 @@ export default function DiaperCostChart({
 	secondaryRange,
 }: DiaperCostChartProps) {
 	const [currency] = useCurrency();
+	const [showComparisonCharts] = useShowComparisonCharts();
 
 	const productCostById = useMemo(
 		() =>
@@ -84,7 +86,7 @@ export default function DiaperCostChart({
 
 		const datasets = [];
 
-		if (secondaryRange) {
+		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
 				start: secondaryRange.from,
@@ -130,7 +132,13 @@ export default function DiaperCostChart({
 		});
 
 		return { datasets, labels };
-	}, [diaperChanges, primaryRange, secondaryRange, productCostById]);
+	}, [
+		diaperChanges,
+		primaryRange,
+		secondaryRange,
+		productCostById,
+		showComparisonCharts,
+	]);
 
 	return (
 		<div className={className}>

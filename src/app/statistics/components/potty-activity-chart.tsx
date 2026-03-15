@@ -5,6 +5,7 @@ import type { DateRange } from '@/utils/get-range-dates';
 import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
 import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
+import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 
 interface PottyActivityChartProps {
 	className?: string;
@@ -19,6 +20,8 @@ export default function PottyActivityChart({
 	primaryRange,
 	secondaryRange,
 }: PottyActivityChartProps) {
+	const [showComparisonCharts] = useShowComparisonCharts();
+
 	const { datasets, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
 		const pottyChanges = diaperChanges.filter(
@@ -72,7 +75,7 @@ export default function PottyActivityChart({
 
 		const datasets = [];
 
-		if (secondaryRange) {
+		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
 				start: secondaryRange.from,
@@ -121,13 +124,13 @@ export default function PottyActivityChart({
 
 		datasets.push(
 			{
-				backgroundColor: '#3b82f6', // blue-500
+				backgroundColor: '#eab308', // yellow-500
 				data: primaryUrineData,
 				label: 'Urine',
 				stack: 'primary',
 			},
 			{
-				backgroundColor: '#a855f7', // purple-500
+				backgroundColor: '#92400e', // amber-900
 				data: primaryStoolData,
 				label: 'Stool',
 				stack: 'primary',
@@ -135,7 +138,7 @@ export default function PottyActivityChart({
 		);
 
 		return { datasets, labels };
-	}, [diaperChanges, primaryRange, secondaryRange]);
+	}, [diaperChanges, primaryRange, secondaryRange, showComparisonCharts]);
 
 	return (
 		<div className={className}>

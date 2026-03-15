@@ -69,7 +69,7 @@ export default function PottyActivity({
 								.filter((c) => c.pottyUrine || c.pottyStool)
 								.map((c) => c.timestamp)}
 							noCard={true}
-							palette="feeding"
+							palette="diaper"
 						/>
 					</TabsContent>
 				</Tabs>

@@ -179,9 +179,7 @@ export default function DiaperStats({
 		const productCost = productCostById.get(productId);
 		if (typeof productCost === 'number') {
 			brandCounts[productName].totalCost += productCost;
-			brandCounts[
-				brandCounts[productName].totalCost === 0 ? productName : productName
-			].costedChanges += 1;
+				brandCounts[productName].costedChanges += 1;
 		}
 
 		if (change.leakage) {
