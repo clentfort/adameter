@@ -5,7 +5,6 @@ import {
 	optionalBooleanCell,
 	optionalNumberCell,
 	optionalNumberFromInputField,
-	optionalStringCell,
 	requiredNameField,
 } from './schema-utils';
 

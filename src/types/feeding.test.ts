@@ -9,12 +9,20 @@ describe('feeding schema transforms', () => {
 				date: '2026-03-07',
 				duration: '10',
 				time: '08:15',
+				type: 'breast',
 			}),
 		).toEqual({
+			amountMl: undefined,
+			bottleId: undefined,
 			breast: 'right',
 			durationInSeconds: 600,
 			endTime: '2026-03-07T08:25:00.000Z',
+			formulaProductId: undefined,
+			milkType: undefined,
+			notes: undefined,
 			startTime: '2026-03-07T08:15:00.000Z',
+			teatId: undefined,
+			type: 'breast',
 		});
 	});
 });

@@ -31,6 +31,7 @@ describe('useResumableSession', () => {
 			endTime: subMinutes(new Date(), 4).toISOString(),
 			id: '1',
 			startTime: new Date().toISOString(),
+			type: 'breast',
 		};
 		mockUseLatestFeedingSession.mockReturnValue(session);
 		const { result } = renderHook(() => useResumableSession());
@@ -44,6 +45,7 @@ describe('useResumableSession', () => {
 			endTime: subMinutes(new Date(), 6).toISOString(),
 			id: '1',
 			startTime: new Date().toISOString(),
+			type: 'breast',
 		};
 		mockUseLatestFeedingSession.mockReturnValue(session);
 		const { result } = renderHook(() => useResumableSession());
@@ -57,6 +59,7 @@ describe('useResumableSession', () => {
 			endTime: subMinutes(new Date(), 4).toISOString(),
 			id: '1',
 			startTime: new Date().toISOString(),
+			type: 'breast',
 		};
 		mockUseLatestFeedingSession.mockReturnValue(session);
 		const { result } = renderHook(() => useResumableSession());
@@ -76,6 +79,7 @@ describe('useResumableSession', () => {
 			endTime: subMinutes(new Date(), 4).toISOString(),
 			id: '1',
 			startTime: new Date().toISOString(),
+			type: 'breast',
 		};
 		mockUseLatestFeedingSession.mockReturnValue(session);
 		const { result } = renderHook(() => useResumableSession());

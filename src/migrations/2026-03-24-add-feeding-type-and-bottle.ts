@@ -7,10 +7,11 @@ export const addFeedingTypeAndBottleMigration: Migration = {
 	migrate: (store) => {
 		const tableId = TABLE_IDS.FEEDING_SESSIONS;
 		if (!store.hasTable(tableId)) {
-			return;
+			return false;
 		}
 
 		const sessionIds = store.getRowIds(tableId);
+		let hasChanges = false;
 		for (const sessionId of sessionIds) {
 			const duration = store.getCell(tableId, sessionId, 'durationInSeconds');
 			const currentType = store.getCell(tableId, sessionId, 'type');
@@ -22,7 +23,9 @@ export const addFeedingTypeAndBottleMigration: Migration = {
 				} else {
 					store.setCell(tableId, sessionId, 'type', 'breast');
 				}
+				hasChanges = true;
 			}
 		}
+		return hasChanges;
 	},
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { Archive, Package, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -292,7 +292,7 @@ function FormulaForm({ initialData, onCancel, onSave }: { initialData?: string; 
 					<Button
 						disabled={!name}
 						onClick={() => onSave({
-							costPerMl: parseFloat(cost) || 0,
+							costPerMl: Number.parseFloat(cost) || 0,
 							id: product?.id ?? crypto.randomUUID(),
 							name,
 						})}

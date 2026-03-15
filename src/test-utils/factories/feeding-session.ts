@@ -22,6 +22,7 @@ export function createFeedingSession(
 		endTime: buildEndTime(startTime, durationInSeconds),
 		id: `feeding-${feedingCounter}`,
 		startTime,
+		type: 'breast',
 		...overrides,
 	};
 }

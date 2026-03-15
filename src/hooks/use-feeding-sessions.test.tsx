@@ -34,6 +34,7 @@ describe('useFeedingSessions', () => {
 				endTime: '2024-01-01T10:10:00Z',
 				id: 'f1',
 				startTime: '2024-01-01T10:00:00Z',
+				type: 'breast',
 			} as FeedingSession;
 
 			act(() => {
@@ -46,6 +47,7 @@ describe('useFeedingSessions', () => {
 				durationInSeconds: 600,
 				endTime: '2024-01-01T10:10:00Z',
 				startTime: '2024-01-01T10:00:00Z',
+				type: 'breast',
 			});
 		});
 	});
@@ -58,6 +60,7 @@ describe('useFeedingSessions', () => {
 				durationInSeconds: 600,
 				endTime: '2024-01-01T10:10:00Z',
 				startTime: '2024-01-01T10:00:00Z',
+				type: 'breast',
 			});
 
 			const { result } = renderHook(() => useRemoveFeedingSession(), {
@@ -89,6 +92,7 @@ describe('useFeedingSessions', () => {
 				durationInSeconds: 600,
 				endTime: '2024-01-01T10:10:00Z',
 				startTime: '2024-01-01T10:00:00Z',
+				type: 'breast',
 			});
 
 			const { result } = renderHook(() => useFeedingSession('f1'), {
@@ -103,6 +107,7 @@ describe('useFeedingSessions', () => {
 				endTime: '2024-01-01T10:10:00Z',
 				id: 'f1',
 				startTime: '2024-01-01T10:00:00Z',
+				type: 'breast',
 			});
 		});
 	});
@@ -115,6 +120,7 @@ describe('useFeedingSessions', () => {
 				durationInSeconds: 600,
 				endTime: '2024-01-01T10:10:00Z',
 				startTime: '2024-01-01T10:00:00Z',
+				type: 'breast',
 			});
 
 			const { result } = renderHook(() => useFeedingSessionsSnapshot(), {
@@ -136,12 +142,14 @@ describe('useFeedingSessions', () => {
 				durationInSeconds: 600,
 				endTime: '2024-01-01T10:30:00Z',
 				startTime: '2024-01-01T10:20:00Z',
+				type: 'breast',
 			});
 			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'f2', {
 				breast: 'right',
 				durationInSeconds: 600,
 				endTime: '2024-01-01T11:30:00Z',
 				startTime: '2024-01-01T11:20:00Z',
+				type: 'breast',
 			});
 
 			const { result } = renderHook(() => useLatestFeedingSessionRecord(), {
