@@ -4,9 +4,9 @@ import type { Indexes } from 'tinybase';
 import { format, parseISO } from 'date-fns';
 import { createContext, useContext } from 'react';
 import { createIndexes } from 'tinybase';
-import { useCreateIndexes,  } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
+import { useCreateIndexes } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 
 /**

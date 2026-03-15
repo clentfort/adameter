@@ -3,9 +3,9 @@
 import type { Queries } from 'tinybase';
 import { createContext, useContext } from 'react';
 import { createQueries } from 'tinybase';
-import { useCreateQueries,  } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
+import { useCreateQueries } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
 
 export const QUERY_IDS = {
 	GROWTH_HISTORY: 'growthHistory',

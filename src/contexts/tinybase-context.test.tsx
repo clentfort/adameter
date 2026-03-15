@@ -7,9 +7,9 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import { useContext } from 'react';
-import { useTable, useValue } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
+import { useTable, useValue } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { clear } from '@/lib/storage';
 import { STORE_VALUE_PROFILE, TABLE_IDS } from '@/lib/tinybase-sync/constants';

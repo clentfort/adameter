@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { createStore } from 'tinybase';
-import { Provider } from "tinybase/ui-react";
-import { } from '@/hooks/use-tinybase-store';
+import { Provider } from 'tinybase/ui-react';
+import '@/hooks/use-tinybase-store';
 import { describe, expect, it } from 'vitest';
 import { TinybaseMetricsProvider } from '@/contexts/tinybase-metrics-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';

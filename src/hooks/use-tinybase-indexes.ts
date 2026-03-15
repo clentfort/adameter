@@ -1,5 +1,5 @@
-import { useSliceIds, useSliceRowIds } from "tinybase/ui-react";
-import { } from '@/hooks/use-tinybase-store';
+import { useSliceIds, useSliceRowIds } from 'tinybase/ui-react';
+import '@/hooks/use-tinybase-store';
 import {
 	INDEX_IDS,
 	useTinybaseIndexes,

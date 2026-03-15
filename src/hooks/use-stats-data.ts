@@ -5,10 +5,13 @@ import type { FeedingSession } from '@/types/feeding';
 import type { GrowthMeasurement } from '@/types/growth';
 import { isWithinInterval, parseISO } from 'date-fns';
 import { useMemo } from 'react';
-import { useTable } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
-import { INDEX_IDS, useTinybaseIndexes } from '@/contexts/tinybase-indexes-context';
+import { useTable } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
+import {
+	INDEX_IDS,
+	useTinybaseIndexes,
+} from '@/contexts/tinybase-indexes-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { diaperChangeSchema } from '@/types/diaper';
 import { eventSchema } from '@/types/event';
@@ -36,7 +39,10 @@ export function useStatsData(
 	const diaperChangesTable = useTable(TABLE_IDS.DIAPER_CHANGES, store);
 	const feedingSessionsTable = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
 	const eventsTable = useTable(TABLE_IDS.EVENTS, store);
-	const growthMeasurementsTable = useTable(TABLE_IDS.GROWTH_MEASUREMENTS, store);
+	const growthMeasurementsTable = useTable(
+		TABLE_IDS.GROWTH_MEASUREMENTS,
+		store,
+	);
 
 	return useMemo(() => {
 		const getRowsInRange = <T>(

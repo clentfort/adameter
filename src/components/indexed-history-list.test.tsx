@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createIndexes, createStore } from 'tinybase';
-import { Provider } from "tinybase/ui-react";
-import { } from '@/hooks/use-tinybase-store';
+import { Provider } from 'tinybase/ui-react';
+import '@/hooks/use-tinybase-store';
 import { describe, expect, it } from 'vitest';
 import IndexedHistoryList from './indexed-history-list';
 

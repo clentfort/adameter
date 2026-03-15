@@ -1,7 +1,7 @@
 'use client';
 
-import { useMetric } from "tinybase/ui-react";
-import { } from '@/hooks/use-tinybase-store';
+import { useMetric } from 'tinybase/ui-react';
+import '@/hooks/use-tinybase-store';
 import {
 	METRIC_IDS,
 	useTinybaseMetrics,

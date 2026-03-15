@@ -8,9 +8,9 @@ import {
 } from '@testing-library/react';
 import { useContext } from 'react';
 import { createStore } from 'tinybase';
-import { useTable } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
+import { useTable } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
 import { expect, vi } from 'vitest';
 import { clear } from '@/lib/storage';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';

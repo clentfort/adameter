@@ -14,8 +14,8 @@ import {
 	saveServerSnapshot,
 } from 'tinybase-synchronizer-partykit-client-encrypted';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
-import { Provider } from "tinybase/ui-react";
-import { } from '@/hooks/use-tinybase-store';
+import { Provider } from 'tinybase/ui-react';
+import '@/hooks/use-tinybase-store';
 import { SplashScreen } from '@/components/splash-screen';
 import { logger } from '@/lib/logger';
 import { PARTYKIT_HOST, resolvePartykitHost } from '@/lib/partykit-host';

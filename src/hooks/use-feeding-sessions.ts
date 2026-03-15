@@ -1,9 +1,9 @@
 import type { Row } from 'tinybase';
 import type { FeedingSession } from '@/types/feeding';
 import { useMemo } from 'react';
-import { useTable } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
+import { useTable } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeFeedingSessionForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { feedingSessionSchema } from '@/types/feeding';

@@ -1,9 +1,9 @@
 import type { Row } from 'tinybase';
 import type { Event } from '@/types/event';
 import { useMemo } from 'react';
-import { useTable } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
+import { useTable } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeEventForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { eventSchema } from '@/types/event';

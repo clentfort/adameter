@@ -3,9 +3,9 @@
 import type { Metrics } from 'tinybase';
 import { createContext, useContext } from 'react';
 import { createMetrics } from 'tinybase';
-import { useCreateMetrics,  } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
+import { useCreateMetrics } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 
 /**

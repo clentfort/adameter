@@ -1,8 +1,8 @@
 import { fbt } from 'fbtee';
 import { useState } from 'react';
-import { useCell,  } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
+import { useCell } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';

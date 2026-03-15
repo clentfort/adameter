@@ -1,8 +1,8 @@
 import type { FeedingInProgress } from '@/types/feeding-in-progress';
 import { useCallback, useMemo } from 'react';
-import { useValue } from "tinybase/ui-react";
-import { useTinybaseStore } from "@/hooks/use-tinybase-store";
-import { } from '@/hooks/use-tinybase-store';
+import { useValue } from 'tinybase/ui-react';
+import { useTinybaseStore } from '@/hooks/use-tinybase-store';
+import '@/hooks/use-tinybase-store';
 import { STORE_VALUE_FEEDING_IN_PROGRESS } from '@/lib/tinybase-sync/constants';
 import { feedingInProgressSchema } from '@/types/feeding-in-progress';
 
