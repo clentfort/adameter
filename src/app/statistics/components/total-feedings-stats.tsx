@@ -14,7 +14,6 @@ export default function TotalFeedingsStats({
 	sessions = [],
 }: TotalFeedingsStatsProps) {
 	const start = performance.now();
-	if (sessions.length === 0) return null;
 
 	const { leftCount, prevLeftCount, prevRightCount, rightCount } = useMemo(() => {
 		const leftCount = sessions.filter((s) => s.breast === 'left').length;
@@ -29,6 +28,8 @@ export default function TotalFeedingsStats({
 
 		return { leftCount, prevLeftCount, prevRightCount, rightCount };
 	}, [sessions, comparisonSessions]);
+
+	if (sessions.length === 0) return null;
 
 	logger.log(
 		`[PERF] TotalFeedingsStats calculation took ${(performance.now() - start).toFixed(2)}ms`,

@@ -47,7 +47,6 @@ export default function TimeBetweenStats({
 	sessions = [],
 }: TimeBetweenStatsProps) {
 	const start = performance.now();
-	if (sessions.length <= 1) return null;
 
 	const avgTime = useMemo(() => calculateAvgTimeBetween(sessions), [sessions]);
 	const prevAvgTime = useMemo(
@@ -55,6 +54,8 @@ export default function TimeBetweenStats({
 			comparisonSessions ? calculateAvgTimeBetween(comparisonSessions) : null,
 		[comparisonSessions],
 	);
+
+	if (sessions.length <= 1) return null;
 
 	logger.log(
 		`[PERF] TimeBetweenStats calculation took ${(performance.now() - start).toFixed(2)}ms`,

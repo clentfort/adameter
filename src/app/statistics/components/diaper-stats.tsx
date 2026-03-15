@@ -118,27 +118,6 @@ export default function DiaperStats({
 	const [currency] = useCurrency();
 	const { locale } = useLanguage();
 
-	if (diaperChanges.length === 0) {
-		return (
-			<Card className="w-full">
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
-						<fbt desc="Title for the diaper statistics card">
-							Diaper Statistics
-						</fbt>
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
-					<p className="text-muted-foreground text-center py-4">
-						<fbt desc="Message shown when no diaper data is available for the selected time range">
-							No diaper data available for the selected time range.
-						</fbt>
-					</p>
-				</CardContent>
-			</Card>
-		);
-	}
-
 	const productCostById = useMemo(
 		() => createProductCostById(products),
 		[products],
@@ -217,6 +196,27 @@ export default function DiaperStats({
 		}),
 		[sortedBrands],
 	);
+
+	if (diaperChanges.length === 0) {
+		return (
+			<Card className="w-full">
+				<CardHeader className="p-4 pb-2">
+					<CardTitle className="text-base">
+						<fbt desc="Title for the diaper statistics card">
+							Diaper Statistics
+						</fbt>
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="p-4 pt-0">
+					<p className="text-muted-foreground text-center py-4">
+						<fbt desc="Message shown when no diaper data is available for the selected time range">
+							No diaper data available for the selected time range.
+						</fbt>
+					</p>
+				</CardContent>
+			</Card>
+		);
+	}
 
 	logger.log(
 		`[PERF] DiaperStats calculation took ${(performance.now() - start).toFixed(2)}ms`,

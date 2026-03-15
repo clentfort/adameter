@@ -87,10 +87,13 @@ export default function YearlyActivityHeatMap({
 }: YearlyActivityHeatMapProps) {
 	const start = performance.now();
 	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
-	const now = new Date();
-	const startDate = subYears(startOfDay(now), 1);
-	const gridStart = startOfWeek(startDate, { weekStartsOn: 0 });
-	const gridEnd = endOfWeek(now, { weekStartsOn: 0 });
+	const { gridEnd, gridStart, now, startDate } = useMemo(() => {
+		const now = new Date();
+		const startDate = subYears(startOfDay(now), 1);
+		const gridStart = startOfWeek(startDate, { weekStartsOn: 0 });
+		const gridEnd = endOfWeek(now, { weekStartsOn: 0 });
+		return { gridEnd, gridStart, now, startDate };
+	}, []);
 
 	const countsByDate = useMemo(
 		() =>

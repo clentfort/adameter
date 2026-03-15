@@ -34,7 +34,6 @@ export default function DiaperRecords({
 	diaperChanges = [],
 }: DiaperRecordsProps) {
 	const start = performance.now();
-	if (diaperChanges.length === 0) return null;
 
 	const todayKey = format(new Date(), 'yyyy-MM-dd');
 
@@ -56,7 +55,7 @@ export default function DiaperRecords({
 		return { fewestChanges, mostChanges };
 	}, [diaperChanges, todayKey]);
 
-	if (!mostChanges || !fewestChanges) return null;
+	if (diaperChanges.length === 0 || !mostChanges || !fewestChanges) return null;
 
 	logger.log(
 		`[PERF] DiaperRecords calculation took ${(performance.now() - start).toFixed(2)}ms`,

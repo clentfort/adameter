@@ -15,7 +15,6 @@ export default function TotalDurationStats({
 	sessions = [],
 }: TotalDurationStatsProps) {
 	const start = performance.now();
-	if (sessions.length === 0) return null;
 
 	// Calculate total duration
 	const totalDurationInSeconds = useMemo(
@@ -32,6 +31,8 @@ export default function TotalDurationStats({
 			),
 		[comparisonSessions],
 	);
+
+	if (sessions.length === 0) return null;
 
 	logger.log(
 		`[PERF] TotalDurationStats calculation took ${(performance.now() - start).toFixed(2)}ms`,

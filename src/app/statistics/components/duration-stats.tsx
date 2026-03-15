@@ -42,13 +42,14 @@ export default function DurationStats({
 	sessions = [],
 }: DurationStatsProps) {
 	const start = performance.now();
-	if (sessions.length === 0) return null;
 
 	const avgDuration = useMemo(() => calculateAvgDuration(sessions), [sessions]);
 	const prevAvgDuration = useMemo(
 		() => (comparisonSessions ? calculateAvgDuration(comparisonSessions) : null),
 		[comparisonSessions],
 	);
+
+	if (sessions.length === 0) return null;
 
 	logger.log(
 		`[PERF] DurationStats calculation took ${(performance.now() - start).toFixed(2)}ms`,

@@ -11,7 +11,6 @@ interface FeedingRecordsProps {
 
 export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 	const start = performance.now();
-	if (sessions.length === 0) return null;
 
 	const todayKey = format(new Date(), 'yyyy-MM-dd');
 
@@ -94,7 +93,7 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 		};
 	}, [sessions, todayKey]);
 
-	if (!mostSessions) return null;
+	if (sessions.length === 0 || !mostSessions) return null;
 
 	logger.log(
 		`[PERF] FeedingRecords calculation took ${(performance.now() - start).toFixed(2)}ms`,

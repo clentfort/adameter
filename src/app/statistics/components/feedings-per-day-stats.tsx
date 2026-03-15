@@ -37,7 +37,6 @@ export default function FeedingsPerDayStats({
 	sessions = [],
 }: FeedingsPerDayStatsProps) {
 	const start = performance.now();
-	if (sessions.length === 0) return null;
 
 	const avgFeedingsPerDay = useMemo(
 		() => calculateAvgFeedingsPerDay(sessions),
@@ -48,6 +47,8 @@ export default function FeedingsPerDayStats({
 			comparisonSessions ? calculateAvgFeedingsPerDay(comparisonSessions) : null,
 		[comparisonSessions],
 	);
+
+	if (sessions.length === 0) return null;
 
 	logger.log(
 		`[PERF] FeedingsPerDayStats calculation took ${(performance.now() - start).toFixed(2)}ms`,

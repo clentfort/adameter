@@ -25,7 +25,6 @@ const INTENSITY_CLASSES = [
 
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	const start = performance.now();
-	if (sessions.length === 0) return null;
 
 	// Calculate time distribution (5-minute intervals)
 	const distribution = useMemo(() => {
@@ -67,8 +66,6 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	// Find the maximum count for scaling
 	const maxCount = useMemo(() => Math.max(...distribution), [distribution]);
 
-	if (maxCount === 0) return null;
-
 	// Create display intervals
 	const displayIntervals = useMemo(
 		() =>
@@ -85,6 +82,8 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 			}),
 		[distribution],
 	);
+
+	if (sessions.length === 0 || maxCount === 0) return null;
 
 	logger.log(
 		`[PERF] HeatMap calculation took ${(performance.now() - start).toFixed(2)}ms`,
