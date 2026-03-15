@@ -1,9 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-	encrypt,
-	getEncryptionKey,
-	jsonStringWithUndefined,
-} from './crypto';
+import { encrypt, getEncryptionKey, jsonStringWithUndefined } from './crypto';
 import {
 	createEncryptedPartyKitSynchronizer,
 	getStoreUrl,
@@ -292,7 +288,8 @@ describe('createEncryptedPartyKitSynchronizer', () => {
 		);
 
 		expect(mockCreateCustomSynchronizer).toHaveBeenCalled();
-		const [, send, registerReceive] = mockCreateCustomSynchronizer.mock.calls[0];
+		const [, send, registerReceive] =
+			mockCreateCustomSynchronizer.mock.calls[0];
 
 		// Test send
 		await send('client-a', 'req-1', 1, { data: 'payload' });
@@ -340,7 +337,8 @@ describe('createEncryptedPartyKitSynchronizer', () => {
 			onIgnoredError,
 		);
 
-		const [, send, registerReceive] = mockCreateCustomSynchronizer.mock.calls[0];
+		const [, send, registerReceive] =
+			mockCreateCustomSynchronizer.mock.calls[0];
 
 		// Send error (async)
 		await send('client-a', 'req-1', 1, { data: 'payload' });
