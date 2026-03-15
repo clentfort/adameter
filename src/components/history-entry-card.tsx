@@ -54,9 +54,7 @@ export default function HistoryEntryCard({
 		>
 			<div className="flex justify-between items-start">
 				<div className="flex-1 min-w-0">
-					<div className="text-lg font-medium leading-tight">
-						{header}
-					</div>
+					<div className="text-lg font-medium leading-tight">{header}</div>
 					{formattedTime && (
 						<div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
 							{formattedTime}
