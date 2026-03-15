@@ -12,6 +12,7 @@ import {
 } from 'date-fns';
 import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
+import { logger } from '@/lib/logger';
 import { useProfile } from '@/hooks/use-profile';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 import { useTeethSnapshot } from '@/hooks/use-teething';
@@ -29,6 +30,7 @@ export default function FeedingActivityChart({
 	secondaryRange,
 	sessions,
 }: FeedingActivityChartProps) {
+	const start = performance.now();
 	const [profile] = useProfile();
 	const teeth = useTeethSnapshot();
 	const [showComparisonCharts] = useShowComparisonCharts();
@@ -195,6 +197,10 @@ export default function FeedingActivityChart({
 			})
 			.filter(Boolean) as { color?: string; label?: string; x: number }[];
 	}, [teeth, effectivePrimaryFrom, primaryRange.to]);
+
+	logger.log(
+		`[PERF] FeedingActivityChart calculation took ${(performance.now() - start).toFixed(2)}ms`,
+	);
 
 	return (
 		<div className={className}>

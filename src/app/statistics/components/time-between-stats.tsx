@@ -1,5 +1,7 @@
 import type { FeedingSession } from '@/types/feeding';
+import { useMemo } from 'react';
 import { differenceInSeconds } from 'date-fns';
+import { logger } from '@/lib/logger';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
@@ -44,12 +46,19 @@ export default function TimeBetweenStats({
 	comparisonSessions,
 	sessions = [],
 }: TimeBetweenStatsProps) {
+	const start = performance.now();
 	if (sessions.length <= 1) return null;
 
-	const avgTime = calculateAvgTimeBetween(sessions);
-	const prevAvgTime = comparisonSessions
-		? calculateAvgTimeBetween(comparisonSessions)
-		: null;
+	const avgTime = useMemo(() => calculateAvgTimeBetween(sessions), [sessions]);
+	const prevAvgTime = useMemo(
+		() =>
+			comparisonSessions ? calculateAvgTimeBetween(comparisonSessions) : null,
+		[comparisonSessions],
+	);
+
+	logger.log(
+		`[PERF] TimeBetweenStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
+	);
 
 	return (
 		<StatsCard

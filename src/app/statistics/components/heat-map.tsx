@@ -1,4 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
+import { useMemo } from 'react';
 import {
 	Card,
 	CardContent,
@@ -6,6 +7,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 interface HeatMapProps {
 	className?: string;
@@ -22,58 +24,71 @@ const INTENSITY_CLASSES = [
 ] as const;
 
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
+	const start = performance.now();
 	if (sessions.length === 0) return null;
 
 	// Calculate time distribution (5-minute intervals)
-	const distribution = Array(288).fill(0); // 288 5-minute intervals in a day
+	const distribution = useMemo(() => {
+		const dist = Array(288).fill(0); // 288 5-minute intervals in a day
 
-	sessions.forEach((session) => {
-		const startTime = new Date(session.startTime);
-		const endTime = new Date(session.endTime);
+		sessions.forEach((session) => {
+			const startTime = new Date(session.startTime);
+			const endTime = new Date(session.endTime);
 
-		// Calculate which 5-minute intervals this session spans
-		const startMinuteOfDay = startTime.getHours() * 60 + startTime.getMinutes();
-		const endMinuteOfDay = endTime.getHours() * 60 + endTime.getMinutes();
+			// Calculate which 5-minute intervals this session spans
+			const startMinuteOfDay =
+				startTime.getHours() * 60 + startTime.getMinutes();
+			const endMinuteOfDay = endTime.getHours() * 60 + endTime.getMinutes();
 
-		// Handle sessions that span midnight
-		const startInterval = Math.floor(startMinuteOfDay / 5);
-		let endInterval = Math.floor(endMinuteOfDay / 5);
+			// Handle sessions that span midnight
+			const startInterval = Math.floor(startMinuteOfDay / 5);
+			let endInterval = Math.floor(endMinuteOfDay / 5);
 
-		if (endInterval < startInterval) {
-			// Session crosses midnight
-			endInterval += 288;
-		}
-
-		// Mark all intervals that this session spans
-		for (let i = startInterval; i <= Math.min(endInterval, 287); i++) {
-			distribution[i % 288]++;
-		}
-
-		// If session crosses midnight, continue from the beginning of the day
-		if (endInterval > 287) {
-			for (let i = 0; i <= endInterval - 288; i++) {
-				distribution[i]++;
+			if (endInterval < startInterval) {
+				// Session crosses midnight
+				endInterval += 288;
 			}
-		}
-	});
+
+			// Mark all intervals that this session spans
+			for (let i = startInterval; i <= Math.min(endInterval, 287); i++) {
+				dist[i % 288]++;
+			}
+
+			// If session crosses midnight, continue from the beginning of the day
+			if (endInterval > 287) {
+				for (let i = 0; i <= endInterval - 288; i++) {
+					dist[i]++;
+				}
+			}
+		});
+		return dist;
+	}, [sessions]);
 
 	// Find the maximum count for scaling
-	const maxCount = Math.max(...distribution);
+	const maxCount = useMemo(() => Math.max(...distribution), [distribution]);
 
 	if (maxCount === 0) return null;
 
 	// Create display intervals
-	const displayIntervals = distribution.map((count, i) => {
-		const hour = Math.floor((i * 5) / 60);
-		const minute = (i * 5) % 60;
-		const timeLabel = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+	const displayIntervals = useMemo(
+		() =>
+			distribution.map((count, i) => {
+				const hour = Math.floor((i * 5) / 60);
+				const minute = (i * 5) % 60;
+				const timeLabel = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 
-		return {
-			count,
-			index: i,
-			time: timeLabel,
-		};
-	});
+				return {
+					count,
+					index: i,
+					time: timeLabel,
+				};
+			}),
+		[distribution],
+	);
+
+	logger.log(
+		`[PERF] HeatMap calculation took ${(performance.now() - start).toFixed(2)}ms`,
+	);
 
 	return (
 		<Card className={className}>

@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
 import { useCurrency } from '@/hooks/use-currency';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
+import { logger } from '@/lib/logger';
 
 interface DiaperCostChartProps {
 	className?: string;
@@ -22,6 +23,7 @@ export default function DiaperCostChart({
 	products,
 	secondaryRange,
 }: DiaperCostChartProps) {
+	const start = performance.now();
 	const [currency] = useCurrency();
 	const [showComparisonCharts] = useShowComparisonCharts();
 
@@ -139,6 +141,10 @@ export default function DiaperCostChart({
 		productCostById,
 		showComparisonCharts,
 	]);
+
+	logger.log(
+		`[PERF] DiaperCostChart calculation took ${(performance.now() - start).toFixed(2)}ms`,
+	);
 
 	return (
 		<div className={className}>

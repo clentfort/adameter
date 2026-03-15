@@ -1,8 +1,10 @@
 'use client';
 
 import type { DiaperChange } from '@/types/diaper';
+import { useMemo } from 'react';
 import { differenceInDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 import ComparisonValue from './comparison-value';
 
 interface PottyStatsProps {
@@ -50,10 +52,22 @@ export default function PottyStats({
 	comparisonDiaperChanges,
 	diaperChanges = [],
 }: PottyStatsProps) {
-	const metrics = calculatePottyMetrics(diaperChanges);
-	const prevMetrics = comparisonDiaperChanges
-		? calculatePottyMetrics(comparisonDiaperChanges)
-		: null;
+	const start = performance.now();
+	const metrics = useMemo(
+		() => calculatePottyMetrics(diaperChanges),
+		[diaperChanges],
+	);
+	const prevMetrics = useMemo(
+		() =>
+			comparisonDiaperChanges
+				? calculatePottyMetrics(comparisonDiaperChanges)
+				: null,
+		[comparisonDiaperChanges],
+	);
+
+	logger.log(
+		`[PERF] PottyStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
+	);
 
 	const { hitsPerDay, pottyStool, pottyUrine, totalPottyHits } = metrics;
 

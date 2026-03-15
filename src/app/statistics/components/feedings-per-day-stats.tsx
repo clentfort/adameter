@@ -1,5 +1,7 @@
 import type { FeedingSession } from '@/types/feeding';
+import { useMemo } from 'react';
 import { format } from 'date-fns';
+import { logger } from '@/lib/logger';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
@@ -34,12 +36,22 @@ export default function FeedingsPerDayStats({
 	comparisonSessions,
 	sessions = [],
 }: FeedingsPerDayStatsProps) {
+	const start = performance.now();
 	if (sessions.length === 0) return null;
 
-	const avgFeedingsPerDay = calculateAvgFeedingsPerDay(sessions);
-	const prevAvgFeedingsPerDay = comparisonSessions
-		? calculateAvgFeedingsPerDay(comparisonSessions)
-		: null;
+	const avgFeedingsPerDay = useMemo(
+		() => calculateAvgFeedingsPerDay(sessions),
+		[sessions],
+	);
+	const prevAvgFeedingsPerDay = useMemo(
+		() =>
+			comparisonSessions ? calculateAvgFeedingsPerDay(comparisonSessions) : null,
+		[comparisonSessions],
+	);
+
+	logger.log(
+		`[PERF] FeedingsPerDayStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
+	);
 
 	return (
 		<StatsCard

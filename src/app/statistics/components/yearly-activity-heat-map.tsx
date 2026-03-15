@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useMemo } from 'react';
 import {
 	differenceInCalendarWeeks,
 	eachDayOfInterval,
@@ -18,6 +19,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 import { cn } from '@/lib/utils';
 
 interface YearlyActivityHeatMapProps {
@@ -83,27 +85,32 @@ export default function YearlyActivityHeatMap({
 	palette = 'feeding',
 	title,
 }: YearlyActivityHeatMapProps) {
+	const start = performance.now();
 	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
 	const now = new Date();
 	const startDate = subYears(startOfDay(now), 1);
 	const gridStart = startOfWeek(startDate, { weekStartsOn: 0 });
 	const gridEnd = endOfWeek(now, { weekStartsOn: 0 });
 
-	const countsByDate = dates
-		.map((value) => new Date(value))
-		.filter((date) => {
-			if (Number.isNaN(date.getTime())) return false;
-			return isWithinInterval(date, {
-				end: endOfDay(now),
-				start: startDate,
-			});
-		})
-		.reduce<Map<string, number>>((accumulator, date) => {
-			const key = format(date, 'yyyy-MM-dd');
-			const current = accumulator.get(key) ?? 0;
-			accumulator.set(key, current + 1);
-			return accumulator;
-		}, new Map());
+	const countsByDate = useMemo(
+		() =>
+			dates
+				.map((value) => new Date(value))
+				.filter((date) => {
+					if (Number.isNaN(date.getTime())) return false;
+					return isWithinInterval(date, {
+						end: endOfDay(now),
+						start: startDate,
+					});
+				})
+				.reduce<Map<string, number>>((accumulator, date) => {
+					const key = format(date, 'yyyy-MM-dd');
+					const current = accumulator.get(key) ?? 0;
+					accumulator.set(key, current + 1);
+					return accumulator;
+				}, new Map()),
+		[dates, now, startDate],
+	);
 
 	const maxCount = Math.max(0, ...countsByDate.values());
 	const weekCount =
@@ -125,19 +132,25 @@ export default function YearlyActivityHeatMap({
 	});
 
 	const todayKey = format(now, 'yyyy-MM-dd');
-	const cells = eachDayOfInterval({ end: gridEnd, start: gridStart }).map(
-		(day) => {
-			const key = format(day, 'yyyy-MM-dd');
-			const count = countsByDate.get(key) ?? 0;
+	const cells = useMemo(
+		() =>
+			eachDayOfInterval({ end: gridEnd, start: gridStart }).map((day) => {
+				const key = format(day, 'yyyy-MM-dd');
+				const count = countsByDate.get(key) ?? 0;
 
-			return {
-				count,
-				isToday: key === todayKey,
-				key,
-				level: getContributionLevel(count, maxCount),
-				title: `${format(day, 'PPP')}: ${count}`,
-			};
-		},
+				return {
+					count,
+					isToday: key === todayKey,
+					key,
+					level: getContributionLevel(count, maxCount),
+					title: `${format(day, 'PPP')}: ${count}`,
+				};
+			}),
+		[gridEnd, gridStart, countsByDate, todayKey, maxCount],
+	);
+
+	logger.log(
+		`[PERF] YearlyActivityHeatMap calculation took ${(performance.now() - start).toFixed(2)}ms`,
 	);
 
 	const content = (

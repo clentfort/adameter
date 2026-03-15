@@ -6,6 +6,7 @@ import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
 import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
+import { logger } from '@/lib/logger';
 
 interface DiaperActivityChartProps {
 	className?: string;
@@ -20,6 +21,7 @@ export default function DiaperActivityChart({
 	primaryRange,
 	secondaryRange,
 }: DiaperActivityChartProps) {
+	const start = performance.now();
 	const [showComparisonCharts] = useShowComparisonCharts();
 
 	const { datasets, labels } = useMemo(() => {
@@ -135,6 +137,10 @@ export default function DiaperActivityChart({
 
 		return { datasets, labels };
 	}, [diaperChanges, primaryRange, secondaryRange, showComparisonCharts]);
+
+	logger.log(
+		`[PERF] DiaperActivityChart calculation took ${(performance.now() - start).toFixed(2)}ms`,
+	);
 
 	return (
 		<div className={className}>

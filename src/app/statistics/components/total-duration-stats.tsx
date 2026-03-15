@@ -1,4 +1,6 @@
 import type { FeedingSession } from '@/types/feeding';
+import { useMemo } from 'react';
+import { logger } from '@/lib/logger';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
@@ -12,17 +14,27 @@ export default function TotalDurationStats({
 	comparisonSessions,
 	sessions = [],
 }: TotalDurationStatsProps) {
+	const start = performance.now();
 	if (sessions.length === 0) return null;
 
 	// Calculate total duration
-	const totalDurationInSeconds = sessions.reduce(
-		(sum, session) => sum + session.durationInSeconds,
-		0,
+	const totalDurationInSeconds = useMemo(
+		() =>
+			sessions.reduce((sum, session) => sum + session.durationInSeconds, 0),
+		[sessions],
 	);
 
-	const prevTotalDurationInSeconds = comparisonSessions?.reduce(
-		(sum, session) => sum + session.durationInSeconds,
-		0,
+	const prevTotalDurationInSeconds = useMemo(
+		() =>
+			comparisonSessions?.reduce(
+				(sum, session) => sum + session.durationInSeconds,
+				0,
+			),
+		[comparisonSessions],
+	);
+
+	logger.log(
+		`[PERF] TotalDurationStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
 	);
 
 	return (

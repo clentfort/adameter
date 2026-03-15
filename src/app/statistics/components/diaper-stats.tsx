@@ -2,11 +2,13 @@
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
+import { useMemo } from 'react';
 import PieChart from '@/components/charts/pie-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
+import { logger } from '@/lib/logger';
 import ComparisonValue from './comparison-value';
 
 interface DiaperStatsProps {
@@ -112,6 +114,7 @@ export default function DiaperStats({
 	diaperChanges = [],
 	products = [],
 }: DiaperStatsProps) {
+	const start = performance.now();
 	const [currency] = useCurrency();
 	const { locale } = useLanguage();
 
@@ -136,13 +139,23 @@ export default function DiaperStats({
 		);
 	}
 
-	const productCostById = createProductCostById(products);
-	const productById = createProductById(products);
+	const productCostById = useMemo(
+		() => createProductCostById(products),
+		[products],
+	);
+	const productById = useMemo(() => createProductById(products), [products]);
 
-	const metrics = calculateDiaperMetrics(diaperChanges, productCostById);
-	const prevMetrics = comparisonDiaperChanges
-		? calculateDiaperMetrics(comparisonDiaperChanges, productCostById)
-		: null;
+	const metrics = useMemo(
+		() => calculateDiaperMetrics(diaperChanges, productCostById),
+		[diaperChanges, productCostById],
+	);
+	const prevMetrics = useMemo(
+		() =>
+			comparisonDiaperChanges
+				? calculateDiaperMetrics(comparisonDiaperChanges, productCostById)
+				: null,
+		[comparisonDiaperChanges, productCostById],
+	);
 
 	const {
 		changesPerDay,
@@ -191,16 +204,23 @@ export default function DiaperStats({
 		.sort(([, countA], [, countB]) => countB.total - countA.total)
 		.slice(0, 5);
 
-	const pieData = {
-		datasets: [
-			{
-				backgroundColor: BRAND_COLORS,
-				data: sortedBrands.map(([, stats]) => stats.total),
-				label: 'Diaper Brands',
-			},
-		],
-		labels: sortedBrands.map(([brand]) => brand),
-	};
+	const pieData = useMemo(
+		() => ({
+			datasets: [
+				{
+					backgroundColor: BRAND_COLORS,
+					data: sortedBrands.map(([, stats]) => stats.total),
+					label: 'Diaper Brands',
+				},
+			],
+			labels: sortedBrands.map(([brand]) => brand),
+		}),
+		[sortedBrands],
+	);
+
+	logger.log(
+		`[PERF] DiaperStats calculation took ${(performance.now() - start).toFixed(2)}ms`,
+	);
 
 	return (
 		<Card className="w-full">
