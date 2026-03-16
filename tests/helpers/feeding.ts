@@ -42,7 +42,7 @@ export async function addManualFeedingEntry(
 	await expect(async () => {
 		if (await entry.isVisible()) return;
 
-		const clearButton = page.getByTitle('Clear filter');
+		const clearButton = page.getByRole('link', { name: 'Clear Filter' });
 		if (await clearButton.isVisible()) {
 			await clearButton.click();
 		}

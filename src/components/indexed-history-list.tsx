@@ -40,6 +40,8 @@ interface IndexedHistoryListProps {
 	hasMoreOlderInStore?: boolean;
 	indexes: Indexes | undefined;
 	indexId: string;
+	newerRangeDescription?: string;
+	olderRangeDescription?: string;
 	onLoadMoreNewer?: () => void;
 	onLoadMoreOlder?: () => void;
 }
@@ -56,6 +58,8 @@ export default function IndexedHistoryList({
 	hasMoreOlderInStore,
 	indexes,
 	indexId,
+	newerRangeDescription,
+	olderRangeDescription,
 	onLoadMoreNewer,
 	onLoadMoreOlder,
 }: IndexedHistoryListProps) {
@@ -99,13 +103,18 @@ export default function IndexedHistoryList({
 			{hasMoreNewerInStore && onLoadMoreNewer && (
 				<div className="flex justify-center">
 					<button
-						className="text-sm font-medium text-primary hover:underline"
-						onClick={onLoadMoreNewer}
+						className="text-xs font-medium text-primary hover:underline bg-primary/5 px-4 py-2 rounded-full border border-primary/10 transition-colors hover:bg-primary/10 flex flex-col items-center"
+						onClick={() => onLoadMoreNewer()}
 						type="button"
 					>
 						<fbt desc="Button label to load newer history entries in the history list">
 							Show newer entries
 						</fbt>
+						{newerRangeDescription && (
+							<span className="text-[10px] opacity-70">
+								{newerRangeDescription}
+							</span>
+						)}
 					</button>
 				</div>
 			)}
@@ -139,13 +148,18 @@ export default function IndexedHistoryList({
 						</p>
 					)}
 					<button
-						className="text-sm font-medium text-primary hover:underline"
+						className="text-xs font-medium text-primary hover:underline bg-primary/5 px-4 py-2 rounded-full border border-primary/10 transition-colors hover:bg-primary/10 flex flex-col items-center"
 						onClick={handleShowOlderEntries}
 						type="button"
 					>
 						<fbt desc="Button label to load older history entries in the history list">
 							Show older entries
 						</fbt>
+						{olderRangeDescription && (
+							<span className="text-[10px] opacity-70">
+								{olderRangeDescription}
+							</span>
+						)}
 					</button>
 				</div>
 			)}

@@ -1,4 +1,11 @@
-import { addDays, endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
+import {
+	addDays,
+	endOfDay,
+	format,
+	parseISO,
+	startOfDay,
+	subDays,
+} from 'date-fns';
 import { fbt } from 'fbtee';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
@@ -182,6 +189,7 @@ export default function DiaperHistoryList() {
 	const from = searchParams.get('from');
 	const to = searchParams.get('to');
 	const eventTitle = searchParams.get('event');
+	const eventColor = searchParams.get('color');
 
 	const effectiveRange = useMemo(() => {
 		if (from && to) {
@@ -225,18 +233,35 @@ export default function DiaperHistoryList() {
 	);
 
 	const handleLoadMoreNewer = () => {
-		updateRange(effectiveRange.from, addDays(effectiveRange.to, 7));
+		const nextTo = addDays(effectiveRange.to, 7);
+		updateRange(effectiveRange.from, nextTo);
 	};
 
 	const handleLoadMoreOlder = () => {
-		updateRange(subDays(effectiveRange.from, 7), effectiveRange.to);
+		const nextFrom = subDays(effectiveRange.from, 7);
+		updateRange(nextFrom, effectiveRange.to);
 	};
+
+	const newerRangeDescription = useMemo(() => {
+		if (!hasMoreNewerInStore) return undefined;
+		const nextTo = addDays(effectiveRange.to, 7);
+		const start = addDays(effectiveRange.to, 1);
+		return `${format(start, 'MMM d')} - ${format(nextTo, 'MMM d')}`;
+	}, [hasMoreNewerInStore, effectiveRange.to]);
+
+	const olderRangeDescription = useMemo(() => {
+		if (!hasMoreOlderInStore) return undefined;
+		const nextFrom = subDays(effectiveRange.from, 7);
+		const end = subDays(effectiveRange.from, 1);
+		return `${format(nextFrom, 'MMM d')} - ${format(end, 'MMM d')}`;
+	}, [hasMoreOlderInStore, effectiveRange.from]);
 
 	return (
 		<>
 			{(from || to) && (
 				<HistoryFilterIndicator
 					baseUrl="/diaper"
+					color={eventColor}
 					eventTitle={eventTitle}
 					from={effectiveRange.from.toISOString()}
 					to={effectiveRange.to.toISOString()}
@@ -249,6 +274,8 @@ export default function DiaperHistoryList() {
 				hasMoreOlderInStore={hasMoreOlderInStore}
 				indexes={indexes}
 				indexId={indexId}
+				newerRangeDescription={newerRangeDescription}
+				olderRangeDescription={olderRangeDescription}
 				onLoadMoreNewer={handleLoadMoreNewer}
 				onLoadMoreOlder={handleLoadMoreOlder}
 			>

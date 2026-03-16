@@ -34,14 +34,16 @@ function EventListItem({
 	const endDate = event.endDate ? new Date(event.endDate) : null;
 	const isOngoing = event.type === 'period' && !event.endDate;
 
-	const extraActions = event.type === 'period' && (
+	const extraActions = (
 		<>
 			<DropdownMenuItem
 				onClick={() =>
 					router.push(
 						`/feeding?from=${event.startDate}&to=${
-							event.endDate || new Date().toISOString()
-						}&event=${encodeURIComponent(event.title)}`,
+							event.endDate || event.startDate
+						}&event=${encodeURIComponent(event.title)}${
+							event.color ? `&color=${encodeURIComponent(event.color)}` : ''
+						}`,
 					)
 				}
 			>
@@ -54,8 +56,10 @@ function EventListItem({
 				onClick={() =>
 					router.push(
 						`/diaper?from=${event.startDate}&to=${
-							event.endDate || new Date().toISOString()
-						}&event=${encodeURIComponent(event.title)}`,
+							event.endDate || event.startDate
+						}&event=${encodeURIComponent(event.title)}${
+							event.color ? `&color=${encodeURIComponent(event.color)}` : ''
+						}`,
 					)
 				}
 			>

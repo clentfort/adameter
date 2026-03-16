@@ -2,8 +2,10 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import { PlusCircle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import ReactConfetti from 'react-confetti';
+import HistoryRangeSelector from '@/components/history-range-selector';
 import { Button } from '@/components/ui/button';
 import { useUpsertDiaperChange } from '@/hooks/use-diaper-changes';
 import { useDiaperChangesTotal } from '@/hooks/use-tinybase-metrics';
@@ -19,6 +21,15 @@ export default function DiaperPage() {
 	const totalChanges = useDiaperChangesTotal();
 	const upsertDiaperChange = useUpsertDiaperChange();
 	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
+	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	const handleRangeChange = (from: string, to: string) => {
+		const params = new URLSearchParams(searchParams.toString());
+		params.set('from', from);
+		params.set('to', to);
+		router.push(`/diaper?${params.toString()}`);
+	};
 
 	const checkAndTriggerConfetti = (
 		change: DiaperChange,
@@ -60,14 +71,17 @@ export default function DiaperPage() {
 									History
 								</fbt>
 							</h2>
-							<Button
-								onClick={() => setIsAddEntryDialogOpen(true)}
-								size="sm"
-								variant="outline"
-							>
-								<PlusCircle className="h-4 w-4 mr-1" />
-								<fbt common>Add Entry</fbt>
-							</Button>
+							<div className="flex items-center gap-2">
+								<HistoryRangeSelector onRangeChange={handleRangeChange} />
+								<Button
+									onClick={() => setIsAddEntryDialogOpen(true)}
+									size="sm"
+									variant="outline"
+								>
+									<PlusCircle className="h-4 w-4 mr-1" />
+									<fbt common>Add Entry</fbt>
+								</Button>
+							</div>
 						</div>
 						<DiaperHistoryList />
 					</div>

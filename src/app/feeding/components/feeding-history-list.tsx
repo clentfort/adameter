@@ -2,6 +2,7 @@ import type { FeedingSession } from '@/types/feeding';
 import {
 	addDays,
 	endOfDay,
+	format,
 	isSameDay,
 	parseISO,
 	startOfDay,
@@ -113,6 +114,7 @@ export default function HistoryList({
 	const from = searchParams.get('from');
 	const to = searchParams.get('to');
 	const eventTitle = searchParams.get('event');
+	const eventColor = searchParams.get('color');
 
 	const effectiveRange = useMemo(() => {
 		if (from && to) {
@@ -156,18 +158,35 @@ export default function HistoryList({
 	);
 
 	const handleLoadMoreNewer = () => {
-		updateRange(effectiveRange.from, addDays(effectiveRange.to, 7));
+		const nextTo = addDays(effectiveRange.to, 7);
+		updateRange(effectiveRange.from, nextTo);
 	};
 
 	const handleLoadMoreOlder = () => {
-		updateRange(subDays(effectiveRange.from, 7), effectiveRange.to);
+		const nextFrom = subDays(effectiveRange.from, 7);
+		updateRange(nextFrom, effectiveRange.to);
 	};
+
+	const newerRangeDescription = useMemo(() => {
+		if (!hasMoreNewerInStore) return undefined;
+		const nextTo = addDays(effectiveRange.to, 7);
+		const start = addDays(effectiveRange.to, 1);
+		return `${format(start, 'MMM d')} - ${format(nextTo, 'MMM d')}`;
+	}, [hasMoreNewerInStore, effectiveRange.to]);
+
+	const olderRangeDescription = useMemo(() => {
+		if (!hasMoreOlderInStore) return undefined;
+		const nextFrom = subDays(effectiveRange.from, 7);
+		const end = subDays(effectiveRange.from, 1);
+		return `${format(nextFrom, 'MMM d')} - ${format(end, 'MMM d')}`;
+	}, [hasMoreOlderInStore, effectiveRange.from]);
 
 	return (
 		<>
 			{(from || to) && (
 				<HistoryFilterIndicator
 					baseUrl="/feeding"
+					color={eventColor}
 					eventTitle={eventTitle}
 					from={effectiveRange.from.toISOString()}
 					to={effectiveRange.to.toISOString()}
@@ -180,6 +199,8 @@ export default function HistoryList({
 				hasMoreOlderInStore={hasMoreOlderInStore}
 				indexes={indexes}
 				indexId={indexId}
+				newerRangeDescription={newerRangeDescription}
+				olderRangeDescription={olderRangeDescription}
 				onLoadMoreNewer={handleLoadMoreNewer}
 				onLoadMoreOlder={handleLoadMoreOlder}
 			>
