@@ -58,7 +58,7 @@ export async function addManualFeedingEntry(
 		}
 
 		expect(await entry.isVisible()).toBeTruthy();
-	}).toPass({ timeout: 10000 });
+	}).toPass({ timeout: 10_000 });
 }
 
 export async function addTimerFeedingEntry(
