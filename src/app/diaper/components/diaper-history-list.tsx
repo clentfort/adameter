@@ -8,7 +8,7 @@ import {
 } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
@@ -227,10 +227,17 @@ export default function DiaperHistoryList() {
 			const params = new URLSearchParams(searchParams.toString());
 			params.set('from', newFrom.toISOString());
 			params.set('to', newTo.toISOString());
-			router.push(`/diaper?${params.toString()}`);
+			router.replace(`/diaper?${params.toString()}`, { scroll: false });
 		},
 		[router, searchParams],
 	);
+
+	// Sync default range to URL if missing
+	useEffect(() => {
+		if (!from || !to) {
+			updateRange(effectiveRange.from, effectiveRange.to);
+		}
+	}, [from, to, effectiveRange.from, effectiveRange.to, updateRange]);
 
 	const handleLoadMoreNewer = () => {
 		const nextTo = addDays(effectiveRange.to, 7);

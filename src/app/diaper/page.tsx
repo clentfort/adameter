@@ -28,7 +28,7 @@ export default function DiaperPage() {
 		const params = new URLSearchParams(searchParams.toString());
 		params.set('from', from);
 		params.set('to', to);
-		router.push(`/diaper?${params.toString()}`);
+		router.replace(`/diaper?${params.toString()}`, { scroll: false });
 	};
 
 	const checkAndTriggerConfetti = (
@@ -72,7 +72,11 @@ export default function DiaperPage() {
 								</fbt>
 							</h2>
 						<div className="flex items-center gap-2">
-							<HistoryRangeSelector onRangeChange={handleRangeChange} />
+							<HistoryRangeSelector
+								from={searchParams.get('from')}
+								onRangeChange={handleRangeChange}
+								to={searchParams.get('to')}
+							/>
 							<Button
 								onClick={() => setIsAddEntryDialogOpen(true)}
 								size="sm"

@@ -9,7 +9,7 @@ import {
 	subDays,
 } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import HistoryFilterIndicator from '@/components/history-filter-indicator';
@@ -152,10 +152,17 @@ export default function HistoryList({
 			const params = new URLSearchParams(searchParams.toString());
 			params.set('from', newFrom.toISOString());
 			params.set('to', newTo.toISOString());
-			router.push(`/feeding?${params.toString()}`);
+			router.replace(`/feeding?${params.toString()}`, { scroll: false });
 		},
 		[router, searchParams],
 	);
+
+	// Sync default range to URL if missing
+	useEffect(() => {
+		if (!from || !to) {
+			updateRange(effectiveRange.from, effectiveRange.to);
+		}
+	}, [from, to, effectiveRange.from, effectiveRange.to, updateRange]);
 
 	const handleLoadMoreNewer = () => {
 		const nextTo = addDays(effectiveRange.to, 7);

@@ -28,7 +28,7 @@ export default function Feedings() {
 		const params = new URLSearchParams(searchParams.toString());
 		params.set('from', from);
 		params.set('to', to);
-		router.push(`/feeding?${params.toString()}`);
+		router.replace(`/feeding?${params.toString()}`, { scroll: false });
 	};
 
 	return (
@@ -49,7 +49,11 @@ export default function Feedings() {
 							</fbt>
 						</h2>
 						<div className="flex items-center gap-2">
-							<HistoryRangeSelector onRangeChange={handleRangeChange} />
+							<HistoryRangeSelector
+								from={searchParams.get('from')}
+								onRangeChange={handleRangeChange}
+								to={searchParams.get('to')}
+							/>
 							<Button
 								onClick={() => setIsAddEntryDialogOpen(true)}
 								size="sm"

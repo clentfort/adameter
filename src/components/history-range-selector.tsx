@@ -1,7 +1,8 @@
 'use client';
 
+import { parseISO } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { Button, buttonVariants } from './ui/button';
@@ -10,16 +11,29 @@ import { Label } from './ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 interface HistoryRangeSelectorProps {
+	from?: string | null;
 	onRangeChange: (from: string, to: string) => void;
+	to?: string | null;
 }
 
 export default function HistoryRangeSelector({
+	from,
 	onRangeChange,
+	to,
 }: HistoryRangeSelectorProps) {
 	const [customRange, setCustomRange] = useState({
 		from: dateToDateInputValue(new Date()),
 		to: dateToDateInputValue(new Date()),
 	});
+
+	useEffect(() => {
+		if (from && to) {
+			setCustomRange({
+				from: dateToDateInputValue(parseISO(from)),
+				to: dateToDateInputValue(parseISO(to)),
+			});
+		}
+	}, [from, to]);
 
 	return (
 		<Popover>
