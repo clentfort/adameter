@@ -56,7 +56,6 @@ describe('HeatMap', () => {
 		}
 	});
 
-
 	it('renders time markers and legend', () => {
 		const { container } = render(<HeatMap sessions={mockSessions} />);
 		const heatMapCard = container.firstChild as HTMLElement;
@@ -129,9 +128,7 @@ describe('HeatMap', () => {
 					'.bg-foreground .font-bold.opacity-80.uppercase',
 				),
 			).toHaveTextContent('00:00 Uhr');
-			expect(
-				within(heatMapCard).getByText('2 Mahlzeiten'),
-			).toBeInTheDocument();
+			expect(within(heatMapCard).getByText('2 Mahlzeiten')).toBeInTheDocument();
 
 			// Simulate pointer move over another interval
 			fireEvent.pointerMove(heatMapContainer, { clientX: 10, clientY: 80 });

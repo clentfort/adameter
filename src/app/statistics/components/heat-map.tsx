@@ -180,7 +180,10 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 								style={{
 									left: Math.max(
 										48,
-										Math.min(pointerPos.x, containerRef.current.offsetWidth - 48),
+										Math.min(
+											pointerPos.x,
+											containerRef.current.offsetWidth - 48,
+										),
 									),
 									top: -8,
 									transform: 'translate(-50%, -100%)',
