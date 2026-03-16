@@ -3,7 +3,6 @@
 import { PlusCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import HistoryRangeSelector from '@/components/history-range-selector';
 import { Button } from '@/components/ui/button';
 import {
 	useRemoveFeedingSession,
@@ -24,13 +23,6 @@ export default function Feedings() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
-	const handleRangeChange = (from: string, to: string) => {
-		const params = new URLSearchParams(searchParams.toString());
-		params.set('from', from);
-		params.set('to', to);
-		router.push(`/feeding?${params.toString()}`);
-	};
-
 	return (
 		<>
 			<div className="w-full">
@@ -48,17 +40,14 @@ export default function Feedings() {
 								History
 							</fbt>
 						</h2>
-						<div className="flex items-center gap-2">
-							<HistoryRangeSelector onRangeChange={handleRangeChange} />
-							<Button
-								onClick={() => setIsAddEntryDialogOpen(true)}
-								size="sm"
-								variant="outline"
-							>
-								<PlusCircle className="h-4 w-4 mr-1" />
-								<fbt common>Add Entry</fbt>
-							</Button>
-						</div>
+						<Button
+							onClick={() => setIsAddEntryDialogOpen(true)}
+							size="sm"
+							variant="outline"
+						>
+							<PlusCircle className="h-4 w-4 mr-1" />
+							<fbt common>Add Entry</fbt>
+						</Button>
 					</div>
 					<HistoryList
 						onSessionDelete={removeFeedingSession}

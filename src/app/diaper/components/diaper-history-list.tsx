@@ -258,7 +258,7 @@ export default function DiaperHistoryList() {
 
 	return (
 		<>
-			{(from || to) && (
+			{(from || to) && hasMoreNewerInStore && (
 				<HistoryFilterIndicator
 					baseUrl="/diaper"
 					color={eventColor}

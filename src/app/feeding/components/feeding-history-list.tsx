@@ -183,7 +183,7 @@ export default function HistoryList({
 
 	return (
 		<>
-			{(from || to) && (
+			{(from || to) && hasMoreNewerInStore && (
 				<HistoryFilterIndicator
 					baseUrl="/feeding"
 					color={eventColor}

@@ -103,7 +103,7 @@ export default function IndexedHistoryList({
 			{hasMoreNewerInStore && onLoadMoreNewer && (
 				<div className="flex justify-center">
 					<button
-						className="text-xs font-medium text-primary hover:underline bg-primary/5 px-4 py-2 rounded-full border border-primary/10 transition-colors hover:bg-primary/10 flex flex-col items-center"
+						className="text-xs font-medium text-primary hover:underline bg-primary/5 px-4 py-2 rounded-md border border-primary/10 transition-colors hover:bg-primary/10 flex flex-col items-center"
 						onClick={() => onLoadMoreNewer()}
 						type="button"
 					>
@@ -148,7 +148,7 @@ export default function IndexedHistoryList({
 						</p>
 					)}
 					<button
-						className="text-xs font-medium text-primary hover:underline bg-primary/5 px-4 py-2 rounded-full border border-primary/10 transition-colors hover:bg-primary/10 flex flex-col items-center"
+						className="text-xs font-medium text-primary hover:underline bg-primary/5 px-4 py-2 rounded-md border border-primary/10 transition-colors hover:bg-primary/10 flex flex-col items-center"
 						onClick={handleShowOlderEntries}
 						type="button"
 					>
