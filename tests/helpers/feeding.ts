@@ -30,6 +30,7 @@ export async function addManualFeedingEntry(
 		force: true,
 	});
 	await page.getByRole('button', { name: 'Save' }).click({ force: true });
+	await expect(page.getByRole('dialog')).not.toBeVisible();
 
 	// Wait for the history entry to be visible, might need to clear filters if added in the past
 	const entry = page
@@ -37,22 +38,27 @@ export async function addManualFeedingEntry(
 		.filter({ hasText: `${minutes} min` })
 		.first();
 
-	if (!(await entry.isVisible())) {
+	// Wait for the history entry to be visible, might need to clear filters or expand list
+	await expect(async () => {
+		if (await entry.isVisible()) return;
+
 		const clearButton = page.getByTitle('Clear filter');
 		if (await clearButton.isVisible()) {
 			await clearButton.click();
 		}
+
 		const showOlder = page.getByRole('button', { name: 'Show older entries' });
-		while (await showOlder.isVisible()) {
+		if (await showOlder.isVisible()) {
 			await showOlder.click();
 		}
+
 		const showNewer = page.getByRole('button', { name: 'Show newer entries' });
-		while (await showNewer.isVisible()) {
+		if (await showNewer.isVisible()) {
 			await showNewer.click();
 		}
-	}
 
-	await expect(entry).toBeVisible();
+		expect(await entry.isVisible()).toBeTruthy();
+	}).toPass({ timeout: 10000 });
 }
 
 export async function addTimerFeedingEntry(
