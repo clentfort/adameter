@@ -128,7 +128,7 @@ describe('IndexedHistoryList', () => {
 		expect(screen.getAllByTestId('entry')).toHaveLength(1);
 	});
 
-	it('should show "Show older entries" when there are more than 14 date sections', () => {
+	it('should show "Show older entries" when there are more than 7 date sections', () => {
 		// Create 20 days worth of entries
 		const entries = Array.from({ length: 20 }, (_, i) => ({
 			id: `entry-${i}`,
@@ -154,11 +154,11 @@ describe('IndexedHistoryList', () => {
 		);
 
 		// Should show pagination message
-		expect(screen.getByText(/Showing 14 of 20 days/)).toBeInTheDocument();
+		expect(screen.getByText(/Showing 7 of 20 days/)).toBeInTheDocument();
 		expect(screen.getByText('Show older entries')).toBeInTheDocument();
 
-		// Only 14 entries should be visible initially
-		expect(screen.getAllByTestId('entry')).toHaveLength(14);
+		// Only 7 entries should be visible initially
+		expect(screen.getAllByTestId('entry')).toHaveLength(7);
 	});
 
 	it('should load more entries when "Show older entries" is clicked', () => {
@@ -189,10 +189,15 @@ describe('IndexedHistoryList', () => {
 		// Click show older entries
 		fireEvent.click(screen.getByText('Show older entries'));
 
-		// All 20 entries should now be visible
-		expect(screen.getAllByTestId('entry')).toHaveLength(20);
+		// 14 entries should now be visible
+		expect(screen.getAllByTestId('entry')).toHaveLength(14);
 
-		// Pagination message should be gone
+		// Pagination message should still be there because we have 20 total
+		expect(screen.queryByText('Show older entries')).toBeInTheDocument();
+
+		// Click again to show all
+		fireEvent.click(screen.getByText('Show older entries'));
+		expect(screen.getAllByTestId('entry')).toHaveLength(20);
 		expect(screen.queryByText('Show older entries')).not.toBeInTheDocument();
 	});
 

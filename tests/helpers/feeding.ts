@@ -31,12 +31,28 @@ export async function addManualFeedingEntry(
 	});
 	await page.getByRole('button', { name: 'Save' }).click({ force: true });
 
-	await expect(
-		page
-			.getByTestId('feeding-history-entry')
-			.filter({ hasText: `${minutes} min` })
-			.first(),
-	).toBeVisible();
+	// Wait for the history entry to be visible, might need to clear filters if added in the past
+	const entry = page
+		.getByTestId('feeding-history-entry')
+		.filter({ hasText: `${minutes} min` })
+		.first();
+
+	if (!(await entry.isVisible())) {
+		const clearButton = page.getByTitle('Clear filter');
+		if (await clearButton.isVisible()) {
+			await clearButton.click();
+		}
+		const showOlder = page.getByRole('button', { name: 'Show older entries' });
+		while (await showOlder.isVisible()) {
+			await showOlder.click();
+		}
+		const showNewer = page.getByRole('button', { name: 'Show newer entries' });
+		while (await showNewer.isVisible()) {
+			await showNewer.click();
+		}
+	}
+
+	await expect(entry).toBeVisible();
 }
 
 export async function addTimerFeedingEntry(
