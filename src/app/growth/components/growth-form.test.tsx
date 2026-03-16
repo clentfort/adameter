@@ -8,6 +8,10 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import MeasurementForm from './growth-form';
 
+vi.mock('@/hooks/use-unit-system', () => ({
+	useUnitSystem: () => 'metric',
+}));
+
 describe('MeasurementForm', () => {
 	const mockOnSave = vi.fn();
 	const mockOnClose = vi.fn();

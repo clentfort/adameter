@@ -38,6 +38,10 @@ vi.mock('@/hooks/use-profile', () => ({
 	useProfile: () => [{ dob: '2024-01-01', sex: 'boy' }, vi.fn()],
 }));
 
+vi.mock('@/hooks/use-unit-system', () => ({
+	useUnitSystem: () => 'metric',
+}));
+
 vi.mock('@/utils/growth-standards', () => ({
 	calculateValue: vi.fn((L, M, S, Z) => M * (1 + L * S * Z)),
 	getGrowthRange: vi.fn(async () => ({ max: 4000, min: 2000 })),

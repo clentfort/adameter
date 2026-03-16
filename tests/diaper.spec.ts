@@ -40,7 +40,13 @@ test.describe('Diaper Page', () => {
 
 		// Fill the form
 		await page.getByTestId('toggle-diaper-stool').click({ force: true });
-		await page.locator('#edit-temperature').fill('37.0', { force: true });
+		const temperatureLabel = await page
+			.locator('label[for="edit-temperature"]')
+			.textContent();
+		const isFahrenheit = temperatureLabel?.includes('°F') ?? false;
+		await page
+			.locator('#edit-temperature')
+			.fill(isFahrenheit ? '99.0' : '37.0', { force: true });
 		await page.locator('#edit-notes').fill('Normal change', { force: true });
 
 		// Save
@@ -49,7 +55,9 @@ test.describe('Diaper Page', () => {
 		// Verify in history
 		const entry = page.getByTestId('diaper-history-entry').first();
 		await expect(entry.getByText('Urine & Stool')).toBeVisible();
-		await expect(entry.getByText('37 °C')).toBeVisible();
+		await expect(
+			entry.getByText(isFahrenheit ? '99.0 °F' : '37 °C'),
+		).toBeVisible();
 		await expect(entry.getByText('Normal change')).toBeVisible();
 	});
 

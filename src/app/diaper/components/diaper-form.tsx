@@ -35,9 +35,14 @@ import {
 	useUpsertDiaperProduct,
 } from '@/hooks/use-diaper-products';
 import { useEntityForm } from '@/hooks/use-entity-form';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import { diaperFormToDataSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import {
+	celsiusToFahrenheit,
+	fahrenheitToCelsius,
+} from '@/utils/unit-conversions';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 
 export interface AddDiaperProps {
@@ -116,6 +121,8 @@ export default function DiaperForm({
 	title,
 	...props
 }: DiaperFormProps) {
+	const unitSystem = useUnitSystem();
+	const isImperial = unitSystem === 'imperial';
 	const upsertProduct = useUpsertDiaperProduct();
 	const changes = useDiaperChangesSnapshot();
 	const sortedProductIds = useFrecencySortedDiaperProductIds(changes);
@@ -127,10 +134,16 @@ export default function DiaperForm({
 		'presetDiaperProductId' in props ? props.presetDiaperProductId : undefined;
 	const presetType = 'presetType' in props ? props.presetType : undefined;
 
-	const defaultValues = useMemo(
-		() => getDefaultValues(change, presetDiaperProductId, presetType),
-		[change, presetDiaperProductId, presetType],
-	);
+	const defaultValues = useMemo(() => {
+		const values = getDefaultValues(change, presetDiaperProductId, presetType);
+		if (isImperial && values.temperature) {
+			const celsius = Number.parseFloat(values.temperature);
+			if (!Number.isNaN(celsius)) {
+				values.temperature = celsiusToFahrenheit(celsius).toFixed(1);
+			}
+		}
+		return values;
+	}, [change, presetDiaperProductId, presetType, isImperial]);
 
 	const form = useEntityForm<DiaperFormValues, undefined, DiaperFormData>(
 		diaperFormToDataSchema,
@@ -151,6 +164,11 @@ export default function DiaperForm({
 	const temperature = watch('temperature');
 
 	const handleSave = (parsedValues: DiaperFormData) => {
+		let temperature = parsedValues.temperature;
+		if (isImperial && temperature != null) {
+			temperature = Math.round(fahrenheitToCelsius(temperature) * 10) / 10;
+		}
+
 		const updatedChange: DiaperChange = {
 			...change,
 			containsStool: parsedValues.containsStool,
@@ -161,7 +179,7 @@ export default function DiaperForm({
 			notes: parsedValues.notes,
 			pottyStool: parsedValues.pottyStool,
 			pottyUrine: parsedValues.pottyUrine,
-			temperature: parsedValues.temperature,
+			temperature,
 			timestamp: parsedValues.timestamp,
 		};
 
@@ -344,32 +362,61 @@ export default function DiaperForm({
 
 					<div className="space-y-2">
 						<Label htmlFor="edit-temperature">
-							<fbt desc="Label on an input to specificy the body temperature in degree Celsius">
-								Temperature (°C)
-							</fbt>
+							{isImperial ? (
+								<fbt desc="Label on an input to specify the body temperature in degree Fahrenheit">
+									Temperature (°F)
+								</fbt>
+							) : (
+								<fbt desc="Label on an input to specificy the body temperature in degree Celsius">
+									Temperature (°C)
+								</fbt>
+							)}
 						</Label>
 						<Input
 							className={
 								temperature &&
-								isAbnormalTemperature(Number.parseFloat(temperature))
+								isAbnormalTemperature(
+									isImperial
+										? fahrenheitToCelsius(Number.parseFloat(temperature))
+										: Number.parseFloat(temperature),
+								)
 									? 'border-red-500'
 									: ''
 							}
 							id="edit-temperature"
-							placeholder={fbt(
-								'e.g. 37.2',
-								'Placeholder text for an input to set the body temperature in degree Celsius',
-							)}
+							placeholder={
+								isImperial
+									? fbt(
+											'e.g. 99.0',
+											'Placeholder text for an input to set the body temperature in degree Fahrenheit',
+										)
+									: fbt(
+											'e.g. 37.2',
+											'Placeholder text for an input to set the body temperature in degree Celsius',
+										)
+							}
 							step="0.1"
 							type="number"
 							{...register('temperature')}
 						/>
 						{temperature &&
-							isAbnormalTemperature(Number.parseFloat(temperature)) && (
+							isAbnormalTemperature(
+								isImperial
+									? fahrenheitToCelsius(Number.parseFloat(temperature))
+									: Number.parseFloat(temperature),
+							) && (
 								<p className="text-xs text-red-500 mt-1">
-									<fbt desc="A warning that the temperature is outside the normal range">
-										Warning: Temperature outside normal range (36.5°C - 37.5°C)
-									</fbt>
+									{isImperial ? (
+										<fbt desc="A warning that the temperature is outside the normal range (Fahrenheit)">
+											Warning: Temperature outside normal range (97.7°F -
+											99.5°F)
+										</fbt>
+									) : (
+										<fbt desc="A warning that the temperature is outside the normal range">
+											Warning: Temperature outside normal range (36.5°C -
+											37.5°C)
+										</fbt>
+									)}
 								</p>
 							)}
 					</div>

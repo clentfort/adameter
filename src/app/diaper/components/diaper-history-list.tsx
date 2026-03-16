@@ -11,9 +11,11 @@ import {
 	useUpsertDiaperChange,
 } from '@/hooks/use-diaper-changes';
 import { useDiaperChangesByDate } from '@/hooks/use-tinybase-indexes';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { cn } from '@/lib/utils';
 import { formatEntryTime } from '@/utils/format-history-date';
+import { celsiusToFahrenheit } from '@/utils/unit-conversions';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
 
@@ -43,6 +45,8 @@ function DiaperHistoryEntry({
 	onEdit: (changeId: string) => void;
 }) {
 	const change = useDiaperChange(changeId);
+	const unitSystem = useUnitSystem();
+	const isImperial = unitSystem === 'imperial';
 
 	if (!change) {
 		return null;
@@ -76,7 +80,11 @@ function DiaperHistoryEntry({
 								)}
 							>
 								<span>🌡️</span>
-								<span>{change.temperature} °C</span>
+								<span>
+									{isImperial
+										? `${celsiusToFahrenheit(change.temperature).toFixed(1)} °F`
+										: `${change.temperature} °C`}
+								</span>
 							</div>
 						</>
 					)}
