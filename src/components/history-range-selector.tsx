@@ -30,7 +30,6 @@ export default function HistoryRangeSelector({
 		to: dateToDateInputValue(new Date()),
 	});
 
-
 	return (
 		<Popover>
 			<PopoverTrigger
