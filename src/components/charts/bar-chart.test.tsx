@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BarChart from './bar-chart';
 
@@ -40,7 +40,7 @@ describe('BarChart', () => {
 		vi.clearAllMocks();
 	});
 
-	it('should render and initialize chart with datasets and labels', () => {
+	it('should render and initialize chart with datasets and labels', async () => {
 		const datasets = [
 			{ backgroundColor: 'red', data: [10, 20], label: 'Set 1' },
 			{ backgroundColor: 'blue', data: [5, 15], label: 'Set 2' },
@@ -57,6 +57,10 @@ describe('BarChart', () => {
 				yAxisLabel="Hours"
 			/>,
 		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
 
 		expect(screen.getByRole('graphics-document')).toBeInTheDocument();
 		expect(mockChart).toHaveBeenCalledTimes(1);
