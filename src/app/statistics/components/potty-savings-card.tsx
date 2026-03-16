@@ -9,6 +9,7 @@ interface PottySavingsCardProps {
 	diaperChanges: DiaperChange[];
 	disposableChanges: Array<{ cost: number; timestamp: Date }>;
 }
+
 function getDisposableAverageAround(
 	timestamp: Date,
 	disposableChanges: Array<{ cost: number; timestamp: Date }>,
@@ -19,17 +20,21 @@ function getDisposableAverageAround(
 				Math.abs(differenceInDays(disposableChange.timestamp, timestamp)) <= 7,
 		)
 		.map((disposableChange) => disposableChange.cost);
+
 	if (costs.length === 0) {
 		return null;
 	}
+
 	return costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
 }
+
 export default function PottySavingsCard({
 	diaperChanges,
 	disposableChanges,
 }: PottySavingsCardProps) {
 	const [currency] = useCurrency();
 	const { locale } = useLanguage();
+
 	const savings = useMemo(
 		() =>
 			diaperChanges

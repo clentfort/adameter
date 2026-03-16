@@ -28,6 +28,7 @@ interface ReusableSavingsCardProps {
 	className?: string;
 	products: DiaperProduct[];
 }
+
 interface ReusableSavingsMetrics {
 	breakEvenDate: Date | null;
 	estimatedBreakEvenDate: Date | null;
@@ -39,6 +40,7 @@ interface ReusableSavingsMetrics {
 	upfrontCostTotal: number;
 	usageCost: number;
 }
+
 function formatCurrency(value: number, currency: Currency, locale: string) {
 	return new Intl.NumberFormat(locale.replace('_', '-'), {
 		currency,
@@ -47,9 +49,11 @@ function formatCurrency(value: number, currency: Currency, locale: string) {
 		style: 'currency',
 	}).format(value);
 }
+
 function createProductById(products: DiaperProduct[]) {
 	return new Map(products.map((product) => [product.id, product]));
 }
+
 function getDisposableAverageAround(
 	timestamp: Date,
 	disposableChanges: Array<{ cost: number; timestamp: Date }>,
@@ -60,11 +64,14 @@ function getDisposableAverageAround(
 				Math.abs(differenceInDays(disposableChange.timestamp, timestamp)) <= 7,
 		)
 		.map((disposableChange) => disposableChange.cost);
+
 	if (costs.length === 0) {
 		return null;
 	}
+
 	return costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
 }
+
 function calculateReusableSavingsMetrics(
 	allDiaperChanges: DiaperChange[],
 	productById: Map<string, DiaperProduct>,
@@ -75,6 +82,7 @@ function calculateReusableSavingsMetrics(
 	if (reusableProducts.length === 0) {
 		return null;
 	}
+
 	const upfrontCostTotal = reusableProducts.reduce((sum, product) => {
 		if (
 			typeof product.upfrontCost !== 'number' ||
@@ -82,32 +90,40 @@ function calculateReusableSavingsMetrics(
 		) {
 			return sum;
 		}
+
 		return sum + product.upfrontCost;
 	}, 0);
+
 	const disposableChanges = allDiaperChanges
 		.map((change) => {
 			const productId = change.diaperProductId;
 			if (!productId) return null;
+
 			const product = productById.get(productId);
 			if (!product || product.isReusable) return null;
+
 			if (
 				typeof product.costPerDiaper !== 'number' ||
 				!Number.isFinite(product.costPerDiaper)
 			) {
 				return null;
 			}
+
 			return {
 				cost: product.costPerDiaper,
 				timestamp: new Date(change.timestamp),
 			};
 		})
 		.filter((item): item is { cost: number; timestamp: Date } => item !== null);
+
 	const reusableChanges = allDiaperChanges
 		.map((change) => {
 			const productId = change.diaperProductId;
 			if (!productId) return null;
+
 			const product = productById.get(productId);
 			if (!product || !product.isReusable) return null;
+
 			return {
 				reusableCost:
 					typeof product.costPerDiaper === 'number' &&
@@ -121,27 +137,33 @@ function calculateReusableSavingsMetrics(
 			(item): item is { reusableCost: number; timestamp: Date } =>
 				item !== null,
 		);
+
 	const pottyEvents = allDiaperChanges
 		.map((change) => {
 			const savedByPotty =
 				(change.pottyUrine && !change.containsUrine) ||
 				(change.pottyStool && !change.containsStool);
 			if (!savedByPotty) return null;
+
 			return { timestamp: new Date(change.timestamp) };
 		})
 		.filter((item): item is { timestamp: Date } => item !== null);
+
 	let reusableSavingsWithoutUpfront = 0;
 	const savingsEvents: { contribution: number; timestamp: Date }[] = [];
+
 	for (const reusableChange of reusableChanges) {
 		const averageDisposable = getDisposableAverageAround(
 			reusableChange.timestamp,
 			disposableChanges,
 		);
 		if (averageDisposable === null) continue;
+
 		const contribution = averageDisposable - reusableChange.reusableCost;
 		reusableSavingsWithoutUpfront += contribution;
 		savingsEvents.push({ contribution, timestamp: reusableChange.timestamp });
 	}
+
 	let pottySavings = 0;
 	for (const pottyEvent of pottyEvents) {
 		const averageDisposable = getDisposableAverageAround(
@@ -149,19 +171,23 @@ function calculateReusableSavingsMetrics(
 			disposableChanges,
 		);
 		if (averageDisposable === null) continue;
+
 		pottySavings += averageDisposable;
 		savingsEvents.push({
 			contribution: averageDisposable,
 			timestamp: pottyEvent.timestamp,
 		});
 	}
+
 	const reusableSavings = reusableSavingsWithoutUpfront - upfrontCostTotal;
 	const totalSavings = reusableSavings + pottySavings;
+
 	let breakEvenDate: Date | null = null;
 	if (savingsEvents.length > 0) {
 		const sortedSavingsEvents = [...savingsEvents].sort(
 			(a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
 		);
+
 		let runningSavings = -upfrontCostTotal;
 		for (const event of sortedSavingsEvents) {
 			runningSavings += event.contribution;
@@ -171,6 +197,7 @@ function calculateReusableSavingsMetrics(
 			}
 		}
 	}
+
 	let estimatedBreakEvenDate: Date | null = null;
 	if (!breakEvenDate && totalSavings < 0 && savingsEvents.length > 0) {
 		const sortedSavingsEvents = [...savingsEvents].sort(
@@ -187,6 +214,7 @@ function calculateReusableSavingsMetrics(
 			0,
 		);
 		const contributionPerDay = positiveContributionTotal / elapsedDays;
+
 		if (contributionPerDay > 0) {
 			estimatedBreakEvenDate = addDays(
 				latestEventDate,
@@ -194,9 +222,11 @@ function calculateReusableSavingsMetrics(
 			);
 		}
 	}
+
 	const usageCost = allDiaperChanges.reduce((sum, change) => {
 		const productId = change.diaperProductId;
 		if (!productId) return sum;
+
 		const product = productById.get(productId);
 		if (
 			!product ||
@@ -206,23 +236,28 @@ function calculateReusableSavingsMetrics(
 		) {
 			return sum;
 		}
+
 		return sum + product.costPerDiaper;
 	}, 0);
+
 	let hypotheticalDisposableCost = 0;
 	for (const change of allDiaperChanges) {
 		const productId = change.diaperProductId;
 		const product = productId ? productById.get(productId) : null;
+
 		const timestamp = new Date(change.timestamp);
 		const averageDisposable = getDisposableAverageAround(
 			timestamp,
 			disposableChanges,
 		);
+
 		if (averageDisposable !== null) {
 			hypotheticalDisposableCost += averageDisposable;
 		} else if (product && !product.isReusable && product.costPerDiaper) {
 			hypotheticalDisposableCost += product.costPerDiaper;
 		}
 	}
+
 	return {
 		breakEvenDate,
 		estimatedBreakEvenDate,
@@ -243,6 +278,7 @@ export default function ReusableSavingsCard({
 }: ReusableSavingsCardProps) {
 	const [currency] = useCurrency();
 	const { locale } = useLanguage();
+
 	const productById = useMemo(() => createProductById(products), [products]);
 	const metrics = useMemo(
 		() => calculateReusableSavingsMetrics(allDiaperChanges, productById),

@@ -43,19 +43,24 @@ describe('PottyStreakCards', () => {
 				timestamp: '2026-02-03T11:00:00.000Z',
 			},
 		]);
+
 		render(<PottyStreakCards diaperChanges={streakChanges} />);
+
 		expect(screen.getByText('Current Potty Streak')).toBeInTheDocument();
 		expect(screen.getByText('Longest Potty Streak')).toBeInTheDocument();
+
 		// Current streak should be 2
 		const currentStreakBox = screen
 			.getByText('Current Potty Streak')
 			.closest('div[data-slot="card-header"]')!.nextElementSibling!;
 		expect(currentStreakBox).toHaveTextContent('2');
+
 		// Longest streak should be 3
 		const longestStreakBox = screen
 			.getByText('Longest Potty Streak')
 			.closest('div[data-slot="card-header"]')!.nextElementSibling!;
 		expect(longestStreakBox).toHaveTextContent('3');
+
 		// Check for the date of the longest streak
 		expect(screen.getByText(/Feb 1, 2026/)).toBeInTheDocument();
 	});

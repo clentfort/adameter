@@ -62,6 +62,7 @@ export default function PottyActivity({
 							</TabsTrigger>
 						</TabsList>
 					</div>
+
 					<TabsContent className="mt-0" value="frequency">
 						<PottyActivityChart
 							className="px-4 pb-4"

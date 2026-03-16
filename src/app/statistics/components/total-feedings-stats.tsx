@@ -7,6 +7,7 @@ interface TotalFeedingsStatsProps {
 	comparisonSessions?: FeedingSession[];
 	sessions: FeedingSession[];
 }
+
 export default function TotalFeedingsStats({
 	comparisonSessions,
 	sessions = [],
@@ -23,7 +24,9 @@ export default function TotalFeedingsStats({
 			).length;
 			return { leftCount, prevLeftCount, prevRightCount, rightCount };
 		}, [sessions, comparisonSessions]);
+
 	if (sessions.length === 0) return null;
+
 	return (
 		<StatsCard
 			title={

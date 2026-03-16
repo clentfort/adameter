@@ -5,6 +5,7 @@ interface StatsCardProps {
 	children: React.ReactNode;
 	title: React.ReactNode;
 }
+
 export default function StatsCard({ children, title }: StatsCardProps) {
 	return (
 		<Card data-testid="stats-card">

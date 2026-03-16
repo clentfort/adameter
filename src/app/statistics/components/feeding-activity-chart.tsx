@@ -22,6 +22,7 @@ interface FeedingActivityChartProps {
 	secondaryRange?: DateRange;
 	sessions: FeedingSession[];
 }
+
 export default function FeedingActivityChart({
 	className,
 	primaryRange,
@@ -31,6 +32,7 @@ export default function FeedingActivityChart({
 	const [profile] = useProfile();
 	const teeth = useTeethSnapshot();
 	const [showComparisonCharts] = useShowComparisonCharts();
+
 	const { datasets, effectivePrimaryFrom, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
 		// If "All Data" (Date(0)), find the first session or default to 30 days ago
@@ -46,10 +48,12 @@ export default function FeedingActivityChart({
 				effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
 			}
 		}
+
 		const primaryDays = eachDayOfInterval({
 			end: primaryRange.to,
 			start: effectivePrimaryFrom,
 		});
+
 		const primaryDurationByDate = sessions.reduce<
 			Record<string, { left: number; right: number }>
 		>((acc, session) => {
@@ -70,21 +74,27 @@ export default function FeedingActivityChart({
 			}
 			return acc;
 		}, {});
+
 		const primaryLeftData = primaryDays.map((day) => {
 			const key = format(day, 'yyyy-MM-dd');
 			return (primaryDurationByDate[key]?.left || 0) / 3600;
 		});
+
 		const primaryRightData = primaryDays.map((day) => {
 			const key = format(day, 'yyyy-MM-dd');
 			return (primaryDurationByDate[key]?.right || 0) / 3600;
 		});
+
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
+
 		const datasets = [];
+
 		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
 				start: secondaryRange.from,
 			});
+
 			const secondaryDurationByDate = sessions.reduce<
 				Record<string, { left: number; right: number }>
 			>((acc, session) => {
@@ -105,14 +115,17 @@ export default function FeedingActivityChart({
 				}
 				return acc;
 			}, {});
+
 			const secondaryLeftData = secondaryDays.map((day) => {
 				const key = format(day, 'yyyy-MM-dd');
 				return -(secondaryDurationByDate[key]?.left || 0) / 3600;
 			});
+
 			const secondaryRightData = secondaryDays.map((day) => {
 				const key = format(day, 'yyyy-MM-dd');
 				return -(secondaryDurationByDate[key]?.right || 0) / 3600;
 			});
+
 			datasets.push(
 				{
 					backgroundColor: '#94a3b8', // slate-400
@@ -136,6 +149,7 @@ export default function FeedingActivityChart({
 				},
 			);
 		}
+
 		datasets.push(
 			{
 				backgroundColor: '#6366f1', // Indigo-500
@@ -158,8 +172,10 @@ export default function FeedingActivityChart({
 				stack: 'primary',
 			},
 		);
+
 		return { datasets, effectivePrimaryFrom, labels };
 	}, [sessions, primaryRange, secondaryRange, showComparisonCharts]);
+
 	const verticalLines = useMemo(() => {
 		return teeth
 			.filter((tooth) => tooth.date)
@@ -171,6 +187,7 @@ export default function FeedingActivityChart({
 				) {
 					return null;
 				}
+
 				return {
 					label: '🦷',
 					x: differenceInDays(date, effectivePrimaryFrom),
@@ -178,6 +195,7 @@ export default function FeedingActivityChart({
 			})
 			.filter(Boolean) as { color?: string; label?: string; x: number }[];
 	}, [teeth, effectivePrimaryFrom, primaryRange.to]);
+
 	return (
 		<div className={className}>
 			<BarChart

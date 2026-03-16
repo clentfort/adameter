@@ -35,33 +35,41 @@ const mockDiaperChanges = createDiaperChanges([
 		timestamp: '2024-01-03T18:00:00Z',
 	},
 ]);
+
 describe('DiaperRecords', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 	});
+
 	afterEach(() => {
 		vi.useRealTimers();
 	});
+
 	it('renders null when no changes are provided', () => {
 		const { container } = render(<DiaperRecords diaperChanges={[]} />);
 		expect(container.firstChild).toBeNull();
 	});
+
 	it('calculates and displays records correctly', () => {
 		vi.setSystemTime(new Date('2024-01-04T12:00:00Z'));
 		const { container } = render(
 			<DiaperRecords diaperChanges={mockDiaperChanges} />,
 		);
+
 		expect(
 			screen.getByText('Most diaper changes in a day'),
 		).toBeInTheDocument();
 		expect(
 			screen.getByText('Fewest diaper changes in a day'),
 		).toBeInTheDocument();
+
 		expectStatsCardPrimaryMetric(container, 2);
 		expectStatsCardPrimaryMetric(container, 1);
 	});
+
 	it('excludes diaper changes from today', () => {
 		vi.setSystemTime(new Date('2024-01-03T12:00:00Z'));
+
 		const customMock = [
 			...mockDiaperChanges,
 			createDiaperChange({
@@ -70,15 +78,18 @@ describe('DiaperRecords', () => {
 				timestamp: '2024-01-03T20:00:00Z',
 			}),
 		];
+
 		const { container, rerender } = render(
 			<DiaperRecords diaperChanges={customMock} />,
 		);
 		expect(screen.queryByText('3')).not.toBeInTheDocument();
 		expectStatsCardPrimaryMetric(container, 2);
+
 		vi.setSystemTime(new Date('2024-01-05T12:00:00Z'));
 		rerender(<DiaperRecords diaperChanges={customMock} />);
 		expect(screen.getByText('3')).toBeInTheDocument();
 	});
+
 	it('ignores entries with invalid timestamps', () => {
 		vi.setSystemTime(new Date('2024-01-04T12:00:00Z'));
 		const malformedChanges = [
@@ -96,7 +107,9 @@ describe('DiaperRecords', () => {
 				timestamp: undefined,
 			},
 		] as unknown as DiaperChange[];
+
 		render(<DiaperRecords diaperChanges={malformedChanges} />);
+
 		expect(
 			screen.getByText('Most diaper changes in a day'),
 		).toBeInTheDocument();

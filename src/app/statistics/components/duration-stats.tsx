@@ -8,13 +8,16 @@ interface DurationStatsProps {
 	comparisonSessions?: FeedingSession[];
 	sessions: FeedingSession[];
 }
+
 function calculateAvgDuration(sessions: FeedingSession[]) {
 	if (sessions.length === 0) return { left: 0, right: 0, total: 0 };
+
 	let totalDuration = 0;
 	let leftDuration = 0;
 	let rightDuration = 0;
 	let leftCount = 0;
 	let rightCount = 0;
+
 	sessions.forEach((session) => {
 		totalDuration += session.durationInSeconds;
 		if (session.breast === 'left') {
@@ -25,12 +28,14 @@ function calculateAvgDuration(sessions: FeedingSession[]) {
 			rightCount++;
 		}
 	});
+
 	return {
 		left: leftCount > 0 ? Math.round(leftDuration / leftCount) : 0,
 		right: rightCount > 0 ? Math.round(rightDuration / rightCount) : 0,
 		total: Math.round(totalDuration / sessions.length),
 	};
 }
+
 export default function DurationStats({
 	comparisonSessions,
 	sessions = [],
@@ -42,6 +47,7 @@ export default function DurationStats({
 		[comparisonSessions],
 	);
 	if (sessions.length === 0) return null;
+
 	return (
 		<StatsCard
 			title={

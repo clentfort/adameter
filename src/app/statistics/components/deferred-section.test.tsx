@@ -3,7 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DeferredSection from './deferred-section';
 
 describe('DeferredSection', () => {
-	let intersectionObserverCallback: (entries: IntersectionObserverEntry[]) => void;
+	let intersectionObserverCallback: (
+		entries: IntersectionObserverEntry[],
+	) => void;
 	const observe = vi.fn();
 	const disconnect = vi.fn();
 
@@ -60,7 +62,9 @@ describe('DeferredSection', () => {
 		expect(screen.getByText('Fallback')).toBeInTheDocument();
 
 		await act(async () => {
-			intersectionObserverCallback([{ isIntersecting: true }] as IntersectionObserverEntry[]);
+			intersectionObserverCallback([
+				{ isIntersecting: true },
+			] as IntersectionObserverEntry[]);
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
 

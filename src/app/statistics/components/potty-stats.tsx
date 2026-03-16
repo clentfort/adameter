@@ -10,6 +10,7 @@ interface PottyStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
 	diaperChanges: DiaperChange[];
 }
+
 function calculatePottyMetrics(diaperChanges: DiaperChange[]) {
 	if (diaperChanges.length === 0) {
 		return {
@@ -19,11 +20,13 @@ function calculatePottyMetrics(diaperChanges: DiaperChange[]) {
 			totalPottyHits: 0,
 		};
 	}
+
 	const pottyUrine = diaperChanges.filter((c) => c.pottyUrine).length;
 	const pottyStool = diaperChanges.filter((c) => c.pottyStool).length;
 	const totalPottyHits = diaperChanges.filter(
 		(c) => c.pottyUrine || c.pottyStool,
 	).length;
+
 	const oldestChange = new Date(
 		Math.min(...diaperChanges.map((c) => new Date(c.timestamp).getTime())),
 	);
@@ -35,6 +38,7 @@ function calculatePottyMetrics(diaperChanges: DiaperChange[]) {
 		differenceInDays(newestChange, oldestChange) + 1,
 	);
 	const hitsPerDay = (totalPottyHits / daysDiff).toFixed(1);
+
 	return {
 		hitsPerDay,
 		pottyStool,
@@ -42,6 +46,7 @@ function calculatePottyMetrics(diaperChanges: DiaperChange[]) {
 		totalPottyHits,
 	};
 }
+
 export default function PottyStats({
 	comparisonDiaperChanges,
 	diaperChanges = [],

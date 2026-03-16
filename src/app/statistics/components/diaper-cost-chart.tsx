@@ -14,6 +14,7 @@ interface DiaperCostChartProps {
 	products: DiaperProduct[];
 	secondaryRange?: { from: Date; to: Date };
 }
+
 export default function DiaperCostChart({
 	className,
 	diaperChanges,
@@ -23,6 +24,7 @@ export default function DiaperCostChart({
 }: DiaperCostChartProps) {
 	const [currency] = useCurrency();
 	const [showComparisonCharts] = useShowComparisonCharts();
+
 	const productCostById = useMemo(
 		() =>
 			new Map(
@@ -36,6 +38,7 @@ export default function DiaperCostChart({
 			),
 		[products],
 	);
+
 	const { datasets, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
 		if (primaryRange.from.getTime() === 0) {
@@ -50,10 +53,12 @@ export default function DiaperCostChart({
 				effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
 			}
 		}
+
 		const primaryDays = eachDayOfInterval({
 			end: primaryRange.to,
 			start: effectivePrimaryFrom,
 		});
+
 		const primaryCostByDate = diaperChanges.reduce<Record<string, number>>(
 			(acc, change) => {
 				const date = new Date(change.timestamp);
@@ -73,16 +78,21 @@ export default function DiaperCostChart({
 			},
 			{},
 		);
+
 		const primaryData = primaryDays.map(
 			(day) => primaryCostByDate[format(day, 'yyyy-MM-dd')] || 0,
 		);
+
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
+
 		const datasets = [];
+
 		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
 				start: secondaryRange.from,
 			});
+
 			const secondaryCostByDate = diaperChanges.reduce<Record<string, number>>(
 				(acc, change) => {
 					const date = new Date(change.timestamp);
@@ -102,9 +112,11 @@ export default function DiaperCostChart({
 				},
 				{},
 			);
+
 			const secondaryData = secondaryDays.map(
 				(day) => -(secondaryCostByDate[format(day, 'yyyy-MM-dd')] || 0),
 			);
+
 			datasets.push({
 				backgroundColor: '#94a3b8', // slate-400
 				data: secondaryData,
@@ -112,12 +124,14 @@ export default function DiaperCostChart({
 				stack: 'comparison',
 			});
 		}
+
 		datasets.push({
 			backgroundColor: '#10b981', // emerald-500
 			data: primaryData,
 			label: 'Daily Cost',
 			stack: 'primary',
 		});
+
 		return { datasets, labels };
 	}, [
 		diaperChanges,
@@ -126,6 +140,7 @@ export default function DiaperCostChart({
 		productCostById,
 		showComparisonCharts,
 	]);
+
 	return (
 		<div className={className}>
 			<BarChart

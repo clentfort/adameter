@@ -8,6 +8,7 @@ interface TotalDurationStatsProps {
 	comparisonSessions?: FeedingSession[];
 	sessions: FeedingSession[];
 }
+
 export default function TotalDurationStats({
 	comparisonSessions,
 	sessions = [],
@@ -17,6 +18,7 @@ export default function TotalDurationStats({
 		() => sessions.reduce((sum, session) => sum + session.durationInSeconds, 0),
 		[sessions],
 	);
+
 	const prevTotalDurationInSeconds = useMemo(
 		() =>
 			comparisonSessions?.reduce(
@@ -25,7 +27,9 @@ export default function TotalDurationStats({
 			),
 		[comparisonSessions],
 	);
+
 	if (sessions.length === 0) return null;
+
 	return (
 		<StatsCard
 			title={

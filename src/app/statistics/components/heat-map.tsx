@@ -12,6 +12,7 @@ interface HeatMapProps {
 	className?: string;
 	sessions: FeedingSession[];
 }
+
 const INTENSITY_CLASSES = [
 	'bg-muted/60 dark:bg-zinc-800',
 	'bg-left-breast/20 dark:bg-left-breast/35',
@@ -20,6 +21,7 @@ const INTENSITY_CLASSES = [
 	'bg-right-breast/65 dark:bg-right-breast/70',
 	'bg-right-breast dark:bg-right-breast-light',
 ] as const;
+
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	// Calculate time distribution (5-minute intervals)
 	const distribution = useMemo(() => {
@@ -27,21 +29,26 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 		sessions.forEach((session) => {
 			const startTime = new Date(session.startTime);
 			const endTime = new Date(session.endTime);
+
 			// Calculate which 5-minute intervals this session spans
 			const startMinuteOfDay =
 				startTime.getHours() * 60 + startTime.getMinutes();
 			const endMinuteOfDay = endTime.getHours() * 60 + endTime.getMinutes();
+
 			// Handle sessions that span midnight
 			const startInterval = Math.floor(startMinuteOfDay / 5);
 			let endInterval = Math.floor(endMinuteOfDay / 5);
+
 			if (endInterval < startInterval) {
 				// Session crosses midnight
 				endInterval += 288;
 			}
+
 			// Mark all intervals that this session spans
 			for (let i = startInterval; i <= Math.min(endInterval, 287); i++) {
 				dist[i % 288]++;
 			}
+
 			// If session crosses midnight, continue from the beginning of the day
 			if (endInterval > 287) {
 				for (let i = 0; i <= endInterval - 288; i++) {
@@ -49,10 +56,13 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 				}
 			}
 		});
+
 		return dist;
 	}, [sessions]);
+
 	// Find the maximum count for scaling
 	const maxCount = useMemo(() => Math.max(...distribution), [distribution]);
+
 	// Create display intervals
 	const displayIntervals = useMemo(
 		() =>
@@ -60,6 +70,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 				const hour = Math.floor((i * 5) / 60);
 				const minute = (i * 5) % 60;
 				const timeLabel = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+
 				return {
 					count,
 					index: i,
@@ -68,7 +79,9 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 			}),
 		[distribution],
 	);
+
 	if (sessions.length === 0 || maxCount === 0) return null;
+
 	return (
 		<Card className={className}>
 			<CardHeader className="p-4 pb-2">
@@ -101,6 +114,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 													: intensity < 0.8
 														? 4
 														: 5;
+
 								return (
 									<div
 										className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 group relative transition-colors ${INTENSITY_CLASSES[level]}`}
@@ -115,6 +129,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 								);
 							})}
 						</div>
+
 						<div className="absolute bottom-0 left-0 right-0">
 							{[0, 3, 6, 9, 12, 15, 18, 21].map((hour) => (
 								<div
@@ -138,6 +153,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 							</div>
 						</div>
 					</div>
+
 					<div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-muted-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
 						<div className="flex items-center gap-1">
 							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast dark:border-white/10 dark:bg-right-breast-light"></div>

@@ -13,6 +13,7 @@ interface DiaperActivityChartProps {
 	primaryRange: DateRange;
 	secondaryRange?: DateRange;
 }
+
 export default function DiaperActivityChart({
 	className,
 	diaperChanges,
@@ -20,6 +21,7 @@ export default function DiaperActivityChart({
 	secondaryRange,
 }: DiaperActivityChartProps) {
 	const [showComparisonCharts] = useShowComparisonCharts();
+
 	const { datasets, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
 		if (primaryRange.from.getTime() === 0) {
@@ -34,10 +36,12 @@ export default function DiaperActivityChart({
 				effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
 			}
 		}
+
 		const primaryDays = eachDayOfInterval({
 			end: primaryRange.to,
 			start: effectivePrimaryFrom,
 		});
+
 		const primaryDataByDate = diaperChanges.reduce<
 			Record<string, { stool: number; urine: number }>
 		>((acc, change) => {
@@ -55,19 +59,24 @@ export default function DiaperActivityChart({
 			}
 			return acc;
 		}, {});
+
 		const primaryUrineData = primaryDays.map(
 			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0,
 		);
 		const primaryStoolData = primaryDays.map(
 			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0,
 		);
+
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
+
 		const datasets = [];
+
 		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
 				start: secondaryRange.from,
 			});
+
 			const secondaryDataByDate = diaperChanges.reduce<
 				Record<string, { stool: number; urine: number }>
 			>((acc, change) => {
@@ -85,12 +94,14 @@ export default function DiaperActivityChart({
 				}
 				return acc;
 			}, {});
+
 			const secondaryUrineData = secondaryDays.map(
 				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.urine || 0),
 			);
 			const secondaryStoolData = secondaryDays.map(
 				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.stool || 0),
 			);
+
 			datasets.push(
 				{
 					backgroundColor: '#94a3b8', // slate-400
@@ -106,6 +117,7 @@ export default function DiaperActivityChart({
 				},
 			);
 		}
+
 		datasets.push(
 			{
 				backgroundColor: '#eab308', // yellow-500
@@ -120,8 +132,10 @@ export default function DiaperActivityChart({
 				stack: 'primary',
 			},
 		);
+
 		return { datasets, labels };
 	}, [diaperChanges, primaryRange, secondaryRange, showComparisonCharts]);
+
 	return (
 		<div className={className}>
 			<BarChart

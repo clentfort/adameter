@@ -61,6 +61,7 @@ export default function FeedingActivity({
 							</TabsTrigger>
 						</TabsList>
 					</div>
+
 					<TabsContent className="mt-0" value="duration">
 						<FeedingActivityChart
 							className="px-4 pb-4"

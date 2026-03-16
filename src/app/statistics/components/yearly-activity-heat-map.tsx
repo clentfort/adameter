@@ -29,6 +29,7 @@ interface YearlyActivityHeatMapProps {
 	palette?: 'diaper' | 'feeding';
 	title?: ReactNode;
 }
+
 const CONTRIBUTION_PALETTES = {
 	diaper: {
 		levelClasses: [
@@ -52,22 +53,29 @@ const CONTRIBUTION_PALETTES = {
 			'ring-1 ring-left-breast-dark/80 dark:ring-left-breast-light/80',
 	},
 } as const;
+
 function getContributionLevel(count: number, maxCount: number) {
 	if (count === 0 || maxCount === 0) {
 		return 0;
 	}
+
 	const ratio = count / maxCount;
+
 	if (ratio <= 0.25) {
 		return 1;
 	}
+
 	if (ratio <= 0.5) {
 		return 2;
 	}
+
 	if (ratio <= 0.75) {
 		return 3;
 	}
+
 	return 4;
 }
+
 export default function YearlyActivityHeatMap({
 	className,
 	dates,
@@ -82,6 +90,7 @@ export default function YearlyActivityHeatMap({
 		const startDate = subYears(startOfDay(now), 1);
 		const gridStart = startOfWeek(startDate, { weekStartsOn: 0 });
 		const gridEnd = endOfWeek(now, { weekStartsOn: 0 });
+
 		return { gridEnd, gridStart, now, startDate };
 	}, []);
 	const countsByDate = useMemo(

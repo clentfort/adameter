@@ -13,7 +13,6 @@ interface BarDataset {
 }
 
 interface BarChartProps {
-
 	absYLabels?: boolean;
 	datasets: BarDataset[];
 	emptyStateMessage: React.ReactNode;
@@ -34,7 +33,6 @@ export default function BarChart({
 	absYLabels = false,
 	datasets,
 	emptyStateMessage,
-
 	grouped = true,
 	labels,
 	title,
@@ -48,7 +46,6 @@ export default function BarChart({
 	yMin,
 }: BarChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
-
 	const chartInstance = useRef<ChartJS<'bar', number[]> | null>(null);
 	const [isMounted, setIsMounted] = useState(false);
 
@@ -73,7 +70,6 @@ export default function BarChart({
 		if (!chartRef.current || !isMounted) return;
 
 		if (datasets.length === 0 || labels.length === 0) {
-
 			return;
 		}
 
@@ -108,7 +104,6 @@ export default function BarChart({
 			document.documentElement.classList.contains('dark');
 
 		const verticalLinesPlugin = {
-
 			beforeDatasetsDraw: (chart: ChartJS) => {
 				if (verticalLines.length === 0) return;
 
@@ -171,7 +166,6 @@ export default function BarChart({
 					tooltip: {
 						callbacks: {
 							label: tooltipLabelFormatter
-
 								? tooltipLabelFormatter
 								: (context) => {
 										let label = context.dataset.label || '';

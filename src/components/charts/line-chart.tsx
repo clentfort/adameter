@@ -12,7 +12,6 @@ interface PointData {
 }
 
 interface RangePoint {
-
 	x: Date | number;
 	yMax: number;
 	yMin: number;
@@ -46,7 +45,6 @@ interface LineChartProps {
 export default function LineChart({
 	backgroundColor = 'rgba(99, 102, 241, 0.1)',
 	borderColor = '#6366f1',
-
 	data,
 	datasetLabel,
 	emptyStateMessage,
@@ -69,7 +67,6 @@ export default function LineChart({
 	yMin,
 }: LineChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
-
 	const chartInstance = useRef<ChartJS<'line', PointData[]> | null>(null);
 	const [isMounted, setIsMounted] = useState(false);
 
@@ -94,7 +91,6 @@ export default function LineChart({
 		if (!chartRef.current || !isMounted) return;
 
 		if (data.length === 0 && rangeData.length === 0) {
-
 			return;
 		}
 
@@ -185,7 +181,6 @@ export default function LineChart({
 			typeof window !== 'undefined' &&
 			document.documentElement.classList.contains('dark');
 		const rangeFillColor = isDark
-
 			? 'rgba(255, 255, 255, 0.1)'
 			: 'rgba(0, 0, 0, 0.05)';
 		const rangeBorderColor = isDark
@@ -225,7 +220,6 @@ export default function LineChart({
 		});
 
 		const verticalLinesPlugin = {
-
 			beforeDatasetsDraw: (chart: ChartJS) => {
 				if (verticalLines.length === 0) return;
 

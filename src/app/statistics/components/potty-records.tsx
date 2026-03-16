@@ -6,6 +6,7 @@ import StatsCard from './stats-card';
 interface PottyRecordsProps {
 	diaperChanges: readonly DiaperChange[];
 }
+
 export default function PottyRecords({
 	diaperChanges = [],
 }: PottyRecordsProps) {
