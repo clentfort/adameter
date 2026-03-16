@@ -1,5 +1,7 @@
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { fbt } from 'fbtee';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
@@ -174,10 +176,46 @@ export default function DiaperHistoryList() {
 	const changeToEdit = useDiaperChange(changeToEditId ?? undefined);
 	const { dateKeys, indexes, indexId } = useDiaperChangesByDate();
 
+	const searchParams = useSearchParams();
+	const router = useRouter();
+	const from = searchParams.get('from');
+	const to = searchParams.get('to');
+
+	const filteredDateKeys = useMemo(() => {
+		if (!from || !to) return dateKeys;
+
+		const fromDate = startOfDay(parseISO(from));
+		const toDate = endOfDay(parseISO(to));
+
+		return dateKeys.filter((dateKey) => {
+			const date = parseISO(dateKey);
+			return date >= fromDate && date <= toDate;
+		});
+	}, [dateKeys, from, to]);
+
+	const hasNewerEntries = useMemo(() => {
+		if ((!from && !to) || filteredDateKeys.length === 0 || dateKeys.length === 0)
+			return false;
+		return dateKeys[0] > filteredDateKeys[0];
+	}, [dateKeys, filteredDateKeys, from, to]);
+
 	return (
 		<>
+			{hasNewerEntries && (
+				<div className="flex justify-center mb-4">
+					<button
+						className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+						onClick={() => router.push('/diaper')}
+						type="button"
+					>
+						<fbt desc="Button to show newer entries after filtering">
+							Show newer entries
+						</fbt>
+					</button>
+				</div>
+			)}
 			<IndexedHistoryList
-				dateKeys={dateKeys}
+				dateKeys={filteredDateKeys}
 				indexes={indexes}
 				indexId={indexId}
 			>

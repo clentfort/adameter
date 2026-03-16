@@ -2,7 +2,8 @@ import type { DiaperChange } from '@/types/diaper';
 import { render, screen } from '@testing-library/react';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import DiaperHistoryList from './diaper-history-list';
@@ -25,6 +26,14 @@ function createStoreWithDiaperChanges(changes: DiaperChange[]) {
 	return store;
 }
 
+vi.mock('next/navigation', () => ({
+	useRouter: vi.fn(),
+	useSearchParams: vi.fn(),
+}));
+
+const mockUseRouter = vi.mocked(useRouter);
+const mockUseSearchParams = vi.mocked(useSearchParams);
+
 function TestWrapper({
 	changes,
 	children,
@@ -41,6 +50,15 @@ function TestWrapper({
 }
 
 describe('DiaperHistoryList', () => {
+	beforeEach(() => {
+		mockUseRouter.mockReturnValue({
+			push: vi.fn(),
+		} as unknown as ReturnType<typeof useRouter>);
+		mockUseSearchParams.mockReturnValue(
+			new URLSearchParams() as unknown as ReturnType<typeof useSearchParams>,
+		);
+	});
+
 	it('should render empty state when no diaper changes', () => {
 		render(
 			<TestWrapper changes={[]}>

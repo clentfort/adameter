@@ -2,7 +2,8 @@ import type { FeedingSession } from '@/types/feeding';
 import { render, screen } from '@testing-library/react';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -12,7 +13,14 @@ vi.mock('@/hooks/use-feeding-sessions', () => ({
 	useFeedingSession: vi.fn(),
 }));
 
+vi.mock('next/navigation', () => ({
+	useRouter: vi.fn(),
+	useSearchParams: vi.fn(),
+}));
+
 const mockUseFeedingSession = vi.mocked(useFeedingSession);
+const mockUseRouter = vi.mocked(useRouter);
+const mockUseSearchParams = vi.mocked(useSearchParams);
 
 function createStoreWithSessions(sessions: FeedingSession[]) {
 	const store = createStore();
@@ -43,6 +51,15 @@ function TestWrapper({
 }
 
 describe('FeedingHistoryList', () => {
+	beforeEach(() => {
+		mockUseRouter.mockReturnValue({
+			push: vi.fn(),
+		} as unknown as ReturnType<typeof useRouter>);
+		mockUseSearchParams.mockReturnValue(
+			new URLSearchParams() as unknown as ReturnType<typeof useSearchParams>,
+		);
+	});
+
 	it('should render a feeding session shorter than one hour correctly', () => {
 		const durationInSeconds = 25 * 60; // 25 minutes
 		const mockSession: FeedingSession = {
