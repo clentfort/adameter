@@ -40,16 +40,7 @@ function FeedingHistoryEntry({
 		<HistoryEntryCard
 			accentColor={accentColor}
 			data-testid="feeding-history-entry"
-			formattedTime={
-				<div className="flex items-center gap-2">
-					<span>{formatEntryTime(session.startTime)}</span>
-					<span className="mx-1">•</span>
-					<div className="flex items-center gap-0.5">
-						<span>⏳</span>
-						<span>{formatDurationAbbreviated(session.durationInSeconds)}</span>
-					</div>
-				</div>
-			}
+			formattedTime={<span>{formatEntryTime(session.startTime)}</span>}
 			header={
 				<span>
 					{isLeftBreast ? (
@@ -66,9 +57,15 @@ function FeedingHistoryEntry({
 			onDelete={() => onDelete(session.id)}
 			onEdit={() => onEdit(session.id)}
 		>
-			<div className="space-y-1">
+			<div className="text-sm space-y-1">
+				<div className="flex items-center gap-1">
+					<span>⏳</span>
+					<span className="font-medium">
+						{formatDurationAbbreviated(session.durationInSeconds)}
+					</span>
+				</div>
 				{session.notes && (
-					<p className="text-sm text-muted-foreground whitespace-pre-wrap">
+					<p className="text-muted-foreground whitespace-pre-wrap">
 						{session.notes}
 					</p>
 				)}
