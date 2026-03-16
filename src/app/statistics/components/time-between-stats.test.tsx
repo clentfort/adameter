@@ -29,6 +29,7 @@ describe('TimeBetweenStats', () => {
 	it('calculates and displays average time between feedings correctly', () => {
 		const { container } = render(<TimeBetweenStats sessions={mockSessions} />);
 		const statsCard = container.firstChild as HTMLElement;
+
 		expect(
 			within(statsCard).getByText('Time Between Feedings'),
 		).toBeInTheDocument();

@@ -28,7 +28,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 	const pathname = usePathname();
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const isSettingsPage = pathname === '/settings';
+	const isSettingsPage = pathname.startsWith('/settings');
 
 	useEffect(() => {
 		const handleScroll = () => {

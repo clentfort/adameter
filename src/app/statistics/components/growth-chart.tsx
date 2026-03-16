@@ -84,6 +84,44 @@ function PercentileBadge({ value }: { value: number }) {
 	);
 }
 
+function calculateSortedMeasurements(measurements: GrowthMeasurement[]) {
+	return [...measurements].sort(
+		(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+	);
+}
+
+function calculateForecastAge(
+	dob: Date | null,
+	sortedMeasurements: GrowthMeasurement[],
+) {
+	if (!dob) return undefined;
+
+	const lastMeasurement = sortedMeasurements.at(-1);
+	const lastMeasureDate = lastMeasurement
+		? startOfDay(new Date(lastMeasurement.date))
+		: dob;
+
+	const currentAgeMonths =
+		differenceInDays(lastMeasureDate, dob) / DAYS_PER_MONTH;
+
+	return Math.floor(currentAgeMonths / 3) * 3 + 3;
+}
+
+function calculateGrowthData(
+	sortedMeasurements: GrowthMeasurement[],
+	dob: Date | null,
+	field: keyof GrowthMeasurement,
+) {
+	return sortedMeasurements
+		.filter((m) => m[field] != null && (m[field] as number) > 0)
+		.map((m) => ({
+			x: dob
+				? differenceInDays(startOfDay(new Date(m.date)), dob) / DAYS_PER_MONTH
+				: new Date(m.date).getTime(),
+			y: m[field] as number,
+		}));
+}
+
 export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [profile] = useProfile();
 	const unitSystem = useUnitSystem();
@@ -96,10 +134,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [headPercentile, setHeadPercentile] = useState<number | null>(null);
 
 	const sortedMeasurements = useMemo(
-		() =>
-			[...measurements].sort(
-				(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-			),
+		() => calculateSortedMeasurements(measurements),
 		[measurements],
 	);
 
@@ -108,18 +143,10 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 		[profile],
 	);
 
-	const forecastAge = useMemo(() => {
-		if (!dob) return undefined;
-
-		const lastMeasurement = sortedMeasurements.at(-1);
-		const lastMeasureDate = lastMeasurement
-			? startOfDay(new Date(lastMeasurement.date))
-			: dob;
-
-		const currentAgeMonths =
-			differenceInDays(lastMeasureDate, dob) / DAYS_PER_MONTH;
-		return Math.floor(currentAgeMonths / 3) * 3 + 3;
-	}, [dob, sortedMeasurements]);
+	const forecastAge = useMemo(
+		() => calculateForecastAge(dob, sortedMeasurements),
+		[dob, sortedMeasurements],
+	);
 
 	useEffect(() => {
 		async function loadRanges() {
@@ -206,6 +233,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			}
 			// Always include the very end
 			const lastPoint = points.at(-1);
+
 			if (!lastPoint || differenceInDays(endDate, lastPoint) > 0) {
 				points.push(endDate);
 			}
@@ -305,49 +333,42 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 		[headRange, isImperial],
 	);
 
-	const weightData = useMemo(
-		() =>
-			sortedMeasurements
-				.filter((m) => m.weight != null && m.weight > 0)
-				.map((m) => ({
-					x: dob
-						? differenceInDays(startOfDay(new Date(m.date)), dob) /
-							DAYS_PER_MONTH
-						: new Date(m.date).getTime(),
-					y: isImperial ? gramsToLbs(m.weight!) : m.weight!,
-				})),
-		[sortedMeasurements, dob, isImperial],
-	);
+	const weightData = useMemo(() => {
+		const data = calculateGrowthData(sortedMeasurements, dob, 'weight');
 
-	const heightData = useMemo(
-		() =>
-			sortedMeasurements
-				.filter((m) => m.height != null && m.height > 0)
-				.map((m) => ({
-					x: dob
-						? differenceInDays(startOfDay(new Date(m.date)), dob) /
-							DAYS_PER_MONTH
-						: new Date(m.date).getTime(),
-					y: isImperial ? cmToInches(m.height!) : m.height!,
-				})),
-		[sortedMeasurements, dob, isImperial],
-	);
+		if (!isImperial) return data;
 
-	const headCircumferenceData = useMemo(
-		() =>
-			sortedMeasurements
-				.filter((m) => m.headCircumference != null && m.headCircumference > 0)
-				.map((m) => ({
-					x: dob
-						? differenceInDays(startOfDay(new Date(m.date)), dob) /
-							DAYS_PER_MONTH
-						: new Date(m.date).getTime(),
-					y: isImperial
-						? cmToInches(m.headCircumference!)
-						: m.headCircumference!,
-				})),
-		[sortedMeasurements, dob, isImperial],
-	);
+		return data.map((point) => ({
+			...point,
+			y: gramsToLbs(point.y),
+		}));
+	}, [sortedMeasurements, dob, isImperial]);
+
+	const heightData = useMemo(() => {
+		const data = calculateGrowthData(sortedMeasurements, dob, 'height');
+
+		if (!isImperial) return data;
+
+		return data.map((point) => ({
+			...point,
+			y: cmToInches(point.y),
+		}));
+	}, [sortedMeasurements, dob, isImperial]);
+
+	const headCircumferenceData = useMemo(() => {
+		const data = calculateGrowthData(
+			sortedMeasurements,
+			dob,
+			'headCircumference',
+		);
+
+		if (!isImperial) return data;
+
+		return data.map((point) => ({
+			...point,
+			y: cmToInches(point.y),
+		}));
+	}, [sortedMeasurements, dob, isImperial]);
 
 	if (measurements.length === 0) {
 		return (

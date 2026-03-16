@@ -2,8 +2,9 @@
 
 import type { Chart as ChartJS, TooltipItem } from 'chart.js';
 import Chart from 'chart.js/auto';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import 'chartjs-adapter-date-fns';
+import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface BarDataset {
 	backgroundColor: string;
@@ -47,16 +48,40 @@ export default function BarChart({
 }: BarChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<ChartJS<'bar', number[]> | null>(null);
+	const [isMounted, setIsMounted] = useState(false);
+
+	useIdleCallback(() => {
+		setIsMounted(true);
+	}, []);
 
 	const createChart = useCallback(() => {
-		if (!chartRef.current) return;
+		if (!chartRef.current || !isMounted) return;
 
 		if (datasets.length === 0 || labels.length === 0) {
 			return;
 		}
 
 		if (chartInstance.current) {
-			chartInstance.current.destroy();
+			const chart = chartInstance.current;
+			chart.data.labels = labels;
+			chart.data.datasets = datasets.map((ds) => ({
+				...ds,
+				borderRadius: 4,
+				categoryPercentage: grouped ? 0.8 : 1.0,
+				grouped,
+			}));
+
+			// Update options that might have changed
+			if (chart.options.plugins?.title) {
+				chart.options.plugins.title.text = title?.toString() || '';
+			}
+			if (chart.options.scales?.y) {
+				chart.options.scales.y.max = yMax;
+				chart.options.scales.y.min = yMin;
+			}
+
+			chart.update();
+			return;
 		}
 
 		const ctx = chartRef.current.getContext('2d');
@@ -195,19 +220,23 @@ export default function BarChart({
 		title,
 		verticalLines,
 		grouped,
+		isMounted,
 	]);
 
 	useEffect(() => {
-		createChart();
+		if (isMounted) {
+			createChart();
+		}
 
 		return () => {
 			if (chartInstance.current) {
 				chartInstance.current.destroy();
+				chartInstance.current = null;
 			}
 		};
-	}, [createChart]);
+	}, [createChart, isMounted]);
 
-	if (datasets.length === 0 || labels.length === 0) {
+	if (!isMounted || datasets.length === 0 || labels.length === 0) {
 		return (
 			<div className="text-muted-foreground text-center py-8">
 				{emptyStateMessage}

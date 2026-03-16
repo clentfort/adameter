@@ -71,10 +71,10 @@ function GrowthHistoryEntry({
 
 	return (
 		<HistoryEntryCard
-			className="border-emerald-600/30 bg-emerald-600/5"
+			accentColor="#059669"
 			data-testid="growth-history-entry"
 			header={
-				<div className="flex items-center gap-2 text-emerald-700">
+				<div className="flex items-center gap-2">
 					<span aria-hidden="true" role="img">
 						📏
 					</span>
@@ -144,9 +144,9 @@ function TeethingHistoryEntry({
 
 	return (
 		<HistoryEntryCard
-			className="border-sky-600/30 bg-sky-600/5"
+			accentColor="#0284c7"
 			header={
-				<div className="flex items-center gap-2 text-sky-700">
+				<div className="flex items-center gap-2">
 					<span aria-hidden="true" role="img">
 						🦷
 					</span>

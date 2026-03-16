@@ -568,6 +568,10 @@ describe('createSecurePartyKitPersister', () => {
 
 		expect(onIgnoredError).toHaveBeenCalledTimes(1);
 
+		// Also test decryption failure
+		await listener({ data: 'svalid-json-but-not-encrypted' } as MessageEvent);
+		expect(onIgnoredError).toHaveBeenCalledTimes(2);
+
 		persister.destroy();
 		expect(mockRemoveEventListener).toHaveBeenCalledWith(
 			'message',

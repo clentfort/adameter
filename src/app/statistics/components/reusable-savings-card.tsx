@@ -3,6 +3,7 @@
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { addDays, differenceInDays, format } from 'date-fns';
 import { Info } from 'lucide-react';
+import { useMemo } from 'react';
 import {
 	Card,
 	CardAction,
@@ -278,19 +279,17 @@ export default function ReusableSavingsCard({
 	const [currency] = useCurrency();
 	const { locale } = useLanguage();
 
-	const metrics = calculateReusableSavingsMetrics(
-		allDiaperChanges,
-		createProductById(products),
+	const productById = useMemo(() => createProductById(products), [products]);
+	const metrics = useMemo(
+		() => calculateReusableSavingsMetrics(allDiaperChanges, productById),
+		[allDiaperChanges, productById],
 	);
-
 	if (!metrics) return null;
-
 	const breakEvenLabel = metrics.breakEvenDate
 		? format(metrics.breakEvenDate, 'PPP')
 		: metrics.estimatedBreakEvenDate
 			? format(metrics.estimatedBreakEvenDate, 'PPP')
 			: null;
-
 	return (
 		<Card className={cn('w-full', className)}>
 			<CardHeader className="p-4 pb-2">
@@ -330,7 +329,6 @@ export default function ReusableSavingsCard({
 					</Popover>
 				</CardAction>
 			</CardHeader>
-
 			<CardContent className="space-y-4 p-4 pt-0">
 				<div className="grid grid-cols-2 gap-4">
 					<div className="rounded-xl border p-4">
@@ -367,7 +365,6 @@ export default function ReusableSavingsCard({
 						</p>
 					</div>
 				</div>
-
 				<div className="space-y-2 border-t pt-3">
 					<div className="flex items-center justify-between text-sm">
 						<span className="font-medium text-muted-foreground">

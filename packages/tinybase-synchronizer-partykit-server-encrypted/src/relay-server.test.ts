@@ -149,6 +149,38 @@ describe('EncryptedSyncRelayServer', () => {
 			expect(await response.text()).toBe('abcdef');
 		});
 
+		it('returns undefined (null) when chunks are missing', async () => {
+			room.storage.get.mockImplementation(async (key?: string) => {
+				switch (key) {
+					case 'snapshot_chunk_count':
+						return '2';
+					case 'snapshot_chunk_0':
+						return 'abc';
+					case 'snapshot_chunk_1':
+						return undefined; // missing chunk
+					default:
+						return undefined;
+				}
+			});
+
+			const response = await server.onRequest(createRequest('GET', '/store'));
+			expect(response.status).toBe(200);
+			expect(await response.text()).toBe('null');
+		});
+
+		it('stores snapshot in a single value when exactly at threshold', async () => {
+			// Threshold is 131,072 bytes.
+			const threshold = 131_072;
+			const snapshot = 'x'.repeat(threshold);
+
+			const response = await server.onRequest(
+				createRequest('PUT', '/store', snapshot),
+			);
+			expect(response.status).toBe(200);
+			expect(room.storage.put).toHaveBeenCalledWith('snapshot', snapshot);
+			expect(room.storage.delete).toHaveBeenCalledWith('snapshot_chunk_count');
+		});
+
 		it('returns 405 for unsupported methods', async () => {
 			const response = await server.onRequest(
 				createRequest('DELETE', '/store'),
@@ -191,6 +223,14 @@ describe('EncryptedSyncRelayServer', () => {
 
 			expect(target.send).toHaveBeenCalledWith('sender-1\nencrypted-payload');
 			expect(bystander.send).not.toHaveBeenCalled();
+		});
+
+		it('gracefully handles direct message to non-existent client', () => {
+			const sender = room.addConnection('sender-1');
+
+			// Should not throw
+			server.onMessage('non-existent\nencrypted-payload', sender as never);
+			expect(room.broadcast).not.toHaveBeenCalled();
 		});
 
 		it('ignores messages without separator', () => {

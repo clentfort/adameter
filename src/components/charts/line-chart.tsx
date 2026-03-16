@@ -3,8 +3,9 @@
 import type { Chart as ChartJS, TooltipItem } from 'chart.js';
 import Chart from 'chart.js/auto';
 import { format, isDate } from 'date-fns';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import 'chartjs-adapter-date-fns';
+import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface PointData {
 	x: Date | number;
@@ -68,16 +69,95 @@ export default function LineChart({
 }: LineChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<ChartJS<'line', PointData[]> | null>(null);
+	const [isMounted, setIsMounted] = useState(false);
+
+	useIdleCallback(() => {
+		setIsMounted(true);
+	}, []);
 
 	const createChart = useCallback(() => {
-		if (!chartRef.current) return;
+		if (!chartRef.current || !isMounted) return;
 
 		if (data.length === 0 && rangeData.length === 0) {
 			return;
 		}
 
 		if (chartInstance.current) {
-			chartInstance.current.destroy();
+			const chart = chartInstance.current;
+			const isDark =
+				typeof window !== 'undefined' &&
+				document.documentElement.classList.contains('dark');
+			const rangeFillColor = isDark
+				? 'rgba(255, 255, 255, 0.1)'
+				: 'rgba(0, 0, 0, 0.05)';
+			const rangeBorderColor = isDark
+				? 'rgba(255, 255, 255, 0.2)'
+				: 'rgba(0, 0, 0, 0.1)';
+
+			const datasets: import('chart.js').ChartDataset<'line', PointData[]>[] =
+				[];
+			if (rangeData.length > 0) {
+				datasets.push(
+					{
+						backgroundColor: 'transparent',
+						borderColor: 'transparent',
+						data: rangeData.map((d) => ({ x: d.x, y: d.yMin })),
+						fill: false,
+						label: String(rangeLabel || 'Range Min'),
+						pointRadius: 0,
+					},
+					{
+						backgroundColor: rangeFillColor,
+						borderColor: rangeBorderColor,
+						borderWidth: 1,
+						data: rangeData.map((d) => ({ x: d.x, y: d.yMax })),
+						fill: 0,
+						label: String(rangeLabel || 'Range Max'),
+						pointRadius: 0,
+					},
+				);
+			}
+
+			datasets.push({
+				backgroundColor,
+				borderColor,
+				data,
+				label: String(datasetLabel),
+				pointHoverRadius: pointRadius > 0 ? 7 : 0,
+				pointRadius,
+				tension: 0.3,
+			});
+
+			chart.data.datasets = datasets;
+
+			// Update options
+			if (chart.options.scales?.x) {
+				chart.options.scales.x.max =
+					xMax !== undefined
+						? xMax
+						: isDate(forecastDate)
+							? forecastDate.getTime()
+							: typeof forecastDate === 'number'
+								? forecastDate
+								: undefined;
+				chart.options.scales.x.min =
+					xMin !== undefined
+						? xMin
+						: xAxisType === 'time' && data.length > 0
+							? Math.min(
+									...data.map((d) =>
+										isDate(d.x) ? d.x.getTime() : Number(d.x),
+									),
+								)
+							: undefined;
+			}
+			if (chart.options.scales?.y) {
+				chart.options.scales.y.max = yMax;
+				chart.options.scales.y.min = yMin;
+			}
+
+			chart.update();
+			return;
 		}
 
 		const ctx = chartRef.current.getContext('2d');
@@ -324,19 +404,23 @@ export default function LineChart({
 		yMin,
 		tooltipTitleFormatter,
 		tooltipLabelFormatter,
+		isMounted,
 	]);
 
 	useEffect(() => {
-		createChart();
+		if (isMounted) {
+			createChart();
+		}
 
 		return () => {
 			if (chartInstance.current) {
 				chartInstance.current.destroy();
+				chartInstance.current = null;
 			}
 		};
-	}, [createChart]);
+	}, [createChart, isMounted]);
 
-	if (data.length === 0 && rangeData.length === 0) {
+	if (!isMounted || (data.length === 0 && rangeData.length === 0)) {
 		return (
 			<div className="text-muted-foreground text-center py-8">
 				{emptyStateMessage}

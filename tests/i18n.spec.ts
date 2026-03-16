@@ -10,17 +10,15 @@ test.describe('Internationalization', () => {
 		await expect(page.getByText('Last Feeding')).toBeVisible();
 
 		// 2. Switch to German
-		await page.getByRole('button', { name: /Settings|Einstellungen/ }).click();
+		await page.getByTestId('settings-button').click();
 		await page.getByTestId('settings-appearance').click();
 		await page.getByRole('combobox').first().click();
 		await page.getByRole('option', { name: 'German' }).click();
 
 		// 3. Verify German text
 		await page.getByTestId('back-button').click();
-		// Wait for the main settings to show up before clicking back again
-		await expect(
-			page.getByRole('button', { name: /Appearance|Erscheinungsbild/ }),
-		).toBeVisible();
+		// Wait for the main settings hub
+		await expect(page.getByTestId('settings-appearance')).toBeVisible();
 		await page.getByTestId('back-button').click();
 		await expect(page.getByText('Letztes Stillen')).toBeVisible();
 
@@ -29,14 +27,15 @@ test.describe('Internationalization', () => {
 		await expect(page.getByText('Letztes Stillen')).toBeVisible();
 
 		// 5. Switch back to English
-		// In German, the title is translated to "Settings" (since translation is missing)
-		await page.getByRole('button', { name: /Settings|Einstellungen/ }).click();
+		await page.getByTestId('settings-button').click();
 		await page.getByTestId('settings-appearance').click();
 		await page.getByRole('combobox').first().click();
 		await page.getByRole('option', { name: /English|Englisch/ }).click();
 
 		// 6. Go back to home and verify English text again
 		await page.getByTestId('back-button').click();
+		// Wait for the main settings hub
+		await expect(page.getByTestId('settings-appearance')).toBeVisible();
 		await page.getByTestId('back-button').click();
 		await expect(page.getByText('Last Feeding')).toBeVisible();
 	});

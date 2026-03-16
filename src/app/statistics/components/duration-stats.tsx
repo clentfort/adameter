@@ -1,4 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
+import { useMemo } from 'react';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
@@ -39,12 +40,13 @@ export default function DurationStats({
 	comparisonSessions,
 	sessions = [],
 }: DurationStatsProps) {
+	const avgDuration = useMemo(() => calculateAvgDuration(sessions), [sessions]);
+	const prevAvgDuration = useMemo(
+		() =>
+			comparisonSessions ? calculateAvgDuration(comparisonSessions) : null,
+		[comparisonSessions],
+	);
 	if (sessions.length === 0) return null;
-
-	const avgDuration = calculateAvgDuration(sessions);
-	const prevAvgDuration = comparisonSessions
-		? calculateAvgDuration(comparisonSessions)
-		: null;
 
 	return (
 		<StatsCard
