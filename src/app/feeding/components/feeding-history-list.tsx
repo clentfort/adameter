@@ -1,9 +1,17 @@
 import type { FeedingSession } from '@/types/feeding';
-import { endOfDay, isSameDay, parseISO, startOfDay } from 'date-fns';
+import {
+	addDays,
+	endOfDay,
+	isSameDay,
+	parseISO,
+	startOfDay,
+	subDays,
+} from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
+import HistoryFilterIndicator from '@/components/history-filter-indicator';
 import IndexedHistoryList from '@/components/indexed-history-list';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { useFeedingSessionsByDate } from '@/hooks/use-tinybase-indexes';
@@ -104,48 +112,76 @@ export default function HistoryList({
 	const router = useRouter();
 	const from = searchParams.get('from');
 	const to = searchParams.get('to');
+	const eventTitle = searchParams.get('event');
+
+	const effectiveRange = useMemo(() => {
+		if (from && to) {
+			return {
+				from: startOfDay(parseISO(from)),
+				to: endOfDay(parseISO(to)),
+			};
+		}
+
+		// Default to last 7 days
+		const end = endOfDay(new Date());
+		const start = startOfDay(subDays(end, 6));
+		return { from: start, to: end };
+	}, [from, to]);
 
 	const filteredDateKeys = useMemo(() => {
-		if (!from || !to) return dateKeys;
-
-		const fromDate = startOfDay(parseISO(from));
-		const toDate = endOfDay(parseISO(to));
-
 		return dateKeys.filter((dateKey) => {
 			const date = parseISO(dateKey);
-			return date >= fromDate && date <= toDate;
+			return date >= effectiveRange.from && date <= effectiveRange.to;
 		});
-	}, [dateKeys, from, to]);
+	}, [dateKeys, effectiveRange]);
 
-	const hasNewerEntries = useMemo(() => {
-		if (
-			(!from && !to) ||
-			filteredDateKeys.length === 0 ||
-			dateKeys.length === 0
-		)
-			return false;
-		return dateKeys[0] > filteredDateKeys[0];
-	}, [dateKeys, filteredDateKeys, from, to]);
+	const hasMoreNewerInStore = useMemo(() => {
+		if (dateKeys.length === 0) return false;
+		return parseISO(dateKeys[0]) > effectiveRange.to;
+	}, [dateKeys, effectiveRange.to]);
+
+	const hasMoreOlderInStore = useMemo(() => {
+		if (dateKeys.length === 0) return false;
+		return parseISO(dateKeys.at(-1)!) < effectiveRange.from;
+	}, [dateKeys, effectiveRange.from]);
+
+	const updateRange = useCallback(
+		(newFrom: Date, newTo: Date) => {
+			const params = new URLSearchParams(searchParams.toString());
+			params.set('from', newFrom.toISOString());
+			params.set('to', newTo.toISOString());
+			router.push(`/feeding?${params.toString()}`);
+		},
+		[router, searchParams],
+	);
+
+	const handleLoadMoreNewer = () => {
+		updateRange(effectiveRange.from, addDays(effectiveRange.to, 7));
+	};
+
+	const handleLoadMoreOlder = () => {
+		updateRange(subDays(effectiveRange.from, 7), effectiveRange.to);
+	};
 
 	return (
 		<>
-			{hasNewerEntries && (
-				<div className="flex justify-center mb-4">
-					<button
-						className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
-						onClick={() => router.push('/feeding')}
-						type="button"
-					>
-						<fbt desc="Button to show newer entries after filtering">
-							Show newer entries
-						</fbt>
-					</button>
-				</div>
+			{(from || to) && (
+				<HistoryFilterIndicator
+					baseUrl="/feeding"
+					eventTitle={eventTitle}
+					from={effectiveRange.from.toISOString()}
+					to={effectiveRange.to.toISOString()}
+				/>
 			)}
+
 			<IndexedHistoryList
 				dateKeys={filteredDateKeys}
+				hasMoreNewerInStore={hasMoreNewerInStore}
+				hasMoreOlderInStore={hasMoreOlderInStore}
 				indexes={indexes}
 				indexId={indexId}
+				onLoadMoreNewer={handleLoadMoreNewer}
+				onLoadMoreOlder={handleLoadMoreOlder}
 			>
 				{(sessionId) => (
 					<FeedingHistoryEntry

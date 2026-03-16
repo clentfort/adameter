@@ -39,7 +39,9 @@ function EventListItem({
 			<DropdownMenuItem
 				onClick={() =>
 					router.push(
-						`/feeding?from=${event.startDate}&to=${event.endDate || new Date().toISOString()}`,
+						`/feeding?from=${event.startDate}&to=${
+							event.endDate || new Date().toISOString()
+						}&event=${encodeURIComponent(event.title)}`,
 					)
 				}
 			>
@@ -51,7 +53,9 @@ function EventListItem({
 			<DropdownMenuItem
 				onClick={() =>
 					router.push(
-						`/diaper?from=${event.startDate}&to=${event.endDate || new Date().toISOString()}`,
+						`/diaper?from=${event.startDate}&to=${
+							event.endDate || new Date().toISOString()
+						}&event=${encodeURIComponent(event.title)}`,
 					)
 				}
 			>

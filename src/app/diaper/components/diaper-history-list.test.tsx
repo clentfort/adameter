@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import DiaperHistoryList from './diaper-history-list';
@@ -55,8 +55,16 @@ describe('DiaperHistoryList', () => {
 			push: vi.fn(),
 		} as unknown as ReturnType<typeof useRouter>);
 		mockUseSearchParams.mockReturnValue(
-			new URLSearchParams() as unknown as ReturnType<typeof useSearchParams>,
+			new URLSearchParams(
+				'from=2024-01-01T00:00:00Z&to=2024-01-31T23:59:59Z',
+			) as unknown as ReturnType<typeof useSearchParams>,
 		);
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date('2024-01-15T12:00:00Z'));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
 	it('should render empty state when no diaper changes', () => {
@@ -262,8 +270,8 @@ describe('DiaperHistoryList', () => {
 		);
 
 		// Should show two date headers
-		expect(screen.getByText(/Monday, 15. January 2024/)).toBeInTheDocument();
-		expect(screen.getByText(/Sunday, 14. January 2024/)).toBeInTheDocument();
+		expect(screen.getByText('Today')).toBeInTheDocument();
+		expect(screen.getByText('Yesterday')).toBeInTheDocument();
 
 		// Should render all three entries
 		expect(screen.getAllByTestId('diaper-history-entry')).toHaveLength(3);

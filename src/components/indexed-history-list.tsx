@@ -3,8 +3,8 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useSliceRowIds } from 'tinybase/ui-react';
 import { formatSectionDate } from '@/utils/format-history-date';
 
-const INITIAL_VISIBLE_DATE_SECTIONS = 14;
-const DATE_SECTIONS_INCREMENT = 14;
+const INITIAL_VISIBLE_DATE_SECTIONS = 7;
+const DATE_SECTIONS_INCREMENT = 7;
 
 interface DateSectionProps {
 	children: (rowId: string) => React.ReactNode;
@@ -36,8 +36,12 @@ function DateSection({
 interface IndexedHistoryListProps {
 	children: (rowId: string) => React.ReactNode;
 	dateKeys: string[];
+	hasMoreNewerInStore?: boolean;
+	hasMoreOlderInStore?: boolean;
 	indexes: Indexes | undefined;
 	indexId: string;
+	onLoadMoreNewer?: () => void;
+	onLoadMoreOlder?: () => void;
 }
 
 /**
@@ -48,16 +52,21 @@ interface IndexedHistoryListProps {
 export default function IndexedHistoryList({
 	children,
 	dateKeys,
+	hasMoreNewerInStore,
+	hasMoreOlderInStore,
 	indexes,
 	indexId,
+	onLoadMoreNewer,
+	onLoadMoreOlder,
 }: IndexedHistoryListProps) {
 	const [visibleDateSectionsCount, setVisibleDateSectionsCount] = useState(
 		INITIAL_VISIBLE_DATE_SECTIONS,
 	);
 
+	const firstDateKey = dateKeys[0];
 	useEffect(() => {
 		setVisibleDateSectionsCount(INITIAL_VISIBLE_DATE_SECTIONS);
-	}, [dateKeys.length]);
+	}, [firstDateKey]);
 
 	// Filter out empty date keys (rows with invalid timestamps)
 	const validDateKeys = dateKeys.filter((key) => key !== '');
@@ -73,16 +82,34 @@ export default function IndexedHistoryList({
 	}
 
 	const visibleDateKeys = validDateKeys.slice(0, visibleDateSectionsCount);
-	const hasMoreDateSections = visibleDateSectionsCount < validDateKeys.length;
+	const hasMoreInternalOlder = visibleDateSectionsCount < validDateKeys.length;
 
 	const handleShowOlderEntries = () => {
-		setVisibleDateSectionsCount(
-			(previousCount) => previousCount + DATE_SECTIONS_INCREMENT,
-		);
+		if (hasMoreInternalOlder) {
+			setVisibleDateSectionsCount(
+				(previousCount) => previousCount + DATE_SECTIONS_INCREMENT,
+			);
+		} else if (onLoadMoreOlder) {
+			onLoadMoreOlder();
+		}
 	};
 
 	return (
 		<div className="space-y-4">
+			{hasMoreNewerInStore && onLoadMoreNewer && (
+				<div className="flex justify-center">
+					<button
+						className="text-sm font-medium text-primary hover:underline"
+						onClick={onLoadMoreNewer}
+						type="button"
+					>
+						<fbt desc="Button label to load newer history entries in the history list">
+							Show newer entries
+						</fbt>
+					</button>
+				</div>
+			)}
+
 			{visibleDateKeys.map((dateKey) => (
 				<DateSection
 					dateKey={dateKey}
@@ -94,21 +121,23 @@ export default function IndexedHistoryList({
 				</DateSection>
 			))}
 
-			{hasMoreDateSections && (
+			{(hasMoreInternalOlder || hasMoreOlderInStore) && (
 				<div className="flex flex-col items-center gap-2">
-					<p className="text-sm text-muted-foreground">
-						<fbt desc="Label showing how many day sections are currently visible in the history list">
-							Showing{' '}
-							<fbt:param name="visibleDaySections">
-								{visibleDateKeys.length}
-							</fbt:param>{' '}
-							of{' '}
-							<fbt:param name="totalDaySections">
-								{validDateKeys.length}
-							</fbt:param>{' '}
-							days
-						</fbt>
-					</p>
+					{!hasMoreOlderInStore && hasMoreInternalOlder && (
+						<p className="text-sm text-muted-foreground">
+							<fbt desc="Label showing how many day sections are currently visible in the history list">
+								Showing{' '}
+								<fbt:param name="visibleDaySections">
+									{visibleDateKeys.length}
+								</fbt:param>{' '}
+								of{' '}
+								<fbt:param name="totalDaySections">
+									{validDateKeys.length}
+								</fbt:param>{' '}
+								days
+							</fbt>
+						</p>
+					)}
 					<button
 						className="text-sm font-medium text-primary hover:underline"
 						onClick={handleShowOlderEntries}

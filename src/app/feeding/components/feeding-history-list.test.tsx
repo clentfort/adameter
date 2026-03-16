@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -56,8 +56,16 @@ describe('FeedingHistoryList', () => {
 			push: vi.fn(),
 		} as unknown as ReturnType<typeof useRouter>);
 		mockUseSearchParams.mockReturnValue(
-			new URLSearchParams() as unknown as ReturnType<typeof useSearchParams>,
+			new URLSearchParams(
+				'from=2023-01-01T00:00:00Z&to=2023-01-01T23:59:59Z',
+			) as unknown as ReturnType<typeof useSearchParams>,
 		);
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date('2023-01-01T12:00:00Z'));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
 	it('should render a feeding session shorter than one hour correctly', () => {
@@ -70,7 +78,9 @@ describe('FeedingHistoryList', () => {
 			startTime: '2023-01-01T10:00:00Z',
 		};
 
-		mockUseFeedingSession.mockReturnValue(mockSession);
+		mockUseFeedingSession.mockImplementation((id) =>
+			id === mockSession.id ? mockSession : undefined,
+		);
 
 		render(
 			<TestWrapper sessions={[mockSession]}>
@@ -96,7 +106,9 @@ describe('FeedingHistoryList', () => {
 			startTime: '2023-01-01T12:00:00Z',
 		};
 
-		mockUseFeedingSession.mockReturnValue(mockSessionLong);
+		mockUseFeedingSession.mockImplementation((id) =>
+			id === mockSessionLong.id ? mockSessionLong : undefined,
+		);
 
 		render(
 			<TestWrapper sessions={[mockSessionLong]}>
