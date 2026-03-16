@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { ArrowRight, Baby, Calendar, Milk } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
@@ -124,12 +124,17 @@ export default function EventsList() {
 	const { dateKeys, indexes, indexId } = useEventsByDate();
 	const eventToEdit = useEvent(eventToEditId ?? undefined);
 
+	const searchParams = useSearchParams();
+	const from = searchParams.get('from');
+	const to = searchParams.get('to');
+
 	return (
 		<>
 			<IndexedHistoryList
 				dateKeys={dateKeys}
 				indexes={indexes}
 				indexId={indexId}
+				initialVisibleCount={from || to ? dateKeys.length : undefined}
 			>
 				{(eventId) => (
 					<EventListItem

@@ -206,6 +206,9 @@ export default function HistoryList({
 				hasMoreOlderInStore={hasMoreOlderInStore}
 				indexes={indexes}
 				indexId={indexId}
+				initialVisibleCount={
+					from || to ? filteredDateKeys.length : undefined
+				}
 				newerRangeDescription={newerRangeDescription}
 				olderRangeDescription={olderRangeDescription}
 				onLoadMoreNewer={handleLoadMoreNewer}

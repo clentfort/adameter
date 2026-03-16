@@ -40,6 +40,7 @@ interface IndexedHistoryListProps {
 	hasMoreOlderInStore?: boolean;
 	indexes: Indexes | undefined;
 	indexId: string;
+	initialVisibleCount?: number;
 	newerRangeDescription?: string;
 	olderRangeDescription?: string;
 	onLoadMoreNewer?: () => void;
@@ -58,19 +59,22 @@ export default function IndexedHistoryList({
 	hasMoreOlderInStore,
 	indexes,
 	indexId,
+	initialVisibleCount,
 	newerRangeDescription,
 	olderRangeDescription,
 	onLoadMoreNewer,
 	onLoadMoreOlder,
 }: IndexedHistoryListProps) {
 	const [visibleDateSectionsCount, setVisibleDateSectionsCount] = useState(
-		INITIAL_VISIBLE_DATE_SECTIONS,
+		initialVisibleCount ?? INITIAL_VISIBLE_DATE_SECTIONS,
 	);
 
 	const firstDateKey = dateKeys[0];
 	useEffect(() => {
-		setVisibleDateSectionsCount(INITIAL_VISIBLE_DATE_SECTIONS);
-	}, [firstDateKey]);
+		setVisibleDateSectionsCount(
+			initialVisibleCount ?? INITIAL_VISIBLE_DATE_SECTIONS,
+		);
+	}, [firstDateKey, initialVisibleCount]);
 
 	// Filter out empty date keys (rows with invalid timestamps)
 	const validDateKeys = dateKeys.filter((key) => key !== '');
