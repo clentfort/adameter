@@ -63,14 +63,14 @@ export default function DiaperPage() {
 									History
 								</fbt>
 							</h2>
-						<Button
-							onClick={() => setIsAddEntryDialogOpen(true)}
-							size="sm"
-							variant="outline"
-						>
-							<PlusCircle className="h-4 w-4 mr-1" />
-							<fbt common>Add Entry</fbt>
-						</Button>
+							<Button
+								onClick={() => setIsAddEntryDialogOpen(true)}
+								size="sm"
+								variant="outline"
+							>
+								<PlusCircle className="h-4 w-4 mr-1" />
+								<fbt common>Add Entry</fbt>
+							</Button>
 						</div>
 						<DiaperHistoryList />
 					</div>
