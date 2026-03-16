@@ -1,5 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
 	Card,
 	CardContent,
@@ -72,6 +72,12 @@ function calculateDisplayIntervals(distribution: number[]) {
 }
 
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
+	const [activeIndex, setActiveIndex] = useState<number | null>(null);
+	const [pointerPos, setPointerPos] = useState<{ x: number; y: number } | null>(
+		null,
+	);
+	const containerRef = useRef<HTMLDivElement>(null);
+
 	// Calculate time distribution (5-minute intervals)
 	const distribution = useMemo(
 		() => calculateHeatMapDistribution(sessions),
@@ -87,7 +93,32 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 		[distribution],
 	);
 
+	const handlePointerMove = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (!containerRef.current) return;
+
+			const rect = containerRef.current.getBoundingClientRect();
+			const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+			const y = e.clientY - rect.top;
+
+			const percentage = x / rect.width;
+			const index = Math.floor(percentage * displayIntervals.length);
+
+			setActiveIndex(Math.min(index, displayIntervals.length - 1));
+			setPointerPos({ x, y });
+		},
+		[displayIntervals.length],
+	);
+
+	const handlePointerLeave = useCallback(() => {
+		setActiveIndex(null);
+		setPointerPos(null);
+	}, []);
+
 	if (sessions.length === 0 || maxCount === 0) return null;
+
+	const activeInterval =
+		activeIndex !== null ? displayIntervals[activeIndex] : null;
 
 	return (
 		<Card className={className}>
@@ -106,7 +137,13 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 			<CardContent className="p-4 pt-0">
 				<div className="mt-6 mb-2 rounded-lg border border-border/70 bg-muted/20 p-3 dark:border-zinc-700/80 dark:bg-zinc-900/60">
 					<div className="relative h-16 mb-6">
-						<div className="absolute top-0 left-0 right-0 h-8 flex overflow-hidden rounded-md">
+						<div
+							className="absolute top-0 left-0 right-0 h-8 flex overflow-hidden rounded-md cursor-crosshair touch-none"
+							onPointerDown={handlePointerMove}
+							onPointerLeave={handlePointerLeave}
+							onPointerMove={handlePointerMove}
+							ref={containerRef}
+						>
 							{displayIntervals.map((interval, index) => {
 								const intensity = maxCount > 0 ? interval.count / maxCount : 0;
 								const level =
@@ -122,20 +159,52 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 														? 4
 														: 5;
 
+								const timeString = `${interval.time} Uhr: ${interval.count} Mahlzeit${interval.count !== 1 ? 'en' : ''}`;
 								return (
 									<div
-										className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 group relative transition-colors ${INTENSITY_CLASSES[level]}`}
+										aria-label={timeString}
+										className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 transition-colors ${INTENSITY_CLASSES[level]} ${activeIndex === index ? 'ring-2 ring-inset ring-white/50 z-10' : ''}`}
 										key={index}
+										role="img"
 										style={{ width: `${100 / displayIntervals.length}%` }}
-										title={`${interval.time} Uhr: ${interval.count} Mahlzeit${interval.count !== 1 ? 'en' : ''}`}
-									>
-										<div className="absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 transform whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] text-background opacity-0 transition-opacity pointer-events-none group-hover:opacity-100">
-											{interval.time} Uhr: {interval.count}
-										</div>
-									</div>
+										title={timeString}
+									/>
 								);
 							})}
 						</div>
+
+						{/* Magnifying Lens / Tooltip */}
+						{activeInterval && pointerPos && containerRef.current && (
+							<div
+								className="absolute z-20 pointer-events-none transition-transform duration-75 ease-out"
+								style={{
+									left: Math.max(
+										48,
+										Math.min(pointerPos.x, containerRef.current.offsetWidth - 48),
+									),
+									top: -8,
+									transform: 'translate(-50%, -100%)',
+								}}
+							>
+								<div className="flex flex-col items-center">
+									<div className="bg-foreground text-background rounded-full px-3 py-1.5 shadow-2xl flex flex-col items-center min-w-24 border border-background/20 animate-in fade-in zoom-in-95 duration-100 ring-4 ring-black/5 dark:ring-white/5">
+										<span className="text-[10px] font-bold opacity-80 uppercase tracking-wider">
+											{activeInterval.time} Uhr
+										</span>
+										<span className="text-sm font-black">
+											{activeInterval.count} Mahlzeit
+											{activeInterval.count !== 1 ? 'en' : ''}
+										</span>
+									</div>
+									<div
+										className="w-2 h-2 bg-foreground rotate-45 -mt-1 shadow-lg"
+										style={{
+											marginLeft: `${(pointerPos.x - Math.max(48, Math.min(pointerPos.x, containerRef.current.offsetWidth - 48))) * 2}px`,
+										}}
+									/>
+								</div>
+							</div>
+						)}
 
 						<div className="absolute bottom-0 left-0 right-0">
 							{[0, 3, 6, 9, 12, 15, 18, 21].map((hour) => (
