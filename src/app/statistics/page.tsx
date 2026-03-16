@@ -49,6 +49,7 @@ export default function StatisticsPage() {
 	const sessions = useFeedingSessionsSnapshot();
 
 	const [isPending, startTransition] = useTransition();
+
 	const [timeRange, setTimeRange] = useState<TimeRange>('7');
 	const [customRange, setCustomRange] = useState({
 		from: dateToDateInputValue(addDays(new Date(), -7)),
@@ -65,6 +66,7 @@ export default function StatisticsPage() {
 	);
 
 	// Filter sessions based on selected time range
+
 	const filteredSessions = useMemo(() => {
 		const result = sessions.filter((session) =>
 			isWithinInterval(new Date(session.startTime), {
@@ -76,6 +78,7 @@ export default function StatisticsPage() {
 	}, [sessions, primary]);
 
 	const comparisonSessions = useMemo(() => {
+
 		if (!secondary) return undefined;
 		const result = sessions.filter((session) =>
 			isWithinInterval(new Date(session.startTime), {
@@ -87,6 +90,7 @@ export default function StatisticsPage() {
 	}, [sessions, secondary]);
 
 	// Filter diaper changes based on selected time range
+
 	const filteredDiaperChanges = useMemo(() => {
 		const result = diaperChanges.filter((change) =>
 			isWithinInterval(new Date(change.timestamp), {
@@ -98,6 +102,7 @@ export default function StatisticsPage() {
 	}, [diaperChanges, primary]);
 
 	const comparisonDiaperChanges = useMemo(() => {
+
 		if (!secondary) return undefined;
 		const result = diaperChanges.filter((change) =>
 			isWithinInterval(new Date(change.timestamp), {
@@ -109,6 +114,7 @@ export default function StatisticsPage() {
 	}, [diaperChanges, secondary]);
 
 	const pottyHitsCount = useMemo(
+
 		() =>
 			filteredDiaperChanges.filter((c) => c.pottyUrine || c.pottyStool).length,
 		[filteredDiaperChanges],
@@ -120,6 +126,7 @@ export default function StatisticsPage() {
 	);
 
 	const disposableChanges = useMemo(() => {
+
 		const result = diaperChanges
 			.map((change) => {
 				const productId = change.diaperProductId;
@@ -139,6 +146,7 @@ export default function StatisticsPage() {
 	}, [diaperChanges, productById]);
 
 	return (
+
 		<div className={cn('w-full transition-opacity', isPending && 'opacity-50')}>
 			<div
 				className="flex flex-col gap-4 mb-6 sticky z-30 bg-background -mx-4 px-4 py-3 border-b shadow-sm transition-all"

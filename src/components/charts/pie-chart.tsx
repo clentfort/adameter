@@ -21,18 +21,22 @@ interface PieChartProps {
 export default function PieChart({
 	datasets,
 	emptyStateMessage,
+
 	labels,
 	title,
 	tooltipLabelFormatter,
 }: PieChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
+
 	const chartInstance = useRef<ChartJS<'pie', number[]> | null>(null);
 
 	useEffect(() => {
+
 		const initChart = () => {
 			if (!chartRef.current) return;
 
 			if (datasets.length === 0 || labels.length === 0) {
+
 				return;
 			}
 
@@ -40,6 +44,7 @@ export default function PieChart({
 			if (!ctx) return;
 
 			chartInstance.current = new Chart<'pie', number[]>(ctx, {
+
 				data: {
 					datasets: datasets.map((ds) => ({
 						...ds,
@@ -61,6 +66,7 @@ export default function PieChart({
 						tooltip: {
 							callbacks: {
 								label: tooltipLabelFormatter
+
 									? tooltipLabelFormatter
 									: (context) => {
 											let label = context.label || '';

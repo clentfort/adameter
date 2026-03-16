@@ -3,7 +3,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DeferredSection from './deferred-section';
 
 describe('DeferredSection', () => {
+	let intersectionObserverCallback: (entries: any[]) => void;
+	const observe = vi.fn();
+	const disconnect = vi.fn();
+
 	beforeEach(() => {
+		vi.stubGlobal(
+			'IntersectionObserver',
+			class {
+				constructor(cb: any) {
+					intersectionObserverCallback = cb;
+				}
+				observe = observe;
+				disconnect = disconnect;
+			},
+		);
+
 		vi.stubGlobal(
 			'requestIdleCallback',
 			vi.fn((cb) => {
@@ -20,6 +35,7 @@ describe('DeferredSection', () => {
 
 	afterEach(() => {
 		vi.unstubAllGlobals();
+		vi.clearAllMocks();
 	});
 
 	it('renders fallback initially', () => {
@@ -31,20 +47,25 @@ describe('DeferredSection', () => {
 
 		expect(screen.getByText('Fallback')).toBeInTheDocument();
 		expect(screen.queryByText('Content')).not.toBeInTheDocument();
+		expect(observe).toHaveBeenCalled();
 	});
 
-	it('renders children after requestIdleCallback', async () => {
+	it('renders children after intersection and requestIdleCallback', async () => {
 		render(
 			<DeferredSection fallback={<div>Fallback</div>}>
 				<div>Content</div>
 			</DeferredSection>,
 		);
 
+		expect(screen.getByText('Fallback')).toBeInTheDocument();
+
 		await act(async () => {
+			intersectionObserverCallback([{ isIntersecting: true }]);
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
 
 		expect(screen.getByText('Content')).toBeInTheDocument();
 		expect(screen.queryByText('Fallback')).not.toBeInTheDocument();
+		expect(disconnect).toHaveBeenCalled();
 	});
 });
