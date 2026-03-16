@@ -118,7 +118,11 @@ export default function HistoryList({
 	}, [dateKeys, from, to]);
 
 	const hasNewerEntries = useMemo(() => {
-		if ((!from && !to) || filteredDateKeys.length === 0 || dateKeys.length === 0)
+		if (
+			(!from && !to) ||
+			filteredDateKeys.length === 0 ||
+			dateKeys.length === 0
+		)
 			return false;
 		return dateKeys[0] > filteredDateKeys[0];
 	}, [dateKeys, filteredDateKeys, from, to]);
