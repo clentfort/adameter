@@ -21,6 +21,7 @@ export default function HistoryRangeSelector({
 	onRangeChange,
 	to,
 }: HistoryRangeSelectorProps) {
+	const [open, setOpen] = useState(false);
 	const [customRange, setCustomRange] = useState({
 		from: dateToDateInputValue(new Date()),
 		to: dateToDateInputValue(new Date()),
@@ -36,7 +37,7 @@ export default function HistoryRangeSelector({
 	}, [from, to]);
 
 	return (
-		<Popover>
+		<Popover onOpenChange={setOpen} open={open}>
 			<PopoverTrigger
 				className={cn(
 					buttonVariants({ size: 'sm', variant: 'outline' }),
@@ -94,6 +95,7 @@ export default function HistoryRangeSelector({
 								new Date(customRange.from).toISOString(),
 								new Date(customRange.to).toISOString(),
 							);
+							setOpen(false);
 						}}
 						size="sm"
 					>
