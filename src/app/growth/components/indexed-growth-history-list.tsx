@@ -24,8 +24,10 @@ import {
 	useGrowthMeasurementsByDate,
 	useTeethByDate,
 } from '@/hooks/use-tinybase-indexes';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { formatSectionDate } from '@/utils/format-history-date';
+import { cmToInches, gramsToLbsOz } from '@/utils/unit-conversions';
 import { getToothName } from '../utils/teething';
 import MeasurementForm from './growth-form';
 import TeethingForm from './teething-form';
@@ -43,6 +45,8 @@ function GrowthHistoryEntry({
 }: GrowthHistoryEntryProps) {
 	const measurement = useGrowthMeasurement(rowId);
 	const { locale } = useLanguage();
+	const unitSystem = useUnitSystem();
+	const isImperial = unitSystem === 'imperial';
 
 	if (!measurement) return null;
 
@@ -50,12 +54,27 @@ function GrowthHistoryEntry({
 		maximumFractionDigits: 1,
 	});
 
+	function formatWeight(grams: number) {
+		if (isImperial) {
+			const { lbs, oz } = gramsToLbsOz(grams);
+			return `${lbs} lbs ${numberFormat.format(oz)} oz`;
+		}
+		return `${numberFormat.format(grams)} g`;
+	}
+
+	function formatLength(cm: number) {
+		if (isImperial) {
+			return `${numberFormat.format(cmToInches(cm))} in`;
+		}
+		return `${numberFormat.format(cm)} cm`;
+	}
+
 	return (
 		<HistoryEntryCard
-			className="border-emerald-600/30 bg-emerald-600/5"
+			accentColor="#059669"
 			data-testid="growth-history-entry"
 			header={
-				<div className="flex items-center gap-2 text-emerald-700">
+				<div className="flex items-center gap-2">
 					<span aria-hidden="true" role="img">
 						📏
 					</span>
@@ -69,7 +88,7 @@ function GrowthHistoryEntry({
 				{measurement.weight && (
 					<div className="flex items-center gap-1">
 						<span title={fbt('Weight', 'Weight tooltip').toString()}>⚖️</span>
-						<span>{numberFormat.format(measurement.weight)} g</span>
+						<span>{formatWeight(measurement.weight)}</span>
 					</div>
 				)}
 				{measurement.weight &&
@@ -79,7 +98,7 @@ function GrowthHistoryEntry({
 				{measurement.height && (
 					<div className="flex items-center gap-1">
 						<span title={fbt('Height', 'Height tooltip').toString()}>📏</span>
-						<span>{numberFormat.format(measurement.height)} cm</span>
+						<span>{formatLength(measurement.height)}</span>
 					</div>
 				)}
 				{measurement.height && measurement.headCircumference && (
@@ -95,7 +114,7 @@ function GrowthHistoryEntry({
 						>
 							🗣️
 						</span>
-						<span>{numberFormat.format(measurement.headCircumference)} cm</span>
+						<span>{formatLength(measurement.headCircumference)}</span>
 					</div>
 				)}
 			</div>
@@ -125,9 +144,9 @@ function TeethingHistoryEntry({
 
 	return (
 		<HistoryEntryCard
-			className="border-sky-600/30 bg-sky-600/5"
+			accentColor="#0284c7"
 			header={
-				<div className="flex items-center gap-2 text-sky-700">
+				<div className="flex items-center gap-2">
 					<span aria-hidden="true" role="img">
 						🦷
 					</span>

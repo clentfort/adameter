@@ -2,6 +2,7 @@
 
 import type { FeedingSession } from '@/types/feeding';
 import type { DateRange } from '@/utils/get-range-dates';
+import { useMemo } from 'react';
 import {
 	Card,
 	CardContent,
@@ -26,6 +27,10 @@ export default function FeedingActivity({
 	secondaryRange,
 	sessions,
 }: FeedingActivityProps) {
+	const sessionDates = useMemo(
+		() => sessions.map((session) => session.startTime),
+		[sessions],
+	);
 	return (
 		<Card className={className}>
 			<CardHeader className="p-4 pb-2">
@@ -67,7 +72,7 @@ export default function FeedingActivity({
 					</TabsContent>
 					<TabsContent className="mt-0" value="frequency">
 						<YearlyActivityHeatMap
-							dates={sessions.map((session) => session.startTime)}
+							dates={sessionDates}
 							noCard={true}
 							palette="feeding"
 						/>

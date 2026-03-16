@@ -2,6 +2,7 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
+import { useMemo } from 'react';
 import {
 	Card,
 	CardContent,
@@ -26,6 +27,13 @@ export default function PottyActivity({
 	primaryRange,
 	secondaryRange,
 }: PottyActivityProps) {
+	const pottyDates = useMemo(
+		() =>
+			diaperChanges
+				.filter((c) => c.pottyUrine || c.pottyStool)
+				.map((c) => c.timestamp),
+		[diaperChanges],
+	);
 	return (
 		<Card className={className}>
 			<CardHeader className="p-4 pb-2">
@@ -65,9 +73,7 @@ export default function PottyActivity({
 					</TabsContent>
 					<TabsContent className="mt-0" value="yearly">
 						<YearlyActivityHeatMap
-							dates={diaperChanges
-								.filter((c) => c.pottyUrine || c.pottyStool)
-								.map((c) => c.timestamp)}
+							dates={pottyDates}
 							noCard={true}
 							palette="diaper"
 						/>

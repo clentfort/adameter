@@ -41,33 +41,18 @@ function FeedingHistoryEntry({
 	}
 
 	const isLeftBreast = session.breast === 'left';
-	const borderColor = isLeftBreast
-		? 'border-left-breast/30'
-		: 'border-right-breast/30';
-	const bgColor = isLeftBreast ? 'bg-left-breast/5' : 'bg-right-breast/5';
-	const textColor = isLeftBreast
-		? 'text-left-breast-dark'
-		: 'text-right-breast-dark';
+	const accentColor = isLeftBreast ? '#6366f1' : '#ec4899';
 	const startDate = new Date(session.startTime);
 	const endDate = new Date(session.endTime);
 	const crossesMidnight = !isSameDay(startDate, endDate);
 
 	return (
 		<HistoryEntryCard
-			className={`${borderColor} ${bgColor}`}
+			accentColor={accentColor}
 			data-testid="feeding-history-entry"
-			formattedTime={
-				<div className="flex items-center gap-2">
-					<span>{formatEntryTime(session.startTime)}</span>
-					<span className="mx-1">•</span>
-					<div className="flex items-center gap-0.5">
-						<span>⏳</span>
-						<span>{formatDurationAbbreviated(session.durationInSeconds)}</span>
-					</div>
-				</div>
-			}
+			formattedTime={<span>{formatEntryTime(session.startTime)}</span>}
 			header={
-				<span className={textColor}>
+				<span>
 					{isLeftBreast ? (
 						<fbt desc="Label indicating a feeding was done with the left breast">
 							Left Breast
@@ -82,9 +67,15 @@ function FeedingHistoryEntry({
 			onDelete={() => onDelete(session.id)}
 			onEdit={() => onEdit(session.id)}
 		>
-			<div className="space-y-1">
+			<div className="text-sm space-y-1">
+				<div className="flex items-center gap-1">
+					<span>⏳</span>
+					<span className="font-medium">
+						{formatDurationAbbreviated(session.durationInSeconds)}
+					</span>
+				</div>
 				{session.notes && (
-					<p className="text-sm text-muted-foreground whitespace-pre-wrap">
+					<p className="text-muted-foreground whitespace-pre-wrap">
 						{session.notes}
 					</p>
 				)}
@@ -206,9 +197,7 @@ export default function HistoryList({
 				hasMoreOlderInStore={hasMoreOlderInStore}
 				indexes={indexes}
 				indexId={indexId}
-				initialVisibleCount={
-					from || to ? filteredDateKeys.length : undefined
-				}
+				initialVisibleCount={from || to ? filteredDateKeys.length : undefined}
 				newerRangeDescription={newerRangeDescription}
 				olderRangeDescription={olderRangeDescription}
 				onLoadMoreNewer={handleLoadMoreNewer}

@@ -2,6 +2,7 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ComparisonValue from './comparison-value';
 
@@ -50,13 +51,18 @@ export default function PottyStats({
 	comparisonDiaperChanges,
 	diaperChanges = [],
 }: PottyStatsProps) {
-	const metrics = calculatePottyMetrics(diaperChanges);
-	const prevMetrics = comparisonDiaperChanges
-		? calculatePottyMetrics(comparisonDiaperChanges)
-		: null;
-
+	const metrics = useMemo(
+		() => calculatePottyMetrics(diaperChanges),
+		[diaperChanges],
+	);
+	const prevMetrics = useMemo(
+		() =>
+			comparisonDiaperChanges
+				? calculatePottyMetrics(comparisonDiaperChanges)
+				: null,
+		[comparisonDiaperChanges],
+	);
 	const { hitsPerDay, pottyStool, pottyUrine, totalPottyHits } = metrics;
-
 	return (
 		<Card className="w-full">
 			<CardHeader className="p-4 pb-2">
@@ -97,7 +103,6 @@ export default function PottyStats({
 						</div>
 					</div>
 				</div>
-
 				<div className="grid grid-cols-2 gap-4">
 					<div className="border rounded-md p-3 bg-blue-50 dark:bg-blue-800/30">
 						<p className="text-sm text-blue-800 dark:text-blue-300">

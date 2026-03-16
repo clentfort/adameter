@@ -1,4 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
+import { useMemo } from 'react';
 import {
 	Card,
 	CardContent,
@@ -21,12 +22,8 @@ const INTENSITY_CLASSES = [
 	'bg-right-breast dark:bg-right-breast-light',
 ] as const;
 
-export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
-	if (sessions.length === 0) return null;
-
-	// Calculate time distribution (5-minute intervals)
-	const distribution = Array(288).fill(0); // 288 5-minute intervals in a day
-
+function calculateHeatMapDistribution(sessions: FeedingSession[]) {
+	const dist = Array(288).fill(0); // 288 5-minute intervals in a day
 	sessions.forEach((session) => {
 		const startTime = new Date(session.startTime);
 		const endTime = new Date(session.endTime);
@@ -46,24 +43,22 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 
 		// Mark all intervals that this session spans
 		for (let i = startInterval; i <= Math.min(endInterval, 287); i++) {
-			distribution[i % 288]++;
+			dist[i % 288]++;
 		}
 
 		// If session crosses midnight, continue from the beginning of the day
 		if (endInterval > 287) {
 			for (let i = 0; i <= endInterval - 288; i++) {
-				distribution[i]++;
+				dist[i]++;
 			}
 		}
 	});
 
-	// Find the maximum count for scaling
-	const maxCount = Math.max(...distribution);
+	return dist;
+}
 
-	if (maxCount === 0) return null;
-
-	// Create display intervals
-	const displayIntervals = distribution.map((count, i) => {
+function calculateDisplayIntervals(distribution: number[]) {
+	return distribution.map((count, i) => {
 		const hour = Math.floor((i * 5) / 60);
 		const minute = (i * 5) % 60;
 		const timeLabel = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
@@ -74,6 +69,25 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 			time: timeLabel,
 		};
 	});
+}
+
+export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
+	// Calculate time distribution (5-minute intervals)
+	const distribution = useMemo(
+		() => calculateHeatMapDistribution(sessions),
+		[sessions],
+	);
+
+	// Find the maximum count for scaling
+	const maxCount = useMemo(() => Math.max(...distribution), [distribution]);
+
+	// Create display intervals
+	const displayIntervals = useMemo(
+		() => calculateDisplayIntervals(distribution),
+		[distribution],
+	);
+
+	if (sessions.length === 0 || maxCount === 0) return null;
 
 	return (
 		<Card className={className}>

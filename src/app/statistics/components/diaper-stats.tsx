@@ -2,6 +2,7 @@
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
+import { useMemo } from 'react';
 import PieChart from '@/components/charts/pie-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -115,34 +116,25 @@ export default function DiaperStats({
 	const [currency] = useCurrency();
 	const { locale } = useLanguage();
 
-	if (diaperChanges.length === 0) {
-		return (
-			<Card className="w-full">
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
-						<fbt desc="Title for the diaper statistics card">
-							Diaper Statistics
-						</fbt>
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
-					<p className="text-muted-foreground text-center py-4">
-						<fbt desc="Message shown when no diaper data is available for the selected time range">
-							No diaper data available for the selected time range.
-						</fbt>
-					</p>
-				</CardContent>
-			</Card>
-		);
-	}
+	const productCostById = useMemo(
+		() => createProductCostById(products),
+		[products],
+	);
 
-	const productCostById = createProductCostById(products);
-	const productById = createProductById(products);
+	const productById = useMemo(() => createProductById(products), [products]);
 
-	const metrics = calculateDiaperMetrics(diaperChanges, productCostById);
-	const prevMetrics = comparisonDiaperChanges
-		? calculateDiaperMetrics(comparisonDiaperChanges, productCostById)
-		: null;
+	const metrics = useMemo(
+		() => calculateDiaperMetrics(diaperChanges, productCostById),
+		[diaperChanges, productCostById],
+	);
+
+	const prevMetrics = useMemo(
+		() =>
+			comparisonDiaperChanges
+				? calculateDiaperMetrics(comparisonDiaperChanges, productCostById)
+				: null,
+		[comparisonDiaperChanges, productCostById],
+	);
 
 	const {
 		changesPerDay,
@@ -157,6 +149,7 @@ export default function DiaperStats({
 		string,
 		{ costedChanges: number; leakage: number; total: number; totalCost: number }
 	> = {};
+
 	diaperChanges.forEach((change) => {
 		const productId = change.diaperProductId;
 		if (!productId) {
@@ -191,16 +184,40 @@ export default function DiaperStats({
 		.sort(([, countA], [, countB]) => countB.total - countA.total)
 		.slice(0, 5);
 
-	const pieData = {
-		datasets: [
-			{
-				backgroundColor: BRAND_COLORS,
-				data: sortedBrands.map(([, stats]) => stats.total),
-				label: 'Diaper Brands',
-			},
-		],
-		labels: sortedBrands.map(([brand]) => brand),
-	};
+	const pieData = useMemo(
+		() => ({
+			datasets: [
+				{
+					backgroundColor: BRAND_COLORS,
+					data: sortedBrands.map(([, stats]) => stats.total),
+					label: 'Diaper Brands',
+				},
+			],
+			labels: sortedBrands.map(([brand]) => brand),
+		}),
+		[sortedBrands],
+	);
+
+	if (diaperChanges.length === 0) {
+		return (
+			<Card className="w-full">
+				<CardHeader className="p-4 pb-2">
+					<CardTitle className="text-base">
+						<fbt desc="Title for the diaper statistics card">
+							Diaper Statistics
+						</fbt>
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="p-4 pt-0">
+					<p className="text-muted-foreground text-center py-4">
+						<fbt desc="Message shown when no diaper data is available for the selected time range">
+							No diaper data available for the selected time range.
+						</fbt>
+					</p>
+				</CardContent>
+			</Card>
+		);
+	}
 
 	return (
 		<Card className="w-full">

@@ -2,7 +2,8 @@
 
 import type { Chart as ChartJS, TooltipItem } from 'chart.js';
 import Chart from 'chart.js/auto';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface PieDataset {
 	backgroundColor: string[];
@@ -27,16 +28,21 @@ export default function PieChart({
 }: PieChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<ChartJS<'pie', number[]> | null>(null);
+	const [isMounted, setIsMounted] = useState(false);
 
-	const createChart = useCallback(() => {
-		if (!chartRef.current) return;
+	useIdleCallback(() => {
+		setIsMounted(true);
+	}, []);
+
+	useEffect(() => {
+		if (!chartRef.current || !isMounted) return;
 
 		if (datasets.length === 0 || labels.length === 0) {
 			return;
 		}
 
 		if (chartInstance.current) {
-			chartInstance.current.destroy();
+			return;
 		}
 
 		const ctx = chartRef.current.getContext('2d');
@@ -82,17 +88,33 @@ export default function PieChart({
 			},
 			type: 'pie',
 		});
-	}, [datasets, labels, title, tooltipLabelFormatter]);
-
-	useEffect(() => {
-		createChart();
 
 		return () => {
 			if (chartInstance.current) {
 				chartInstance.current.destroy();
+				chartInstance.current = null;
 			}
 		};
-	}, [createChart]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isMounted]);
+
+	useEffect(() => {
+		if (chartInstance.current) {
+			chartInstance.current.data.labels = labels;
+			chartInstance.current.data.datasets = datasets.map((ds) => ({
+				...ds,
+				borderWidth: 1,
+			}));
+
+			if (chartInstance.current.options.plugins?.title) {
+				chartInstance.current.options.plugins.title.display = !!title;
+				chartInstance.current.options.plugins.title.text =
+					title?.toString() || '';
+			}
+
+			chartInstance.current.update();
+		}
+	}, [datasets, labels, title]);
 
 	if (datasets.length === 0 || labels.length === 0) {
 		return (

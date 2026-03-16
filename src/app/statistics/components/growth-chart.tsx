@@ -22,6 +22,7 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { useProfile } from '@/hooks/use-profile';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import {
 	calculateValue,
 	getGrowthTable,
@@ -30,6 +31,7 @@ import {
 	Z_3RD,
 	Z_97TH,
 } from '@/utils/growth-standards';
+import { cmToInches, gramsToLbs } from '@/utils/unit-conversions';
 
 interface GrowthChartProps {
 	measurements: GrowthMeasurement[];
@@ -82,8 +84,48 @@ function PercentileBadge({ value }: { value: number }) {
 	);
 }
 
+function calculateSortedMeasurements(measurements: GrowthMeasurement[]) {
+	return [...measurements].sort(
+		(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+	);
+}
+
+function calculateForecastAge(
+	dob: Date | null,
+	sortedMeasurements: GrowthMeasurement[],
+) {
+	if (!dob) return undefined;
+
+	const lastMeasurement = sortedMeasurements.at(-1);
+	const lastMeasureDate = lastMeasurement
+		? startOfDay(new Date(lastMeasurement.date))
+		: dob;
+
+	const currentAgeMonths =
+		differenceInDays(lastMeasureDate, dob) / DAYS_PER_MONTH;
+
+	return Math.floor(currentAgeMonths / 3) * 3 + 3;
+}
+
+function calculateGrowthData(
+	sortedMeasurements: GrowthMeasurement[],
+	dob: Date | null,
+	field: keyof GrowthMeasurement,
+) {
+	return sortedMeasurements
+		.filter((m) => m[field] != null && (m[field] as number) > 0)
+		.map((m) => ({
+			x: dob
+				? differenceInDays(startOfDay(new Date(m.date)), dob) / DAYS_PER_MONTH
+				: new Date(m.date).getTime(),
+			y: m[field] as number,
+		}));
+}
+
 export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [profile] = useProfile();
+	const unitSystem = useUnitSystem();
+	const isImperial = unitSystem === 'imperial';
 	const [weightRange, setWeightRange] = useState<RangePoint[]>([]);
 	const [heightRange, setHeightRange] = useState<RangePoint[]>([]);
 	const [headRange, setHeadRange] = useState<RangePoint[]>([]);
@@ -92,10 +134,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [headPercentile, setHeadPercentile] = useState<number | null>(null);
 
 	const sortedMeasurements = useMemo(
-		() =>
-			[...measurements].sort(
-				(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-			),
+		() => calculateSortedMeasurements(measurements),
 		[measurements],
 	);
 
@@ -104,18 +143,10 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 		[profile],
 	);
 
-	const forecastAge = useMemo(() => {
-		if (!dob) return undefined;
-
-		const lastMeasurement = sortedMeasurements.at(-1);
-		const lastMeasureDate = lastMeasurement
-			? startOfDay(new Date(lastMeasurement.date))
-			: dob;
-
-		const currentAgeMonths =
-			differenceInDays(lastMeasureDate, dob) / DAYS_PER_MONTH;
-		return Math.floor(currentAgeMonths / 3) * 3 + 3;
-	}, [dob, sortedMeasurements]);
+	const forecastAge = useMemo(
+		() => calculateForecastAge(dob, sortedMeasurements),
+		[dob, sortedMeasurements],
+	);
 
 	useEffect(() => {
 		async function loadRanges() {
@@ -202,6 +233,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			}
 			// Always include the very end
 			const lastPoint = points.at(-1);
+
 			if (!lastPoint || differenceInDays(endDate, lastPoint) > 0) {
 				points.push(endDate);
 			}
@@ -265,47 +297,78 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 		loadRanges();
 	}, [dob, profile?.sex, profile?.optedOut, sortedMeasurements]);
 
-	const weightData = useMemo(
+	const displayWeightRange = useMemo(
 		() =>
-			sortedMeasurements
-				.filter((m) => m.weight != null && m.weight > 0)
-				.map((m) => ({
-					x: dob
-						? differenceInDays(startOfDay(new Date(m.date)), dob) /
-							DAYS_PER_MONTH
-						: new Date(m.date).getTime(),
-					y: m.weight!,
-				})),
-		[sortedMeasurements, dob],
+			isImperial
+				? weightRange.map((p) => ({
+						x: p.x,
+						yMax: gramsToLbs(p.yMax),
+						yMin: gramsToLbs(p.yMin),
+					}))
+				: weightRange,
+		[weightRange, isImperial],
 	);
 
-	const heightData = useMemo(
+	const displayHeightRange = useMemo(
 		() =>
-			sortedMeasurements
-				.filter((m) => m.height != null && m.height > 0)
-				.map((m) => ({
-					x: dob
-						? differenceInDays(startOfDay(new Date(m.date)), dob) /
-							DAYS_PER_MONTH
-						: new Date(m.date).getTime(),
-					y: m.height!,
-				})),
-		[sortedMeasurements, dob],
+			isImperial
+				? heightRange.map((p) => ({
+						x: p.x,
+						yMax: cmToInches(p.yMax),
+						yMin: cmToInches(p.yMin),
+					}))
+				: heightRange,
+		[heightRange, isImperial],
 	);
 
-	const headCircumferenceData = useMemo(
+	const displayHeadRange = useMemo(
 		() =>
-			sortedMeasurements
-				.filter((m) => m.headCircumference != null && m.headCircumference > 0)
-				.map((m) => ({
-					x: dob
-						? differenceInDays(startOfDay(new Date(m.date)), dob) /
-							DAYS_PER_MONTH
-						: new Date(m.date).getTime(),
-					y: m.headCircumference!,
-				})),
-		[sortedMeasurements, dob],
+			isImperial
+				? headRange.map((p) => ({
+						x: p.x,
+						yMax: cmToInches(p.yMax),
+						yMin: cmToInches(p.yMin),
+					}))
+				: headRange,
+		[headRange, isImperial],
 	);
+
+	const weightData = useMemo(() => {
+		const data = calculateGrowthData(sortedMeasurements, dob, 'weight');
+
+		if (!isImperial) return data;
+
+		return data.map((point) => ({
+			...point,
+			y: gramsToLbs(point.y),
+		}));
+	}, [sortedMeasurements, dob, isImperial]);
+
+	const heightData = useMemo(() => {
+		const data = calculateGrowthData(sortedMeasurements, dob, 'height');
+
+		if (!isImperial) return data;
+
+		return data.map((point) => ({
+			...point,
+			y: cmToInches(point.y),
+		}));
+	}, [sortedMeasurements, dob, isImperial]);
+
+	const headCircumferenceData = useMemo(() => {
+		const data = calculateGrowthData(
+			sortedMeasurements,
+			dob,
+			'headCircumference',
+		);
+
+		if (!isImperial) return data;
+
+		return data.map((point) => ({
+			...point,
+			y: cmToInches(point.y),
+		}));
+	}, [sortedMeasurements, dob, isImperial]);
 
 	if (measurements.length === 0) {
 		return (
@@ -349,9 +412,15 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			<Card>
 				<CardHeader className="p-4 pb-2">
 					<CardTitle className="text-base">
-						<fbt desc="Title for the weight section in the growth chart">
-							Weight (g)
-						</fbt>
+						{isImperial ? (
+							<fbt desc="Title for the weight section in the growth chart in pounds">
+								Weight (lbs)
+							</fbt>
+						) : (
+							<fbt desc="Title for the weight section in the growth chart in grams">
+								Weight (g)
+							</fbt>
+						)}
 					</CardTitle>
 					{weightPercentile !== null && (
 						<CardAction>
@@ -371,17 +440,23 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						emptyStateMessage={commonEmptyState}
 						forecastDate={dob ? forecastAge : undefined}
-						rangeData={weightRange}
+						rangeData={displayWeightRange}
 						rangeLabel={rangeLabel}
 						title={<fbt desc="Chart title for weight">Weight</fbt>}
 						xAxisLabel={commonXAxisLabel}
 						xAxisType={dob ? 'linear' : 'time'}
 						yAxisLabel={
-							<fbt desc="Label for the Y-axis showing weight in grams">
-								Weight (g)
-							</fbt>
+							isImperial ? (
+								<fbt desc="Label for the Y-axis showing weight in pounds">
+									Weight (lbs)
+								</fbt>
+							) : (
+								<fbt desc="Label for the Y-axis showing weight in grams">
+									Weight (g)
+								</fbt>
+							)
 						}
-						yAxisUnit="g"
+						yAxisUnit={isImperial ? 'lbs' : 'g'}
 					/>
 				</CardContent>
 			</Card>
@@ -389,9 +464,15 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			<Card>
 				<CardHeader className="p-4 pb-2">
 					<CardTitle className="text-base">
-						<fbt desc="Title for the height section in the growth chart">
-							Height (cm)
-						</fbt>
+						{isImperial ? (
+							<fbt desc="Title for the height section in the growth chart in inches">
+								Height (in)
+							</fbt>
+						) : (
+							<fbt desc="Title for the height section in the growth chart in centimeters">
+								Height (cm)
+							</fbt>
+						)}
 					</CardTitle>
 					{heightPercentile !== null && (
 						<CardAction>
@@ -411,17 +492,23 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						emptyStateMessage={commonEmptyState}
 						forecastDate={dob ? forecastAge : undefined}
-						rangeData={heightRange}
+						rangeData={displayHeightRange}
 						rangeLabel={rangeLabel}
 						title={<fbt desc="Chart title for height">Height</fbt>}
 						xAxisLabel={commonXAxisLabel}
 						xAxisType={dob ? 'linear' : 'time'}
 						yAxisLabel={
-							<fbt desc="Label for the Y-axis showing height in centimeters">
-								Height (cm)
-							</fbt>
+							isImperial ? (
+								<fbt desc="Label for the Y-axis showing height in inches">
+									Height (in)
+								</fbt>
+							) : (
+								<fbt desc="Label for the Y-axis showing height in centimeters">
+									Height (cm)
+								</fbt>
+							)
 						}
-						yAxisUnit="cm"
+						yAxisUnit={isImperial ? 'in' : 'cm'}
 					/>
 				</CardContent>
 			</Card>
@@ -429,9 +516,15 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			<Card>
 				<CardHeader className="p-4 pb-2">
 					<CardTitle className="text-base">
-						<fbt desc="Title for the head circumference section in the growth chart">
-							Head Circumference (cm)
-						</fbt>
+						{isImperial ? (
+							<fbt desc="Title for the head circumference section in the growth chart in inches">
+								Head Circumference (in)
+							</fbt>
+						) : (
+							<fbt desc="Title for the head circumference section in the growth chart in centimeters">
+								Head Circumference (cm)
+							</fbt>
+						)}
 					</CardTitle>
 					{headPercentile !== null && (
 						<CardAction>
@@ -451,7 +544,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						emptyStateMessage={commonEmptyState}
 						forecastDate={dob ? forecastAge : undefined}
-						rangeData={headRange}
+						rangeData={displayHeadRange}
 						rangeLabel={rangeLabel}
 						title={
 							<fbt desc="Chart title for head circumference">
@@ -461,11 +554,17 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						xAxisLabel={commonXAxisLabel}
 						xAxisType={dob ? 'linear' : 'time'}
 						yAxisLabel={
-							<fbt desc="Label for the Y-axis showing head circumference in centimeters">
-								Head Circumference (cm)
-							</fbt>
+							isImperial ? (
+								<fbt desc="Label for the Y-axis showing head circumference in inches">
+									Head Circumference (in)
+								</fbt>
+							) : (
+								<fbt desc="Label for the Y-axis showing head circumference in centimeters">
+									Head Circumference (cm)
+								</fbt>
+							)
 						}
-						yAxisUnit="cm"
+						yAxisUnit={isImperial ? 'in' : 'cm'}
 					/>
 				</CardContent>
 			</Card>

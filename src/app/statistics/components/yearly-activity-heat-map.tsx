@@ -11,6 +11,7 @@ import {
 	startOfWeek,
 	subYears,
 } from 'date-fns';
+import { useMemo } from 'react';
 import {
 	Card,
 	CardContent,
@@ -75,21 +76,21 @@ function getContributionLevel(count: number, maxCount: number) {
 	return 4;
 }
 
-export default function YearlyActivityHeatMap({
-	className,
-	dates,
-	description,
-	noCard = false,
-	palette = 'feeding',
-	title,
-}: YearlyActivityHeatMapProps) {
-	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
+function calculateGridTimeframes() {
 	const now = new Date();
 	const startDate = subYears(startOfDay(now), 1);
 	const gridStart = startOfWeek(startDate, { weekStartsOn: 0 });
 	const gridEnd = endOfWeek(now, { weekStartsOn: 0 });
 
-	const countsByDate = dates
+	return { gridEnd, gridStart, now, startDate };
+}
+
+function calculateCountsByDate(
+	dates: string[],
+	now: Date,
+	startDate: Date,
+): Map<string, number> {
+	return dates
 		.map((value) => new Date(value))
 		.filter((date) => {
 			if (Number.isNaN(date.getTime())) return false;
@@ -104,42 +105,73 @@ export default function YearlyActivityHeatMap({
 			accumulator.set(key, current + 1);
 			return accumulator;
 		}, new Map());
+}
 
-	const maxCount = Math.max(0, ...countsByDate.values());
-	const weekCount =
-		differenceInCalendarWeeks(gridEnd, gridStart, { weekStartsOn: 0 }) + 1;
-
-	const monthLabels = eachMonthOfInterval({
+function calculateMonthLabels(gridStart: Date, gridEnd: Date) {
+	return eachMonthOfInterval({
 		end: gridEnd,
 		start: gridStart,
 	}).map((monthStart, index) => {
 		const weekIndex = differenceInCalendarWeeks(monthStart, gridStart, {
 			weekStartsOn: 0,
 		});
-
 		return {
 			label: format(monthStart, 'MMM'),
 			monthIndex: index,
 			weekIndex: Math.max(0, weekIndex),
 		};
 	});
+}
 
-	const todayKey = format(now, 'yyyy-MM-dd');
-	const cells = eachDayOfInterval({ end: gridEnd, start: gridStart }).map(
-		(day) => {
-			const key = format(day, 'yyyy-MM-dd');
-			const count = countsByDate.get(key) ?? 0;
+function calculateCells(
+	gridStart: Date,
+	gridEnd: Date,
+	countsByDate: Map<string, number>,
+	todayKey: string,
+	maxCount: number,
+) {
+	return eachDayOfInterval({ end: gridEnd, start: gridStart }).map((day) => {
+		const key = format(day, 'yyyy-MM-dd');
+		const count = countsByDate.get(key) ?? 0;
+		return {
+			count,
+			isToday: key === todayKey,
+			key,
+			level: getContributionLevel(count, maxCount),
+			title: `${format(day, 'PPP')}: ${count}`,
+		};
+	});
+}
 
-			return {
-				count,
-				isToday: key === todayKey,
-				key,
-				level: getContributionLevel(count, maxCount),
-				title: `${format(day, 'PPP')}: ${count}`,
-			};
-		},
+export default function YearlyActivityHeatMap({
+	className,
+	dates,
+	description,
+	noCard = false,
+	palette = 'feeding',
+	title,
+}: YearlyActivityHeatMapProps) {
+	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
+	const { gridEnd, gridStart, now, startDate } = useMemo(
+		() => calculateGridTimeframes(),
+		[],
 	);
-
+	const countsByDate = useMemo(
+		() => calculateCountsByDate(dates, now, startDate),
+		[dates, now, startDate],
+	);
+	const maxCount = Math.max(0, ...countsByDate.values());
+	const weekCount =
+		differenceInCalendarWeeks(gridEnd, gridStart, { weekStartsOn: 0 }) + 1;
+	const monthLabels = useMemo(
+		() => calculateMonthLabels(gridStart, gridEnd),
+		[gridStart, gridEnd],
+	);
+	const todayKey = format(now, 'yyyy-MM-dd');
+	const cells = useMemo(
+		() => calculateCells(gridStart, gridEnd, countsByDate, todayKey, maxCount),
+		[gridEnd, gridStart, countsByDate, todayKey, maxCount],
+	);
 	const content = (
 		<div className={cn('p-4 pt-0', !noCard && 'pt-0')}>
 			<div className="overflow-x-auto pb-2">
@@ -160,7 +192,6 @@ export default function YearlyActivityHeatMap({
 							</span>
 						))}
 					</div>
-
 					<div className="grid grid-flow-col grid-rows-7 gap-1">
 						{cells.map((cell) => (
 							<div
@@ -177,7 +208,6 @@ export default function YearlyActivityHeatMap({
 					</div>
 				</div>
 			</div>
-
 			<div className="mt-4 flex items-center justify-end gap-2 text-xs text-muted-foreground">
 				<span>
 					<fbt desc="Legend minimum activity label">Less</fbt>
@@ -194,11 +224,9 @@ export default function YearlyActivityHeatMap({
 			</div>
 		</div>
 	);
-
 	if (noCard) {
 		return <div className={className}>{content}</div>;
 	}
-
 	return (
 		<Card className={className}>
 			{(title || description) && (

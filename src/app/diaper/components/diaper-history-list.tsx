@@ -21,9 +21,11 @@ import {
 	useUpsertDiaperChange,
 } from '@/hooks/use-diaper-changes';
 import { useDiaperChangesByDate } from '@/hooks/use-tinybase-indexes';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { cn } from '@/lib/utils';
 import { formatEntryTime } from '@/utils/format-history-date';
+import { celsiusToFahrenheit } from '@/utils/unit-conversions';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import DiaperForm from './diaper-form';
 
@@ -53,6 +55,8 @@ function DiaperHistoryEntry({
 	onEdit: (changeId: string) => void;
 }) {
 	const change = useDiaperChange(changeId);
+	const unitSystem = useUnitSystem();
+	const isImperial = unitSystem === 'imperial';
 
 	if (!change) {
 		return null;
@@ -62,25 +66,15 @@ function DiaperHistoryEntry({
 	const hasPotty = change.pottyUrine || change.pottyStool;
 	const isStool = change.containsStool || change.pottyStool;
 
-	const borderColor = isStool
-		? 'border-amber-700/30'
+	const accentColor = isStool
+		? '#b45309' // amber-700
 		: hasPotty && !hasDiaper
-			? 'border-blue-400/30'
-			: 'border-yellow-400/30';
-	const bgColor = isStool
-		? 'bg-amber-700/5'
-		: hasPotty && !hasDiaper
-			? 'bg-blue-400/5'
-			: 'bg-yellow-400/5';
-	const textColor = isStool
-		? 'text-amber-700'
-		: hasPotty && !hasDiaper
-			? 'text-blue-700'
-			: 'text-yellow-800';
+			? '#1d4ed8' // blue-700
+			: '#a16207'; // yellow-700
 
 	return (
 		<HistoryEntryCard
-			className={`${borderColor} ${bgColor}`}
+			accentColor={accentColor}
 			data-testid="diaper-history-entry"
 			formattedTime={
 				<div className="flex items-center gap-2">
@@ -96,16 +90,18 @@ function DiaperHistoryEntry({
 								)}
 							>
 								<span>🌡️</span>
-								<span>{change.temperature} °C</span>
+								<span>
+									{isImperial
+										? `${celsiusToFahrenheit(change.temperature).toFixed(1)} °F`
+										: `${change.temperature} °C`}
+								</span>
 							</div>
 						</>
 					)}
 				</div>
 			}
 			header={
-				<div
-					className={`font-medium ${textColor} flex flex-wrap items-center gap-x-3 gap-y-1`}
-				>
+				<div className="flex flex-wrap items-center gap-x-3 gap-y-1">
 					{hasDiaper && (
 						<div className="flex items-center gap-1">
 							<span>👶</span>
@@ -281,9 +277,7 @@ export default function DiaperHistoryList() {
 				hasMoreOlderInStore={hasMoreOlderInStore}
 				indexes={indexes}
 				indexId={indexId}
-				initialVisibleCount={
-					from || to ? filteredDateKeys.length : undefined
-				}
+				initialVisibleCount={from || to ? filteredDateKeys.length : undefined}
 				newerRangeDescription={newerRangeDescription}
 				olderRangeDescription={olderRangeDescription}
 				onLoadMoreNewer={handleLoadMoreNewer}

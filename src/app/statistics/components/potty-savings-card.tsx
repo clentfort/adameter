@@ -1,5 +1,6 @@
 import type { DiaperChange } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
+import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/i18n-context';
 import { useCurrency } from '@/hooks/use-currency';
 import StatsCard from './stats-card';
@@ -27,14 +28,11 @@ function getDisposableAverageAround(
 	return costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
 }
 
-export default function PottySavingsCard({
-	diaperChanges,
-	disposableChanges,
-}: PottySavingsCardProps) {
-	const [currency] = useCurrency();
-	const { locale } = useLanguage();
-
-	const savings = diaperChanges
+function calculatePottySavings(
+	diaperChanges: DiaperChange[],
+	disposableChanges: Array<{ cost: number; timestamp: Date }>,
+) {
+	return diaperChanges
 		.filter(
 			(change) =>
 				(change.pottyUrine && !change.containsUrine) ||
@@ -47,16 +45,26 @@ export default function PottySavingsCard({
 			);
 			return total + (avg || 0);
 		}, 0);
+}
 
+export default function PottySavingsCard({
+	diaperChanges,
+	disposableChanges,
+}: PottySavingsCardProps) {
+	const [currency] = useCurrency();
+	const { locale } = useLanguage();
+
+	const savings = useMemo(
+		() => calculatePottySavings(diaperChanges, disposableChanges),
+		[diaperChanges, disposableChanges],
+	);
 	if (savings === 0) return null;
-
 	const formattedSavings = new Intl.NumberFormat(locale.replace('_', '-'), {
 		currency,
 		maximumFractionDigits: 2,
 		minimumFractionDigits: 2,
 		style: 'currency',
 	}).format(savings);
-
 	return (
 		<StatsCard
 			title={<fbt desc="Title for the potty savings card">Potty Savings</fbt>}

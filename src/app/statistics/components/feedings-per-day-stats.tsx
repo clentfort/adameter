@@ -1,5 +1,6 @@
 import type { FeedingSession } from '@/types/feeding';
 import { format } from 'date-fns';
+import { useMemo } from 'react';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
@@ -27,6 +28,7 @@ function calculateAvgFeedingsPerDay(sessions: FeedingSession[]) {
 		(sum, count) => sum + count,
 		0,
 	);
+
 	return totalFeedings / totalDays;
 }
 
@@ -34,12 +36,18 @@ export default function FeedingsPerDayStats({
 	comparisonSessions,
 	sessions = [],
 }: FeedingsPerDayStatsProps) {
+	const avgFeedingsPerDay = useMemo(
+		() => calculateAvgFeedingsPerDay(sessions),
+		[sessions],
+	);
+	const prevAvgFeedingsPerDay = useMemo(
+		() =>
+			comparisonSessions
+				? calculateAvgFeedingsPerDay(comparisonSessions)
+				: null,
+		[comparisonSessions],
+	);
 	if (sessions.length === 0) return null;
-
-	const avgFeedingsPerDay = calculateAvgFeedingsPerDay(sessions);
-	const prevAvgFeedingsPerDay = comparisonSessions
-		? calculateAvgFeedingsPerDay(comparisonSessions)
-		: null;
 
 	return (
 		<StatsCard

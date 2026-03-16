@@ -2,6 +2,7 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import { format } from 'date-fns';
+import { useMemo } from 'react';
 import StatsCard from './stats-card';
 
 interface PottyStreakCardsProps {
@@ -45,9 +46,11 @@ function calculatePottyStreaks(diaperChanges: DiaperChange[]) {
 export default function PottyStreakCards({
 	diaperChanges = [],
 }: PottyStreakCardsProps) {
-	const { currentStreak, longestStreak, longestStreakEndTimestamp } =
-		calculatePottyStreaks(diaperChanges);
-
+	const { currentStreak, longestStreak, longestStreakEndTimestamp } = useMemo(
+		() => calculatePottyStreaks(diaperChanges),
+		[diaperChanges],
+	);
+	if (diaperChanges.length === 0) return null;
 	return (
 		<>
 			<StatsCard
