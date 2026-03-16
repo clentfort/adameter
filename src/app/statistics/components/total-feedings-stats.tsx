@@ -8,22 +8,29 @@ interface TotalFeedingsStatsProps {
 	sessions: FeedingSession[];
 }
 
+function calculateBreastCounts(
+	sessions: FeedingSession[],
+	comparisonSessions?: FeedingSession[],
+) {
+	const leftCount = sessions.filter((s) => s.breast === 'left').length;
+	const rightCount = sessions.filter((s) => s.breast === 'right').length;
+	const prevLeftCount = comparisonSessions?.filter(
+		(s) => s.breast === 'left',
+	).length;
+	const prevRightCount = comparisonSessions?.filter(
+		(s) => s.breast === 'right',
+	).length;
+	return { leftCount, prevLeftCount, prevRightCount, rightCount };
+}
+
 export default function TotalFeedingsStats({
 	comparisonSessions,
 	sessions = [],
 }: TotalFeedingsStatsProps) {
-	const { leftCount, prevLeftCount, prevRightCount, rightCount } =
-		useMemo(() => {
-			const leftCount = sessions.filter((s) => s.breast === 'left').length;
-			const rightCount = sessions.filter((s) => s.breast === 'right').length;
-			const prevLeftCount = comparisonSessions?.filter(
-				(s) => s.breast === 'left',
-			).length;
-			const prevRightCount = comparisonSessions?.filter(
-				(s) => s.breast === 'right',
-			).length;
-			return { leftCount, prevLeftCount, prevRightCount, rightCount };
-		}, [sessions, comparisonSessions]);
+	const { leftCount, prevLeftCount, prevRightCount, rightCount } = useMemo(
+		() => calculateBreastCounts(sessions, comparisonSessions),
+		[sessions, comparisonSessions],
+	);
 
 	if (sessions.length === 0) return null;
 

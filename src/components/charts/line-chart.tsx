@@ -5,6 +5,7 @@ import Chart from 'chart.js/auto';
 import { format, isDate } from 'date-fns';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'chartjs-adapter-date-fns';
+import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface PointData {
 	x: Date | number;
@@ -70,21 +71,8 @@ export default function LineChart({
 	const chartInstance = useRef<ChartJS<'line', PointData[]> | null>(null);
 	const [isMounted, setIsMounted] = useState(false);
 
-	useEffect(() => {
-		const ric =
-			typeof window !== 'undefined'
-				? window.requestIdleCallback ||
-					((cb: IdleRequestCallback) => setTimeout(cb, 1))
-				: (cb: IdleRequestCallback) => setTimeout(cb, 1);
-		const cic =
-			typeof window !== 'undefined'
-				? window.cancelIdleCallback || ((id: number) => clearTimeout(id))
-				: (id: number) => clearTimeout(id);
-
-		const handle = ric(() => {
-			setIsMounted(true);
-		});
-		return () => cic(handle);
+	useIdleCallback(() => {
+		setIsMounted(true);
 	}, []);
 
 	const createChart = useCallback(() => {

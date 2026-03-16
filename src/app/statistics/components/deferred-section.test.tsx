@@ -10,6 +10,7 @@ describe('DeferredSection', () => {
 	const disconnect = vi.fn();
 
 	beforeEach(() => {
+		vi.useFakeTimers();
 		vi.stubGlobal(
 			'IntersectionObserver',
 			class {
@@ -20,22 +21,10 @@ describe('DeferredSection', () => {
 				disconnect = disconnect;
 			},
 		);
-
-		vi.stubGlobal(
-			'requestIdleCallback',
-			vi.fn((cb) => {
-				return setTimeout(cb, 0);
-			}),
-		);
-		vi.stubGlobal(
-			'cancelIdleCallback',
-			vi.fn((id) => {
-				clearTimeout(id);
-			}),
-		);
 	});
 
 	afterEach(() => {
+		vi.useRealTimers();
 		vi.unstubAllGlobals();
 		vi.clearAllMocks();
 	});
@@ -61,11 +50,14 @@ describe('DeferredSection', () => {
 
 		expect(screen.getByText('Fallback')).toBeInTheDocument();
 
-		await act(async () => {
+		act(() => {
 			intersectionObserverCallback([
 				{ isIntersecting: true },
 			] as IntersectionObserverEntry[]);
-			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		await act(async () => {
+			vi.runAllTimers();
 		});
 
 		expect(screen.getByText('Content')).toBeInTheDocument();

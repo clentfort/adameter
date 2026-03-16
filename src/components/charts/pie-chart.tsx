@@ -2,7 +2,8 @@
 
 import type { Chart as ChartJS, TooltipItem } from 'chart.js';
 import Chart from 'chart.js/auto';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface PieDataset {
 	backgroundColor: string[];
@@ -27,78 +28,75 @@ export default function PieChart({
 }: PieChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<ChartJS<'pie', number[]> | null>(null);
+	const [isMounted, setIsMounted] = useState(false);
+
+	useIdleCallback(() => {
+		setIsMounted(true);
+	}, []);
 
 	useEffect(() => {
-		const initChart = () => {
-			if (!chartRef.current) return;
+		if (!chartRef.current || !isMounted) return;
 
-			if (datasets.length === 0 || labels.length === 0) {
-				return;
-			}
+		if (datasets.length === 0 || labels.length === 0) {
+			return;
+		}
 
-			const ctx = chartRef.current.getContext('2d');
-			if (!ctx) return;
+		if (chartInstance.current) {
+			return;
+		}
 
-			chartInstance.current = new Chart<'pie', number[]>(ctx, {
-				data: {
-					datasets: datasets.map((ds) => ({
-						...ds,
-						borderWidth: 1,
-					})),
-					labels,
-				},
-				options: {
-					maintainAspectRatio: false,
-					plugins: {
-						legend: {
-							display: true,
-							position: 'right',
-						},
-						title: {
-							display: !!title,
-							text: title?.toString() || '',
-						},
-						tooltip: {
-							callbacks: {
-								label: tooltipLabelFormatter
-									? tooltipLabelFormatter
-									: (context) => {
-											let label = context.label || '';
-											if (label) {
-												label += ': ';
-											}
-											if (context.parsed !== null) {
-												label += context.parsed.toLocaleString();
-											}
-											return label;
-										},
-							},
+		const ctx = chartRef.current.getContext('2d');
+		if (!ctx) return;
+
+		chartInstance.current = new Chart<'pie', number[]>(ctx, {
+			data: {
+				datasets: datasets.map((ds) => ({
+					...ds,
+					borderWidth: 1,
+				})),
+				labels,
+			},
+			options: {
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						display: true,
+						position: 'right',
+					},
+					title: {
+						display: !!title,
+						text: title?.toString() || '',
+					},
+					tooltip: {
+						callbacks: {
+							label: tooltipLabelFormatter
+								? tooltipLabelFormatter
+								: (context) => {
+										let label = context.label || '';
+										if (label) {
+											label += ': ';
+										}
+										if (context.parsed !== null) {
+											label += context.parsed.toLocaleString();
+										}
+										return label;
+									},
 						},
 					},
-					responsive: true,
 				},
-				type: 'pie',
-			});
-		};
-
-		const handle = (
-			window.requestIdleCallback ||
-			((cb) => window.setTimeout(cb, 1) as unknown as number)
-		)(initChart);
+				responsive: true,
+			},
+			type: 'pie',
+		});
 
 		return () => {
-			if (window.cancelIdleCallback) {
-				window.cancelIdleCallback(handle as number);
-			} else {
-				window.clearTimeout(handle as number);
-			}
 			if (chartInstance.current) {
 				chartInstance.current.destroy();
 				chartInstance.current = null;
 			}
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [isMounted]);
 
 	useEffect(() => {
 		if (chartInstance.current) {

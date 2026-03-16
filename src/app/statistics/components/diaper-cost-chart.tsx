@@ -15,57 +15,85 @@ interface DiaperCostChartProps {
 	secondaryRange?: { from: Date; to: Date };
 }
 
-export default function DiaperCostChart({
-	className,
-	diaperChanges,
-	primaryRange,
-	products,
-	secondaryRange,
-}: DiaperCostChartProps) {
-	const [currency] = useCurrency();
-	const [showComparisonCharts] = useShowComparisonCharts();
+function calculateProductCostById(products: DiaperProduct[]) {
+	return new Map(
+		products
+			.filter(
+				(p) =>
+					typeof p.costPerDiaper === 'number' &&
+					Number.isFinite(p.costPerDiaper),
+			)
+			.map((p) => [p.id, p.costPerDiaper as number]),
+	);
+}
 
-	const productCostById = useMemo(
-		() =>
-			new Map(
-				products
-					.filter(
-						(p) =>
-							typeof p.costPerDiaper === 'number' &&
-							Number.isFinite(p.costPerDiaper),
-					)
-					.map((p) => [p.id, p.costPerDiaper as number]),
-			),
-		[products],
+function calculateCostDatasets(
+	diaperChanges: DiaperChange[],
+	primaryRange: { from: Date; to: Date },
+	secondaryRange?: { from: Date; to: Date },
+	productCostById: Map<string, number> = new Map(),
+	showComparisonCharts = false,
+) {
+	let effectivePrimaryFrom = primaryRange.from;
+	if (primaryRange.from.getTime() === 0) {
+		if (diaperChanges.length > 0) {
+			const firstTime = diaperChanges.reduce((min, c) => {
+				const t = new Date(c.timestamp).getTime();
+				return t < min ? t : min;
+			}, new Date(diaperChanges[0].timestamp).getTime());
+			effectivePrimaryFrom = new Date(firstTime);
+		} else {
+			effectivePrimaryFrom = new Date();
+			effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
+		}
+	}
+
+	const primaryDays = eachDayOfInterval({
+		end: primaryRange.to,
+		start: effectivePrimaryFrom,
+	});
+
+	const primaryCostByDate = diaperChanges.reduce<Record<string, number>>(
+		(acc, change) => {
+			const date = new Date(change.timestamp);
+			if (
+				isWithinInterval(date, {
+					end: primaryRange.to,
+					start: effectivePrimaryFrom,
+				})
+			) {
+				const key = format(date, 'yyyy-MM-dd');
+				const cost = change.diaperProductId
+					? productCostById.get(change.diaperProductId) || 0
+					: 0;
+				acc[key] = (acc[key] || 0) + cost;
+			}
+			return acc;
+		},
+		{},
 	);
 
-	const { datasets, labels } = useMemo(() => {
-		let effectivePrimaryFrom = primaryRange.from;
-		if (primaryRange.from.getTime() === 0) {
-			if (diaperChanges.length > 0) {
-				const firstTime = diaperChanges.reduce((min, c) => {
-					const t = new Date(c.timestamp).getTime();
-					return t < min ? t : min;
-				}, new Date(diaperChanges[0].timestamp).getTime());
-				effectivePrimaryFrom = new Date(firstTime);
-			} else {
-				effectivePrimaryFrom = new Date();
-				effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
-			}
-		}
+	const primaryData = primaryDays.map(
+		(day) => primaryCostByDate[format(day, 'yyyy-MM-dd')] || 0,
+	);
 
-		const primaryDays = eachDayOfInterval({
-			end: primaryRange.to,
-			start: effectivePrimaryFrom,
+	const labels = primaryDays.map((day) => format(day, 'MMM d'));
+
+	const datasets = [];
+
+	if (secondaryRange && showComparisonCharts) {
+		const secondaryDays = eachDayOfInterval({
+			end: secondaryRange.to,
+			start: secondaryRange.from,
 		});
 
-		const primaryCostByDate = diaperChanges.reduce<Record<string, number>>(
+		const secondaryCostByDate = diaperChanges.reduce<Record<string, number>>(
 			(acc, change) => {
 				const date = new Date(change.timestamp);
 				if (
 					isWithinInterval(date, {
-						end: primaryRange.to,
-						start: effectivePrimaryFrom,
+						end: secondaryRange.to,
+						start: secondaryRange.from,
 					})
 				) {
 					const key = format(date, 'yyyy-MM-dd');
@@ -79,67 +107,60 @@ export default function DiaperCostChart({
 			{},
 		);
 
-		const primaryData = primaryDays.map(
-			(day) => primaryCostByDate[format(day, 'yyyy-MM-dd')] || 0,
+		const secondaryData = secondaryDays.map(
+			(day) => -(secondaryCostByDate[format(day, 'yyyy-MM-dd')] || 0),
 		);
 
-		const labels = primaryDays.map((day) => format(day, 'MMM d'));
-
-		const datasets = [];
-
-		if (secondaryRange && showComparisonCharts) {
-			const secondaryDays = eachDayOfInterval({
-				end: secondaryRange.to,
-				start: secondaryRange.from,
-			});
-
-			const secondaryCostByDate = diaperChanges.reduce<Record<string, number>>(
-				(acc, change) => {
-					const date = new Date(change.timestamp);
-					if (
-						isWithinInterval(date, {
-							end: secondaryRange.to,
-							start: secondaryRange.from,
-						})
-					) {
-						const key = format(date, 'yyyy-MM-dd');
-						const cost = change.diaperProductId
-							? productCostById.get(change.diaperProductId) || 0
-							: 0;
-						acc[key] = (acc[key] || 0) + cost;
-					}
-					return acc;
-				},
-				{},
-			);
-
-			const secondaryData = secondaryDays.map(
-				(day) => -(secondaryCostByDate[format(day, 'yyyy-MM-dd')] || 0),
-			);
-
-			datasets.push({
-				backgroundColor: '#94a3b8', // slate-400
-				data: secondaryData,
-				label: 'Daily Cost (Prev)',
-				stack: 'comparison',
-			});
-		}
-
 		datasets.push({
-			backgroundColor: '#10b981', // emerald-500
-			data: primaryData,
-			label: 'Daily Cost',
-			stack: 'primary',
+			backgroundColor: '#94a3b8', // slate-400
+			data: secondaryData,
+			label: 'Daily Cost (Prev)',
+			stack: 'comparison',
 		});
+	}
 
-		return { datasets, labels };
-	}, [
-		diaperChanges,
-		primaryRange,
-		secondaryRange,
-		productCostById,
-		showComparisonCharts,
-	]);
+	datasets.push({
+		backgroundColor: '#10b981', // emerald-500
+		data: primaryData,
+		label: 'Daily Cost',
+		stack: 'primary',
+	});
+
+	return { datasets, labels };
+}
+
+export default function DiaperCostChart({
+	className,
+	diaperChanges,
+	primaryRange,
+	products,
+	secondaryRange,
+}: DiaperCostChartProps) {
+	const [currency] = useCurrency();
+	const [showComparisonCharts] = useShowComparisonCharts();
+
+	const productCostById = useMemo(
+		() => calculateProductCostById(products),
+		[products],
+	);
+
+	const { datasets, labels } = useMemo(
+		() =>
+			calculateCostDatasets(
+				diaperChanges,
+				primaryRange,
+				secondaryRange,
+				productCostById,
+				showComparisonCharts,
+			),
+		[
+			diaperChanges,
+			primaryRange,
+			secondaryRange,
+			productCostById,
+			showComparisonCharts,
+		],
+	);
 
 	return (
 		<div className={className}>

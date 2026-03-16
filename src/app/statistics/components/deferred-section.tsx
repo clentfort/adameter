@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface DeferredSectionProps {
 	children: React.ReactNode;
@@ -11,6 +12,7 @@ export default function DeferredSection({
 	children,
 	fallback,
 }: DeferredSectionProps) {
+	const [isIntersecting, setIsIntersecting] = useState(false);
 	const [shouldRender, setShouldRender] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -23,12 +25,7 @@ export default function DeferredSection({
 		const observer = new IntersectionObserver(
 			(entries) => {
 				if (entries[0]?.isIntersecting) {
-					// We use requestIdleCallback to ensure the main thread is free
-					// when we actually mount the heavy children
-					const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
-					ric(() => {
-						setShouldRender(true);
-					});
+					setIsIntersecting(true);
 					observer.disconnect();
 				}
 			},
@@ -41,6 +38,12 @@ export default function DeferredSection({
 			observer.disconnect();
 		};
 	}, []);
+
+	useIdleCallback(() => {
+		if (isIntersecting) {
+			setShouldRender(true);
+		}
+	}, [isIntersecting]);
 
 	if (!shouldRender) {
 		return <div ref={containerRef}>{fallback}</div>;

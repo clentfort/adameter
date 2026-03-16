@@ -29,29 +29,36 @@ interface DiaperRecordsProps {
 	diaperChanges: readonly DiaperChange[];
 }
 
+function calculateDiaperStats(
+	diaperChanges: readonly DiaperChange[],
+	todayKey: string,
+) {
+	const changesByDay = new Map<string, number>();
+	for (const change of diaperChanges) {
+		const day = getDayKey(change.timestamp);
+		if (!day || day === todayKey) continue;
+
+		changesByDay.set(day, (changesByDay.get(day) || 0) + 1);
+	}
+
+	const days = Array.from(changesByDay.entries());
+	if (days.length === 0) return { fewestChanges: null, mostChanges: null };
+
+	const mostChanges = days.reduce((a, b) => (a[1] >= b[1] ? a : b));
+	const fewestChanges = days.reduce((a, b) => (a[1] <= b[1] ? a : b));
+
+	return { fewestChanges, mostChanges };
+}
+
 export default function DiaperRecords({
 	diaperChanges = [],
 }: DiaperRecordsProps) {
-
 	const todayKey = format(new Date(), 'yyyy-MM-dd');
 	// Group changes by day
-	const { fewestChanges, mostChanges } = useMemo(() => {
-		const changesByDay = new Map<string, number>();
-		for (const change of diaperChanges) {
-			const day = getDayKey(change.timestamp);
-			if (!day || day === todayKey) continue;
-
-			changesByDay.set(day, (changesByDay.get(day) || 0) + 1);
-		}
-
-		const days = Array.from(changesByDay.entries());
-		if (days.length === 0) return { fewestChanges: null, mostChanges: null };
-
-		const mostChanges = days.reduce((a, b) => (a[1] >= b[1] ? a : b));
-		const fewestChanges = days.reduce((a, b) => (a[1] <= b[1] ? a : b));
-
-		return { fewestChanges, mostChanges };
-	}, [diaperChanges, todayKey]);
+	const { fewestChanges, mostChanges } = useMemo(
+		() => calculateDiaperStats(diaperChanges, todayKey),
+		[diaperChanges, todayKey],
+	);
 
 	if (diaperChanges.length === 0 || !mostChanges || !fewestChanges) return null;
 	return (

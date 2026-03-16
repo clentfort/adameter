@@ -7,6 +7,21 @@ interface PottyRecordsProps {
 	diaperChanges: readonly DiaperChange[];
 }
 
+function calculateMostPottyChanges(
+	pottyChanges: readonly DiaperChange[],
+	todayKey: string,
+) {
+	const changesByDay = new Map<string, number>();
+	for (const change of pottyChanges) {
+		const day = format(new Date(change.timestamp), 'yyyy-MM-dd');
+		if (day === todayKey) continue;
+		changesByDay.set(day, (changesByDay.get(day) || 0) + 1);
+	}
+	const days = Array.from(changesByDay.entries());
+	if (days.length === 0) return null;
+	return days.reduce((a, b) => (a[1] >= b[1] ? a : b));
+}
+
 export default function PottyRecords({
 	diaperChanges = [],
 }: PottyRecordsProps) {
@@ -16,17 +31,10 @@ export default function PottyRecords({
 	);
 	const todayKey = format(new Date(), 'yyyy-MM-dd');
 	// Group changes by day
-	const mostChanges = useMemo(() => {
-		const changesByDay = new Map<string, number>();
-		for (const change of pottyChanges) {
-			const day = format(new Date(change.timestamp), 'yyyy-MM-dd');
-			if (day === todayKey) continue;
-			changesByDay.set(day, (changesByDay.get(day) || 0) + 1);
-		}
-		const days = Array.from(changesByDay.entries());
-		if (days.length === 0) return null;
-		return days.reduce((a, b) => (a[1] >= b[1] ? a : b));
-	}, [pottyChanges, todayKey]);
+	const mostChanges = useMemo(
+		() => calculateMostPottyChanges(pottyChanges, todayKey),
+		[pottyChanges, todayKey],
+	);
 	if (pottyChanges.length === 0 || !mostChanges) return null;
 	return (
 		<>

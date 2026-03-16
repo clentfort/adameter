@@ -76,46 +76,39 @@ function getContributionLevel(count: number, maxCount: number) {
 	return 4;
 }
 
-export default function YearlyActivityHeatMap({
-	className,
-	dates,
-	description,
-	noCard = false,
-	palette = 'feeding',
-	title,
-}: YearlyActivityHeatMapProps) {
-	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
-	const { gridEnd, gridStart, now, startDate } = useMemo(() => {
-		const now = new Date();
-		const startDate = subYears(startOfDay(now), 1);
-		const gridStart = startOfWeek(startDate, { weekStartsOn: 0 });
-		const gridEnd = endOfWeek(now, { weekStartsOn: 0 });
+function calculateGridTimeframes() {
+	const now = new Date();
+	const startDate = subYears(startOfDay(now), 1);
+	const gridStart = startOfWeek(startDate, { weekStartsOn: 0 });
+	const gridEnd = endOfWeek(now, { weekStartsOn: 0 });
 
-		return { gridEnd, gridStart, now, startDate };
-	}, []);
-	const countsByDate = useMemo(
-		() =>
-			dates
-				.map((value) => new Date(value))
-				.filter((date) => {
-					if (Number.isNaN(date.getTime())) return false;
-					return isWithinInterval(date, {
-						end: endOfDay(now),
-						start: startDate,
-					});
-				})
-				.reduce<Map<string, number>>((accumulator, date) => {
-					const key = format(date, 'yyyy-MM-dd');
-					const current = accumulator.get(key) ?? 0;
-					accumulator.set(key, current + 1);
-					return accumulator;
-				}, new Map()),
-		[dates, now, startDate],
-	);
-	const maxCount = Math.max(0, ...countsByDate.values());
-	const weekCount =
-		differenceInCalendarWeeks(gridEnd, gridStart, { weekStartsOn: 0 }) + 1;
-	const monthLabels = eachMonthOfInterval({
+	return { gridEnd, gridStart, now, startDate };
+}
+
+function calculateCountsByDate(
+	dates: string[],
+	now: Date,
+	startDate: Date,
+): Map<string, number> {
+	return dates
+		.map((value) => new Date(value))
+		.filter((date) => {
+			if (Number.isNaN(date.getTime())) return false;
+			return isWithinInterval(date, {
+				end: endOfDay(now),
+				start: startDate,
+			});
+		})
+		.reduce<Map<string, number>>((accumulator, date) => {
+			const key = format(date, 'yyyy-MM-dd');
+			const current = accumulator.get(key) ?? 0;
+			accumulator.set(key, current + 1);
+			return accumulator;
+		}, new Map());
+}
+
+function calculateMonthLabels(gridStart: Date, gridEnd: Date) {
+	return eachMonthOfInterval({
 		end: gridEnd,
 		start: gridStart,
 	}).map((monthStart, index) => {
@@ -128,20 +121,55 @@ export default function YearlyActivityHeatMap({
 			weekIndex: Math.max(0, weekIndex),
 		};
 	});
+}
+
+function calculateCells(
+	gridStart: Date,
+	gridEnd: Date,
+	countsByDate: Map<string, number>,
+	todayKey: string,
+	maxCount: number,
+) {
+	return eachDayOfInterval({ end: gridEnd, start: gridStart }).map((day) => {
+		const key = format(day, 'yyyy-MM-dd');
+		const count = countsByDate.get(key) ?? 0;
+		return {
+			count,
+			isToday: key === todayKey,
+			key,
+			level: getContributionLevel(count, maxCount),
+			title: `${format(day, 'PPP')}: ${count}`,
+		};
+	});
+}
+
+export default function YearlyActivityHeatMap({
+	className,
+	dates,
+	description,
+	noCard = false,
+	palette = 'feeding',
+	title,
+}: YearlyActivityHeatMapProps) {
+	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
+	const { gridEnd, gridStart, now, startDate } = useMemo(
+		() => calculateGridTimeframes(),
+		[],
+	);
+	const countsByDate = useMemo(
+		() => calculateCountsByDate(dates, now, startDate),
+		[dates, now, startDate],
+	);
+	const maxCount = Math.max(0, ...countsByDate.values());
+	const weekCount =
+		differenceInCalendarWeeks(gridEnd, gridStart, { weekStartsOn: 0 }) + 1;
+	const monthLabels = useMemo(
+		() => calculateMonthLabels(gridStart, gridEnd),
+		[gridStart, gridEnd],
+	);
 	const todayKey = format(now, 'yyyy-MM-dd');
 	const cells = useMemo(
-		() =>
-			eachDayOfInterval({ end: gridEnd, start: gridStart }).map((day) => {
-				const key = format(day, 'yyyy-MM-dd');
-				const count = countsByDate.get(key) ?? 0;
-				return {
-					count,
-					isToday: key === todayKey,
-					key,
-					level: getContributionLevel(count, maxCount),
-					title: `${format(day, 'PPP')}: ${count}`,
-				};
-			}),
+		() => calculateCells(gridStart, gridEnd, countsByDate, todayKey, maxCount),
 		[gridEnd, gridStart, countsByDate, todayKey, maxCount],
 	);
 	const content = (

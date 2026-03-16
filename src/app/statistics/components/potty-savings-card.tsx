@@ -28,6 +28,25 @@ function getDisposableAverageAround(
 	return costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
 }
 
+function calculatePottySavings(
+	diaperChanges: DiaperChange[],
+	disposableChanges: Array<{ cost: number; timestamp: Date }>,
+) {
+	return diaperChanges
+		.filter(
+			(change) =>
+				(change.pottyUrine && !change.containsUrine) ||
+				(change.pottyStool && !change.containsStool),
+		)
+		.reduce((total, change) => {
+			const avg = getDisposableAverageAround(
+				new Date(change.timestamp),
+				disposableChanges,
+			);
+			return total + (avg || 0);
+		}, 0);
+}
+
 export default function PottySavingsCard({
 	diaperChanges,
 	disposableChanges,
@@ -36,20 +55,7 @@ export default function PottySavingsCard({
 	const { locale } = useLanguage();
 
 	const savings = useMemo(
-		() =>
-			diaperChanges
-				.filter(
-					(change) =>
-						(change.pottyUrine && !change.containsUrine) ||
-						(change.pottyStool && !change.containsStool),
-				)
-				.reduce((total, change) => {
-					const avg = getDisposableAverageAround(
-						new Date(change.timestamp),
-						disposableChanges,
-					);
-					return total + (avg || 0);
-				}, 0),
+		() => calculatePottySavings(diaperChanges, disposableChanges),
 		[diaperChanges, disposableChanges],
 	);
 	if (savings === 0) return null;
