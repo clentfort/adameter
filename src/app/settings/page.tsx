@@ -6,6 +6,7 @@ import { fbt } from 'fbtee';
 import {
 	Archive,
 	ArrowLeft,
+	Baby,
 	ChevronRight,
 	Coins,
 	Database,
@@ -21,6 +22,7 @@ import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
+import { FeedingSettings } from '@/app/settings/components/feeding-settings';
 import ProductForm from '@/components/product-form';
 import ProfileForm from '@/components/profile-form';
 import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
@@ -205,7 +207,7 @@ export default function SettingsPage() {
 	const [resetConfirmationInput, setResetConfirmationInput] = useState('');
 
 	const [activeSection, setActiveSection] = useState<
-		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers' | 'data'
+		'main' | 'profile' | 'sharing' | 'appearance' | 'diapers' | 'feeding' | 'data'
 	>('main');
 
 	const updateLocale = async (code: Locale) => {
@@ -420,6 +422,29 @@ export default function SettingsPage() {
 							) : (
 								<fbt desc="Text showing no room is connected">Not syncing</fbt>
 							)}
+						</p>
+					</div>
+				</div>
+				<ChevronRight className="h-5 w-5 text-muted-foreground" />
+			</button>
+
+			<button
+				className="w-full flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm hover:bg-accent transition-colors"
+				data-testid="settings-feeding"
+				onClick={() => setActiveSection('feeding')}
+			>
+				<div className="flex items-center gap-3">
+					<div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">
+						<Baby className="h-5 w-5" />
+					</div>
+					<div className="text-left">
+						<p className="font-medium">
+							<fbt desc="Label for feeding settings">Feeding</fbt>
+						</p>
+						<p className="text-sm text-muted-foreground">
+							<fbt desc="Subtext for feeding settings">
+								Configure bottles, formula and visibility
+							</fbt>
 						</p>
 					</div>
 				</div>
@@ -833,6 +858,8 @@ export default function SettingsPage() {
 				return fbt('Appearance', 'Title for appearance settings section');
 			case 'sharing':
 				return fbt('Sharing', 'Title for sharing settings section');
+			case 'feeding':
+				return fbt('Feeding Settings', 'Title for feeding settings section');
 			case 'data':
 				return fbt('Data Management', 'Title for data settings section');
 			case 'diapers':
@@ -873,6 +900,9 @@ export default function SettingsPage() {
 			{activeSection === 'appearance' && renderAppearance()}
 			{activeSection === 'sharing' && renderSharing()}
 			{activeSection === 'diapers' && renderDiapers()}
+			{activeSection === 'feeding' && (
+				<FeedingSettings onBack={() => setActiveSection('main')} />
+			)}
 			{activeSection === 'data' && renderData()}
 		</div>
 	);

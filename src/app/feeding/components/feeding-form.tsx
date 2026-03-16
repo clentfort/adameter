@@ -4,15 +4,24 @@ import type {
 	FeedingSession,
 	FeedingSessionFormData,
 	FeedingType,
-	MilkType,
 } from '@/types/feeding';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
 	Select,
 	SelectContent,
@@ -45,12 +54,11 @@ function getDefaultValues(
 		breast: feeding?.breast ?? 'left',
 		date: dateToDateInputValue(feeding?.startTime ?? new Date()),
 		duration: feeding?.durationInSeconds
-			? Math.round(feeding.durationInSeconds / 60).toString()
+			? (feeding.durationInSeconds / 60).toString()
 			: '',
 		formulaProductId: feeding?.formulaProductId ?? '',
 		milkType: feeding?.milkType ?? 'pumped',
 		notes: feeding?.notes ?? '',
-		teatId: feeding?.teatId ?? '',
 		time: dateToTimeInputValue(feeding?.startTime ?? new Date()),
 		type: feeding?.type ?? 'breast',
 	};
@@ -75,13 +83,15 @@ export default function FeedingForm({
 	const type = watch('type');
 	const breast = watch('breast');
 	const milkType = watch('milkType');
+	const formulaProductId = watch('formulaProductId');
 
 	const [profile] = useProfile();
 	const formulaProducts = useFormulaProductsSnapshot();
 	const feedingProducts = useFeedingProductsSnapshot();
 
+	const [showAbortWarning, setShowAbortWarning] = useState(false);
+
 	const bottles = feedingProducts.filter((p) => p.type === 'bottle');
-	const teats = feedingProducts.filter((p) => p.type === 'teat');
 
 	const handleSave = (parsedValues: FeedingSessionFormData) => {
 		const updatedSession: FeedingSession = {
@@ -94,12 +104,35 @@ export default function FeedingForm({
 		onClose();
 	};
 
+	const handleClose = () => {
+		// Only show warning if this form was opened from an active timer (feeding.id exists and durationInSeconds is set)
+		if (feeding?.id && feeding?.durationInSeconds !== undefined) {
+			setShowAbortWarning(true);
+		} else {
+			onClose();
+		}
+	};
+
 	const showLeft = profile?.showLeftBreast ?? true;
 	const showRight = profile?.showRightBreast ?? true;
 	const showPumped = profile?.showPumpedMilk ?? true;
 	const showFormula = profile?.showFormula ?? true;
 
+	const milkOptions = useMemo(() => {
+		const options = [];
+		if (showPumped) {
+			options.push({ label: 'Pumped Milk', value: 'pumped' });
+		}
+		formulaProducts.forEach((p) => {
+			options.push({ label: `Formula: ${p.name}`, value: `formula:${p.id}` });
+		});
+		return options;
+	}, [showPumped, formulaProducts]);
+
+	const selectedMilkValue = milkType === 'formula' ? `formula:${formulaProductId}` : 'pumped';
+
 	return (
+		<>
 		<EntityFormDialog
 			footer={
 				<div className="flex justify-end gap-2 w-full mt-6">
@@ -124,36 +157,61 @@ export default function FeedingForm({
 				</div>
 			}
 			form={form}
-			onClose={onClose}
+			onClose={handleClose}
 			onSave={handleSave}
 			title={title}
 		>
 			<div className="grid gap-4 py-4">
 				<div className="space-y-2">
 					<Label>
-						<fbt desc="Label for feeding type selection">Type</fbt>
+						<fbt desc="Label for feeding category selection">Category</fbt>
 					</Label>
 					<RadioGroup
 						className="flex gap-4"
 						onValueChange={(value) => {
-							setValue('type', value as FeedingType, { shouldValidate: true });
+							const newType = value as 'feeding' | 'pumping';
+							if (newType === 'feeding') {
+								setValue('type', 'breast', { shouldValidate: true });
+							} else {
+								setValue('type', 'pumping', { shouldValidate: true });
+							}
 						}}
-						value={type}
+						value={type === 'pumping' ? 'pumping' : 'feeding'}
 					>
 						<div className="flex items-center space-x-2">
-							<RadioGroupItem id="type-breast" value="breast" />
-							<Label htmlFor="type-breast">Breast</Label>
+							<RadioGroupItem id="cat-feeding" value="feeding" />
+							<Label htmlFor="cat-feeding">Feeding</Label>
 						</div>
 						<div className="flex items-center space-x-2">
-							<RadioGroupItem id="type-bottle" value="bottle" />
-							<Label htmlFor="type-bottle">Bottle</Label>
-						</div>
-						<div className="flex items-center space-x-2">
-							<RadioGroupItem id="type-pumping" value="pumping" />
-							<Label htmlFor="type-pumping">Pumping</Label>
+							<RadioGroupItem id="cat-pumping" value="pumping" />
+							<Label htmlFor="cat-pumping">Pumping</Label>
 						</div>
 					</RadioGroup>
 				</div>
+
+				{type !== 'pumping' ? (
+					<div className="space-y-2">
+						<Label>
+							<fbt desc="Label for feeding method selection">Method</fbt>
+						</Label>
+						<RadioGroup
+							className="flex gap-4"
+							onValueChange={(value) => {
+								setValue('type', value as FeedingType, { shouldValidate: true });
+							}}
+							value={type}
+						>
+							<div className="flex items-center space-x-2">
+								<RadioGroupItem id="type-breast" value="breast" />
+								<Label htmlFor="type-breast">Breast</Label>
+							</div>
+							<div className="flex items-center space-x-2">
+								<RadioGroupItem id="type-bottle" value="bottle" />
+								<Label htmlFor="type-bottle">Bottle</Label>
+							</div>
+						</RadioGroup>
+					</div>
+				) : null}
 
 				{type !== 'bottle' && (
 					<div className="space-y-2">
@@ -215,14 +273,14 @@ export default function FeedingForm({
 						<Label htmlFor="edit-duration">
 							<fbt desc="Label for duration input">Duration (min)</fbt>
 						</Label>
-						<Input id="edit-duration" type="number" {...register('duration')} />
+						<Input id="edit-duration" step="any" type="number" {...register('duration')} />
 					</div>
 					{(type === 'bottle' || type === 'pumping') && (
 						<div className="space-y-2">
 							<Label htmlFor="edit-amount">
 								<fbt desc="Label for amount input">Amount (ml)</fbt>
 							</Label>
-							<Input id="edit-amount" type="number" {...register('amountMl')} />
+							<Input id="edit-amount" step="any" type="number" {...register('amountMl')} />
 						</div>
 					)}
 				</div>
@@ -230,87 +288,50 @@ export default function FeedingForm({
 				{type === 'bottle' && (
 					<>
 						<div className="space-y-2">
-							<Label>Milk Type</Label>
-							<RadioGroup
-								className="flex gap-4"
-								onValueChange={(value) => {
-									setValue('milkType', value as MilkType, { shouldValidate: true });
+							<Label>Milk</Label>
+							<Select
+								onValueChange={(v) => {
+									if (!v) return;
+									if (v === 'pumped') {
+										setValue('milkType', 'pumped', { shouldValidate: true });
+										setValue('formulaProductId', '');
+									} else if (v.startsWith('formula:')) {
+										setValue('milkType', 'formula', { shouldValidate: true });
+										setValue('formulaProductId', v.replace('formula:', ''));
+									}
 								}}
-								value={milkType}
+								value={selectedMilkValue}
 							>
-								{showPumped && (
-									<div className="flex items-center space-x-2">
-										<RadioGroupItem id="milk-pumped" value="pumped" />
-										<Label htmlFor="milk-pumped">Pumped</Label>
-									</div>
-								)}
-								{showFormula && (
-									<div className="flex items-center space-x-2">
-										<RadioGroupItem id="milk-formula" value="formula" />
-										<Label htmlFor="milk-formula">Formula</Label>
-									</div>
-								)}
-							</RadioGroup>
+								<SelectTrigger>
+									<SelectValue placeholder="Select Milk" />
+								</SelectTrigger>
+								<SelectContent>
+									{milkOptions.map((opt) => (
+										<SelectItem key={opt.value} value={opt.value}>
+											{opt.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 
-						{milkType === 'formula' && formulaProducts.length > 0 && (
-							<div className="space-y-2">
-								<Label>Formula Product</Label>
-								<Select
-									onValueChange={(v) => setValue('formulaProductId', v ?? '')}
-									value={watch('formulaProductId') ?? undefined}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select Formula" />
-									</SelectTrigger>
-									<SelectContent>
-										{formulaProducts.map((p) => (
-											<SelectItem key={p.id} value={p.id}>
-												{p.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-						)}
-
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label>Bottle</Label>
-								<Select
-									onValueChange={(v) => setValue('bottleId', v ?? '')}
-									value={watch('bottleId') ?? undefined}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select Bottle" />
-									</SelectTrigger>
-									<SelectContent>
-										{bottles.map((p) => (
-											<SelectItem key={p.id} value={p.id}>
-												{p.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="space-y-2">
-								<Label>Teat / Tip</Label>
-								<Select
-									onValueChange={(v) => setValue('teatId', v ?? '')}
-									value={watch('teatId') ?? undefined}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select Teat" />
-									</SelectTrigger>
-									<SelectContent>
-										{teats.map((p) => (
-											<SelectItem key={p.id} value={p.id}>
-												{p.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
+						<div className="space-y-2">
+							<Label>Bottle</Label>
+							<Select
+								onValueChange={(v) => setValue('bottleId', v ?? '')}
+								value={watch('bottleId') ?? undefined}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="Select Bottle" />
+								</SelectTrigger>
+								<SelectContent>
+									{bottles.map((p) => (
+										<SelectItem key={p.id} value={p.id}>
+											{p.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 					</>
 				)}
@@ -321,5 +342,26 @@ export default function FeedingForm({
 				</div>
 			</div>
 		</EntityFormDialog>
+
+		<AlertDialog onOpenChange={setShowAbortWarning} open={showAbortWarning}>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>Abort session?</AlertDialogTitle>
+					<AlertDialogDescription>
+						The recorded data for this feeding session will be lost.
+					</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel>Continue Editing</AlertDialogCancel>
+					<AlertDialogAction
+						className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+						onClick={onClose}
+					>
+						Abort
+					</AlertDialogAction>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
+		</>
 	);
 }

@@ -2,6 +2,7 @@ import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
 import {
+	numericInputField,
 	optionalNumberFromInputField,
 	optionalPositiveNumberCell,
 	optionalStringCell,
@@ -20,13 +21,12 @@ const feedingSessionSharedSchema = z.object({
 	amountMl: optionalPositiveNumberCell,
 	bottleId: optionalStringCell,
 	breast: breastSchema.optional(),
-	durationInSeconds: z.number().int().nonnegative(),
+	durationInSeconds: z.number().nonnegative(),
 	endTime: z.string().min(1),
 	formulaProductId: optionalStringCell,
 	milkType: milkTypeSchema.optional(),
 	notes: optionalStringCell,
 	startTime: z.string().min(1),
-	teatId: optionalStringCell,
 	type: feedingTypeSchema.default('breast'),
 });
 
@@ -35,11 +35,10 @@ export const feedingFormSchema = z.object({
 	bottleId: z.string().optional(),
 	breast: breastSchema.optional(),
 	date: z.string().min(1),
-	duration: positiveNumericInputField('Duration must be a positive number').optional(),
+	duration: numericInputField('Duration must be a positive number').optional(),
 	formulaProductId: z.string().optional(),
 	milkType: milkTypeSchema.optional(),
 	notes: z.string().optional(),
-	teatId: z.string().optional(),
 	time: z.string().min(1),
 	type: feedingTypeSchema,
 });
@@ -48,7 +47,8 @@ export type FeedingFormValues = z.infer<typeof feedingFormSchema>;
 
 export const feedingSessionFormToDataSchema = feedingFormSchema.transform(
 	(values) => {
-		const durationInMinutes = values.duration ? Number(values.duration) : 0;
+		const durationInMinutes = (values.duration && values.duration !== '') ? Number(values.duration) : 0;
+		const amountMl = optionalNumberFromInputField('Amount must be a positive number').parse(values.amountMl);
 		const [year, month, day] = values.date.split('-').map(Number);
 		const [hours, minutes] = values.time.split(':').map(Number);
 
@@ -58,16 +58,15 @@ export const feedingSessionFormToDataSchema = feedingFormSchema.transform(
 		);
 
 		return feedingSessionSharedSchema.parse({
-			amountMl: optionalNumberFromInputField('Amount must be a positive number').parse(values.amountMl),
+			amountMl,
 			bottleId: values.bottleId,
 			breast: values.breast,
-			durationInSeconds: Math.round(durationInMinutes * 60),
+			durationInSeconds: durationInMinutes * 60,
 			endTime: endTime.toISOString(),
 			formulaProductId: values.formulaProductId,
 			milkType: values.milkType,
 			notes: values.notes,
 			startTime: startTime.toISOString(),
-			teatId: values.teatId,
 			type: values.type,
 		});
 	},
@@ -100,6 +99,5 @@ export interface FeedingSession extends BaseEntity {
 	milkType?: 'pumped' | 'formula';
 	notes?: string;
 	startTime: string;
-	teatId?: string;
 	type: 'breast' | 'bottle' | 'pumping';
 }

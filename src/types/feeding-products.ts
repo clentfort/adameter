@@ -43,8 +43,8 @@ export const formulaProductFormToDataSchema = formulaProductFormSchema.transform
 		}),
 );
 
-// Feeding Products (Bottles and Teats)
-export const feedingProductTypeSchema = z.enum(['bottle', 'teat']);
+// Feeding Products (Bottles)
+export const feedingProductTypeSchema = z.enum(['bottle']);
 export type FeedingProductType = z.infer<typeof feedingProductTypeSchema>;
 
 export const feedingProductDataSchema = z.object({
@@ -61,7 +61,7 @@ export type FeedingProductData = z.infer<typeof feedingProductDataSchema>;
 export interface FeedingProduct extends BaseEntity {
 	archived?: boolean;
 	name: string;
-	type: 'bottle' | 'teat';
+	type: 'bottle';
 }
 
 export const feedingProductFormSchema = z.object({

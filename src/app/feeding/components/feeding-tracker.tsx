@@ -31,12 +31,21 @@ export default function BreastfeedingTracker({
 	const [profile] = useProfile();
 
 	const startFeeding = (breast?: 'left' | 'right') => {
+		const type = breast ? 'breast' : 'bottle';
+		const existingTimer = feedingsInProgress.find(
+			(f) => (breast && f.breast === breast) || (!breast && f.type === 'bottle'),
+		);
+
+		if (existingTimer) {
+			return;
+		}
+
 		const now = new Date();
 		upsertFeedingInProgress({
 			breast,
 			id: crypto.randomUUID(),
 			startTime: now.toISOString(),
-			type: breast ? 'breast' : 'bottle',
+			type,
 		});
 	};
 
@@ -65,6 +74,7 @@ export default function BreastfeedingTracker({
 					<div className="relative">
 						<Button
 							className="h-24 text-lg w-full bg-left-breast hover:bg-left-breast-dark text-white"
+							disabled={feedingsInProgress.some((f) => f.breast === 'left')}
 							onClick={() =>
 								resumableSession && resumableSession.breast === 'left'
 									? resumeFeeding(resumableSession)
@@ -88,6 +98,7 @@ export default function BreastfeedingTracker({
 					<div className="relative">
 						<Button
 							className="h-24 text-lg w-full bg-right-breast hover:bg-right-breast-dark text-white"
+							disabled={feedingsInProgress.some((f) => f.breast === 'right')}
 							onClick={() =>
 								resumableSession && resumableSession.breast === 'right'
 									? resumeFeeding(resumableSession)
@@ -111,6 +122,7 @@ export default function BreastfeedingTracker({
 					<div className="relative">
 						<Button
 							className="h-24 text-lg w-full bg-blue-500 hover:bg-blue-600 text-white"
+							disabled={feedingsInProgress.some((f) => f.type === 'bottle')}
 							onClick={() => startFeeding()}
 							size="lg"
 						>

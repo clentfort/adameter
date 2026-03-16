@@ -35,7 +35,7 @@ export const useFeedingProduct = feedingProductHooks.useOne;
 export const useFeedingProductsSnapshot = feedingProductHooks.useSnapshot;
 export const useFeedingProductIds = feedingProductHooks.useIds;
 
-export const useSortedFeedingProductIds = (type?: 'bottle' | 'teat') => {
+export const useSortedFeedingProductIds = (type?: 'bottle') => {
 	const ids = useFeedingProductIds();
 	const snapshot = useFeedingProductsSnapshot();
 

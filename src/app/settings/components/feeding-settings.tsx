@@ -38,14 +38,13 @@ export function FeedingSettings({ onBack }: FeedingSettingsProps) {
 	const upsertFeedingProduct = useUpsertFeedingProduct();
 	const removeFeedingProduct = useRemoveFeedingProduct();
 	const bottleIds = useSortedFeedingProductIds('bottle');
-	const teatIds = useSortedFeedingProductIds('teat');
 
 	const [editingFormulaId, setEditingFormulaId] = useState<string | null>(null);
 	const [isAddingFormula, setIsAddingFormula] = useState(false);
 
 	const [editingProductId, setEditingProductId] = useState<string | null>(null);
 	const [isAddingProduct, setIsAddingProduct] = useState(false);
-	const [productType, setProductType] = useState<'bottle' | 'teat'>('bottle');
+	const [productType, setProductType] = useState<'bottle'>('bottle');
 
 	const updateVisibility = (key: string, value: boolean) => {
 		setProfile({ ...profile, [key]: value });
@@ -81,7 +80,7 @@ export function FeedingSettings({ onBack }: FeedingSettingsProps) {
 					setIsAddingProduct(false);
 					setEditingProductId(null);
 				}}
-				type={productType}
+				type="bottle"
 			/>
 		);
 	}
@@ -192,37 +191,6 @@ export function FeedingSettings({ onBack }: FeedingSettingsProps) {
 				</CardContent>
 			</Card>
 
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between space-y-0">
-					<CardTitle>
-						<fbt desc="Title for teats section">Teats / Tips</fbt>
-					</CardTitle>
-					<Button
-						onClick={() => {
-							setProductType('teat');
-							setIsAddingProduct(true);
-						}}
-						size="sm"
-						variant="outline"
-					>
-						<Plus className="h-4 w-4 mr-1" />
-						<fbt desc="Add teat button label">Add</fbt>
-					</Button>
-				</CardHeader>
-				<CardContent className="space-y-2">
-					{teatIds.map((id) => (
-						<ProductItem
-							id={id}
-							key={id}
-							onDelete={removeFeedingProduct}
-							onEdit={(id) => {
-								setProductType('teat');
-								setEditingProductId(id);
-							}}
-						/>
-					))}
-				</CardContent>
-			</Card>
 		</div>
 	);
 }
@@ -305,7 +273,7 @@ function FormulaForm({ initialData, onCancel, onSave }: { initialData?: string; 
 	);
 }
 
-function FeedingProductForm({ initialData, onCancel, onSave, type }: { initialData?: string; onCancel: () => void; onSave: (data: FeedingProduct) => void; type: 'bottle' | 'teat' }) {
+function FeedingProductForm({ initialData, onCancel, onSave, type }: { initialData?: string; onCancel: () => void; onSave: (data: FeedingProduct) => void; type: 'bottle' }) {
 	const product = useFeedingProduct(initialData ?? '');
 	const [name, setName] = useState(product?.name ?? '');
 
