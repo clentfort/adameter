@@ -125,19 +125,19 @@ describe('HeatMap', () => {
 			// Filter by the class we added to the magnifier text
 			expect(
 				heatMapCard.querySelector(
-					'.bg-foreground .font-bold.opacity-80.uppercase',
+					'.bg-zinc-900 .font-bold.opacity-70.uppercase, .bg-zinc-100 .font-bold.opacity-70.uppercase',
 				),
 			).toHaveTextContent('00:00 Uhr');
-			expect(within(heatMapCard).getByText('2 Mahlzeiten')).toBeInTheDocument();
+			expect(within(heatMapCard).getByText('2 Stillen')).toBeInTheDocument();
 
 			// Simulate pointer move over another interval
 			fireEvent.pointerMove(heatMapContainer, { clientX: 10, clientY: 80 });
 			expect(
 				heatMapCard.querySelector(
-					'.bg-foreground .font-bold.opacity-80.uppercase',
+					'.bg-zinc-900 .font-bold.opacity-70.uppercase, .bg-zinc-100 .font-bold.opacity-70.uppercase',
 				),
 			).toHaveTextContent('00:10 Uhr');
-			expect(within(heatMapCard).getByText('1 Mahlzeit')).toBeInTheDocument();
+			expect(within(heatMapCard).getByText('1 Stillen')).toBeInTheDocument();
 
 			// Simulate pointer leave
 			fireEvent.pointerLeave(heatMapContainer);
