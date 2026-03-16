@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { differenceInCalendarDays } from 'date-fns';
 import { expect } from '../fixtures/test';
 
 const breastSelectors = {
@@ -31,6 +32,15 @@ export async function addManualFeedingEntry(
 	});
 	await page.getByRole('button', { name: 'Save' }).click({ force: true });
 	await expect(page.getByRole('dialog')).not.toBeVisible();
+
+	// If the entry is outside the default 7-day history window, callers usually
+	// only need the data persisted for downstream assertions (e.g. statistics).
+	if (date) {
+		const daysFromToday = differenceInCalendarDays(new Date(), new Date(date));
+		if (daysFromToday > 6) {
+			return;
+		}
+	}
 
 	// Wait for the history entry to be visible, might need to clear filters if added in the past
 	const entry = page

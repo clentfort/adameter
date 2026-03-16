@@ -71,21 +71,21 @@ export default function DiaperPage() {
 									History
 								</fbt>
 							</h2>
-						<div className="flex items-center gap-2">
-							<HistoryRangeSelector
-								from={searchParams.get('from')}
-								onRangeChange={handleRangeChange}
-								to={searchParams.get('to')}
-							/>
-							<Button
-								onClick={() => setIsAddEntryDialogOpen(true)}
-								size="sm"
-								variant="outline"
-							>
-								<PlusCircle className="h-4 w-4 mr-1" />
-								<fbt common>Add Entry</fbt>
-							</Button>
-						</div>
+							<div className="flex items-center gap-2">
+								<HistoryRangeSelector
+									from={searchParams.get('from')}
+									onRangeChange={handleRangeChange}
+									to={searchParams.get('to')}
+								/>
+								<Button
+									onClick={() => setIsAddEntryDialogOpen(true)}
+									size="sm"
+									variant="outline"
+								>
+									<PlusCircle className="h-4 w-4 mr-1" />
+									<fbt common>Add Entry</fbt>
+								</Button>
+							</div>
 						</div>
 						<DiaperHistoryList />
 					</div>
