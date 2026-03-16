@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DeferredSection from './deferred-section';
 
 describe('DeferredSection', () => {
-	let intersectionObserverCallback: (entries: any[]) => void;
+	let intersectionObserverCallback: (entries: IntersectionObserverEntry[]) => void;
 	const observe = vi.fn();
 	const disconnect = vi.fn();
 
@@ -11,7 +11,7 @@ describe('DeferredSection', () => {
 		vi.stubGlobal(
 			'IntersectionObserver',
 			class {
-				constructor(cb: any) {
+				constructor(cb: (entries: IntersectionObserverEntry[]) => void) {
 					intersectionObserverCallback = cb;
 				}
 				observe = observe;
@@ -60,7 +60,7 @@ describe('DeferredSection', () => {
 		expect(screen.getByText('Fallback')).toBeInTheDocument();
 
 		await act(async () => {
-			intersectionObserverCallback([{ isIntersecting: true }]);
+			intersectionObserverCallback([{ isIntersecting: true }] as IntersectionObserverEntry[]);
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
 

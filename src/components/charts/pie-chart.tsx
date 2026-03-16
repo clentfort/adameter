@@ -2,7 +2,7 @@
 
 import type { Chart as ChartJS, TooltipItem } from 'chart.js';
 import Chart from 'chart.js/auto';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface PieDataset {
 	backgroundColor: string[];
