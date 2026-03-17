@@ -71,11 +71,11 @@ function calculateDisplayIntervals(distribution: number[]) {
 	});
 }
 
+const TOOLTIP_CLAMP_MARGIN = 56;
+
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
-	const [pointerPos, setPointerPos] = useState<{ x: number; y: number } | null>(
-		null,
-	);
+	const [pointerX, setPointerX] = useState<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	// Calculate time distribution (5-minute intervals)
@@ -99,20 +99,19 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 
 			const rect = containerRef.current.getBoundingClientRect();
 			const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-			const y = e.clientY - rect.top;
 
 			const percentage = x / rect.width;
 			const index = Math.floor(percentage * displayIntervals.length);
 
 			setActiveIndex(Math.min(index, displayIntervals.length - 1));
-			setPointerPos({ x, y });
+			setPointerX(x);
 		},
 		[displayIntervals.length],
 	);
 
 	const handlePointerLeave = useCallback(() => {
 		setActiveIndex(null);
-		setPointerPos(null);
+		setPointerX(null);
 	}, []);
 
 	if (sessions.length === 0 || maxCount === 0) return null;
@@ -174,15 +173,15 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 						</div>
 
 						{/* Magnifying Lens / Tooltip */}
-						{activeInterval && pointerPos && containerRef.current && (
+						{activeInterval && pointerX !== null && containerRef.current && (
 							<div
 								className="absolute z-20 pointer-events-none transition-transform duration-75 ease-out"
 								style={{
 									left: Math.max(
-										48,
+										TOOLTIP_CLAMP_MARGIN,
 										Math.min(
-											pointerPos.x,
-											containerRef.current.offsetWidth - 48,
+											pointerX,
+											containerRef.current.offsetWidth - TOOLTIP_CLAMP_MARGIN,
 										),
 									),
 									top: -8,
@@ -190,7 +189,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 								}}
 							>
 								<div className="flex flex-col items-center">
-									<div className="bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-950 rounded-full px-4 py-2 shadow-2xl flex flex-col items-center min-w-28 border border-white/10 dark:border-black/10 animate-in fade-in zoom-in-95 duration-100 ring-4 ring-black/10 dark:ring-white/10 whitespace-nowrap">
+									<div className="bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-950 rounded-xl px-4 py-2 shadow-2xl flex flex-col items-center min-w-28 border border-white/10 dark:border-black/10 animate-in fade-in zoom-in-95 duration-100 ring-4 ring-black/10 dark:ring-white/10 whitespace-nowrap">
 										<span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">
 											{activeInterval.time} Uhr
 										</span>
@@ -199,9 +198,18 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 										</span>
 									</div>
 									<div
-										className="w-2.5 h-2.5 bg-zinc-900 dark:bg-zinc-100 rotate-45 -mt-1.25 shadow-lg"
+										className="w-2.5 h-2.5 bg-zinc-900 dark:bg-zinc-100 -mt-1.25 shadow-lg"
 										style={{
-											marginLeft: `${(pointerPos.x - Math.max(48, Math.min(pointerPos.x, containerRef.current.offsetWidth - 48))) * 2}px`,
+											transform: `translateX(${
+												pointerX -
+												Math.max(
+													TOOLTIP_CLAMP_MARGIN,
+													Math.min(
+														pointerX,
+														containerRef.current.offsetWidth - TOOLTIP_CLAMP_MARGIN,
+													),
+												)
+											}px) rotate(45deg)`,
 										}}
 									/>
 								</div>
