@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface PieDataset {
-	backgroundColor: string[];
+	backgroundColor: (string | CanvasPattern)[];
 	data: number[];
 	label: string;
 }

@@ -22,6 +22,14 @@ import { useGrowthMeasurementsSnapshot } from '@/hooks/use-growth-measurements';
 import { cn } from '@/lib/utils';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AvgDiaperChangesStats from './components/avg-diaper-changes-stats';
 import DeferredSection from './components/deferred-section';
 import DiaperBrandStats from './components/diaper-brand-stats';
@@ -35,9 +43,9 @@ import FeedingRecords from './components/feeding-records';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
+import PottyCurrentStreakStats from './components/potty-current-streak-stats';
 import PottyRecords from './components/potty-records';
-import PottySavingsCard from './components/potty-savings-card';
-import PottyStreakStats from './components/potty-streak-stats';
+import PottySavingsStats from './components/potty-savings-stats';
 import PottySuccessStats from './components/potty-success-stats';
 import ReusableSavingsCard from './components/reusable-savings-card';
 import TimeBetweenDiaperChangesStats from './components/time-between-diaper-changes-stats';
@@ -343,7 +351,7 @@ export default function StatisticsPage() {
 					{filteredDiaperChanges.length > 0 || pottyHitsCount > 0 ? (
 						<>
 							<div className="grid grid-cols-2 gap-4">
-								<TotalDiaperChangesStats
+								<TimeBetweenDiaperChangesStats
 									comparisonDiaperChanges={comparisonDiaperChanges}
 									diaperChanges={filteredDiaperChanges}
 								/>
@@ -351,7 +359,7 @@ export default function StatisticsPage() {
 									comparisonDiaperChanges={comparisonDiaperChanges}
 									diaperChanges={filteredDiaperChanges}
 								/>
-								<TimeBetweenDiaperChangesStats
+								<TotalDiaperChangesStats
 									comparisonDiaperChanges={comparisonDiaperChanges}
 									diaperChanges={filteredDiaperChanges}
 								/>
@@ -364,31 +372,90 @@ export default function StatisticsPage() {
 									comparisonDiaperChanges={comparisonDiaperChanges}
 									diaperChanges={filteredDiaperChanges}
 								/>
-								<PottyStreakStats diaperChanges={filteredDiaperChanges} />
-								<DiaperBrandStats
+								<PottyCurrentStreakStats diaperChanges={diaperChanges} />
+								<PottySavingsStats
+									className="col-span-2"
+									comparisonDiaperChanges={comparisonDiaperChanges}
 									diaperChanges={filteredDiaperChanges}
-									products={diaperProducts}
+									disposableChanges={disposableChanges}
 								/>
 							</div>
 
-							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
-								<DiaperPottyActivityChart
-									className="mt-4"
-									diaperChanges={diaperChanges}
-									primaryRange={primary}
-									secondaryRange={secondary}
-								/>
-							</DeferredSection>
+							<Card className="mt-4">
+								<CardHeader className="p-4 pb-2">
+									<CardTitle className="text-base">
+										<fbt desc="Title for the diaper activity card showing Activity, Cost and Brand tabs">
+											Diaper Activity
+										</fbt>
+									</CardTitle>
+									<CardDescription>
+										<fbt desc="Description for the diaper activity card">
+											Visualize diaper changes, costs and brand distribution.
+										</fbt>
+									</CardDescription>
+								</CardHeader>
+								<CardContent className="p-0">
+									<Tabs className="w-full" defaultValue="activity">
+										<div className="px-4 pt-2">
+											<TabsList className="flex w-full mb-2">
+												<TabsTrigger value="activity">
+													<fbt desc="Label for the activity tab in diaper stats">
+														Activity
+													</fbt>
+												</TabsTrigger>
+												<TabsTrigger value="cost">
+													<fbt desc="Label for the cost tab in diaper stats">
+														Cost
+													</fbt>
+												</TabsTrigger>
+												<TabsTrigger value="brand">
+													<fbt desc="Label for the brand tab in diaper stats">
+														Brand
+													</fbt>
+												</TabsTrigger>
+											</TabsList>
+										</div>
 
-							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
-								<DiaperCostChart
-									className="mt-4"
-									diaperChanges={diaperChanges}
-									primaryRange={primary}
-									products={diaperProducts}
-									secondaryRange={secondary}
-								/>
-							</DeferredSection>
+										<TabsContent className="mt-0" value="activity">
+											<DeferredSection
+												fallback={<Skeleton className="h-64 px-4 pb-4" />}
+											>
+												<DiaperPottyActivityChart
+													className="px-4 pb-4"
+													diaperChanges={diaperChanges}
+													primaryRange={primary}
+													secondaryRange={secondary}
+												/>
+											</DeferredSection>
+										</TabsContent>
+										<TabsContent className="mt-0" value="cost">
+											<DeferredSection
+												fallback={<Skeleton className="h-64 px-4 pb-4" />}
+											>
+												<DiaperCostChart
+													className="px-4 pb-4"
+													diaperChanges={diaperChanges}
+													primaryRange={primary}
+													products={diaperProducts}
+													secondaryRange={secondary}
+												/>
+											</DeferredSection>
+										</TabsContent>
+										<TabsContent className="mt-0" value="brand">
+											<DeferredSection
+												fallback={<Skeleton className="h-64 px-4 pb-4" />}
+											>
+												<div className="px-4 pb-4">
+													<DiaperBrandStats
+														diaperChanges={filteredDiaperChanges}
+														products={diaperProducts}
+													/>
+												</div>
+											</DeferredSection>
+										</TabsContent>
+									</Tabs>
+								</CardContent>
+							</Card>
 
 							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
 								<YearlyActivityHeatMap
@@ -405,10 +472,6 @@ export default function StatisticsPage() {
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<DiaperRecords diaperChanges={diaperChanges} />
 								<PottyRecords diaperChanges={diaperChanges} />
-								<PottySavingsCard
-									diaperChanges={diaperChanges}
-									disposableChanges={disposableChanges}
-								/>
 							</div>
 						</>
 					) : (

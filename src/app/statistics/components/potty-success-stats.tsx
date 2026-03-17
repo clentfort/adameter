@@ -11,8 +11,11 @@ interface PottySuccessStatsProps {
 	diaperChanges: DiaperChange[];
 }
 
-function calculatePottyMetrics(changes: DiaperChange[]) {
+function calculateDetailedPottyMetrics(changes: DiaperChange[]) {
 	const total = changes.filter((c) => c.pottyUrine || c.pottyStool).length;
+	const urineCount = changes.filter((c) => c.pottyUrine).length;
+	const stoolCount = changes.filter((c) => c.pottyStool).length;
+
 	let avgPerDay = 0;
 	if (changes.length > 0) {
 		const oldest = new Date(
@@ -24,7 +27,7 @@ function calculatePottyMetrics(changes: DiaperChange[]) {
 		const days = Math.max(1, differenceInDays(newest, oldest) + 1);
 		avgPerDay = total / days;
 	}
-	return { avgPerDay, total };
+	return { avgPerDay, stoolCount, total, urineCount };
 }
 
 export default function PottySuccessStats({
@@ -32,13 +35,13 @@ export default function PottySuccessStats({
 	diaperChanges = [],
 }: PottySuccessStatsProps) {
 	const metrics = useMemo(
-		() => calculatePottyMetrics(diaperChanges),
+		() => calculateDetailedPottyMetrics(diaperChanges),
 		[diaperChanges],
 	);
 	const prevMetrics = useMemo(
 		() =>
 			comparisonDiaperChanges
-				? calculatePottyMetrics(comparisonDiaperChanges)
+				? calculateDetailedPottyMetrics(comparisonDiaperChanges)
 				: null,
 		[comparisonDiaperChanges],
 	);
@@ -58,17 +61,19 @@ export default function PottySuccessStats({
 					/>
 				)}
 			</div>
-			<div className="text-xs text-muted-foreground mt-1">
-				<fbt desc="Label for average potty success per day">Avg per day</fbt>:{' '}
-				<span className="font-medium text-foreground">
-					{metrics.avgPerDay.toFixed(1)}
-				</span>
-				{prevMetrics && (
-					<ComparisonValue
-						current={metrics.avgPerDay}
-						previous={prevMetrics.avgPerDay}
-					/>
-				)}
+			<div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
+				<div className="flex justify-between">
+					<span><fbt desc="Label for potty urine count">Urine</fbt></span>
+					<span className="font-medium">{metrics.urineCount}</span>
+				</div>
+				<div className="flex justify-between">
+					<span><fbt desc="Label for potty stool count">Stool</fbt></span>
+					<span className="font-medium text-amber-800 dark:text-amber-500">{metrics.stoolCount}</span>
+				</div>
+				<div className="flex justify-between col-span-2 border-t border-border/50 pt-1">
+					<span><fbt desc="Label for average potty success per day">Avg per day</fbt></span>
+					<span className="font-medium text-foreground">{metrics.avgPerDay.toFixed(1)}</span>
+				</div>
 			</div>
 		</StatsCard>
 	);
