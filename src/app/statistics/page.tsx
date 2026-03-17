@@ -4,6 +4,13 @@ import type { TimeRange } from '@/utils/get-range-dates';
 import { addDays, format, isWithinInterval } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useMemo, useState, useTransition } from 'react';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -14,6 +21,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useDiaperProductsSnapshot } from '@/hooks/use-diaper-products';
 import { useEventsSnapshot } from '@/hooks/use-events';
@@ -22,14 +30,6 @@ import { useGrowthMeasurementsSnapshot } from '@/hooks/use-growth-measurements';
 import { cn } from '@/lib/utils';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AvgDiaperChangesStats from './components/avg-diaper-changes-stats';
 import DeferredSection from './components/deferred-section';
 import DiaperBrandStats from './components/diaper-brand-stats';

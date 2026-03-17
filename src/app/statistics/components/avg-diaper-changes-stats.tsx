@@ -23,9 +23,9 @@ function calculateDetailedAvgPerDay(changes: DiaperChange[]) {
 
 	return {
 		avg: changes.length / days,
-		leakage: changes.filter(c => c.leakage).length / days,
-		stool: changes.filter(c => c.containsStool).length / days,
-		urine: changes.filter(c => c.containsUrine).length / days,
+		leakage: changes.filter((c) => c.leakage).length / days,
+		stool: changes.filter((c) => c.containsStool).length / days,
+		urine: changes.filter((c) => c.containsUrine).length / days,
 	};
 }
 
@@ -33,7 +33,10 @@ export default function AvgDiaperChangesStats({
 	comparisonDiaperChanges,
 	diaperChanges = [],
 }: AvgDiaperChangesStatsProps) {
-	const stats = useMemo(() => calculateDetailedAvgPerDay(diaperChanges), [diaperChanges]);
+	const stats = useMemo(
+		() => calculateDetailedAvgPerDay(diaperChanges),
+		[diaperChanges],
+	);
 	const prevStats = useMemo(
 		() =>
 			comparisonDiaperChanges
@@ -58,16 +61,26 @@ export default function AvgDiaperChangesStats({
 			</div>
 			<div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
 				<div className="flex justify-between">
-					<span><fbt desc="Label for urine avg">Urine</fbt></span>
+					<span>
+						<fbt desc="Label for urine avg">Urine</fbt>
+					</span>
 					<span className="font-medium">{stats.urine.toFixed(1)}</span>
 				</div>
 				<div className="flex justify-between">
-					<span><fbt desc="Label for stool avg">Stool</fbt></span>
-					<span className="font-medium text-amber-800 dark:text-amber-500">{stats.stool.toFixed(1)}</span>
+					<span>
+						<fbt desc="Label for stool avg">Stool</fbt>
+					</span>
+					<span className="font-medium text-amber-800 dark:text-amber-500">
+						{stats.stool.toFixed(1)}
+					</span>
 				</div>
 				<div className="flex justify-between col-span-2 border-t border-border/50 pt-1">
-					<span><fbt desc="Label for leakage avg">Leakage</fbt></span>
-					<span className="font-medium text-red-600 dark:text-red-400">{stats.leakage.toFixed(1)}</span>
+					<span>
+						<fbt desc="Label for leakage avg">Leakage</fbt>
+					</span>
+					<span className="font-medium text-red-600 dark:text-red-400">
+						{stats.leakage.toFixed(1)}
+					</span>
 				</div>
 			</div>
 		</StatsCard>
