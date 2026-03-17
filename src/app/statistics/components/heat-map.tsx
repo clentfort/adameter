@@ -1,5 +1,4 @@
 import type { FeedingSession } from '@/types/feeding';
-import { fbt } from 'fbtee';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
 	Card,
@@ -229,57 +228,16 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 														? 4
 														: 5;
 
+								const label = `${interval.time}: ${interval.count} ${interval.count === 1 ? 'Feeding' : 'Feedings'}`;
 								return (
-									<fbt desc="Aria label for a heat map interval" key={index}>
-										<fbt:param name="time">{interval.time}</fbt:param>:
-										<fbt:param name="count">{interval.count}</fbt:param>
-										<fbt:plural
-											count={interval.count}
-											many="Feedings"
-											showCount="no"
-										>
-											Feeding
-										</fbt:plural>
-										<fbt:implicit>
-											<div
-												aria-label={fbt(
-													{
-														count: interval.count,
-														time: interval.time,
-													},
-													'Aria label for a heat map interval',
-												)
-													.toString()
-													.replace(
-														'{time}',
-														fbt.param('time', interval.time).toString(),
-													)
-													.replace(
-														'{count}',
-														fbt.param('count', interval.count).toString(),
-													)}
-												className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 transition-colors ${INTENSITY_CLASSES[level]} ${activeIndex === index ? 'ring-2 ring-inset ring-white/50 z-10' : ''}`}
-												role="img"
-												style={{ width: `${100 / displayIntervals.length}%` }}
-												title={fbt(
-													{
-														count: interval.count,
-														time: interval.time,
-													},
-													'Title for a heat map interval',
-												)
-													.toString()
-													.replace(
-														'{time}',
-														fbt.param('time', interval.time).toString(),
-													)
-													.replace(
-														'{count}',
-														fbt.param('count', interval.count).toString(),
-													)}
-											/>
-										</fbt:implicit>
-									</fbt>
+									<div
+										aria-label={label}
+										className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 transition-colors ${INTENSITY_CLASSES[level]} ${activeIndex === index ? 'ring-2 ring-inset ring-white/50 z-10' : ''}`}
+										key={index}
+										role="img"
+										style={{ width: `${100 / displayIntervals.length}%` }}
+										title={label}
+									/>
 								);
 							})}
 						</div>
