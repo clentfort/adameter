@@ -73,7 +73,6 @@ function calculateDisplayIntervals(distribution: number[]) {
 }
 
 const TOOLTIP_WIDTH = 128;
-const TOOLTIP_CLAMP_MARGIN = TOOLTIP_WIDTH / 2;
 
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -140,9 +139,11 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 					<div className="relative h-16 mb-6">
 						<div
 							className="absolute top-0 left-0 right-0 h-8 flex overflow-hidden rounded-md cursor-crosshair touch-none"
+								onPointerCancel={handlePointerLeave}
 							onPointerDown={handlePointerMove}
 							onPointerLeave={handlePointerLeave}
 							onPointerMove={handlePointerMove}
+								onPointerUp={handlePointerLeave}
 							ref={containerRef}
 						>
 							{displayIntervals.map((interval, index) => {
@@ -179,13 +180,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 							<div
 								className="absolute z-20 pointer-events-none transition-transform duration-75 ease-out"
 								style={{
-									left: Math.max(
-										TOOLTIP_CLAMP_MARGIN,
-										Math.min(
-											pointerX,
-											containerRef.current.offsetWidth - TOOLTIP_CLAMP_MARGIN,
-										),
-									),
+									left: pointerX,
 									top: -8,
 									transform: 'translate(-50%, -100%)',
 								}}
@@ -213,26 +208,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 										</span>
 									</div>
 									<div className="relative w-full h-0">
-										<div
-											className="absolute w-3 h-3 bg-zinc-900 dark:bg-zinc-100 -mt-1.5 shadow-lg origin-center left-1/2"
-											style={{
-												transform: `translateX(calc(-50% + ${Math.max(
-													-56,
-													Math.min(
-														56,
-														pointerX -
-															Math.max(
-																TOOLTIP_CLAMP_MARGIN,
-																Math.min(
-																	pointerX,
-																	containerRef.current.offsetWidth -
-																		TOOLTIP_CLAMP_MARGIN,
-																),
-															),
-													),
-												)}px)) rotate(45deg)`,
-											}}
-										/>
+										<div className="absolute w-3 h-3 bg-zinc-900 dark:bg-zinc-100 -mt-1.5 shadow-lg origin-center left-1/2 -translate-x-1/2 rotate-45" />
 									</div>
 								</div>
 							</div>
