@@ -14,6 +14,7 @@ interface PieDataset {
 interface PieChartProps {
 	datasets: PieDataset[];
 	emptyStateMessage: React.ReactNode;
+	hideLegend?: boolean;
 	labels: string[];
 	title?: React.ReactNode;
 	tooltipLabelFormatter?: (context: TooltipItem<'pie'>) => string;
@@ -22,6 +23,7 @@ interface PieChartProps {
 export default function PieChart({
 	datasets,
 	emptyStateMessage,
+	hideLegend = false,
 	labels,
 	title,
 	tooltipLabelFormatter,
@@ -60,7 +62,7 @@ export default function PieChart({
 				maintainAspectRatio: false,
 				plugins: {
 					legend: {
-						display: true,
+						display: !hideLegend,
 						position: 'right',
 					},
 					title: {
@@ -112,9 +114,13 @@ export default function PieChart({
 					title?.toString() || '';
 			}
 
+			if (chartInstance.current.options.plugins?.legend) {
+				chartInstance.current.options.plugins.legend.display = !hideLegend;
+			}
+
 			chartInstance.current.update();
 		}
-	}, [datasets, labels, title]);
+	}, [datasets, labels, title, hideLegend]);
 
 	if (datasets.length === 0 || labels.length === 0) {
 		return (

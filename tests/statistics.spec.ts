@@ -25,7 +25,7 @@ test.describe('Statistics Page', () => {
 			page.getByRole('heading', { exact: true, name: 'Feeding' }),
 		).toBeVisible();
 		await expect(
-			page.getByRole('heading', { exact: true, name: 'Diaper' }),
+			page.getByRole('heading', { exact: true, name: 'Diaper & Potty' }),
 		).toBeVisible();
 
 		const statsCards = page.getByTestId('stats-card');
@@ -68,17 +68,12 @@ test.describe('Statistics Page', () => {
 		await page.goto('/statistics');
 
 		await expect(
-			page.getByRole('heading', { exact: true, name: 'Diaper' }),
+			page.getByRole('heading', { exact: true, name: 'Diaper & Potty' }),
 		).toBeVisible();
 
 		// Verify specific diaper metrics
-		await expect(
-			page.getByText('Total', { exact: true }).first(),
-		).toBeVisible();
-		await expect(
-			page.getByText('Per Day', { exact: true }).first(),
-		).toBeVisible();
-		await expect(page.getByText('Urine Only')).toBeVisible();
+		await expect(page.getByText('Total Changes')).toBeVisible();
+		await expect(page.getByText('Avg Changes / Day')).toBeVisible();
 	});
 
 	test('should filter data by time range', async ({ page }) => {
@@ -89,7 +84,7 @@ test.describe('Statistics Page', () => {
 
 		await page.goto('/statistics');
 		await expect(
-			page.getByRole('heading', { exact: true, name: 'Diaper' }),
+			page.getByRole('heading', { exact: true, name: 'Diaper & Potty' }),
 		).toBeVisible();
 
 		// Change time range to "Last 7 Days" (which is default, but let's re-select or change to something else)
@@ -98,7 +93,7 @@ test.describe('Statistics Page', () => {
 		await page.getByRole('option', { name: 'All Data' }).click();
 
 		await expect(
-			page.getByRole('heading', { exact: true, name: 'Diaper' }),
+			page.getByRole('heading', { exact: true, name: 'Diaper & Potty' }),
 		).toBeVisible();
 	});
 });

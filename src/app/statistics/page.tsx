@@ -2,6 +2,7 @@
 
 import type { TimeRange } from '@/utils/get-range-dates';
 import { addDays, format, isWithinInterval } from 'date-fns';
+import { fbt } from 'fbtee';
 import { useMemo, useState, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
