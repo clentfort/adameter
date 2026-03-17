@@ -1,4 +1,4 @@
-import { render, within } from '@testing-library/react';
+import { fireEvent, render, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import {
 	createFeedingSession,
@@ -48,41 +48,11 @@ describe('HeatMap', () => {
 		).toBeInTheDocument();
 
 		// Find the heat map container more robustly
-		const intervalElementsContainer = within(heatMapCard).getByTitle(
-			'00:00 Uhr: 2 Mahlzeiten',
-		).parentElement;
+		const heatMapContainer = heatMapCard.querySelector('.cursor-crosshair');
 
-		expect(intervalElementsContainer).not.toBeNull();
-		if (intervalElementsContainer) {
-			expect(intervalElementsContainer.children.length).toBe(288); // 288 5-minute intervals
-		}
-	});
-
-	it('assigns correct titles (tooltips) to interval divs reflecting counts', () => {
-		const { container } = render(<HeatMap sessions={mockSessions} />);
-		const heatMapCard = container.firstChild as HTMLElement;
-		const intervalElementsContainer = within(heatMapCard).getByTitle(
-			'00:00 Uhr: 2 Mahlzeiten',
-		).parentElement;
-
-		expect(intervalElementsContainer).not.toBeNull();
-		if (intervalElementsContainer) {
-			expect(intervalElementsContainer.children[0]).toHaveAttribute(
-				'title',
-				'00:00 Uhr: 2 Mahlzeiten',
-			);
-			expect(intervalElementsContainer.children[1]).toHaveAttribute(
-				'title',
-				'00:05 Uhr: 2 Mahlzeiten',
-			);
-			expect(intervalElementsContainer.children[2]).toHaveAttribute(
-				'title',
-				'00:10 Uhr: 1 Mahlzeit',
-			);
-			expect(intervalElementsContainer.children[287]).toHaveAttribute(
-				'title',
-				'23:55 Uhr: 1 Mahlzeit',
-			);
+		expect(heatMapContainer).not.toBeNull();
+		if (heatMapContainer) {
+			expect(heatMapContainer.children.length).toBe(288); // 288 5-minute intervals
 		}
 	});
 
@@ -117,22 +87,61 @@ describe('HeatMap', () => {
 		const { container } = render(<HeatMap sessions={mockSessions} />);
 		const heatMapCard = container.firstChild as HTMLElement;
 
-		const intervalElementsContainer = within(heatMapCard).getByTitle(
-			'00:00 Uhr: 2 Mahlzeiten',
-		).parentElement;
+		const heatMapContainer = heatMapCard.querySelector('.cursor-crosshair');
+		expect(heatMapContainer).not.toBeNull();
+		if (heatMapContainer) {
+			expect(heatMapContainer.children[0]).toHaveClass('bg-right-breast');
+			expect(heatMapContainer.children[1]).toHaveClass('bg-right-breast');
+			expect(heatMapContainer.children[2]).toHaveClass('bg-right-breast/45');
+			expect(heatMapContainer.children[3]).toHaveClass('bg-muted/60');
+		}
+	});
 
-		expect(intervalElementsContainer).not.toBeNull();
-		if (intervalElementsContainer) {
-			expect(intervalElementsContainer.children[0]).toHaveClass(
-				'bg-right-breast',
-			);
-			expect(intervalElementsContainer.children[1]).toHaveClass(
-				'bg-right-breast',
-			);
-			expect(intervalElementsContainer.children[2]).toHaveClass(
-				'bg-right-breast/45',
-			);
-			expect(intervalElementsContainer.children[3]).toHaveClass('bg-muted/60');
+	it('shows magnifying lens on pointer interaction', () => {
+		const { container } = render(<HeatMap sessions={mockSessions} />);
+		const heatMapCard = container.firstChild as HTMLElement;
+
+		const heatMapContainer = heatMapCard.querySelector('.cursor-crosshair');
+		expect(heatMapContainer).not.toBeNull();
+
+		if (heatMapContainer) {
+			// Mock getBoundingClientRect
+			heatMapContainer.getBoundingClientRect = () =>
+				({
+					bottom: 100,
+					height: 32,
+					left: 0,
+					right: 1000,
+					top: 68,
+					width: 1000,
+					x: 0,
+					y: 68,
+				}) as DOMRect;
+
+			// Simulate pointer move over the first interval (00:00)
+			fireEvent.pointerMove(heatMapContainer, { clientX: 1, clientY: 80 });
+
+			// Check if magnifier is visible with correct info
+			// Filter by the class we added to the magnifier text
+			expect(
+				heatMapCard.querySelector(
+					'.bg-zinc-900 .font-bold.opacity-70.uppercase, .bg-zinc-100 .font-bold.opacity-70.uppercase',
+				),
+			).toHaveTextContent('00:00');
+			expect(within(heatMapCard).getByText('2 Feedings')).toBeInTheDocument();
+
+			// Simulate pointer move over another interval
+			fireEvent.pointerMove(heatMapContainer, { clientX: 10, clientY: 80 });
+			expect(
+				heatMapCard.querySelector(
+					'.bg-zinc-900 .font-bold.opacity-70.uppercase, .bg-zinc-100 .font-bold.opacity-70.uppercase',
+				),
+			).toHaveTextContent('00:10');
+			expect(within(heatMapCard).getByText('1 Feeding')).toBeInTheDocument();
+
+			// Simulate pointer leave
+			fireEvent.pointerLeave(heatMapContainer);
+			expect(within(heatMapCard).queryByText('00:10')).not.toBeInTheDocument();
 		}
 	});
 });
