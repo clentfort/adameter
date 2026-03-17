@@ -206,7 +206,8 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 													TOOLTIP_CLAMP_MARGIN,
 													Math.min(
 														pointerX,
-														containerRef.current.offsetWidth - TOOLTIP_CLAMP_MARGIN,
+														containerRef.current.offsetWidth -
+															TOOLTIP_CLAMP_MARGIN,
 													),
 												)
 											}px) rotate(45deg)`,

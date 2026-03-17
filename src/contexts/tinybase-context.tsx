@@ -325,7 +325,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	}, [isHydrated, isLocalReady, room]);
 
 	useEffect(() => {
-		if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+		if (
+			typeof window !== 'undefined' &&
+			process.env.NODE_ENV === 'development'
+		) {
 			Object.assign(window, { tinybaseStore: storeRef.current });
 		}
 	}, []);
