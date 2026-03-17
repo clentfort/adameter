@@ -1,4 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
+import { fbt } from 'fbtee';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
 	Card,
@@ -71,7 +72,8 @@ function calculateDisplayIntervals(distribution: number[]) {
 	});
 }
 
-const TOOLTIP_CLAMP_MARGIN = 56;
+const TOOLTIP_WIDTH = 128;
+const TOOLTIP_CLAMP_MARGIN = TOOLTIP_WIDTH / 2;
 
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -158,7 +160,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 														? 4
 														: 5;
 
-								const timeString = `${interval.time} Uhr: ${interval.count} Stillen`;
+								const timeString = `${interval.time}: ${interval.count} ${interval.count === 1 ? 'Feeding' : 'Feedings'}`;
 								return (
 									<div
 										aria-label={timeString}
@@ -189,30 +191,49 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 								}}
 							>
 								<div className="flex flex-col items-center">
-									<div className="bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-950 rounded-xl px-4 py-2 shadow-2xl flex flex-col items-center min-w-28 border border-white/10 dark:border-black/10 animate-in fade-in zoom-in-95 duration-100 ring-4 ring-black/10 dark:ring-white/10 whitespace-nowrap">
+									<div className="bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-950 rounded-lg px-4 py-2 shadow-2xl flex flex-col items-center w-32 border border-white/10 dark:border-black/10 animate-in fade-in zoom-in-95 duration-100 ring-4 ring-black/10 dark:ring-white/10 whitespace-nowrap">
 										<span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">
-											{activeInterval.time} Uhr
+											<fbt desc="Time label in the heat map tooltip">
+												<fbt:param name="time">{activeInterval.time}</fbt:param>
+											</fbt>
 										</span>
 										<span className="text-sm font-black tracking-tight">
-											{activeInterval.count} Stillen
+											<fbt desc="Count of feedings in the heat map tooltip">
+												<fbt:param name="count">
+													{activeInterval.count}
+												</fbt:param>
+												<fbt:plural
+													count={activeInterval.count}
+													many=" Feedings"
+													showCount="no"
+												>
+													Feeding
+												</fbt:plural>
+											</fbt>
 										</span>
 									</div>
-									<div
-										className="w-2.5 h-2.5 bg-zinc-900 dark:bg-zinc-100 -mt-1.25 shadow-lg"
-										style={{
-											transform: `translateX(${
-												pointerX -
-												Math.max(
-													TOOLTIP_CLAMP_MARGIN,
+									<div className="relative w-full h-0">
+										<div
+											className="absolute w-3 h-3 bg-zinc-900 dark:bg-zinc-100 -mt-1.5 shadow-lg origin-center left-1/2"
+											style={{
+												transform: `translateX(calc(-50% + ${Math.max(
+													-56,
 													Math.min(
-														pointerX,
-														containerRef.current.offsetWidth -
-															TOOLTIP_CLAMP_MARGIN,
+														56,
+														pointerX -
+															Math.max(
+																TOOLTIP_CLAMP_MARGIN,
+																Math.min(
+																	pointerX,
+																	containerRef.current.offsetWidth -
+																		TOOLTIP_CLAMP_MARGIN,
+																),
+															),
 													),
-												)
-											}px) rotate(45deg)`,
-										}}
-									/>
+												)}px)) rotate(45deg)`,
+											}}
+										/>
+									</div>
 								</div>
 							</div>
 						)}

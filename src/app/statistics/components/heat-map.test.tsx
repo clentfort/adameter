@@ -127,8 +127,8 @@ describe('HeatMap', () => {
 				heatMapCard.querySelector(
 					'.bg-zinc-900 .font-bold.opacity-70.uppercase, .bg-zinc-100 .font-bold.opacity-70.uppercase',
 				),
-			).toHaveTextContent('00:00 Uhr');
-			expect(within(heatMapCard).getByText('2 Stillen')).toBeInTheDocument();
+			).toHaveTextContent('00:00');
+			expect(within(heatMapCard).getByText('2 Feedings')).toBeInTheDocument();
 
 			// Simulate pointer move over another interval
 			fireEvent.pointerMove(heatMapContainer, { clientX: 10, clientY: 80 });
@@ -136,8 +136,8 @@ describe('HeatMap', () => {
 				heatMapCard.querySelector(
 					'.bg-zinc-900 .font-bold.opacity-70.uppercase, .bg-zinc-100 .font-bold.opacity-70.uppercase',
 				),
-			).toHaveTextContent('00:10 Uhr');
-			expect(within(heatMapCard).getByText('1 Stillen')).toBeInTheDocument();
+			).toHaveTextContent('00:10');
+			expect(within(heatMapCard).getByText('1 Feeding')).toBeInTheDocument();
 
 			// Simulate pointer leave
 			fireEvent.pointerLeave(heatMapContainer);
