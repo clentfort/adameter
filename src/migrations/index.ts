@@ -14,6 +14,7 @@ import { normalizeEntityStoreRowsMigration } from './2026-03-07-normalize-entity
 import { removeLegacyJsonCellsMigration } from './2026-03-07-remove-legacy-json-cells';
 import { cleanupJunkDataMigration } from './2026-03-15-cleanup-junk-data';
 import { renameEventDescriptionToNotesMigration } from './2026-03-24-rename-event-description-to-notes';
+import { assignColorsToDiaperProductsMigration } from './2026-03-25-assign-colors-to-diaper-products';
 
 /**
  * Ordered migration list (oldest -> newest).
@@ -27,6 +28,7 @@ export const migrations: readonly Migration[] = [
 	normalizeDiaperStoreRowsMigration,
 	normalizeEntityStoreRowsMigration,
 	cleanupJunkDataMigration,
+	assignColorsToDiaperProductsMigration,
 ];
 
 export function runMigrations(

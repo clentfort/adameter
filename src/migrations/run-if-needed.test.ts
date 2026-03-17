@@ -13,6 +13,8 @@ const NORMALIZE_ENTITY_ROWS_MIGRATION_ID =
 const CLEANUP_JUNK_DATA_MIGRATION_ID = '2026-03-15-cleanup-junk-data';
 const RENAME_EVENT_MIGRATION_ID =
 	'2026-03-24-rename-event-description-to-notes';
+const ASSIGN_COLORS_MIGRATION_ID =
+	'2026-03-25-assign-colors-to-diaper-products';
 
 describe('runMigrationsIfNeeded', () => {
 	it('detects pending migrations from migration metadata', () => {
@@ -26,6 +28,7 @@ describe('runMigrationsIfNeeded', () => {
 			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
+			ASSIGN_COLORS_MIGRATION_ID,
 		]) {
 			store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, id, {
 				appliedAt: Date.now(),
@@ -44,6 +47,7 @@ describe('runMigrationsIfNeeded', () => {
 			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
+			ASSIGN_COLORS_MIGRATION_ID,
 		]) {
 			store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, id, {
 				appliedAt: Date.now(),
@@ -82,6 +86,7 @@ describe('runMigrationsIfNeeded', () => {
 			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
+			ASSIGN_COLORS_MIGRATION_ID,
 		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy note',
@@ -113,6 +118,9 @@ describe('runMigrationsIfNeeded', () => {
 				CLEANUP_JUNK_DATA_MIGRATION_ID,
 			),
 		).toBe(true);
+		expect(
+			store.hasRow(INTERNAL_TABLE_IDS.MIGRATIONS, ASSIGN_COLORS_MIGRATION_ID),
+		).toBe(true);
 	});
 
 	it('cleans existing diaper product rows with blank optional values', async () => {
@@ -130,6 +138,7 @@ describe('runMigrationsIfNeeded', () => {
 		});
 
 		expect(store.getRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1')).toEqual({
+			color: '#3b82f6',
 			deviceId: 'device-1',
 			isReusable: false,
 			name: 'Pampers',

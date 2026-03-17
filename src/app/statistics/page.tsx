@@ -21,25 +21,30 @@ import { useGrowthMeasurementsSnapshot } from '@/hooks/use-growth-measurements';
 import { cn } from '@/lib/utils';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
+import AvgDiaperChangesStats from './components/avg-diaper-changes-stats';
 import DeferredSection from './components/deferred-section';
-import DiaperActivity from './components/diaper-activity';
+import DiaperBrandStats from './components/diaper-brand-stats';
+import DiaperCostChart from './components/diaper-cost-chart';
+import DiaperCostStats from './components/diaper-cost-stats';
+import DiaperPottyActivityChart from './components/diaper-potty-activity-chart';
 import DiaperRecords from './components/diaper-records';
-import DiaperStats from './components/diaper-stats';
 import DurationStats from './components/duration-stats';
 import FeedingActivity from './components/feeding-activity';
 import FeedingRecords from './components/feeding-records';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
-import PottyActivity from './components/potty-activity';
 import PottyRecords from './components/potty-records';
 import PottySavingsCard from './components/potty-savings-card';
-import PottyStats from './components/potty-stats';
-import PottyStreakCards from './components/potty-streak-cards';
+import PottyStreakStats from './components/potty-streak-stats';
+import PottySuccessStats from './components/potty-success-stats';
 import ReusableSavingsCard from './components/reusable-savings-card';
+import TimeBetweenDiaperChangesStats from './components/time-between-diaper-changes-stats';
 import TimeBetweenStats from './components/time-between-stats';
+import TotalDiaperChangesStats from './components/total-diaper-changes-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
+import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
 export default function StatisticsPage() {
 	const diaperChanges = useDiaperChangesSnapshot();
@@ -330,17 +335,52 @@ export default function StatisticsPage() {
 					)}
 
 					<h3 className="text-lg font-medium mt-8 mb-4">
-						<fbt desc="Subtitle for the diaper statistics section">Diaper</fbt>
+						<fbt desc="Subtitle for the diaper and potty statistics section">
+							Diaper & Potty
+						</fbt>
 					</h3>
-					{filteredDiaperChanges.length > 0 ? (
+					{filteredDiaperChanges.length > 0 || pottyHitsCount > 0 ? (
 						<>
-							<DiaperStats
-								comparisonDiaperChanges={comparisonDiaperChanges}
-								diaperChanges={filteredDiaperChanges}
-								products={diaperProducts}
-							/>
+							<div className="grid grid-cols-2 gap-4">
+								<TotalDiaperChangesStats
+									comparisonDiaperChanges={comparisonDiaperChanges}
+									diaperChanges={filteredDiaperChanges}
+								/>
+								<AvgDiaperChangesStats
+									comparisonDiaperChanges={comparisonDiaperChanges}
+									diaperChanges={filteredDiaperChanges}
+								/>
+								<TimeBetweenDiaperChangesStats
+									comparisonDiaperChanges={comparisonDiaperChanges}
+									diaperChanges={filteredDiaperChanges}
+								/>
+								<DiaperCostStats
+									comparisonDiaperChanges={comparisonDiaperChanges}
+									diaperChanges={filteredDiaperChanges}
+									products={diaperProducts}
+								/>
+								<PottySuccessStats
+									comparisonDiaperChanges={comparisonDiaperChanges}
+									diaperChanges={filteredDiaperChanges}
+								/>
+								<PottyStreakStats diaperChanges={filteredDiaperChanges} />
+								<DiaperBrandStats
+									diaperChanges={filteredDiaperChanges}
+									products={diaperProducts}
+								/>
+							</div>
+
 							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
-								<DiaperActivity
+								<DiaperPottyActivityChart
+									className="mt-4"
+									diaperChanges={diaperChanges}
+									primaryRange={primary}
+									secondaryRange={secondary}
+								/>
+							</DeferredSection>
+
+							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
+								<DiaperCostChart
 									className="mt-4"
 									diaperChanges={diaperChanges}
 									primaryRange={primary}
@@ -348,37 +388,21 @@ export default function StatisticsPage() {
 									secondaryRange={secondary}
 								/>
 							</DeferredSection>
-							<div className="grid grid-cols-2 gap-4 mt-4">
-								<DiaperRecords diaperChanges={diaperChanges} />
-							</div>
-						</>
-					) : (
-						<div className="text-center py-4 text-muted-foreground">
-							<fbt desc="Message shown when no diaper data is available for the selected time range">
-								No diaper data available for the selected time range.
-							</fbt>
-						</div>
-					)}
 
-					<h3 className="text-lg font-medium mt-8 mb-4">
-						<fbt desc="Subtitle for the potty statistics section">Potty</fbt>
-					</h3>
-					{pottyHitsCount > 0 ? (
-						<>
-							<PottyStats
-								comparisonDiaperChanges={comparisonDiaperChanges}
-								diaperChanges={filteredDiaperChanges}
-							/>
 							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
-								<PottyActivity
+								<YearlyActivityHeatMap
 									className="mt-4"
-									diaperChanges={diaperChanges}
-									primaryRange={primary}
-									secondaryRange={secondary}
+									dates={diaperChanges.map((change) => change.timestamp)}
+									palette="diaper"
+									title={fbt(
+										'Diaper Activity',
+										'Title for diaper activity heatmap',
+									)}
 								/>
 							</DeferredSection>
+
 							<div className="grid grid-cols-2 gap-4 mt-4">
-								<PottyStreakCards diaperChanges={diaperChanges} />
+								<DiaperRecords diaperChanges={diaperChanges} />
 								<PottyRecords diaperChanges={diaperChanges} />
 								<PottySavingsCard
 									diaperChanges={diaperChanges}
@@ -388,8 +412,8 @@ export default function StatisticsPage() {
 						</>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">
-							<fbt desc="Message shown when no potty data is available for the selected time range">
-								No potty data available for the selected time range.
+							<fbt desc="Message shown when no diaper or potty data is available for the selected time range">
+								No diaper or potty data available for the selected time range.
 							</fbt>
 						</div>
 					)}

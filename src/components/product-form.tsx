@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { PRODUCT_COLORS } from '@/constants/colors';
 import { diaperProductFormToDataSchema } from '@/types/diaper';
 
 interface ProductFormProps {
@@ -26,6 +27,7 @@ function getDefaultValues(
 	initialData: Partial<DiaperProduct> | undefined,
 ): DiaperProductFormValues {
 	return {
+		color: initialData?.color ?? '',
 		costPerDiaper: initialData?.costPerDiaper?.toString() ?? '',
 		isReusable: initialData?.isReusable ?? false,
 		name: initialData?.name ?? '',
@@ -61,6 +63,9 @@ export default function ProductForm({
 	const handleSave = (parsedValues: DiaperProductFormData) => {
 		onSave({
 			...(initialData as DiaperProduct),
+			color:
+				parsedValues.color ||
+				PRODUCT_COLORS[Math.floor(Math.random() * PRODUCT_COLORS.length)],
 			costPerDiaper: parsedValues.costPerDiaper,
 			id: initialData?.id ?? crypto.randomUUID(),
 			isReusable: parsedValues.isReusable,

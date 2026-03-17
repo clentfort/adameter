@@ -11,6 +11,7 @@ import {
 	startOfWeek,
 	subYears,
 } from 'date-fns';
+import { fbt } from 'fbtee';
 import { useMemo } from 'react';
 import {
 	Card,
