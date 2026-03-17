@@ -139,11 +139,11 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 					<div className="relative h-16 mb-6">
 						<div
 							className="absolute top-0 left-0 right-0 h-8 flex overflow-hidden rounded-md cursor-crosshair touch-none"
-								onPointerCancel={handlePointerLeave}
+							onPointerCancel={handlePointerLeave}
 							onPointerDown={handlePointerMove}
 							onPointerLeave={handlePointerLeave}
 							onPointerMove={handlePointerMove}
-								onPointerUp={handlePointerLeave}
+							onPointerUp={handlePointerLeave}
 							ref={containerRef}
 						>
 							{displayIntervals.map((interval, index) => {
