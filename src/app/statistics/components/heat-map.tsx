@@ -73,6 +73,74 @@ function calculateDisplayIntervals(distribution: number[]) {
 }
 
 const TOOLTIP_WIDTH = 128;
+const TOOLTIP_CLAMP_MARGIN = TOOLTIP_WIDTH / 2;
+
+interface HeatMapTooltipProps {
+	activeInterval: { count: number; time: string };
+	containerWidth: number;
+	pointerX: number;
+}
+
+function HeatMapTooltip({
+	activeInterval,
+	containerWidth,
+	pointerX,
+}: HeatMapTooltipProps) {
+	// Body clamping logic to keep the lens within viewable area
+	const clampedX = Math.max(
+		TOOLTIP_CLAMP_MARGIN,
+		Math.min(pointerX, containerWidth - TOOLTIP_CLAMP_MARGIN),
+	);
+
+	// Calculate triangle offset to keep it pointing at the correct interval
+	// triangleOffset is relative to the tooltip center (clampedX)
+	const rawOffset = pointerX - clampedX;
+
+	// Clamp triangle offset so it doesn't detach from the bubble's rounded corners
+	// (64px half-width - 8px rounding - 6px triangle half-width = 50px)
+	const triangleOffset = Math.max(-50, Math.min(50, rawOffset));
+
+	return (
+		<div
+			className="absolute z-20 pointer-events-none transition-transform duration-75 ease-out"
+			style={{
+				left: clampedX,
+				top: -8,
+				transform: 'translate(-50%, -100%)',
+			}}
+		>
+			<div className="flex flex-col items-center">
+				<div className="bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-950 rounded-lg px-4 py-2 shadow-2xl flex flex-col items-center w-32 border border-white/10 dark:border-black/10 animate-in fade-in zoom-in-95 duration-100 ring-4 ring-black/10 dark:ring-white/10 whitespace-nowrap">
+					<span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">
+						<fbt desc="Time label in the heat map tooltip">
+							<fbt:param name="time">{activeInterval.time}</fbt:param>
+						</fbt>
+					</span>
+					<span className="text-sm font-black tracking-tight">
+						<fbt desc="Count of feedings in the heat map tooltip">
+							<fbt:param name="count">{activeInterval.count}</fbt:param>{' '}
+							<fbt:plural
+								count={activeInterval.count}
+								many="Feedings"
+								showCount="no"
+							>
+								Feeding
+							</fbt:plural>
+						</fbt>
+					</span>
+				</div>
+				<div className="relative w-full h-0">
+					<div
+						className="absolute w-3 h-3 bg-zinc-900 dark:bg-zinc-100 -mt-1.5 shadow-lg origin-center left-1/2"
+						style={{
+							transform: `translateX(calc(-50% + ${triangleOffset}px)) rotate(45deg)`,
+						}}
+					/>
+				</div>
+			</div>
+		</div>
+	);
+}
 
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -161,57 +229,68 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 														? 4
 														: 5;
 
-								const timeString = `${interval.time}: ${interval.count} ${interval.count === 1 ? 'Feeding' : 'Feedings'}`;
 								return (
-									<div
-										aria-label={timeString}
-										className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 transition-colors ${INTENSITY_CLASSES[level]} ${activeIndex === index ? 'ring-2 ring-inset ring-white/50 z-10' : ''}`}
-										key={index}
-										role="img"
-										style={{ width: `${100 / displayIntervals.length}%` }}
-										title={timeString}
-									/>
+									<fbt desc="Aria label for a heat map interval" key={index}>
+										<fbt:param name="time">{interval.time}</fbt:param>:
+										<fbt:param name="count">{interval.count}</fbt:param>
+										<fbt:plural
+											count={interval.count}
+											many="Feedings"
+											showCount="no"
+										>
+											Feeding
+										</fbt:plural>
+										<fbt:implicit>
+											<div
+												aria-label={fbt(
+													{
+														count: interval.count,
+														time: interval.time,
+													},
+													'Aria label for a heat map interval',
+												)
+													.toString()
+													.replace(
+														'{time}',
+														fbt.param('time', interval.time).toString(),
+													)
+													.replace(
+														'{count}',
+														fbt.param('count', interval.count).toString(),
+													)}
+												className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 transition-colors ${INTENSITY_CLASSES[level]} ${activeIndex === index ? 'ring-2 ring-inset ring-white/50 z-10' : ''}`}
+												role="img"
+												style={{ width: `${100 / displayIntervals.length}%` }}
+												title={fbt(
+													{
+														count: interval.count,
+														time: interval.time,
+													},
+													'Title for a heat map interval',
+												)
+													.toString()
+													.replace(
+														'{time}',
+														fbt.param('time', interval.time).toString(),
+													)
+													.replace(
+														'{count}',
+														fbt.param('count', interval.count).toString(),
+													)}
+											/>
+										</fbt:implicit>
+									</fbt>
 								);
 							})}
 						</div>
 
 						{/* Magnifying Lens / Tooltip */}
 						{activeInterval && pointerX !== null && containerRef.current && (
-							<div
-								className="absolute z-20 pointer-events-none transition-transform duration-75 ease-out"
-								style={{
-									left: pointerX,
-									top: -8,
-									transform: 'translate(-50%, -100%)',
-								}}
-							>
-								<div className="flex flex-col items-center">
-									<div className="bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-950 rounded-lg px-4 py-2 shadow-2xl flex flex-col items-center w-32 border border-white/10 dark:border-black/10 animate-in fade-in zoom-in-95 duration-100 ring-4 ring-black/10 dark:ring-white/10 whitespace-nowrap">
-										<span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">
-											<fbt desc="Time label in the heat map tooltip">
-												<fbt:param name="time">{activeInterval.time}</fbt:param>
-											</fbt>
-										</span>
-										<span className="text-sm font-black tracking-tight">
-											<fbt desc="Count of feedings in the heat map tooltip">
-												<fbt:param name="count">
-													{activeInterval.count}
-												</fbt:param>
-												<fbt:plural
-													count={activeInterval.count}
-													many=" Feedings"
-													showCount="no"
-												>
-													Feeding
-												</fbt:plural>
-											</fbt>
-										</span>
-									</div>
-									<div className="relative w-full h-0">
-										<div className="absolute w-3 h-3 bg-zinc-900 dark:bg-zinc-100 -mt-1.5 shadow-lg origin-center left-1/2 -translate-x-1/2 rotate-45" />
-									</div>
-								</div>
-							</div>
+							<HeatMapTooltip
+								activeInterval={activeInterval}
+								containerWidth={containerRef.current.offsetWidth}
+								pointerX={pointerX}
+							/>
 						)}
 
 						<div className="absolute bottom-0 left-0 right-0">
