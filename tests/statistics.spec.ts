@@ -31,12 +31,8 @@ test.describe('Statistics Page', () => {
 		const statsCards = page.getByTestId('stats-card');
 		await expect(statsCards).not.toHaveCount(0);
 
-		await expect(
-			page.getByText('Total', { exact: true }).first(),
-		).toBeVisible();
-		await expect(
-			page.getByText('Per Day', { exact: true }).first(),
-		).toBeVisible();
+		await expect(page.getByText('Total Feedings')).toBeVisible();
+		await expect(page.getByText('Feedings Per Day')).toBeVisible();
 
 		await expect(page.getByText('Average Feeding Duration')).toBeVisible();
 	});
