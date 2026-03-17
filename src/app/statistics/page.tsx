@@ -53,7 +53,6 @@ import TimeBetweenStats from './components/time-between-stats';
 import TotalDiaperChangesStats from './components/total-diaper-changes-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
-import YearlyActivityHeatMap from './components/yearly-activity-heat-map';
 
 export default function StatisticsPage() {
 	const diaperChanges = useDiaperChangesSnapshot();
