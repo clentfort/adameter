@@ -1,4 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
+import { fbt } from 'fbtee';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
 	Card,
@@ -72,31 +73,39 @@ function calculateDisplayIntervals(distribution: number[]) {
 }
 
 const TOOLTIP_WIDTH = 128;
-const TOOLTIP_CLAMP_MARGIN = TOOLTIP_WIDTH / 2;
 
 interface HeatMapTooltipProps {
 	activeInterval: { count: number; time: string };
-	containerWidth: number;
+	containerRect: DOMRect;
 	pointerX: number;
 }
 
 function HeatMapTooltip({
 	activeInterval,
-	containerWidth,
+	containerRect,
 	pointerX,
 }: HeatMapTooltipProps) {
-	// Body clamping logic to keep the lens within viewable area
-	const clampedX = Math.max(
-		TOOLTIP_CLAMP_MARGIN,
-		Math.min(pointerX, containerWidth - TOOLTIP_CLAMP_MARGIN),
-	);
+	// Interaction point relative to the window
+	const absInteractionX = containerRect.left + pointerX;
+	const halfWidth = TOOLTIP_WIDTH / 2;
 
-	// Calculate triangle offset to keep it pointing at the correct interval
-	// triangleOffset is relative to the tooltip center (clampedX)
-	const rawOffset = pointerX - clampedX;
+	// Clamp the tooltip center X position relative to the viewport
+	// 8px margin from the screen edges
+	const absClampedX =
+		typeof window !== 'undefined'
+			? Math.max(
+					halfWidth + 8,
+					Math.min(absInteractionX, window.innerWidth - halfWidth - 8),
+				)
+			: absInteractionX;
 
-	// Clamp triangle offset so it doesn't detach from the bubble's rounded corners
-	// (64px half-width - 8px rounding - 6px triangle half-width = 50px)
+	// Convert back to container-relative X for positioning
+	const clampedX = absClampedX - containerRect.left;
+
+	// Calculate pin offset relative to the clamped bubble center
+	const rawOffset = absInteractionX - absClampedX;
+
+	// Constrain pin to stay within bubble's flat bottom edge (avoiding corners)
 	const triangleOffset = Math.max(-50, Math.min(50, rawOffset));
 
 	return (
@@ -144,6 +153,7 @@ function HeatMapTooltip({
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
 	const [pointerX, setPointerX] = useState<number | null>(null);
+	const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	// Calculate time distribution (5-minute intervals)
@@ -173,6 +183,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 
 			setActiveIndex(Math.min(index, displayIntervals.length - 1));
 			setPointerX(x);
+			setContainerRect(rect);
 		},
 		[displayIntervals.length],
 	);
@@ -180,6 +191,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	const handlePointerLeave = useCallback(() => {
 		setActiveIndex(null);
 		setPointerX(null);
+		setContainerRect(null);
 	}, []);
 
 	if (sessions.length === 0 || maxCount === 0) return null;
@@ -228,7 +240,21 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 														? 4
 														: 5;
 
-								const label = `${interval.time}: ${interval.count} ${interval.count === 1 ? 'Feeding' : 'Feedings'}`;
+								const label = (
+									interval.count === 1
+										? fbt(
+												fbt.param('time', interval.time) + ': 1 Feeding',
+												'Singular label for a heat map interval',
+											)
+										: fbt(
+												fbt.param('time', interval.time) +
+													': ' +
+													fbt.param('count', interval.count) +
+													' Feedings',
+												'Plural label for a heat map interval',
+											)
+								).toString();
+
 								return (
 									<div
 										aria-label={label}
@@ -243,13 +269,16 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 						</div>
 
 						{/* Magnifying Lens / Tooltip */}
-						{activeInterval && pointerX !== null && containerRef.current && (
-							<HeatMapTooltip
-								activeInterval={activeInterval}
-								containerWidth={containerRef.current.offsetWidth}
-								pointerX={pointerX}
-							/>
-						)}
+						{activeInterval &&
+							pointerX !== null &&
+							containerRect &&
+							containerRef.current && (
+								<HeatMapTooltip
+									activeInterval={activeInterval}
+									containerRect={containerRect}
+									pointerX={pointerX}
+								/>
+							)}
 
 						<div className="absolute bottom-0 left-0 right-0">
 							{[0, 3, 6, 9, 12, 15, 18, 21].map((hour) => (
