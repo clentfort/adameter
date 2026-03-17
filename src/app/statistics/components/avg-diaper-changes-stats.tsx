@@ -12,7 +12,7 @@ interface AvgDiaperChangesStatsProps {
 }
 
 function calculateDetailedAvgPerDay(changes: DiaperChange[]) {
-	if (changes.length === 0) return { avg: 0, leakage: 0, stool: 0, urine: 0 };
+	if (changes.length === 0) return { avg: 0, stool: 0, urine: 0 };
 	const oldest = new Date(
 		Math.min(...changes.map((c) => new Date(c.timestamp).getTime())),
 	);
@@ -23,7 +23,6 @@ function calculateDetailedAvgPerDay(changes: DiaperChange[]) {
 
 	return {
 		avg: changes.length / days,
-		leakage: changes.filter((c) => c.leakage).length / days,
 		stool: changes.filter((c) => c.containsStool).length / days,
 		urine: changes.filter((c) => c.containsUrine).length / days,
 	};
@@ -59,28 +58,38 @@ export default function AvgDiaperChangesStats({
 					<ComparisonValue current={stats.avg} previous={prevStats.avg} />
 				)}
 			</div>
-			<div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
-				<div className="flex justify-between">
-					<span>
+			<div className="mt-2 space-y-1 text-xs text-muted-foreground">
+				<div className="flex items-baseline justify-between">
+					<span className="text-yellow-700 dark:text-yellow-500 font-medium">
 						<fbt desc="Label for urine avg">Urine</fbt>
 					</span>
-					<span className="font-medium">{stats.urine.toFixed(1)}</span>
+					<div className="flex items-baseline gap-1">
+						<span className="font-medium text-foreground">
+							{stats.urine.toFixed(1)}
+						</span>
+						{prevStats && (
+							<ComparisonValue
+								current={stats.urine}
+								previous={prevStats.urine}
+							/>
+						)}
+					</div>
 				</div>
-				<div className="flex justify-between">
-					<span>
+				<div className="flex items-baseline justify-between border-t border-border/50 pt-1">
+					<span className="text-amber-800 dark:text-amber-500 font-medium">
 						<fbt desc="Label for stool avg">Stool</fbt>
 					</span>
-					<span className="font-medium text-amber-800 dark:text-amber-500">
-						{stats.stool.toFixed(1)}
-					</span>
-				</div>
-				<div className="flex justify-between col-span-2 border-t border-border/50 pt-1">
-					<span>
-						<fbt desc="Label for leakage avg">Leakage</fbt>
-					</span>
-					<span className="font-medium text-red-600 dark:text-red-400">
-						{stats.leakage.toFixed(1)}
-					</span>
+					<div className="flex items-baseline gap-1">
+						<span className="font-medium text-foreground">
+							{stats.stool.toFixed(1)}
+						</span>
+						{prevStats && (
+							<ComparisonValue
+								current={stats.stool}
+								previous={prevStats.stool}
+							/>
+						)}
+					</div>
 				</div>
 			</div>
 		</StatsCard>

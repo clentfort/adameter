@@ -44,8 +44,6 @@ export default function DiaperPottyActivityChart({
 			const pCtx = pCanvas.getContext('2d');
 			if (!pCtx) return color;
 
-			pCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-			pCtx.fillRect(0, 0, 12, 12);
 			pCtx.strokeStyle = color;
 			pCtx.lineWidth = 3;
 			pCtx.beginPath();

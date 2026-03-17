@@ -18,7 +18,13 @@ export default function TotalDiaperChangesStats({
 
 	const urineCount = diaperChanges.filter((c) => c.containsUrine).length;
 	const stoolCount = diaperChanges.filter((c) => c.containsStool).length;
-	const leakageCount = diaperChanges.filter((c) => c.leakage).length;
+
+	const prevUrineCount = comparisonDiaperChanges?.filter(
+		(c) => c.containsUrine,
+	).length;
+	const prevStoolCount = comparisonDiaperChanges?.filter(
+		(c) => c.containsStool,
+	).length;
 
 	return (
 		<StatsCard
@@ -32,28 +38,28 @@ export default function TotalDiaperChangesStats({
 					<ComparisonValue current={total} previous={prevTotal} />
 				)}
 			</div>
-			<div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
-				<div className="flex justify-between">
-					<span>
+			<div className="mt-2 space-y-1 text-xs text-muted-foreground">
+				<div className="flex items-baseline justify-between">
+					<span className="text-yellow-700 dark:text-yellow-500 font-medium">
 						<fbt desc="Label for urine count">Urine</fbt>
 					</span>
-					<span className="font-medium">{urineCount}</span>
+					<div className="flex items-baseline gap-1">
+						<span className="font-medium text-foreground">{urineCount}</span>
+						{prevUrineCount !== undefined && (
+							<ComparisonValue current={urineCount} previous={prevUrineCount} />
+						)}
+					</div>
 				</div>
-				<div className="flex justify-between">
-					<span>
+				<div className="flex items-baseline justify-between border-t border-border/50 pt-1">
+					<span className="text-amber-800 dark:text-amber-500 font-medium">
 						<fbt desc="Label for stool count">Stool</fbt>
 					</span>
-					<span className="font-medium text-amber-800 dark:text-amber-500">
-						{stoolCount}
-					</span>
-				</div>
-				<div className="flex justify-between col-span-2 border-t border-border/50 pt-1">
-					<span>
-						<fbt desc="Label for leakage count">Leakage</fbt>
-					</span>
-					<span className="font-medium text-red-600 dark:text-red-400">
-						{leakageCount}
-					</span>
+					<div className="flex items-baseline gap-1">
+						<span className="font-medium text-foreground">{stoolCount}</span>
+						{prevStoolCount !== undefined && (
+							<ComparisonValue current={stoolCount} previous={prevStoolCount} />
+						)}
+					</div>
 				</div>
 			</div>
 		</StatsCard>

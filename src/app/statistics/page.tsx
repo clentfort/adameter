@@ -37,13 +37,13 @@ import DiaperCostChart from './components/diaper-cost-chart';
 import DiaperCostStats from './components/diaper-cost-stats';
 import DiaperPottyActivityChart from './components/diaper-potty-activity-chart';
 import DiaperRecords from './components/diaper-records';
+import DiaperYearlyActivity from './components/diaper-yearly-activity';
 import DurationStats from './components/duration-stats';
 import FeedingActivity from './components/feeding-activity';
 import FeedingRecords from './components/feeding-records';
 import FeedingsPerDayStats from './components/feedings-per-day-stats';
 import GrowthChart from './components/growth-chart';
 import HeatMap from './components/heat-map';
-import PottyCurrentStreakStats from './components/potty-current-streak-stats';
 import PottyRecords from './components/potty-records';
 import PottySavingsStats from './components/potty-savings-stats';
 import PottySuccessStats from './components/potty-success-stats';
@@ -368,16 +368,15 @@ export default function StatisticsPage() {
 									diaperChanges={filteredDiaperChanges}
 									products={diaperProducts}
 								/>
-								<PottySuccessStats
-									comparisonDiaperChanges={comparisonDiaperChanges}
-									diaperChanges={filteredDiaperChanges}
-								/>
-								<PottyCurrentStreakStats diaperChanges={diaperChanges} />
 								<PottySavingsStats
-									className="col-span-2"
 									comparisonDiaperChanges={comparisonDiaperChanges}
 									diaperChanges={filteredDiaperChanges}
 									disposableChanges={disposableChanges}
+								/>
+								<PottySuccessStats
+									className="col-span-2"
+									comparisonDiaperChanges={comparisonDiaperChanges}
+									diaperChanges={filteredDiaperChanges}
 								/>
 							</div>
 
@@ -411,6 +410,11 @@ export default function StatisticsPage() {
 												<TabsTrigger value="brand">
 													<fbt desc="Label for the brand tab in diaper stats">
 														Brand
+													</fbt>
+												</TabsTrigger>
+												<TabsTrigger value="yearly">
+													<fbt desc="Label for the yearly tab in diaper stats">
+														Yearly
 													</fbt>
 												</TabsTrigger>
 											</TabsList>
@@ -453,21 +457,18 @@ export default function StatisticsPage() {
 												</div>
 											</DeferredSection>
 										</TabsContent>
+										<TabsContent className="mt-0" value="yearly">
+											<DeferredSection
+												fallback={<Skeleton className="h-64 px-4 pb-4" />}
+											>
+												<div className="px-4 pb-4">
+													<DiaperYearlyActivity diaperChanges={diaperChanges} />
+												</div>
+											</DeferredSection>
+										</TabsContent>
 									</Tabs>
 								</CardContent>
 							</Card>
-
-							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
-								<YearlyActivityHeatMap
-									className="mt-4"
-									dates={diaperChanges.map((change) => change.timestamp)}
-									palette="diaper"
-									title={fbt(
-										'Diaper Activity',
-										'Title for diaper activity heatmap',
-									)}
-								/>
-							</DeferredSection>
 
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<DiaperRecords diaperChanges={diaperChanges} />
