@@ -1,8 +1,9 @@
 import type { DiaperChange } from '@/types/diaper';
 import { render, screen } from '@testing-library/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nContext, I18nProvider } from '@/contexts/i18n-context';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -34,6 +35,14 @@ function createStoreWithDiaperChanges(changes: DiaperChange[]) {
 	return store;
 }
 
+vi.mock('next/navigation', () => ({
+	useRouter: vi.fn(),
+	useSearchParams: vi.fn(),
+}));
+
+const mockUseRouter = vi.mocked(useRouter);
+const mockUseSearchParams = vi.mocked(useSearchParams);
+
 function TestWrapper({
 	changes,
 	children,
@@ -54,6 +63,23 @@ function TestWrapper({
 }
 
 describe('DiaperHistoryList', () => {
+	beforeEach(() => {
+		mockUseRouter.mockReturnValue({
+			push: vi.fn(),
+		} as unknown as ReturnType<typeof useRouter>);
+		mockUseSearchParams.mockReturnValue(
+			new URLSearchParams(
+				'from=2024-01-01T00:00:00Z&to=2024-01-31T23:59:59Z',
+			) as unknown as ReturnType<typeof useSearchParams>,
+		);
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date('2024-01-15T12:00:00Z'));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
 	it('should render empty state when no diaper changes', () => {
 		render(
 			<TestWrapper changes={[]}>
@@ -257,8 +283,8 @@ describe('DiaperHistoryList', () => {
 		);
 
 		// Should show two date headers
-		expect(screen.getByText(/Monday, 15. January 2024/)).toBeInTheDocument();
-		expect(screen.getByText(/Sunday, 14. January 2024/)).toBeInTheDocument();
+		expect(screen.getByText('Today')).toBeInTheDocument();
+		expect(screen.getByText('Yesterday')).toBeInTheDocument();
 
 		// Should render all three entries
 		expect(screen.getAllByTestId('diaper-history-entry')).toHaveLength(3);

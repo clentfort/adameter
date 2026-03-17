@@ -12,6 +12,7 @@ interface HistoryEntryCardProps {
 	accentColor?: string;
 	children?: ReactNode;
 	className?: string;
+	extraActions?: ReactNode;
 	formattedTime?: ReactNode;
 	header: ReactNode;
 	onDelete: () => void;
@@ -27,6 +28,7 @@ export default function HistoryEntryCard({
 	accentColor,
 	children,
 	className,
+	extraActions,
 	formattedTime,
 	header,
 	onDelete,
@@ -76,6 +78,7 @@ export default function HistoryEntryCard({
 							</span>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
+							{extraActions}
 							<DropdownMenuItem onClick={onEdit}>
 								<Pencil className="mr-2 h-4 w-4" />
 								<fbt common>Edit</fbt>

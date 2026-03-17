@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { differenceInCalendarDays } from 'date-fns';
 import { expect } from '../fixtures/test';
 
 const breastSelectors = {
@@ -30,13 +31,44 @@ export async function addManualFeedingEntry(
 		force: true,
 	});
 	await page.getByRole('button', { name: 'Save' }).click({ force: true });
+	await expect(page.getByRole('dialog')).not.toBeVisible();
 
-	await expect(
-		page
-			.getByTestId('feeding-history-entry')
-			.filter({ hasText: `${minutes} min` })
-			.first(),
-	).toBeVisible();
+	// If the entry is outside the default 7-day history window, callers usually
+	// only need the data persisted for downstream assertions (e.g. statistics).
+	if (date) {
+		const daysFromToday = differenceInCalendarDays(new Date(), new Date(date));
+		if (daysFromToday > 6) {
+			return;
+		}
+	}
+
+	// Wait for the history entry to be visible, might need to clear filters if added in the past
+	const entry = page
+		.getByTestId('feeding-history-entry')
+		.filter({ hasText: `${minutes} min` })
+		.first();
+
+	// Wait for the history entry to be visible, might need to clear filters or expand list
+	await expect(async () => {
+		if (await entry.isVisible()) return;
+
+		const clearButton = page.getByRole('link', { name: 'Clear Filter' });
+		if (await clearButton.isVisible()) {
+			await clearButton.click();
+		}
+
+		const showOlder = page.getByRole('button', { name: 'Show older entries' });
+		if (await showOlder.isVisible()) {
+			await showOlder.click();
+		}
+
+		const showNewer = page.getByRole('button', { name: 'Show newer entries' });
+		if (await showNewer.isVisible()) {
+			await showNewer.click();
+		}
+
+		expect(await entry.isVisible()).toBeTruthy();
+	}).toPass({ timeout: 10_000 });
 }
 
 export async function addTimerFeedingEntry(

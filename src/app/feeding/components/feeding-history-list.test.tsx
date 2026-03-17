@@ -1,8 +1,9 @@
 import type { FeedingSession } from '@/types/feeding';
 import { render, screen } from '@testing-library/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -12,7 +13,14 @@ vi.mock('@/hooks/use-feeding-sessions', () => ({
 	useFeedingSession: vi.fn(),
 }));
 
+vi.mock('next/navigation', () => ({
+	useRouter: vi.fn(),
+	useSearchParams: vi.fn(),
+}));
+
 const mockUseFeedingSession = vi.mocked(useFeedingSession);
+const mockUseRouter = vi.mocked(useRouter);
+const mockUseSearchParams = vi.mocked(useSearchParams);
 
 function createStoreWithSessions(sessions: FeedingSession[]) {
 	const store = createStore();
@@ -43,6 +51,23 @@ function TestWrapper({
 }
 
 describe('FeedingHistoryList', () => {
+	beforeEach(() => {
+		mockUseRouter.mockReturnValue({
+			push: vi.fn(),
+		} as unknown as ReturnType<typeof useRouter>);
+		mockUseSearchParams.mockReturnValue(
+			new URLSearchParams(
+				'from=2023-01-01T00:00:00Z&to=2023-01-01T23:59:59Z',
+			) as unknown as ReturnType<typeof useSearchParams>,
+		);
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date('2023-01-01T12:00:00Z'));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
 	it('should render a feeding session shorter than one hour correctly', () => {
 		const durationInSeconds = 25 * 60; // 25 minutes
 		const mockSession: FeedingSession = {
@@ -53,7 +78,9 @@ describe('FeedingHistoryList', () => {
 			startTime: '2023-01-01T10:00:00Z',
 		};
 
-		mockUseFeedingSession.mockReturnValue(mockSession);
+		mockUseFeedingSession.mockImplementation((id) =>
+			id === mockSession.id ? mockSession : undefined,
+		);
 
 		render(
 			<TestWrapper sessions={[mockSession]}>
@@ -79,7 +106,9 @@ describe('FeedingHistoryList', () => {
 			startTime: '2023-01-01T12:00:00Z',
 		};
 
-		mockUseFeedingSession.mockReturnValue(mockSessionLong);
+		mockUseFeedingSession.mockImplementation((id) =>
+			id === mockSessionLong.id ? mockSessionLong : undefined,
+		);
 
 		render(
 			<TestWrapper sessions={[mockSessionLong]}>

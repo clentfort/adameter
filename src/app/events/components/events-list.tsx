@@ -1,10 +1,15 @@
 import { format } from 'date-fns';
-import { ArrowRight, Calendar } from 'lucide-react';
+import { ArrowRight, Baby, Calendar, Milk } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';
 import Markdown from '@/components/markdown';
+import {
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { useEvent, useRemoveEvent, useUpsertEvent } from '@/hooks/use-events';
 import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
 import AddEventDialog from './event-form';
@@ -19,6 +24,7 @@ function EventListItem({
 	onEdit: (eventId: string) => void;
 }) {
 	const event = useEvent(eventId);
+	const router = useRouter();
 
 	if (!event) {
 		return null;
@@ -28,10 +34,49 @@ function EventListItem({
 	const endDate = event.endDate ? new Date(event.endDate) : null;
 	const isOngoing = event.type === 'period' && !event.endDate;
 
+	const extraActions = (
+		<>
+			<DropdownMenuItem
+				onClick={() =>
+					router.push(
+						`/feeding?from=${event.startDate}&to=${
+							event.endDate || event.startDate
+						}&event=${encodeURIComponent(event.title)}${
+							event.color ? `&color=${encodeURIComponent(event.color)}` : ''
+						}`,
+					)
+				}
+			>
+				<Milk className="mr-2 h-4 w-4" />
+				<fbt desc="Menu item to show feeding sessions during an event">
+					Show Feeding Sessions
+				</fbt>
+			</DropdownMenuItem>
+			<DropdownMenuItem
+				onClick={() =>
+					router.push(
+						`/diaper?from=${event.startDate}&to=${
+							event.endDate || event.startDate
+						}&event=${encodeURIComponent(event.title)}${
+							event.color ? `&color=${encodeURIComponent(event.color)}` : ''
+						}`,
+					)
+				}
+			>
+				<Baby className="mr-2 h-4 w-4" />
+				<fbt desc="Menu item to show diaper changes during an event">
+					Show Diaper Changes
+				</fbt>
+			</DropdownMenuItem>
+			<DropdownMenuSeparator />
+		</>
+	);
+
 	return (
 		<HistoryEntryCard
 			accentColor={event.color || '#6366f1'}
 			data-testid="event-entry"
+			extraActions={extraActions}
 			formattedTime={
 				event.type === 'period' ? (
 					<div className="flex items-center gap-1">
@@ -76,12 +121,17 @@ export default function EventsList() {
 	const { dateKeys, indexes, indexId } = useEventsByDate();
 	const eventToEdit = useEvent(eventToEditId ?? undefined);
 
+	const searchParams = useSearchParams();
+	const from = searchParams.get('from');
+	const to = searchParams.get('to');
+
 	return (
 		<>
 			<IndexedHistoryList
 				dateKeys={dateKeys}
 				indexes={indexes}
 				indexId={indexId}
+				initialVisibleCount={from || to ? dateKeys.length : undefined}
 			>
 				{(eventId) => (
 					<EventListItem
