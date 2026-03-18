@@ -39,27 +39,25 @@ export default function TotalDiaperChangesStats({
 				)}
 			</div>
 			<div className="mt-2 space-y-1 text-xs text-muted-foreground">
-				<div className="flex items-baseline justify-between">
+				<div className="flex flex-wrap items-baseline gap-x-2">
 					<span className="text-yellow-700 dark:text-yellow-500 font-medium">
-						<fbt desc="Label for urine count">Urine</fbt>
+						<fbt desc="Label for urine count in total stats">
+							contains urine
+						</fbt>
 					</span>
-					<div className="flex items-baseline gap-1">
-						<span className="font-medium text-foreground">{urineCount}</span>
-						{prevUrineCount !== undefined && (
-							<ComparisonValue current={urineCount} previous={prevUrineCount} />
-						)}
-					</div>
+					<span className="font-medium text-foreground">{urineCount}</span>
+					{prevUrineCount !== undefined && (
+						<ComparisonValue current={urineCount} previous={prevUrineCount} />
+					)}
 				</div>
-				<div className="flex items-baseline justify-between border-t border-border/50 pt-1">
+				<div className="flex flex-wrap items-baseline gap-x-2 border-t border-border/50 pt-1">
 					<span className="text-amber-800 dark:text-amber-500 font-medium">
-						<fbt desc="Label for stool count">Stool</fbt>
+						<fbt desc="Label for stool count in total stats">contains poo</fbt>
 					</span>
-					<div className="flex items-baseline gap-1">
-						<span className="font-medium text-foreground">{stoolCount}</span>
-						{prevStoolCount !== undefined && (
-							<ComparisonValue current={stoolCount} previous={prevStoolCount} />
-						)}
-					</div>
+					<span className="font-medium text-foreground">{stoolCount}</span>
+					{prevStoolCount !== undefined && (
+						<ComparisonValue current={stoolCount} previous={prevStoolCount} />
+					)}
 				</div>
 			</div>
 		</StatsCard>

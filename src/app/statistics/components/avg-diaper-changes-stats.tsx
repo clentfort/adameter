@@ -59,37 +59,29 @@ export default function AvgDiaperChangesStats({
 				)}
 			</div>
 			<div className="mt-2 space-y-1 text-xs text-muted-foreground">
-				<div className="flex items-baseline justify-between">
+				<div className="flex flex-wrap items-baseline gap-x-2">
 					<span className="text-yellow-700 dark:text-yellow-500 font-medium">
-						<fbt desc="Label for urine avg">Urine</fbt>
+						<fbt desc="Label for urine avg in average stats">
+							contains urine
+						</fbt>
 					</span>
-					<div className="flex items-baseline gap-1">
-						<span className="font-medium text-foreground">
-							{stats.urine.toFixed(1)}
-						</span>
-						{prevStats && (
-							<ComparisonValue
-								current={stats.urine}
-								previous={prevStats.urine}
-							/>
-						)}
-					</div>
+					<span className="font-medium text-foreground">
+						{stats.urine.toFixed(1)}
+					</span>
+					{prevStats && (
+						<ComparisonValue current={stats.urine} previous={prevStats.urine} />
+					)}
 				</div>
-				<div className="flex items-baseline justify-between border-t border-border/50 pt-1">
+				<div className="flex flex-wrap items-baseline gap-x-2 border-t border-border/50 pt-1">
 					<span className="text-amber-800 dark:text-amber-500 font-medium">
-						<fbt desc="Label for stool avg">Stool</fbt>
+						<fbt desc="Label for stool avg in average stats">contains poo</fbt>
 					</span>
-					<div className="flex items-baseline gap-1">
-						<span className="font-medium text-foreground">
-							{stats.stool.toFixed(1)}
-						</span>
-						{prevStats && (
-							<ComparisonValue
-								current={stats.stool}
-								previous={prevStats.stool}
-							/>
-						)}
-					</div>
+					<span className="font-medium text-foreground">
+						{stats.stool.toFixed(1)}
+					</span>
+					{prevStats && (
+						<ComparisonValue current={stats.stool} previous={prevStats.stool} />
+					)}
 				</div>
 			</div>
 		</StatsCard>

@@ -65,55 +65,53 @@ export default function PottySuccessStats({
 				)}
 			</div>
 			<div className="mt-2 space-y-1 text-xs text-muted-foreground">
-				<div className="flex items-baseline justify-between">
+				<div className="flex flex-wrap items-baseline gap-x-2">
 					<span className="text-yellow-700 dark:text-yellow-500 font-medium">
-						<fbt desc="Label for potty urine count">Urine</fbt>
+						<fbt desc="Label for potty urine count in stats card">
+							Urine caught
+						</fbt>
 					</span>
-					<div className="flex items-baseline gap-1">
-						<span className="font-medium text-foreground">
-							{metrics.urineCount}
-						</span>
-						{prevMetrics && (
-							<ComparisonValue
-								current={metrics.urineCount}
-								previous={prevMetrics.urineCount}
-							/>
-						)}
-					</div>
+					<span className="font-medium text-foreground">
+						{metrics.urineCount}
+					</span>
+					{prevMetrics && (
+						<ComparisonValue
+							current={metrics.urineCount}
+							previous={prevMetrics.urineCount}
+						/>
+					)}
 				</div>
-				<div className="flex items-baseline justify-between border-t border-border/50 pt-1">
+				<div className="flex flex-wrap items-baseline gap-x-2 border-t border-border/50 pt-1">
 					<span className="text-amber-800 dark:text-amber-500 font-medium">
-						<fbt desc="Label for potty stool count">Stool</fbt>
+						<fbt desc="Label for potty stool count in stats card">
+							Poo caught
+						</fbt>
 					</span>
-					<div className="flex items-baseline gap-1">
-						<span className="font-medium text-foreground">
-							{metrics.stoolCount}
-						</span>
-						{prevMetrics && (
-							<ComparisonValue
-								current={metrics.stoolCount}
-								previous={prevMetrics.stoolCount}
-							/>
-						)}
-					</div>
+					<span className="font-medium text-foreground">
+						{metrics.stoolCount}
+					</span>
+					{prevMetrics && (
+						<ComparisonValue
+							current={metrics.stoolCount}
+							previous={prevMetrics.stoolCount}
+						/>
+					)}
 				</div>
-				<div className="flex items-baseline justify-between border-t border-border/50 pt-1">
+				<div className="flex flex-wrap items-baseline gap-x-2 border-t border-border/50 pt-1">
 					<span>
-						<fbt desc="Label for average potty success per day">
+						<fbt desc="Label for average potty success per day in stats card">
 							Avg per day
 						</fbt>
 					</span>
-					<div className="flex items-baseline gap-1">
-						<span className="font-medium text-foreground">
-							{metrics.avgPerDay.toFixed(1)}
-						</span>
-						{prevMetrics && (
-							<ComparisonValue
-								current={metrics.avgPerDay}
-								previous={prevMetrics.avgPerDay}
-							/>
-						)}
-					</div>
+					<span className="font-medium text-foreground">
+						{metrics.avgPerDay.toFixed(1)}
+					</span>
+					{prevMetrics && (
+						<ComparisonValue
+							current={metrics.avgPerDay}
+							previous={prevMetrics.avgPerDay}
+						/>
+					)}
 				</div>
 			</div>
 		</StatsCard>

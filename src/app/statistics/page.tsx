@@ -373,7 +373,6 @@ export default function StatisticsPage() {
 									disposableChanges={disposableChanges}
 								/>
 								<PottySuccessStats
-									className="col-span-2"
 									comparisonDiaperChanges={comparisonDiaperChanges}
 									diaperChanges={filteredDiaperChanges}
 								/>

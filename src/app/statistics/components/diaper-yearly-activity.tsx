@@ -1,69 +1,58 @@
 'use client';
 
 import type { DiaperChange } from '@/types/diaper';
-import { fbt } from 'fbtee';
 import { useMemo, useState } from 'react';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import YearlyActivityHeatMap from './yearly-activity-heat-map';
 
 interface DiaperYearlyActivityProps {
 	diaperChanges: DiaperChange[];
 }
 
-type ActivityFilter = 'all' | 'diaper' | 'potty';
-
 export default function DiaperYearlyActivity({
 	diaperChanges,
 }: DiaperYearlyActivityProps) {
-	const [filter, setFilter] = useState<ActivityFilter>('all');
+	const [showDiaper, setShowDiaper] = useState(true);
+	const [showPotty, setShowPotty] = useState(true);
 
 	const filteredDates = useMemo(() => {
 		return diaperChanges
 			.filter((change) => {
-				if (filter === 'all') return true;
-				if (filter === 'diaper')
-					return change.containsUrine || change.containsStool;
-				if (filter === 'potty') return change.pottyUrine || change.pottyStool;
-				return true;
+				const isDiaper = change.containsUrine || change.containsStool;
+				const isPotty = change.pottyUrine || change.pottyStool;
+
+				if (showDiaper && showPotty) return isDiaper || isPotty;
+				if (showDiaper) return isDiaper;
+				if (showPotty) return isPotty;
+				return false;
 			})
 			.map((change) => change.timestamp);
-	}, [diaperChanges, filter]);
+	}, [diaperChanges, showDiaper, showPotty]);
 
 	return (
 		<div className="space-y-4">
-			<div className="flex justify-end">
-				<Select
-					onValueChange={(value) => setFilter(value as ActivityFilter)}
-					value={filter}
-				>
-					<SelectTrigger className="w-[180px] h-8 text-xs">
-						<SelectValue
-							placeholder={fbt(
-								'Filter activity',
-								'Placeholder for activity filter',
-							)}
-						/>
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="all">
-							<fbt desc="Option for all activity (diaper + potty)">
-								All Activity
-							</fbt>
-						</SelectItem>
-						<SelectItem value="diaper">
-							<fbt desc="Option for diaper only activity">Diaper Only</fbt>
-						</SelectItem>
-						<SelectItem value="potty">
-							<fbt desc="Option for potty only activity">Potty Only</fbt>
-						</SelectItem>
-					</SelectContent>
-				</Select>
+			<div className="flex justify-end gap-4">
+				<div className="flex items-center space-x-2">
+					<Checkbox
+						checked={showDiaper}
+						id="filter-diaper"
+						onCheckedChange={(checked) => setShowDiaper(!!checked)}
+					/>
+					<Label className="text-xs font-normal" htmlFor="filter-diaper">
+						<fbt desc="Label for diaper activity checkbox">Diaper</fbt>
+					</Label>
+				</div>
+				<div className="flex items-center space-x-2">
+					<Checkbox
+						checked={showPotty}
+						id="filter-potty"
+						onCheckedChange={(checked) => setShowPotty(!!checked)}
+					/>
+					<Label className="text-xs font-normal" htmlFor="filter-potty">
+						<fbt desc="Label for potty activity checkbox">Potty</fbt>
+					</Label>
+				</div>
 			</div>
 			<YearlyActivityHeatMap
 				dates={filteredDates}
