@@ -352,12 +352,9 @@ export default function LineChart({
 										callback: xAxisTickCallback
 											? (value) => xAxisTickCallback(value)
 											: (value) => `${Math.round(Number(value))} mo`,
-										color: foregroundColor,
 										stepSize: 3,
 									}
-								: {
-										color: foregroundColor,
-									},
+								: undefined,
 						time:
 							xAxisType === 'time'
 								? {
@@ -392,7 +389,6 @@ export default function LineChart({
 									? `${val} ${yAxisUnit}`
 									: val;
 							},
-							color: foregroundColor,
 						},
 						title: {
 							color: foregroundColor,

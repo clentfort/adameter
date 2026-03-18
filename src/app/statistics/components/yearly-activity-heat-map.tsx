@@ -196,7 +196,7 @@ export default function YearlyActivityHeatMap({
 						{cells.map((cell) => (
 							<div
 								className={cn(
-									'h-3 w-3 rounded-full border transition-colors',
+									'h-3 w-3 rounded-[3px] border transition-colors',
 									levelClasses[cell.level],
 									cell.isToday && todayRingClass,
 								)}
@@ -214,7 +214,7 @@ export default function YearlyActivityHeatMap({
 				</span>
 				{levelClasses.map((levelClass, index) => (
 					<div
-						className={cn('h-3 w-3 rounded-full border', levelClass)}
+						className={cn('h-3 w-3 rounded-[3px] border', levelClass)}
 						key={index}
 					/>
 				))}

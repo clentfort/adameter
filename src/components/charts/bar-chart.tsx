@@ -190,9 +190,6 @@ export default function BarChart({
 							display: false,
 						},
 						stacked: true,
-						ticks: {
-							color: foregroundColor,
-						},
 						title: {
 							color: foregroundColor,
 							display: !!xAxisLabel,
@@ -214,7 +211,6 @@ export default function BarChart({
 									typeof val === 'number' ? Math.round(val * 10) / 10 : val;
 								return yAxisUnit ? `${roundedVal}${yAxisUnit}` : roundedVal;
 							},
-							color: foregroundColor,
 						},
 						title: {
 							color: foregroundColor,
