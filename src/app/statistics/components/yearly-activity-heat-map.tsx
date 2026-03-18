@@ -196,7 +196,7 @@ export default function YearlyActivityHeatMap({
 						{cells.map((cell) => (
 							<div
 								className={cn(
-									'h-3 w-3 rounded-[3px] border transition-colors',
+									'h-3 w-3 rounded-full border transition-colors',
 									levelClasses[cell.level],
 									cell.isToday && todayRingClass,
 								)}
@@ -208,13 +208,13 @@ export default function YearlyActivityHeatMap({
 					</div>
 				</div>
 			</div>
-			<div className="mt-4 flex items-center justify-end gap-2 text-xs text-muted-foreground">
+			<div className="mt-4 flex items-center justify-end gap-2 text-xs text-foreground">
 				<span>
 					<fbt desc="Legend minimum activity label">Less</fbt>
 				</span>
 				{levelClasses.map((levelClass, index) => (
 					<div
-						className={cn('h-3 w-3 rounded-[3px] border', levelClass)}
+						className={cn('h-3 w-3 rounded-full border', levelClass)}
 						key={index}
 					/>
 				))}

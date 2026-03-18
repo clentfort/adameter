@@ -90,6 +90,8 @@ export default function BarChart({
 		const isDark =
 			typeof window !== 'undefined' &&
 			document.documentElement.classList.contains('dark');
+		const foregroundColor = isDark ? '#f4f4f5' : '#18181b';
+		const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
 
 		const verticalLinesPlugin = {
 			beforeDatasetsDraw: (chart: ChartJS) => {
@@ -145,9 +147,15 @@ export default function BarChart({
 				plugins: {
 					legend: {
 						display: true,
+						labels: {
+							color: foregroundColor,
+							pointStyle: 'circle',
+							usePointStyle: true,
+						},
 						position: 'bottom',
 					},
 					title: {
+						color: foregroundColor,
 						display: !!title,
 						text: title?.toString() || '',
 					},
@@ -180,23 +188,34 @@ export default function BarChart({
 							display: false,
 						},
 						stacked: true,
+						ticks: {
+							color: foregroundColor,
+						},
 						title: {
+							color: foregroundColor,
 							display: !!xAxisLabel,
 							text: xAxisLabel?.toString() || '',
 						},
 					},
 					y: {
 						beginAtZero: true,
+						grid: {
+							color: gridColor,
+						},
 						max: yMax,
 						min: yMin,
 						stacked: true,
 						ticks: {
 							callback: (value) => {
 								const val = absYLabels ? Math.abs(Number(value)) : value;
-								return yAxisUnit ? `${val}${yAxisUnit}` : val;
+								const roundedVal =
+									typeof val === 'number' ? Math.round(val * 10) / 10 : val;
+								return yAxisUnit ? `${roundedVal}${yAxisUnit}` : roundedVal;
 							},
+							color: foregroundColor,
 						},
 						title: {
+							color: foregroundColor,
 							display: !!yAxisLabel,
 							text: yAxisLabel?.toString() || '',
 						},

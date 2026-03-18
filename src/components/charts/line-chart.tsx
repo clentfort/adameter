@@ -168,6 +168,8 @@ export default function LineChart({
 		const isDark =
 			typeof window !== 'undefined' &&
 			document.documentElement.classList.contains('dark');
+		const foregroundColor = isDark ? '#f4f4f5' : '#18181b';
+		const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
 		const rangeFillColor = isDark
 			? 'rgba(255, 255, 255, 0.1)'
 			: 'rgba(0, 0, 0, 0.05)';
@@ -256,10 +258,13 @@ export default function LineChart({
 					legend: {
 						display: !!datasetLabel,
 						labels: {
+							color: foregroundColor,
 							filter: (item) => {
 								// Hide the range min/max from legend, just show the main dataset
 								return item.text === String(datasetLabel);
 							},
+							pointStyle: 'circle',
+							usePointStyle: true,
 						},
 					},
 					tooltip: {
@@ -318,6 +323,7 @@ export default function LineChart({
 							date: {},
 						},
 						grid: {
+							color: gridColor,
 							display: true,
 						},
 						max:
@@ -344,9 +350,12 @@ export default function LineChart({
 										callback: xAxisTickCallback
 											? (value) => xAxisTickCallback(value)
 											: (value) => `${Math.round(Number(value))} mo`,
+										color: foregroundColor,
 										stepSize: 3,
 									}
-								: undefined,
+								: {
+										color: foregroundColor,
+									},
 						time:
 							xAxisType === 'time'
 								? {
@@ -358,6 +367,7 @@ export default function LineChart({
 									}
 								: undefined,
 						title: {
+							color: foregroundColor,
 							display: true,
 							text: String(xAxisLabel),
 						},
@@ -365,15 +375,23 @@ export default function LineChart({
 					},
 					y: {
 						beginAtZero: false,
+						grid: {
+							color: gridColor,
+						},
 						max: yMax,
 						min: yMin,
 						ticks: {
-							callback:
-								yAxisUnit && typeof yAxisUnit === 'string'
-									? (value) => `${value} ${yAxisUnit}`
-									: undefined,
+							callback: (value) => {
+								const val =
+									typeof value === 'number' ? Math.round(value * 10) / 10 : value;
+								return yAxisUnit && typeof yAxisUnit === 'string'
+									? `${val} ${yAxisUnit}`
+									: val;
+							},
+							color: foregroundColor,
 						},
 						title: {
+							color: foregroundColor,
 							display: true,
 							text: String(yAxisLabel),
 						},
