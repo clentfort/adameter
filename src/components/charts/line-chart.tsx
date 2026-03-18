@@ -169,7 +169,9 @@ export default function LineChart({
 			typeof window !== 'undefined' &&
 			document.documentElement.classList.contains('dark');
 		const foregroundColor = isDark ? '#f4f4f5' : '#18181b';
-		const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+		const gridColor = isDark
+			? 'rgba(255, 255, 255, 0.1)'
+			: 'rgba(0, 0, 0, 0.05)';
 		const rangeFillColor = isDark
 			? 'rgba(255, 255, 255, 0.1)'
 			: 'rgba(0, 0, 0, 0.05)';
@@ -383,7 +385,9 @@ export default function LineChart({
 						ticks: {
 							callback: (value) => {
 								const val =
-									typeof value === 'number' ? Math.round(value * 10) / 10 : value;
+									typeof value === 'number'
+										? Math.round(value * 10) / 10
+										: value;
 								return yAxisUnit && typeof yAxisUnit === 'string'
 									? `${val} ${yAxisUnit}`
 									: val;
