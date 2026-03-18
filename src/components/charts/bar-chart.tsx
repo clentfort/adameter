@@ -7,7 +7,7 @@ import 'chartjs-adapter-date-fns';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface BarDataset {
-	backgroundColor: string;
+	backgroundColor: string | CanvasPattern;
 	data: number[];
 	label: string;
 	stack?: string;

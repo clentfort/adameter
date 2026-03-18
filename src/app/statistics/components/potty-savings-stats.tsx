@@ -3,9 +3,12 @@ import { differenceInDays } from 'date-fns';
 import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/i18n-context';
 import { useCurrency } from '@/hooks/use-currency';
+import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
-interface PottySavingsCardProps {
+interface PottySavingsStatsProps {
+	className?: string;
+	comparisonDiaperChanges?: DiaperChange[];
 	diaperChanges: DiaperChange[];
 	disposableChanges: Array<{ cost: number; timestamp: Date }>;
 }
@@ -47,10 +50,12 @@ function calculatePottySavings(
 		}, 0);
 }
 
-export default function PottySavingsCard({
-	diaperChanges,
-	disposableChanges,
-}: PottySavingsCardProps) {
+export default function PottySavingsStats({
+	className,
+	comparisonDiaperChanges,
+	diaperChanges = [],
+	disposableChanges = [],
+}: PottySavingsStatsProps) {
 	const [currency] = useCurrency();
 	const { locale } = useLanguage();
 
@@ -58,19 +63,34 @@ export default function PottySavingsCard({
 		() => calculatePottySavings(diaperChanges, disposableChanges),
 		[diaperChanges, disposableChanges],
 	);
-	if (savings === 0) return null;
+
+	const prevSavings = useMemo(
+		() =>
+			comparisonDiaperChanges
+				? calculatePottySavings(comparisonDiaperChanges, disposableChanges)
+				: undefined,
+		[comparisonDiaperChanges, disposableChanges],
+	);
+
 	const formattedSavings = new Intl.NumberFormat(locale.replace('_', '-'), {
 		currency,
 		maximumFractionDigits: 2,
 		minimumFractionDigits: 2,
 		style: 'currency',
 	}).format(savings);
+
 	return (
 		<StatsCard
-			title={<fbt desc="Title for the potty savings card">Potty Savings</fbt>}
+			className={className}
+			title={<fbt desc="Title for the potty savings stat">Potty Savings</fbt>}
 		>
-			<div className="text-2xl font-bold text-green-700 dark:text-green-400">
-				{formattedSavings}
+			<div className="flex items-baseline">
+				<div className="text-2xl font-bold text-green-700 dark:text-green-400">
+					{formattedSavings}
+				</div>
+				{prevSavings !== undefined && (
+					<ComparisonValue current={savings} previous={prevSavings} />
+				)}
 			</div>
 			<div className="text-xs text-muted-foreground mt-1">
 				<fbt desc="Description of how potty savings are calculated">
