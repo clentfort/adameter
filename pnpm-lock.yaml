@@ -100,7 +100,7 @@ importers:
         version: 4.2.1
       tinybase:
         specifier: ^8.0.0
-        version: 8.0.1(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
+        version: 8.0.2(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
       tinybase-persister-partykit-client-encrypted:
         specifier: workspace:*
         version: link:packages/tinybase-persister-partykit-client-encrypted
@@ -269,7 +269,7 @@ importers:
         version: 25.0.3(typescript@5.9.3)
       tinybase:
         specifier: ^8.0.0
-        version: 8.0.1(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
+        version: 8.0.2(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
@@ -302,7 +302,7 @@ importers:
         version: 25.0.3(typescript@5.9.3)
       tinybase:
         specifier: ^8.0.0
-        version: 8.0.1(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
+        version: 8.0.2(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6)
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
@@ -5643,8 +5643,8 @@ packages:
     resolution: {integrity: sha512-TIsDdtKo6+XrPtiTm1ssmMngN1sAhyKnTO2kunQWqNPWIVvCm15Wmw4SWInwTVgJ5u/Tr04+8Ei9TNcw4x4ONA==}
     engines: {node: '>=4'}
 
-  tinybase@8.0.1:
-    resolution: {integrity: sha512-Q4oP6aBglUuvylivrfe7vESwwo5NqmddF6A6KSvg+Y/xzRYSWzo8JvQZqzwpXHBoGwlyzHsRenS+IdmawVWoxA==}
+  tinybase@8.0.2:
+    resolution: {integrity: sha512-L11qb6K9eosyOhAkDS/FbXT8mjqLTDcZjIUXsKHDiSRKPIa0iU4MkiLM9a8KonFlGqzsf9+W+lK0r3ESPpn5fQ==}
     peerDependencies:
       '@automerge/automerge-repo': ^2.5.3
       '@cloudflare/workers-types': ^4.20260310.1
@@ -11805,7 +11805,7 @@ snapshots:
 
   time-zone@1.0.0: {}
 
-  tinybase@8.0.1(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6):
+  tinybase@8.0.2(partykit@0.0.115)(partysocket@1.1.16(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(ws@8.19.0)(zod@4.3.6):
     optionalDependencies:
       partykit: 0.0.115
       partysocket: 1.1.16(react@19.2.4)
