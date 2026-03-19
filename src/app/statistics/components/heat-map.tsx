@@ -238,9 +238,9 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 						</div>
 					</div>
 
-					<div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-muted-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
+					<div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
 						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast dark:border-white/10 dark:bg-right-breast-light"></div>
+							<div className="h-3 w-3 rounded-full border border-black/5 bg-right-breast dark:border-white/10 dark:bg-right-breast-light"></div>
 							<span>
 								<fbt desc="Heat map legend label for very high activity">
 									Very High Activity
@@ -248,7 +248,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 							</span>
 						</div>
 						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast/65 dark:border-white/10 dark:bg-right-breast/70"></div>
+							<div className="h-3 w-3 rounded-full border border-black/5 bg-right-breast/65 dark:border-white/10 dark:bg-right-breast/70"></div>
 							<span>
 								<fbt desc="Heat map legend label for high activity">
 									High Activity
@@ -256,7 +256,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 							</span>
 						</div>
 						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-right-breast/45 dark:border-white/10 dark:bg-right-breast/55"></div>
+							<div className="h-3 w-3 rounded-full border border-black/5 bg-right-breast/45 dark:border-white/10 dark:bg-right-breast/55"></div>
 							<span>
 								<fbt desc="Heat map legend label for medium activity">
 									Medium Activity
@@ -264,7 +264,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 							</span>
 						</div>
 						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-left-breast/45 dark:border-white/10 dark:bg-left-breast/55"></div>
+							<div className="h-3 w-3 rounded-full border border-black/5 bg-left-breast/45 dark:border-white/10 dark:bg-left-breast/55"></div>
 							<span>
 								<fbt desc="Heat map legend label for low activity">
 									Low Activity
@@ -272,7 +272,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 							</span>
 						</div>
 						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-[2px] border border-black/5 bg-left-breast/20 dark:border-white/10 dark:bg-left-breast/35"></div>
+							<div className="h-3 w-3 rounded-full border border-black/5 bg-left-breast/20 dark:border-white/10 dark:bg-left-breast/35"></div>
 							<span>
 								<fbt desc="Heat map legend label for very low activity">
 									Very Low Activity

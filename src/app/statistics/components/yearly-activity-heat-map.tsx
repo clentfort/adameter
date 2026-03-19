@@ -208,7 +208,7 @@ export default function YearlyActivityHeatMap({
 					</div>
 				</div>
 			</div>
-			<div className="mt-4 flex items-center justify-end gap-2 text-xs text-muted-foreground">
+			<div className="mt-4 flex items-center justify-end gap-2 text-xs text-foreground">
 				<span>
 					<fbt desc="Legend minimum activity label">Less</fbt>
 				</span>

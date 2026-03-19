@@ -4,7 +4,7 @@ import type { DiaperChange } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
 import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
 import { fbt } from 'fbtee';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 
@@ -27,37 +27,6 @@ export default function DiaperPottyActivityChart({
 	secondaryRange,
 }: DiaperPottyActivityChartProps) {
 	const [showComparisonCharts] = useShowComparisonCharts();
-	const [patterns, setPatterns] = useState<{
-		stool: CanvasPattern | string;
-		urine: CanvasPattern | string;
-	}>({ stool: COLORS.stool, urine: COLORS.urine });
-
-	useEffect(() => {
-		const canvas = document.createElement('canvas');
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-
-		const createPattern = (color: string) => {
-			const pCanvas = document.createElement('canvas');
-			pCanvas.width = 12;
-			pCanvas.height = 12;
-			const pCtx = pCanvas.getContext('2d');
-			if (!pCtx) return color;
-
-			pCtx.strokeStyle = color;
-			pCtx.lineWidth = 3;
-			pCtx.beginPath();
-			pCtx.moveTo(0, 12);
-			pCtx.lineTo(12, 0);
-			pCtx.stroke();
-			return ctx.createPattern(pCanvas, 'repeat') || color;
-		};
-
-		setPatterns({
-			stool: createPattern(COLORS.stool),
-			urine: createPattern(COLORS.urine),
-		});
-	}, []);
 
 	const { datasets, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
@@ -130,6 +99,11 @@ export default function DiaperPottyActivityChart({
 
 		const datasets = [];
 
+		const isDark =
+			typeof window !== 'undefined' &&
+			document.documentElement.classList.contains('dark');
+		const segmentBorderColor = isDark ? '#f4f4f5' : '#18181b';
+
 		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
@@ -164,12 +138,16 @@ export default function DiaperPottyActivityChart({
 			datasets.push(
 				{
 					backgroundColor: '#94a3b8', // slate-400
+					borderColor: segmentBorderColor,
+					borderWidth: 1,
 					data: secondaryDiaperData,
 					label: fbt('Diaper (Prev)', 'Label for comparison diaper count'),
 					stack: 'comparison',
 				},
 				{
 					backgroundColor: '#cbd5e1', // slate-300
+					borderColor: segmentBorderColor,
+					borderWidth: 1,
 					data: secondaryPottyData,
 					label: fbt('Potty (Prev)', 'Label for comparison potty count'),
 					stack: 'comparison',
@@ -180,24 +158,32 @@ export default function DiaperPottyActivityChart({
 		datasets.push(
 			{
 				backgroundColor: COLORS.urine,
+				borderColor: segmentBorderColor,
+				borderWidth: 1,
 				data: primaryDiaperUrineData,
 				label: fbt('Diaper Pee', 'Label for diaper urine count in chart'),
 				stack: 'primary',
 			},
 			{
-				backgroundColor: patterns.urine,
+				backgroundColor: COLORS.urine,
+				borderColor: segmentBorderColor,
+				borderWidth: 1,
 				data: primaryPottyUrineData,
 				label: fbt('Potty Pee', 'Label for potty urine count in chart'),
 				stack: 'primary',
 			},
 			{
 				backgroundColor: COLORS.stool,
+				borderColor: segmentBorderColor,
+				borderWidth: 1,
 				data: primaryDiaperStoolData,
 				label: fbt('Diaper Poo', 'Label for diaper stool count in chart'),
 				stack: 'primary',
 			},
 			{
-				backgroundColor: patterns.stool,
+				backgroundColor: COLORS.stool,
+				borderColor: segmentBorderColor,
+				borderWidth: 1,
 				data: primaryPottyStoolData,
 				label: fbt('Potty Poo', 'Label for potty stool count in chart'),
 				stack: 'primary',
@@ -205,13 +191,7 @@ export default function DiaperPottyActivityChart({
 		);
 
 		return { datasets, labels };
-	}, [
-		diaperChanges,
-		primaryRange,
-		secondaryRange,
-		showComparisonCharts,
-		patterns,
-	]);
+	}, [diaperChanges, primaryRange, secondaryRange, showComparisonCharts]);
 
 	return (
 		<div className={className}>

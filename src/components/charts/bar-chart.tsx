@@ -8,6 +8,8 @@ import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface BarDataset {
 	backgroundColor: string | CanvasPattern;
+	borderColor?: string;
+	borderWidth?: number;
 	data: number[];
 	label: string;
 	stack?: string;
@@ -66,7 +68,7 @@ export default function BarChart({
 			chart.data.labels = labels;
 			chart.data.datasets = datasets.map((ds) => ({
 				...ds,
-				borderRadius: 4,
+				borderRadius: ds.stack === 'comparison' ? 0 : 4,
 				categoryPercentage: grouped ? 0.8 : 1.0,
 				grouped,
 			}));
@@ -90,6 +92,10 @@ export default function BarChart({
 		const isDark =
 			typeof window !== 'undefined' &&
 			document.documentElement.classList.contains('dark');
+		const foregroundColor = isDark ? '#f4f4f5' : '#18181b';
+		const gridColor = isDark
+			? 'rgba(255, 255, 255, 0.1)'
+			: 'rgba(0, 0, 0, 0.05)';
 
 		const verticalLinesPlugin = {
 			beforeDatasetsDraw: (chart: ChartJS) => {
@@ -134,7 +140,7 @@ export default function BarChart({
 			data: {
 				datasets: datasets.map((ds) => ({
 					...ds,
-					borderRadius: 4,
+					borderRadius: ds.stack === 'comparison' ? 0 : 4,
 					categoryPercentage: grouped ? 0.8 : 1.0,
 					grouped,
 				})),
@@ -145,9 +151,15 @@ export default function BarChart({
 				plugins: {
 					legend: {
 						display: true,
+						labels: {
+							color: foregroundColor,
+							pointStyle: 'circle',
+							usePointStyle: true,
+						},
 						position: 'bottom',
 					},
 					title: {
+						color: foregroundColor,
 						display: !!title,
 						text: title?.toString() || '',
 					},
@@ -181,22 +193,29 @@ export default function BarChart({
 						},
 						stacked: true,
 						title: {
+							color: foregroundColor,
 							display: !!xAxisLabel,
 							text: xAxisLabel?.toString() || '',
 						},
 					},
 					y: {
 						beginAtZero: true,
+						grid: {
+							color: gridColor,
+						},
 						max: yMax,
 						min: yMin,
 						stacked: true,
 						ticks: {
 							callback: (value) => {
-								const val = absYLabels ? Math.abs(Number(value)) : value;
-								return yAxisUnit ? `${val}${yAxisUnit}` : val;
+								const numericVal = Number(value);
+								const val = absYLabels ? Math.abs(numericVal) : numericVal;
+								const roundedVal = Math.round(val * 10) / 10;
+								return yAxisUnit ? `${roundedVal}${yAxisUnit}` : roundedVal;
 							},
 						},
 						title: {
+							color: foregroundColor,
 							display: !!yAxisLabel,
 							text: yAxisLabel?.toString() || '',
 						},

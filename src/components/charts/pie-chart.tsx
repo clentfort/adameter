@@ -50,6 +50,11 @@ export default function PieChart({
 		const ctx = chartRef.current.getContext('2d');
 		if (!ctx) return;
 
+		const isDark =
+			typeof window !== 'undefined' &&
+			document.documentElement.classList.contains('dark');
+		const foregroundColor = isDark ? '#f4f4f5' : '#18181b';
+
 		chartInstance.current = new Chart<'pie', number[]>(ctx, {
 			data: {
 				datasets: datasets.map((ds) => ({
@@ -63,9 +68,15 @@ export default function PieChart({
 				plugins: {
 					legend: {
 						display: !hideLegend,
+						labels: {
+							color: foregroundColor,
+							pointStyle: 'circle',
+							usePointStyle: true,
+						},
 						position: 'right',
 					},
 					title: {
+						color: foregroundColor,
 						display: !!title,
 						text: title?.toString() || '',
 					},
