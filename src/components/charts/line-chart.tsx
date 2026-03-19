@@ -1,6 +1,6 @@
 'use client';
 
-import type { Chart as ChartJS, TooltipItem, Plugin } from 'chart.js';
+import type { Chart as ChartJS, Plugin, TooltipItem } from 'chart.js';
 import Chart from 'chart.js/auto';
 import { format, isDate } from 'date-fns';
 import { useCallback, useEffect, useRef, useState } from 'react';
