@@ -36,6 +36,7 @@ import {
 } from '@/hooks/use-diaper-products';
 import { useEntityForm } from '@/hooks/use-entity-form';
 import { useUnitSystem } from '@/hooks/use-unit-system';
+import { cn } from '@/lib/utils';
 import { diaperFormToDataSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
@@ -66,6 +67,73 @@ interface DiaperProductSelectItemProps {
 	currentProductId: string | undefined;
 	productId: string;
 	selectedProductId: string;
+}
+
+interface MatrixToggleButtonProps {
+	isSelected: boolean;
+	label: string;
+	onClick: () => void;
+	testId: string;
+}
+
+function MatrixToggleButton({
+	isSelected,
+	label,
+	onClick,
+	testId,
+}: MatrixToggleButtonProps) {
+	return (
+		<Button
+			className={cn(
+				'h-12 w-full transition-all',
+				isSelected && 'ring-2 ring-primary ring-offset-1 shadow-xs',
+			)}
+			data-testid={testId}
+			onClick={onClick}
+			type="button"
+			variant={isSelected ? 'default' : 'outline'}
+		>
+			<span className="text-xl">{label}</span>
+		</Button>
+	);
+}
+
+interface MatrixRowProps {
+	isStoolSelected: boolean;
+	isUrineSelected: boolean;
+	onStoolToggle: () => void;
+	onUrineToggle: () => void;
+	rowLabel: ReactNode;
+	stoolTestId: string;
+	urineTestId: string;
+}
+
+function MatrixRow({
+	isStoolSelected,
+	isUrineSelected,
+	onStoolToggle,
+	onUrineToggle,
+	rowLabel,
+	stoolTestId,
+	urineTestId,
+}: MatrixRowProps) {
+	return (
+		<>
+			<div className="text-sm font-medium">{rowLabel}</div>
+			<MatrixToggleButton
+				isSelected={isUrineSelected}
+				label="💧"
+				onClick={onUrineToggle}
+				testId={urineTestId}
+			/>
+			<MatrixToggleButton
+				isSelected={isStoolSelected}
+				label="💩"
+				onClick={onStoolToggle}
+				testId={stoolTestId}
+			/>
+		</>
+	);
 }
 
 function DiaperProductSelectItem({
@@ -206,85 +274,49 @@ export default function DiaperForm({
 								<fbt desc="Stool column header">Stool</fbt>
 							</div>
 
-							<div className="text-sm font-medium">
-								<fbt desc="Label for the diaper row in the contents matrix">
-									Diaper
-								</fbt>
-							</div>
-							<Button
-								className={`h-12 w-full transition-all ${
-									containsUrine
-										? 'bg-primary text-primary-foreground shadow-xs'
-										: 'bg-background hover:bg-muted text-muted-foreground'
-								}`}
-								data-testid="toggle-diaper-urine"
-								onClick={() => {
-									setValue('containsUrine', !containsUrine, {
-										shouldValidate: true,
-									});
-								}}
-								type="button"
-								variant="outline"
-							>
-								<span className="text-xl">💧</span>
-							</Button>
-							<Button
-								className={`h-12 w-full transition-all ${
-									containsStool
-										? 'bg-primary text-primary-foreground shadow-xs'
-										: 'bg-background hover:bg-muted text-muted-foreground'
-								}`}
-								data-testid="toggle-diaper-stool"
-								onClick={() => {
+							<MatrixRow
+								isStoolSelected={containsStool}
+								isUrineSelected={containsUrine}
+								onStoolToggle={() =>
 									setValue('containsStool', !containsStool, {
 										shouldValidate: true,
-									});
-								}}
-								type="button"
-								variant="outline"
-							>
-								<span className="text-xl">💩</span>
-							</Button>
-
-							<div className="text-sm font-medium">
-								<fbt desc="Label for the potty row in the contents matrix">
-									Potty
-								</fbt>
-							</div>
-							<Button
-								className={`h-12 w-full transition-all ${
-									pottyUrine
-										? 'bg-primary text-primary-foreground shadow-xs'
-										: 'bg-background hover:bg-muted text-muted-foreground'
-								}`}
-								data-testid="toggle-potty-urine"
-								onClick={() => {
-									setValue('pottyUrine', !pottyUrine, {
+									})
+								}
+								onUrineToggle={() =>
+									setValue('containsUrine', !containsUrine, {
 										shouldValidate: true,
-									});
-								}}
-								type="button"
-								variant="outline"
-							>
-								<span className="text-xl">💧</span>
-							</Button>
-							<Button
-								className={`h-12 w-full transition-all ${
-									pottyStool
-										? 'bg-primary text-primary-foreground shadow-xs'
-										: 'bg-background hover:bg-muted text-muted-foreground'
-								}`}
-								data-testid="toggle-potty-stool"
-								onClick={() => {
+									})
+								}
+								rowLabel={
+									<fbt desc="Label for the diaper row in the contents matrix">
+										Diaper
+									</fbt>
+								}
+								stoolTestId="toggle-diaper-stool"
+								urineTestId="toggle-diaper-urine"
+							/>
+
+							<MatrixRow
+								isStoolSelected={pottyStool}
+								isUrineSelected={pottyUrine}
+								onStoolToggle={() =>
 									setValue('pottyStool', !pottyStool, {
 										shouldValidate: true,
-									});
-								}}
-								type="button"
-								variant="outline"
-							>
-								<span className="text-xl">💩</span>
-							</Button>
+									})
+								}
+								onUrineToggle={() =>
+									setValue('pottyUrine', !pottyUrine, {
+										shouldValidate: true,
+									})
+								}
+								rowLabel={
+									<fbt desc="Label for the potty row in the contents matrix">
+										Potty
+									</fbt>
+								}
+								stoolTestId="toggle-potty-stool"
+								urineTestId="toggle-potty-urine"
+							/>
 						</div>
 
 						<div className="flex items-center space-x-2">
@@ -317,7 +349,7 @@ export default function DiaperForm({
 							</fbt>
 						</Label>
 						<div className="flex gap-2">
-							<div className="flex-grow">
+							<div className="flex-1 min-w-0">
 								<Select
 									onValueChange={(value) => {
 										setValue('diaperProductId', value ?? '', {
@@ -326,7 +358,7 @@ export default function DiaperForm({
 									}}
 									value={diaperProductId}
 								>
-									<SelectTrigger id="edit-diaper-product">
+									<SelectTrigger className="w-full" id="edit-diaper-product">
 										<SelectValue
 											placeholder={
 												<fbt desc="Placeholder text on a select that allows the user to pick a diaper product">
