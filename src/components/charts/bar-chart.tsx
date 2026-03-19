@@ -8,6 +8,8 @@ import { useIdleCallback } from '@/hooks/use-idle-callback';
 
 interface BarDataset {
 	backgroundColor: string | CanvasPattern;
+	borderColor?: string;
+	borderWidth?: number;
 	data: number[];
 	label: string;
 	stack?: string;
@@ -66,7 +68,7 @@ export default function BarChart({
 			chart.data.labels = labels;
 			chart.data.datasets = datasets.map((ds) => ({
 				...ds,
-				borderRadius: 4,
+				borderRadius: ds.stack === 'comparison' ? 0 : 4,
 				categoryPercentage: grouped ? 0.8 : 1.0,
 				grouped,
 			}));
@@ -138,7 +140,7 @@ export default function BarChart({
 			data: {
 				datasets: datasets.map((ds) => ({
 					...ds,
-					borderRadius: 4,
+					borderRadius: ds.stack === 'comparison' ? 0 : 4,
 					categoryPercentage: grouped ? 0.8 : 1.0,
 					grouped,
 				})),

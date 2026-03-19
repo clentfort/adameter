@@ -4,7 +4,7 @@ import type { DiaperChange } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
 import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
 import { fbt } from 'fbtee';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 
@@ -27,56 +27,6 @@ export default function DiaperPottyActivityChart({
 	secondaryRange,
 }: DiaperPottyActivityChartProps) {
 	const [showComparisonCharts] = useShowComparisonCharts();
-	const [patterns, setPatterns] = useState<{
-		stool: CanvasPattern | string;
-		urine: CanvasPattern | string;
-	}>({ stool: COLORS.stool, urine: COLORS.urine });
-
-	useEffect(() => {
-		const canvas = document.createElement('canvas');
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-
-		const isDark = document.documentElement.classList.contains('dark');
-		// Card background color (oklch(1 0 0) for light, oklch(0.205 0 0) for dark)
-		const bgColor = isDark ? '#18181b' : '#ffffff';
-
-		const createPattern = (color: string, type: 'zigzag' | 'dot') => {
-			const size = 12;
-			const pCanvas = document.createElement('canvas');
-			pCanvas.width = size;
-			pCanvas.height = size;
-			const pCtx = pCanvas.getContext('2d');
-			if (!pCtx) return color;
-
-			// Fill background to simulate transparency and hide stacked bars below
-			pCtx.fillStyle = bgColor;
-			pCtx.fillRect(0, 0, size, size);
-
-			pCtx.strokeStyle = color;
-			pCtx.fillStyle = color;
-			pCtx.lineWidth = 2;
-
-			if (type === 'zigzag') {
-				pCtx.beginPath();
-				pCtx.moveTo(0, size);
-				pCtx.lineTo(size / 2, 0);
-				pCtx.lineTo(size, size);
-				pCtx.stroke();
-			} else {
-				pCtx.beginPath();
-				pCtx.arc(size / 2, size / 2, size / 4, 0, Math.PI * 2);
-				pCtx.fill();
-			}
-
-			return ctx.createPattern(pCanvas, 'repeat') || color;
-		};
-
-		setPatterns({
-			stool: createPattern(COLORS.stool, 'dot'),
-			urine: createPattern(COLORS.urine, 'zigzag'),
-		});
-	}, []);
 
 	const { datasets, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
@@ -196,6 +146,11 @@ export default function DiaperPottyActivityChart({
 			);
 		}
 
+		const isDark =
+			typeof window !== 'undefined' &&
+			document.documentElement.classList.contains('dark');
+		const cardBg = isDark ? '#18181b' : '#ffffff';
+
 		datasets.push(
 			{
 				backgroundColor: COLORS.urine,
@@ -204,7 +159,9 @@ export default function DiaperPottyActivityChart({
 				stack: 'primary',
 			},
 			{
-				backgroundColor: patterns.urine,
+				backgroundColor: COLORS.urine,
+				borderColor: cardBg,
+				borderWidth: 2,
 				data: primaryPottyUrineData,
 				label: fbt('Potty Pee', 'Label for potty urine count in chart'),
 				stack: 'primary',
@@ -216,7 +173,9 @@ export default function DiaperPottyActivityChart({
 				stack: 'primary',
 			},
 			{
-				backgroundColor: patterns.stool,
+				backgroundColor: COLORS.stool,
+				borderColor: cardBg,
+				borderWidth: 2,
 				data: primaryPottyStoolData,
 				label: fbt('Potty Poo', 'Label for potty stool count in chart'),
 				stack: 'primary',
@@ -224,13 +183,7 @@ export default function DiaperPottyActivityChart({
 		);
 
 		return { datasets, labels };
-	}, [
-		diaperChanges,
-		primaryRange,
-		secondaryRange,
-		showComparisonCharts,
-		patterns,
-	]);
+	}, [diaperChanges, primaryRange, secondaryRange, showComparisonCharts]);
 
 	return (
 		<div className={className}>
