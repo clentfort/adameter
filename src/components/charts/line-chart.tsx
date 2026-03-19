@@ -1,6 +1,6 @@
 'use client';
 
-import type { Chart as ChartJS, TooltipItem } from 'chart.js';
+import type { Chart as ChartJS, TooltipItem, Plugin } from 'chart.js';
 import Chart from 'chart.js/auto';
 import { format, isDate } from 'date-fns';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -211,8 +211,8 @@ export default function LineChart({
 			tension: 0.3,
 		});
 
-		const verticalLinesPlugin = {
-			beforeDatasetsDraw: (chart: ChartJS) => {
+		const verticalLinesPlugin: Plugin<'line'> = {
+			beforeDatasetsDraw: (chart) => {
 				if (verticalLines.length === 0) return;
 
 				const {

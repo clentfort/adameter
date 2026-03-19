@@ -1,9 +1,9 @@
 'use client';
 
 import type { TimeRange } from '@/utils/get-range-dates';
-import { AreaChart, BarChart } from 'lucide-react';
 import { addDays, format, isWithinInterval } from 'date-fns';
 import { fbt } from 'fbtee';
+import { AreaChart, BarChart } from 'lucide-react';
 import { useMemo, useState, useTransition } from 'react';
 import {
 	Card,

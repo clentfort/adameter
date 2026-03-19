@@ -80,7 +80,8 @@ export default function BarChart({
 				chart.data.labels = labels;
 				chart.data.datasets = datasets.map((ds) => ({
 					...ds,
-					borderRadius: variant === 'bar' ? (ds.stack === 'comparison' ? 0 : 4) : 0,
+					borderRadius:
+						variant === 'bar' ? (ds.stack === 'comparison' ? 0 : 4) : 0,
 					categoryPercentage: variant === 'bar' ? (grouped ? 0.8 : 1.0) : 1.0,
 					fill: variant === 'area',
 					grouped: variant === 'bar' ? grouped : false,
@@ -158,7 +159,8 @@ export default function BarChart({
 			data: {
 				datasets: datasets.map((ds) => ({
 					...ds,
-					borderRadius: variant === 'bar' ? (ds.stack === 'comparison' ? 0 : 4) : 0,
+					borderRadius:
+						variant === 'bar' ? (ds.stack === 'comparison' ? 0 : 4) : 0,
 					categoryPercentage: variant === 'bar' ? (grouped ? 0.8 : 1.0) : 1.0,
 					fill: variant === 'area',
 					grouped: variant === 'bar' ? grouped : false,
@@ -246,7 +248,10 @@ export default function BarChart({
 			type,
 		};
 
-		chartInstance.current = new Chart<'bar' | 'line', number[]>(ctx, chartConfig);
+		chartInstance.current = new Chart<'bar' | 'line', number[]>(
+			ctx,
+			chartConfig,
+		);
 	}, [
 		datasets,
 		labels,
