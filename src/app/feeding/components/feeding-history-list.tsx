@@ -1,20 +1,14 @@
 import type { FeedingSession } from '@/types/feeding';
-import {
-	addDays,
-	endOfDay,
-	format,
-	isSameDay,
-	parseISO,
-	startOfDay,
-	subDays,
-} from 'date-fns';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { isSameDay } from 'date-fns';
+import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import HistoryFilterIndicator from '@/components/history-filter-indicator';
 import IndexedHistoryList from '@/components/indexed-history-list';
+import { BREAST_COLORS } from '@/constants/colors';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
+import { useHistoryRange } from '@/hooks/use-history-range';
 import { useFeedingSessionsByDate } from '@/hooks/use-tinybase-indexes';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import { formatEntryTime } from '@/utils/format-history-date';
@@ -41,7 +35,7 @@ function FeedingHistoryEntry({
 	}
 
 	const isLeftBreast = session.breast === 'left';
-	const accentColor = isLeftBreast ? '#6366f1' : '#ec4899';
+	const accentColor = isLeftBreast ? BREAST_COLORS.left : BREAST_COLORS.right;
 	const startDate = new Date(session.startTime);
 	const endDate = new Date(session.endTime);
 	const crossesMidnight = !isSameDay(startDate, endDate);
@@ -101,83 +95,24 @@ export default function HistoryList({
 	const { dateKeys, indexes, indexId } = useFeedingSessionsByDate();
 
 	const searchParams = useSearchParams();
-	const router = useRouter();
 	const from = searchParams.get('from');
 	const to = searchParams.get('to');
 	const eventTitle = searchParams.get('event');
 	const eventColor = searchParams.get('color');
 
-	const effectiveRange = useMemo(() => {
-		if (from && to) {
-			return {
-				from: startOfDay(parseISO(from)),
-				to: endOfDay(parseISO(to)),
-			};
-		}
-
-		// Default to last 7 days
-		const end = endOfDay(new Date());
-		const start = startOfDay(subDays(end, 6));
-		return { from: start, to: end };
-	}, [from, to]);
-
-	const filteredDateKeys = useMemo(() => {
-		return dateKeys.filter((dateKey) => {
-			const date = parseISO(dateKey);
-			return date >= effectiveRange.from && date <= effectiveRange.to;
-		});
-	}, [dateKeys, effectiveRange]);
-
-	const hasMoreNewerInStore = useMemo(() => {
-		if (dateKeys.length === 0) return false;
-		return parseISO(dateKeys[0]) > effectiveRange.to;
-	}, [dateKeys, effectiveRange.to]);
-
-	const hasMoreOlderInStore = useMemo(() => {
-		if (dateKeys.length === 0) return false;
-		return parseISO(dateKeys.at(-1)!) < effectiveRange.from;
-	}, [dateKeys, effectiveRange.from]);
-
-	const updateRange = useCallback(
-		(newFrom: Date, newTo: Date) => {
-			const params = new URLSearchParams(searchParams.toString());
-			params.set('from', newFrom.toISOString());
-			params.set('to', newTo.toISOString());
-			router.replace(`/feeding?${params.toString()}`, { scroll: false });
-		},
-		[router, searchParams],
-	);
-
-	// Sync default range to URL if missing
-	useEffect(() => {
-		if (!from || !to) {
-			updateRange(effectiveRange.from, effectiveRange.to);
-		}
-	}, [from, to, effectiveRange.from, effectiveRange.to, updateRange]);
-
-	const handleLoadMoreNewer = () => {
-		const nextTo = addDays(effectiveRange.to, 7);
-		updateRange(effectiveRange.from, nextTo);
-	};
-
-	const handleLoadMoreOlder = () => {
-		const nextFrom = subDays(effectiveRange.from, 7);
-		updateRange(nextFrom, effectiveRange.to);
-	};
-
-	const newerRangeDescription = useMemo(() => {
-		if (!hasMoreNewerInStore) return undefined;
-		const nextTo = addDays(effectiveRange.to, 7);
-		const start = addDays(effectiveRange.to, 1);
-		return `${format(start, 'MMM d')} - ${format(nextTo, 'MMM d')}`;
-	}, [hasMoreNewerInStore, effectiveRange.to]);
-
-	const olderRangeDescription = useMemo(() => {
-		if (!hasMoreOlderInStore) return undefined;
-		const nextFrom = subDays(effectiveRange.from, 7);
-		const end = subDays(effectiveRange.from, 1);
-		return `${format(nextFrom, 'MMM d')} - ${format(end, 'MMM d')}`;
-	}, [hasMoreOlderInStore, effectiveRange.from]);
+	const {
+		effectiveRange,
+		filteredDateKeys,
+		handleLoadMoreNewer,
+		handleLoadMoreOlder,
+		hasMoreNewerInStore,
+		hasMoreOlderInStore,
+		newerRangeDescription,
+		olderRangeDescription,
+	} = useHistoryRange({
+		baseUrl: '/feeding',
+		dateKeys,
+	});
 
 	return (
 		<>

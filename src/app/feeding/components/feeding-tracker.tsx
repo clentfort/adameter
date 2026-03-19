@@ -128,48 +128,26 @@ export default function BreastfeedingTracker({
 		<div className="w-full">
 			{!feedingInProgress ? (
 				<div className="grid grid-cols-2 gap-4">
-					<div className="relative">
-						<Button
-							className="h-24 text-lg w-full bg-left-breast hover:bg-left-breast-dark text-white"
-							onClick={() =>
-								resumableSession && resumableSession.breast === 'left'
-									? resumeFeeding(resumableSession)
-									: startFeeding('left')
-							}
-							size="lg"
-						>
-							<fbt desc="Label on a button that starts a feeding session with the left breast">
-								Left Breast
-							</fbt>
-						</Button>
-						{resumableSession && resumableSession.breast === 'left' ? (
-							<ResumeBadge breast="left" />
-						) : (
-							!resumableSession &&
-							nextBreast === 'left' && <NextBreastBadge breast="left" />
-						)}
-					</div>
-					<div className="relative">
-						<Button
-							className="h-24 text-lg w-full bg-right-breast hover:bg-right-breast-dark text-white"
-							onClick={() =>
-								resumableSession && resumableSession.breast === 'right'
-									? resumeFeeding(resumableSession)
-									: startFeeding('right')
-							}
-							size="lg"
-						>
-							<fbt desc="Label on a button that starts a feeding session with the right breast">
-								Right Breast
-							</fbt>
-						</Button>
-						{resumableSession && resumableSession.breast === 'right' ? (
-							<ResumeBadge breast="right" />
-						) : (
-							!resumableSession &&
-							nextBreast === 'right' && <NextBreastBadge breast="right" />
-						)}
-					</div>
+					<BreastTrackerButton
+						breast="left"
+						nextBreast={nextBreast}
+						onClick={() =>
+							resumableSession && resumableSession.breast === 'left'
+								? resumeFeeding(resumableSession)
+								: startFeeding('left')
+						}
+						resumableSession={resumableSession}
+					/>
+					<BreastTrackerButton
+						breast="right"
+						nextBreast={nextBreast}
+						onClick={() =>
+							resumableSession && resumableSession.breast === 'right'
+								? resumeFeeding(resumableSession)
+								: startFeeding('right')
+						}
+						resumableSession={resumableSession}
+					/>
 				</div>
 			) : (
 				<div className="flex flex-col items-center gap-4">
@@ -272,32 +250,70 @@ export default function BreastfeedingTracker({
 	);
 }
 
-interface NextBreastBadgeProps {
+interface BreastStatusBadgeProps {
 	breast: 'left' | 'right';
+	type: 'next' | 'resume';
 }
-function NextBreastBadge({ breast }: NextBreastBadgeProps) {
+
+function BreastStatusBadge({ breast, type }: BreastStatusBadgeProps) {
 	const bg = breast === 'left' ? 'bg-left-breast' : 'bg-right-breast';
 	return (
 		<Badge className={`absolute -top-2 -right-2 ${bg}`}>
-			<fbt desc="Badge on a button that tells the user that they should use this breast for the next feeding session">
-				Next
-			</fbt>
+			{type === 'next' ? (
+				<fbt desc="Badge on a button that tells the user that they should use this breast for the next feeding session">
+					Next
+				</fbt>
+			) : (
+				<fbt desc="Badge on a button that tells the user that they can resume the last feeding session on this breast">
+					Resume
+				</fbt>
+			)}
 		</Badge>
 	);
 }
 
-interface ResumeBadgeProps {
+interface BreastTrackerButtonProps {
 	breast: 'left' | 'right';
+	nextBreast: 'left' | 'right';
+	onClick: () => void;
+	resumableSession?: FeedingSession;
 }
-function ResumeBadge({ breast }: ResumeBadgeProps) {
-	const bg = breast === 'left' ? 'bg-left-breast' : 'bg-right-breast';
-	// Consider a different color or style for Resume badge if desired
-	// For now, using the same styling as NextBreastBadge but with "Resume" text
+
+function BreastTrackerButton({
+	breast,
+	nextBreast,
+	onClick,
+	resumableSession,
+}: BreastTrackerButtonProps) {
+	const isResumable = resumableSession && resumableSession.breast === breast;
+	const isNext = !resumableSession && nextBreast === breast;
+
 	return (
-		<Badge className={`absolute -top-2 -right-2 ${bg}`}>
-			<fbt desc="Badge on a button that tells the user that they can resume the last feeding session on this breast">
-				Resume
-			</fbt>
-		</Badge>
+		<div className="relative">
+			<Button
+				className={`h-24 text-lg w-full ${
+					breast === 'left'
+						? 'bg-left-breast hover:bg-left-breast-dark'
+						: 'bg-right-breast hover:bg-right-breast-dark'
+				} text-white`}
+				onClick={onClick}
+				size="lg"
+			>
+				{breast === 'left' ? (
+					<fbt desc="Label on a button that starts a feeding session with the left breast">
+						Left Breast
+					</fbt>
+				) : (
+					<fbt desc="Label on a button that starts a feeding session with the right breast">
+						Right Breast
+					</fbt>
+				)}
+			</Button>
+			{isResumable ? (
+				<BreastStatusBadge breast={breast} type="resume" />
+			) : (
+				isNext && <BreastStatusBadge breast={breast} type="next" />
+			)}
+		</div>
 	);
 }

@@ -10,3 +10,8 @@ export const PRODUCT_COLORS = [
 	'#f97316', // Orange 500
 	'#06b6d4', // Cyan 500
 ];
+
+export const BREAST_COLORS = {
+	left: '#6366f1',
+	right: '#ec4899',
+} as const;
