@@ -102,7 +102,7 @@ export default function DiaperPottyActivityChart({
 		const isDark =
 			typeof window !== 'undefined' &&
 			document.documentElement.classList.contains('dark');
-		const segmentBorderColor = isDark ? '#3f3f46' : '#e5e7eb';
+		const segmentBorderColor = isDark ? '#f4f4f5' : '#18181b';
 
 		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
