@@ -214,7 +214,7 @@ export default function DiaperForm({
 							<Button
 								className={`h-12 w-full transition-all ${
 									containsUrine
-										? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
+										? 'bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20 ring-offset-1'
 										: 'bg-background hover:bg-muted text-muted-foreground'
 								}`}
 								data-testid="toggle-diaper-urine"
@@ -231,7 +231,7 @@ export default function DiaperForm({
 							<Button
 								className={`h-12 w-full transition-all ${
 									containsStool
-										? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
+										? 'bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20 ring-offset-1'
 										: 'bg-background hover:bg-muted text-muted-foreground'
 								}`}
 								data-testid="toggle-diaper-stool"
@@ -254,7 +254,7 @@ export default function DiaperForm({
 							<Button
 								className={`h-12 w-full transition-all ${
 									pottyUrine
-										? 'bg-yellow-400 hover:bg-yellow-500 text-yellow-900 shadow-xs ring-2 ring-yellow-600 ring-offset-1'
+										? 'bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20 ring-offset-1'
 										: 'bg-background hover:bg-muted text-muted-foreground'
 								}`}
 								data-testid="toggle-potty-urine"
@@ -271,7 +271,7 @@ export default function DiaperForm({
 							<Button
 								className={`h-12 w-full transition-all ${
 									pottyStool
-										? 'bg-amber-700 hover:bg-amber-800 text-white shadow-xs ring-2 ring-amber-900 ring-offset-1'
+										? 'bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20 ring-offset-1'
 										: 'bg-background hover:bg-muted text-muted-foreground'
 								}`}
 								data-testid="toggle-potty-stool"
