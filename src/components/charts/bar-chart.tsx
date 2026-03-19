@@ -208,9 +208,9 @@ export default function BarChart({
 						stacked: true,
 						ticks: {
 							callback: (value) => {
-								const val = absYLabels ? Math.abs(Number(value)) : value;
-								const roundedVal =
-									typeof val === 'number' ? Math.round(val * 10) / 10 : val;
+								const numericVal = Number(value);
+								const val = absYLabels ? Math.abs(numericVal) : numericVal;
+								const roundedVal = Math.round(val * 10) / 10;
 								return yAxisUnit ? `${roundedVal}${yAxisUnit}` : roundedVal;
 							},
 						},

@@ -99,6 +99,11 @@ export default function DiaperPottyActivityChart({
 
 		const datasets = [];
 
+		const isDark =
+			typeof window !== 'undefined' &&
+			document.documentElement.classList.contains('dark');
+		const segmentBorderColor = isDark ? '#3f3f46' : '#e5e7eb';
+
 		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
@@ -133,12 +138,16 @@ export default function DiaperPottyActivityChart({
 			datasets.push(
 				{
 					backgroundColor: '#94a3b8', // slate-400
+					borderColor: segmentBorderColor,
+					borderWidth: 1,
 					data: secondaryDiaperData,
 					label: fbt('Diaper (Prev)', 'Label for comparison diaper count'),
 					stack: 'comparison',
 				},
 				{
 					backgroundColor: '#cbd5e1', // slate-300
+					borderColor: segmentBorderColor,
+					borderWidth: 1,
 					data: secondaryPottyData,
 					label: fbt('Potty (Prev)', 'Label for comparison potty count'),
 					stack: 'comparison',
@@ -146,36 +155,35 @@ export default function DiaperPottyActivityChart({
 			);
 		}
 
-		const isDark =
-			typeof window !== 'undefined' &&
-			document.documentElement.classList.contains('dark');
-		const cardBg = isDark ? '#18181b' : '#ffffff';
-
 		datasets.push(
 			{
 				backgroundColor: COLORS.urine,
+				borderColor: segmentBorderColor,
+				borderWidth: 1,
 				data: primaryDiaperUrineData,
 				label: fbt('Diaper Pee', 'Label for diaper urine count in chart'),
 				stack: 'primary',
 			},
 			{
 				backgroundColor: COLORS.urine,
-				borderColor: cardBg,
-				borderWidth: 2,
+				borderColor: segmentBorderColor,
+				borderWidth: 1,
 				data: primaryPottyUrineData,
 				label: fbt('Potty Pee', 'Label for potty urine count in chart'),
 				stack: 'primary',
 			},
 			{
 				backgroundColor: COLORS.stool,
+				borderColor: segmentBorderColor,
+				borderWidth: 1,
 				data: primaryDiaperStoolData,
 				label: fbt('Diaper Poo', 'Label for diaper stool count in chart'),
 				stack: 'primary',
 			},
 			{
 				backgroundColor: COLORS.stool,
-				borderColor: cardBg,
-				borderWidth: 2,
+				borderColor: segmentBorderColor,
+				borderWidth: 1,
 				data: primaryPottyStoolData,
 				label: fbt('Potty Poo', 'Label for potty stool count in chart'),
 				stack: 'primary',

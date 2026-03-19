@@ -381,10 +381,7 @@ export default function LineChart({
 						min: yMin,
 						ticks: {
 							callback: (value) => {
-								const val =
-									typeof value === 'number'
-										? Math.round(value * 10) / 10
-										: value;
+								const val = Math.round(Number(value) * 10) / 10;
 								return yAxisUnit && typeof yAxisUnit === 'string'
 									? `${val} ${yAxisUnit}`
 									: val;
