@@ -64,8 +64,13 @@ function DiaperHistoryEntry({
 
 	const hasDiaper = change.containsUrine || change.containsStool;
 	const hasPotty = change.pottyUrine || change.pottyStool;
+	const isStool = change.containsStool || change.pottyStool;
 
-	const accentColor = '#6366f1'; // indigo-500
+	const accentColor = isStool
+		? '#b45309' // amber-700
+		: hasPotty && !hasDiaper
+			? '#1d4ed8' // blue-700
+			: '#a16207'; // yellow-700
 
 	return (
 		<HistoryEntryCard
