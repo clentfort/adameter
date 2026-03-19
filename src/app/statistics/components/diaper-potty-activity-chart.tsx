@@ -9,6 +9,7 @@ import BarChart from '@/components/charts/bar-chart';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 
 interface DiaperPottyActivityChartProps {
+	chartType?: 'bar' | 'area';
 	className?: string;
 	diaperChanges: DiaperChange[];
 	primaryRange: DateRange;
@@ -65,6 +66,7 @@ function createPottyPattern(
 }
 
 export default function DiaperPottyActivityChart({
+	chartType = 'bar',
 	className,
 	diaperChanges,
 	primaryRange,
@@ -279,6 +281,7 @@ export default function DiaperPottyActivityChart({
 					}
 					return label;
 				}}
+				variant={chartType}
 				xAxisLabel={fbt('Date', 'X-axis label for charts')}
 				yAxisLabel={fbt('Count', 'Y-axis label for counts')}
 				yAxisUnit=""

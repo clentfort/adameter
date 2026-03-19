@@ -15,6 +15,7 @@ import FeedingActivityChart from './feeding-activity-chart';
 import YearlyActivityHeatMap from './yearly-activity-heat-map';
 
 interface FeedingActivityProps {
+	chartType?: 'bar' | 'area';
 	className?: string;
 	primaryRange: DateRange;
 	secondaryRange?: DateRange;
@@ -22,6 +23,7 @@ interface FeedingActivityProps {
 }
 
 export default function FeedingActivity({
+	chartType,
 	className,
 	primaryRange,
 	secondaryRange,
@@ -64,6 +66,7 @@ export default function FeedingActivity({
 
 					<TabsContent className="mt-0" value="duration">
 						<FeedingActivityChart
+							chartType={chartType}
 							className="px-4 pb-4"
 							primaryRange={primaryRange}
 							secondaryRange={secondaryRange}

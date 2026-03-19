@@ -17,6 +17,7 @@ import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 import { useTeethSnapshot } from '@/hooks/use-teething';
 
 interface FeedingActivityChartProps {
+	chartType?: 'bar' | 'area';
 	className?: string;
 	primaryRange: DateRange;
 	secondaryRange?: DateRange;
@@ -24,6 +25,7 @@ interface FeedingActivityChartProps {
 }
 
 export default function FeedingActivityChart({
+	chartType = 'bar',
 	className,
 	primaryRange,
 	secondaryRange,
@@ -221,6 +223,7 @@ export default function FeedingActivityChart({
 					}
 					return label;
 				}}
+				variant={chartType}
 				verticalLines={verticalLines}
 				xAxisLabel={(
 					<fbt desc="Label for the date axis on feeding chart">Date</fbt>

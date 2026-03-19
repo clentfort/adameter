@@ -1,6 +1,7 @@
 'use client';
 
 import type { TimeRange } from '@/utils/get-range-dates';
+import { AreaChart, BarChart } from 'lucide-react';
 import { addDays, format, isWithinInterval } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useMemo, useState, useTransition } from 'react';
@@ -22,6 +23,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useChartType } from '@/hooks/use-chart-type';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useDiaperProductsSnapshot } from '@/hooks/use-diaper-products';
 import { useEventsSnapshot } from '@/hooks/use-events';
@@ -67,6 +69,8 @@ export default function StatisticsPage() {
 		from: dateToDateInputValue(addDays(new Date(), -7)),
 		to: dateToDateInputValue(new Date()),
 	});
+
+	const [chartType, setChartType] = useChartType();
 
 	const { primary, secondary } = useMemo(
 		() =>
@@ -172,54 +176,77 @@ export default function StatisticsPage() {
 					<h2 className="text-xl font-semibold pt-1">
 						<fbt desc="Title for the statistics page">Statistics</fbt>
 					</h2>
-					<div className="flex flex-col items-end gap-1">
-						<Select
-							onValueChange={(value) => {
-								if (value) {
-									startTransition(() => {
-										setTimeRange(value as TimeRange);
-									});
-								}
-							}}
-							value={timeRange}
-						>
-							<SelectTrigger className="w-[140px]">
-								<SelectValue
-									placeholder={
-										<fbt desc="Placeholder text for the time range select input on the statistics page">
-											Time Range
+					<div className="flex flex-col items-end gap-2">
+						<div className="flex items-center gap-2">
+							<Tabs
+								className="h-9"
+								onValueChange={(v) => setChartType(v as 'bar' | 'area')}
+								value={chartType}
+							>
+								<TabsList className="h-9">
+									<TabsTrigger className="px-2" value="bar">
+										<BarChart className="size-4 mr-1" />
+										<fbt desc="Label for bar chart type in statistics toggle">
+											Bar
 										</fbt>
+									</TabsTrigger>
+									<TabsTrigger className="px-2" value="area">
+										<AreaChart className="size-4 mr-1" />
+										<fbt desc="Label for area chart type in statistics toggle">
+											Area
+										</fbt>
+									</TabsTrigger>
+								</TabsList>
+							</Tabs>
+
+							<Select
+								onValueChange={(value) => {
+									if (value) {
+										startTransition(() => {
+											setTimeRange(value as TimeRange);
+										});
 									}
-								/>
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="7">
-									<fbt desc="Option to display data for the last 7 days in statistics">
-										Last 7 Days
-									</fbt>
-								</SelectItem>
-								<SelectItem value="14">
-									<fbt desc="Option to display data for the last 14 days in statistics">
-										Last 14 Days
-									</fbt>
-								</SelectItem>
-								<SelectItem value="30">
-									<fbt desc="Option to display data for the last 30 days in statistics">
-										Last 30 Days
-									</fbt>
-								</SelectItem>
-								<SelectItem value="custom">
-									<fbt desc="Option to display a custom time range in statistics">
-										Custom Range
-									</fbt>
-								</SelectItem>
-								<SelectItem value="all">
-									<fbt desc="Option to display all data in statistics">
-										All Data
-									</fbt>
-								</SelectItem>
-							</SelectContent>
-						</Select>
+								}}
+								value={timeRange}
+							>
+								<SelectTrigger className="w-[140px]">
+									<SelectValue
+										placeholder={
+											<fbt desc="Placeholder text for the time range select input on the statistics page">
+												Time Range
+											</fbt>
+										}
+									/>
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="7">
+										<fbt desc="Option to display data for the last 7 days in statistics">
+											Last 7 Days
+										</fbt>
+									</SelectItem>
+									<SelectItem value="14">
+										<fbt desc="Option to display data for the last 14 days in statistics">
+											Last 14 Days
+										</fbt>
+									</SelectItem>
+									<SelectItem value="30">
+										<fbt desc="Option to display data for the last 30 days in statistics">
+											Last 30 Days
+										</fbt>
+									</SelectItem>
+									<SelectItem value="custom">
+										<fbt desc="Option to display a custom time range in statistics">
+											Custom Range
+										</fbt>
+									</SelectItem>
+									<SelectItem value="all">
+										<fbt desc="Option to display all data in statistics">
+											All Data
+										</fbt>
+									</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
 						{secondary && (
 							<div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
 								<fbt desc="Label for the comparison date range in statistics">
@@ -324,6 +351,7 @@ export default function StatisticsPage() {
 							</div>
 							<DeferredSection fallback={<Skeleton className="h-64 mt-4" />}>
 								<FeedingActivity
+									chartType={chartType}
 									className="mt-4"
 									primaryRange={primary}
 									secondaryRange={secondary}
@@ -423,6 +451,7 @@ export default function StatisticsPage() {
 												fallback={<Skeleton className="h-64 px-4 pb-4" />}
 											>
 												<DiaperPottyActivityChart
+													chartType={chartType}
 													className="px-4 pb-4"
 													diaperChanges={diaperChanges}
 													primaryRange={primary}
@@ -435,6 +464,7 @@ export default function StatisticsPage() {
 												fallback={<Skeleton className="h-64 px-4 pb-4" />}
 											>
 												<DiaperCostChart
+													chartType={chartType}
 													className="px-4 pb-4"
 													diaperChanges={diaperChanges}
 													primaryRange={primary}
