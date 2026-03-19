@@ -20,6 +20,50 @@ const COLORS = {
 	urine: '#eab308', // yellow
 };
 
+/**
+ * Creates a diagonal stripe pattern for potty activities.
+ * Fat colored stripes (activity color) and thin background-colored stripes.
+ */
+function createPottyPattern(
+	color: string,
+	cardColor: string,
+	direction: 'backward' | 'forward' = 'forward',
+) {
+	if (typeof document === 'undefined') return color;
+	const canvas = document.createElement('canvas');
+	canvas.width = 12;
+	canvas.height = 12;
+	const ctx = canvas.getContext('2d');
+	if (!ctx) return color;
+
+	ctx.fillStyle = color;
+	ctx.fillRect(0, 0, 12, 12);
+
+	ctx.strokeStyle = cardColor;
+	ctx.lineWidth = 2;
+	ctx.beginPath();
+	if (direction === 'forward') {
+		// / direction
+		ctx.moveTo(-2, 2);
+		ctx.lineTo(2, -2);
+		ctx.moveTo(0, 12);
+		ctx.lineTo(12, 0);
+		ctx.moveTo(10, 14);
+		ctx.lineTo(14, 10);
+	} else {
+		// \ direction
+		ctx.moveTo(-2, 10);
+		ctx.lineTo(2, 14);
+		ctx.moveTo(0, 0);
+		ctx.lineTo(12, 12);
+		ctx.moveTo(10, -2);
+		ctx.lineTo(14, 2);
+	}
+	ctx.stroke();
+
+	return ctx.createPattern(canvas, 'repeat') || color;
+}
+
 export default function DiaperPottyActivityChart({
 	className,
 	diaperChanges,
@@ -27,6 +71,26 @@ export default function DiaperPottyActivityChart({
 	secondaryRange,
 }: DiaperPottyActivityChartProps) {
 	const [showComparisonCharts] = useShowComparisonCharts();
+
+	// We check for dark mode to determine the background color of the stripes
+	// In a real app, this might come from a theme hook to be reactive
+	const isDark =
+		typeof window !== 'undefined' &&
+		document.documentElement.classList.contains('dark');
+	const cardColor = isDark ? '#2e2e2e' : '#ffffff';
+
+	const pottyPeePattern = useMemo(
+		() => createPottyPattern(COLORS.urine, cardColor, 'forward'),
+		[cardColor],
+	);
+	const pottyPooPattern = useMemo(
+		() => createPottyPattern(COLORS.stool, cardColor, 'backward'),
+		[cardColor],
+	);
+	const pottyPrevPattern = useMemo(
+		() => createPottyPattern('#cbd5e1', cardColor, 'forward'),
+		[cardColor],
+	);
 
 	const { datasets, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
@@ -99,36 +163,6 @@ export default function DiaperPottyActivityChart({
 
 		const datasets = [];
 
-		const isDark =
-			typeof window !== 'undefined' &&
-			document.documentElement.classList.contains('dark');
-		const cardColor = isDark ? '#2e2e2e' : '#ffffff';
-
-		const createPottyPattern = (color: string) => {
-			if (typeof document === 'undefined') return color;
-			const canvas = document.createElement('canvas');
-			canvas.width = 12;
-			canvas.height = 12;
-			const ctx = canvas.getContext('2d');
-			if (!ctx) return color;
-
-			ctx.fillStyle = color;
-			ctx.fillRect(0, 0, 12, 12);
-
-			ctx.strokeStyle = cardColor;
-			ctx.lineWidth = 2;
-			ctx.beginPath();
-			ctx.moveTo(-2, 2);
-			ctx.lineTo(2, -2);
-			ctx.moveTo(0, 12);
-			ctx.lineTo(12, 0);
-			ctx.moveTo(10, 14);
-			ctx.lineTo(14, 10);
-			ctx.stroke();
-
-			return ctx.createPattern(canvas, 'repeat') || color;
-		};
-
 		if (secondaryRange && showComparisonCharts) {
 			const secondaryDays = eachDayOfInterval({
 				end: secondaryRange.to,
@@ -169,7 +203,7 @@ export default function DiaperPottyActivityChart({
 					stack: 'comparison',
 				},
 				{
-					backgroundColor: createPottyPattern('#cbd5e1'), // slate-300
+					backgroundColor: pottyPrevPattern,
 					borderWidth: 0,
 					data: secondaryPottyData,
 					label: fbt('Potty (Prev)', 'Label for comparison potty count'),
@@ -187,7 +221,7 @@ export default function DiaperPottyActivityChart({
 				stack: 'primary',
 			},
 			{
-				backgroundColor: createPottyPattern(COLORS.urine),
+				backgroundColor: pottyPeePattern,
 				borderWidth: 0,
 				data: primaryPottyUrineData,
 				label: fbt('Potty Pee', 'Label for potty urine count in chart'),
@@ -201,7 +235,7 @@ export default function DiaperPottyActivityChart({
 				stack: 'primary',
 			},
 			{
-				backgroundColor: createPottyPattern(COLORS.stool),
+				backgroundColor: pottyPooPattern,
 				borderWidth: 0,
 				data: primaryPottyStoolData,
 				label: fbt('Potty Poo', 'Label for potty stool count in chart'),
@@ -210,7 +244,15 @@ export default function DiaperPottyActivityChart({
 		);
 
 		return { datasets, labels };
-	}, [diaperChanges, primaryRange, secondaryRange, showComparisonCharts]);
+	}, [
+		diaperChanges,
+		primaryRange,
+		secondaryRange,
+		showComparisonCharts,
+		pottyPeePattern,
+		pottyPooPattern,
+		pottyPrevPattern,
+	]);
 
 	return (
 		<div className={className}>
