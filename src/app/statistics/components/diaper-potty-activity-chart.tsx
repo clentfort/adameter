@@ -37,25 +37,44 @@ export default function DiaperPottyActivityChart({
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
 
-		const createPattern = (color: string) => {
+		const isDark = document.documentElement.classList.contains('dark');
+		// Card background color (oklch(1 0 0) for light, oklch(0.205 0 0) for dark)
+		const bgColor = isDark ? '#18181b' : '#ffffff';
+
+		const createPattern = (color: string, type: 'zigzag' | 'dot') => {
+			const size = 12;
 			const pCanvas = document.createElement('canvas');
-			pCanvas.width = 12;
-			pCanvas.height = 12;
+			pCanvas.width = size;
+			pCanvas.height = size;
 			const pCtx = pCanvas.getContext('2d');
 			if (!pCtx) return color;
 
+			// Fill background to simulate transparency and hide stacked bars below
+			pCtx.fillStyle = bgColor;
+			pCtx.fillRect(0, 0, size, size);
+
 			pCtx.strokeStyle = color;
-			pCtx.lineWidth = 3;
-			pCtx.beginPath();
-			pCtx.moveTo(0, 12);
-			pCtx.lineTo(12, 0);
-			pCtx.stroke();
+			pCtx.fillStyle = color;
+			pCtx.lineWidth = 2;
+
+			if (type === 'zigzag') {
+				pCtx.beginPath();
+				pCtx.moveTo(0, size);
+				pCtx.lineTo(size / 2, 0);
+				pCtx.lineTo(size, size);
+				pCtx.stroke();
+			} else {
+				pCtx.beginPath();
+				pCtx.arc(size / 2, size / 2, size / 4, 0, Math.PI * 2);
+				pCtx.fill();
+			}
+
 			return ctx.createPattern(pCanvas, 'repeat') || color;
 		};
 
 		setPatterns({
-			stool: createPattern(COLORS.stool),
-			urine: createPattern(COLORS.urine),
+			stool: createPattern(COLORS.stool, 'dot'),
+			urine: createPattern(COLORS.urine, 'zigzag'),
 		});
 	}, []);
 
