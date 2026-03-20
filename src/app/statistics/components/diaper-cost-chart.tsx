@@ -1,6 +1,6 @@
 'use client';
 
-import type { DiaperChange, DiaperProduct } from '@/types/diaper';
+import type { DiaperProduct, DiaperChange } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
 import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
 import { fbt } from 'fbtee';
@@ -9,7 +9,6 @@ import BarChart from '@/components/charts/bar-chart';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 
 interface DiaperCostChartProps {
-	chartType?: 'bar' | 'area';
 	className?: string;
 	diaperChanges: DiaperChange[];
 	primaryRange: DateRange;
@@ -18,7 +17,6 @@ interface DiaperCostChartProps {
 }
 
 export default function DiaperCostChart({
-	chartType = 'bar',
 	className,
 	diaperChanges,
 	primaryRange,
@@ -109,10 +107,7 @@ export default function DiaperCostChart({
 			datasets.push({
 				backgroundColor: '#94a3b8', // slate-400
 				data: secondaryData,
-				label: fbt(
-					'Cost (Prev)',
-					'Label for comparison diaper cost',
-				).toString(),
+				label: fbt('Cost (Prev)', 'Label for comparison diaper cost').toString(),
 				stack: 'comparison',
 			});
 		}
@@ -148,7 +143,6 @@ export default function DiaperCostChart({
 					}
 					return label;
 				}}
-				variant={chartType}
 				xAxisLabel={fbt('Date', 'X-axis label for charts')}
 				yAxisLabel={fbt('Cost', 'Y-axis label for costs')}
 				yAxisUnit=""

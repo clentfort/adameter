@@ -9,7 +9,6 @@ import BarChart from '@/components/charts/bar-chart';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 
 interface DiaperPottyActivityChartProps {
-	chartType?: 'bar' | 'area';
 	className?: string;
 	diaperChanges: DiaperChange[];
 	primaryRange: DateRange;
@@ -22,51 +21,54 @@ const COLORS = {
 };
 
 /**
- * Creates a diagonal stripe pattern for potty activities.
- * Fat colored stripes (activity color) and thin background-colored stripes.
+ * Creates a vertical zigzag pattern for potty activities.
  */
 function createPottyPattern(
 	color: string,
 	cardColor: string,
-	direction: 'backward' | 'forward' = 'forward',
+	variant: 'alt' | 'default' = 'default',
 ) {
 	if (typeof document === 'undefined') return color;
 	const canvas = document.createElement('canvas');
-	canvas.width = 12;
-	canvas.height = 12;
+	const size = 16;
+	canvas.width = size;
+	canvas.height = size;
 	const ctx = canvas.getContext('2d');
 	if (!ctx) return color;
 
 	ctx.fillStyle = color;
-	ctx.fillRect(0, 0, 12, 12);
+	ctx.fillRect(0, 0, size, size);
 
 	ctx.strokeStyle = cardColor;
 	ctx.lineWidth = 2;
 	ctx.beginPath();
-	if (direction === 'forward') {
-		// / direction
-		ctx.moveTo(-2, 2);
-		ctx.lineTo(2, -2);
-		ctx.moveTo(0, 12);
-		ctx.lineTo(12, 0);
-		ctx.moveTo(10, 14);
-		ctx.lineTo(14, 10);
-	} else {
-		// \ direction
-		ctx.moveTo(-2, 10);
-		ctx.lineTo(2, 14);
+
+	if (variant === 'default') {
+		// Vertical zigzag
 		ctx.moveTo(0, 0);
-		ctx.lineTo(12, 12);
-		ctx.moveTo(10, -2);
-		ctx.lineTo(14, 2);
+		ctx.lineTo(size / 2, size / 2);
+		ctx.lineTo(0, size);
+
+		ctx.moveTo(size, 0);
+		ctx.lineTo(size / 2, size / 2);
+		ctx.lineTo(size, size);
+	} else {
+		// Shifted vertical zigzag for Poo to distinguish from Pee when stacked
+		ctx.moveTo(size / 2, 0);
+		ctx.lineTo(0, size / 2);
+		ctx.lineTo(size / 2, size);
+
+		ctx.moveTo(size / 2, 0);
+		ctx.lineTo(size, size / 2);
+		ctx.lineTo(size / 2, size);
 	}
+
 	ctx.stroke();
 
 	return ctx.createPattern(canvas, 'repeat') || color;
 }
 
 export default function DiaperPottyActivityChart({
-	chartType = 'bar',
 	className,
 	diaperChanges,
 	primaryRange,
@@ -82,15 +84,15 @@ export default function DiaperPottyActivityChart({
 	const cardColor = isDark ? '#2e2e2e' : '#ffffff';
 
 	const pottyPeePattern = useMemo(
-		() => createPottyPattern(COLORS.urine, cardColor, 'forward'),
+		() => createPottyPattern(COLORS.urine, cardColor, 'default'),
 		[cardColor],
 	);
 	const pottyPooPattern = useMemo(
-		() => createPottyPattern(COLORS.stool, cardColor, 'backward'),
+		() => createPottyPattern(COLORS.stool, cardColor, 'alt'),
 		[cardColor],
 	);
 	const pottyPrevPattern = useMemo(
-		() => createPottyPattern('#cbd5e1', cardColor, 'forward'),
+		() => createPottyPattern('#cbd5e1', cardColor, 'default'),
 		[cardColor],
 	);
 
@@ -281,7 +283,6 @@ export default function DiaperPottyActivityChart({
 					}
 					return label;
 				}}
-				variant={chartType}
 				xAxisLabel={fbt('Date', 'X-axis label for charts')}
 				yAxisLabel={fbt('Count', 'Y-axis label for counts')}
 				yAxisUnit=""

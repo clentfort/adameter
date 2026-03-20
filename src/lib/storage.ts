@@ -1,5 +1,4 @@
 export const STORAGE_KEYS = {
-	CHART_TYPE: 'adameter-chart-type',
 	DEVICE_ID: 'deviceId',
 	PREFERRED_LANGUAGE: 'preferredLanguage',
 	ROOM: 'room',

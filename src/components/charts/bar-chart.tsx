@@ -22,9 +22,8 @@ interface BarChartProps {
 	grouped?: boolean;
 	labels: string[];
 	title: React.ReactNode;
-	tooltipLabelFormatter?: (context: TooltipItem<'bar' | 'line'>) => string;
-	tooltipTitleFormatter?: (context: TooltipItem<'bar' | 'line'>[]) => string;
-	variant?: 'bar' | 'area';
+	tooltipLabelFormatter?: (context: TooltipItem<'bar'>) => string;
+	tooltipTitleFormatter?: (context: TooltipItem<'bar'>[]) => string;
 	verticalLines?: { color?: string; label?: string; x: number }[];
 	xAxisLabel: React.ReactNode;
 	yAxisLabel: React.ReactNode;
@@ -42,7 +41,6 @@ export default function BarChart({
 	title,
 	tooltipLabelFormatter,
 	tooltipTitleFormatter,
-	variant = 'bar',
 	verticalLines = [],
 	xAxisLabel,
 	yAxisLabel,
@@ -51,7 +49,7 @@ export default function BarChart({
 	yMin,
 }: BarChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
-	const chartInstance = useRef<ChartJS<'bar' | 'line', number[]> | null>(null);
+	const chartInstance = useRef<ChartJS<'bar', number[]> | null>(null);
 	const [isMounted, setIsMounted] = useState(false);
 
 	useIdleCallback(() => {
@@ -67,39 +65,25 @@ export default function BarChart({
 
 		if (chartInstance.current) {
 			const chart = chartInstance.current;
-			// If variant changed, we must destroy and recreate as Chart.js doesn't support live type changes easily
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const config = chart.config as any;
-			const currentType = config.type;
-			const targetType = variant === 'area' ? 'line' : 'bar';
-			if (currentType !== targetType) {
-				chart.destroy();
-				chartInstance.current = null;
-				// Fall through to recreation
-			} else {
-				chart.data.labels = labels;
-				chart.data.datasets = datasets.map((ds) => ({
-					...ds,
-					borderRadius:
-						variant === 'bar' ? (ds.stack === 'comparison' ? 0 : 4) : 0,
-					categoryPercentage: variant === 'bar' ? (grouped ? 0.8 : 1.0) : 1.0,
-					fill: variant === 'area',
-					grouped: variant === 'bar' ? grouped : false,
-					tension: variant === 'area' ? 0.3 : 0,
-				}));
+			chart.data.labels = labels;
+			chart.data.datasets = datasets.map((ds) => ({
+				...ds,
+				borderRadius: ds.stack === 'comparison' ? 0 : 4,
+				categoryPercentage: grouped ? 0.8 : 1.0,
+				grouped,
+			}));
 
-				// Update options that might have changed
-				if (chart.options.plugins?.title) {
-					chart.options.plugins.title.text = title?.toString() || '';
-				}
-				if (chart.options.scales?.y) {
-					chart.options.scales.y.max = yMax;
-					chart.options.scales.y.min = yMin;
-				}
-
-				chart.update();
-				return;
+			// Update options that might have changed
+			if (chart.options.plugins?.title) {
+				chart.options.plugins.title.text = title?.toString() || '';
 			}
+			if (chart.options.scales?.y) {
+				chart.options.scales.y.max = yMax;
+				chart.options.scales.y.min = yMin;
+			}
+
+			chart.update();
+			return;
 		}
 
 		const ctx = chartRef.current.getContext('2d');
@@ -152,19 +136,13 @@ export default function BarChart({
 			id: 'verticalLines',
 		};
 
-		const type = variant === 'area' ? 'line' : 'bar';
-
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const chartConfig: any = {
+		chartInstance.current = new Chart<'bar', number[]>(ctx, {
 			data: {
 				datasets: datasets.map((ds) => ({
 					...ds,
-					borderRadius:
-						variant === 'bar' ? (ds.stack === 'comparison' ? 0 : 4) : 0,
-					categoryPercentage: variant === 'bar' ? (grouped ? 0.8 : 1.0) : 1.0,
-					fill: variant === 'area',
-					grouped: variant === 'bar' ? grouped : false,
-					tension: variant === 'area' ? 0.3 : 0,
+					borderRadius: ds.stack === 'comparison' ? 0 : 4,
+					categoryPercentage: grouped ? 0.8 : 1.0,
+					grouped,
 				})),
 				labels,
 			},
@@ -189,7 +167,7 @@ export default function BarChart({
 						callbacks: {
 							label: tooltipLabelFormatter
 								? tooltipLabelFormatter
-								: (context: TooltipItem<'bar' | 'line'>) => {
+								: (context) => {
 										let label = context.dataset.label || '';
 										if (label) {
 											label += ': ';
@@ -201,7 +179,7 @@ export default function BarChart({
 									},
 							title: tooltipTitleFormatter
 								? tooltipTitleFormatter
-								: (context: TooltipItem<'bar' | 'line'>[]) => {
+								: (context) => {
 										return context[0].label;
 									},
 						},
@@ -229,7 +207,7 @@ export default function BarChart({
 						min: yMin,
 						stacked: true,
 						ticks: {
-							callback: (value: string | number) => {
+							callback: (value) => {
 								const numericVal = Number(value);
 								const val = absYLabels ? Math.abs(numericVal) : numericVal;
 								const roundedVal = Math.round(val * 10) / 10;
@@ -245,13 +223,8 @@ export default function BarChart({
 				},
 			},
 			plugins: [verticalLinesPlugin],
-			type,
-		};
-
-		chartInstance.current = new Chart<'bar' | 'line', number[]>(
-			ctx,
-			chartConfig,
-		);
+			type: 'bar',
+		});
 	}, [
 		datasets,
 		labels,
@@ -266,7 +239,6 @@ export default function BarChart({
 		title,
 		verticalLines,
 		grouped,
-		variant,
 		isMounted,
 	]);
 
