@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { differenceInCalendarDays } from 'date-fns';
-import { expect } from '../fixtures/test';
+import { expect, setTinyBaseRow } from '../fixtures/test';
 
 const breastSelectors = {
 	left: 'left-breast-radio',
@@ -83,4 +83,26 @@ export async function addTimerFeedingEntry(
 		.click();
 	await expect(page.getByRole('button', { name: 'End Feeding' })).toBeVisible();
 	await page.getByRole('button', { name: 'End Feeding' }).click();
+}
+
+export async function seedFeedingEntry(
+	page: Page,
+	entry: {
+		breast: 'left' | 'right';
+		durationMinutes: number;
+		startTime: string;
+	},
+) {
+	const id = Math.random().toString(36).slice(7);
+	const startTime = new Date(entry.startTime);
+	const endTime = new Date(
+		startTime.getTime() + entry.durationMinutes * 60 * 1000,
+	);
+	await setTinyBaseRow(page, 'feedingSessions', id, {
+		breast: entry.breast,
+		durationInSeconds: entry.durationMinutes * 60,
+		endTime: endTime.toISOString(),
+		id,
+		startTime: startTime.toISOString(),
+	});
 }

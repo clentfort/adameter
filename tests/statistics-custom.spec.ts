@@ -1,6 +1,6 @@
-import { addDays, format } from 'date-fns';
+import { addDays, format, setHours, setMinutes, startOfToday } from 'date-fns';
 import { expect, test } from './fixtures/test';
-import { addManualFeedingEntry } from './helpers/feeding';
+import { seedFeedingEntry } from './helpers/feeding';
 
 test.describe('Statistics Custom Range and Comparison', () => {
 	test.beforeEach(async ({ page }) => {
@@ -10,15 +10,21 @@ test.describe('Statistics Custom Range and Comparison', () => {
 	test('should allow selecting a custom range and show comparison automatically', async ({
 		page,
 	}) => {
-		await addManualFeedingEntry(page, {
-			date: format(new Date(), 'yyyy-MM-dd'),
-			minutes: 10,
+		const today = startOfToday();
+		await seedFeedingEntry(page, {
+			breast: 'right',
+			durationMinutes: 10,
+			startTime: setMinutes(setHours(today, 12), 0).toISOString(),
 		});
 
 		for (const days of [9, 10]) {
-			await addManualFeedingEntry(page, {
-				date: format(addDays(new Date(), -days), 'yyyy-MM-dd'),
-				minutes: 15,
+			await seedFeedingEntry(page, {
+				breast: 'right',
+				durationMinutes: 15,
+				startTime: setMinutes(
+					setHours(addDays(today, -days), 12),
+					0,
+				).toISOString(),
 			});
 		}
 
