@@ -19,7 +19,11 @@ export async function setTinyBaseValue(
 		valueId: string;
 	}) => {
 		const checkStore = () => {
-			const store = (window as unknown as { tinybaseStore: { setValue: (id: string, val: unknown) => void } }).tinybaseStore;
+			const store = (
+				window as unknown as {
+					tinybaseStore: { setValue: (id: string, val: unknown) => void };
+				}
+			).tinybaseStore;
 			if (store) {
 				store.setValue(
 					valueId_,
@@ -49,8 +53,13 @@ export async function setTinyBaseValue(
 				({ value: value_, valueId: valueId_ }) => {
 					return new Promise<void>((resolve) => {
 						const checkStore = () => {
-							const store = (window as unknown as { tinybaseStore: { setValue: (id: string, val: unknown) => void } })
-								.tinybaseStore;
+							const store = (
+								window as unknown as {
+									tinybaseStore: {
+										setValue: (id: string, val: unknown) => void;
+									};
+								}
+							).tinybaseStore;
 							if (store) {
 								store.setValue(
 									valueId_,
@@ -89,7 +98,13 @@ export async function setTinyBaseRow(
 		tableId: string;
 	}) => {
 		const checkStore = () => {
-			const store = (window as unknown as { tinybaseStore: { setRow: (tId: string, rId: string, r: unknown) => void } }).tinybaseStore;
+			const store = (
+				window as unknown as {
+					tinybaseStore: {
+						setRow: (tId: string, rId: string, r: unknown) => void;
+					};
+				}
+			).tinybaseStore;
 			if (store) {
 				store.setRow(tableId_, rowId_, row_);
 				return true;
@@ -117,8 +132,13 @@ export async function setTinyBaseRow(
 				({ row: row_, rowId: rowId_, tableId: tableId_ }) => {
 					return new Promise<void>((resolve) => {
 						const checkStore = () => {
-							const store = (window as unknown as { tinybaseStore: { setRow: (tId: string, rId: string, r: unknown) => void } })
-								.tinybaseStore;
+							const store = (
+								window as unknown as {
+									tinybaseStore: {
+										setRow: (tId: string, rId: string, r: unknown) => void;
+									};
+								}
+							).tinybaseStore;
 							if (store) {
 								store.setRow(tableId_, rowId_, row_);
 								resolve();
