@@ -325,11 +325,15 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	}, [isHydrated, isLocalReady, room]);
 
 	useEffect(() => {
-		if (
-			typeof window !== 'undefined' &&
-			process.env.NODE_ENV === 'development'
-		) {
-			Object.assign(window, { tinybaseStore: storeRef.current });
+		if (typeof window !== 'undefined') {
+			const isDevelopment = process.env.NODE_ENV === 'development';
+			const isPreview = process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview';
+			const isTest = (window as unknown as { __E2E_TESTS__?: boolean })
+				.__E2E_TESTS__;
+
+			if (isDevelopment || isPreview || isTest) {
+				Object.assign(window, { tinybaseStore: storeRef.current });
+			}
 		}
 	}, []);
 

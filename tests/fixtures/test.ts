@@ -15,12 +15,11 @@ export async function setTinyBaseValue(
 		value: value_,
 		valueId: valueId_,
 	}: {
-		value: any;
+		value: unknown;
 		valueId: string;
 	}) => {
 		const checkStore = () => {
-			// @ts-expect-error - exposed for testing
-			const store = window.tinybaseStore;
+			const store = (window as unknown as { tinybaseStore: { setValue: (id: string, val: unknown) => void } }).tinybaseStore;
 			if (store) {
 				store.setValue(
 					valueId_,
@@ -50,8 +49,8 @@ export async function setTinyBaseValue(
 				({ value: value_, valueId: valueId_ }) => {
 					return new Promise<void>((resolve) => {
 						const checkStore = () => {
-							// @ts-expect-error - exposed for testing
-							const store = (window as any).tinybaseStore;
+							const store = (window as unknown as { tinybaseStore: { setValue: (id: string, val: unknown) => void } })
+								.tinybaseStore;
 							if (store) {
 								store.setValue(
 									valueId_,
@@ -85,13 +84,12 @@ export async function setTinyBaseRow(
 		rowId: rowId_,
 		tableId: tableId_,
 	}: {
-		row: any;
+		row: unknown;
 		rowId: string;
 		tableId: string;
 	}) => {
 		const checkStore = () => {
-			// @ts-expect-error - exposed for testing
-			const store = window.tinybaseStore;
+			const store = (window as unknown as { tinybaseStore: { setRow: (tId: string, rId: string, r: unknown) => void } }).tinybaseStore;
 			if (store) {
 				store.setRow(tableId_, rowId_, row_);
 				return true;
@@ -119,8 +117,8 @@ export async function setTinyBaseRow(
 				({ row: row_, rowId: rowId_, tableId: tableId_ }) => {
 					return new Promise<void>((resolve) => {
 						const checkStore = () => {
-							// @ts-expect-error - exposed for testing
-							const store = (window as any).tinybaseStore;
+							const store = (window as unknown as { tinybaseStore: { setRow: (tId: string, rId: string, r: unknown) => void } })
+								.tinybaseStore;
 							if (store) {
 								store.setRow(tableId_, rowId_, row_);
 								resolve();
@@ -148,7 +146,7 @@ export async function enableSkipProfile(pageOrContext: BrowserContext | Page) {
 	});
 	if ('evaluate' in pageOrContext) {
 		// Close any open dialogs that might be blocking the UI (like the profile prompt itself if it was already open)
-		await pageOrContext.evaluate(() => {
+		await (pageOrContext as Page).evaluate(() => {
 			const backdrop = document.querySelector('[data-base-ui-portal]');
 			if (backdrop) {
 				backdrop.remove();
@@ -166,7 +164,7 @@ type Fixtures = {
 export const test = base.extend<Fixtures>({
 	context: async ({ context }, use) => {
 		await context.addInitScript(() => {
-			(window as any).__E2E_TESTS__ = true;
+			(window as unknown as { __E2E_TESTS__: boolean }).__E2E_TESTS__ = true;
 		});
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		await use(context);
