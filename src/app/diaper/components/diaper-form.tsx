@@ -86,12 +86,14 @@ function MatrixToggleButton({
 		<Button
 			className={cn(
 				'h-12 w-full transition-all',
-				isSelected && 'ring-2 ring-primary ring-offset-1 shadow-xs',
+				isSelected
+					? 'ring-2 ring-primary ring-offset-1 border-primary bg-primary/10 shadow-xs'
+					: 'text-muted-foreground',
 			)}
 			data-testid={testId}
 			onClick={onClick}
 			type="button"
-			variant={isSelected ? 'default' : 'outline'}
+			variant="outline"
 		>
 			<span className="text-xl">{label}</span>
 		</Button>
