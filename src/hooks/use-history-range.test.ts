@@ -48,7 +48,7 @@ describe('useHistoryRange', () => {
 		// Should sync to URL
 		expect(mockReplace).toHaveBeenCalledWith(
 			expect.stringContaining('/test?from='),
-			{ scroll: false }
+			{ scroll: false },
 		);
 	});
 
@@ -117,7 +117,7 @@ describe('useHistoryRange', () => {
 		const encodedFrom = encodeURIComponent(expectedNewFrom);
 		expect(mockReplace).toHaveBeenCalledWith(
 			expect.stringContaining(`from=${encodedFrom}`),
-			{ scroll: false }
+			{ scroll: false },
 		);
 	});
 
@@ -135,7 +135,7 @@ describe('useHistoryRange', () => {
 		const encodedTo = encodeURIComponent(expectedNewTo);
 		expect(mockReplace).toHaveBeenCalledWith(
 			expect.stringContaining(`to=${encodedTo}`),
-			{ scroll: false }
+			{ scroll: false },
 		);
 	});
 });
