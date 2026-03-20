@@ -1,6 +1,6 @@
 'use client';
 
-import type { DiaperProduct, DiaperChange } from '@/types/diaper';
+import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
 import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
 import { fbt } from 'fbtee';
@@ -107,7 +107,10 @@ export default function DiaperCostChart({
 			datasets.push({
 				backgroundColor: '#94a3b8', // slate-400
 				data: secondaryData,
-				label: fbt('Cost (Prev)', 'Label for comparison diaper cost').toString(),
+				label: fbt(
+					'Cost (Prev)',
+					'Label for comparison diaper cost',
+				).toString(),
 				stack: 'comparison',
 			});
 		}
