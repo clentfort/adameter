@@ -258,7 +258,7 @@ interface BreastStatusBadgeProps {
 function BreastStatusBadge({ breast, type }: BreastStatusBadgeProps) {
 	const bg = breast === 'left' ? 'bg-left-breast' : 'bg-right-breast';
 	return (
-		<Badge className={`absolute -top-2 -right-2 ${bg}`}>
+		<Badge className={`absolute -top-2 -right-2 ${bg} text-white`}>
 			{type === 'next' ? (
 				<fbt desc="Badge on a button that tells the user that they should use this breast for the next feeding session">
 					Next
