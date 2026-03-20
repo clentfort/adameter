@@ -18,10 +18,17 @@ describe('useHistoryRange', () => {
 		vi.useFakeTimers();
 	});
 
-	const setup = (searchParams: Record<string, string> = {}, dateKeys: string[] = []) => {
+	const setup = (
+		searchParams: Record<string, string> = {},
+		dateKeys: string[] = [],
+	) => {
 		const params = new URLSearchParams(searchParams);
-		vi.mocked(useSearchParams).mockReturnValue(params);
-		vi.mocked(useRouter).mockReturnValue(mockRouter as any);
+		vi.mocked(useSearchParams).mockReturnValue(
+			params as unknown as ReturnType<typeof useSearchParams>,
+		);
+		vi.mocked(useRouter).mockReturnValue(
+			mockRouter as unknown as ReturnType<typeof useRouter>,
+		);
 
 		return renderHook(() => useHistoryRange({ baseUrl: '/test', dateKeys }));
 	};
