@@ -15,9 +15,8 @@ vi.mock('tinybase-synchronizer-partykit-client-encrypted', () => ({
 const { decrypt, getEncryptionKey, hashRoomId, jsonParseWithUndefined } =
 	await import('tinybase-synchronizer-partykit-client-encrypted');
 
-const { decryptContent } = await import(
-	'tinybase-persister-partykit-client-encrypted'
-);
+const { decryptContent } =
+	await import('tinybase-persister-partykit-client-encrypted');
 
 describe('cloneRoomData', () => {
 	const sourceRoomName = 'test-room';
