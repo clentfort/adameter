@@ -31,7 +31,9 @@ describe('cloneRoomData', () => {
 		const hashedRoomId = 'hashed';
 
 		vi.mocked(hashRoomId).mockResolvedValue(hashedRoomId);
-		vi.mocked(getEncryptionKey).mockResolvedValue(encryptionKey);
+		vi.mocked(getEncryptionKey).mockResolvedValue(
+			encryptionKey as unknown as CryptoKey,
+		);
 
 		// 1. Fetch failure
 		vi.mocked(fetch).mockResolvedValueOnce({
