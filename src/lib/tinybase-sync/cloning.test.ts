@@ -1,12 +1,12 @@
 import { createMergeableStore } from 'tinybase';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { cloneRoomData } from './cloning';
 import { decryptContent } from 'tinybase-persister-partykit-client-encrypted';
 import {
 	decrypt,
 	getEncryptionKey,
 	hashRoomId,
 } from 'tinybase-synchronizer-partykit-client-encrypted';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { cloneRoomData } from './cloning';
 
 vi.mock('tinybase-persister-partykit-client-encrypted', () => ({
 	decryptContent: vi.fn(),
