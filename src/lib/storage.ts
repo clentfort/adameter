@@ -9,21 +9,21 @@ export const STORAGE_KEYS = {
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 
-export function getItem(key: string): string | null {
+export function getItem(key: StorageKey): string | null {
 	if (typeof window === 'undefined') {
 		return null;
 	}
 	return window.localStorage.getItem(key);
 }
 
-export function setItem(key: string, value: string): void {
+export function setItem(key: StorageKey, value: string): void {
 	if (typeof window === 'undefined') {
 		return;
 	}
 	window.localStorage.setItem(key, value);
 }
 
-export function removeItem(key: string): void {
+export function removeItem(key: StorageKey): void {
 	if (typeof window === 'undefined') {
 		return;
 	}

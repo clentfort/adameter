@@ -20,6 +20,7 @@ interface BarChartProps {
 	datasets: BarDataset[];
 	emptyStateMessage: React.ReactNode;
 	grouped?: boolean;
+	height?: number | string;
 	labels: string[];
 	title: React.ReactNode;
 	tooltipLabelFormatter?: (context: TooltipItem<'bar'>) => string;
@@ -37,6 +38,7 @@ export default function BarChart({
 	datasets,
 	emptyStateMessage,
 	grouped = true,
+	height = 300,
 	labels,
 	title,
 	tooltipLabelFormatter,
@@ -257,14 +259,14 @@ export default function BarChart({
 
 	if (!isMounted || datasets.length === 0 || labels.length === 0) {
 		return (
-			<div className="text-muted-foreground text-center py-8">
+			<div className="text-muted-foreground text-center py-8" style={{ height }}>
 				{emptyStateMessage}
 			</div>
 		);
 	}
 
 	return (
-		<div className="h-[300px] w-full">
+		<div style={{ height, width: '100%' }}>
 			<canvas ref={chartRef} role="graphics-document" />
 		</div>
 	);

@@ -11,6 +11,7 @@ import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 interface DiaperPottyActivityChartProps {
 	className?: string;
 	diaperChanges: DiaperChange[];
+	height?: number | string;
 	primaryRange: DateRange;
 	secondaryRange?: DateRange;
 }
@@ -22,6 +23,7 @@ const COLORS = {
 
 /**
  * Creates a vertical zigzag pattern for potty activities.
+ * Inspired by Patternomaly.
  */
 function createPottyPattern(
 	color: string,
@@ -30,37 +32,32 @@ function createPottyPattern(
 ) {
 	if (typeof document === 'undefined') return color;
 	const canvas = document.createElement('canvas');
-	const size = 16;
-	canvas.width = size;
-	canvas.height = size;
+	const width = 12;
+	const height = 12;
+	canvas.width = width;
+	canvas.height = height;
 	const ctx = canvas.getContext('2d');
 	if (!ctx) return color;
 
 	ctx.fillStyle = color;
-	ctx.fillRect(0, 0, size, size);
+	ctx.fillRect(0, 0, width, height);
 
 	ctx.strokeStyle = cardColor;
-	ctx.lineWidth = 2;
+	ctx.lineWidth = 1.5;
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
 	ctx.beginPath();
 
 	if (variant === 'default') {
-		// Vertical zigzag
-		ctx.moveTo(0, 0);
-		ctx.lineTo(size / 2, size / 2);
-		ctx.lineTo(0, size);
-
-		ctx.moveTo(size, 0);
-		ctx.lineTo(size / 2, size / 2);
-		ctx.lineTo(size, size);
+		// Classic vertical zigzag
+		ctx.moveTo(width / 4, 0);
+		ctx.lineTo((width / 4) * 3, height / 2);
+		ctx.lineTo(width / 4, height);
 	} else {
-		// Shifted vertical zigzag for Poo to distinguish from Pee when stacked
-		ctx.moveTo(size / 2, 0);
-		ctx.lineTo(0, size / 2);
-		ctx.lineTo(size / 2, size);
-
-		ctx.moveTo(size / 2, 0);
-		ctx.lineTo(size, size / 2);
-		ctx.lineTo(size / 2, size);
+		// Offset vertical zigzag
+		ctx.moveTo((width / 4) * 3, 0);
+		ctx.lineTo(width / 4, height / 2);
+		ctx.lineTo((width / 4) * 3, height);
 	}
 
 	ctx.stroke();
@@ -71,6 +68,7 @@ function createPottyPattern(
 export default function DiaperPottyActivityChart({
 	className,
 	diaperChanges,
+	height,
 	primaryRange,
 	secondaryRange,
 }: DiaperPottyActivityChartProps) {
@@ -268,6 +266,7 @@ export default function DiaperPottyActivityChart({
 					'Empty state message for diaper and potty activity chart',
 				)}
 				grouped={false}
+				height={height}
 				labels={labels}
 				title={fbt(
 					'Diaper & Potty Activity',

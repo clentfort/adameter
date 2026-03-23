@@ -1,16 +1,19 @@
 'use client';
 
-import type { DiaperChange, DiaperProduct } from '@/types/diaper';
+import type { DiaperProduct, DiaperChange } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
-import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
+import { eachDayOfInterval, format } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useMemo } from 'react';
 import BarChart from '@/components/charts/bar-chart';
+import { useLanguage } from '@/contexts/i18n-context';
+import { useCurrency } from '@/hooks/use-currency';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 
 interface DiaperCostChartProps {
 	className?: string;
 	diaperChanges: DiaperChange[];
+	height?: number | string;
 	primaryRange: DateRange;
 	products: DiaperProduct[];
 	secondaryRange?: DateRange;
@@ -19,11 +22,14 @@ interface DiaperCostChartProps {
 export default function DiaperCostChart({
 	className,
 	diaperChanges,
+	height,
 	primaryRange,
 	products,
 	secondaryRange,
 }: DiaperCostChartProps) {
 	const [showComparisonCharts] = useShowComparisonCharts();
+	const [currency] = useCurrency();
+	const { locale } = useLanguage();
 
 	const { datasets, labels } = useMemo(() => {
 		let effectivePrimaryFrom = primaryRange.from;
@@ -49,23 +55,32 @@ export default function DiaperCostChart({
 
 		const productById = new Map(products.map((p) => [p.id, p]));
 
+		// Pre-calculate daily costs per product to keep it O(N)
+		const dailyProductCosts = new Map<string, Map<string, number>>();
+		for (const product of products) {
+			dailyProductCosts.set(product.id, new Map());
+		}
+
+		for (const change of diaperChanges) {
+			const productId = change.diaperProductId;
+			if (!productId) continue;
+
+			const product = productById.get(productId);
+			if (!product || !product.costPerDiaper) continue;
+
+			const dateKey = format(new Date(change.timestamp), 'yyyy-MM-dd');
+			const productMap = dailyProductCosts.get(productId);
+			if (productMap) {
+				const current = productMap.get(dateKey) || 0;
+				productMap.set(dateKey, current + product.costPerDiaper);
+			}
+		}
+
 		// Create a dataset for each product
 		const productData = products.map((product) => {
 			const data = primaryDays.map((day) => {
-				const dayStart = day;
-				const dayEnd = new Date(day);
-				dayEnd.setHours(23, 59, 59, 999);
-
-				return diaperChanges
-					.filter(
-						(c) =>
-							c.diaperProductId === product.id &&
-							isWithinInterval(new Date(c.timestamp), {
-								end: dayEnd,
-								start: dayStart,
-							}),
-					)
-					.reduce((acc) => acc + (product.costPerDiaper || 0), 0);
+				const dateKey = format(day, 'yyyy-MM-dd');
+				return dailyProductCosts.get(product.id)?.get(dateKey) || 0;
 			});
 
 			return {
@@ -85,32 +100,18 @@ export default function DiaperCostChart({
 			});
 
 			const secondaryData = secondaryDays.map((day) => {
-				const dayStart = day;
-				const dayEnd = new Date(day);
-				dayEnd.setHours(23, 59, 59, 999);
-
-				return -diaperChanges
-					.filter((c) =>
-						isWithinInterval(new Date(c.timestamp), {
-							end: dayEnd,
-							start: dayStart,
-						}),
-					)
-					.reduce((acc, c) => {
-						const product = c.diaperProductId
-							? productById.get(c.diaperProductId)
-							: null;
-						return acc + (product?.costPerDiaper || 0);
-					}, 0);
+				const dateKey = format(day, 'yyyy-MM-dd');
+				let total = 0;
+				for (const product of products) {
+					total += dailyProductCosts.get(product.id)?.get(dateKey) || 0;
+				}
+				return -total;
 			});
 
 			datasets.push({
 				backgroundColor: '#94a3b8', // slate-400
 				data: secondaryData,
-				label: fbt(
-					'Cost (Prev)',
-					'Label for comparison diaper cost',
-				).toString(),
+				label: fbt('Cost (Prev)', 'Label for comparison diaper cost').toString(),
 				stack: 'comparison',
 			});
 		}
@@ -134,6 +135,7 @@ export default function DiaperCostChart({
 					'Empty state message for diaper cost chart',
 				)}
 				grouped={false}
+				height={height}
 				labels={labels}
 				title={fbt('Diaper Costs', 'Title for diaper cost chart')}
 				tooltipLabelFormatter={(context) => {
@@ -142,13 +144,24 @@ export default function DiaperCostChart({
 						label += ': ';
 					}
 					if (context.parsed.y !== null) {
-						label += Math.abs(context.parsed.y).toFixed(2);
+						const val = Math.abs(context.parsed.y);
+						label += new Intl.NumberFormat(locale.replace('_', '-'), {
+							currency,
+							style: 'currency',
+						}).format(val);
 					}
 					return label;
 				}}
 				xAxisLabel={fbt('Date', 'X-axis label for charts')}
 				yAxisLabel={fbt('Cost', 'Y-axis label for costs')}
-				yAxisUnit=""
+				yAxisUnit={
+					new Intl.NumberFormat(locale.replace('_', '-'), {
+						currency,
+						style: 'currency',
+					})
+						.format(0)
+						.replaceAll(/[\d\s,.]+/g, '') || ''
+				}
 			/>
 		</div>
 	);

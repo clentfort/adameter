@@ -18,6 +18,7 @@ import { useTeethSnapshot } from '@/hooks/use-teething';
 
 interface FeedingActivityChartProps {
 	className?: string;
+	height?: number | string;
 	primaryRange: DateRange;
 	secondaryRange?: DateRange;
 	sessions: FeedingSession[];
@@ -25,6 +26,7 @@ interface FeedingActivityChartProps {
 
 export default function FeedingActivityChart({
 	className,
+	height,
 	primaryRange,
 	secondaryRange,
 	sessions,
@@ -207,6 +209,7 @@ export default function FeedingActivityChart({
 					</fbt>
 				}
 				grouped={false}
+				height={height}
 				labels={labels}
 				title={(
 					<fbt desc="Chart title for feeding duration">Feeding Duration</fbt>
