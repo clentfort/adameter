@@ -9,7 +9,6 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog';
 import { useProfile } from '@/hooks/use-profile';
-import { getItem, STORAGE_KEYS } from '@/lib/storage';
 import ProfileForm from './profile-form';
 
 export default function ProfilePrompt() {
@@ -24,11 +23,7 @@ export default function ProfilePrompt() {
 		return null;
 	}
 
-	if (
-		profile?.dob ||
-		profile?.optedOut ||
-		getItem(STORAGE_KEYS.SKIP_PROFILE_PROMPT) === 'true'
-	) {
+	if (profile?.dob || profile?.optedOut) {
 		return null;
 	}
 
