@@ -259,7 +259,10 @@ export default function BarChart({
 
 	if (!isMounted || datasets.length === 0 || labels.length === 0) {
 		return (
-			<div className="text-muted-foreground text-center py-8" style={{ height }}>
+			<div
+				className="text-muted-foreground text-center py-8"
+				style={{ height }}
+			>
 				{emptyStateMessage}
 			</div>
 		);
