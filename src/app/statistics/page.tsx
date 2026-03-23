@@ -161,12 +161,7 @@ export default function StatisticsPage() {
 	const chartHeight = 'calc(100dvh - var(--header-height-sticky) - 120px)';
 
 	return (
-		<div
-			className={cn(
-				'w-full transition-opacity h-full overflow-y-auto scroll-smooth snap-y snap-proximity',
-				isPending && 'opacity-50',
-			)}
-		>
+		<div className={cn('w-full transition-opacity', isPending && 'opacity-50')}>
 			<div
 				className="flex flex-col gap-4 mb-6 sticky z-30 bg-background -mx-4 px-4 py-3 border-b shadow-sm transition-all"
 				style={
@@ -385,7 +380,7 @@ export default function StatisticsPage() {
 								/>
 							</div>
 
-							<Card className="mt-4 snap-start scroll-mt-[76px]">
+							<Card className="mt-4">
 								<CardHeader className="p-4 pb-2">
 									<CardTitle className="text-base">
 										<fbt desc="Title for the diaper activity card showing Activity, Cost and Brand tabs">

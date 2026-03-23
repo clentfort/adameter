@@ -36,7 +36,7 @@ export default function FeedingActivity({
 	const chartHeight = 'calc(100dvh - var(--header-height-sticky) - 120px)';
 
 	return (
-		<Card className={cn(className, 'snap-start scroll-mt-[76px]')}>
+		<Card className={className}>
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
 					<fbt desc="Title for the feeding activity card showing Duration and Frequency tabs">
