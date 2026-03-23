@@ -6,7 +6,6 @@ import {
 	decrypt,
 	getEncryptionKey,
 	hashRoomId,
-	jsonParseWithUndefined,
 } from 'tinybase-synchronizer-partykit-client-encrypted';
 
 vi.mock('tinybase-persister-partykit-client-encrypted', () => ({
