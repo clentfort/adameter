@@ -11,6 +11,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import FeedingActivityChart from './feeding-activity-chart';
 import YearlyActivityHeatMap from './yearly-activity-heat-map';
 
@@ -35,7 +36,7 @@ export default function FeedingActivity({
 	const chartHeight = 'calc(100dvh - var(--header-height-sticky) - 120px)';
 
 	return (
-		<Card className={className}>
+		<Card className={cn(className, 'snap-start')}>
 			<CardHeader className="p-4 pb-2">
 				<CardTitle className="text-base">
 					<fbt desc="Title for the feeding activity card showing Duration and Frequency tabs">
