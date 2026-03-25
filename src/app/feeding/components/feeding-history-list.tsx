@@ -93,20 +93,15 @@ export default function HistoryList({
 	const sessionToEdit = useFeedingSession(sessionToEditId ?? undefined);
 	const { dateKeys, indexes, indexId } = useFeedingSessionsByDate();
 
-	const {
-		historyFilterIndicatorProps,
-		indexedHistoryListProps,
-		showFilterIndicator,
-	} = useHistoryRange({
-		baseUrl: '/feeding',
-		dateKeys,
-	});
+	const { historyFilterIndicatorProps, indexedHistoryListProps } =
+		useHistoryRange({
+			baseUrl: '/feeding',
+			dateKeys,
+		});
 
 	return (
 		<>
-			{showFilterIndicator && (
-				<HistoryFilterIndicator {...historyFilterIndicatorProps} />
-			)}
+			<HistoryFilterIndicator {...historyFilterIndicatorProps} />
 
 			<IndexedHistoryList
 				{...indexedHistoryListProps}

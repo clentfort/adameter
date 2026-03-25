@@ -110,6 +110,7 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 		color: eventColor,
 		eventTitle,
 		from: effectiveRange.from.toISOString(),
+		isVisible: !!((from || to) && hasMoreNewerInStore),
 		to: effectiveRange.to.toISOString(),
 	};
 
@@ -124,7 +125,6 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 		indexedHistoryListProps,
 		newerRangeDescription,
 		olderRangeDescription,
-		showFilterIndicator: (from || to) && hasMoreNewerInStore,
 		updateRange,
 	};
 }

@@ -8,6 +8,7 @@ interface HistoryFilterIndicatorProps {
 	color?: string | null;
 	eventTitle?: string | null;
 	from: string;
+	isVisible?: boolean;
 	to: string;
 }
 
@@ -16,8 +17,13 @@ export default function HistoryFilterIndicator({
 	color,
 	eventTitle,
 	from,
+	isVisible = true,
 	to,
 }: HistoryFilterIndicatorProps) {
+	if (!isVisible) {
+		return null;
+	}
+
 	const fromDate = parseISO(from);
 	const toDate = parseISO(to);
 	const isSingleDay = isSameDay(fromDate, toDate);
