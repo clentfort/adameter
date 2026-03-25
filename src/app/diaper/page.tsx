@@ -1,12 +1,10 @@
 'use client';
 
 import type { DiaperChange } from '@/types/diaper';
-import { PlusCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import ReactConfetti from 'react-confetti';
-import HistoryRangeSelector from '@/components/history-range-selector';
-import { Button } from '@/components/ui/button';
+import HistoryHeader from '@/components/history-header';
 import { useUpsertDiaperChange } from '@/hooks/use-diaper-changes';
 import { useDiaperChangesTotal } from '@/hooks/use-tinybase-metrics';
 import DiaperForm from './components/diaper-form';
@@ -65,28 +63,17 @@ export default function DiaperPage() {
 					<DiaperTracker checkAndTriggerConfetti={checkAndTriggerConfetti} />
 
 					<div className="w-full mt-8">
-						<div className="flex justify-between items-center mb-4">
-							<h2 className="text-xl font-semibold">
+						<HistoryHeader
+							from={searchParams.get('from')}
+							onAddEntry={() => setIsAddEntryDialogOpen(true)}
+							onRangeChange={handleRangeChange}
+							title={
 								<fbt desc="Descedingly ordered history of events (i.e. diaper changes or feeding sessions)">
 									History
 								</fbt>
-							</h2>
-							<div className="flex items-center gap-2">
-								<HistoryRangeSelector
-									from={searchParams.get('from')}
-									onRangeChange={handleRangeChange}
-									to={searchParams.get('to')}
-								/>
-								<Button
-									onClick={() => setIsAddEntryDialogOpen(true)}
-									size="sm"
-									variant="outline"
-								>
-									<PlusCircle className="h-4 w-4 mr-1" />
-									<fbt common>Add Entry</fbt>
-								</Button>
-							</div>
-						</div>
+							}
+							to={searchParams.get('to')}
+						/>
 						<DiaperHistoryList />
 					</div>
 				</div>

@@ -1,18 +1,14 @@
+import type { DiaperChange } from '@/types/diaper';
 import { fbt } from 'fbtee';
-import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
 import { useCell, useStore } from 'tinybase/ui-react';
-import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
-import HistoryFilterIndicator from '@/components/history-filter-indicator';
-import IndexedHistoryList from '@/components/indexed-history-list';
+import HistoryListWithRange from '@/components/history-list-with-range';
 import Markdown from '@/components/markdown';
 import {
 	useDiaperChange,
 	useRemoveDiaperChange,
 	useUpsertDiaperChange,
 } from '@/hooks/use-diaper-changes';
-import { useHistoryRange } from '@/hooks/use-history-range';
 import { useDiaperChangesByDate } from '@/hooks/use-tinybase-indexes';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -165,86 +161,60 @@ function DiaperHistoryEntry({
 	);
 }
 
-export default function DiaperHistoryList() {
-	const [changeToDelete, setChangeToDelete] = useState<string | null>(null);
-	const [changeToEditId, setChangeToEditId] = useState<string | null>(null);
-	const removeDiaperChange = useRemoveDiaperChange();
-	const upsertDiaperChange = useUpsertDiaperChange();
-	const changeToEdit = useDiaperChange(changeToEditId ?? undefined);
-	const { dateKeys, indexes, indexId } = useDiaperChangesByDate();
-
-	const searchParams = useSearchParams();
-	const from = searchParams.get('from');
-	const to = searchParams.get('to');
-	const eventTitle = searchParams.get('event');
-	const eventColor = searchParams.get('color');
-
-	const {
-		effectiveRange,
-		filteredDateKeys,
-		handleLoadMoreNewer,
-		handleLoadMoreOlder,
-		hasMoreNewerInStore,
-		hasMoreOlderInStore,
-		newerRangeDescription,
-		olderRangeDescription,
-	} = useHistoryRange({
-		baseUrl: '/diaper',
-		dateKeys,
-	});
+const DiaperEditDialog = ({
+	changeId,
+	onClose,
+	onSave,
+}: {
+	changeId: string;
+	onClose: () => void;
+	onSave: (change: DiaperChange) => void;
+}) => {
+	const change = useDiaperChange(changeId);
+	if (!change) return null;
 
 	return (
-		<>
-			{(from || to) && hasMoreNewerInStore && (
-				<HistoryFilterIndicator
-					baseUrl="/diaper"
-					color={eventColor}
-					eventTitle={eventTitle}
-					from={effectiveRange.from.toISOString()}
-					to={effectiveRange.to.toISOString()}
-				/>
-			)}
+		<DiaperForm
+			change={change}
+			onClose={onClose}
+			onSave={onSave}
+			title={
+				<fbt desc="Title for the edit diaper entry dialog">
+					Edit Diaper Entry
+				</fbt>
+			}
+		/>
+	);
+};
 
-			<IndexedHistoryList
-				dateKeys={filteredDateKeys}
-				hasMoreNewerInStore={hasMoreNewerInStore}
-				hasMoreOlderInStore={hasMoreOlderInStore}
-				indexes={indexes}
-				indexId={indexId}
-				initialVisibleCount={from || to ? filteredDateKeys.length : undefined}
-				newerRangeDescription={newerRangeDescription}
-				olderRangeDescription={olderRangeDescription}
-				onLoadMoreNewer={handleLoadMoreNewer}
-				onLoadMoreOlder={handleLoadMoreOlder}
-			>
-				{(changeId) => (
-					<DiaperHistoryEntry
-						changeId={changeId}
-						key={changeId}
-						onDelete={setChangeToDelete}
-						onEdit={setChangeToEditId}
-					/>
-				)}
-			</IndexedHistoryList>
-			{changeToDelete && (
-				<DeleteEntryDialog
-					entry={changeToDelete}
-					onClose={() => setChangeToDelete(null)}
-					onDelete={removeDiaperChange}
-				/>
-			)}
-			{changeToEdit && (
-				<DiaperForm
-					change={changeToEdit}
-					onClose={() => setChangeToEditId(null)}
+export default function DiaperHistoryList() {
+	const removeDiaperChange = useRemoveDiaperChange();
+	const upsertDiaperChange = useUpsertDiaperChange();
+	const { dateKeys, indexes, indexId } = useDiaperChangesByDate();
+
+	return (
+		<HistoryListWithRange
+			baseUrl="/diaper"
+			dateKeys={dateKeys}
+			editDialog={(id, onClose) => (
+				<DiaperEditDialog
+					changeId={id}
+					onClose={onClose}
 					onSave={upsertDiaperChange}
-					title={
-						<fbt desc="Title for the edit diaper entry dialog">
-							Edit Diaper Entry
-						</fbt>
-					}
 				/>
 			)}
-		</>
+			indexes={indexes}
+			indexId={indexId}
+			onDelete={removeDiaperChange}
+		>
+			{(changeId, { setToDelete, setToEdit }) => (
+				<DiaperHistoryEntry
+					changeId={changeId}
+					key={changeId}
+					onDelete={setToDelete}
+					onEdit={setToEdit}
+				/>
+			)}
+		</HistoryListWithRange>
 	);
 }
