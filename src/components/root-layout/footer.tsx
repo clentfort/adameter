@@ -1,5 +1,6 @@
-import { Github, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import Link from 'next/link';
+import { GithubIcon } from '@/components/icons/github-icon';
 
 export function Footer() {
 	return (
@@ -52,7 +53,7 @@ export function Footer() {
 						rel="noopener noreferrer"
 						target="_blank"
 					>
-						<Github className="mr-1 h-5 w-5" />
+						<GithubIcon className="mr-1 h-5 w-5" />
 						<fbt desc="Link text for GitHub repository in footer">GitHub</fbt>
 					</a>
 				</div>
