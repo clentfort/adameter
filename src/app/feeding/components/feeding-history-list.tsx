@@ -1,9 +1,13 @@
 import type { FeedingSession } from '@/types/feeding';
 import { isSameDay } from 'date-fns';
+import { useState } from 'react';
+import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
-import HistoryListWithRange from '@/components/history-list-with-range';
+import HistoryFilterIndicator from '@/components/history-filter-indicator';
+import IndexedHistoryList from '@/components/indexed-history-list';
 import { BREAST_COLORS } from '@/constants/colors';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
+import { useHistoryRange } from '@/hooks/use-history-range';
 import { useFeedingSessionsByDate } from '@/hooks/use-tinybase-indexes';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import { formatEntryTime } from '@/utils/format-history-date';
@@ -80,61 +84,63 @@ function FeedingHistoryEntry({
 	);
 }
 
-const FeedingEditDialog = ({
-	onClose,
-	onSave,
-	sessionId,
-}: {
-	onClose: () => void;
-	onSave: (session: FeedingSession) => void;
-	sessionId: string;
-}) => {
-	const session = useFeedingSession(sessionId);
-	if (!session) return null;
-
-	return (
-		<FeedingForm
-			feeding={session}
-			onClose={onClose}
-			onSave={onSave}
-			title={
-				<fbt desc="Title of a dialog that allows the user to edit a feeding session">
-					Edit Feeding Session
-				</fbt>
-			}
-		/>
-	);
-};
-
 export default function HistoryList({
 	onSessionDelete,
 	onSessionUpdate,
 }: HistoryListProps) {
+	const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+	const [sessionToEditId, setSessionToEditId] = useState<string | null>(null);
+	const sessionToEdit = useFeedingSession(sessionToEditId ?? undefined);
 	const { dateKeys, indexes, indexId } = useFeedingSessionsByDate();
 
+	const {
+		historyFilterIndicatorProps,
+		indexedHistoryListProps,
+		showFilterIndicator,
+	} = useHistoryRange({
+		baseUrl: '/feeding',
+		dateKeys,
+	});
+
 	return (
-		<HistoryListWithRange
-			baseUrl="/feeding"
-			dateKeys={dateKeys}
-			editDialog={(id, onClose) => (
-				<FeedingEditDialog
-					onClose={onClose}
+		<>
+			{showFilterIndicator && (
+				<HistoryFilterIndicator {...historyFilterIndicatorProps} />
+			)}
+
+			<IndexedHistoryList
+				{...indexedHistoryListProps}
+				indexes={indexes}
+				indexId={indexId}
+			>
+				{(sessionId) => (
+					<FeedingHistoryEntry
+						key={sessionId}
+						onDelete={setSessionToDelete}
+						onEdit={setSessionToEditId}
+						sessionId={sessionId}
+					/>
+				)}
+			</IndexedHistoryList>
+			{sessionToDelete && (
+				<DeleteEntryDialog
+					entry={sessionToDelete}
+					onClose={() => setSessionToDelete(null)}
+					onDelete={onSessionDelete}
+				/>
+			)}
+			{sessionToEdit && (
+				<FeedingForm
+					feeding={sessionToEdit}
+					onClose={() => setSessionToEditId(null)}
 					onSave={onSessionUpdate}
-					sessionId={id}
+					title={
+						<fbt desc="Title of a dialog that allows the user to edit a feeding session">
+							Edit Feeding Session
+						</fbt>
+					}
 				/>
 			)}
-			indexes={indexes}
-			indexId={indexId}
-			onDelete={onSessionDelete}
-		>
-			{(sessionId, { setToDelete, setToEdit }) => (
-				<FeedingHistoryEntry
-					key={sessionId}
-					onDelete={setToDelete}
-					onEdit={setToEdit}
-					sessionId={sessionId}
-				/>
-			)}
-		</HistoryListWithRange>
+		</>
 	);
 }

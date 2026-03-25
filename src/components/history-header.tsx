@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 
 interface HistoryHeaderProps {
 	from?: string | null;
-	onAddEntry?: () => void;
+	onAddEntry: () => void;
 	onRangeChange?: (from: string, to: string) => void;
 	title: React.ReactNode;
 	to?: string | null;
@@ -31,12 +31,10 @@ export default function HistoryHeader({
 						to={to}
 					/>
 				)}
-				{onAddEntry && (
-					<Button onClick={onAddEntry} size="sm" variant="outline">
-						<PlusCircle className="h-4 w-4 mr-1" />
-						<fbt common>Add Entry</fbt>
-					</Button>
-				)}
+				<Button onClick={onAddEntry} size="sm" variant="outline">
+					<PlusCircle className="h-4 w-4 mr-1" />
+					<fbt common>Add Entry</fbt>
+				</Button>
 			</div>
 		</div>
 	);
