@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('idle-callback polyfill', () => {
 	beforeEach(() => {
@@ -20,7 +20,8 @@ describe('idle-callback polyfill', () => {
 			requestIdleCallback: mockRequestIdleCallback,
 		});
 
-		const { cancelIdleCallback, requestIdleCallback } = await import('./idle-callback');
+		const { cancelIdleCallback, requestIdleCallback } =
+			await import('./idle-callback');
 
 		expect(requestIdleCallback).toBe(mockRequestIdleCallback);
 		expect(cancelIdleCallback).toBe(mockCancelIdleCallback);
@@ -32,7 +33,8 @@ describe('idle-callback polyfill', () => {
 			setTimeout: window.setTimeout,
 		});
 
-		const { cancelIdleCallback, requestIdleCallback } = await import('./idle-callback');
+		const { cancelIdleCallback, requestIdleCallback } =
+			await import('./idle-callback');
 
 		const cb = vi.fn();
 		const id = requestIdleCallback(cb);
@@ -45,7 +47,7 @@ describe('idle-callback polyfill', () => {
 			expect.objectContaining({
 				didTimeout: false,
 				timeRemaining: expect.any(Function),
-			})
+			}),
 		);
 
 		const deadline = cb.mock.calls[0][0];
@@ -59,7 +61,8 @@ describe('idle-callback polyfill', () => {
 	it('provides dummy functions if window is undefined', async () => {
 		vi.stubGlobal('window', undefined);
 
-		const { cancelIdleCallback, requestIdleCallback } = await import('./idle-callback');
+		const { cancelIdleCallback, requestIdleCallback } =
+			await import('./idle-callback');
 
 		expect(requestIdleCallback(() => {})).toBe(0);
 		expect(cancelIdleCallback(123)).toBeUndefined();
