@@ -29,7 +29,7 @@ describe('TeethingProgress', () => {
 		// Verify that the tooth name "Upper Right Central Incisor" is displayed in the form
 		// (Based on FDI 51 = Upper Right Central Incisor)
 		expect(
-			screen.getByText(/Upper Right Central Incisor/i),
+			screen.getByText(/upper right central incisor/i),
 		).toBeInTheDocument();
 
 		// Verify the save button is present in the form
