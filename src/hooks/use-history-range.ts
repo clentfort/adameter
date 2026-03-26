@@ -19,6 +19,8 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 	const router = useRouter();
 	const from = searchParams.get('from');
 	const to = searchParams.get('to');
+	const eventTitle = searchParams.get('event');
+	const eventColor = searchParams.get('color');
 
 	const effectiveRange = useMemo(() => {
 		if (from && to) {
@@ -92,6 +94,26 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 		return `${format(nextFrom, 'MMM d')} - ${format(end, 'MMM d')}`;
 	}, [hasMoreOlderInStore, effectiveRange.from]);
 
+	const indexedHistoryListProps = {
+		dateKeys: filteredDateKeys,
+		hasMoreNewerInStore,
+		hasMoreOlderInStore,
+		initialVisibleCount: from || to ? filteredDateKeys.length : undefined,
+		newerRangeDescription,
+		olderRangeDescription,
+		onLoadMoreNewer: handleLoadMoreNewer,
+		onLoadMoreOlder: handleLoadMoreOlder,
+	};
+
+	const historyFilterIndicatorProps = {
+		baseUrl,
+		color: eventColor,
+		eventTitle,
+		from: effectiveRange.from.toISOString(),
+		isVisible: !!((from || to) && hasMoreNewerInStore),
+		to: effectiveRange.to.toISOString(),
+	};
+
 	return {
 		effectiveRange,
 		filteredDateKeys,
@@ -99,6 +121,8 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 		handleLoadMoreOlder,
 		hasMoreNewerInStore,
 		hasMoreOlderInStore,
+		historyFilterIndicatorProps,
+		indexedHistoryListProps,
 		newerRangeDescription,
 		olderRangeDescription,
 		updateRange,

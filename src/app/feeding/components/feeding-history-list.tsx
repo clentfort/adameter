@@ -1,6 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
 import { isSameDay } from 'date-fns';
-import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
@@ -94,49 +93,20 @@ export default function HistoryList({
 	const sessionToEdit = useFeedingSession(sessionToEditId ?? undefined);
 	const { dateKeys, indexes, indexId } = useFeedingSessionsByDate();
 
-	const searchParams = useSearchParams();
-	const from = searchParams.get('from');
-	const to = searchParams.get('to');
-	const eventTitle = searchParams.get('event');
-	const eventColor = searchParams.get('color');
-
-	const {
-		effectiveRange,
-		filteredDateKeys,
-		handleLoadMoreNewer,
-		handleLoadMoreOlder,
-		hasMoreNewerInStore,
-		hasMoreOlderInStore,
-		newerRangeDescription,
-		olderRangeDescription,
-	} = useHistoryRange({
-		baseUrl: '/feeding',
-		dateKeys,
-	});
+	const { historyFilterIndicatorProps, indexedHistoryListProps } =
+		useHistoryRange({
+			baseUrl: '/feeding',
+			dateKeys,
+		});
 
 	return (
 		<>
-			{(from || to) && hasMoreNewerInStore && (
-				<HistoryFilterIndicator
-					baseUrl="/feeding"
-					color={eventColor}
-					eventTitle={eventTitle}
-					from={effectiveRange.from.toISOString()}
-					to={effectiveRange.to.toISOString()}
-				/>
-			)}
+			<HistoryFilterIndicator {...historyFilterIndicatorProps} />
 
 			<IndexedHistoryList
-				dateKeys={filteredDateKeys}
-				hasMoreNewerInStore={hasMoreNewerInStore}
-				hasMoreOlderInStore={hasMoreOlderInStore}
+				{...indexedHistoryListProps}
 				indexes={indexes}
 				indexId={indexId}
-				initialVisibleCount={from || to ? filteredDateKeys.length : undefined}
-				newerRangeDescription={newerRangeDescription}
-				olderRangeDescription={olderRangeDescription}
-				onLoadMoreNewer={handleLoadMoreNewer}
-				onLoadMoreOlder={handleLoadMoreOlder}
 			>
 				{(sessionId) => (
 					<FeedingHistoryEntry

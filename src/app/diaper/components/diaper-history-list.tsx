@@ -1,5 +1,4 @@
 import { fbt } from 'fbtee';
-import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
@@ -173,49 +172,20 @@ export default function DiaperHistoryList() {
 	const changeToEdit = useDiaperChange(changeToEditId ?? undefined);
 	const { dateKeys, indexes, indexId } = useDiaperChangesByDate();
 
-	const searchParams = useSearchParams();
-	const from = searchParams.get('from');
-	const to = searchParams.get('to');
-	const eventTitle = searchParams.get('event');
-	const eventColor = searchParams.get('color');
-
-	const {
-		effectiveRange,
-		filteredDateKeys,
-		handleLoadMoreNewer,
-		handleLoadMoreOlder,
-		hasMoreNewerInStore,
-		hasMoreOlderInStore,
-		newerRangeDescription,
-		olderRangeDescription,
-	} = useHistoryRange({
-		baseUrl: '/diaper',
-		dateKeys,
-	});
+	const { historyFilterIndicatorProps, indexedHistoryListProps } =
+		useHistoryRange({
+			baseUrl: '/diaper',
+			dateKeys,
+		});
 
 	return (
 		<>
-			{(from || to) && hasMoreNewerInStore && (
-				<HistoryFilterIndicator
-					baseUrl="/diaper"
-					color={eventColor}
-					eventTitle={eventTitle}
-					from={effectiveRange.from.toISOString()}
-					to={effectiveRange.to.toISOString()}
-				/>
-			)}
+			<HistoryFilterIndicator {...historyFilterIndicatorProps} />
 
 			<IndexedHistoryList
-				dateKeys={filteredDateKeys}
-				hasMoreNewerInStore={hasMoreNewerInStore}
-				hasMoreOlderInStore={hasMoreOlderInStore}
+				{...indexedHistoryListProps}
 				indexes={indexes}
 				indexId={indexId}
-				initialVisibleCount={from || to ? filteredDateKeys.length : undefined}
-				newerRangeDescription={newerRangeDescription}
-				olderRangeDescription={olderRangeDescription}
-				onLoadMoreNewer={handleLoadMoreNewer}
-				onLoadMoreOlder={handleLoadMoreOlder}
 			>
 				{(changeId) => (
 					<DiaperHistoryEntry
