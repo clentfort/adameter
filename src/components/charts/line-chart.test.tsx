@@ -159,17 +159,18 @@ describe('LineChart', () => {
 				data={mockData}
 				datasetLabel="Main Dataset"
 				emptyStateMessage="No data"
+				forecastDate={new Date('2023-01-02')}
 				rangeData={mockRangeData}
 				rangeLabel="Expected Range"
-				verticalLines={mockVerticalLines}
-				xAxisLabel="X Axis"
-				yAxisLabel="Y Axis"
-				yAxisUnit="kg"
-				xAxisType="linear"
-				xAxisTickCallback={mockXAxisTickCallback}
+				title="Test Chart"
 				tooltipLabelFormatter={mockTooltipLabelFormatter}
 				tooltipTitleFormatter={mockTooltipTitleFormatter}
-				forecastDate={new Date('2023-01-02')}
+				verticalLines={mockVerticalLines}
+				xAxisLabel="X Axis"
+				xAxisTickCallback={mockXAxisTickCallback}
+				xAxisType="linear"
+				yAxisLabel="Y Axis"
+				yAxisUnit="kg"
 			/>,
 		);
 
@@ -178,7 +179,37 @@ describe('LineChart', () => {
 		});
 
 		expect(mockChart).toHaveBeenCalled();
-		let chartConfig = mockChart.mock.calls[mockChart.mock.calls.length - 1][1];
+		let chartConfig = mockChart.mock.calls.at(-1)![1] as {
+			options: {
+				plugins: {
+					legend: { labels: { filter: (item: { text: string }) => boolean } };
+					tooltip: {
+						callbacks: {
+							label: (item: {
+								dataset: { label?: string };
+								parsed: { y: number | null };
+							}) => string;
+							title: (items: { parsed: { x: number | null } }[]) => string;
+						};
+						filter: (item: { dataset: { label?: string } }) => boolean;
+					};
+				};
+				scales: {
+					x: { ticks: { callback: (val: number | string) => string } };
+					y: { ticks: { callback: (val: number | string) => string } };
+				};
+			};
+			plugins: {
+				beforeDatasetsDraw: (chart: {
+					ctx: Record<string, unknown>;
+					scales: {
+						x: { getPixelForValue: (val: number) => number; left: number; right: number };
+						y: { bottom: number; top: number };
+					};
+				}) => void;
+				id?: string;
+			}[];
+		};
 
 		// Legend filter
 		const legendFilter = chartConfig.options.plugins.legend.labels.filter;
@@ -187,8 +218,13 @@ describe('LineChart', () => {
 
 		// Tooltip callbacks (custom)
 		const tooltipCallbacks = chartConfig.options.plugins.tooltip.callbacks;
-		expect(tooltipCallbacks.label({})).toBe('custom label');
-		expect(tooltipCallbacks.title([{}])).toBe('custom title');
+		expect(
+			tooltipCallbacks.label({
+				dataset: { label: 'Main Dataset' },
+				parsed: { y: 10 },
+			}),
+		).toBe('custom label');
+		expect(tooltipCallbacks.title([{ parsed: { x: 100 } }])).toBe('custom title');
 
 		// X Axis Ticks (custom)
 		const xAxisTickCallback = chartConfig.options.scales.x.ticks.callback;
@@ -196,13 +232,13 @@ describe('LineChart', () => {
 
 		// Vertical Lines Plugin
 		const verticalLinesPlugin = chartConfig.plugins.find(
-			(p: { id?: string }) => p.id === 'verticalLines',
-		);
+			(p) => p.id === 'verticalLines',
+		)!;
 		const mockCtx = {
 			beginPath: vi.fn(),
 			fillStyle: '',
-			font: '',
 			fillText: vi.fn(),
+			font: '',
 			lineTo: vi.fn(),
 			lineWidth: 0,
 			moveTo: vi.fn(),
@@ -249,6 +285,7 @@ describe('LineChart', () => {
 				datasetLabel="Main Dataset"
 				emptyStateMessage="No data"
 				rangeData={[]}
+				title="Test Chart"
 				xAxisLabel="X"
 				yAxisLabel="Y"
 			/>,
@@ -263,19 +300,22 @@ describe('LineChart', () => {
 				data={[{ x: 50, y: 15 }]}
 				datasetLabel="Main Dataset"
 				emptyStateMessage="No data"
-				xAxisType="linear"
+				forecastDate={300}
+				title="Test Chart"
+				xAxisLabel="X Axis"
 				xAxisTickCallback={mockXAxisTickCallback}
+				xAxisType="linear"
 				xMax={200}
 				xMin={0}
+				yAxisLabel="Y Axis"
 				yMax={100}
 				yMin={0}
-				forecastDate={300}
 			/>,
 		);
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
-		chartConfig = mockChart.mock.calls[mockChart.mock.calls.length - 1][1];
+		chartConfig = mockChart.mock.calls.at(-1)![1] as typeof chartConfig;
 
 		// Default tooltip title (linear) with xAxisTickCallback
 		expect(
@@ -290,15 +330,16 @@ describe('LineChart', () => {
 				data={[{ x: 50, y: 15 }]}
 				datasetLabel="Main Dataset"
 				emptyStateMessage="No data"
-				xAxisType="linear"
+				title="Test Chart"
 				xAxisLabel="X"
+				xAxisType="linear"
 				yAxisLabel="Y"
 			/>,
 		);
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
-		chartConfig = mockChart.mock.calls[mockChart.mock.calls.length - 1][1];
+		chartConfig = mockChart.mock.calls.at(-1)![1] as typeof chartConfig;
 
 		// Default X axis tick
 		expect(chartConfig.options.scales.x.ticks.callback(10)).toBe('10 mo');
@@ -317,16 +358,17 @@ describe('LineChart', () => {
 				datasetLabel="Main Dataset"
 				emptyStateMessage="No data"
 				rangeData={mockRangeData}
+				title="Test Chart"
 				xAxisLabel="X"
-				yAxisLabel="Y"
 				xAxisType="time"
+				yAxisLabel="Y"
 				yAxisUnit="kg"
 			/>,
 		);
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
-		const timeConfig = mockChart.mock.calls[mockChart.mock.calls.length - 1][1];
+		const timeConfig = mockChart.mock.calls.at(-1)![1] as typeof chartConfig;
 		const defaultTooltip = timeConfig.options.plugins.tooltip.callbacks;
 
 		expect(
@@ -365,6 +407,7 @@ describe('LineChart', () => {
 				data={mockData}
 				datasetLabel="Main Dataset"
 				emptyStateMessage="No data"
+				title="Test Chart"
 				xAxisLabel="X"
 				yAxisLabel="Y"
 			/>,
