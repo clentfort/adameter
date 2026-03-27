@@ -203,7 +203,11 @@ describe('LineChart', () => {
 				beforeDatasetsDraw: (chart: {
 					ctx: Record<string, unknown>;
 					scales: {
-						x: { getPixelForValue: (val: number) => number; left: number; right: number };
+						x: {
+							getPixelForValue: (val: number) => number;
+							left: number;
+							right: number;
+						};
 						y: { bottom: number; top: number };
 					};
 				}) => void;
@@ -224,7 +228,9 @@ describe('LineChart', () => {
 				parsed: { y: 10 },
 			}),
 		).toBe('custom label');
-		expect(tooltipCallbacks.title([{ parsed: { x: 100 } }])).toBe('custom title');
+		expect(tooltipCallbacks.title([{ parsed: { x: 100 } }])).toBe(
+			'custom title',
+		);
 
 		// X Axis Ticks (custom)
 		const xAxisTickCallback = chartConfig.options.scales.x.ticks.callback;
