@@ -33,7 +33,7 @@ export default function ProfilePrompt() {
 				<DialogHeader>
 					<DialogTitle>
 						<fbt desc="Title for the profile setup dialog">
-							Welcome to AdaMeter!
+							Welcome to TristanMeter!
 						</fbt>
 					</DialogTitle>
 					<DialogDescription>

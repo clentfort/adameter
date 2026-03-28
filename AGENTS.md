@@ -1,4 +1,4 @@
-# AGENTS.md - AdaMeter Agent Guide
+# AGENTS.md - TristanMeter Agent Guide
 
 This guide is for coding agents working in this repository. Use it as the
 default source of truth for commands and conventions.

@@ -1,4 +1,4 @@
-const PARTYKIT_PROJECT_NAME = 'adameter-party';
+const PARTYKIT_PROJECT_NAME = 'tristanmeter-party';
 const PARTYKIT_ACCOUNT = 'clentfort';
 const PARTYKIT_DOMAIN_SUFFIX = 'partykit.dev';
 

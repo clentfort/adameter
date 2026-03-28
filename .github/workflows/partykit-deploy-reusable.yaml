@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PARTYKIT_ACCOUNT: clentfort
-      PARTYKIT_PROJECT_NAME: adameter-party
+      PARTYKIT_PROJECT_NAME: tristanmeter-party
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

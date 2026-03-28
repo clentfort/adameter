@@ -10,7 +10,7 @@ export const createZip = (files: { content: string; name: string }[]) => {
 };
 
 export const downloadZip = (blob: Blob) => {
-	saveAs(blob, 'adameter-export.zip');
+	saveAs(blob, 'tristanmeter-export.zip');
 };
 
 export const extractFiles = async (file: File) => {

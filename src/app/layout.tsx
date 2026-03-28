@@ -13,7 +13,7 @@ import { TinybaseQueriesProvider } from '@/contexts/tinybase-queries-context';
 
 export const metadata: Metadata = {
 	description: 'An app for tracking baby activities',
-	title: 'AdaMeter',
+	title: 'TristanMeter',
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

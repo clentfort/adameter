@@ -1,6 +1,6 @@
 {
-	"name": "AdaMeter",
-	"short_name": "AdaMeter",
+	"name": "TristanMeter",
+	"short_name": "TristanMeter",
 	"start_url": "/feeding",
 	"display": "standalone",
 	"background_color": "#faf7ee",

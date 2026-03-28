@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/partykit-deploy-reusable.yaml
     with:
       deployment_environment: partykit-production
-      deployment_url: https://adameter-party.clentfort.partykit.dev
+      deployment_url: https://tristanmeter-party.clentfort.partykit.dev
       deploy_command: pnpm exec partykit deploy
       deployment_description: PartyKit production deployment
       in_progress_description: PartyKit production deployment in progress
@@ -32,7 +32,7 @@ jobs:
     uses: ./.github/workflows/partykit-deploy-reusable.yaml
     with:
       deployment_environment: partykit-shared-preview
-      deployment_url: https://preview.adameter-party.clentfort.partykit.dev
+      deployment_url: https://preview.tristanmeter-party.clentfort.partykit.dev
       deploy_command: pnpm exec partykit deploy --preview preview
       deployment_description: PartyKit shared preview deployment
       in_progress_description: PartyKit shared preview deployment in progress

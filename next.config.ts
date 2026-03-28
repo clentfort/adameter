@@ -36,7 +36,7 @@ const hasPartykitChanges = () => {
 	}
 };
 
-const SHARED_PREVIEW_HOST = 'preview.adameter-party.clentfort.partykit.dev';
+const SHARED_PREVIEW_HOST = 'preview.tristanmeter-party.clentfort.partykit.dev';
 
 const getPartykitHostForBuild = () => {
 	const explicitHost = process.env.NEXT_PUBLIC_PARTYKIT_HOST;

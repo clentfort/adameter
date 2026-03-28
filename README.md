@@ -1,27 +1,27 @@
-# AdaMeter
+# TristanMeter
 
-![AdaMeter Logo](resources/logo.png)
+![TristanMeter Logo](resources/logo.png)
 
-AdaMeter is a privacy-first application designed to help you track all aspects
+TristanMeter is a privacy-first application designed to help you track all aspects
 of your newborn baby's development and routines. Built with care in Germany,
-AdaMeter prioritizes your data security and privacy above all else.
+TristanMeter prioritizes your data security and privacy above all else.
 
-[![Codecov](https://img.shields.io/codecov/c/github/clentfort/adameter)](https://app.codecov.io/github/clentfort/adameter)
-[![Deployment](https://img.shields.io/github/deployments/clentfort/adameter/Production?logo=github&label=Deployment)](https://vercel.com/clentfort-team/adameter)
-[![Tests](https://img.shields.io/github/actions/workflow/status/clentfort/adameter/test.yaml?branch=main&label=tests)](https://github.com/clentfort/adameter/actions/workflows/test.yaml)
-[![Translations](https://img.shields.io/badge/Translations-Crowdin-blue?logo=crowdin)](https://crowdin.com/project/adameter)
+[![Codecov](https://img.shields.io/codecov/c/github/clentfort/tristanmeter)](https://app.codecov.io/github/clentfort/tristanmeter)
+[![Deployment](https://img.shields.io/github/deployments/clentfort/tristanmeter/Production?logo=github&label=Deployment)](https://vercel.com/clentfort-team/tristanmeter)
+[![Tests](https://img.shields.io/github/actions/workflow/status/clentfort/tristanmeter/test.yaml?branch=main&label=tests)](https://github.com/clentfort/tristanmeter/actions/workflows/test.yaml)
+[![Translations](https://img.shields.io/badge/Translations-Crowdin-blue?logo=crowdin)](https://crowdin.com/project/tristanmeter)
 
 **Your Data, Your Control:**
 
 - **On-Device Storage by Default:** All data is stored locally on your device,
   ensuring you have full control.
-- **No External Tracking:** AdaMeter includes absolutely no external tracking or
+- **No External Tracking:** TristanMeter includes absolutely no external tracking or
   analytics. Your usage is your business.
 - **No Encryption:** This app does not use encryption.
 
 ## How to Use
 
-AdaMeter provides an intuitive interface for tracking various activities and
+TristanMeter provides an intuitive interface for tracking various activities and
 milestones:
 
 - **Diaper Changes:** Log diaper changes, including type and any notes.
@@ -36,7 +36,7 @@ milestones:
 
 ## Contributing
 
-We welcome contributions to AdaMeter! Whether it's fixing a bug, adding a new
+We welcome contributions to TristanMeter! Whether it's fixing a bug, adding a new
 feature, or improving translations, your help is appreciated.
 
 ### Getting Started
@@ -44,8 +44,8 @@ feature, or improving translations, your help is appreciated.
 1.  **Fork the repository** on GitHub.
 2.  **Clone your fork** locally:
     ```bash
-    git clone https://github.com/YOUR_USERNAME/adameter.git
-    cd adameter
+    git clone https://github.com/YOUR_USERNAME/tristanmeter.git
+    cd tristanmeter
     ```
 3.  **Install dependencies** using pnpm:
     ```bash
@@ -57,19 +57,19 @@ feature, or improving translations, your help is appreciated.
     ```
 5.  **Make your changes.**
 6.  **Commit your changes** and **push to your fork.**
-7.  **Open a Pull Request** against the main AdaMeter repository.
+7.  **Open a Pull Request** against the main TristanMeter repository.
 
 ### Preview Environments
 
 - Branch previews deploy to PartyKit using the name `branch-<slug>`.
 - Vercel preview builds automatically target
-  `branch-<slug>.adameter-party.clentfort.partykit.dev`.
+  `branch-<slug>.tristanmeter-party.clentfort.partykit.dev`.
 - You can override the PartyKit target manually by setting
   `NEXT_PUBLIC_PARTYKIT_HOST`.
 
 ### Translations
 
-AdaMeter uses `fbtee` for internationalization, making it easy to mark strings
+TristanMeter uses `fbtee` for internationalization, making it easy to mark strings
 in the code as translatable. The actual translation process is managed through
 [Crowdin](https://crowdin.com/project/780494).
 
@@ -84,7 +84,7 @@ in the code as translatable. The actual translation process is managed through
     `source_strings.json` file.
 3.  **Uploading to Crowdin:** The `scripts/upload-source-strings.sh` script is
     used to upload `source_strings.json` to the
-    [AdaMeter Crowdin project](https://crowdin.com/project/780494).
+    [TristanMeter Crowdin project](https://crowdin.com/project/780494).
 4.  **Translation:** Translators contribute translations directly on the Crowdin
     platform.
 5.  **Downloading Translations:** The `scripts/download-translations.sh` script
@@ -100,7 +100,7 @@ If you'd like to contribute translations, please join the efforts on
 
 ## Project History
 
-AdaMeter was initially bootstrapped with assistance from
+TristanMeter was initially bootstrapped with assistance from
 [v0.dev](https://v0.dev/chat/breastfeeding-timer-app-vx0p8JZpkwr). We are
 grateful for the initial foundation this provided.
 
@@ -109,4 +109,4 @@ README.md, were assisted by Google Jules.
 
 ---
 
-Thank you for your interest in AdaMeter!
+Thank you for your interest in TristanMeter!

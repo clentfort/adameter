@@ -20,7 +20,7 @@ export function SplashScreen() {
 			}}
 		>
 			<Image
-				alt="AdaMeter Logo"
+				alt="TristanMeter Logo"
 				height={256}
 				src="/icon-512x512.png"
 				width={256}

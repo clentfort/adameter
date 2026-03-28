@@ -3,7 +3,7 @@ import { resolvePartykitHost } from './partykit-host';
 
 describe('resolvePartykitHost', () => {
 	it('returns production host by default', () => {
-		expect(resolvePartykitHost()).toBe('adameter-party.clentfort.partykit.dev');
+		expect(resolvePartykitHost()).toBe('tristanmeter-party.clentfort.partykit.dev');
 	});
 
 	it('returns per-PR preview host when vercelPrId is provided', () => {
@@ -12,7 +12,7 @@ describe('resolvePartykitHost', () => {
 				vercelEnv: 'preview',
 				vercelPrId: '123',
 			}),
-		).toBe('pr-123.adameter-party.clentfort.partykit.dev');
+		).toBe('pr-123.tristanmeter-party.clentfort.partykit.dev');
 	});
 
 	it('returns per-branch preview host on vercel branch previews without PR ID', () => {
@@ -22,7 +22,7 @@ describe('resolvePartykitHost', () => {
 				vercelGitCommitRef: 'feat/partykit-preview',
 			}),
 		).toBe(
-			'branch-feat-partykit-preview.adameter-party.clentfort.partykit.dev',
+			'branch-feat-partykit-preview.tristanmeter-party.clentfort.partykit.dev',
 		);
 	});
 
@@ -34,7 +34,7 @@ describe('resolvePartykitHost', () => {
 		});
 
 		expect(host).toMatch(
-			/^branch-[\da-z-]+\.adameter-party\.clentfort\.partykit\.dev$/,
+			/^branch-[\da-z-]+\.tristanmeter-party\.clentfort\.partykit\.dev$/,
 		);
 		expect(host.length).toBeLessThanOrEqual(110);
 	});
@@ -42,8 +42,8 @@ describe('resolvePartykitHost', () => {
 	it('normalizes explicit host values', () => {
 		expect(
 			resolvePartykitHost({
-				explicitHost: 'https://custom.adameter.example/',
+				explicitHost: 'https://custom.tristanmeter.example/',
 			}),
-		).toBe('custom.adameter.example');
+		).toBe('custom.tristanmeter.example');
 	});
 });

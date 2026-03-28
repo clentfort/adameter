@@ -76,7 +76,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 						>
 							<Link href="/">
 								<Image
-									alt="AdaMeter Logo"
+									alt="TristanMeter Logo"
 									className="rounded-full block h-full w-full"
 									height={96}
 									src="/icon-96x96.png"
@@ -109,7 +109,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 										transform: `translateY(calc(-20px * var(--header-scroll-progress)))`,
 									}}
 								>
-									AdaMeter
+									TristanMeter
 								</h1>
 								<div
 									className="flex items-center gap-2 !transition-none"

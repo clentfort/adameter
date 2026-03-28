@@ -22,7 +22,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/clentfort/adameter.git",
+		"url": "git+https://github.com/clentfort/tristanmeter.git",
 		"directory": "packages/tinybase-persister-partykit-client-encrypted"
 	},
 	"license": "MIT",

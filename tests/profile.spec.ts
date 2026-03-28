@@ -5,7 +5,7 @@ test.describe('Child Profile', () => {
 		await page.goto('/');
 
 		// 1. Initial setup
-		await expect(page.getByText('Welcome to AdaMeter!')).toBeVisible();
+		await expect(page.getByText('Welcome to TristanMeter!')).toBeVisible();
 
 		await page.getByLabel(/Name/).fill('Baby Ada');
 		await page.getByLabel(/Date of Birth/).fill('2024-01-01');
@@ -17,7 +17,7 @@ test.describe('Child Profile', () => {
 		await page.getByRole('button', { name: 'Save Profile' }).click();
 
 		// Check that the prompt is gone
-		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
+		await expect(page.getByText('Welcome to TristanMeter!')).not.toBeVisible();
 
 		// 2. Edit profile in settings
 		await page.getByRole('button', { name: /settings/i }).click();
@@ -41,9 +41,9 @@ test.describe('Child Profile', () => {
 		// 3. Verify it persists across reloads
 		await page.goto('/');
 		// Wait for app to be ready
-		await expect(page.getByText('AdaMeter')).toBeVisible();
+		await expect(page.getByText('TristanMeter')).toBeVisible();
 		// Wait for profile prompt to be gone (if it appeared briefly)
-		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
+		await expect(page.getByText('Welcome to TristanMeter!')).not.toBeVisible();
 		await page.getByRole('button', { name: /settings/i }).click();
 		await page.getByTestId('settings-profile').click();
 		await expect(page.getByLabel(/Name/)).toHaveValue('Ada Lovelace');
@@ -76,7 +76,7 @@ test.describe('Child Profile', () => {
 
 		// Verify profile prompt doesn't reappear
 		await page.goto('/');
-		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
+		await expect(page.getByText('Welcome to TristanMeter!')).not.toBeVisible();
 
 		// Check settings again to be sure
 		await page

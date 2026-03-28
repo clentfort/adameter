@@ -37,7 +37,7 @@ export function Footer() {
 				<div>
 					<a
 						className="inline-flex items-center hover:underline"
-						href="https://github.com/clentfort/adameter"
+						href="https://github.com/clentfort/tristanmeter"
 						onClick={(e) => {
 							if (!window.matchMedia('(display-mode: standalone)').matches) {
 								return;
@@ -45,7 +45,7 @@ export function Footer() {
 
 							e.preventDefault();
 							window.open(
-								'https://github.com/clentfort/adameter',
+								'https://github.com/clentfort/tristanmeter',
 								'_blank',
 								'noopener,noreferrer',
 							);

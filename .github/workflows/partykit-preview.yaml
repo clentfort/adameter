@@ -24,7 +24,7 @@ jobs:
     uses: ./.github/workflows/partykit-deploy-reusable.yaml
     with:
       deployment_environment: partykit-preview
-      deployment_url: https://pr-${{ github.event.pull_request.number }}.adameter-party.clentfort.partykit.dev
+      deployment_url: https://pr-${{ github.event.pull_request.number }}.tristanmeter-party.clentfort.partykit.dev
       deploy_command: pnpm exec partykit deploy --preview "pr-${{ github.event.pull_request.number }}"
       deployment_description: PartyKit preview deployment
       in_progress_description: PartyKit preview deployment in progress
