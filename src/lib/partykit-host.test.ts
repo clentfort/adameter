@@ -3,7 +3,9 @@ import { resolvePartykitHost } from './partykit-host';
 
 describe('resolvePartykitHost', () => {
 	it('returns production host by default', () => {
-		expect(resolvePartykitHost()).toBe('tristanmeter-party.clentfort.partykit.dev');
+		expect(resolvePartykitHost()).toBe(
+			'tristanmeter-party.clentfort.partykit.dev',
+		);
 	});
 
 	it('returns per-PR preview host when vercelPrId is provided', () => {

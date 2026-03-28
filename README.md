@@ -2,9 +2,9 @@
 
 ![TristanMeter Logo](resources/logo.png)
 
-TristanMeter is a privacy-first application designed to help you track all aspects
-of your newborn baby's development and routines. Built with care in Germany,
-TristanMeter prioritizes your data security and privacy above all else.
+TristanMeter is a privacy-first application designed to help you track all
+aspects of your newborn baby's development and routines. Built with care in
+Germany, TristanMeter prioritizes your data security and privacy above all else.
 
 [![Codecov](https://img.shields.io/codecov/c/github/clentfort/tristanmeter)](https://app.codecov.io/github/clentfort/tristanmeter)
 [![Deployment](https://img.shields.io/github/deployments/clentfort/tristanmeter/Production?logo=github&label=Deployment)](https://vercel.com/clentfort-team/tristanmeter)
@@ -15,8 +15,8 @@ TristanMeter prioritizes your data security and privacy above all else.
 
 - **On-Device Storage by Default:** All data is stored locally on your device,
   ensuring you have full control.
-- **No External Tracking:** TristanMeter includes absolutely no external tracking or
-  analytics. Your usage is your business.
+- **No External Tracking:** TristanMeter includes absolutely no external
+  tracking or analytics. Your usage is your business.
 - **No Encryption:** This app does not use encryption.
 
 ## How to Use
@@ -36,8 +36,8 @@ milestones:
 
 ## Contributing
 
-We welcome contributions to TristanMeter! Whether it's fixing a bug, adding a new
-feature, or improving translations, your help is appreciated.
+We welcome contributions to TristanMeter! Whether it's fixing a bug, adding a
+new feature, or improving translations, your help is appreciated.
 
 ### Getting Started
 
@@ -69,9 +69,9 @@ feature, or improving translations, your help is appreciated.
 
 ### Translations
 
-TristanMeter uses `fbtee` for internationalization, making it easy to mark strings
-in the code as translatable. The actual translation process is managed through
-[Crowdin](https://crowdin.com/project/780494).
+TristanMeter uses `fbtee` for internationalization, making it easy to mark
+strings in the code as translatable. The actual translation process is managed
+through [Crowdin](https://crowdin.com/project/780494).
 
 **Workflow:**
 
