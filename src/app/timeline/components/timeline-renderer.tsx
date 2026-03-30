@@ -6,21 +6,21 @@ import { Cloud, Rocket, Star, TreeDeciduous, Flower2, Moon, Sun } from 'lucide-r
 import React from 'react';
 
 export type TimelineEvent = {
-	id: string;
 	date: Date;
+	id: string;
+	photo?: string;
 	title: string;
 	type: 'milestone' | 'month' | 'manual';
-	photo?: string;
 	visible: boolean;
 };
 
 interface TimelineRendererProps {
 	events: TimelineEvent[];
-	theme: 'tree' | 'rainbow' | 'space' | 'garden' | 'modern';
 	profile: Profile | null;
+	theme: 'tree' | 'rainbow' | 'space' | 'garden' | 'modern';
 }
 
-export default function TimelineRenderer({ events, theme, profile }: TimelineRendererProps) {
+export default function TimelineRenderer({ events, profile, theme }: TimelineRendererProps) {
 	const visibleEvents = events.filter(e => e.visible);
 
 	return (
@@ -35,9 +35,9 @@ export default function TimelineRenderer({ events, theme, profile }: TimelineRen
 			<div className="relative w-full flex flex-col gap-12 py-12">
 				{visibleEvents.map((event, index) => (
 					<TimelineItem
-						key={event.id}
 						event={event}
 						index={index}
+						key={event.id}
 						theme={theme}
 					/>
 				))}
@@ -68,7 +68,7 @@ function TimelineItem({ event, index, theme }: { event: TimelineEvent; index: nu
 					<h3 className="font-bold text-sm leading-tight">{event.title}</h3>
 					{event.photo && (
 						<div className="mt-2 rounded-lg overflow-hidden border shadow-inner aspect-square w-full">
-							<img src={event.photo} alt={event.title} className="w-full h-full object-cover" />
+							<img alt={event.title} className="w-full h-full object-cover" src={event.photo} />
 						</div>
 					)}
 				</div>

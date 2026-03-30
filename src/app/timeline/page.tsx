@@ -19,11 +19,11 @@ import { toPng } from 'html-to-image';
 import TimelineRenderer, { type TimelineEvent } from './components/timeline-renderer';
 
 type LocalTimelineEvent = {
-	id: string;
 	date: Date;
+	id: string;
+	photo?: string;
 	title: string;
 	type: 'milestone' | 'month' | 'manual';
-	photo?: string;
 	visible: boolean;
 };
 
@@ -51,8 +51,8 @@ export default function TimelinePage() {
 		for (let i = 0; i <= monthsSinceBirth; i++) {
 			const date = addMonths(startOfMonth(birthDate), i);
 			result.push({
-				id: `month-${i}`,
 				date,
+				id: `month-${i}`,
 				title: i === 0 ? fbt('Birth', 'Label for birth milestone').toString() : fbt(`${fbt.param('monthCount', i)} Months`, 'Label for monthly milestone').toString(),
 				type: 'month',
 				visible: !hiddenEventIds.has(`month-${i}`),
@@ -62,8 +62,8 @@ export default function TimelinePage() {
 		// Events from store
 		events.forEach(e => {
 			result.push({
-				id: e.id,
 				date: new Date(e.startDate),
+				id: e.id,
 				title: e.title,
 				type: 'milestone',
 				visible: !hiddenEventIds.has(e.id),
@@ -74,8 +74,8 @@ export default function TimelinePage() {
 		teeth.forEach(t => {
 			if (!t.date) return;
 			result.push({
-				id: t.id,
 				date: new Date(t.date),
+				id: t.id,
 				title: fbt(`${fbt.param('toothName', getToothName(t.toothId))} Erupted`, 'Label for teething milestone'),
 				type: 'milestone',
 				visible: !hiddenEventIds.has(t.id),
@@ -112,7 +112,7 @@ export default function TimelinePage() {
 					<fbt desc="Title for the timeline export page">Timeline Creator</fbt>
 				</h1>
 				<div className="flex gap-2">
-					<Button variant="outline" size="icon" onClick={() => router.back()}>
+					<Button onClick={() => router.back()} size="icon" variant="outline">
 						<X className="h-4 w-4" />
 					</Button>
 					<Button onClick={handleExport}>
@@ -128,10 +128,10 @@ export default function TimelinePage() {
 						<Layout className="h-4 w-4 text-muted-foreground" />
 						<span className="text-sm font-medium">Theme</span>
 					</div>
-					<Tabs value={activeTheme} onValueChange={(v) => setActiveTheme(v as Theme)}>
+					<Tabs onValueChange={(v) => setActiveTheme(v as Theme)} value={activeTheme}>
 						<TabsList className="grid grid-cols-5 w-full">
 							{THEMES.map(t => (
-								<TabsTrigger key={t} value={t} className="capitalize">
+								<TabsTrigger className="capitalize" key={t} value={t}>
 									{t}
 								</TabsTrigger>
 							))}
@@ -143,34 +143,34 @@ export default function TimelinePage() {
 			<div className="flex flex-col gap-4">
 				<div className="flex items-center justify-between">
 					<h2 className="text-lg font-semibold">Events</h2>
-					<Button size="sm" onClick={() => setEditingEvent({
-						id: crypto.randomUUID(),
+					<Button onClick={() => setEditingEvent({
 						date: new Date(),
+						id: crypto.randomUUID(),
 						title: '',
 						type: 'manual',
 						visible: true
-					})}>
+					})} size="sm">
 						<Plus className="h-4 w-4 mr-1" />
 						Add
 					</Button>
 				</div>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 					{allEvents.map(event => (
-						<div key={event.id} className={`flex items-center justify-between p-3 rounded-lg border bg-card ${!event.visible ? 'opacity-50' : ''}`}>
+						<div className={`flex items-center justify-between p-3 rounded-lg border bg-card ${!event.visible ? 'opacity-50' : ''}`} key={event.id}>
 							<div className="flex flex-col">
 								<span className="font-medium">{event.title}</span>
 								<span className="text-xs text-muted-foreground">{format(event.date, 'MMM d, yyyy')}</span>
 							</div>
 							<div className="flex gap-1">
-								<Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => {
+								<Button className="h-8 w-8" onClick={() => {
 									const newHidden = new Set(hiddenEventIds);
 									if (newHidden.has(event.id)) newHidden.delete(event.id);
 									else newHidden.add(event.id);
 									setHiddenEventIds(newHidden);
-								}}>
+								}} size="icon" variant="ghost">
 									{event.visible ? <Trash2 className="h-4 w-4 text-destructive" /> : <Plus className="h-4 w-4 text-primary" />}
 								</Button>
-								<Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditingEvent(event)}>
+								<Button className="h-8 w-8" onClick={() => setEditingEvent(event)} size="icon" variant="ghost">
 									<Pencil className="h-4 w-4" />
 								</Button>
 							</div>
@@ -182,13 +182,13 @@ export default function TimelinePage() {
 			<div className="relative w-full aspect-[9/16] bg-slate-100 rounded-2xl overflow-hidden shadow-xl border-8 border-white" ref={timelineRef}>
 				<TimelineRenderer
 					events={allEvents}
-					theme={activeTheme}
 					profile={profile}
+					theme={activeTheme}
 				/>
 			</div>
 
 			{editingEvent && (
-				<Dialog open={!!editingEvent} onOpenChange={() => setEditingEvent(null)}>
+				<Dialog onOpenChange={() => setEditingEvent(null)} open={!!editingEvent}>
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>Edit Event</DialogTitle>
@@ -197,16 +197,16 @@ export default function TimelinePage() {
 							<div className="space-y-2">
 								<Label>Title</Label>
 								<Input
-									value={editingEvent.title}
 									onChange={e => setEditingEvent({...editingEvent, title: e.target.value})}
+									value={editingEvent.title}
 								/>
 							</div>
 							<div className="space-y-2">
 								<Label>Date</Label>
 								<Input
+									onChange={e => setEditingEvent({...editingEvent, date: new Date(e.target.value)})}
 									type="date"
 									value={format(editingEvent.date, 'yyyy-MM-dd')}
-									onChange={e => setEditingEvent({...editingEvent, date: new Date(e.target.value)})}
 								/>
 							</div>
 							<div className="space-y-2">
@@ -214,18 +214,18 @@ export default function TimelinePage() {
 								<div className="flex items-center gap-4">
 									{editingEvent.photo ? (
 										<div className="relative h-20 w-20 rounded-lg overflow-hidden border">
-											<img src={editingEvent.photo} alt="Event" className="h-full w-full object-cover" />
+											<img alt="Event" className="h-full w-full object-cover" src={editingEvent.photo} />
 											<Button
-												size="icon"
-												variant="destructive"
 												className="absolute top-0 right-0 h-6 w-6 rounded-none"
 												onClick={() => setEditingEvent({...editingEvent, photo: undefined})}
+												size="icon"
+												variant="destructive"
 											>
 												<X className="h-3 w-3" />
 											</Button>
 										</div>
 									) : (
-										<Button variant="outline" className="h-20 w-20 border-dashed" onClick={() => {
+										<Button className="h-20 w-20 border-dashed" onClick={() => {
 											const input = document.createElement('input');
 											input.type = 'file';
 											input.accept = 'image/*';
@@ -236,7 +236,7 @@ export default function TimelinePage() {
 												}
 											};
 											input.click();
-										}}>
+										}} variant="outline">
 											<Camera className="h-6 w-6 text-muted-foreground" />
 										</Button>
 									)}

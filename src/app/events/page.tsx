@@ -1,6 +1,5 @@
 'use client';
 
-import { fbt } from 'fbtee';
 import { Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
