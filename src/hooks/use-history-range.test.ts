@@ -33,7 +33,7 @@ describe('useHistoryRange', () => {
 		return renderHook(() => useHistoryRange({ baseUrl: '/test', dateKeys }));
 	};
 
-	it('initializes with default 7-day range when no params provided', () => {
+	it('initializes with default 7-day range when no params provided, but DOES NOT sync to URL', () => {
 		const now = new Date('2024-01-10T12:00:00Z');
 		vi.setSystemTime(now);
 
@@ -45,11 +45,16 @@ describe('useHistoryRange', () => {
 		expect(result.current.effectiveRange.from).toEqual(expectedStart);
 		expect(result.current.effectiveRange.to).toEqual(expectedEnd);
 
-		// Should sync to URL
-		expect(mockReplace).toHaveBeenCalledWith(
-			expect.stringContaining('/test?from='),
-			{ scroll: false },
-		);
+		// Should NOT sync to URL automatically anymore
+		expect(mockReplace).not.toHaveBeenCalled();
+	});
+
+	it('shows all date keys when no params provided', () => {
+		const dateKeys = ['2024-01-20', '2024-01-10', '2024-01-01'];
+		const { result } = setup({}, dateKeys);
+
+		expect(result.current.filteredDateKeys).toEqual(dateKeys);
+		expect(result.current.historyFilterIndicatorProps.isVisible).toBe(false);
 	});
 
 	it('uses range from search params when provided', () => {
@@ -60,10 +65,7 @@ describe('useHistoryRange', () => {
 
 		expect(result.current.effectiveRange.from).toEqual(new Date(from));
 		expect(result.current.effectiveRange.to).toEqual(new Date(to));
-
-		// Since params are provided, it shouldn't call replace to sync defaults
-		// (But wait, the previous test showed it was called once because of how setup/renderHook works)
-		// We cleared mocks in beforeEach, so let's see.
+		expect(result.current.historyFilterIndicatorProps.isVisible).toBe(true);
 		expect(mockReplace).not.toHaveBeenCalled();
 	});
 
@@ -102,6 +104,19 @@ describe('useHistoryRange', () => {
 		expect(result.current.hasMoreOlderInStore).toBe(true);
 	});
 
+	it('indicator is visible when filtered even if no newer entries', () => {
+		const from = '2024-01-01T00:00:00.000Z';
+		const to = '2024-01-20T23:59:59.999Z';
+		const dateKeys = [
+			'2024-01-15T10:00:00Z', // in range
+		];
+
+		const { result } = setup({ from, to }, dateKeys);
+
+		expect(result.current.hasMoreNewerInStore).toBe(false);
+		expect(result.current.historyFilterIndicatorProps.isVisible).toBe(true);
+	});
+
 	it('handles loading more older entries', () => {
 		const from = '2024-01-01T00:00:00.000Z';
 		const to = '2024-01-05T23:59:59.999Z';
@@ -113,7 +128,6 @@ describe('useHistoryRange', () => {
 		});
 
 		const expectedNewFrom = subDays(new Date(from), 7).toISOString();
-		// The URL is encoded by URLSearchParams
 		const encodedFrom = encodeURIComponent(expectedNewFrom);
 		expect(mockReplace).toHaveBeenCalledWith(
 			expect.stringContaining(`from=${encodedFrom}`),
