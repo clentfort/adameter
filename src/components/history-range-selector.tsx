@@ -23,19 +23,20 @@ export default function HistoryRangeSelector({
 }: HistoryRangeSelectorProps) {
 	const [open, setOpen] = useState(false);
 
-	const getInitialRange = () => {
-		const defaultEnd = endOfDay(new Date());
-		const defaultStart = startOfDay(subDays(defaultEnd, 6));
-		return {
-			from: dateToDateInputValue(from ? parseISO(from) : defaultStart),
-			to: dateToDateInputValue(to ? parseISO(to) : defaultEnd),
-		};
-	};
-
-	const [customRange, setCustomRange] = useState(getInitialRange);
+	const [customRange, setCustomRange] = useState({
+		from: dateToDateInputValue(
+			from ? parseISO(from) : startOfDay(subDays(endOfDay(new Date()), 6)),
+		),
+		to: dateToDateInputValue(to ? parseISO(to) : endOfDay(new Date())),
+	});
 
 	useEffect(() => {
-		setCustomRange(getInitialRange());
+		const defaultEnd = endOfDay(new Date());
+		const defaultStart = startOfDay(subDays(defaultEnd, 6));
+		setCustomRange({
+			from: dateToDateInputValue(from ? parseISO(from) : defaultStart),
+			to: dateToDateInputValue(to ? parseISO(to) : defaultEnd),
+		});
 	}, [from, to]);
 
 	return (
