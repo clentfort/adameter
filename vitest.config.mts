@@ -22,13 +22,13 @@ export default defineConfig({
 			],
 			provider: 'v8',
 			reporter: ['text', 'json-summary', 'json'],
-			reportsDirectory: './coverage',
+			reportsDirectory: '../coverage',
 		},
 		env: {
 			TZ: 'UTC',
 		},
 		environment: 'jsdom',
 		root: './src',
-		setupFiles: ['./src/vitest.setup.ts'],
+		setupFiles: ['./vitest.setup.ts'],
 	},
 });
