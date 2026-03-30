@@ -23,8 +23,8 @@ export default function HistoryRangeSelector({
 }: HistoryRangeSelectorProps) {
 	const [open, setOpen] = useState(false);
 	const [customRange, setCustomRange] = useState({
-		from: dateToDateInputValue(new Date()),
-		to: dateToDateInputValue(new Date()),
+		from: dateToDateInputValue(from ? parseISO(from) : new Date()),
+		to: dateToDateInputValue(to ? parseISO(to) : new Date()),
 	});
 
 	useEffect(() => {
