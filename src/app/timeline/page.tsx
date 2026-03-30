@@ -1,22 +1,36 @@
 'use client';
 
+import type { TimelineEvent } from './components/timeline-renderer';
+import { addMonths, differenceInMonths, format, startOfMonth } from 'date-fns';
 import { fbt } from 'fbtee';
-import { Camera, Download, Layout, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { toPng } from 'html-to-image';
+import {
+	Camera,
+	Download,
+	Layout,
+	Pencil,
+	Plus,
+	Trash2,
+	X,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { getToothName } from '@/app/growth/utils/teething';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProfile } from '@/hooks/use-profile';
 import { useEventsSnapshot } from '@/hooks/use-events';
+import { useProfile } from '@/hooks/use-profile';
 import { useTeethSnapshot } from '@/hooks/use-teething';
-import { getToothName } from '@/app/growth/utils/teething';
-import { format, differenceInMonths, addMonths, startOfMonth } from 'date-fns';
-import { toPng } from 'html-to-image';
-import TimelineRenderer, { type TimelineEvent } from './components/timeline-renderer';
+import TimelineRenderer from './components/timeline-renderer';
 
 type LocalTimelineEvent = {
 	date: Date;
@@ -38,10 +52,15 @@ export default function TimelinePage() {
 	const [activeTheme, setActiveTheme] = useState<Theme>('tree');
 	const [manualEvents, setManualEvents] = useState<LocalTimelineEvent[]>([]);
 	const [hiddenEventIds, setHiddenEventIds] = useState<Set<string>>(new Set());
-	const [editingEvent, setEditingEvent] = useState<LocalTimelineEvent | null>(null);
+	const [editingEvent, setEditingEvent] = useState<LocalTimelineEvent | null>(
+		null,
+	);
 	const timelineRef = useRef<HTMLDivElement>(null);
 
-	const birthDate = useMemo(() => profile?.dob ? new Date(profile.dob) : new Date(), [profile]);
+	const birthDate = useMemo(
+		() => (profile?.dob ? new Date(profile.dob) : new Date()),
+		[profile],
+	);
 
 	const allEvents = useMemo(() => {
 		const result: TimelineEvent[] = [];
@@ -53,14 +72,20 @@ export default function TimelinePage() {
 			result.push({
 				date,
 				id: `month-${i}`,
-				title: i === 0 ? fbt('Birth', 'Label for birth milestone').toString() : fbt(`${fbt.param('monthCount', i)} Months`, 'Label for monthly milestone').toString(),
+				title:
+					i === 0
+						? fbt('Birth', 'Label for birth milestone').toString()
+						: fbt(
+								`${fbt.param('monthCount', i)} Months`,
+								'Label for monthly milestone',
+							).toString(),
 				type: 'month',
 				visible: !hiddenEventIds.has(`month-${i}`),
 			});
 		}
 
 		// Events from store
-		events.forEach(e => {
+		events.forEach((e) => {
 			result.push({
 				date: new Date(e.startDate),
 				id: e.id,
@@ -71,20 +96,23 @@ export default function TimelinePage() {
 		});
 
 		// Teething from store
-		teeth.forEach(t => {
+		teeth.forEach((t) => {
 			if (!t.date) return;
 			result.push({
 				date: new Date(t.date),
 				id: t.id,
-				title: fbt(`${fbt.param('toothName', getToothName(t.toothId))} Erupted`, 'Label for teething milestone'),
+				title: fbt(
+					`${fbt.param('toothName', getToothName(t.toothId))} Erupted`,
+					'Label for teething milestone',
+				),
 				type: 'milestone',
 				visible: !hiddenEventIds.has(t.id),
 			});
 		});
 
 		// Manual events and overrides
-		manualEvents.forEach(me => {
-			const existingIndex = result.findIndex(r => r.id === me.id);
+		manualEvents.forEach((me) => {
+			const existingIndex = result.findIndex((r) => r.id === me.id);
 			if (existingIndex > -1) {
 				result[existingIndex] = { ...result[existingIndex], ...me };
 			} else {
@@ -128,9 +156,12 @@ export default function TimelinePage() {
 						<Layout className="h-4 w-4 text-muted-foreground" />
 						<span className="text-sm font-medium">Theme</span>
 					</div>
-					<Tabs onValueChange={(v) => setActiveTheme(v as Theme)} value={activeTheme}>
+					<Tabs
+						onValueChange={(v) => setActiveTheme(v as Theme)}
+						value={activeTheme}
+					>
 						<TabsList className="grid grid-cols-5 w-full">
-							{THEMES.map(t => (
+							{THEMES.map((t) => (
 								<TabsTrigger className="capitalize" key={t} value={t}>
 									{t}
 								</TabsTrigger>
@@ -143,34 +174,58 @@ export default function TimelinePage() {
 			<div className="flex flex-col gap-4">
 				<div className="flex items-center justify-between">
 					<h2 className="text-lg font-semibold">Events</h2>
-					<Button onClick={() => setEditingEvent({
-						date: new Date(),
-						id: crypto.randomUUID(),
-						title: '',
-						type: 'manual',
-						visible: true
-					})} size="sm">
+					<Button
+						onClick={() =>
+							setEditingEvent({
+								date: new Date(),
+								id: crypto.randomUUID(),
+								title: '',
+								type: 'manual',
+								visible: true,
+							})
+						}
+						size="sm"
+					>
 						<Plus className="h-4 w-4 mr-1" />
 						Add
 					</Button>
 				</div>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-					{allEvents.map(event => (
-						<div className={`flex items-center justify-between p-3 rounded-lg border bg-card ${!event.visible ? 'opacity-50' : ''}`} key={event.id}>
+					{allEvents.map((event) => (
+						<div
+							className={`flex items-center justify-between p-3 rounded-lg border bg-card ${!event.visible ? 'opacity-50' : ''}`}
+							key={event.id}
+						>
 							<div className="flex flex-col">
 								<span className="font-medium">{event.title}</span>
-								<span className="text-xs text-muted-foreground">{format(event.date, 'MMM d, yyyy')}</span>
+								<span className="text-xs text-muted-foreground">
+									{format(event.date, 'MMM d, yyyy')}
+								</span>
 							</div>
 							<div className="flex gap-1">
-								<Button className="h-8 w-8" onClick={() => {
-									const newHidden = new Set(hiddenEventIds);
-									if (newHidden.has(event.id)) newHidden.delete(event.id);
-									else newHidden.add(event.id);
-									setHiddenEventIds(newHidden);
-								}} size="icon" variant="ghost">
-									{event.visible ? <Trash2 className="h-4 w-4 text-destructive" /> : <Plus className="h-4 w-4 text-primary" />}
+								<Button
+									className="h-8 w-8"
+									onClick={() => {
+										const newHidden = new Set(hiddenEventIds);
+										if (newHidden.has(event.id)) newHidden.delete(event.id);
+										else newHidden.add(event.id);
+										setHiddenEventIds(newHidden);
+									}}
+									size="icon"
+									variant="ghost"
+								>
+									{event.visible ? (
+										<Trash2 className="h-4 w-4 text-destructive" />
+									) : (
+										<Plus className="h-4 w-4 text-primary" />
+									)}
 								</Button>
-								<Button className="h-8 w-8" onClick={() => setEditingEvent(event)} size="icon" variant="ghost">
+								<Button
+									className="h-8 w-8"
+									onClick={() => setEditingEvent(event)}
+									size="icon"
+									variant="ghost"
+								>
 									<Pencil className="h-4 w-4" />
 								</Button>
 							</div>
@@ -179,7 +234,10 @@ export default function TimelinePage() {
 				</div>
 			</div>
 
-			<div className="relative w-full aspect-[9/16] bg-slate-100 rounded-2xl overflow-hidden shadow-xl border-8 border-white" ref={timelineRef}>
+			<div
+				className="relative w-full aspect-[9/16] bg-slate-100 rounded-2xl overflow-hidden shadow-xl border-8 border-white"
+				ref={timelineRef}
+			>
 				<TimelineRenderer
 					events={allEvents}
 					profile={profile}
@@ -188,7 +246,10 @@ export default function TimelinePage() {
 			</div>
 
 			{editingEvent && (
-				<Dialog onOpenChange={() => setEditingEvent(null)} open={!!editingEvent}>
+				<Dialog
+					onOpenChange={() => setEditingEvent(null)}
+					open={!!editingEvent}
+				>
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>Edit Event</DialogTitle>
@@ -197,14 +258,21 @@ export default function TimelinePage() {
 							<div className="space-y-2">
 								<Label>Title</Label>
 								<Input
-									onChange={e => setEditingEvent({...editingEvent, title: e.target.value})}
+									onChange={(e) =>
+										setEditingEvent({ ...editingEvent, title: e.target.value })
+									}
 									value={editingEvent.title}
 								/>
 							</div>
 							<div className="space-y-2">
 								<Label>Date</Label>
 								<Input
-									onChange={e => setEditingEvent({...editingEvent, date: new Date(e.target.value)})}
+									onChange={(e) =>
+										setEditingEvent({
+											...editingEvent,
+											date: new Date(e.target.value),
+										})
+									}
 									type="date"
 									value={format(editingEvent.date, 'yyyy-MM-dd')}
 								/>
@@ -214,10 +282,16 @@ export default function TimelinePage() {
 								<div className="flex items-center gap-4">
 									{editingEvent.photo ? (
 										<div className="relative h-20 w-20 rounded-lg overflow-hidden border">
-											<img alt="Event" className="h-full w-full object-cover" src={editingEvent.photo} />
+											<img
+												alt="Event"
+												className="h-full w-full object-cover"
+												src={editingEvent.photo}
+											/>
 											<Button
 												className="absolute top-0 right-0 h-6 w-6 rounded-none"
-												onClick={() => setEditingEvent({...editingEvent, photo: undefined})}
+												onClick={() =>
+													setEditingEvent({ ...editingEvent, photo: undefined })
+												}
 												size="icon"
 												variant="destructive"
 											>
@@ -225,40 +299,63 @@ export default function TimelinePage() {
 											</Button>
 										</div>
 									) : (
-										<Button className="h-20 w-20 border-dashed" onClick={() => {
-											const input = document.createElement('input');
-											input.type = 'file';
-											input.accept = 'image/*';
-											input.onchange = (e) => {
-												const file = (e.target as HTMLInputElement).files?.[0];
-												if (file) {
-													setEditingEvent({...editingEvent, photo: URL.createObjectURL(file)});
-												}
-											};
-											input.click();
-										}} variant="outline">
+										<Button
+											className="h-20 w-20 border-dashed"
+											onClick={() => {
+												const input = document.createElement('input');
+												input.type = 'file';
+												input.accept = 'image/*';
+												input.onchange = (e) => {
+													const file = (e.target as HTMLInputElement)
+														.files?.[0];
+													if (file) {
+														setEditingEvent({
+															...editingEvent,
+															photo: URL.createObjectURL(file),
+														});
+													}
+												};
+												input.click();
+											}}
+											variant="outline"
+										>
 											<Camera className="h-6 w-6 text-muted-foreground" />
 										</Button>
 									)}
 								</div>
 							</div>
-							<Button className="w-full" onClick={() => {
-								if (editingEvent.type === 'manual') {
-									setManualEvents(prev => {
-										const existing = prev.find(p => p.id === editingEvent.id);
-										if (existing) return prev.map(p => p.id === editingEvent.id ? editingEvent : p);
-										return [...prev, editingEvent];
-									});
-								} else {
-									// Update monthly or milestone event override
-									setManualEvents(prev => {
-										const existing = prev.find(p => p.id === editingEvent.id);
-										if (existing) return prev.map(p => p.id === editingEvent.id ? editingEvent : p);
-										return [...prev, editingEvent];
-									});
-								}
-								setEditingEvent(null);
-							}}>Save</Button>
+							<Button
+								className="w-full"
+								onClick={() => {
+									if (editingEvent.type === 'manual') {
+										setManualEvents((prev) => {
+											const existing = prev.find(
+												(p) => p.id === editingEvent.id,
+											);
+											if (existing)
+												return prev.map((p) =>
+													p.id === editingEvent.id ? editingEvent : p,
+												);
+											return [...prev, editingEvent];
+										});
+									} else {
+										// Update monthly or milestone event override
+										setManualEvents((prev) => {
+											const existing = prev.find(
+												(p) => p.id === editingEvent.id,
+											);
+											if (existing)
+												return prev.map((p) =>
+													p.id === editingEvent.id ? editingEvent : p,
+												);
+											return [...prev, editingEvent];
+										});
+									}
+									setEditingEvent(null);
+								}}
+							>
+								Save
+							</Button>
 						</div>
 					</DialogContent>
 				</Dialog>

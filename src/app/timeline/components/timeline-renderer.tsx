@@ -1,9 +1,17 @@
 'use client';
 
-import { Profile } from '@/types/profile';
 import { format } from 'date-fns';
-import { Cloud, Rocket, Star, TreeDeciduous, Flower2, Moon, Sun } from 'lucide-react';
+import {
+	Cloud,
+	Flower2,
+	Moon,
+	Rocket,
+	Star,
+	Sun,
+	TreeDeciduous,
+} from 'lucide-react';
 import React from 'react';
+import { Profile } from '@/types/profile';
 
 export type TimelineEvent = {
 	date: Date;
@@ -20,11 +28,17 @@ interface TimelineRendererProps {
 	theme: 'tree' | 'rainbow' | 'space' | 'garden' | 'modern';
 }
 
-export default function TimelineRenderer({ events, profile, theme }: TimelineRendererProps) {
-	const visibleEvents = events.filter(e => e.visible);
+export default function TimelineRenderer({
+	events,
+	profile,
+	theme,
+}: TimelineRendererProps) {
+	const visibleEvents = events.filter((e) => e.visible);
 
 	return (
-		<div className={`relative w-full h-full p-8 flex flex-col items-center overflow-y-auto ${getThemeBg(theme)}`}>
+		<div
+			className={`relative w-full h-full p-8 flex flex-col items-center overflow-y-auto ${getThemeBg(theme)}`}
+		>
 			{/* Theme-specific background decorations */}
 			<ThemeDecorations theme={theme} />
 
@@ -45,7 +59,9 @@ export default function TimelineRenderer({ events, profile, theme }: TimelineRen
 
 			{/* Footer */}
 			<div className="mt-auto pt-8 text-center z-10">
-				<p className={`text-lg font-bold ${getThemeText(theme)}`}>{profile?.name}</p>
+				<p className={`text-lg font-bold ${getThemeText(theme)}`}>
+					{profile?.name}
+				</p>
 				<p className={`text-sm opacity-70 ${getThemeText(theme)}`}>
 					{profile?.dob && format(new Date(profile.dob), 'MMMM d, yyyy')}
 				</p>
@@ -54,28 +70,48 @@ export default function TimelineRenderer({ events, profile, theme }: TimelineRen
 	);
 }
 
-function TimelineItem({ event, index, theme }: { event: TimelineEvent; index: number; theme: string }) {
+function TimelineItem({
+	event,
+	index,
+	theme,
+}: {
+	event: TimelineEvent;
+	index: number;
+	theme: string;
+}) {
 	const isLeft = index % 2 === 0;
 
 	return (
-		<div className={`flex items-center w-full ${isLeft ? 'flex-row' : 'flex-row-reverse'}`}>
+		<div
+			className={`flex items-center w-full ${isLeft ? 'flex-row' : 'flex-row-reverse'}`}
+		>
 			{/* Content Side */}
-			<div className={`w-1/2 flex flex-col ${isLeft ? 'items-end pr-8 text-right' : 'items-start pl-8 text-left'}`}>
-				<div className={`p-4 rounded-2xl shadow-lg max-w-[90%] z-10 border-2 ${getEventBubble(theme, event.type)}`}>
+			<div
+				className={`w-1/2 flex flex-col ${isLeft ? 'items-end pr-8 text-right' : 'items-start pl-8 text-left'}`}
+			>
+				<div
+					className={`p-4 rounded-2xl shadow-lg max-w-[90%] z-10 border-2 ${getEventBubble(theme, event.type)}`}
+				>
 					<p className="text-xs font-bold uppercase tracking-wider mb-1 opacity-70">
 						{format(event.date, 'MMM yyyy')}
 					</p>
 					<h3 className="font-bold text-sm leading-tight">{event.title}</h3>
 					{event.photo && (
 						<div className="mt-2 rounded-lg overflow-hidden border shadow-inner aspect-square w-full">
-							<img alt={event.title} className="w-full h-full object-cover" src={event.photo} />
+							<img
+								alt={event.title}
+								className="w-full h-full object-cover"
+								src={event.photo}
+							/>
 						</div>
 					)}
 				</div>
 			</div>
 
 			{/* Connector Bubble */}
-			<div className={`absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border-4 z-20 ${getThemeConnector(theme)}`} />
+			<div
+				className={`absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border-4 z-20 ${getThemeConnector(theme)}`}
+			/>
 
 			{/* Empty Side */}
 			<div className="w-1/2" />
@@ -126,46 +162,70 @@ function ThemeDecorations({ theme }: { theme: string }) {
 
 function getThemeBg(theme: string) {
 	switch (theme) {
-		case 'tree': return 'bg-emerald-50';
-		case 'rainbow': return 'bg-sky-50';
-		case 'space': return 'bg-slate-900';
-		case 'garden': return 'bg-lime-50';
-		case 'modern': return 'bg-zinc-50';
-		default: return 'bg-white';
+		case 'tree':
+			return 'bg-emerald-50';
+		case 'rainbow':
+			return 'bg-sky-50';
+		case 'space':
+			return 'bg-slate-900';
+		case 'garden':
+			return 'bg-lime-50';
+		case 'modern':
+			return 'bg-zinc-50';
+		default:
+			return 'bg-white';
 	}
 }
 
 function getThemeAxis(theme: string) {
 	switch (theme) {
-		case 'tree': return 'bg-amber-900/40';
-		case 'rainbow': return 'bg-gradient-to-b from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400';
-		case 'space': return 'bg-slate-700/60 dashed border-l-2 border-dashed border-slate-500';
-		case 'garden': return 'bg-green-600/30 rounded-full';
-		case 'modern': return 'bg-indigo-500';
-		default: return 'bg-slate-200';
+		case 'tree':
+			return 'bg-amber-900/40';
+		case 'rainbow':
+			return 'bg-gradient-to-b from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400';
+		case 'space':
+			return 'bg-slate-700/60 dashed border-l-2 border-dashed border-slate-500';
+		case 'garden':
+			return 'bg-green-600/30 rounded-full';
+		case 'modern':
+			return 'bg-indigo-500';
+		default:
+			return 'bg-slate-200';
 	}
 }
 
 function getThemeConnector(theme: string) {
 	switch (theme) {
-		case 'tree': return 'bg-emerald-500 border-amber-900';
-		case 'rainbow': return 'bg-white border-yellow-400';
-		case 'space': return 'bg-yellow-400 border-slate-700';
-		case 'garden': return 'bg-pink-400 border-green-600';
-		case 'modern': return 'bg-indigo-500 border-white';
-		default: return 'bg-primary border-white';
+		case 'tree':
+			return 'bg-emerald-500 border-amber-900';
+		case 'rainbow':
+			return 'bg-white border-yellow-400';
+		case 'space':
+			return 'bg-yellow-400 border-slate-700';
+		case 'garden':
+			return 'bg-pink-400 border-green-600';
+		case 'modern':
+			return 'bg-indigo-500 border-white';
+		default:
+			return 'bg-primary border-white';
 	}
 }
 
 function getEventBubble(theme: string, type: string) {
 	const isMonth = type === 'month';
 	switch (theme) {
-		case 'tree': return `bg-white ${isMonth ? 'border-emerald-200' : 'border-emerald-500 text-emerald-900'}`;
-		case 'rainbow': return `bg-white ${isMonth ? 'border-blue-100' : 'border-blue-400 text-blue-900'}`;
-		case 'space': return `bg-slate-800 ${isMonth ? 'border-slate-600 text-slate-300' : 'border-yellow-400 text-yellow-500'}`;
-		case 'garden': return `bg-white ${isMonth ? 'border-lime-200' : 'border-pink-500 text-pink-900'}`;
-		case 'modern': return `bg-white ${isMonth ? 'border-zinc-200' : 'border-indigo-600 text-indigo-900'}`;
-		default: return 'bg-white border-slate-200';
+		case 'tree':
+			return `bg-white ${isMonth ? 'border-emerald-200' : 'border-emerald-500 text-emerald-900'}`;
+		case 'rainbow':
+			return `bg-white ${isMonth ? 'border-blue-100' : 'border-blue-400 text-blue-900'}`;
+		case 'space':
+			return `bg-slate-800 ${isMonth ? 'border-slate-600 text-slate-300' : 'border-yellow-400 text-yellow-500'}`;
+		case 'garden':
+			return `bg-white ${isMonth ? 'border-lime-200' : 'border-pink-500 text-pink-900'}`;
+		case 'modern':
+			return `bg-white ${isMonth ? 'border-zinc-200' : 'border-indigo-600 text-indigo-900'}`;
+		default:
+			return 'bg-white border-slate-200';
 	}
 }
 
