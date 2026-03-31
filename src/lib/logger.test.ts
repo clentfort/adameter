@@ -13,7 +13,9 @@ describe('Logger', () => {
 
 		// Spy on console methods to avoid actual output during tests
 		const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
-		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const consoleError = vi
+			.spyOn(console, 'error')
+			.mockImplementation(() => {});
 		const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const consoleInfo = vi.spyOn(console, 'info').mockImplementation(() => {});
 
