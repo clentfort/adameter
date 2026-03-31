@@ -7,7 +7,7 @@ import {
 	subDays,
 } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 interface UseHistoryRangeOptions {
 	baseUrl: string;
@@ -37,21 +37,22 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 	}, [from, to]);
 
 	const filteredDateKeys = useMemo(() => {
+		if (!from && !to) return dateKeys;
 		return dateKeys.filter((dateKey) => {
 			const date = parseISO(dateKey);
 			return date >= effectiveRange.from && date <= effectiveRange.to;
 		});
-	}, [dateKeys, effectiveRange]);
+	}, [dateKeys, effectiveRange, from, to]);
 
 	const hasMoreNewerInStore = useMemo(() => {
-		if (dateKeys.length === 0) return false;
+		if ((!from && !to) || dateKeys.length === 0) return false;
 		return parseISO(dateKeys[0]) > effectiveRange.to;
-	}, [dateKeys, effectiveRange.to]);
+	}, [dateKeys, effectiveRange.to, from, to]);
 
 	const hasMoreOlderInStore = useMemo(() => {
-		if (dateKeys.length === 0) return false;
+		if ((!from && !to) || dateKeys.length === 0) return false;
 		return parseISO(dateKeys.at(-1)!) < effectiveRange.from;
-	}, [dateKeys, effectiveRange.from]);
+	}, [dateKeys, effectiveRange.from, from, to]);
 
 	const updateRange = useCallback(
 		(newFrom: Date, newTo: Date) => {
@@ -62,13 +63,6 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 		},
 		[baseUrl, router, searchParams],
 	);
-
-	// Sync default range to URL if missing
-	useEffect(() => {
-		if (!from || !to) {
-			updateRange(effectiveRange.from, effectiveRange.to);
-		}
-	}, [from, to, effectiveRange.from, effectiveRange.to, updateRange]);
 
 	const handleLoadMoreNewer = () => {
 		const nextTo = addDays(effectiveRange.to, 7);
@@ -101,8 +95,8 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 		initialVisibleCount: from || to ? filteredDateKeys.length : undefined,
 		newerRangeDescription,
 		olderRangeDescription,
-		onLoadMoreNewer: handleLoadMoreNewer,
-		onLoadMoreOlder: handleLoadMoreOlder,
+		onLoadMoreNewer: from || to ? handleLoadMoreNewer : undefined,
+		onLoadMoreOlder: from || to ? handleLoadMoreOlder : undefined,
 	};
 
 	const historyFilterIndicatorProps = {
@@ -110,7 +104,7 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 		color: eventColor,
 		eventTitle,
 		from: effectiveRange.from.toISOString(),
-		isVisible: !!((from || to) && hasMoreNewerInStore),
+		isVisible: !!(from || to),
 		to: effectiveRange.to.toISOString(),
 	};
 
