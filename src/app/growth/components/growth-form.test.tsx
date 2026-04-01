@@ -63,7 +63,7 @@ describe('MeasurementForm', () => {
 		mockUseUnitSystem.mockReturnValue('imperial');
 
 		const existingMeasurement = {
-			date: new Date('2025-01-01T12:00:00Z'),
+			date: '2025-01-01T12:00:00Z',
 			headCircumference: 35,
 			height: 50,
 			id: '123',
