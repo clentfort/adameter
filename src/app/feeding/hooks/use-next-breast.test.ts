@@ -19,7 +19,7 @@ describe('useNextBreast', () => {
 			startTime: new Date().toISOString(),
 		} as FeedingSession);
 
-		const { result: result1, rerender: rerender1 } = renderHook(() => useNextBreast());
+		const { result: result1 } = renderHook(() => useNextBreast());
 		expect(result1.current).toBe('right');
 
 		// If last was right, return left
