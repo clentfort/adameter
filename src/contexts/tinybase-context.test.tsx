@@ -9,6 +9,7 @@ import {
 import { useContext } from 'react';
 import { useStore, useTable, useValue } from 'tinybase/ui-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { logger } from '@/lib/logger';
 import { clear } from '@/lib/storage';
 import { STORE_VALUE_PROFILE, TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import {
@@ -232,4 +233,81 @@ describe('TinybaseProvider room sync', () => {
 		},
 		120_000,
 	);
+
+	it('handles synchronizer errors, periodic snapshots, and store exposure', async () => {
+		vi.stubGlobal('__E2E_TESTS__', true);
+		const infoSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
+		const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
+
+		let onSynchronizerError: (error: unknown) => void = () => {};
+		mocks.createEncryptedPartyKitSynchronizer.mockImplementation(
+			async (_store, _conn, _key, onError) => {
+				onSynchronizerError = onError;
+				return {
+					destroy: vi.fn(async () => {}),
+					startSync: vi.fn(async () => {}),
+				};
+			},
+		);
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		await waitFor(() => {
+			expect(
+				screen.getByRole('button', { name: 'Create room' }),
+			).toBeInTheDocument();
+		});
+
+		vi.useFakeTimers();
+
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		// Resolve all immediate promises in connectRoomSync
+		await vi.advanceTimersByTimeAsync(100);
+
+		// Verify store exposure to window
+		expect((window as any).tinybaseStore).toBeDefined();
+
+		// Verify periodic snapshots
+		mocks.saveServerSnapshot.mockClear();
+		await vi.advanceTimersByTimeAsync(30_000);
+		expect(mocks.saveServerSnapshot).toHaveBeenCalled();
+
+		// Verify error handling and throttling
+		const timeoutError = new Error('No response from synchronizer');
+		onSynchronizerError(timeoutError);
+		expect(infoSpy).toHaveBeenCalledWith(
+			'Synchronizer waiting for peers:',
+			timeoutError,
+		);
+
+		infoSpy.mockClear();
+		onSynchronizerError(timeoutError);
+		expect(infoSpy).not.toHaveBeenCalled(); // Throttled
+
+		await vi.advanceTimersByTimeAsync(30_000);
+		onSynchronizerError(timeoutError);
+		expect(infoSpy).toHaveBeenCalled(); // Throttle expired
+
+		// Test getErrorMessage variations
+		onSynchronizerError('Direct string error');
+		expect(errorSpy).toHaveBeenCalledWith(
+			'Synchronizer error:',
+			'Direct string error',
+		);
+
+		const nonErrorObj = { message: 'Object error' };
+		onSynchronizerError(nonErrorObj);
+		expect(errorSpy).toHaveBeenCalledWith('Synchronizer error:', nonErrorObj);
+
+		vi.unstubAllGlobals();
+		vi.restoreAllMocks();
+		vi.useRealTimers();
+	}, 30_000);
 });
