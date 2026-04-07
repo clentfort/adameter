@@ -82,6 +82,8 @@ function RoomSyncProbe() {
 	);
 }
 
+let onSynchronizerError: (error: unknown) => void = () => {};
+
 describe('TinybaseProvider room sync', () => {
 	afterEach(() => {
 		cleanup();
@@ -239,7 +241,6 @@ describe('TinybaseProvider room sync', () => {
 		const infoSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
 		const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
-		let onSynchronizerError: (error: unknown) => void = () => {};
 		mocks.createEncryptedPartyKitSynchronizer.mockImplementation(
 			async (_store, _conn, _key, onError) => {
 				onSynchronizerError = onError;
@@ -272,7 +273,9 @@ describe('TinybaseProvider room sync', () => {
 		await vi.advanceTimersByTimeAsync(100);
 
 		// Verify store exposure to window
-		expect((window as any).tinybaseStore).toBeDefined();
+		expect(
+			(window as unknown as { tinybaseStore: unknown }).tinybaseStore,
+		).toBeDefined();
 
 		// Verify periodic snapshots
 		mocks.saveServerSnapshot.mockClear();
