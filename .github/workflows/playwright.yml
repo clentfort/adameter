@@ -38,7 +38,7 @@ jobs:
       - name: Run Playwright tests
         run: pnpm exec playwright test
       - name: Playwright Report Summary
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         if: always()
         with:
           script: |
