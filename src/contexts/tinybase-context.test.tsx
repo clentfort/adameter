@@ -24,6 +24,7 @@ const mocks = vi.hoisted(() => ({
 	getStoreUrl: vi.fn(),
 	hashRoomId: vi.fn(),
 	loadServerSnapshot: vi.fn(),
+	partySocketClose: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
 	saveServerSnapshot: vi.fn(),
 }));
@@ -34,7 +35,9 @@ vi.mock('partysocket', () => ({
 		name = 'tinybase';
 		readyState = 1; // WebSocket.OPEN
 		addEventListener() {}
-		close() {}
+		close() {
+			mocks.partySocketClose();
+		}
 		removeEventListener() {}
 		send() {}
 	},
@@ -106,6 +109,7 @@ describe('TinybaseProvider room sync', () => {
 		mocks.loadServerSnapshot.mockResolvedValue(false);
 		mocks.saveServerSnapshot.mockResolvedValue(undefined);
 		mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
+		mocks.partySocketClose.mockReset();
 
 		mocks.createEncryptedPartyKitSynchronizer.mockResolvedValue({
 			destroy: vi.fn(async () => {}),
@@ -231,5 +235,60 @@ describe('TinybaseProvider room sync', () => {
 			);
 		},
 		120_000,
+	);
+
+	it(
+		'closes the connection if unmounted before synchronizer is created',
+		{ timeout: 20_000 },
+		async () => {
+			let resolveSnapshot: (value: boolean) => void;
+			const snapshotPromise = new Promise<boolean>((resolve) => {
+				resolveSnapshot = resolve;
+			});
+			mocks.loadServerSnapshot.mockReturnValue(snapshotPromise);
+
+			mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
+				destroy: vi.fn(async () => {}),
+				load: vi.fn(async () => {
+					store.setContent([{}, {}]);
+					store.setRow(TABLE_IDS.EVENTS, 'local-event', {
+						deviceId: 'local-device',
+						startDate: '2026-03-03T00:00:00.000Z',
+						title: 'Local event',
+						type: 'point',
+					});
+				}),
+				startAutoSave: vi.fn(async () => {}),
+				stopAutoSave: vi.fn(async () => {}),
+			}));
+
+			const { unmount } = render(
+				<DataSynchronizationProvider>
+					<TinybaseProvider>
+						<RoomSyncProbe />
+					</TinybaseProvider>
+				</DataSynchronizationProvider>,
+			);
+
+			// Wait for initial hydration and local load to complete
+			await waitFor(() => {
+				expect(mocks.runMigrationsIfNeeded).toHaveBeenCalled();
+			});
+
+			fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+			// Wait for connection to be created (hashRoomId is called first)
+			await waitFor(() => {
+				expect(mocks.hashRoomId).toHaveBeenCalled();
+			});
+
+			// Unmount while loadServerSnapshot is still pending (synchronizer not created yet)
+			unmount();
+
+			expect(mocks.partySocketClose).toHaveBeenCalled();
+
+			// Cleanup the pending promise
+			resolveSnapshot!(false);
+		},
 	);
 });
