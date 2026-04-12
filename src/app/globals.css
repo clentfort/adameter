@@ -56,7 +56,7 @@
 	--logo-size-sticky: 28px;
 	--logo-top-expanded: 16px;
 	--logo-top-sticky: 10px;
-	--logo-left-expanded: 16px;
+	--logo-left-expanded: 12px;
 	--logo-left-sticky: 12px;
 
 	@keyframes accordion-down {

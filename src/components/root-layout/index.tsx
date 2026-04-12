@@ -139,7 +139,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 						</div>
 
 						<div
-							className="w-full flex flex-row justify-between gap-2 px-4 !transition-none"
+							className="w-full flex flex-row justify-between gap-2 px-4 pl-14 !transition-none sm:pl-4"
 							style={{
 								marginBottom: `calc(1rem * (1 - var(--header-scroll-progress)))`,
 								maxHeight: `calc(60px * (1 - var(--header-scroll-progress)))`,
