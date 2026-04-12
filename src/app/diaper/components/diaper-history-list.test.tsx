@@ -1,5 +1,5 @@
 import type { DiaperChange } from '@/types/diaper';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
@@ -314,5 +314,75 @@ describe('DiaperHistoryList', () => {
 		);
 
 		expect(screen.getByText(/36.5 °C/)).toBeInTheDocument();
+	});
+
+	it('should render complex entries and handle interactions for maximum coverage', () => {
+		const mockProduct = { id: 'prod-1', name: 'Premium Diaper' };
+		const changes: DiaperChange[] = [
+			{
+				containsStool: true,
+				containsUrine: true,
+				diaperProductId: mockProduct.id,
+				id: 'change-1',
+				leakage: true,
+				pottyStool: true,
+				pottyUrine: true,
+				timestamp: '2024-01-15T10:00:00Z',
+			},
+			{
+				containsStool: true,
+				containsUrine: false,
+				diaperProductId: 'unknown-prod',
+				id: 'change-2',
+				pottyStool: true,
+				pottyUrine: false,
+				timestamp: '2024-01-15T11:00:00Z',
+			},
+		];
+
+		const store = createStoreWithDiaperChanges(changes);
+		// Add the product to the store for lookup
+		store.setRow(TABLE_IDS.DIAPER_PRODUCTS, mockProduct.id, {
+			name: mockProduct.name,
+		});
+
+		render(
+			<Provider store={store}>
+				<I18nProvider>
+					<TinybaseIndexesProvider>
+						<DiaperHistoryList />
+					</TinybaseIndexesProvider>
+				</I18nProvider>
+			</Provider>,
+		);
+
+		// Verify first entry: Potty (Both), Known Product, Leakage with bullet
+		expect(screen.getByText('Premium Diaper')).toBeInTheDocument();
+		expect(screen.getAllByText('Urine & Stool')).toHaveLength(2); // One for diaper, one for potty
+		expect(screen.getByText('leaked')).toBeInTheDocument();
+		expect(screen.getByText('•')).toBeInTheDocument(); // Leakage bullet point
+
+		// Verify second entry: Potty (Stool only), Unknown Product
+		expect(screen.getByText('Unknown Product')).toBeInTheDocument();
+		expect(screen.getAllByText('Stool')).toHaveLength(2); // One for diaper (implied by accent color logic but here actually rendered), one for potty
+
+		// Interaction: Open and close Edit Dialog
+		const actions = screen.getAllByTestId('history-entry-actions');
+		fireEvent.click(actions[0]);
+		fireEvent.click(screen.getByText('Edit'));
+		expect(screen.getByText('Edit Diaper Entry')).toBeInTheDocument();
+		fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+		expect(screen.queryByText('Edit Diaper Entry')).not.toBeInTheDocument();
+
+		// Interaction: Open and close Delete Dialog
+		fireEvent.click(actions[0]);
+		fireEvent.click(screen.getByText('Delete'));
+		expect(
+			screen.getByText(/do you really want to delete this entry\?/i),
+		).toBeInTheDocument();
+		fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+		expect(
+			screen.queryByText(/do you really want to delete this entry\?/i),
+		).not.toBeInTheDocument();
 	});
 });
