@@ -10,11 +10,11 @@ import { Suspense, useEffect, useRef } from 'react';
 import { useLatestDiaperChangeRecord } from '@/hooks/use-diaper-changes';
 import { useLatestFeedingSessionRecord } from '@/hooks/use-feeding-sessions';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
-import { useTodayDiaperStats } from '@/hooks/use-today-diaper-stats';
 import ConsoleDebugger from '../console-debugger';
 import ProfilePrompt from '../profile-prompt';
 import { Button } from '../ui/button';
 import { Toaster } from '../ui/toaster';
+import DiaperStats from './diaper-stats';
 import { Footer } from './footer';
 import Navigation from './navigation';
 import { RoomInviteHandler } from './room-invite-handler';
@@ -28,7 +28,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
 	const latestFeedingSession = useLatestFeedingSessionRecord();
 	const latestDiaperChange = useLatestDiaperChangeRecord();
 	const [showFeeding] = useShowFeeding();
-	const { stoolCount, urineCount } = useTodayDiaperStats();
 	const pathname = usePathname();
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -169,28 +168,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 								</fbt>
 							</TimeSince>
 
-							{!showFeeding && (
-								<div className="flex flex-col flex-1 bg-muted/20 rounded-lg p-2 justify-center">
-									<div className="flex items-center justify-center gap-1.5 mb-0.5">
-										<span className="text-sm">👶</span>
-										<span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-											<fbt desc="Label for today's diaper stats">
-												Diapers Today
-											</fbt>
-										</span>
-									</div>
-									<div className="flex items-baseline justify-center gap-1">
-										<span className="text-sm font-medium tabular-nums">
-											{urineCount}
-										</span>
-										<span className="text-xs mr-2">💧</span>
-										<span className="text-sm font-medium tabular-nums">
-											{stoolCount}
-										</span>
-										<span className="text-xs">💩</span>
-									</div>
-								</div>
-							)}
+							{!showFeeding && <DiaperStats />}
 						</div>
 						<div className="px-4">
 							<Navigation />
