@@ -149,7 +149,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 								transform: `translateY(calc(-20px * var(--header-scroll-progress)))`,
 							}}
 						>
-							{showFeeding ? (
+							{showFeeding && (
 								<TimeSince
 									icon="🍼"
 									lastChange={latestFeedingSession?.endTime || null}
@@ -158,7 +158,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
 										Last Feeding
 									</fbt>
 								</TimeSince>
-							) : (
+							)}
+
+							<TimeSince
+								icon="👶"
+								lastChange={latestDiaperChange?.timestamp || null}
+							>
+								<fbt desc="A short label indicating when a diaper was last changed">
+									Last Diaper Change
+								</fbt>
+							</TimeSince>
+
+							{!showFeeding && (
 								<div className="flex flex-col flex-1 bg-muted/20 rounded-lg p-2 justify-center">
 									<div className="flex items-center justify-center gap-1.5 mb-0.5">
 										<span className="text-sm">👶</span>
@@ -180,15 +191,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
 									</div>
 								</div>
 							)}
-
-							<TimeSince
-								icon="👶"
-								lastChange={latestDiaperChange?.timestamp || null}
-							>
-								<fbt desc="A short label indicating when a diaper was last changed">
-									Last Diaper Change
-								</fbt>
-							</TimeSince>
 						</div>
 						<div className="px-4">
 							<Navigation />
