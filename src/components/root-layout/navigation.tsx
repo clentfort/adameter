@@ -8,6 +8,7 @@ import {
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import { useShowFeeding } from '@/hooks/use-show-feeding';
 import '@/i18n';
 
 const pages = [
@@ -40,6 +41,15 @@ const pages = [
 
 export default function Navigation() {
 	const pathname = usePathname();
+	const [showFeeding] = useShowFeeding();
+
+	const visiblePages = pages.filter((page) => {
+		if (page.path === '/feeding' && !showFeeding) {
+			return false;
+		}
+		return true;
+	});
+
 	return (
 		<div
 			className="!transition-none"
@@ -49,8 +59,10 @@ export default function Navigation() {
 			}}
 		>
 			<NavigationMenu className="w-full max-w-none">
-				<NavigationMenuList className="w-full grid grid-cols-5">
-					{pages.map((page) => {
+				<NavigationMenuList
+					className={`w-full grid ${visiblePages.length === 4 ? 'grid-cols-4' : 'grid-cols-5'}`}
+				>
+					{visiblePages.map((page) => {
 						const isActive = pathname === page.path;
 						return (
 							<NavigationMenuItem key={page.path}>
