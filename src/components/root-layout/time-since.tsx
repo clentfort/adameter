@@ -2,6 +2,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { fbt } from 'fbtee';
 import { ReactNode, useContext, useEffect, useState } from 'react';
 import { I18nContext } from '@/contexts/i18n-context';
+import HeaderIndicator from './header-indicator';
 
 interface TimeSinceLastDiaperProps {
 	children: ReactNode;
@@ -42,17 +43,13 @@ export default function TimeSince({
 	}, [lastChange, locale]);
 
 	return (
-		<div className="text-center bg-muted/20 rounded-lg p-2 flex-1">
-			<div className="flex items-center justify-center gap-1">
-				<span className="text-sm">{icon}</span>
-				<p className="text-xs text-muted-foreground">{children}</p>
-			</div>
-			<p className="text-sm font-medium">
+		<HeaderIndicator icon={icon} label={children}>
+			<p>
 				<fbt desc="Time since an event happened">
 					<fbt:param name="timeSince">{timeSince}</fbt:param>
 					ago
 				</fbt>
 			</p>
-		</div>
+		</HeaderIndicator>
 	);
 }
