@@ -106,4 +106,40 @@ describe('DiaperForm', () => {
 
 		expect(screen.getByLabelText(/temperature/i)).toHaveValue(36.5);
 	});
+
+	it('handles potty toggles, leakage, and abnormal temperature warning', async () => {
+		render(
+			<I18nContext.Provider
+				value={{ locale: 'de_DE', setLocale: async () => {} }}
+			>
+				<DiaperForm {...baseProps} />
+			</I18nContext.Provider>,
+		);
+
+		// Test potty toggles
+		const pottyUrine = screen.getByTestId('toggle-potty-urine');
+		const pottyStool = screen.getByTestId('toggle-potty-stool');
+		fireEvent.click(pottyUrine);
+		fireEvent.click(pottyStool);
+
+		// Test leakage switch - use role switch to avoid multiple label matches if any
+		const leakageSwitch = screen.getByRole('switch', { name: /leaked/i });
+		fireEvent.click(leakageSwitch);
+
+		// Test abnormal temperature warning
+		const tempInput = screen.getByLabelText(/temperature/i);
+		fireEvent.change(tempInput, { target: { value: '38.5' } });
+		expect(
+			screen.getByText(/warning: temperature outside normal range/i),
+		).toBeInTheDocument();
+
+		fireEvent.click(screen.getByTestId('save-button'));
+
+		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
+		const savedChange = mockOnSave.mock.calls[0][0];
+		expect(savedChange.pottyUrine).toBe(true);
+		expect(savedChange.pottyStool).toBe(true);
+		expect(savedChange.leakage).toBe(true);
+		expect(savedChange.temperature).toBe(38.5);
+	});
 });
