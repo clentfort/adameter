@@ -98,7 +98,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 						<div
 							className="relative flex-grow flex items-center justify-between px-4 !transition-none"
 							style={{
-								marginTop: `calc(1.5rem * (1 - var(--header-scroll-progress)))`,
+								marginTop: `calc(0.75rem * (1 - var(--header-scroll-progress)))`,
 								maxHeight: `calc(48px * (1 - var(--header-scroll-progress)))`,
 								overflow: 'hidden',
 							}}
@@ -141,7 +141,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 						<div
 							className="w-full flex flex-row justify-between gap-2 px-4 !transition-none"
 							style={{
-								marginBottom: `calc(1rem * (1 - var(--header-scroll-progress)))`,
+								marginBottom: `calc(0.5rem * (1 - var(--header-scroll-progress)))`,
 								maxHeight: `calc(60px * (1 - var(--header-scroll-progress)))`,
 								opacity: `calc(1 - var(--header-scroll-progress))`,
 								overflow: 'hidden',
