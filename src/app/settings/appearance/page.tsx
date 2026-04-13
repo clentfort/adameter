@@ -17,6 +17,7 @@ import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDevMode } from '@/hooks/use-dev-mode';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
+import { useShowFeeding } from '@/hooks/use-show-feeding';
 import { Locale } from '@/i18n';
 import { SettingsHeader } from '../components/settings-header';
 
@@ -27,6 +28,7 @@ export default function AppearanceSettingsPage() {
 	const [devMode, setDevMode] = useDevMode();
 	const [showComparisonCharts, setShowComparisonCharts] =
 		useShowComparisonCharts();
+	const [showFeeding, setShowFeeding] = useShowFeeding();
 
 	const updateLocale = async (code: Locale) => {
 		await setLocale(code);
@@ -145,6 +147,26 @@ export default function AppearanceSettingsPage() {
 									checked={showComparisonCharts}
 									id="butterfly"
 									onCheckedChange={setShowComparisonCharts}
+								/>
+							</div>
+
+							<div className="flex items-center justify-between">
+								<div className="space-y-0.5">
+									<Label className="text-sm font-medium" htmlFor="show-feeding">
+										<fbt desc="Label for show feeding setting">
+											Show Feeding
+										</fbt>
+									</Label>
+									<p className="text-xs text-muted-foreground">
+										<fbt desc="Description for show feeding setting">
+											Show breastfeeding and feeding tracking features
+										</fbt>
+									</p>
+								</div>
+								<Switch
+									checked={showFeeding}
+									id="show-feeding"
+									onCheckedChange={setShowFeeding}
 								/>
 							</div>
 

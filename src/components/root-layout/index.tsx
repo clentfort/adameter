@@ -9,10 +9,12 @@ import { usePathname } from 'next/navigation';
 import { Suspense, useEffect, useRef } from 'react';
 import { useLatestDiaperChangeRecord } from '@/hooks/use-diaper-changes';
 import { useLatestFeedingSessionRecord } from '@/hooks/use-feeding-sessions';
+import { useShowFeeding } from '@/hooks/use-show-feeding';
 import ConsoleDebugger from '../console-debugger';
 import ProfilePrompt from '../profile-prompt';
 import { Button } from '../ui/button';
 import { Toaster } from '../ui/toaster';
+import DiaperStats from './diaper-stats';
 import { Footer } from './footer';
 import Navigation from './navigation';
 import { RoomInviteHandler } from './room-invite-handler';
@@ -25,6 +27,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
 	const latestFeedingSession = useLatestFeedingSessionRecord();
 	const latestDiaperChange = useLatestDiaperChangeRecord();
+	const [showFeeding] = useShowFeeding();
 	const pathname = usePathname();
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -138,21 +141,23 @@ export default function RootLayout({ children }: RootLayoutProps) {
 						<div
 							className="w-full flex flex-row justify-between gap-2 px-4 !transition-none"
 							style={{
-								marginBottom: `calc(1rem * (1 - var(--header-scroll-progress)))`,
-								maxHeight: `calc(60px * (1 - var(--header-scroll-progress)))`,
+								marginBottom: `calc(0.25rem * (1 - var(--header-scroll-progress)))`,
+								maxHeight: `calc(56px * (1 - var(--header-scroll-progress)))`,
 								opacity: `calc(1 - var(--header-scroll-progress))`,
 								overflow: 'hidden',
 								transform: `translateY(calc(-20px * var(--header-scroll-progress)))`,
 							}}
 						>
-							<TimeSince
-								icon="🍼"
-								lastChange={latestFeedingSession?.endTime || null}
-							>
-								<fbt desc="Short label indicating when a feeding was last recorded">
-									Last Feeding
-								</fbt>
-							</TimeSince>
+							{showFeeding && (
+								<TimeSince
+									icon="🍼"
+									lastChange={latestFeedingSession?.endTime || null}
+								>
+									<fbt desc="Short label indicating when a feeding was last recorded">
+										Last Feeding
+									</fbt>
+								</TimeSince>
+							)}
 
 							<TimeSince
 								icon="👶"
@@ -162,13 +167,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
 									Last Diaper Change
 								</fbt>
 							</TimeSince>
+
+							{!showFeeding && <DiaperStats />}
 						</div>
 						<div className="px-4">
 							<Navigation />
 						</div>
 					</div>
 				)}
-				<div className="p-4 w-full">
+				<div
+					className="px-4 pb-4 w-full"
+					style={{ paddingTop: 'var(--header-content-gap)' }}
+				>
 					<Suspense fallback={null}>
 						<RoomInviteHandler />
 					</Suspense>
