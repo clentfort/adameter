@@ -50,8 +50,9 @@
 
 	--breakpoint-xs: 480px;
 
-	--header-height-expanded: 176px;
-	--header-height-sticky: 68px;
+	--header-height-expanded: 152px;
+	--header-height-sticky: 50px;
+	--header-content-gap: 10px;
 	--logo-size-expanded: 48px;
 	--logo-size-sticky: 28px;
 	--logo-top-expanded: 16px;

@@ -98,7 +98,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 						<div
 							className="relative flex-grow flex items-center justify-between px-4 !transition-none"
 							style={{
-								marginTop: `calc(0.75rem * (1 - var(--header-scroll-progress)))`,
+								marginTop: `calc(1rem * (1 - var(--header-scroll-progress)))`,
 								maxHeight: `calc(48px * (1 - var(--header-scroll-progress)))`,
 								overflow: 'hidden',
 							}}
@@ -141,8 +141,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
 						<div
 							className="w-full flex flex-row justify-between gap-2 px-4 !transition-none"
 							style={{
-								marginBottom: `calc(0.5rem * (1 - var(--header-scroll-progress)))`,
-								maxHeight: `calc(60px * (1 - var(--header-scroll-progress)))`,
+								marginBottom: `calc(0.25rem * (1 - var(--header-scroll-progress)))`,
+								maxHeight: `calc(56px * (1 - var(--header-scroll-progress)))`,
 								opacity: `calc(1 - var(--header-scroll-progress))`,
 								overflow: 'hidden',
 								transform: `translateY(calc(-20px * var(--header-scroll-progress)))`,
@@ -175,7 +175,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
 						</div>
 					</div>
 				)}
-				<div className="p-4 w-full">
+				<div
+					className="px-4 pb-4 w-full"
+					style={{ paddingTop: 'var(--header-content-gap)' }}
+				>
 					<Suspense fallback={null}>
 						<RoomInviteHandler />
 					</Suspense>

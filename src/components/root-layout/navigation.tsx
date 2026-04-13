@@ -54,7 +54,6 @@ export default function Navigation() {
 		<div
 			className="!transition-none"
 			style={{
-				marginBottom: `calc(1.5rem * (1 - var(--header-scroll-progress)))`,
 				marginLeft: `calc(48px * var(--header-scroll-progress))`,
 			}}
 		>
