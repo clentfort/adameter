@@ -18,6 +18,7 @@ import {
 import { TinybaseProvider } from './tinybase-context';
 
 const mocks = vi.hoisted(() => ({
+	cloneRoomData: vi.fn(),
 	createEncryptedPartyKitSynchronizer: vi.fn(),
 	createIndexedDbPersister: vi.fn(),
 	getEncryptionKey: vi.fn(),
@@ -59,6 +60,10 @@ vi.mock('tinybase-synchronizer-partykit-client-encrypted', () => ({
 
 vi.mock('@/migrations/run-if-needed', () => ({
 	runMigrationsIfNeeded: mocks.runMigrationsIfNeeded,
+}));
+
+vi.mock('@/lib/tinybase-sync/cloning', () => ({
+	cloneRoomData: mocks.cloneRoomData,
 }));
 
 function RoomSyncProbe() {
@@ -153,6 +158,12 @@ describe('TinybaseProvider room sync', () => {
 			expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
 		});
 
+		await waitFor(() => {
+			expect(
+				screen.getByRole('button', { name: 'Create room' }),
+			).toBeInTheDocument();
+		});
+
 		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
 
 		await waitFor(() => {
@@ -166,6 +177,55 @@ describe('TinybaseProvider room sync', () => {
 		});
 
 		expect(mocks.loadServerSnapshot).toHaveBeenCalledTimes(1);
+	});
+
+	it('covers additional edge cases in TinybaseProvider', async () => {
+		vi.stubEnv('NEXT_PUBLIC_VERCEL_ENV', 'preview');
+		vi.stubEnv('NEXT_PUBLIC_MAIN_ROOM_NAME', 'main-room');
+		vi.stubGlobal('__E2E_TESTS__', true);
+
+		try {
+			mocks.loadServerSnapshot.mockResolvedValue(true);
+			mocks.cloneRoomData.mockResolvedValue(undefined);
+			mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
+				destroy: vi.fn(async () => {}),
+				load: vi.fn(async () => {
+					store.setContent([{}, {}]);
+				}),
+				save: vi.fn(async () => {}),
+				startAutoSave: vi.fn(async () => {}),
+				stopAutoSave: vi.fn(async () => {}),
+			}));
+
+			render(
+				<DataSynchronizationProvider>
+					<TinybaseProvider>
+						<RoomSyncProbe />
+					</TinybaseProvider>
+				</DataSynchronizationProvider>,
+			);
+
+			await waitFor(() => {
+				expect(
+					screen.queryByRole('button', { name: 'Create room' }),
+				).toBeInTheDocument();
+			});
+
+			expect(mocks.cloneRoomData).toHaveBeenCalled();
+			expect(
+				(window as unknown as { tinybaseStore: Store }).tinybaseStore,
+			).toBeDefined();
+
+			fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+			await waitFor(() => {
+				expect(mocks.loadServerSnapshot).toHaveBeenCalled();
+				expect(mocks.saveServerSnapshot).toHaveBeenCalled();
+			});
+		} finally {
+			vi.unstubAllEnvs();
+			vi.unstubAllGlobals();
+		}
 	});
 
 	it.each([
