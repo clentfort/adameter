@@ -1,5 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
@@ -122,5 +122,60 @@ describe('FeedingHistoryList', () => {
 
 		// Assert breast side is displayed correctly
 		expect(screen.getAllByText('Right Breast').length).toBeGreaterThan(0);
+	});
+
+	it('should handle edit and delete interactions', () => {
+		const mockSession: FeedingSession = {
+			breast: 'left',
+			durationInSeconds: 600,
+			endTime: '2023-01-01T10:10:00Z',
+			id: 'test-session-edit',
+			startTime: '2023-01-01T10:00:00Z',
+		};
+
+		mockUseFeedingSession.mockImplementation((id) =>
+			id === mockSession.id ? mockSession : undefined,
+		);
+
+		render(
+			<TestWrapper sessions={[mockSession]}>
+				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+			</TestWrapper>,
+		);
+
+		// Open actions menu
+		const actionsButton = screen.getByTestId('history-entry-actions');
+		fireEvent.click(actionsButton);
+
+		// Click Edit
+		const editButton = screen.getByText('Edit');
+		fireEvent.click(editButton);
+
+		// Check if Edit form is shown
+		expect(screen.getByText('Edit Feeding Session')).toBeInTheDocument();
+
+		// Close Edit form (using Cancel button)
+		const cancelEditButton = screen.getByRole('button', { name: /cancel/i });
+		fireEvent.click(cancelEditButton);
+		expect(screen.queryByText('Edit Feeding Session')).not.toBeInTheDocument();
+
+		// Open actions menu again for delete
+		fireEvent.click(actionsButton);
+
+		// Click Delete
+		const deleteButton = screen.getByText('Delete');
+		fireEvent.click(deleteButton);
+
+		// Check if Delete dialog is shown
+		expect(
+			screen.getByText(/do you really want to delete this entry\?/i),
+		).toBeInTheDocument();
+
+		// Close Delete dialog
+		const cancelDeleteButton = screen.getByRole('button', { name: /cancel/i });
+		fireEvent.click(cancelDeleteButton);
+		expect(
+			screen.queryByText(/do you really want to delete this entry\?/i),
+		).not.toBeInTheDocument();
 	});
 });
