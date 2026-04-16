@@ -164,7 +164,7 @@ export default function AppearanceSettingsPage() {
 									</p>
 								</div>
 								<Switch
-									checked={showFeeding}
+									checked={showFeeding ?? true}
 									id="show-feeding"
 									onCheckedChange={setShowFeeding}
 								/>

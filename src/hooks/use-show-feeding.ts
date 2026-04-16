@@ -10,5 +10,5 @@ export const useShowFeeding = () => {
 		[],
 	);
 
-	return [showFeeding ?? true, setShowFeeding] as const;
+	return [showFeeding, setShowFeeding] as const;
 };

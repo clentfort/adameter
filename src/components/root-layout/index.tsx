@@ -148,7 +148,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 								transform: `translateY(calc(-20px * var(--header-scroll-progress)))`,
 							}}
 						>
-							{showFeeding && (
+							{showFeeding !== false && (
 								<TimeSince
 									icon="🍼"
 									lastChange={latestFeedingSession?.endTime || null}
@@ -168,7 +168,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 								</fbt>
 							</TimeSince>
 
-							{!showFeeding && <DiaperStats />}
+							{showFeeding === false && <DiaperStats />}
 						</div>
 						<div className="px-4">
 							<Navigation />
