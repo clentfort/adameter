@@ -47,6 +47,16 @@ describe('growth-standards', () => {
 	});
 
 	describe('getPercentile', () => {
+		it('should return null if table is empty or missing', async () => {
+			const p = await getPercentile(
+				'head-circumference-for-age',
+				'boy',
+				3000,
+				30,
+			);
+			expect(p).toBeNull();
+		});
+
 		it('should return around 50 for a median weight baby', async () => {
 			// A boy at birth (0 days) with median weight (around 3.3kg)
 			const p = await getPercentile('weight-for-age', 'boy', 0, 3346);
@@ -65,6 +75,44 @@ describe('growth-standards', () => {
 			const range = await getGrowthRange('weight-for-age', 'boy', 0);
 			const p = await getPercentile('weight-for-age', 'boy', 0, range!.max);
 			expect(p).toBeCloseTo(97, 1);
+		});
+
+		it('should handle head circumference for age', async () => {
+			const range = await getGrowthRange(
+				'head-circumference-for-age',
+				'girl',
+				100,
+			);
+			expect(range).not.toBeNull();
+			expect(range?.min).toBeGreaterThan(30);
+			expect(range?.max).toBeLessThan(50);
+
+			const p = await getPercentile(
+				'head-circumference-for-age',
+				'girl',
+				100,
+				range!.min,
+			);
+			expect(p).toBeCloseTo(3, 1);
+		});
+
+		it('should return null for head circumference if age > 5 years', async () => {
+			const range = await getGrowthRange(
+				'head-circumference-for-age',
+				'boy',
+				2000,
+			);
+			expect(range).toBeNull();
+		});
+
+		it('should return null for height for age over 5 years (missing data)', async () => {
+			const range = await getGrowthRange('length-height-for-age', 'boy', 2000);
+			expect(range).toBeNull();
+		});
+
+		it('should return null for weight for age over 5 years (missing data)', async () => {
+			const range = await getGrowthRange('weight-for-age', 'girl', 2000);
+			expect(range).toBeNull();
 		});
 	});
 });
