@@ -44,7 +44,7 @@ export default function Navigation() {
 	const [showFeeding] = useShowFeeding();
 
 	const visiblePages = pages.filter((page) => {
-		if (page.path === '/feeding' && !showFeeding) {
+		if (page.path === '/feeding' && showFeeding === false) {
 			return false;
 		}
 		return true;

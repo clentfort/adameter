@@ -1,7 +1,7 @@
 {
 	"name": "AdaMeter",
 	"short_name": "AdaMeter",
-	"start_url": "/feeding",
+	"start_url": "/",
 	"display": "standalone",
 	"background_color": "#faf7ee",
 	"theme_color": "#000",

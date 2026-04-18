@@ -1,20 +1,25 @@
 'use client';
 
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { SplashScreen } from '@/components/splash-screen';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
 
 export default function HomePage() {
 	const [showFeeding] = useShowFeeding();
+	const router = useRouter();
 
 	useEffect(() => {
-		if (showFeeding) {
-			redirect('/feeding');
-		} else {
-			redirect('/diaper');
+		if (showFeeding === undefined) {
+			return;
 		}
-	}, [showFeeding]);
+
+		if (showFeeding) {
+			router.replace('/feeding');
+		} else {
+			router.replace('/diaper');
+		}
+	}, [showFeeding, router]);
 
 	return <SplashScreen />;
 }
