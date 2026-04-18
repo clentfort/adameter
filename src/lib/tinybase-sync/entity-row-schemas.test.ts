@@ -110,4 +110,77 @@ describe('entity row schemas', () => {
 			name: 'Judes',
 		});
 	});
+
+	it('covers all branches of sanitizeImportedRow', () => {
+		// DIAPER_CHANGES
+		expect(
+			sanitizeImportedRow(TABLE_IDS.DIAPER_CHANGES, {
+				containsStool: true,
+				containsUrine: false,
+				id: 'change-1',
+				timestamp: '2026-03-07T08:00:00.000Z',
+			}),
+		).toEqual({
+			containsStool: true,
+			containsUrine: false,
+			timestamp: '2026-03-07T08:00:00.000Z',
+		});
+
+		// EVENTS
+		expect(
+			sanitizeImportedRow(TABLE_IDS.EVENTS, {
+				id: 'event-1',
+				startDate: '2026-03-07T08:00:00.000Z',
+				title: 'Checkup',
+				type: 'point',
+			}),
+		).toEqual({
+			startDate: '2026-03-07T08:00:00.000Z',
+			title: 'Checkup',
+			type: 'point',
+		});
+
+		// FEEDING_SESSIONS
+		expect(
+			sanitizeImportedRow(TABLE_IDS.FEEDING_SESSIONS, {
+				breast: 'left',
+				durationInSeconds: 600,
+				endTime: '2026-03-07T08:10:00.000Z',
+				id: 'feeding-1',
+				startTime: '2026-03-07T08:00:00.000Z',
+			}),
+		).toEqual({
+			breast: 'left',
+			durationInSeconds: 600,
+			endTime: '2026-03-07T08:10:00.000Z',
+			startTime: '2026-03-07T08:00:00.000Z',
+		});
+
+		// GROWTH_MEASUREMENTS
+		expect(
+			sanitizeImportedRow(TABLE_IDS.GROWTH_MEASUREMENTS, {
+				date: '2026-03-07T12:00:00.000Z',
+				height: 51,
+				id: 'growth-1',
+			}),
+		).toEqual({
+			date: '2026-03-07T12:00:00.000Z',
+			height: 51,
+		});
+
+		// TEETHING
+		expect(
+			sanitizeImportedRow(TABLE_IDS.TEETHING, {
+				date: '2026-03-07T12:00:00.000Z',
+				id: 'tooth-1',
+				toothId: 51,
+			}),
+		).toEqual({
+			date: '2026-03-07T12:00:00.000Z',
+			toothId: 51,
+		});
+
+		// Unknown table
+		expect(sanitizeImportedRow('unknown', {})).toBeUndefined();
+	});
 });
