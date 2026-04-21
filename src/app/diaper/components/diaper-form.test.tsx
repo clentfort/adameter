@@ -5,6 +5,7 @@ import {
 	render,
 	screen,
 	waitFor,
+	within,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nContext } from '@/contexts/i18n-context';
@@ -141,5 +142,23 @@ describe('DiaperForm', () => {
 		expect(savedChange.pottyStool).toBe(true);
 		expect(savedChange.leakage).toBe(true);
 		expect(savedChange.temperature).toBe(38.5);
+	});
+
+	it('opens and closes the add product dialog', async () => {
+		render(<DiaperForm {...baseProps} />);
+
+		const plusButton = document.querySelector('.lucide-plus')?.closest('button');
+		expect(plusButton).toBeTruthy();
+		fireEvent.click(plusButton!);
+
+		const dialog = await screen.findByRole('dialog', { name: /add product/i });
+		expect(dialog).toBeInTheDocument();
+
+		const cancelButton = within(dialog).getByRole('button', { name: /cancel/i });
+		fireEvent.click(cancelButton);
+
+		await waitFor(() => {
+			expect(screen.queryByText(/add product/i)).not.toBeInTheDocument();
+		});
 	});
 });
