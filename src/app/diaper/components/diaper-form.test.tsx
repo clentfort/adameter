@@ -147,14 +147,18 @@ describe('DiaperForm', () => {
 	it('opens and closes the add product dialog', async () => {
 		render(<DiaperForm {...baseProps} />);
 
-		const plusButton = document.querySelector('.lucide-plus')?.closest('button');
+		const plusButton = document
+			.querySelector('.lucide-plus')
+			?.closest('button');
 		expect(plusButton).toBeTruthy();
 		fireEvent.click(plusButton!);
 
 		const dialog = await screen.findByRole('dialog', { name: /add product/i });
 		expect(dialog).toBeInTheDocument();
 
-		const cancelButton = within(dialog).getByRole('button', { name: /cancel/i });
+		const cancelButton = within(dialog).getByRole('button', {
+			name: /cancel/i,
+		});
 		fireEvent.click(cancelButton);
 
 		await waitFor(() => {
