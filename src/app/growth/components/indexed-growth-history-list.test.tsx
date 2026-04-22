@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
 import { describe, expect, it, vi } from 'vitest';
@@ -88,6 +88,47 @@ describe('IndexedGrowthHistoryList', () => {
 				</TinybaseIndexesProvider>
 			</Provider>,
 		);
+
+		expect(screen.getByText(/no history recorded yet/i)).toBeDefined();
+	});
+
+	it('should handle deletion and editing interactions for growth and teeth entries', () => {
+		const store = createStore();
+		store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-1', {
+			date: '2024-01-15T11:00:00Z',
+			weight: 4500,
+		});
+		store.setRow(TABLE_IDS.TEETHING, 'tooth-51', {
+			date: '2024-01-15T10:00:00Z',
+			toothId: 51,
+		});
+
+		render(
+			<Provider store={store}>
+				<TinybaseIndexesProvider>
+					<IndexedGrowthHistoryList />
+				</TinybaseIndexesProvider>
+			</Provider>,
+		);
+
+		// Growth Edit Save (exercises Line 247)
+		fireEvent.click(screen.getAllByTestId('history-entry-actions')[0]);
+		fireEvent.click(screen.getAllByText(/edit/i)[0]);
+		fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+		// Tooth Edit Save (exercises Line 258)
+		fireEvent.click(screen.getAllByTestId('history-entry-actions')[1]);
+		fireEvent.click(screen.getAllByText(/edit/i)[1]);
+		fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+		// Growth Delete Confirm (exercises Lines 202-204, 240)
+		fireEvent.click(screen.getAllByTestId('history-entry-actions')[0]);
+		fireEvent.click(screen.getAllByText(/delete/i)[0]);
+		fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+
+		// Tooth Delete (exercises Line 229)
+		fireEvent.click(screen.getByTestId('history-entry-actions'));
+		fireEvent.click(screen.getByText(/delete/i));
 
 		expect(screen.getByText(/no history recorded yet/i)).toBeDefined();
 	});
