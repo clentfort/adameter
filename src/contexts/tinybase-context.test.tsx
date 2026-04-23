@@ -351,4 +351,33 @@ describe('TinybaseProvider room sync', () => {
 			resolveSnapshot!(false);
 		},
 	);
+
+	it('handles errors during room sync connection', async () => {
+		const syncError = new Error('Sync failed');
+		mocks.hashRoomId.mockRejectedValueOnce(syncError);
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		// Wait for initial hydration and local load to complete
+		await waitFor(() => {
+			expect(mocks.runMigrationsIfNeeded).toHaveBeenCalled();
+		});
+
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		await waitFor(() => {
+			expect(mocks.hashRoomId).toHaveBeenCalledWith('regression-room');
+		});
+
+		// Ensure we don't crash and continue to render
+		expect(
+			screen.getByRole('button', { name: 'Create room' }),
+		).toBeInTheDocument();
+	});
 });
