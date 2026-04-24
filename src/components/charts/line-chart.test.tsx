@@ -452,7 +452,7 @@ describe('LineChart', () => {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
 
-		let chartConfig = mockChart.mock.calls.at(-1)![1] as unknown as {
+		type MockChartConfig = {
 			data: { datasets: { pointHoverRadius: number }[] };
 			options: {
 				plugins: {
@@ -460,19 +460,41 @@ describe('LineChart', () => {
 						callbacks: {
 							label: (item: {
 								dataset: { label: string };
-								parsed: { y: number };
+								parsed: { y: number | null };
 							}) => string;
 							title: (items: { parsed: { x: number | null } }[]) => string;
 						};
 					};
 				};
-				scales: { x: { max: number } };
+				scales: {
+					x: { max?: number; min?: number };
+					y: { ticks: { callback: (val: number) => string | number } };
+				};
 			};
+			plugins: {
+				beforeDatasetsDraw: (chart: {
+					ctx: unknown;
+					scales: {
+						x: {
+							getPixelForValue: (v: number) => number;
+							left: number;
+							right: number;
+						};
+						y: { bottom: number; top: number };
+					};
+				}) => void;
+				id: string;
+			}[];
 		};
+
+		const getLatestConfig = () =>
+			mockChart.mock.calls.at(-1)![1] as MockChartConfig;
+
+		let chartConfig = getLatestConfig();
 		const tooltipCallbacks = chartConfig.options.plugins.tooltip.callbacks;
 
 		// Hit pointHoverRadius 0 branch
-		expect(chartConfig.data.datasets.at(-1).pointHoverRadius).toBe(0);
+		expect(chartConfig.data.datasets.at(-1)!.pointHoverRadius).toBe(0);
 
 		// Hit line 282 (tooltip label for range)
 		expect(
@@ -517,7 +539,7 @@ describe('LineChart', () => {
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
-		chartConfig = mockChart.mock.calls.at(-1)![1];
+		chartConfig = getLatestConfig();
 		expect(chartConfig.options.scales.y.ticks.callback(10.55)).toBe(10.6);
 
 		// Hit Date forecast and time axis with empty data but non-empty range
@@ -528,6 +550,7 @@ describe('LineChart', () => {
 				emptyStateMessage="No data"
 				forecastDate={new Date('2023-01-02')}
 				rangeData={mockRangeData}
+				title="Test Chart"
 				xAxisLabel="Time"
 				xAxisType="time"
 				yAxisLabel="Value"
@@ -536,7 +559,7 @@ describe('LineChart', () => {
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
-		chartConfig = mockChart.mock.calls.at(-1)![1];
+		chartConfig = getLatestConfig();
 		expect(chartConfig.options.scales.x.max).toBe(
 			new Date('2023-01-02').getTime(),
 		);
@@ -557,7 +580,7 @@ describe('LineChart', () => {
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
-		chartConfig = mockChart.mock.calls.at(-1)![1];
+		chartConfig = getLatestConfig();
 		expect(
 			chartConfig.options.plugins.tooltip.callbacks.title([
 				{ parsed: { x: 10.5 } },
@@ -572,6 +595,7 @@ describe('LineChart', () => {
 				datasetLabel="Main"
 				emptyStateMessage="No data"
 				rangeData={mockRangeData}
+				title="Test Chart"
 				verticalLines={mockVerticalLines}
 				xAxisLabel="Time"
 				yAxisLabel="Value"
@@ -580,14 +604,12 @@ describe('LineChart', () => {
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
-		chartConfig = mockChart.mock.calls.at(-1)![1];
+		chartConfig = getLatestConfig();
 
 		// Exercise vertical lines plugin in dark mode with label
-		const verticalLinesPlugin = (
-			chartConfig as unknown as { plugins: { id: string }[] }
-		).plugins.find((p) => p.id === 'verticalLines') as unknown as {
-			beforeDatasetsDraw: (chart: unknown) => void;
-		};
+		const verticalLinesPlugin = chartConfig.plugins.find(
+			(p) => p.id === 'verticalLines',
+		)!;
 		const mockCtx = {
 			beginPath: vi.fn(),
 			fillStyle: '',
