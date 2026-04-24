@@ -30,7 +30,13 @@ import { DataSynchronizationContext } from './data-synchronization-context';
 
 const defaultStore = createMergeableStore();
 
-export const tinybaseContext = createContext<{ store: MergeableStore }>({
+export const tinybaseContext = createContext<{
+	isLocalReady: boolean;
+	isSyncReady: boolean;
+	store: MergeableStore;
+}>({
+	isLocalReady: false,
+	isSyncReady: false,
 	store: defaultStore,
 });
 
@@ -347,12 +353,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		}
 	}
 
-	if (!isHydrated || !isLocalReady || !isSyncReady) {
+	if (!isHydrated || !isLocalReady) {
 		return <SplashScreen />;
 	}
 
 	return (
-		<tinybaseContext.Provider value={{ store: storeRef.current }}>
+		<tinybaseContext.Provider
+			value={{ isLocalReady, isSyncReady, store: storeRef.current }}
+		>
 			<Provider store={storeRef.current}>{children}</Provider>
 		</tinybaseContext.Provider>
 	);
