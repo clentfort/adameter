@@ -337,6 +337,16 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		}
 	}, []);
 
+	// Expose the store to the window object as early as possible for E2E tests
+	if (typeof window !== 'undefined') {
+		const isTest = (window as unknown as { __E2E_TESTS__?: boolean })
+			.__E2E_TESTS__;
+		if (isTest || process.env.NODE_ENV === 'development') {
+			(window as unknown as { tinybaseStore: MergeableStore }).tinybaseStore =
+				storeRef.current;
+		}
+	}
+
 	if (!isHydrated || !isLocalReady || !isSyncReady) {
 		return <SplashScreen />;
 	}

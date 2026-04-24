@@ -1,7 +1,16 @@
 import { STORE_VALUE_SHOW_FEEDING } from '../src/lib/tinybase-sync/constants';
-import { expect, setTinyBaseValue, test } from './fixtures/test';
+import {
+	enableSkipProfile,
+	expect,
+	setTinyBaseValue,
+	test,
+} from './fixtures/test';
 
 test.describe('Initial page redirection', () => {
+	test.beforeEach(async ({ context }) => {
+		await enableSkipProfile(context);
+	});
+
 	test('should redirect to /diaper when feeding is disabled', async ({
 		context,
 		page,
@@ -13,10 +22,7 @@ test.describe('Initial page redirection', () => {
 		await page.goto('/');
 
 		// Wait for redirect
-		await page.waitForURL('**/diaper');
-
-		// Check if we are on the diaper page
-		expect(page.url()).toContain('/diaper');
+		await expect(page).toHaveURL(/\/diaper/, { timeout: 20_000 });
 	});
 
 	test('should redirect to /feeding when feeding is enabled', async ({
@@ -30,9 +36,6 @@ test.describe('Initial page redirection', () => {
 		await page.goto('/');
 
 		// Wait for redirect
-		await page.waitForURL('**/feeding');
-
-		// Check if we are on the feeding page
-		expect(page.url()).toContain('/feeding');
+		await expect(page).toHaveURL(/\/feeding/, { timeout: 20_000 });
 	});
 });
