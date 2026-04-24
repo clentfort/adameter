@@ -8,11 +8,11 @@ import {
 import { useShowFeeding } from './use-show-feeding';
 
 describe('useShowFeeding', () => {
-	it('should default to undefined', () => {
+	it('should default to true', () => {
 		const { result } = renderHook(() => useShowFeeding(), {
 			wrapper: TinyBaseTestWrapper,
 		});
-		expect(result.current[0]).toBe(undefined);
+		expect(result.current[0]).toBe(true);
 	});
 
 	it('should return value from store', () => {

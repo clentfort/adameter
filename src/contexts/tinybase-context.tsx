@@ -30,13 +30,7 @@ import { DataSynchronizationContext } from './data-synchronization-context';
 
 const defaultStore = createMergeableStore();
 
-export const tinybaseContext = createContext<{
-	isLocalReady: boolean;
-	isSyncReady: boolean;
-	store: MergeableStore;
-}>({
-	isLocalReady: false,
-	isSyncReady: false,
+export const tinybaseContext = createContext<{ store: MergeableStore }>({
 	store: defaultStore,
 });
 
@@ -343,24 +337,12 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		}
 	}, []);
 
-	// Expose the store to the window object as early as possible for E2E tests
-	if (typeof window !== 'undefined') {
-		const isTest = (window as unknown as { __E2E_TESTS__?: boolean })
-			.__E2E_TESTS__;
-		if (isTest || process.env.NODE_ENV === 'development') {
-			(window as unknown as { tinybaseStore: MergeableStore }).tinybaseStore =
-				storeRef.current;
-		}
-	}
-
-	if (!isHydrated || !isLocalReady) {
+	if (!isHydrated || !isLocalReady || !isSyncReady) {
 		return <SplashScreen />;
 	}
 
 	return (
-		<tinybaseContext.Provider
-			value={{ isLocalReady, isSyncReady, store: storeRef.current }}
-		>
+		<tinybaseContext.Provider value={{ store: storeRef.current }}>
 			<Provider store={storeRef.current}>{children}</Provider>
 		</tinybaseContext.Provider>
 	);
