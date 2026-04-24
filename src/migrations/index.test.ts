@@ -20,8 +20,6 @@ const RENAME_EVENT_MIGRATION_ID =
 	'2026-03-24-rename-event-description-to-notes';
 const ASSIGN_COLORS_MIGRATION_ID =
 	'2026-03-25-assign-colors-to-diaper-products';
-const SET_DEFAULT_SHOW_FEEDING_MIGRATION_ID =
-	'2026-04-16-set-default-show-feeding';
 
 describe('runMigrations', () => {
 	it('keeps manifest ids in sync with registered migrations', () => {
@@ -47,7 +45,6 @@ describe('runMigrations', () => {
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
-			SET_DEFAULT_SHOW_FEEDING_MIGRATION_ID,
 		]);
 		expect(result.hasChanges).toBe(true);
 		expect(result.skippedMigrationIds).toEqual([]);
@@ -96,7 +93,6 @@ describe('runMigrations', () => {
 			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
-			SET_DEFAULT_SHOW_FEEDING_MIGRATION_ID,
 		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy notes',

@@ -13,5 +13,4 @@ export const MIGRATION_IDS = [
 	'2026-03-07-normalize-entity-store-rows',
 	'2026-03-15-cleanup-junk-data',
 	'2026-03-25-assign-colors-to-diaper-products',
-	'2026-04-16-set-default-show-feeding',
 ] as const;
