@@ -423,4 +423,236 @@ describe('LineChart', () => {
 		});
 		document.documentElement.classList.remove('dark');
 	});
+
+	it('exercises additional reachable branches for maximum coverage improvement', async () => {
+		const mockData = [{ x: new Date('2023-01-01'), y: 10.56 }];
+		const mockRangeData = [{ x: new Date('2023-01-01'), yMax: 12, yMin: 8 }];
+		const mockVerticalLines = [
+			{ label: 'Marker', x: new Date('2023-01-01').getTime() },
+		];
+
+		const { rerender } = render(
+			<LineChart
+				data={mockData}
+				datasetLabel="Main"
+				emptyStateMessage="No data"
+				forecastDate={1_672_617_600_000}
+				pointRadius={0}
+				rangeData={mockRangeData}
+				rangeLabel="Range"
+				title="Test Chart"
+				verticalLines={mockVerticalLines}
+				xAxisLabel="Time"
+				yAxisLabel="Value"
+				yAxisUnit="kg"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		let chartConfig = mockChart.mock.calls.at(-1)![1] as unknown as {
+			data: { datasets: { pointHoverRadius: number }[] };
+			options: {
+				plugins: {
+					tooltip: {
+						callbacks: {
+							label: (item: {
+								dataset: { label: string };
+								parsed: { y: number };
+							}) => string;
+							title: (items: { parsed: { x: number | null } }[]) => string;
+						};
+					};
+				};
+				scales: { x: { max: number } };
+			};
+		};
+		const tooltipCallbacks = chartConfig.options.plugins.tooltip.callbacks;
+
+		// Hit pointHoverRadius 0 branch
+		expect(chartConfig.data.datasets.at(-1).pointHoverRadius).toBe(0);
+
+		// Hit line 282 (tooltip label for range)
+		expect(
+			tooltipCallbacks.label({
+				dataset: { label: 'Range' },
+				parsed: { y: 8 },
+			}),
+		).toBe('');
+
+		// Hit line 288 (default label with unit)
+		expect(
+			tooltipCallbacks.label({
+				dataset: { label: 'Main' },
+				parsed: { y: 10.56 },
+			}),
+		).toBe('Main: 10.56 kg');
+
+		// Hit line 297 (tooltip title for empty/invalid items)
+		expect(tooltipCallbacks.title([])).toBe('');
+		expect(tooltipCallbacks.title([{ parsed: { x: null } }])).toBe('');
+
+		// Hit line 308 (default time axis title)
+		const date = new Date('2023-01-01');
+		expect(tooltipCallbacks.title([{ parsed: { x: date.getTime() } }])).toBe(
+			'01. January 2023',
+		);
+
+		// Hit line 337 (number forecast date)
+		expect(chartConfig.options.scales.x.max).toBe(1_672_617_600_000);
+
+		// Hit line 388 (Y axis tick without unit)
+		rerender(
+			<LineChart
+				data={mockData}
+				datasetLabel="Main"
+				emptyStateMessage="No data"
+				title="Test Chart"
+				xAxisLabel="Time"
+				yAxisLabel="Value"
+			/>,
+		);
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		chartConfig = mockChart.mock.calls.at(-1)![1];
+		expect(chartConfig.options.scales.y.ticks.callback(10.55)).toBe(10.6);
+
+		// Hit Date forecast and time axis with empty data but non-empty range
+		rerender(
+			<LineChart
+				data={[]}
+				datasetLabel="Main"
+				emptyStateMessage="No data"
+				forecastDate={new Date('2023-01-02')}
+				rangeData={mockRangeData}
+				xAxisLabel="Time"
+				xAxisType="time"
+				yAxisLabel="Value"
+			/>,
+		);
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		chartConfig = mockChart.mock.calls.at(-1)![1];
+		expect(chartConfig.options.scales.x.max).toBe(
+			new Date('2023-01-02').getTime(),
+		);
+		expect(chartConfig.options.scales.x.min).toBeUndefined();
+
+		// Hit linear axis tooltip title default branch
+		rerender(
+			<LineChart
+				data={[{ x: 10, y: 10 }]}
+				datasetLabel="Main"
+				emptyStateMessage="No data"
+				title="Test Chart"
+				xAxisLabel="Time"
+				xAxisType="linear"
+				yAxisLabel="Value"
+			/>,
+		);
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		chartConfig = mockChart.mock.calls.at(-1)![1];
+		expect(
+			chartConfig.options.plugins.tooltip.callbacks.title([
+				{ parsed: { x: 10.5 } },
+			]),
+		).toBe('10.5 mo');
+
+		// Hit dark mode colors for range and vertical lines
+		document.documentElement.classList.add('dark');
+		rerender(
+			<LineChart
+				data={mockData}
+				datasetLabel="Main"
+				emptyStateMessage="No data"
+				rangeData={mockRangeData}
+				verticalLines={mockVerticalLines}
+				xAxisLabel="Time"
+				yAxisLabel="Value"
+			/>,
+		);
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		chartConfig = mockChart.mock.calls.at(-1)![1];
+
+		// Exercise vertical lines plugin in dark mode with label
+		const verticalLinesPlugin = (
+			chartConfig as unknown as { plugins: { id: string }[] }
+		).plugins.find((p) => p.id === 'verticalLines') as unknown as {
+			beforeDatasetsDraw: (chart: unknown) => void;
+		};
+		const mockCtx = {
+			beginPath: vi.fn(),
+			fillStyle: '',
+			fillText: vi.fn(),
+			font: '',
+			lineTo: vi.fn(),
+			lineWidth: 0,
+			moveTo: vi.fn(),
+			restore: vi.fn(),
+			save: vi.fn(),
+			setLineDash: vi.fn(),
+			stroke: vi.fn(),
+			strokeStyle: '',
+			textAlign: '',
+		};
+		const mockChartObj = {
+			ctx: mockCtx,
+			scales: {
+				x: { getPixelForValue: () => 100, left: 0, right: 200 },
+				y: { bottom: 100, top: 0 },
+			},
+		};
+		verticalLinesPlugin.beforeDatasetsDraw(mockChartObj);
+		expect(mockCtx.save).toHaveBeenCalled();
+		expect(mockCtx.fillText).toHaveBeenCalledWith('Marker', 100, 15);
+
+		document.documentElement.classList.remove('dark');
+
+		// Try to hit line 82 (requires ref but no data - though difficult due to early return)
+		rerender(
+			<LineChart
+				data={[]}
+				datasetLabel="Main"
+				emptyStateMessage="No data"
+				rangeData={[]}
+				title="Test Chart"
+				xAxisLabel="Time"
+				yAxisLabel="Value"
+			/>,
+		);
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		// Hit line 164 (null context)
+		const originalGetContext = HTMLCanvasElement.prototype.getContext;
+		HTMLCanvasElement.prototype.getContext = vi.fn(
+			() => null,
+		) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+
+		rerender(
+			<LineChart
+				data={[{ x: new Date(), y: 20 }]}
+				datasetLabel="Main"
+				emptyStateMessage="No data"
+				title="Test"
+				xAxisLabel="X"
+				yAxisLabel="Y"
+			/>,
+		);
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		// Restore context for other tests
+		HTMLCanvasElement.prototype.getContext = originalGetContext;
+	});
 });
