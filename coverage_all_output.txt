@@ -1,0 +1,632 @@
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90m/app/src[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps local data when creating/joining a room with merge strategy
+[22m[39m[PERF] Local IndexedDB load took 28.72ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps local data when creating/joining a room with merge strategy
+[22m[39m[PERF] Initial local migrations took 0.94ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 10 rows
+[22m[39m[PERF] Local IndexedDB load took 32.16ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 10 rows
+[22m[39m[PERF] Initial local migrations took 0.80ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps local data when creating/joining a room with merge strategy
+[22m[39m[PERF] Server snapshot bootstrap took 0.03ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps local data when creating/joining a room with merge strategy
+[22m[39m[PERF] Total connectRoomSync took 8.77ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mcovers additional edge cases in TinybaseProvider
+[22m[39m[PERF] Local IndexedDB load took 4.35ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mcovers additional edge cases in TinybaseProvider
+[22m[39mAuto-cloned data from production in preview environment
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mcovers additional edge cases in TinybaseProvider
+[22m[39m[PERF] Initial local migrations took 0.14ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mcovers additional edge cases in TinybaseProvider
+[22m[39m[PERF] Server snapshot bootstrap took 0.01ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mcovers additional edge cases in TinybaseProvider
+[22m[39m[PERF] Total connectRoomSync took 3.91ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps tiny datasets after joining a room
+[22m[39m[PERF] Local IndexedDB load took 8.90ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps tiny datasets after joining a room
+[22m[39m[PERF] Initial local migrations took 0.09ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps tiny datasets after joining a room
+[22m[39m[PERF] Server snapshot bootstrap took 0.01ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps tiny datasets after joining a room
+[22m[39m[PERF] Total connectRoomSync took 4.25ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 10 rows
+[22m[39m[PERF] Server snapshot bootstrap took 0.10ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 10 rows
+[22m[39m[PERF] Total connectRoomSync took 6.34ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Local IndexedDB load took 423.75ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Initial local migrations took 0.83ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 250 rows
+[22m[39m[PERF] Local IndexedDB load took 80.27ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 250 rows
+[22m[39m[PERF] Initial local migrations took 0.09ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 250 rows
+[22m[39m[PERF] Server snapshot bootstrap took 0.01ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 250 rows
+[22m[39m[PERF] Total connectRoomSync took 4.55ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps medium datasets after joining a room
+[22m[39m[PERF] Local IndexedDB load took 342.87ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps medium datasets after joining a room
+[22m[39m[PERF] Initial local migrations took 0.09ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps medium datasets after joining a room
+[22m[39m[PERF] Server snapshot bootstrap took 0.01ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps medium datasets after joining a room
+[22m[39m[PERF] Total connectRoomSync took 3.73ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Server snapshot bootstrap took 0.17ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Total connectRoomSync took 7.52ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 1500 rows
+[22m[39m[PERF] Local IndexedDB load took 385.83ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 1500 rows
+[22m[39m[PERF] Initial local migrations took 0.13ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 1500 rows
+[22m[39m[PERF] Server snapshot bootstrap took 0.01ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2ma) import data, then create room keeps 1500 rows
+[22m[39m[PERF] Total connectRoomSync took 5.01ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Local IndexedDB load took 271.05ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Initial local migrations took 0.06ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 10 rows
+[22m[39m[PERF] Local IndexedDB load took 229.85ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 10 rows
+[22m[39m[PERF] Initial local migrations took 0.09ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 10 rows
+[22m[39m[PERF] Server snapshot bootstrap took 0.03ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 10 rows
+[22m[39m[PERF] Total connectRoomSync took 4.33ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 250 rows
+[22m[39m[PERF] Local IndexedDB load took 3.67ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 250 rows
+[22m[39m[PERF] Initial local migrations took 0.15ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 250 rows
+[22m[39m[PERF] Server snapshot bootstrap took 0.02ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 250 rows
+[22m[39m[PERF] Total connectRoomSync took 3.92ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Server snapshot bootstrap took 294.11ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Total connectRoomSync took 334.53ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 1500 rows
+[22m[39m[PERF] Local IndexedDB load took 34.73ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 1500 rows
+[22m[39m[PERF] Initial local migrations took 0.09ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 1500 rows
+[22m[39m[PERF] Server snapshot bootstrap took 0.02ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mb) create room (empty), then import keeps 1500 rows
+[22m[39m[PERF] Total connectRoomSync took 3.91ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Local IndexedDB load took 213.15ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Initial local migrations took 0.05ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Server snapshot bootstrap took 287.07ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps data intact when three devices sync sequentially
+[22m[39m[PERF] Total connectRoomSync took 323.47ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Local IndexedDB load took 394.98ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Initial local migrations took 0.09ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps large datasets after joining a room
+[22m[39m[PERF] Local IndexedDB load took 2181.17ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps large datasets after joining a room
+[22m[39m[PERF] Initial local migrations took 0.08ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Server snapshot bootstrap took 0.02ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Total connectRoomSync took 7.04ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Local IndexedDB load took 139.66ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Initial local migrations took 0.06ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps large datasets after joining a room
+[22m[39m[PERF] Server snapshot bootstrap took 0.02ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps large datasets after joining a room
+[22m[39m[PERF] Total connectRoomSync took 4.06ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Server snapshot bootstrap took 182.63ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Total connectRoomSync took 212.17ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Local IndexedDB load took 162.72ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Initial local migrations took 0.05ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Server snapshot bootstrap took 181.48ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mmerges stale offline imports from a third device without wiping room
+[22m[39m[PERF] Total connectRoomSync took 287.39ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps imported in-room data after reload
+[22m[39m[PERF] Local IndexedDB load took 162.02ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps imported in-room data after reload
+[22m[39m[PERF] Initial local migrations took 0.10ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps imported in-room data after reload
+[22m[39m[PERF] Server snapshot bootstrap took 0.02ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps imported in-room data after reload
+[22m[39m[PERF] Total connectRoomSync took 5.04ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps imported in-room data after reload
+[22m[39m[PERF] Local IndexedDB load took 155.35ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps imported in-room data after reload
+[22m[39m[PERF] Initial local migrations took 0.06ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps imported in-room data after reload
+[22m[39m[PERF] Server snapshot bootstrap took 13.01ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mkeeps imported in-room data after reload
+[22m[39m[PERF] Total connectRoomSync took 23.20ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mauto-rejoin falls back to merge when stored strategy is missing
+[22m[39m[PERF] Local IndexedDB load took 338.54ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mauto-rejoin falls back to merge when stored strategy is missing
+[22m[39m[PERF] Initial local migrations took 0.10ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mauto-rejoin falls back to merge when stored strategy is missing
+[22m[39m[PERF] Server snapshot bootstrap took 0.48ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.multi-device.test.tsx[2m > [22m[2mmulti-device and stale session scenarios[2m > [22m[2mauto-rejoin falls back to merge when stored strategy is missing
+[22m[39m[PERF] Total connectRoomSync took 68.60ms
+
+ [32m✓[39m contexts/tinybase-room-import-scenarios.multi-device.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 5828[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps data intact when three devices sync sequentially [33m 2536[2mms[22m[39m
+     [33m[2m✓[22m[39m merges stale offline imports from a third device without wiping room [33m 1758[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps imported in-room data after reload [33m 1047[2mms[22m[39m
+     [33m[2m✓[22m[39m auto-rejoin falls back to merge when stored strategy is missing [33m 484[2mms[22m[39m
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 10 rows
+[22m[39m[PERF] Local IndexedDB load took 229.11ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 10 rows
+[22m[39m[PERF] Initial local migrations took 0.09ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 10 rows
+[22m[39m[PERF] Server snapshot bootstrap took 2.10ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 10 rows
+[22m[39m[PERF] Total connectRoomSync took 9.49ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 250 rows
+[22m[39m[PERF] Local IndexedDB load took 4.14ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 250 rows
+[22m[39m[PERF] Initial local migrations took 0.08ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 250 rows
+[22m[39m[PERF] Server snapshot bootstrap took 47.69ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 250 rows
+[22m[39m[PERF] Total connectRoomSync took 60.45ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 1500 rows
+[22m[39m[PERF] Local IndexedDB load took 41.88ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 1500 rows
+[22m[39m[PERF] Initial local migrations took 0.09ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 1500 rows
+[22m[39m[PERF] Server snapshot bootstrap took 279.78ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2mc) join room that already has imported data keeps 1500 rows
+[22m[39m[PERF] Total connectRoomSync took 391.35ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 10 rows each side
+[22m[39m[PERF] Local IndexedDB load took 243.12ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 10 rows each side
+[22m[39m[PERF] Initial local migrations took 0.12ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 10 rows each side
+[22m[39m[PERF] Server snapshot bootstrap took 2.04ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 10 rows each side
+[22m[39m[PERF] Total connectRoomSync took 6.96ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 250 rows each side
+[22m[39m[PERF] Local IndexedDB load took 47.21ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 250 rows each side
+[22m[39m[PERF] Initial local migrations took 0.09ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 250 rows each side
+[22m[39m[PERF] Server snapshot bootstrap took 43.17ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 250 rows each side
+[22m[39m[PERF] Total connectRoomSync took 92.21ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 1500 rows each side
+[22m[39m[PERF] Local IndexedDB load took 344.20ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 1500 rows each side
+[22m[39m[PERF] Initial local migrations took 0.13ms
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 1500 rows each side
+[22m[39m[PERF] Server snapshot bootstrap took 276.99ms (loaded=true)
+
+[90mstdout[2m | contexts/tinybase-room-import-scenarios.import-flows.test.tsx[2m > [22m[2mroom sync scenarios for imported data[2m > [22m[2md) join room with imported data merges local imported data for 1500 rows each side
+[22m[39m[PERF] Total connectRoomSync took 368.04ms
+
+ [32m✓[39m contexts/tinybase-room-import-scenarios.import-flows.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 8505[2mms[22m[39m
+     [33m[2m✓[22m[39m a) import data, then create room keeps 10 rows [33m 428[2mms[22m[39m
+     [33m[2m✓[22m[39m a) import data, then create room keeps 1500 rows [33m 689[2mms[22m[39m
+     [33m[2m✓[22m[39m b) create room (empty), then import keeps 10 rows [33m 303[2mms[22m[39m
+     [33m[2m✓[22m[39m b) create room (empty), then import keeps 1500 rows [33m 4012[2mms[22m[39m
+     [33m[2m✓[22m[39m c) join room that already has imported data keeps 1500 rows [33m 741[2mms[22m[39m
+     [33m[2m✓[22m[39m d) join room with imported data merges local imported data for 1500 rows each side [33m 965[2mms[22m[39m
+ [32m✓[39m app/growth/components/indexed-growth-history-list.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1882[2mms[22m[39m
+     [33m[2m✓[22m[39m should handle deletion and editing interactions for growth and teeth entries [33m 1554[2mms[22m[39m
+ [32m✓[39m app/diaper/components/diaper-form.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1995[2mms[22m[39m
+     [33m[2m✓[22m[39m renders with initial data and calls onSave when submitted [33m 736[2mms[22m[39m
+     [33m[2m✓[22m[39m handles potty toggles, leakage, and abnormal temperature warning [33m 347[2mms[22m[39m
+     [33m[2m✓[22m[39m opens and closes the add product dialog [33m 401[2mms[22m[39m
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps huge datasets after joining a room
+[22m[39m[PERF] Local IndexedDB load took 13782.62ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps huge datasets after joining a room
+[22m[39m[PERF] Initial local migrations took 0.14ms
+
+ [32m✓[39m app/diaper/components/diaper-history-list.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 1741[2mms[22m[39m
+     [33m[2m✓[22m[39m should render complex entries and handle interactions for maximum coverage [33m 1109[2mms[22m[39m
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps huge datasets after joining a room
+[22m[39m[PERF] Server snapshot bootstrap took 0.01ms (loaded=false)
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mkeeps huge datasets after joining a room
+[22m[39m[PERF] Total connectRoomSync took 5.97ms
+
+ [32m✓[39m app/growth/components/teething-progress.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 1561[2mms[22m[39m
+     [33m[2m✓[22m[39m covers all components states including erupted teeth and form interactions [33m 1559[2mms[22m[39m
+ [32m✓[39m components/product-form.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 1117[2mms[22m[39m
+     [33m[2m✓[22m[39m should handle all form interactions including creation, editing, and cancellation [33m 1114[2mms[22m[39m
+ [32m✓[39m app/feeding/components/feeding-history-list.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1290[2mms[22m[39m
+     [33m[2m✓[22m[39m should handle edit and delete interactions [33m 989[2mms[22m[39m
+ [32m✓[39m app/statistics/components/heat-map.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1015[2mms[22m[39m
+ [32m✓[39m app/feeding/components/feeding-form.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1080[2mms[22m[39m
+     [33m[2m✓[22m[39m renders with initial data and calls onSave when submitted [33m 656[2mms[22m[39m
+ [32m✓[39m components/form/entity-form-dialog.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 599[2mms[22m[39m
+     [33m[2m✓[22m[39m renders title and children [33m 409[2mms[22m[39m
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mcloses the connection if unmounted before synchronizer is created
+[22m[39m[PERF] Local IndexedDB load took 10567.71ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mcloses the connection if unmounted before synchronizer is created
+[22m[39m[PERF] Initial local migrations took 0.10ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mcloses the connection if unmounted before synchronizer is created
+[22m[39m[PERF] Server snapshot bootstrap took 0.84ms (loaded=false)
+
+ [32m✓[39m app/growth/components/growth-form.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 773[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly and calls onSave with numeric data when submitted [33m 592[2mms[22m[39m
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mhandles errors during room sync connection
+[22m[39m[PERF] Local IndexedDB load took 3.25ms
+
+[90mstdout[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mhandles errors during room sync connection
+[22m[39m[PERF] Initial local migrations took 0.08ms
+
+[90mstderr[2m | contexts/tinybase-context.test.tsx[2m > [22m[2mTinybaseProvider room sync[2m > [22m[2mhandles errors during room sync connection
+[22m[39m[SYNC] Failed to connect room sync: Error: Sync failed
+    at [90m/app/[39msrc/contexts/tinybase-context.test.tsx:356:21
+    at [90mfile:///app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.5/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.5/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at [90mfile:///app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.5/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.5/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.5/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.5/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.5/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2955:64
+
+ [32m✓[39m contexts/tinybase-context.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 31900[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps local data when creating/joining a room with merge strategy [33m 340[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps medium datasets after joining a room [33m 443[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps large datasets after joining a room [33m 2707[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps huge datasets after joining a room [33m 17631[2mms[22m[39m
+     [33m[2m✓[22m[39m closes the connection if unmounted before synchronizer is created [33m 10605[2mms[22m[39m
+ [32m✓[39m components/delete-entry-dialog.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 555[2mms[22m[39m
+     [33m[2m✓[22m[39m renders and calls onDelete and onClose when Delete button is clicked [33m 462[2mms[22m[39m
+ [32m✓[39m app/statistics/components/yearly-activity-heat-map.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 522[2mms[22m[39m
+ [32m✓[39m app/growth/components/teething-form.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 515[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly and calls onSave when submitted [33m 509[2mms[22m[39m
+ [32m✓[39m utils/growth-standards.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 385[2mms[22m[39m
+ [32m✓[39m app/statistics/components/heat-map-tooltip.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m components/charts/bar-chart.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 291[2mms[22m[39m
+ [32m✓[39m components/history-filter-indicator.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 360[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly with various configurations for maximum coverage [33m 357[2mms[22m[39m
+ [32m✓[39m components/charts/line-chart.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 324[2mms[22m[39m
+ [32m✓[39m components/charts/pie-chart.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 276[2mms[22m[39m
+ [32m✓[39m hooks/use-tinybase-metrics.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+ [32m✓[39m migrations/run-if-needed.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 240[2mms[22m[39m
+ [32m✓[39m app/statistics/components/total-feedings-stats.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 109[2mms[22m[39m
+ [32m✓[39m app/statistics/components/growth-chart.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 219[2mms[22m[39m
+ [32m✓[39m app/statistics/components/duration-stats.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+ [32m✓[39m components/form/date-time-inputs.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 105[2mms[22m[39m
+ [32m✓[39m components/indexed-history-list.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 262[2mms[22m[39m
+ [32m✓[39m hooks/use-tinybase-indexes.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m app/statistics/components/reusable-savings-card.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 161[2mms[22m[39m
+ [32m✓[39m app/statistics/components/feeding-records.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 150[2mms[22m[39m
+ [32m✓[39m app/statistics/components/diaper-records.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m app/statistics/components/comparison-value.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m app/statistics/components/total-duration-stats.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+ [32m✓[39m app/statistics/components/feedings-per-day-stats.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m app/statistics/components/time-between-stats.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+ [32m✓[39m contexts/tinybase-indexes-context.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m hooks/use-diaper-changes.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m hooks/use-diaper-products.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+ [32m✓[39m app/statistics/components/deferred-section.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+ [32m✓[39m contexts/tinybase-metrics-context.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m components/root-layout/diaper-stats.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m hooks/use-events.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m hooks/use-history-range.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+ [32m✓[39m components/root-layout/header-indicator.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m hooks/use-feeding-sessions.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m hooks/use-growth-measurements.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m hooks/create-entity-hooks.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m app/feeding/hooks/use-resumable-session.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 124[2mms[22m[39m
+ [32m✓[39m hooks/use-profile.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m hooks/use-teething.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+ [32m✓[39m hooks/use-feeding-in-progress.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m hooks/use-currency.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m hooks/use-today-diaper-stats.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m hooks/use-entity-form.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m hooks/use-show-feeding.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m hooks/use-show-comparison-charts.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m hooks/use-dev-mode.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m i18n/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m app/feeding/hooks/use-next-breast.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m migrations/index.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m app/diaper/utils/get-frecency-sorted-products.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m utils/data-transfer/integration.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m migrations/2026-03-15-cleanup-junk-data.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m lib/idle-callback.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m lib/tinybase-sync/remote-bootstrap.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m app/diaper/utils/get-frecency-sorted-product-ids.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m lib/tinybase-sync/entity-row-schemas.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m lib/tinybase-sync/merge.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m types/diaper.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m utils/format-history-date.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m lib/logger.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m types/growth.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m utils/get-range-dates.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m utils/device-id.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m utils/format-duration-abbreviated.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m types/feeding.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/tinybase-sync/cloning.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m types/event.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m utils/unit-conversions.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m types/teething.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/storage.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/tinybase-sync/migration-utils.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m utils/room-name.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m lib/partykit-host.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m app/growth/utils/teething.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m utils/date-to-date-input-value.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m utils/date-to-time-input-value.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m utils/format-duration-short.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/tinybase-sync/partykit-parties.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m91 passed[39m[22m[90m (91)[39m
+[2m      Tests [22m [1m[32m367 passed[39m[22m[90m (367)[39m
+[2m   Start at [22m 05:37:34
+[2m   Duration [22m 101.96s[2m (transform 6.99s, setup 30.81s, import 62.99s, tests 66.71s, environment 105.69s)[22m
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   91.35 |    79.27 |   93.05 |    92.3 |
+ ...per/components |   84.33 |    86.76 |   84.61 |   84.33 |
+  diaper-form.tsx  |   78.94 |    77.33 |   77.77 |   78.94 | ...77-478,494-498
+  ...tory-list.tsx |   96.15 |    98.36 |     100 |   96.15 | 54
+ app/diaper/utils  |   97.82 |       95 |     100 |     100 |
+  ...roduct-ids.ts |     100 |    95.23 |     100 |     100 | 50
+  ...d-products.ts |   95.23 |    94.11 |     100 |     100 | 27
+  ...emperature.ts |     100 |      100 |     100 |     100 |
+ ...ing/components |   96.87 |       90 |     100 |   96.77 |
+  feeding-form.tsx |     100 |      100 |     100 |     100 |
+  ...tory-list.tsx |      95 |    81.25 |     100 |      95 | 33
+ app/feeding/hooks |     100 |    92.85 |     100 |     100 |
+  ...ext-breast.ts |     100 |      100 |     100 |     100 |
+  ...le-session.ts |     100 |       90 |     100 |     100 | 42
+ ...wth/components |   96.32 |    78.15 |   97.87 |   97.72 |
+  growth-form.tsx  |     100 |       80 |     100 |     100 | ...79,103,227-243
+  ...tory-list.tsx |    91.8 |    67.44 |   95.83 |   94.82 | 66-69
+  ...hing-form.tsx |     100 |      100 |     100 |     100 |
+  ...-progress.tsx |     100 |      100 |     100 |     100 |
+ app/growth/utils  |     100 |      100 |     100 |     100 |
+  teething.ts      |     100 |      100 |     100 |     100 |
+ ...ics/components |   92.88 |    78.16 |   93.02 |    94.5 |
+  ...son-value.tsx |     100 |      100 |     100 |     100 |
+  ...d-section.tsx |    91.3 |       60 |     100 |     100 | 20-43
+  ...r-records.tsx |   96.66 |    95.83 |     100 |      96 | 22
+  ...ion-stats.tsx |     100 |    73.68 |     100 |     100 | 33,46,63-93
+  ...g-records.tsx |     100 |    95.83 |     100 |     100 | 36
+  ...day-stats.tsx |      95 |    76.92 |     100 |     100 | 25,45,62
+  growth-chart.tsx |   86.56 |    72.13 |      76 |   89.34 | ...27,341,352,367
+  ...p-tooltip.tsx |     100 |       75 |     100 |     100 | 23
+  heat-map.tsx     |   98.21 |    86.84 |     100 |     100 | ...52,156-158,162
+  ...ings-card.tsx |    92.1 |    71.79 |     100 |   93.13 | ...95-196,256-257
+  stats-card.tsx   |     100 |      100 |     100 |     100 |
+  ...een-stats.tsx |     100 |    76.92 |     100 |     100 | 39,51,68
+  ...ion-stats.tsx |   88.88 |       80 |      80 |   85.71 | 25
+  ...ngs-stats.tsx |   85.71 |    66.66 |   71.42 |   81.81 | 18,21
+  ...-heat-map.tsx |   92.15 |    83.87 |     100 |      94 | 65,73,228
+ components        |    92.3 |    83.33 |   95.23 |   92.15 |
+  ...ry-dialog.tsx |     100 |      100 |     100 |     100 |
+  ...ntry-card.tsx |     100 |    83.33 |     100 |     100 | 39
+  ...indicator.tsx |   83.33 |    88.88 |     100 |   83.33 | 24
+  ...tory-list.tsx |    87.5 |    65.21 |   88.88 |   86.95 | 100-101,111
+  markdown.tsx     |     100 |      100 |     100 |     100 |
+  product-form.tsx |     100 |      100 |     100 |     100 |
+  ...sh-screen.tsx |     100 |      100 |     100 |     100 |
+ components/charts |   78.73 |    65.94 |    87.5 |   80.86 |
+  bar-chart.tsx    |   78.37 |    54.21 |   91.66 |   84.05 | 63,67-86
+  line-chart.tsx   |   78.64 |    73.68 |      85 |   78.78 | 82,86-160
+  pie-chart.tsx    |   79.54 |    60.97 |    87.5 |   80.48 | 43,47,88-95
+ components/form   |      90 |    72.22 |      80 |      90 |
+  ...me-inputs.tsx |     100 |    78.57 |     100 |     100 | 41-56
+  ...rm-dialog.tsx |      80 |       50 |      75 |      80 | 44
+ ...ts/root-layout |     100 |      100 |     100 |     100 |
+  diaper-stats.tsx |     100 |      100 |     100 |     100 |
+  ...indicator.tsx |     100 |      100 |     100 |     100 |
+ constants         |     100 |      100 |     100 |     100 |
+  colors.ts        |     100 |      100 |     100 |     100 |
+ contexts          |   89.58 |    78.23 |   82.88 |   89.97 |
+  ...n-context.tsx |   93.54 |      100 |   55.55 |   93.54 | 50-51
+  i18n-context.tsx |   86.66 |       50 |      80 |   86.66 | 36,54
+  ...e-context.tsx |   77.24 |    69.33 |   52.17 |   78.26 | ...70,278-281,290
+  ...s-context.tsx |     100 |    85.71 |     100 |     100 | 70-71
+  ...s-context.tsx |     100 |      100 |     100 |     100 |
+  ...s.harness.tsx |   97.45 |    80.64 |   93.33 |   97.27 | 219-221
+ ...owth-standards |       0 |        0 |       0 |       0 |
+  ...irls-0-5.json |       0 |        0 |       0 |       0 |
+  ...boys-0-5.json |       0 |        0 |       0 |       0 |
+  ...boys-0-5.json |       0 |        0 |       0 |       0 |
+  ...irls-0-5.json |       0 |        0 |       0 |       0 |
+ hooks             |    93.2 |    85.48 |     100 |   93.28 |
+  ...tity-hooks.ts |     100 |       80 |     100 |     100 | 30,49
+  use-currency.ts  |     100 |      100 |     100 |     100 |
+  use-dev-mode.ts  |     100 |      100 |     100 |     100 |
+  ...er-changes.ts |   85.71 |     62.5 |     100 |   85.71 | 18-22,50
+  ...r-products.ts |   89.65 |    64.28 |     100 |    92.3 | 19-23
+  ...ntity-form.ts |     100 |      100 |     100 |     100 |
+  use-events.ts    |   89.47 |       50 |     100 |   89.47 | 18-19
+  ...n-progress.ts |   86.36 |     87.5 |     100 |   86.36 | 44-45,50
+  ...g-sessions.ts |   85.71 |     62.5 |     100 |   85.71 | 18-22,50
+  ...asurements.ts |   81.81 |       50 |     100 |   81.81 | 16-20
+  ...tory-range.ts |     100 |      100 |     100 |     100 |
+  ...e-callback.ts |     100 |      100 |     100 |     100 |
+  use-profile.ts   |      85 |     87.5 |     100 |   84.21 | 38-39,44
+  ...son-charts.ts |     100 |      100 |     100 |     100 |
+  ...ow-feeding.ts |     100 |      100 |     100 |     100 |
+  use-teething.ts  |   81.81 |       50 |     100 |   81.81 | 16-17
+  ...se-indexes.ts |     100 |      100 |     100 |     100 |
+  ...se-metrics.ts |     100 |      100 |     100 |     100 |
+  ...aper-stats.ts |     100 |      100 |     100 |     100 |
+  ...nit-system.ts |     100 |      100 |     100 |     100 |
+ i18n              |   92.59 |     87.5 |    87.5 |      96 |
+  index.ts         |   92.59 |     87.5 |    87.5 |      96 | 50
+ lib               |   94.73 |     87.5 |   95.83 |   94.54 |
+  idle-callback.ts |     100 |      100 |     100 |     100 |
+  logger.ts        |     100 |      100 |     100 |     100 |
+  partykit-host.ts |   86.95 |       75 |      80 |   86.95 | 41,68,82
+  storage.ts       |     100 |      100 |     100 |     100 |
+  utils.ts         |     100 |      100 |     100 |     100 |
+ lib/tinybase-sync |   91.74 |    81.33 |     100 |   91.74 |
+  cloning.ts       |     100 |      100 |     100 |     100 |
+  constants.ts     |     100 |      100 |     100 |     100 |
+  ...ow-schemas.ts |     100 |      100 |     100 |     100 |
+  merge.ts         |   78.57 |    41.66 |     100 |   78.57 | 21,45-46
+  ...tion-utils.ts |     100 |      100 |     100 |     100 |
+  ...it-parties.ts |     100 |      100 |     100 |     100 |
+  ...-bootstrap.ts |   78.94 |    72.22 |     100 |   78.94 | 22,30,51-52
+  store-utils.ts   |   77.77 |    66.66 |     100 |   77.77 | 18,22
+ migrations        |   93.08 |    81.81 |     100 |   93.08 |
+  ...s-to-notes.ts |     100 |    83.33 |     100 |     100 | 53
+  ...store-rows.ts |   85.71 |    83.33 |     100 |   85.71 | 24-26
+  ...store-rows.ts |   77.77 |    66.66 |     100 |   77.77 | 23,27-29
+  ...json-cells.ts |     100 |      100 |     100 |     100 |
+  ...-junk-data.ts |     100 |    80.76 |     100 |     100 | 55,80-90
+  ...n-to-notes.ts |     100 |      100 |     100 |     100 |
+  ...r-products.ts |     100 |       50 |     100 |     100 | 19
+  index.ts         |   83.33 |    77.77 |     100 |   83.33 | 52-53,71-72
+  manifest.ts      |     100 |      100 |     100 |     100 |
+  run-if-needed.ts |     100 |      100 |     100 |     100 |
+ test-utils        |     100 |      100 |     100 |     100 |
+  ...t-wrapper.tsx |     100 |      100 |     100 |     100 |
+ ...ils/assertions |     100 |      100 |     100 |     100 |
+  stats-card.ts    |     100 |      100 |     100 |     100 |
+ ...tils/factories |     100 |    83.33 |     100 |     100 |
+  diaper-change.ts |     100 |      100 |     100 |     100 |
+  ...ng-session.ts |     100 |       80 |     100 |     100 | 17
+ translations      |     100 |      100 |     100 |     100 |
+  de_DE.json       |     100 |      100 |     100 |     100 |
+  en_US.json       |     100 |      100 |     100 |     100 |
+ utils             |   91.32 |    82.97 |     100 |   94.47 |
+  ...nput-value.ts |     100 |      100 |     100 |     100 |
+  ...nput-value.ts |     100 |      100 |     100 |     100 |
+  device-id.ts     |     100 |     87.5 |     100 |     100 | 14
+  ...bbreviated.ts |     100 |      100 |     100 |     100 |
+  ...tion-short.ts |     100 |    83.33 |     100 |     100 | 9
+  ...story-date.ts |     100 |      100 |     100 |     100 |
+  ...ange-dates.ts |     100 |      100 |     100 |     100 |
+  ...-standards.ts |   83.51 |    70.21 |     100 |   88.88 | ...02-108,187,220
+  room-name.ts     |     100 |      100 |     100 |     100 |
+  ...onversions.ts |     100 |      100 |     100 |     100 |
+ .../data-transfer |   95.65 |    82.14 |     100 |   95.65 |
+  csv.ts           |   95.65 |    82.14 |     100 |   95.65 | 5,32
+-------------------|---------|----------|---------|---------|-------------------
