@@ -9,6 +9,7 @@ import {
 import { useContext } from 'react';
 import { useStore, useTable, useValue } from 'tinybase/ui-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { logger } from '@/lib/logger';
 import { clear } from '@/lib/storage';
 import { STORE_VALUE_PROFILE, TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import {
@@ -379,5 +380,97 @@ describe('TinybaseProvider room sync', () => {
 		expect(
 			screen.getByRole('button', { name: 'Create room' }),
 		).toBeInTheDocument();
+	});
+
+	it('covers additional synchronization and error paths', async () => {
+		vi.stubEnv('NEXT_PUBLIC_VERCEL_ENV', 'preview');
+		vi.stubEnv('NEXT_PUBLIC_MAIN_ROOM_NAME', 'main-room');
+		vi.stubGlobal('__E2E_TESTS__', true);
+
+		const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
+		const infoSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
+
+		mocks.cloneRoomData.mockRejectedValue(new Error('Clone failed'));
+		mocks.saveServerSnapshot.mockRejectedValue(new Error('Save failed'));
+
+		// To trigger isStoreDataEmpty(store) as true
+		mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
+			destroy: vi.fn(async () => {}),
+			load: vi.fn(async () => {
+				store.setContent([{}, {}]);
+			}),
+			save: vi.fn(async () => {}),
+			startAutoSave: vi.fn(async () => {}),
+			stopAutoSave: vi.fn(async () => {}),
+		}));
+
+		let errorHandler: ((error: unknown) => void) | undefined;
+		mocks.createEncryptedPartyKitSynchronizer.mockImplementation(
+			async (_store, _connection, _key, onSynchronizerError) => {
+				errorHandler = onSynchronizerError;
+				return {
+					destroy: vi.fn(async () => {}),
+					startSync: vi.fn(async () => {}),
+				};
+			},
+		);
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		// Wait for initial load and auto-clone failure
+		await waitFor(() => {
+			expect(errorSpy).toHaveBeenCalledWith(
+				'Failed to auto-clone data from production:',
+				expect.any(Error),
+			);
+		});
+
+		// Switch to fake timers before triggering sync
+		vi.useFakeTimers();
+
+		// Trigger room join
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		// Advance timers to let connectRoomSync proceed
+		for (let i = 0; i < 20; i++) {
+			await vi.advanceTimersByTimeAsync(10);
+		}
+
+		expect(errorSpy).toHaveBeenCalledWith(
+			'Failed to save initial server snapshot:',
+			expect.any(Error),
+		);
+
+		// Trigger synchronizer errors
+		expect(errorHandler).toBeDefined();
+		errorHandler!(new Error('No response from peer')); // Expected timeout
+		expect(infoSpy).toHaveBeenCalledWith(
+			'Synchronizer waiting for peers:',
+			expect.any(Error),
+		);
+
+		errorHandler!(new Error('Generic sync error'));
+		expect(errorSpy).toHaveBeenCalledWith(
+			'Synchronizer error:',
+			expect.any(Error),
+		);
+
+		// Advance timers for periodic save (30s)
+		await vi.advanceTimersByTimeAsync(30_000);
+
+		expect(errorSpy).toHaveBeenCalledWith(
+			'Failed to save periodic server snapshot:',
+			expect.any(Error),
+		);
+
+		vi.unstubAllEnvs();
+		errorSpy.mockRestore();
+		infoSpy.mockRestore();
 	});
 });
