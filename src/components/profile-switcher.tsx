@@ -24,7 +24,7 @@ export function ProfileSwitcher() {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
+			<DropdownMenuTrigger>
 				<Button
 					aria-label={fbt('Switch Child', 'Label for child switcher button')}
 					className="relative h-10 w-10 rounded-full"

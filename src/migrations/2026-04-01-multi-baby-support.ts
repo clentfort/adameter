@@ -11,18 +11,18 @@ export const multiBabySupportMigration: Migration = {
 	migrate: (store) => {
 		const profileValue = store.getValue(STORE_VALUE_PROFILE);
 		if (typeof profileValue !== 'string' || profileValue === '') {
-			return;
+			return false;
 		}
 
 		let profileData;
 		try {
 			profileData = JSON.parse(profileValue);
 		} catch {
-			return;
+			return false;
 		}
 
 		if (!profileData || typeof profileData !== 'object') {
-			return;
+			return false;
 		}
 
 		const profileId = crypto.randomUUID();
@@ -54,5 +54,7 @@ export const multiBabySupportMigration: Migration = {
 				}
 			}
 		}
+
+		return true;
 	},
 };

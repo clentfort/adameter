@@ -1,4 +1,4 @@
-import type { Row } from 'tinybase';
+import type { Row, Cell } from 'tinybase';
 import { useMemo } from 'react';
 import {
 	useDelRowCallback,
@@ -30,18 +30,18 @@ export function createEntityHooks<T extends { id: string }>(
 			(entity) => entity.id,
 			(entity) => {
 				const cells = sanitize(entity);
-				if (!cells) return {};
+				if (!cells) return {} as Row;
 
-				const result: Record<string, unknown> = {
-					...cells,
-					deviceId: getDeviceId(),
+				const result: Record<string, Cell> = {
+					...(cells as Record<string, Cell>),
+					deviceId: getDeviceId() as Cell,
 				};
 
 				if (tableId !== TABLE_IDS.PROFILES && selectedProfileId) {
-					result.profileId = selectedProfileId;
+					result.profileId = selectedProfileId as Cell;
 				}
 
-				return result;
+				return result as Row;
 			},
 			[selectedProfileId],
 		);

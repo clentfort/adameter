@@ -1,8 +1,7 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { Plus, User, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import ProfileForm from '@/components/profile-form';
 import { Button } from '@/components/ui/button';
