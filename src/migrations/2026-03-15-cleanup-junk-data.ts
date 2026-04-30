@@ -82,7 +82,7 @@ export const cleanupJunkDataMigration: Migration = {
 							const parsed = JSON.parse(value);
 							const schema =
 								valueId === STORE_VALUE_PROFILE
-									? profileSchema
+									? profileSchema.omit({ id: true })
 									: feedingInProgressSchema;
 							const result = schema.safeParse(parsed);
 							if (result.success) {

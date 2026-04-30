@@ -156,14 +156,17 @@ export async function setTinyBaseRow(
 }
 
 export async function enableSkipProfile(pageOrContext: BrowserContext | Page) {
-	await setTinyBaseValue(pageOrContext, 'profile', {
+	const profileId = 'e2e-baby-id';
+	await setTinyBaseRow(pageOrContext, 'profiles', profileId, {
 		birthday: '2024-01-01',
-		color: '#3b82f6',
+		color: 'bg-blue-500',
 		dob: '2024-01-01',
+		id: profileId,
 		name: 'E2E Baby',
 		optedOut: false,
 		sex: 'girl',
 	});
+	await setTinyBaseValue(pageOrContext, 'selectedProfileId', profileId);
 	if ('evaluate' in pageOrContext) {
 		// Close any open dialogs that might be blocking the UI (like the profile prompt itself if it was already open)
 		await (pageOrContext as Page).evaluate(() => {
