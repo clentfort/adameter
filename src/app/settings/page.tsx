@@ -50,10 +50,7 @@ export default function SettingsPage() {
 									fbt('Children', 'Label for children settings')}
 							</p>
 							<p className="text-sm text-muted-foreground">
-								{fbt(
-									'Manage child profiles',
-									'Subtext for children settings',
-								)}
+								{fbt('Manage child profiles', 'Subtext for children settings')}
 							</p>
 						</div>
 					</div>

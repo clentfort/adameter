@@ -1,6 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { STORE_VALUE_SELECTED_PROFILE_ID, TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import {
+	STORE_VALUE_SELECTED_PROFILE_ID,
+	TABLE_IDS,
+} from '@/lib/tinybase-sync/constants';
 import {
 	createTestStore,
 	TinyBaseTestWrapper,
@@ -36,6 +39,8 @@ describe('useProfile', () => {
 		});
 
 		expect(profileHook.current[0]).toMatchObject({ name: 'Baby Ada' });
-		expect(store.getRow(TABLE_IDS.PROFILES, 'p1')).toMatchObject({ name: 'Baby Ada' });
+		expect(store.getRow(TABLE_IDS.PROFILES, 'p1')).toMatchObject({
+			name: 'Baby Ada',
+		});
 	});
 });

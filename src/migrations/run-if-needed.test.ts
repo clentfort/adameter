@@ -126,7 +126,10 @@ describe('runMigrationsIfNeeded', () => {
 			store.hasRow(INTERNAL_TABLE_IDS.MIGRATIONS, ASSIGN_COLORS_MIGRATION_ID),
 		).toBe(true);
 		expect(
-			store.hasRow(INTERNAL_TABLE_IDS.MIGRATIONS, MULTI_BABY_SUPPORT_MIGRATION_ID),
+			store.hasRow(
+				INTERNAL_TABLE_IDS.MIGRATIONS,
+				MULTI_BABY_SUPPORT_MIGRATION_ID,
+			),
 		).toBe(true);
 	});
 

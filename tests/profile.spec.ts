@@ -23,6 +23,9 @@ test.describe('Child Profile', () => {
 		await page.getByRole('button', { name: /settings/i }).click();
 		await page.getByTestId('settings-profile').click();
 
+		// On children list, click Edit
+		await page.getByRole('button', { name: 'Edit' }).click();
+
 		// Verify initial data
 		await expect(page.getByLabel(/Name/)).toHaveValue('Baby Ada');
 		await expect(page.getByLabel(/Date of Birth/)).toHaveValue('2024-01-01');
@@ -32,10 +35,7 @@ test.describe('Child Profile', () => {
 		await page.getByTestId('profile-color-blue-500').click();
 		await page.getByRole('button', { name: 'Save Profile' }).click();
 
-		// Should be back to main settings
-		await expect(
-			page.getByRole('button', { name: /Ada Lovelace|Profile|Profil/ }),
-		).toBeVisible();
+		// Should be back to children list
 		await expect(page.getByText('Ada Lovelace')).toBeVisible();
 
 		// 3. Verify it persists across reloads
@@ -46,6 +46,7 @@ test.describe('Child Profile', () => {
 		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
 		await page.getByRole('button', { name: /settings/i }).click();
 		await page.getByTestId('settings-profile').click();
+		await page.getByRole('button', { name: 'Edit' }).click();
 		await expect(page.getByLabel(/Name/)).toHaveValue('Ada Lovelace');
 	});
 
@@ -83,6 +84,7 @@ test.describe('Child Profile', () => {
 			.getByRole('button', { name: /settings/i })
 			.click({ force: true });
 		await page.getByTestId('settings-profile').click();
+		await page.getByRole('button', { name: 'Edit' }).click();
 		await expect(page.getByLabel(/Name/)).toHaveValue('Baby Ada');
 	});
 });

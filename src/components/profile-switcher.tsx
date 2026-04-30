@@ -54,9 +54,7 @@ export function ProfileSwitcher() {
 						/>
 						<span>{profile.name}</span>
 						{selectedProfileId === profile.id && (
-							<span className="ml-auto text-xs text-muted-foreground">
-								✓
-							</span>
+							<span className="ml-auto text-xs text-muted-foreground">✓</span>
 						)}
 					</DropdownMenuItem>
 				))}

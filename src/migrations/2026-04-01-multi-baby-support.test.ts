@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import { createMergeableStore } from 'tinybase';
+import { describe, expect, it } from 'vitest';
 import {
 	STORE_VALUE_PROFILE,
 	STORE_VALUE_SELECTED_PROFILE_ID,
@@ -18,12 +18,18 @@ describe('multiBabySupportMigration', () => {
 		};
 
 		store.setValue(STORE_VALUE_PROFILE, JSON.stringify(profileData));
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'dc1', { timestamp: '2023-01-01T10:00:00Z' });
-		store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'fs1', { startTime: '2023-01-01T11:00:00Z' });
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'dc1', {
+			timestamp: '2023-01-01T10:00:00Z',
+		});
+		store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'fs1', {
+			startTime: '2023-01-01T11:00:00Z',
+		});
 
 		multiBabySupportMigration.migrate(store);
 
-		const selectedProfileId = store.getValue(STORE_VALUE_SELECTED_PROFILE_ID) as string;
+		const selectedProfileId = store.getValue(
+			STORE_VALUE_SELECTED_PROFILE_ID,
+		) as string;
 		expect(selectedProfileId).toBeDefined();
 		expect(typeof selectedProfileId).toBe('string');
 
@@ -31,8 +37,12 @@ describe('multiBabySupportMigration', () => {
 		expect(profileRow.name).toBe('Baby One');
 		expect(profileRow.id).toBe(selectedProfileId);
 
-		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'dc1', 'profileId')).toBe(selectedProfileId);
-		expect(store.getCell(TABLE_IDS.FEEDING_SESSIONS, 'fs1', 'profileId')).toBe(selectedProfileId);
+		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'dc1', 'profileId')).toBe(
+			selectedProfileId,
+		);
+		expect(store.getCell(TABLE_IDS.FEEDING_SESSIONS, 'fs1', 'profileId')).toBe(
+			selectedProfileId,
+		);
 	});
 
 	it('does nothing if no profile value exists', () => {

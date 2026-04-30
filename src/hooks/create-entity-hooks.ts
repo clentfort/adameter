@@ -1,4 +1,4 @@
-import type { Row, Cell } from 'tinybase';
+import type { Cell, Row } from 'tinybase';
 import { useMemo } from 'react';
 import {
 	useDelRowCallback,

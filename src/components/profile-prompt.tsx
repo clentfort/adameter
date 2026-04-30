@@ -8,7 +8,11 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { useProfile, useProfileIds, useUpsertProfile } from '@/hooks/use-profile';
+import {
+	useProfile,
+	useProfileIds,
+	useUpsertProfile,
+} from '@/hooks/use-profile';
 import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
 import ProfileForm from './profile-form';
 

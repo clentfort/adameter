@@ -101,12 +101,21 @@ export async function setTinyBaseRow(
 			const store = (
 				window as unknown as {
 					tinybaseStore: {
+						getValue: (id: string) => unknown;
 						setRow: (tId: string, rId: string, r: unknown) => void;
 					};
 				}
 			).tinybaseStore;
 			if (store) {
-				store.setRow(tableId_, rowId_, row_);
+				const selectedProfileId = store.getValue('selectedProfileId');
+				const finalRow =
+					typeof row_ === 'object' &&
+					row_ !== null &&
+					tableId_ !== 'profiles' &&
+					selectedProfileId
+						? { ...row_, profileId: selectedProfileId }
+						: row_;
+				store.setRow(tableId_, rowId_, finalRow);
 				return true;
 			}
 			return false;
@@ -135,12 +144,21 @@ export async function setTinyBaseRow(
 							const store = (
 								window as unknown as {
 									tinybaseStore: {
+										getValue: (id: string) => unknown;
 										setRow: (tId: string, rId: string, r: unknown) => void;
 									};
 								}
 							).tinybaseStore;
 							if (store) {
-								store.setRow(tableId_, rowId_, row_);
+								const selectedProfileId = store.getValue('selectedProfileId');
+								const finalRow =
+									typeof row_ === 'object' &&
+									row_ !== null &&
+									tableId_ !== 'profiles' &&
+									selectedProfileId
+										? { ...row_, profileId: selectedProfileId }
+										: row_;
+								store.setRow(tableId_, rowId_, finalRow);
 								resolve();
 							} else {
 								setTimeout(checkStore, 50);

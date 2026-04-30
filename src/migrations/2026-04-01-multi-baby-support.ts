@@ -6,7 +6,8 @@ import {
 } from '@/lib/tinybase-sync/constants';
 
 export const multiBabySupportMigration: Migration = {
-	description: 'Move profile from global value to profiles table and link all data',
+	description:
+		'Move profile from global value to profiles table and link all data',
 	id: '2026-04-01-multi-baby-support',
 	migrate: (store) => {
 		const profileValue = store.getValue(STORE_VALUE_PROFILE);
