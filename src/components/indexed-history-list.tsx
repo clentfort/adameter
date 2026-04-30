@@ -1,6 +1,7 @@
 import type { Indexes } from 'tinybase';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useSliceRowIds } from 'tinybase/ui-react';
+import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
 import { formatSectionDate } from '@/utils/format-history-date';
 
 const INITIAL_VISIBLE_DATE_SECTIONS = 7;
@@ -19,7 +20,15 @@ function DateSection({
 	indexes,
 	indexId,
 }: DateSectionProps) {
-	const rowIds = useSliceRowIds(indexId, dateKey, indexes);
+	const [selectedProfileId] = useSelectedProfileId();
+	const sliceId = useMemo(() => {
+		if (selectedProfileId && !dateKey.includes(':')) {
+			return `${selectedProfileId}:${dateKey}`;
+		}
+		return dateKey;
+	}, [selectedProfileId, dateKey]);
+
+	const rowIds = useSliceRowIds(indexId, sliceId, indexes);
 
 	return (
 		<div className="space-y-2">
