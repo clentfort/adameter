@@ -2,6 +2,7 @@ import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import type { Event } from '@/types/event';
 import type { FeedingSession } from '@/types/feeding';
 import type { GrowthMeasurement } from '@/types/growth';
+import type { Profile } from '@/types/profile';
 import type { Tooth } from '@/types/teething';
 import {
 	diaperChangeDataSchema,
@@ -10,6 +11,7 @@ import {
 import { eventDataSchema } from '@/types/event';
 import { feedingSessionDataSchema } from '@/types/feeding';
 import { growthMeasurementDataSchema } from '@/types/growth';
+import { profileDataSchema } from '@/types/profile';
 import { toothDataSchema } from '@/types/teething';
 import { TABLE_IDS } from './constants';
 import { toRow } from './migration-utils';
@@ -21,6 +23,12 @@ type SanitizedRow = Record<string, CellValue>;
 function getDeviceId(row: InputRow): string | undefined {
 	return typeof row.deviceId === 'string' && row.deviceId.length > 0
 		? row.deviceId
+		: undefined;
+}
+
+function getProfileId(row: InputRow): string | undefined {
+	return typeof row.profileId === 'string' && row.profileId.length > 0
+		? row.profileId
 		: undefined;
 }
 
@@ -41,6 +49,10 @@ function sanitizeRowWithSchema(
 	const deviceId = getDeviceId(row);
 	if (deviceId) {
 		sanitizedRow.deviceId = deviceId;
+	}
+	const profileId = getProfileId(row);
+	if (profileId) {
+		sanitizedRow.profileId = profileId;
 	}
 
 	return sanitizedRow;
@@ -78,6 +90,10 @@ export function sanitizeToothForStore(tooth: Tooth): SanitizedRow | null {
 	return sanitizeRowWithSchema({ ...tooth }, toothDataSchema);
 }
 
+export function sanitizeProfileForStore(profile: Profile): SanitizedRow | null {
+	return sanitizeRowWithSchema({ ...profile }, profileDataSchema);
+}
+
 export function sanitizeImportedRow(
 	tableId: string,
 	row: InputRow,
@@ -104,6 +120,10 @@ export function sanitizeImportedRow(
 
 	if (tableId === TABLE_IDS.TEETHING) {
 		return sanitizeRowWithSchema(row, toothDataSchema);
+	}
+
+	if (tableId === TABLE_IDS.PROFILES) {
+		return sanitizeRowWithSchema(row, profileDataSchema);
 	}
 
 	return undefined;

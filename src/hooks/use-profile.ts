@@ -1,46 +1,40 @@
+import type { Row } from 'tinybase';
 import type { Profile } from '@/types/profile';
-import { useMemo } from 'react';
-import { useSetValueCallback, useValue } from 'tinybase/ui-react';
-import { STORE_VALUE_PROFILE } from '@/lib/tinybase-sync/constants';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { sanitizeProfileForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { profileSchema } from '@/types/profile';
+import { createEntityHooks } from './create-entity-hooks';
+import { useSelectedProfileId } from './use-selected-profile-id';
+
+function toProfile(id: string, row: Row): Profile | null {
+	const result = profileSchema.safeParse({
+		...row,
+		id,
+	});
+
+	if (!result.success) {
+		// eslint-disable-next-line no-console
+		console.warn(`Invalid profile data for id ${id}:`, result.error.issues);
+		return null;
+	}
+
+	return result.data;
+}
+
+const profileHooks = createEntityHooks<Profile>({
+	sanitize: sanitizeProfileForStore,
+	tableId: TABLE_IDS.PROFILES,
+	toEntity: toProfile,
+});
+
+export const useUpsertProfile = profileHooks.useUpsert;
+export const useRemoveProfile = profileHooks.useRemove;
+export const useProfilesSnapshot = profileHooks.useSnapshot;
+export const useProfileIds = profileHooks.useIds;
 
 export const useProfile = () => {
-	const currentJson = useValue(STORE_VALUE_PROFILE);
-	const current = useMemo(() => parseProfile(currentJson), [currentJson]);
+	const [selectedProfileId] = useSelectedProfileId();
+	const profile = profileHooks.useOne(selectedProfileId);
 
-	const set = useSetValueCallback(
-		STORE_VALUE_PROFILE,
-		(nextProfile: Profile | null) => {
-			if (nextProfile === null) {
-				return '';
-			}
-
-			const normalized = structuredClone(nextProfile);
-			return JSON.stringify(normalized);
-		},
-		[],
-	);
-
-	return [current, set] as const;
+	return [profile ?? null] as const;
 };
-
-function parseProfile(value: unknown): Profile | null {
-	if (typeof value !== 'string' || value === '') {
-		return null;
-	}
-
-	try {
-		const parsed = JSON.parse(value);
-		const result = profileSchema.safeParse(parsed);
-
-		if (!result.success) {
-			// eslint-disable-next-line no-console
-			console.warn('Invalid profile data:', result.error.issues);
-			return null;
-		}
-
-		return result.data;
-	} catch {
-		return null;
-	}
-}

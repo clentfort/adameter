@@ -2,6 +2,7 @@ import type { Store } from 'tinybase';
 import {
 	STORE_VALUE_FEEDING_IN_PROGRESS,
 	STORE_VALUE_PROFILE,
+	STORE_VALUE_SELECTED_PROFILE_ID,
 	TABLE_IDS,
 } from './constants';
 
@@ -19,6 +20,10 @@ export function isStoreDataEmpty(store: Store) {
 	}
 
 	if (store.hasValue(STORE_VALUE_PROFILE)) {
+		return false;
+	}
+
+	if (store.hasValue(STORE_VALUE_SELECTED_PROFILE_ID)) {
 		return false;
 	}
 

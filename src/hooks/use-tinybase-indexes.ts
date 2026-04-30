@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { useSliceIds, useSliceRowIds } from 'tinybase/ui-react';
 import {
 	INDEX_IDS,
 	useTinybaseIndexes,
 } from '@/contexts/tinybase-indexes-context';
+import { useSelectedProfileId } from './use-selected-profile-id';
 
 /**
  * Factory function to create a hook that returns date keys for a specific index.
@@ -10,7 +12,18 @@ import {
 function createByDateHook(indexId: string) {
 	return function useByDate() {
 		const indexes = useTinybaseIndexes();
-		const dateKeys = useSliceIds(indexId, indexes);
+		const allSliceIds = useSliceIds(indexId, indexes);
+		const [selectedProfileId] = useSelectedProfileId();
+
+		const dateKeys = useMemo(() => {
+			if (!selectedProfileId) {
+				return allSliceIds.filter((id) => !id.includes(':'));
+			}
+			const prefix = `${selectedProfileId}:`;
+			return allSliceIds
+				.filter((id) => id.startsWith(prefix))
+				.map((id) => id.slice(prefix.length));
+		}, [allSliceIds, selectedProfileId]);
 
 		return {
 			dateKeys,
@@ -62,5 +75,14 @@ export const useGrowthMeasurementsByDate = createByDateHook(
  */
 export function useDateSliceRowIds(indexId: string, dateKey: string): string[] {
 	const indexes = useTinybaseIndexes();
-	return useSliceRowIds(indexId, dateKey, indexes);
+	const [selectedProfileId] = useSelectedProfileId();
+
+	const sliceId = useMemo(() => {
+		if (selectedProfileId && !dateKey.includes(':')) {
+			return `${selectedProfileId}:${dateKey}`;
+		}
+		return dateKey;
+	}, [selectedProfileId, dateKey]);
+
+	return useSliceRowIds(indexId, sliceId, indexes);
 }

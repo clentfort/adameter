@@ -8,11 +8,15 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { useProfile } from '@/hooks/use-profile';
+import { useProfile, useProfileIds, useUpsertProfile } from '@/hooks/use-profile';
+import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
 import ProfileForm from './profile-form';
 
 export default function ProfilePrompt() {
-	const [profile, setProfile] = useProfile();
+	const [profile] = useProfile();
+	const profileIds = useProfileIds();
+	const upsertProfile = useUpsertProfile();
+	const [, setSelectedProfileId] = useSelectedProfileId();
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
@@ -23,7 +27,7 @@ export default function ProfilePrompt() {
 		return null;
 	}
 
-	if (profile?.dob || profile?.optedOut) {
+	if (profileIds.length > 0 || profile?.optedOut) {
 		return null;
 	}
 
@@ -44,8 +48,16 @@ export default function ProfilePrompt() {
 					</DialogDescription>
 				</DialogHeader>
 				<ProfileForm
-					onOptOut={() => setProfile({ optedOut: true })}
-					onSave={(data) => setProfile({ ...data, optedOut: false })}
+					onOptOut={() => {
+						const id = crypto.randomUUID();
+						upsertProfile({ id, optedOut: true });
+						setSelectedProfileId(id);
+					}}
+					onSave={(data) => {
+						const id = crypto.randomUUID();
+						upsertProfile({ ...data, id, optedOut: false });
+						setSelectedProfileId(id);
+					}}
 				/>
 			</DialogContent>
 		</Dialog>

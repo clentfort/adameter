@@ -20,7 +20,8 @@ export const INDEX_IDS = {
 } as const;
 
 /**
- * Extracts the date portion (yyyy-MM-dd) from a timestamp cell value.
+ * Extracts the date portion (yyyy-MM-dd) from a timestamp cell value,
+ * prefixed by the profileId if present.
  * Returns empty string for invalid or missing timestamps.
  */
 function getDateSliceId(getCell: (cellId: string) => unknown, cellId: string) {
@@ -34,7 +35,14 @@ function getDateSliceId(getCell: (cellId: string) => unknown, cellId: string) {
 		return '';
 	}
 
-	return format(parsedDate, 'yyyy-MM-dd');
+	const date = format(parsedDate, 'yyyy-MM-dd');
+	const profileId = getCell('profileId');
+
+	if (typeof profileId === 'string' && profileId.length > 0) {
+		return `${profileId}:${date}`;
+	}
+
+	return date;
 }
 
 /**
@@ -55,11 +63,16 @@ function getTimestampSortKey(
 }
 
 /**
- * Comparator for sorting slice IDs (dates) in descending order.
+ * Comparator for sorting slice IDs (profileId:date) in descending order.
  * More recent dates come first.
  */
 function descendingSliceIdSorter(sliceId1: string, sliceId2: string) {
-	return sliceId2.localeCompare(sliceId1);
+	// If both have profileId prefix, we compare them.
+	// We want to sort primarily by date (the part after the colon).
+	const part1 = sliceId1.includes(':') ? sliceId1.split(':')[1] : sliceId1;
+	const part2 = sliceId2.includes(':') ? sliceId2.split(':')[1] : sliceId2;
+
+	return part2.localeCompare(part1);
 }
 
 /**
