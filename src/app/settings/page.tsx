@@ -32,7 +32,7 @@ export default function SettingsPage() {
 				<Link
 					className="w-full flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm hover:bg-accent transition-colors"
 					data-testid="settings-profile"
-					href="/settings/profile"
+					href="/settings/children"
 				>
 					<div className="flex items-center gap-3">
 						<div
@@ -47,13 +47,10 @@ export default function SettingsPage() {
 						<div className="text-left">
 							<p className="font-medium">
 								{profile?.name ||
-									fbt('Child Profile', 'Label for child profile settings')}
+									fbt('Children', 'Label for children settings')}
 							</p>
 							<p className="text-sm text-muted-foreground">
-								{fbt(
-									'Edit name, birthday, and more',
-									'Subtext for profile settings',
-								)}
+								{fbt('Manage child profiles', 'Subtext for children settings')}
 							</p>
 						</div>
 					</div>
