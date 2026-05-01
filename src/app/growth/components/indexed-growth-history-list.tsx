@@ -19,8 +19,8 @@ import {
 	useRemoveGrowthMeasurement,
 	useUpsertGrowthMeasurement,
 } from '@/hooks/use-growth-measurements';
-import { useTooth, useUpsertTooth } from '@/hooks/use-teething';
 import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
+import { useTooth, useUpsertTooth } from '@/hooks/use-teething';
 import {
 	useGrowthMeasurementsByDate,
 	useTeethByDate,
