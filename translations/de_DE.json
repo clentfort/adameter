@@ -4260,395 +4260,395 @@
     },
     "kzsVQakI7iPP6jIx86TsZw==": {
       "description": "Label for stool count in total stats",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "contains poo",
+          "translation": "enthält Stuhl",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "OhBes6yBO7BW0imERt0YHQ==": {
       "description": "Summary of the sharing settings",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Connected to {roomName}",
+          "translation": "Verbunden mit {roomName}",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "7AAhJP/XIY7XMCNS8HCKew==": {
       "description": "Text showing no room is connected",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Not syncing",
+          "translation": "Keine Synchronisierung",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "O7GalHYtdSlpgVS0yjMVDA==": {
       "description": "Label for data settings",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Data Management",
+          "translation": "Datenverwaltung",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "DuuY/KrO6a1EGxfVpQCvdg==": {
       "description": "Subtext for data settings",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Import and export your data",
+          "translation": "Importiere oder exportiere deine Daten",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "RK4qY6t3k50ZECm72q8mag==": {
       "description": "Reusable diaper upfront cost display",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Upfront cost: {currency}{upfrontCost}",
+          "translation": "Anschaffungskosten: {currency}{upfrontCost}",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "eZReEpE/dLqy40GB2UkkMA==": {
       "description": "Text showing no upfront cost is set for reusable diapers",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "No upfront cost set",
+          "translation": "Keine Anschaffungskosten angegeben",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "2LmTsaFDKEKp1G5p74vB0Q==": {
       "description": "Title for adding a product",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Add Product",
+          "translation": "Produkt hinzufügen",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "K1JhP9MT38vJVh2NVONZuQ==": {
       "description": "Title for editing a product",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Edit Product",
+          "translation": "Produkt bearbeiten",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "/OMK8lDZZhIij9/XwICCHg==": {
       "description": "Success message for factory reset",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "App reset successfully.",
+          "translation": "App erfolgreich zurückgesetzt.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "9cfKL4rTJJZO0LdObVm9QQ==": {
       "description": "Error message for factory reset failure",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Failed to reset app.",
+          "translation": "Zurücksetzen der App fehlgeschlagen.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "VQL4YujyvjAh2JwjS6Vy5g==": {
       "description": "Export success message",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Data exported successfully.",
+          "translation": "Daten erfolgreich exportiert.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "5va/PqOSOZdJdb7nWC0hZA==": {
       "description": "Export error message",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Failed to export data.",
+          "translation": "Export der Daten fehlgeschlagen.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "5ML9U2umGnaDUA4rJ17cZA==": {
       "description": "Import success message",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Data imported successfully.",
+          "translation": "Daten erfolgreich importiert.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "IgnzcgmiWJa0lh9kYR7PhA==": {
       "description": "Import error message",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Failed to import data.",
+          "translation": "Import der Daten fehlgeschlagen.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "fchub4athWdjNqchBkr74Q==": {
       "description": "Export data card title",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Export Data",
+          "translation": "Daten exportieren",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "sRkn9+7QzWxiyXSLtY8q+A==": {
       "description": "Export data description",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Download all your data as a ZIP file containing CSVs.",
+          "translation": "Lade all deine Daten als ZIP-Datei mit CSVs herunter.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "1HWKtAZ5wZ1rZjPmi8jwwg==": {
       "description": "Exporting button text",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Exporting...",
+          "translation": "Exportiere…",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "oJz/Euc318xaBhIewd0e9w==": {
       "description": "Export button text",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Export",
+          "translation": "Exportieren",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "2KOv69qOE2alT3t0KYWimA==": {
       "description": "Import data card title",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Import Data",
+          "translation": "Daten importieren",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "Gu57EQD7GScdCQFr0d0JAw==": {
       "description": "Import data description",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Import data from a ZIP file containing CSVs.",
+          "translation": "Importiere Daten aus einer ZIP-Datei mit CSVs.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "EJbIFmB9xP+i8U5uVR2mbg==": {
       "description": "Factory reset card title",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Factory Reset",
+          "translation": "Zurücksetzen auf Werkseinstellungen",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "/fkw4y/ccvDQbFdkfpFCmQ==": {
       "description": "Factory reset description",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Clear all local data and disconnect from any shared room. This action cannot be undone.",
+          "translation": "Alle lokalen Daten werden gelöscht und die Verbindung zu deinem Raum getrennt. Diese Aktion kann nicht rückgängig gemacht werden.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "7QGTOct93Y5IsbpMDmYDjg==": {
       "description": "Resetting button text",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Resetting...",
+          "translation": "Wird zurückgesetzt…",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "JKVSckRdFdRNYaDOm2qwFA==": {
       "description": "Reset button text",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Factory Reset",
+          "translation": "Zurücksetzen auf Werkseinstellungen",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "6coNVpNaQeLLP3w23Y1KZQ==": {
       "description": "Title for factory reset confirmation dialog",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Are you absolutely sure?",
+          "translation": "Bist du dir wirklich ganz sicher?",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "7KWB6DiiHZeBcCx5xmDrbw==": {
       "description": "Warning message for factory reset",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "This action will permanently delete all your local data and disconnect you from any shared room.",
+          "translation": "Diese Aktion löscht dauerhaft alle deine lokalen Daten und trennt die Verbindung zu deinem Raum.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "7tVjMZfNPC0vP7fOUse29A==": {
       "description": "Instruction to type a word to confirm reset",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Please type {confirmationWord} to confirm.",
+          "translation": "Bitte gib {confirmationWord} zur Bestätigung ein.",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "Aq15buVsO7y2ElGA0Ay5dw==": {
       "description": "Placeholder for reset confirmation input",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Type \"delete\" here",
+          "translation": "Gib hier „delete“ ein",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "rMeGA6/MT84mjB7m3QyWTg==": {
       "description": "Confirmation word for reset",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "delete",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "DTzqk57KH4vNdJC6ZO3shA==": {
       "description": "Button text to confirm factory reset",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Delete everything",
+          "translation": "Alles löschen",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "zVlnNWH9Y+xLUoBWFzTqjQ==": {
       "description": "Label for butterfly charts setting",
-      "status": "new",
       "tokens": [],
+      "types": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Butterfly Charts",
+          "translation": "Schmetterlingsdiagramme",
           "variations": {}
         }
-      ],
-      "types": []
+      ]
     },
     "XYJnHcfUtMqCOylP2Xx/CQ==": {
       "description": "Description for butterfly charts setting",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Show comparison data in statistics",
+          "translation": "Vergleichsdaten in Statistiken anzeigen",
           "variations": {}
         }
       ],
@@ -4656,11 +4656,11 @@
     },
     "shpJbTgvWDXbpBoF/HrpGg==": {
       "description": "Label for dev mode setting",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Dev Mode",
+          "translation": "Entwickler-Modus",
           "variations": {}
         }
       ],
@@ -4668,11 +4668,11 @@
     },
     "jv/y+5f8shCQSbj+P/mbuw==": {
       "description": "Description for dev mode setting",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Enable developer tools and error details",
+          "translation": "Entwickler-Tools und Fehlerdetails aktivieren",
           "variations": {}
         }
       ],
@@ -4680,11 +4680,11 @@
     },
     "qTLpb1Q0D2LmcJiAfUnWpg==": {
       "description": "Label for a body weight input in pounds",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Weight (lbs)",
+          "translation": "Gewicht (lbs)",
           "variations": {}
         }
       ],
@@ -4692,11 +4692,11 @@
     },
     "D/1vS3kPQVvvNqj03WyeUA==": {
       "description": "Label for a body weight input in grams",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Weight (g)",
+          "translation": "Gewicht (g)",
           "variations": {}
         }
       ],
@@ -4704,11 +4704,11 @@
     },
     "YeFGBlnGWUSfiTtgii2wsA==": {
       "description": "Placeholder for a weight input in pounds",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "e.g. 7.7",
+          "translation": "z. B. 7,7",
           "variations": {}
         }
       ],
@@ -4716,11 +4716,11 @@
     },
     "lDjIasw63i6HKF6vmj4FHA==": {
       "description": "Placeholder for a weight input in grams",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "e.g. 3500",
+          "translation": "z. B. 3500",
           "variations": {}
         }
       ],
@@ -4728,11 +4728,11 @@
     },
     "qAOInLn7tvNp2j3+4q/RpQ==": {
       "description": "Label for a body height input in inches",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Height (in)",
+          "translation": "Größe (in)",
           "variations": {}
         }
       ],
@@ -4740,11 +4740,11 @@
     },
     "Gu2S6uZGTg8BmPDd9ZbJmg==": {
       "description": "Label for a body height input in centimeters",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Height (cm)",
+          "translation": "Größe (cm)",
           "variations": {}
         }
       ],
@@ -4752,11 +4752,11 @@
     },
     "X7eF36Xi4bSDh6QLB8TUSQ==": {
       "description": "Placeholder for a height input in inches",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "e.g. 19.7",
+          "translation": "z. B. 19,7",
           "variations": {}
         }
       ],
@@ -4764,11 +4764,11 @@
     },
     "P1m2lndcaIpDUz5LJ26VVQ==": {
       "description": "Placeholder for a height input in centimeters",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "e.g. 50",
+          "translation": "z. B. 50",
           "variations": {}
         }
       ],
@@ -4776,11 +4776,11 @@
     },
     "wgDUPkXT0ztzKkS01duuuQ==": {
       "description": "Label for a head circumference input in inches",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Head Circumference (in)",
+          "translation": "Kopfumfang (in)",
           "variations": {}
         }
       ],
@@ -4788,11 +4788,11 @@
     },
     "eihaddP1P9nsgokmG9uF7Q==": {
       "description": "Label for a head circumference input in centimeters",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Head Circumference (cm)",
+          "translation": "Kopfumfang (cm)",
           "variations": {}
         }
       ],
@@ -4800,11 +4800,11 @@
     },
     "aKQqcTVE40+82cFHHmGB0Q==": {
       "description": "Placeholder for a head circumference input in inches",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "e.g. 13.8",
+          "translation": "z. B. 13,8",
           "variations": {}
         }
       ],
@@ -4812,11 +4812,11 @@
     },
     "PFCoOPKjcA+5OzTf6hsjAw==": {
       "description": "Placeholder for a head circumference input in centimeters",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "e.g. 35",
+          "translation": "z. B. 35",
           "variations": {}
         }
       ],
@@ -4824,11 +4824,11 @@
     },
     "wZ4U0/kMeYg9gXoDO0LQVA==": {
       "description": "Growth measurement entry title",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Measurement",
+          "translation": "Messung",
           "variations": {}
         }
       ],
@@ -4836,11 +4836,11 @@
     },
     "iHld0MNJL4o/uG5p2t8mHQ==": {
       "description": "Weight tooltip",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Weight",
+          "translation": "Gewicht",
           "variations": {}
         }
       ],
@@ -4848,11 +4848,11 @@
     },
     "LrfjhPJopL6B3wMDHB6jGg==": {
       "description": "Height tooltip",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Height",
+          "translation": "Größe",
           "variations": {}
         }
       ],
@@ -4860,11 +4860,11 @@
     },
     "jAVdKnz6Amalo+dpdZ6Bpg==": {
       "description": "Head circumference tooltip",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Head Circumference",
+          "translation": "Kopfumfang",
           "variations": {}
         }
       ],
@@ -4872,11 +4872,11 @@
     },
     "YNhjITmu9Ftka4zBf9/V0g==": {
       "description": "Teething entry title",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Teething",
+          "translation": "Zahnen",
           "variations": {}
         }
       ],
@@ -4884,8 +4884,8 @@
     },
     "D0O/XZV/jO2HOX/BvKarZQ==": {
       "description": "Tooth name and FDI id",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
           "translation": "{toothName} ({fdi})",
@@ -4896,11 +4896,11 @@
     },
     "PhTURfbaT28egoKw4Pl4Mg==": {
       "description": "Placeholder text for a textbox to note any notes during feeding",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "e.g. good latch, sleepy, etc.",
+          "translation": "z. B. gutes Andocken, schläfrig, usw.",
           "variations": {}
         }
       ],
@@ -4908,11 +4908,11 @@
     },
     "uN54je+rnEQ3k+lZiNybRw==": {
       "description": "Menu item to show feeding sessions during an event",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Show Feeding Sessions",
+          "translation": "Fütterungen anzeigen",
           "variations": {}
         }
       ],
@@ -4920,11 +4920,11 @@
     },
     "ZwYAZxff5nN6X2AtfUM/lQ==": {
       "description": "Menu item to show diaper changes during an event",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Show Diaper Changes",
+          "translation": "Windelwechsel anzeigen",
           "variations": {}
         }
       ],
@@ -4932,11 +4932,11 @@
     },
     "fKkostd8jM3K3WIS52FTBQ==": {
       "description": "Label on an input to specify the body temperature in degree Fahrenheit",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Temperature (°F)",
+          "translation": "Temperatur (°F)",
           "variations": {}
         }
       ],
@@ -4944,11 +4944,11 @@
     },
     "BaBZuyVeag/B7G6rIf89KQ==": {
       "description": "Placeholder text for an input to set the body temperature in degree Fahrenheit",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "e.g. 99.0",
+          "translation": "z. B. 99,0",
           "variations": {}
         }
       ],
@@ -4956,11 +4956,11 @@
     },
     "1RtON6HKYIcjp28Bcyxkrw==": {
       "description": "A warning that the temperature is outside the normal range (Fahrenheit)",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "Warning: Temperature outside normal range (97.7°F - 99.5°F)",
+          "translation": "Achtung: Temperatur außerhalb des Normbereichs (97,7°F – 99,5°F)",
           "variations": {}
         }
       ],
@@ -4968,11 +4968,47 @@
     },
     "1VqnCqkveaY9PaDWddwRPQ==": {
       "description": "Short information text that a diaper has leaked",
-      "status": "new",
       "tokens": [],
+      "status": "translated",
       "translations": [
         {
-          "translation": "leaked",
+          "translation": "ausgelaufen",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "WMRjS3uUMfSMot6jY/N4ag==": {
+      "description": "Label for today's diaper stats",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Windeln heute",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "xkOqy7qcQMsK61/YJZ1IrQ==": {
+      "description": "Label for show feeding setting",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Fütterung anzeigen",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "cS9s1lMSFPSLEWTfzdZRdw==": {
+      "description": "Description for show feeding setting",
+      "tokens": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Still- und Fütterungserfassung anzeigen",
           "variations": {}
         }
       ],
