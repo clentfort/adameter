@@ -100,7 +100,7 @@ importers:
         version: 4.2.4
       tinybase:
         specifier: ^8.0.0
-        version: 8.2.0(partykit@0.0.115)(partysocket@1.1.18(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(ws@8.20.0)(zod@4.3.6)
+        version: 8.2.0(partykit@0.0.115)(partysocket@1.1.18(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(ws@8.20.0)(zod@4.4.2)
       tinybase-persister-partykit-client-encrypted:
         specifier: workspace:*
         version: link:packages/tinybase-persister-partykit-client-encrypted
@@ -115,7 +115,7 @@ importers:
         version: 1.4.0
       zod:
         specifier: ^4.0.0
-        version: 4.3.6
+        version: 4.4.2
     devDependencies:
       '@babel/runtime':
         specifier: ^7.27.0
@@ -269,7 +269,7 @@ importers:
         version: 25.0.3(typescript@6.0.3)
       tinybase:
         specifier: ^8.0.0
-        version: 8.2.0(partykit@0.0.115)(partysocket@1.1.18(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(ws@8.20.0)(zod@4.3.6)
+        version: 8.2.0(partykit@0.0.115)(partysocket@1.1.18(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(ws@8.20.0)(zod@4.4.2)
       typescript:
         specifier: ^6.0.0
         version: 6.0.3
@@ -302,7 +302,7 @@ importers:
         version: 25.0.3(typescript@6.0.3)
       tinybase:
         specifier: ^8.0.0
-        version: 8.2.0(partykit@0.0.115)(partysocket@1.1.18(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(ws@8.20.0)(zod@4.3.6)
+        version: 8.2.0(partykit@0.0.115)(partysocket@1.1.18(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(ws@8.20.0)(zod@4.4.2)
       typescript:
         specifier: ^6.0.0
         version: 6.0.3
@@ -6210,8 +6210,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+  zod@4.4.2:
+    resolution: {integrity: sha512-IynmDyxsEsb9RKzO3J9+4SxXnl2FTFSzNBaKKaMV6tsSk0rw9gYw9gs+JFCq/qk2LCZ78KDwyj+Z289TijSkUw==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -9075,8 +9075,8 @@ snapshots:
       '@babel/parser': 7.29.2
       eslint: 10.3.0(jiti@2.6.1)
       hermes-parser: 0.25.1
-      zod: 4.3.6
-      zod-validation-error: 4.0.2(zod@4.3.6)
+      zod: 4.4.2
+      zod-validation-error: 4.0.2(zod@4.4.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -11688,14 +11688,14 @@ snapshots:
 
   time-zone@1.0.0: {}
 
-  tinybase@8.2.0(partykit@0.0.115)(partysocket@1.1.18(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(ws@8.20.0)(zod@4.3.6):
+  tinybase@8.2.0(partykit@0.0.115)(partysocket@1.1.18(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(ws@8.20.0)(zod@4.4.2):
     optionalDependencies:
       partykit: 0.0.115
       partysocket: 1.1.18(react@19.2.5)
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
       ws: 8.20.0
-      zod: 4.3.6
+      zod: 4.4.2
 
   tinybench@2.9.0: {}
 
@@ -12222,12 +12222,12 @@ snapshots:
       mustache: 4.2.0
       stacktracey: 2.2.0
 
-  zod-validation-error@4.0.2(zod@4.3.6):
+  zod-validation-error@4.0.2(zod@4.4.2):
     dependencies:
-      zod: 4.3.6
+      zod: 4.4.2
 
   zod@3.25.76: {}
 
-  zod@4.3.6: {}
+  zod@4.4.2: {}
 
   zwitch@2.0.4: {}
