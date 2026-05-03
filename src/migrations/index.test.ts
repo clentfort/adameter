@@ -183,6 +183,22 @@ describe('runMigrations', () => {
 		});
 	});
 
+	it('removes entity rows that fail schema validation', () => {
+		const store = createStore();
+		// Event without required startDate
+		store.setRow(TABLE_IDS.EVENTS, 'e1', {
+			title: 'Invalid Event',
+			type: 'point',
+		});
+
+		const result = runMigrations(store);
+
+		expect(result.appliedMigrationIds).toContain(
+			NORMALIZE_ENTITY_ROWS_MIGRATION_ID,
+		);
+		expect(store.hasRow(TABLE_IDS.EVENTS, 'e1')).toBe(false);
+	});
+
 	it('renames event description to notes', () => {
 		const store = createStore();
 		store.setRow(TABLE_IDS.EVENTS, 'e1', {
