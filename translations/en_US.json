@@ -97,18 +97,6 @@
         }
       ]
     },
-    "eTTQBt9Zmf3KFRS2ylz0og==": {
-      "description": "Label for the language switcher",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Language",
-          "variations": {}
-        }
-      ]
-    },
     "w3uvzf4IqkZCoNuRlddJow==": {
       "description": "Title of a dialog to configure sharing options",
       "tokens": [],
@@ -141,18 +129,6 @@
       "translations": [
         {
           "translation": "Create room",
-          "variations": {}
-        }
-      ]
-    },
-    "DuQUfnk+/YGVZ8E3Tx0PDg==": {
-      "description": "Label for an input to set the id of a shared room",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Room",
           "variations": {}
         }
       ]
@@ -241,30 +217,6 @@
         }
       ]
     },
-    "SiQ7pYEz/3u9zAc6qBr2rg==": {
-      "description": "Label to switch to the German locale",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "German",
-          "variations": {}
-        }
-      ]
-    },
-    "ypGUoA339DiFGhqEycR1CQ==": {
-      "description": "Label to switch to the English locale",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "English",
-          "variations": {}
-        }
-      ]
-    },
     "hIGWhCGtlLUtyTn91ssztg==": {
       "description": "Title of the Feeding tab",
       "tokens": [],
@@ -324,42 +276,6 @@
           "variations": {}
         }
       ]
-    },
-    "8egsjXiAUR9gP1MHsoD4Og==": {
-      "description": "Label for light mode setting on a theme switcher",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Light",
-          "variations": {}
-        }
-      ]
-    },
-    "g3WYmNv9Yy9Fp3MwtT//2A==": {
-      "description": "Label for dark mode on a theme switcher",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Dark",
-          "variations": {}
-        }
-      ]
-    },
-    "HPt+xQYFzoe05NathJwS+A==": {
-      "description": "Label for system mode on a theme switcher",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "System",
-          "variations": {}
-        }
-      ],
-      "types": []
     },
     "wh9JZWabPa55WvaK7bwRNw==": {
       "description": "Placeholder value indicating that no data has been recorded",
@@ -505,30 +421,6 @@
       ],
       "types": []
     },
-    "edpGW46CjLDBUTEYKovxKw==": {
-      "description": "Subtitle for the diaper statistics section",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Diaper",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "vFgTz4xRUwDFjv0Ein8Rnw==": {
-      "description": "Message shown when no diaper data is available for the selected time range",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "No diaper data available for the selected time range.",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
     "i5c66cMbLLZBXFM8EUjFvw==": {
       "description": "Subtitle for the growth statistics section",
       "tokens": [],
@@ -548,150 +440,6 @@
       "translations": [
         {
           "translation": "No growth data available.",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "6jJ0LBv0h9eA3RKmdph1BQ==": {
-      "description": "Title for the diaper statistics card",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Diaper Statistics",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "jHAE2p/NC3dDXRSCoLS+ew==": {
-      "description": "Label for the overview tab in diaper statistics",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Overview",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "l6cwQfQ+bOpvTU4dmqOj0w==": {
-      "description": "Label for the diaper brands tab in diaper statistics",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Diaper Brands",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "S2MY7Ve0fzdmqYtMIaWnLA==": {
-      "description": "Label for the leakage tab in diaper statistics",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Diaper leaked",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "7r0ftjlgKC0B89nIkVt9AQ==": {
-      "description": "Label for the total number of diaper changes",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Total",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "qNOOnvVRsKZYt16yWEKfzQ==": {
-      "description": "Label for the average number of diaper changes per day",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Per Day",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "H+wN6BDd74w8Tqfd6MG1UQ==": {
-      "description": "Label for diaper changes that only contain urine",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Urine Only",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "c1GvuuV6x9Oa/nTC2heu9A==": {
-      "description": "Label for diaper changes that contain stool",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "With Stool",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "2SWzQmVyCM+EyQYPadiOVQ==": {
-      "description": "Label for diaper changes that had leakage",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "With Leakage",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "t6zD6Vo1nUrOZyKVxh5T5Q==": {
-      "description": "Message shown when no diaper brand data is available",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "No diaper brands recorded.",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "reXIfZBVRZytet+gKIBZfA==": {
-      "description": "Title for the list of diaper brands sorted by leakage frequency",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Diaper brands by leakage frequency (min. 3 uses)",
-          "variations": {}
-        }
-      ],
-      "types": []
-    },
-    "D/LgbrDkK8zL20h/Uzy0pw==": {
-      "description": "Message shown when not enough data is available for leakage statistics",
-      "tokens": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Not enough data for leakage statistics.",
           "variations": {}
         }
       ],
@@ -769,18 +517,6 @@
         }
       ]
     },
-    "L/dYURuIZNFbEvYx4IUbpA==": {
-      "description": "Label for the date axis on charts",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Date",
-          "variations": {}
-        }
-      ]
-    },
     "mXru7UFvqRGoFpLn9RGV2w==": {
       "description": "Message shown when no data is available for a specific growth chart (e.g. no weight data)",
       "tokens": [],
@@ -789,18 +525,6 @@
       "translations": [
         {
           "translation": "No data available.",
-          "variations": {}
-        }
-      ]
-    },
-    "F1ZOXuaPGnOmNM6IStJLeg==": {
-      "description": "Title for the weight section in the growth chart",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Weight (g)",
           "variations": {}
         }
       ]
@@ -841,18 +565,6 @@
         }
       ]
     },
-    "QyZiR5MDDpvkJWgnMxaNIQ==": {
-      "description": "Title for the height section in the growth chart",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Height (cm)",
-          "variations": {}
-        }
-      ]
-    },
     "vjIm84Kj+LuztMuRFmTgyA==": {
       "description": "Dataset label for height data in the chart legend",
       "tokens": [],
@@ -889,18 +601,6 @@
         }
       ]
     },
-    "gNFdPNKrbxjYFF0AKYMzrQ==": {
-      "description": "Title for the head circumference section in the growth chart",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Head Circumference (cm)",
-          "variations": {}
-        }
-      ]
-    },
     "55/ttjgv/Eb+tVslcCmspA==": {
       "description": "Dataset label for head circumference data in the chart legend",
       "tokens": [],
@@ -933,18 +633,6 @@
       "translations": [
         {
           "translation": "Head Circumference (cm)",
-          "variations": {}
-        }
-      ]
-    },
-    "kdHyTzeN3XNWY/psYAuT8g==": {
-      "description": "Note explaining that vertical lines on the chart indicate important events",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "* Vertical lines indicate important events.",
           "variations": {}
         }
       ]
@@ -1009,66 +697,6 @@
         }
       ]
     },
-    "2xdSjIF4n1iAEVnryy7OBg==": {
-      "description": "Placeholder text when next due time calculation is not yet available or supported for the schedule type",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Calculation pending",
-          "variations": {}
-        }
-      ]
-    },
-    "9i+R3AOjR0HMN0UqGK/UUA==": {
-      "description": "Not applicable or not available",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "N/A",
-          "variations": {}
-        }
-      ]
-    },
-    "6J6NBngNV2imxIqHuCgMVw==": {
-      "description": "Label for dosage amount input",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Dosage Amount",
-          "variations": {}
-        }
-      ]
-    },
-    "FuicQZKyFgqVur3uuFIdyw==": {
-      "description": "Label for dosage unit input",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Unit",
-          "variations": {}
-        }
-      ]
-    },
-    "yTLdcPPPL1yPSqeTh1x15g==": {
-      "description": "Placeholder for dosage unit input",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "e.g., ml, mg, drops",
-          "variations": {}
-        }
-      ]
-    },
     "o9/791nq8HNHWZLr+kCpXQ==": {
       "description": "Label for a date field",
       "tokens": [],
@@ -1089,426 +717,6 @@
       "translations": [
         {
           "translation": "Time",
-          "variations": {}
-        }
-      ]
-    },
-    "+xnDhKrqJN7xHuyhB9mYvQ==": {
-      "description": "Label for optional details/notes textarea",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Details/Notes (Optional)",
-          "variations": {}
-        }
-      ]
-    },
-    "wdev+QaOnr8dGSP+qxnrNg==": {
-      "description": "Error message for an invalid date string",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Invalid Date",
-          "variations": {}
-        }
-      ]
-    },
-    "4hhzG8GaJHxroSvS4/gVSA==": {
-      "description": "Label for dosage",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Dosage:",
-          "variations": {}
-        }
-      ]
-    },
-    "ZwdNX/38iySIGYYb8PkZpQ==": {
-      "description": "Label for next due time",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Next Due:",
-          "variations": {}
-        }
-      ]
-    },
-    "UIZiwrg0vtpNGhj1fuwElw==": {
-      "description": "Label for start date",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Start Date:",
-          "variations": {}
-        }
-      ]
-    },
-    "qkWJLMUp9OCJjD/5kDuPQQ==": {
-      "description": "Label for end date",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "End Date:",
-          "variations": {}
-        }
-      ]
-    },
-    "owsfbFVdwnOOIla3Amd7AQ==": {
-      "description": "Label for notes",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Notes:",
-          "variations": {}
-        }
-      ]
-    },
-    "dfrM7EIk8jieNE6y6p4i9w==": {
-      "description": "Label for schedule",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Schedule:",
-          "variations": {}
-        }
-      ]
-    },
-    "Gn859LGLleNnKHdxvjDKhQ==": {
-      "description": "Label for prescriber",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Prescriber:",
-          "variations": {}
-        }
-      ]
-    },
-    "hShA5MmkAfPivnXT8bFurg==": {
-      "description": "Label for dosage amount",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Dosage Amount",
-          "variations": {}
-        }
-      ]
-    },
-    "VQHBMarb76CXhKj8LKWNrg==": {
-      "description": "Label for dosage unit",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Unit",
-          "variations": {}
-        }
-      ]
-    },
-    "Enz4Lj6C639v+djAQNvJzQ==": {
-      "description": "Placeholder for dosage unit",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "e.g., ml, mg, drops",
-          "variations": {}
-        }
-      ]
-    },
-    "njX1gHCiNrK9FTgbx6hMaQ==": {
-      "description": "Label for start date",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Start Date",
-          "variations": {}
-        }
-      ]
-    },
-    "cW2u1TIvjljfjbVewuzRyg==": {
-      "description": "Label for end date (optional)",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "End Date (Optional)",
-          "variations": {}
-        }
-      ]
-    },
-    "h0Bot85wZ2q6pJuh4qqoxQ==": {
-      "description": "Label for prescriber type",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Prescriber",
-          "variations": {}
-        }
-      ]
-    },
-    "ZPnRI8/XmsK7r2ep4AzKqg==": {
-      "description": "Label for prescriber name (optional)",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Prescriber Name (Optional)",
-          "variations": {}
-        }
-      ]
-    },
-    "BWaoAp8wpkO7LMyl2yhoJg==": {
-      "description": "Label for schedule type",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Schedule Type",
-          "variations": {}
-        }
-      ]
-    },
-    "Fo2vpNQIluH1upA5cNRX3g==": {
-      "description": "Placeholder for schedule type select",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Select schedule type",
-          "variations": {}
-        }
-      ]
-    },
-    "vCEtYU9N1poigje1+v6epQ==": {
-      "description": "Daily schedule option",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Daily",
-          "variations": {}
-        }
-      ]
-    },
-    "4Vmxf26eJZ9Lttk0zY+KjQ==": {
-      "description": "Interval schedule option",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Interval",
-          "variations": {}
-        }
-      ]
-    },
-    "EckiXu9sF/BErswEpqSEcQ==": {
-      "description": "Weekly schedule option",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Weekly",
-          "variations": {}
-        }
-      ]
-    },
-    "wN0pw4jj9bCqjWpgnZOprA==": {
-      "description": "As Needed schedule option",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "As Needed (PRN)",
-          "variations": {}
-        }
-      ]
-    },
-    "I0aBqoejWCRfiPzW0/+FYg==": {
-      "description": "Section title for daily schedule times",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Times per day",
-          "variations": {}
-        }
-      ]
-    },
-    "s4U53/NUvrfJBgbOEZYl3g==": {
-      "description": "Button to add another time for daily schedule",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Add Time",
-          "variations": {}
-        }
-      ]
-    },
-    "LliVlv7ZNRI99GtZpp6Cig==": {
-      "description": "Section title for interval schedule",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Interval Details",
-          "variations": {}
-        }
-      ]
-    },
-    "koNHctGEVOTrdVq1va81YQ==": {
-      "description": "Label for first dose time in interval schedule",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "First Dose Time (after start date)",
-          "variations": {}
-        }
-      ]
-    },
-    "fkXAzPiUzcA2YtKZT/6N9Q==": {
-      "description": "Label for interval value",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Interval Value",
-          "variations": {}
-        }
-      ]
-    },
-    "J/FcxhWOaN0nXYPgkSHIZA==": {
-      "description": "Label for interval unit",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Interval Unit",
-          "variations": {}
-        }
-      ]
-    },
-    "lEBkXBhguy2HlbI9ZKFyFw==": {
-      "description": "Hours option for interval unit",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Hours",
-          "variations": {}
-        }
-      ]
-    },
-    "hvazvf+XTgFsRHFUC59Dkg==": {
-      "description": "Days option for interval unit",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Days",
-          "variations": {}
-        }
-      ]
-    },
-    "542lHQd5vSMx9MtvzQColg==": {
-      "description": "Section title for weekly schedule",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Weekly Details",
-          "variations": {}
-        }
-      ]
-    },
-    "w/usjWa0CEZFHeHsh6qZtA==": {
-      "description": "Label for days of week selection",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Days of the Week",
-          "variations": {}
-        }
-      ]
-    },
-    "WpGMpXF1rCzR3Dk5/4lSOQ==": {
-      "description": "Section title for weekly schedule times",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Times on selected days",
-          "variations": {}
-        }
-      ]
-    },
-    "k6zX7+As4NGr31taWKuZ9Q==": {
-      "description": "Button to add another time for weekly schedule",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Add Time",
-          "variations": {}
-        }
-      ]
-    },
-    "VdGLdu5q6JoxKuMz9V4iqg==": {
-      "description": "Label for as needed details",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "Details (e.g., “When fever above 38C”)",
           "variations": {}
         }
       ]
@@ -1861,18 +1069,6 @@
         }
       ]
     },
-    "zNgHNqnHcwNBWUT3BOqKGQ==": {
-      "description": "Title of the dialog to manually add a growth measurement",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Add Growth Measurement"
-        }
-      ]
-    },
     "dnQ9PnHNqabscJZqsD9kdA==": {
       "description": "Message shown when no weight, height, or head circumference is provided. At least one is required",
       "types": [],
@@ -1882,78 +1078,6 @@
         {
           "variations": {},
           "translation": "Please enter at least a weight, height, or head circumference."
-        }
-      ]
-    },
-    "E/8jm0M5Yc4/pq+xiWzhcg==": {
-      "description": "Label for a body weight input",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Weight (g)"
-        }
-      ]
-    },
-    "I4JLnsD+gc9LL6A24X+GkA==": {
-      "description": "Placeholder for a weight input",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "e.g. 3500"
-        }
-      ]
-    },
-    "ahi/bJUe1jhQQzBtkdPD/w==": {
-      "description": "Label for a body height input",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Height (cm)"
-        }
-      ]
-    },
-    "PClK+GAF9vsQqo/clYTY9w==": {
-      "description": "Placeholder for a height input",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "e.g. 50"
-        }
-      ]
-    },
-    "LPaqtXwOfIL9iGz1EQlfNQ==": {
-      "description": "Label for a head circumference input",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Head Circumference (cm)"
-        }
-      ]
-    },
-    "c5ZPiFze1ZQeOTZTft3Lmw==": {
-      "description": "Placeholder for a head circumference input",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "e.g. 35"
         }
       ]
     },
@@ -1981,54 +1105,6 @@
         }
       ]
     },
-    "+L9WgG9P6IVJZg/rzLL8hg==": {
-      "description": "Weight of the baby",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Weight"
-        }
-      ]
-    },
-    "f1eSeOB3tGAG1gHfeTjYVQ==": {
-      "description": "Height of the baby",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Height"
-        }
-      ]
-    },
-    "MfZzIJEHsbjTZmyUU1aoRg==": {
-      "description": "Head circumference of the baby",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Head Circumference"
-        }
-      ]
-    },
-    "oWOL7RcGQPwCQ1krqyncvg==": {
-      "description": "Title for dialog to edit a growth measurement",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Edit Growth Measurement"
-        }
-      ]
-    },
     "XOa5yDd43/4k6SicSknEOA==": {
       "description": "Descedingly ordered history of events (i.e. diaper changes or feeding sessions)",
       "types": [],
@@ -2038,18 +1114,6 @@
         {
           "variations": {},
           "translation": "History"
-        }
-      ]
-    },
-    "CxUOdYU7F0H4N8iKAvq39A==": {
-      "description": "Title of the dialog to manually add a previous feeding session",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Add Feeding"
         }
       ]
     },
@@ -2113,18 +1177,6 @@
         }
       ]
     },
-    "MCgjRy2lCa+MB6lT7QOW4A==": {
-      "description": "Label for a number input that sets the duration of a feeding session in minutes",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "minutes"
-        }
-      ]
-    },
     "dGC4MdeweH6mGZRo+OwDMw==": {
       "description": "Label indicating a feeding was done with the left breast",
       "types": [],
@@ -2149,18 +1201,6 @@
         }
       ]
     },
-    "48TFhF5jKj/MAkOdJSIL0w==": {
-      "description": "Label for a note",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Note"
-        }
-      ]
-    },
     "wKd4Ggr/UJW1UR/e5Db+Ug==": {
       "description": "A note describing that the feeding session crosses midnight",
       "types": [],
@@ -2170,18 +1210,6 @@
         {
           "variations": {},
           "translation": "This session crosses midnight"
-        }
-      ]
-    },
-    "PFX4d/XVcifWrcjrk+hdBw==": {
-      "description": "Label indicating when a feeding session started",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Start"
         }
       ]
     },
@@ -2281,18 +1309,6 @@
         }
       ]
     },
-    "RM0AC8QIpYLDgKgN1c91lA==": {
-      "description": "Title of the dialog to enter feeding time manually",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Enter Feeding Time Manually"
-        }
-      ]
-    },
     "/inS/3ZxenJMNTjoNKY5Ew==": {
       "description": "Badge on a button that tells the user that they should use this breast for the next feeding session",
       "types": [],
@@ -2326,18 +1342,6 @@
         {
           "variations": {},
           "translation": "Events"
-        }
-      ]
-    },
-    "xdjK+9O4yfd69cLNhyL0ew==": {
-      "description": "Title of the dialog to add a measurement",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Add Measurement"
         }
       ]
     },
@@ -2461,18 +1465,6 @@
         }
       ]
     },
-    "uqypwmgMTFHUXekxPkCJCA==": {
-      "description": "Info message that no event data has been recorded yet",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "No events recorded yet."
-        }
-      ]
-    },
     "Je7hP0iMfI6RuMD5NyZlCA==": {
       "description": "Label on an event that is still ongoing",
       "types": [],
@@ -2482,90 +1474,6 @@
         {
           "variations": {},
           "translation": "ongoing"
-        }
-      ]
-    },
-    "ZV50jK8HrEyzr+u7tDFo0g==": {
-      "description": "Title of the dialog to edit a measurement",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Edit Measurement"
-        }
-      ]
-    },
-    "myTl7xkxfQgUCz9MV+cAyg==": {
-      "description": "Title of the dialog to manually add a previous diaper change",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Add Diaper Change"
-        }
-      ]
-    },
-    "5KGEWjodzCazUm0jC6OldA==": {
-      "description": "Label on a radio button to select the type of diaper (urine or stool)",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Diaper Type"
-        }
-      ]
-    },
-    "1+tNkr1iYA+03eMA3LJBcA==": {
-      "description": "Label on a radio button that sets the input to urine only",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Urine Only"
-        }
-      ]
-    },
-    "Mz55VSaBRTb6zp83h57vRQ==": {
-      "description": "Label on a radio button that sets the input to urine and stool",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Stool"
-        }
-      ]
-    },
-    "7D7ziJntCoxQTBesJHrztA==": {
-      "description": "Label on a select that allows the user to pick a diaper brand",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Diaper Brand"
-        }
-      ]
-    },
-    "63qbxN9QNsvm/02G0q+IBQ==": {
-      "description": "Placeholder text on a select that allows the user to pick a diaper brand",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Select Diaper Brand"
         }
       ]
     },
@@ -2638,138 +1546,6 @@
         {
           "variations": {},
           "translation": "e.g. redness, rash, etc."
-        }
-      ]
-    },
-    "v8jIOMoe6DERPgjpGMNg0w==": {
-      "description": "Diaper container urine and stool",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Urine and Stool"
-        }
-      ]
-    },
-    "wDpJf0hr39EZyXan7d6yow==": {
-      "description": "Diaper container urine only",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Urine Only"
-        }
-      ]
-    },
-    "yclVixtC4QvKnwWEGf8xeQ==": {
-      "description": "Label for a measured body temperature in degree Celsius",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Temperature (°C)"
-        }
-      ]
-    },
-    "d49BaGzuyPMIZfHhgPleIg==": {
-      "description": "Label on a field that informs the user about the diaper brand used",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Diaper Brand"
-        }
-      ]
-    },
-    "LwNldlcrN5a+Y1rniLvYOw==": {
-      "description": "Short information text that a diaper has leaked",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Diaper leaked"
-        }
-      ]
-    },
-    "vu6/CIaYISNWQsLIDdMq8A==": {
-      "description": "Prefix to a user defined text on notes on a diaper change (i.e. rashes, redness.)",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Notes"
-        }
-      ]
-    },
-    "CbEfPkR7inUz8SRue5W0ig==": {
-      "description": "Label for a button that tracks a urine only diaper",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Urine Only"
-        }
-      ]
-    },
-    "wP8YoQcKLcgvEWjz0zrF1g==": {
-      "description": "Label for a button that tracks a urine and stool diaper",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Stool"
-        }
-      ]
-    },
-    "J8lj15YDmpetPlEHC+trKw==": {
-      "description": "Title for the diaper change details dialog",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "{diaperType} Diaper - Details"
-        }
-      ]
-    },
-    "FMugYukb3YkOSqYR1I9pvw==": {
-      "description": "Urine",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Urine"
-        }
-      ]
-    },
-    "4pSvVOueN5/F3voXnlcVFg==": {
-      "description": "Stool",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Stool"
         }
       ]
     },
@@ -2917,18 +1693,6 @@
         }
       ]
     },
-    "nAukSQY1IhPOltzZGXHMGg==": {
-      "description": "Link text for Data page in footer",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Import/Export"
-        }
-      ]
-    },
     "2zz1QSQn8wJrq7koRI/IkQ==": {
       "description": "Label showing how many day sections are currently visible in the history list",
       "status": "translated",
@@ -2962,54 +1726,6 @@
         {
           "variations": {},
           "translation": "Delete"
-        }
-      ]
-    },
-    "a8NvjNNBda1/CkhBz4nmzQ==": {
-      "description": "Description for the feeding yearly activity heat map chart",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Each square shows how many feedings were logged on that day."
-        }
-      ]
-    },
-    "IE1hoPKF3yqIBosjaADRbA==": {
-      "description": "Title for the feeding yearly activity heat map chart",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Feeding Activity (Past Year)"
-        }
-      ]
-    },
-    "xu0mtamVArjmxcbgqizhKw==": {
-      "description": "Description for the diaper yearly activity heat map chart",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Each square shows how many diaper changes were logged on that day."
-        }
-      ]
-    },
-    "3c9Cr1tmiXgvSxN4YKk7Yg==": {
-      "description": "Title for the diaper yearly activity heat map chart",
-      "types": [],
-      "status": "translated",
-      "tokens": [],
-      "translations": [
-        {
-          "variations": {},
-          "translation": "Diaper Activity (Past Year)"
         }
       ]
     },
@@ -3225,18 +1941,6 @@
       "translations": [
         {
           "translation": "Second Molar",
-          "variations": {}
-        }
-      ]
-    },
-    "2uyrs2R7wIzt7rvHkuvH8g==": {
-      "description": "Tooth erupted message",
-      "tokens": [],
-      "types": [],
-      "status": "translated",
-      "translations": [
-        {
-          "translation": "{label} : {toothName} ({fdi})",
           "variations": {}
         }
       ]
@@ -3527,6 +2231,3078 @@
           "translation": "Growth"
         }
       ]
+    },
+    "hr3frJrOVmry2npqboDu7g==": {
+      "description": "Label for today in history section",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Today",
+          "variations": {}
+        }
+      ]
+    },
+    "AadmHWbRiM1wIMcArmzISA==": {
+      "description": "Label for yesterday in history section",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Yesterday",
+          "variations": {}
+        }
+      ]
+    },
+    "jhOfopxIQf7k+VBQPH7YmQ==": {
+      "description": "Console Debugger title",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Console Logs",
+          "variations": {}
+        }
+      ]
+    },
+    "+xhbd43CXpGNMXu4oPYEAQ==": {
+      "description": "No logs message",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "No logs captured yet.",
+          "variations": {}
+        }
+      ]
+    },
+    "haYQvDvAN1BdIA2eRyx8ng==": {
+      "description": "Open actions menu",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Actions",
+          "variations": {}
+        }
+      ]
+    },
+    "HN0uu7L6t1L5hmpUNwPt+A==": {
+      "description": "Indicator showing which event the user is currently viewing related activity for",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Viewing related activity for {eventTitle}",
+          "variations": {}
+        }
+      ]
+    },
+    "siHOxFvBIgaiLJLq2r5Otg==": {
+      "description": "Indicator showing that the history is currently filtered to a specific timeframe",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Viewing filtered timeframe",
+          "variations": {}
+        }
+      ]
+    },
+    "4scZX5xF/E5cMtsGPnEf4Q==": {
+      "description": "Button label to clear the current history filter",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Clear Filter",
+          "variations": {}
+        }
+      ]
+    },
+    "WFOqcSif39xi9ItrtbwMsg==": {
+      "description": "Button to open timeframe selector",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Select Timeframe",
+          "variations": {}
+        }
+      ]
+    },
+    "6cyfAqksZL87LeMUD/8t7A==": {
+      "description": "Title for timeframe selector popup",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Timeframe",
+          "variations": {}
+        }
+      ]
+    },
+    "WgxXMBgwciAaSKQL8lIKdQ==": {
+      "description": "Description for timeframe selector popup",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Select a range to filter history.",
+          "variations": {}
+        }
+      ]
+    },
+    "Yc9zaP49fbuPP+FXxg4XCQ==": {
+      "description": "Label for from date",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "From",
+          "variations": {}
+        }
+      ]
+    },
+    "lVVt0NNe+wRmNopFRrlo4Q==": {
+      "description": "Label for to date",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "To",
+          "variations": {}
+        }
+      ]
+    },
+    "gegQ8iw32U7YHlg/yZYbag==": {
+      "description": "Button to apply timeframe filter",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Apply",
+          "variations": {}
+        }
+      ]
+    },
+    "EiZHk1TPXSpi5NLK8FHz5g==": {
+      "description": "Button label to load newer history entries in the history list",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Show newer entries",
+          "variations": {}
+        }
+      ]
+    },
+    "qW80xfJvrXBwXkS9LDm7Zw==": {
+      "description": "Label for product name input",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Product Name",
+          "variations": {}
+        }
+      ]
+    },
+    "kxgwGJwkH1VUwgLVf7hAaQ==": {
+      "description": "Placeholder for product name",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "e.g. Pampers Size 1",
+          "variations": {}
+        }
+      ]
+    },
+    "XPEGuGIOgz5Ydl2vJ7dDmQ==": {
+      "description": "Label for cost per diaper input",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Cost per Diaper",
+          "variations": {}
+        }
+      ]
+    },
+    "CAPXM531usAszH0icuRD5g==": {
+      "description": "Label for reusable diaper switch",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Reusable Diaper",
+          "variations": {}
+        }
+      ]
+    },
+    "sIc1fiGU53ALNuGIslDfFg==": {
+      "description": "Label for reusable diaper upfront cost input",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Upfront Cost",
+          "variations": {}
+        }
+      ]
+    },
+    "0cRRU7cy+AuhUFU8NpjlBA==": {
+      "description": "Label for notes input",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Notes (optional)",
+          "variations": {}
+        }
+      ]
+    },
+    "CCX4EN2bGUGrxNu0o6/8XQ==": {
+      "description": "Placeholder for product notes",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "e.g. skin compatibility, fit, etc.",
+          "variations": {}
+        }
+      ]
+    },
+    "mYPotycL1HbzkWXavYLKKg==": {
+      "description": "Label for child name input",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Name",
+          "variations": {}
+        }
+      ]
+    },
+    "8n5u4w8RPNz8ufHZZR9v5Q==": {
+      "description": "Placeholder for child name input",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Name",
+          "variations": {}
+        }
+      ]
+    },
+    "PGkbN/D36500PfYdMMSD3Q==": {
+      "description": "Label for date of birth input",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Date of Birth",
+          "variations": {}
+        }
+      ]
+    },
+    "kw/K5zPb5FRKDmUjrR+lTw==": {
+      "description": "Label for biological sex select",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Sex",
+          "variations": {}
+        }
+      ]
+    },
+    "x8Ik29JbxD9rzd1Z+d2lsw==": {
+      "description": "Placeholder for sex selection",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Select sex",
+          "variations": {}
+        }
+      ]
+    },
+    "Rjtd+gc5xmsendio33+AUQ==": {
+      "description": "Option for boy in sex selection",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Boy",
+          "variations": {}
+        }
+      ]
+    },
+    "sJWdHMJlyXZyNe4rbYwjAw==": {
+      "description": "Option for girl in sex selection",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Girl",
+          "variations": {}
+        }
+      ]
+    },
+    "1EierlT1HmBb5oh2hPeKbw==": {
+      "description": "Label for color selection",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Color",
+          "variations": {}
+        }
+      ]
+    },
+    "RofkuSPWDDJzcsb721hYiA==": {
+      "description": "Button to save profile information",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "Save Profile",
+          "variations": {}
+        }
+      ]
+    },
+    "bcn7W4FqZiJcYF6KgjGFLQ==": {
+      "description": "Button to opt out of providing profile information",
+      "tokens": [],
+      "types": [],
+      "status": "translated",
+      "translations": [
+        {
+          "translation": "I don't want to provide this information",
+          "variations": {}
+        }
+      ]
+    },
+    "zN+pjtKIx+KnXyifbJqH+A==": {
+      "description": "Title for the profile setup dialog",
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Welcome to AdaMeter!",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "XvIdTG48dg2SuSMBKz0+Tw==": {
+      "description": "Description for the profile setup dialog",
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "To show growth percentiles on your charts, we need to know your child's date of birth and biological sex.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "ryVI66mHL1TSjZgJx2lAvw==": {
+      "description": "Toast message",
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Invite link copied to clipboard",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "1tLbt7/db3Lk4aP7/jvrwA==": {
+      "description": "Text indicating the current room",
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Currently connected to:",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "IO52WS92jI69+k6HfzAPUg==": {
+      "description": "Button to copy invite link",
+      "status": "translated",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Copy Invite Link",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "5BMvj8Kso/HGKQ74M3/e5w==": {
+      "description": "Button to leave current room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Leave Room",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "AqaPZv1okB8OWSHQ7uskxQ==": {
+      "description": "Label for an input to set the id of a shared room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Room Name",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "J8D42floCxEbQ2eUmauStA==": {
+      "description": "Label on a join button",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Join",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "1ZakotB/ZptZRNDOmbnH/A==": {
+      "description": "Separator text between manual input and QR scanner",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Or scan QR",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "QnSPv4rbLcjz7bAoYfSOYw==": {
+      "description": "Description for creating a room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Creating a room allows you to sync your data with other devices. Your current data will be merged into the new room.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "a7/F+iZ8Cy0K0DtUZXhPJw==": {
+      "description": "Button to create a new room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Create New Room",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "c4UaGWBOLoxn/Nr4aVFpew==": {
+      "description": "Label on a close button",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Close",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "WMRjS3uUMfSMot6jY/N4ag==": {
+      "description": "Label for today's diaper stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diapers Today",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "rRgyEYIyBe3AmXJ/aBupCQ==": {
+      "description": "Label for the settings button",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Settings",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "DwAbZhai/ZEWqxHz4xlZUQ==": {
+      "description": "Title for joining a room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Join Room",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "kQchqJgVVWK/biFUt6RPYw==": {
+      "description": "Description for joining a room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "You are about to join room {roomId}. Would you like to merge your existing data into this room, or clear it before joining?",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "crSyxRni2yHRHX5Pl92RnA==": {
+      "description": "Button to clear data and join room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Clear & Join",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "xFIaLoUpKN10xSyMLkWT5Q==": {
+      "description": "Button to merge data and join room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Merge & Join",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "rprnI3w+XRb6+8O5XfSVnQ==": {
+      "description": "Title for leaving a room warning",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Leave current room?",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "/en3ThCRbtx+gDP3mq4umQ==": {
+      "description": "Description for leaving a room warning",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "You are currently in a shared room. If you proceed, you will leave the current room to join another one.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "dW8DduhY8NK2ijO1MHPDLg==": {
+      "description": "Button to confirm leaving room",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Leave Room",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "SbAXaH1BsljslP4tmssrvQ==": {
+      "description": "Error title",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Something went wrong!",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "L/miRE5FfxxLYeWb0oZxMw==": {
+      "description": "Error description",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "An unexpected error occurred. We've been notified and are working to fix it.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "GjQuNGdVoQW88RkFt7fMBw==": {
+      "description": "Try again button",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Try again",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "jmxLdo2AnCd3Es8OrmUf0w==": {
+      "description": "Option to display a custom time range in statistics",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Custom Range",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "od6ap3qL9PfioI4v/vTzSA==": {
+      "description": "Label for the comparison date range in statistics",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Comparing to: {from} - {to}",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "W95xMCIskKdbvGUfiwF4TQ==": {
+      "description": "Label for the start date of a custom time range",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "From",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "0xjbrMl/syOT6KCCNC46Eg==": {
+      "description": "Label for the end date of a custom time range",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "To",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "v4QODbsxPo2rj/7JA90WEQ==": {
+      "description": "Subtitle for the diaper and potty statistics section",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper & Potty",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "3zyO0bFVcc2DD3qxxeF6GA==": {
+      "description": "Title for the diaper activity card showing Activity, Cost and Brand tabs",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper Activity",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "D1NajwvPjg7C5jauK22ADQ==": {
+      "description": "Description for the diaper activity card",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Visualize diaper changes, costs and brand distribution.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "OjqRuzKi6azRDT+MrFJA2w==": {
+      "description": "Label for the activity tab in diaper stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Activity",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "x/eJBbLnKe08WY51xmTUIA==": {
+      "description": "Label for the cost tab in diaper stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Cost",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "weOb+twVvfcUON+fWC7R/g==": {
+      "description": "Label for the brand tab in diaper stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Brand",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "C2q7FZTaiDYZnU4qWBeVmQ==": {
+      "description": "Label for the yearly tab in diaper stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Yearly",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "cMVjJxfwf9ONzw1Xz7nXaA==": {
+      "description": "Message shown when no diaper or potty data is available for the selected time range",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "No diaper or potty data available for the selected time range.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "hCFhD1X44lxG0u1LRNBcOg==": {
+      "description": "Title for average diaper changes per day stat",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Avg Changes / Day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "j5kUBHnxqmhDHbSMSFmXdA==": {
+      "description": "Label for urine avg in average stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "contains urine",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "DcJwhUSDCBfiSS7wsYbeNw==": {
+      "description": "Label for stool avg in average stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "contains poo",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "XimUKnSNN7UOWIAtgSj1Hw==": {
+      "description": "Empty state message for diaper brand chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "No brand data",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "BTfwOY0fWrPuMpMia0AD8A==": {
+      "description": "Label for comparison daily cost in chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Daily Cost (Prev)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "S1NolrJEM/Tk4Xd7Zwf+1g==": {
+      "description": "Empty state message for diaper cost chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "No cost data available for the selected range.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "yvAay+7zh9CcU+L9kfnr6Q==": {
+      "description": "Title for diaper cost chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper Cost by Product",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "rDSK3m4JCdbezTa6dLeZXQ==": {
+      "description": "Y-axis label for diaper cost chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Cost ({currency})",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "d7mTdOMn1CIj1eovR0XqJg==": {
+      "description": "Title for diaper cost statistics card",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper Costs",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Qzv2uDph6DB5RiMREIAh1w==": {
+      "description": "Label for average diaper cost per day",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Avg per day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Dx0DiBGVSzu2uK2zvtmr6g==": {
+      "description": "Label for comparison diaper count",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper (Prev)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "S8Zs/TM/GyfKk5+eFfW+lA==": {
+      "description": "Label for comparison potty count",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Potty (Prev)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "5bUTaYJMijl1UPs8ZjxHBA==": {
+      "description": "Label for diaper urine count in chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper Pee",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "PUdM8M/RReUu6xUdc3rh1A==": {
+      "description": "Label for potty urine count in chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Potty Pee",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "mS1DOPXsmR28yYJo+3sVKw==": {
+      "description": "Label for diaper stool count in chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper Poo",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "URQapjxGhIZp+OqQ6mqZyA==": {
+      "description": "Label for potty stool count in chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Potty Poo",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "YTH3i+xZefm9g9wlCBT/Dg==": {
+      "description": "Empty state message for diaper and potty activity chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "No data available for the selected range.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "YOs04qvsN1K51S14eO0Fkg==": {
+      "description": "Title for diaper and potty activity chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper & Potty Activity",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "bVcZF0fDTxGgOJnxJ2zmWA==": {
+      "description": "X-axis label for charts",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Date",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "bRORzFe2hIsQbg7R3CKxTQ==": {
+      "description": "Y-axis label for counts",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Count",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "AlMjrAn34EWUDBeIZdbqcQ==": {
+      "description": "Label for diaper activity checkbox",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "sABB5e8FaFhsAl9wXmWn8Q==": {
+      "description": "Label for potty activity checkbox",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Potty",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "FwFsJjTpGU/WP0SjoCdKpg==": {
+      "description": "Legend label for secondary left breast duration",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Left Breast (Prev)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "e4kE9TiZzwPTwQmdj8QxQQ==": {
+      "description": "Legend label for secondary right breast duration",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Right Breast (Prev)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "3iN0AoFzsQG/kN1X5BfIvw==": {
+      "description": "Legend label for primary left breast duration",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Left Breast",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "IRwD7yggjDiOE01CyLLUHQ==": {
+      "description": "Legend label for primary right breast duration",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Right Breast",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "1d+w1MFUt+QrFdy/07WEFg==": {
+      "description": "Message shown when no feeding data is available for the chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "No feeding data available for the selected range.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "gKIum5+Nfu5nPCxtlx2uDA==": {
+      "description": "Chart title for feeding duration",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Feeding Duration",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "LSa8M38cnYogOqb8pxpOOg==": {
+      "description": "Label for the date axis on feeding chart",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Date",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "5Pz3ZF1uvTz5ASqDDdAOYQ==": {
+      "description": "Label for the Y-axis showing feeding duration in hours",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Duration (h)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "8n3etCQUXKV6/Mgg3XlJFA==": {
+      "description": "Title for the feeding activity card showing Duration and Frequency tabs",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Feeding Activity",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "5UZQl5y+F1RLRtBm0Ee4ZQ==": {
+      "description": "Description for the feeding activity card",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Visualize total duration and frequency of feedings.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "9j5ZU5Av+4ErJUCVYAeQbw==": {
+      "description": "Label for the duration tab in feeding activity stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Duration",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "1E29YqYfG5f/vqxcM9klMQ==": {
+      "description": "Label for the frequency tab in feeding activity stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Frequency",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Z4SBM07AMTmnEnb0RvmVig==": {
+      "description": "Title for the longest time between two feeding sessions",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Longest gap between feedings",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "yXwuI79pO6+oQWfqBFDzJQ==": {
+      "description": "Label for growth percentile",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "P{percentile}",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "doA14/QC9PSvXBveZEDPxQ==": {
+      "description": "Title for percentile explanation popover",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "What is a percentile?",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "AukHwCaT1QvaYWcbPjPQxA==": {
+      "description": "Explanation of what a growth percentile means",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "A percentile shows how your child's measurement compares to other children of the same age and sex. For example, P50 means your child is in the middle: 50% of children are smaller and 50% are larger. P95 means your child is larger than 95% of children the same age.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "HU5u+bd9UkYpo443N9kDOw==": {
+      "description": "Label for the age axis on growth charts",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Age (months)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "pTMdYEQ8dej+vHTFW2rJ9w==": {
+      "description": "Label for the date axis on charts",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Date",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "8uDB98OjAC9jdXsGsoSlhw==": {
+      "description": "Label for the expected growth range",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Expected Range (3rd-97th percentile)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "e0BMjkOu5PJUPXyzZfR3CQ==": {
+      "description": "Title for the weight section in the growth chart in pounds",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Weight (lbs)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "yKPBNZng/RJ3RhttkUCEiQ==": {
+      "description": "Title for the weight section in the growth chart in grams",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Weight (g)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "nWbz6/GU2GupbL1keQvxuQ==": {
+      "description": "Label for the Y-axis showing weight in pounds",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Weight (lbs)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "19VSRIJEfxkigSNHn/Wp1Q==": {
+      "description": "Title for the height section in the growth chart in inches",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Height (in)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "hokAgwtYQqKETC3TEPBOqA==": {
+      "description": "Title for the height section in the growth chart in centimeters",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Height (cm)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "UN6HoQ/jNXFV1WdbPQlW6A==": {
+      "description": "Label for the Y-axis showing height in inches",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Height (in)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "lEzzWpJbzKnQGooYtHgiNg==": {
+      "description": "Title for the head circumference section in the growth chart in inches",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Head Circumference (in)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Dc2+RwbFepZO7VTEa1WQwQ==": {
+      "description": "Title for the head circumference section in the growth chart in centimeters",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Head Circumference (cm)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "rhZSp/6HWWmJArfgQvLgKw==": {
+      "description": "Label for the Y-axis showing head circumference in inches",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Head Circumference (in)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "8T1QXyGWq9OM91+JiU+NDg==": {
+      "description": "Time label in the heat map tooltip",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "{time}",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "qTtS6grZOGtfKLvxiEn1Ww==": {
+      "description": "Singular count of feedings in the heat map tooltip",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "1 Feeding",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "N0qU/Psjjnp+SsOXNkAGuA==": {
+      "description": "Plural count of feedings in the heat map tooltip",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "{count} Feedings",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "CkD2YktYfy5NHy7e51cKsQ==": {
+      "description": "Singular label for a heat map interval",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "{time}: 1 Feeding",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "fWwahryGLTLHD235X6MMlA==": {
+      "description": "Plural label for a heat map interval",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "{time}: {count} Feedings",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "D4BGtZge1DIIy/wW0taxzg==": {
+      "description": "Title for the day with the most potty successes",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Most potty hits in a day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "8RhCu88sfDH2fTRXMp7ryQ==": {
+      "description": "Title for the longest potty streak stat card",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Longest potty streak",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "yt55LF3zaOhYv8D82WzGgw==": {
+      "description": "Title for the potty savings stat",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Potty Savings",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "E39fSpvZNBEQwuOnnJuLAA==": {
+      "description": "Description of how potty savings are calculated",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Estimated savings from successful potty hits.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "7e9scUT1sMAx30DhZduW5g==": {
+      "description": "Title for potty success statistics card",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Potty Success",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "VkizDnExWk1lU+/9/SBpvw==": {
+      "description": "Label for potty urine count in stats card",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Urine caught",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "qdbQy4LTb5VdY3m1PKiv4A==": {
+      "description": "Label for potty stool count in stats card",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Poo caught",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "6wLH+B/SkuZOdL2OCwY2FQ==": {
+      "description": "Label for average potty success per day in stats card",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Avg per day",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "umpAShHu4VEWKezNXm4VQw==": {
+      "description": "Title for reusable cost overview card",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Reusable Diaper Metrics",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "mk2xB446qqvW7zOb3AM+iQ==": {
+      "description": "Title for reusable cost explanation",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "How this is calculated",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "58/WVY/7X1td5GgN2opDiA==": {
+      "description": "Explanation for reusable savings calculation",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Calculates savings by comparing actual reusable diaper costs (upfront + usage) against the estimated cost of disposables for the same number of changes.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "GCUBd7cdkP/mpXgqwPxpFQ==": {
+      "description": "Label for total reusable savings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Total Savings",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "WIyipXqSxXo6DQ7zJgC+YQ==": {
+      "description": "Label for break-even point",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Break-even",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "kw2rR7gkDuT7sH2Ynsq5Zw==": {
+      "description": "Estimated break-even date",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Est. {date}",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "NwpzChrIiQDyAi2vu7eUEw==": {
+      "description": "Break-even not yet reached",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Not yet reached",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "3U1VfrmFZYtOrFiz9M5u4g==": {
+      "description": "Label for upfront cost",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Upfront Cost",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "7LBPec8y883n2EoDOPNPWg==": {
+      "description": "Label for usage cost",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Usage Cost",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "JhdNg4MbZUO/x1fhraOXXA==": {
+      "description": "Label for total cost",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Total Cost",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "RUDSqSlBuM57hrCYbZ9Elg==": {
+      "description": "Label for hypothetical disposable cost",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Hypothetical Disposable Cost",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Eoso88obE+GdLIwuWIjp4w==": {
+      "description": "Title for average time between diaper changes stat",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Avg Time Between",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "7C1vTPV0RmnW6dhKaAu8zQ==": {
+      "description": "Title for total diaper changes stat",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Total Changes",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "E0wbUdIVeQOhHXd+X0dJKA==": {
+      "description": "Label for urine count in total stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "contains urine",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "kzsVQakI7iPP6jIx86TsZw==": {
+      "description": "Label for stool count in total stats",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "contains poo",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "ttfkaDMprhGha9VF3eYBKA==": {
+      "description": "Title for settings page",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Settings",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "bRSY4PoUM+kVd5qhp0Ce/A==": {
+      "description": "Label for child profile settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Child Profile",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "PWelesJhH1tYa2Gnpw1/EQ==": {
+      "description": "Subtext for profile settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Edit name, birthday, and more",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "2f7mrKeqDdAPTTOLZh+vTA==": {
+      "description": "Label for appearance settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Appearance",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "2TqKbyjnRSiJC0EEVdeggw==": {
+      "description": "Subtext for appearance settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Language and Theme",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "uUexSnJpc+lvlU/8N/VWUQ==": {
+      "description": "Label for sharing settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Sharing",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "OhBes6yBO7BW0imERt0YHQ==": {
+      "description": "Summary of the sharing settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Connected to {roomName}",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "7AAhJP/XIY7XMCNS8HCKew==": {
+      "description": "Text showing no room is connected",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Not syncing",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "+3hYLNiLCc4mANnEP+64PQ==": {
+      "description": "Label for diaper products settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper Products",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "nfyS9gEsJCqoD0EljqoxGg==": {
+      "description": "Subtext for diaper products settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Manage brands, sizes and costs",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "O7GalHYtdSlpgVS0yjMVDA==": {
+      "description": "Label for data settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Data Management",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "DuuY/KrO6a1EGxfVpQCvdg==": {
+      "description": "Subtext for data settings",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Import and export your data",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "RJExfQJ9GWSq7a0Iubwg7w==": {
+      "description": "Title for sharing settings section",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Sharing",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "x2hvA+ftLmODgT7WBKhXmA==": {
+      "description": "Title for profile settings section",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Child Profile",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "XmcI+qtl3hlvAAwaXe1X6Q==": {
+      "description": "Badge for reusable diapers",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Reusable",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "qu3iPRs+A3PS6fugG/FR4Q==": {
+      "description": "Cost per diaper display",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Cost per item: {currency}{cost}",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "2BsaWTl7dBlNVMrYmn8Gnw==": {
+      "description": "Text showing no cost is set",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "No cost set",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "RK4qY6t3k50ZECm72q8mag==": {
+      "description": "Reusable diaper upfront cost display",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Upfront cost: {currency}{upfrontCost}",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "eZReEpE/dLqy40GB2UkkMA==": {
+      "description": "Text showing no upfront cost is set for reusable diapers",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "No upfront cost set",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "2LmTsaFDKEKp1G5p74vB0Q==": {
+      "description": "Title for adding a product",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Add Product",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "K1JhP9MT38vJVh2NVONZuQ==": {
+      "description": "Title for editing a product",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Edit Product",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "e52gAsnGn1sE6VnlVrHnRQ==": {
+      "description": "Title for diaper products section",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper Products",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "G5io5uQrKXvVfveShx76mw==": {
+      "description": "Button to add a new diaper product",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Add Product",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "/OMK8lDZZhIij9/XwICCHg==": {
+      "description": "Success message for factory reset",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "App reset successfully.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "9cfKL4rTJJZO0LdObVm9QQ==": {
+      "description": "Error message for factory reset failure",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Failed to reset app.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "VQL4YujyvjAh2JwjS6Vy5g==": {
+      "description": "Export success message",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Data exported successfully.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "5va/PqOSOZdJdb7nWC0hZA==": {
+      "description": "Export error message",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Failed to export data.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "5ML9U2umGnaDUA4rJ17cZA==": {
+      "description": "Import success message",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Data imported successfully.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "IgnzcgmiWJa0lh9kYR7PhA==": {
+      "description": "Import error message",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Failed to import data.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "6cg5ailH9fdNbOJC+fRgxg==": {
+      "description": "Title for data settings section",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Data Management",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "fchub4athWdjNqchBkr74Q==": {
+      "description": "Export data card title",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Export Data",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "sRkn9+7QzWxiyXSLtY8q+A==": {
+      "description": "Export data description",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Download all your data as a ZIP file containing CSVs.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "1HWKtAZ5wZ1rZjPmi8jwwg==": {
+      "description": "Exporting button text",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Exporting...",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "oJz/Euc318xaBhIewd0e9w==": {
+      "description": "Export button text",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Export",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "2KOv69qOE2alT3t0KYWimA==": {
+      "description": "Import data card title",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Import Data",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Gu57EQD7GScdCQFr0d0JAw==": {
+      "description": "Import data description",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Import data from a ZIP file containing CSVs.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "EJbIFmB9xP+i8U5uVR2mbg==": {
+      "description": "Factory reset card title",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Factory Reset",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "/fkw4y/ccvDQbFdkfpFCmQ==": {
+      "description": "Factory reset description",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Clear all local data and disconnect from any shared room. This action cannot be undone.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "7QGTOct93Y5IsbpMDmYDjg==": {
+      "description": "Resetting button text",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Resetting...",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "JKVSckRdFdRNYaDOm2qwFA==": {
+      "description": "Reset button text",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Factory Reset",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "6coNVpNaQeLLP3w23Y1KZQ==": {
+      "description": "Title for factory reset confirmation dialog",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Are you absolutely sure?",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "7KWB6DiiHZeBcCx5xmDrbw==": {
+      "description": "Warning message for factory reset",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "This action will permanently delete all your local data and disconnect you from any shared room.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "7tVjMZfNPC0vP7fOUse29A==": {
+      "description": "Instruction to type a word to confirm reset",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Please type {confirmationWord} to confirm.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Aq15buVsO7y2ElGA0Ay5dw==": {
+      "description": "Placeholder for reset confirmation input",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Type \"delete\" here",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "rMeGA6/MT84mjB7m3QyWTg==": {
+      "description": "Confirmation word for reset",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "delete",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "DTzqk57KH4vNdJC6ZO3shA==": {
+      "description": "Button text to confirm factory reset",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Delete everything",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "2vyv/5MIMxhAQYyI5tq7SA==": {
+      "description": "Title for appearance settings section",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Appearance",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "ee8hsQKba/vxro16DTeqkg==": {
+      "description": "Label for language setting",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Language",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "J1hGEqkt4cRm+MLkiiGKvw==": {
+      "description": "Label for theme setting",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Theme",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "JX36Q32xjJ3r7lnD4nTVww==": {
+      "description": "Light theme option",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Light",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "ZTEuanHqkWYeEbZEysj/Jg==": {
+      "description": "Dark theme option",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Dark",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "jzL/cgYcqxm4uy15O4D66w==": {
+      "description": "System theme option",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "System",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "PW/WFOaZXfT3OqZXJOL6ag==": {
+      "description": "Label for currency setting",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Currency",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "zVlnNWH9Y+xLUoBWFzTqjQ==": {
+      "description": "Label for butterfly charts setting",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Butterfly Charts",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "XYJnHcfUtMqCOylP2Xx/CQ==": {
+      "description": "Description for butterfly charts setting",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Show comparison data in statistics",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "xkOqy7qcQMsK61/YJZ1IrQ==": {
+      "description": "Label for show feeding setting",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Show Feeding",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "cS9s1lMSFPSLEWTfzdZRdw==": {
+      "description": "Description for show feeding setting",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Show breastfeeding and feeding tracking features",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "shpJbTgvWDXbpBoF/HrpGg==": {
+      "description": "Label for dev mode setting",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Dev Mode",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "jv/y+5f8shCQSbj+P/mbuw==": {
+      "description": "Description for dev mode setting",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Enable developer tools and error details",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "BvDAhBiH2Hrsa4P/oYiU3w==": {
+      "description": "Title of the dialog to manually add a growth measurement",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Add Growth Entry",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "qTLpb1Q0D2LmcJiAfUnWpg==": {
+      "description": "Label for a body weight input in pounds",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Weight (lbs)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "D/1vS3kPQVvvNqj03WyeUA==": {
+      "description": "Label for a body weight input in grams",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Weight (g)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "YeFGBlnGWUSfiTtgii2wsA==": {
+      "description": "Placeholder for a weight input in pounds",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "e.g. 7.7",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "lDjIasw63i6HKF6vmj4FHA==": {
+      "description": "Placeholder for a weight input in grams",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "e.g. 3500",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "qAOInLn7tvNp2j3+4q/RpQ==": {
+      "description": "Label for a body height input in inches",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Height (in)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Gu2S6uZGTg8BmPDd9ZbJmg==": {
+      "description": "Label for a body height input in centimeters",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Height (cm)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "X7eF36Xi4bSDh6QLB8TUSQ==": {
+      "description": "Placeholder for a height input in inches",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "e.g. 19.7",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "P1m2lndcaIpDUz5LJ26VVQ==": {
+      "description": "Placeholder for a height input in centimeters",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "e.g. 50",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "wgDUPkXT0ztzKkS01duuuQ==": {
+      "description": "Label for a head circumference input in inches",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Head Circumference (in)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "eihaddP1P9nsgokmG9uF7Q==": {
+      "description": "Label for a head circumference input in centimeters",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Head Circumference (cm)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "aKQqcTVE40+82cFHHmGB0Q==": {
+      "description": "Placeholder for a head circumference input in inches",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "e.g. 13.8",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "PFCoOPKjcA+5OzTf6hsjAw==": {
+      "description": "Placeholder for a head circumference input in centimeters",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "e.g. 35",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "wZ4U0/kMeYg9gXoDO0LQVA==": {
+      "description": "Growth measurement entry title",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Measurement",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "iHld0MNJL4o/uG5p2t8mHQ==": {
+      "description": "Weight tooltip",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Weight",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "LrfjhPJopL6B3wMDHB6jGg==": {
+      "description": "Height tooltip",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Height",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "jAVdKnz6Amalo+dpdZ6Bpg==": {
+      "description": "Head circumference tooltip",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Head Circumference",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "YNhjITmu9Ftka4zBf9/V0g==": {
+      "description": "Teething entry title",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Teething",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "D0O/XZV/jO2HOX/BvKarZQ==": {
+      "description": "Tooth name and FDI id",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "{toothName} ({fdi})",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "ohdxyVdWsLCm1QMZbxMvpA==": {
+      "description": "Title for dialog to edit a growth measurement",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Edit Growth Entry",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "kTB919OWJ0Sf/3xAN0fSnw==": {
+      "description": "Title of the dialog to manually add a previous feeding session",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Add Feeding Entry",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "PNYKunod9hgesTOpCTJARg==": {
+      "description": "Label for a number input that sets the duration of a feeding session in minutes",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Duration (minutes)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "PhTURfbaT28egoKw4Pl4Mg==": {
+      "description": "Placeholder text for a textbox to note any notes during feeding",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "e.g. good latch, sleepy, etc.",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "hfRWi5CBcsFCT5e81ObP3w==": {
+      "description": "Title of the dialog to add a feeding entry manually",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Add Feeding Entry",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Dq8D3CvkACSPP+gTU6KEbA==": {
+      "description": "Title of the dialog to add an event",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Add Event Entry",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "uN54je+rnEQ3k+lZiNybRw==": {
+      "description": "Menu item to show feeding sessions during an event",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Show Feeding Sessions",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "ZwYAZxff5nN6X2AtfUM/lQ==": {
+      "description": "Menu item to show diaper changes during an event",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Show Diaper Changes",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "0uaDSQmEfbXEed6bWKkCHQ==": {
+      "description": "Title of the dialog to edit an event",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Edit Event Entry",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "tttPH3jvA+oYXOCN/fk91Q==": {
+      "description": "Title of the dialog to manually add a previous diaper change",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Add Diaper Entry",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "vPI72EJXTQcJNCP8B0Ud2A==": {
+      "description": "Urine column header",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Urine",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "O4v2aF6R9t4a03JPFoB1Rg==": {
+      "description": "Stool column header",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Stool",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "mKQVaS436zdf7GoivQkmZw==": {
+      "description": "Label for the diaper row in the contents matrix",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Diaper",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "6sOcuOsnARJq/1AxZwXlQQ==": {
+      "description": "Label for the potty row in the contents matrix",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Potty",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "OWb25R6tZod4yFEjhE1ubA==": {
+      "description": "Label on a select that allows the user to pick a diaper product",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Product",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "Boze345u6HogE4chmqnBaA==": {
+      "description": "Placeholder text on a select that allows the user to pick a diaper product",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Select Product",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "fKkostd8jM3K3WIS52FTBQ==": {
+      "description": "Label on an input to specify the body temperature in degree Fahrenheit",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Temperature (°F)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "BaBZuyVeag/B7G6rIf89KQ==": {
+      "description": "Placeholder text for an input to set the body temperature in degree Fahrenheit",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "e.g. 99.0",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "1RtON6HKYIcjp28Bcyxkrw==": {
+      "description": "A warning that the temperature is outside the normal range (Fahrenheit)",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Warning: Temperature outside normal range (97.7°F - 99.5°F)",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "7onfR1VRXptIgWontN7pEg==": {
+      "description": "Title for the quick-add product dialog",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Add Product",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "J+sMSdD4U453BoPHvD8yNQ==": {
+      "description": "Label for missing product",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Unknown Product",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "t9suCapVFeCl1U4c5jx8sA==": {
+      "description": "Urine and stool in diaper",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Urine & Stool",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "bkGZ9A5FfYR0PlS9ZEjZpg==": {
+      "description": "Urine in diaper",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Urine",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "XsJ9iA+hGFc3tX35JAw+tw==": {
+      "description": "Stool in diaper",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Stool",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "rWa5FWqmVBwExR0jR4XgNQ==": {
+      "description": "Urine and stool in potty",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Urine & Stool",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "t/xwKRuJ89Ke5Ln+jchNDQ==": {
+      "description": "Urine in potty",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Urine",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "ghgkWyE3LKQtEjrIHFuYfA==": {
+      "description": "Stool in potty",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Stool",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "PviTvuA9kQ3iWelL7P1FMw==": {
+      "description": "Dry diaper",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Dry",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "1VqnCqkveaY9PaDWddwRPQ==": {
+      "description": "Short information text that a diaper has leaked",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "leaked",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "jhuHKQlQgZAPTYWbp9uYfA==": {
+      "description": "Label for a button that tracks a urine diaper",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Urine",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "+Rr6H4xQjL08P59HU5P99A==": {
+      "description": "Label for a button that tracks a stool diaper",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Stool",
+          "variations": {}
+        }
+      ],
+      "types": []
+    },
+    "qXk+yEW940rKu1XW8rmhFw==": {
+      "description": "Title for the diaper change entry dialog",
+      "status": "new",
+      "tokens": [],
+      "translations": [
+        {
+          "translation": "Add Diaper Entry",
+          "variations": {}
+        }
+      ],
+      "types": []
     }
   }
 }
