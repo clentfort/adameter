@@ -1,4 +1,4 @@
-import { createStore } from 'tinybase';
+import { type Content, createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
 import { TABLE_IDS } from './constants';
 import { mergeStoreContent } from './merge';
@@ -41,5 +41,31 @@ describe('mergeStoreContent', () => {
 		const row2 = store.getRow(tableId, '2');
 		expect(row2.note).toBe('merge');
 		expect(row2.deviceId).toBe(deviceId);
+	});
+
+	it('should ignore forbidden tables and merge missing or empty values', () => {
+		const store = createStore();
+		store.setValue('existing', 'value');
+		store.setValue('empty', '');
+
+		const snapshot: Content = [
+			{
+				forbiddenTable: {
+					row1: { cell1: 'value1' },
+				},
+			} as unknown as Record<string, Record<string, Record<string, string>>>,
+			{
+				empty: 'filled',
+				existing: 'ignored',
+				new: 'added',
+			},
+		];
+
+		mergeStoreContent(store, snapshot, 'device1');
+
+		expect(store.hasTable('forbiddenTable')).toBe(false);
+		expect(store.getValue('existing')).toBe('value');
+		expect(store.getValue('empty')).toBe('filled');
+		expect(store.getValue('new')).toBe('added');
 	});
 });
