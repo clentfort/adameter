@@ -3,14 +3,25 @@ import { useCallback, useMemo } from 'react';
 import { useStore, useValue } from 'tinybase/ui-react';
 import { STORE_VALUE_FEEDING_IN_PROGRESS } from '@/lib/tinybase-sync/constants';
 import { feedingInProgressSchema } from '@/types/feeding-in-progress';
+import { useSelectedProfileId } from './use-selected-profile-id';
 
 export const useFeedingInProgress = () => {
 	const store = useStore()!;
 	const currentJson = useValue(STORE_VALUE_FEEDING_IN_PROGRESS, store);
-	const current = useMemo(
-		() => parseFeedingInProgress(currentJson),
-		[currentJson],
-	);
+	const [selectedProfileId] = useSelectedProfileId();
+
+	const current = useMemo(() => {
+		const parsed = parseFeedingInProgress(currentJson);
+		if (
+			parsed &&
+			selectedProfileId &&
+			parsed.profileId &&
+			parsed.profileId !== selectedProfileId
+		) {
+			return null;
+		}
+		return parsed;
+	}, [currentJson, selectedProfileId]);
 
 	const set = useCallback(
 		(nextFeedingInProgress: FeedingInProgress | null) => {
@@ -18,11 +29,14 @@ export const useFeedingInProgress = () => {
 				store.delValue(STORE_VALUE_FEEDING_IN_PROGRESS);
 			} else {
 				const normalized = structuredClone(nextFeedingInProgress);
+				if (selectedProfileId) {
+					normalized.profileId = selectedProfileId;
+				}
 				const json = JSON.stringify(normalized);
 				store.setValue(STORE_VALUE_FEEDING_IN_PROGRESS, json);
 			}
 		},
-		[store],
+		[store, selectedProfileId],
 	);
 
 	return [current, set] as const;

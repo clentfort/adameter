@@ -4,6 +4,7 @@ import type { Metrics } from 'tinybase';
 import { createContext, useContext } from 'react';
 import { createMetrics } from 'tinybase';
 import { useCreateMetrics, useStore } from 'tinybase/ui-react';
+import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 
 /**
@@ -41,105 +42,134 @@ export function TinybaseMetricsProvider({
 	children,
 }: TinybaseMetricsProviderProps) {
 	const store = useStore();
+	const [selectedProfileId] = useSelectedProfileId();
 
-	const metrics = useCreateMetrics(store, (store) => {
-		const m = createMetrics(store);
+	const metrics = useCreateMetrics(
+		store,
+		(store) => {
+			const m = createMetrics(store);
 
-		// Diaper metrics
-		m.setMetricDefinition(
-			METRIC_IDS.DIAPER_CHANGES_TOTAL,
-			TABLE_IDS.DIAPER_CHANGES,
-			'sum',
-			() => 1,
-		);
+			// Diaper metrics
+			m.setMetricDefinition(
+				METRIC_IDS.DIAPER_CHANGES_TOTAL,
+				TABLE_IDS.DIAPER_CHANGES,
+				'sum',
+				(getCell) => (getCell('profileId') === selectedProfileId ? 1 : 0),
+			);
 
-		m.setMetricDefinition(
-			METRIC_IDS.DIAPER_CHANGES_TODAY,
-			TABLE_IDS.DIAPER_CHANGES,
-			'sum',
-			(getCell) => {
-				const timestamp = getCell('timestamp');
-				const today = getToday();
-				return typeof timestamp === 'string' && timestamp.startsWith(today)
-					? 1
-					: 0;
-			},
-		);
+			m.setMetricDefinition(
+				METRIC_IDS.DIAPER_CHANGES_TODAY,
+				TABLE_IDS.DIAPER_CHANGES,
+				'sum',
+				(getCell) => {
+					if (getCell('profileId') !== selectedProfileId) return 0;
+					const timestamp = getCell('timestamp');
+					const today = getToday();
+					return typeof timestamp === 'string' && timestamp.startsWith(today)
+						? 1
+						: 0;
+				},
+			);
 
-		m.setMetricDefinition(
-			METRIC_IDS.DIAPER_URINE_COUNT,
-			TABLE_IDS.DIAPER_CHANGES,
-			'sum',
-			(getCell) => (getCell('containsUrine') ? 1 : 0),
-		);
+			m.setMetricDefinition(
+				METRIC_IDS.DIAPER_URINE_COUNT,
+				TABLE_IDS.DIAPER_CHANGES,
+				'sum',
+				(getCell) =>
+					getCell('profileId') === selectedProfileId && getCell('containsUrine')
+						? 1
+						: 0,
+			);
 
-		m.setMetricDefinition(
-			METRIC_IDS.DIAPER_STOOL_COUNT,
-			TABLE_IDS.DIAPER_CHANGES,
-			'sum',
-			(getCell) => (getCell('containsStool') ? 1 : 0),
-		);
+			m.setMetricDefinition(
+				METRIC_IDS.DIAPER_STOOL_COUNT,
+				TABLE_IDS.DIAPER_CHANGES,
+				'sum',
+				(getCell) =>
+					getCell('profileId') === selectedProfileId && getCell('containsStool')
+						? 1
+						: 0,
+			);
 
-		// Feeding metrics
-		m.setMetricDefinition(
-			METRIC_IDS.FEEDING_SESSIONS_TOTAL,
-			TABLE_IDS.FEEDING_SESSIONS,
-			'sum',
-			() => 1,
-		);
+			// Feeding metrics
+			m.setMetricDefinition(
+				METRIC_IDS.FEEDING_SESSIONS_TOTAL,
+				TABLE_IDS.FEEDING_SESSIONS,
+				'sum',
+				(getCell) => (getCell('profileId') === selectedProfileId ? 1 : 0),
+			);
 
-		m.setMetricDefinition(
-			METRIC_IDS.FEEDING_SESSIONS_TODAY,
-			TABLE_IDS.FEEDING_SESSIONS,
-			'sum',
-			(getCell) => {
-				const startTime = getCell('startTime');
-				const today = getToday();
-				return typeof startTime === 'string' && startTime.startsWith(today)
-					? 1
-					: 0;
-			},
-		);
+			m.setMetricDefinition(
+				METRIC_IDS.FEEDING_SESSIONS_TODAY,
+				TABLE_IDS.FEEDING_SESSIONS,
+				'sum',
+				(getCell) => {
+					if (getCell('profileId') !== selectedProfileId) return 0;
+					const startTime = getCell('startTime');
+					const today = getToday();
+					return typeof startTime === 'string' && startTime.startsWith(today)
+						? 1
+						: 0;
+				},
+			);
 
-		m.setMetricDefinition(
-			METRIC_IDS.FEEDING_AVG_DURATION,
-			TABLE_IDS.FEEDING_SESSIONS,
-			'avg',
-			'durationInSeconds',
-		);
+			m.setMetricDefinition(
+				METRIC_IDS.FEEDING_AVG_DURATION,
+				TABLE_IDS.FEEDING_SESSIONS,
+				'avg',
+				(getCell) => {
+					if (getCell('profileId') !== selectedProfileId) {
+						return 0;
+					}
+					return (getCell('durationInSeconds') as number) || 0;
+				},
+			);
 
-		// Growth metrics
-		m.setMetricDefinition(
-			METRIC_IDS.GROWTH_MEASUREMENTS_TOTAL,
-			TABLE_IDS.GROWTH_MEASUREMENTS,
-			'sum',
-			() => 1,
-		);
+			// Growth metrics
+			m.setMetricDefinition(
+				METRIC_IDS.GROWTH_MEASUREMENTS_TOTAL,
+				TABLE_IDS.GROWTH_MEASUREMENTS,
+				'sum',
+				(getCell) => (getCell('profileId') === selectedProfileId ? 1 : 0),
+			);
 
-		m.setMetricDefinition(
-			METRIC_IDS.GROWTH_MAX_WEIGHT,
-			TABLE_IDS.GROWTH_MEASUREMENTS,
-			'max',
-			'weight',
-		);
+			m.setMetricDefinition(
+				METRIC_IDS.GROWTH_MAX_WEIGHT,
+				TABLE_IDS.GROWTH_MEASUREMENTS,
+				'max',
+				(getCell) => {
+					if (getCell('profileId') !== selectedProfileId) {
+						return 0;
+					}
+					return (getCell('weight') as number) || 0;
+				},
+			);
 
-		m.setMetricDefinition(
-			METRIC_IDS.GROWTH_MAX_HEIGHT,
-			TABLE_IDS.GROWTH_MEASUREMENTS,
-			'max',
-			'height',
-		);
+			m.setMetricDefinition(
+				METRIC_IDS.GROWTH_MAX_HEIGHT,
+				TABLE_IDS.GROWTH_MEASUREMENTS,
+				'max',
+				(getCell) => {
+					if (getCell('profileId') !== selectedProfileId) {
+						return 0;
+					}
+					return (getCell('height') as number) || 0;
+				},
+			);
 
-		// Teething metrics
-		m.setMetricDefinition(
-			METRIC_IDS.TEETH_ERUPTED_COUNT,
-			TABLE_IDS.TEETHING,
-			'sum',
-			(getCell) => (getCell('date') ? 1 : 0),
-		);
+			// Teething metrics
+			m.setMetricDefinition(
+				METRIC_IDS.TEETH_ERUPTED_COUNT,
+				TABLE_IDS.TEETHING,
+				'sum',
+				(getCell) =>
+					getCell('profileId') === selectedProfileId && getCell('date') ? 1 : 0,
+			);
 
-		return m;
-	});
+			return m;
+		},
+		[selectedProfileId],
+	);
 
 	return (
 		<TinybaseMetricsContext.Provider value={{ metrics }}>

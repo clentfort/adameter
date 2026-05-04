@@ -6,6 +6,7 @@ import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperChangeForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { diaperChangeSchema } from '@/types/diaper';
 import { createEntityHooks } from './create-entity-hooks';
+import { useSelectedProfileId } from './use-selected-profile-id';
 
 function toDiaperChange(id: string, row: Row): DiaperChange | null {
 	const result = diaperChangeSchema.safeParse({
@@ -40,11 +41,15 @@ export const useDiaperChangeIds = diaperChangeHooks.useIds;
 export function useLatestDiaperChangeRecord() {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.DIAPER_CHANGES, store);
+	const [selectedProfileId] = useSelectedProfileId();
 
 	return useMemo(() => {
 		let latestChange: DiaperChange | undefined;
 
 		for (const [changeId, row] of Object.entries(table)) {
+			if (selectedProfileId && row.profileId !== selectedProfileId) {
+				continue;
+			}
 			const change = toDiaperChange(changeId, row);
 			if (!change) {
 				continue;
@@ -55,5 +60,5 @@ export function useLatestDiaperChangeRecord() {
 		}
 
 		return latestChange;
-	}, [table]);
+	}, [table, selectedProfileId]);
 }
