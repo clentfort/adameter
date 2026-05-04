@@ -1,4 +1,5 @@
-import { type Content, createStore } from 'tinybase';
+import type { Content } from 'tinybase';
+import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
 import { TABLE_IDS } from './constants';
 import { mergeStoreContent } from './merge';
