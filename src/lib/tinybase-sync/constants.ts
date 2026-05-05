@@ -6,6 +6,7 @@ export const STORE_VALUE_CURRENCY = 'currency';
 export const STORE_VALUE_DEV_MODE = 'devMode';
 export const STORE_VALUE_FEEDING_IN_PROGRESS = 'feedingInProgress';
 export const STORE_VALUE_PROFILE = 'profile';
+export const STORE_VALUE_SELECTED_PROFILE_ID = 'selectedProfileId';
 export const STORE_VALUE_SHOW_FEEDING = 'showFeeding';
 
 export const TABLE_IDS = {
@@ -14,6 +15,7 @@ export const TABLE_IDS = {
 	EVENTS: 'events',
 	FEEDING_SESSIONS: 'feedingSessions',
 	GROWTH_MEASUREMENTS: 'growthMeasurements',
+	PROFILES: 'profiles',
 	TEETHING: 'teething',
 } as const;
 

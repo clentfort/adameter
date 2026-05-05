@@ -12,6 +12,7 @@ import { useLatestFeedingSessionRecord } from '@/hooks/use-feeding-sessions';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
 import ConsoleDebugger from '../console-debugger';
 import ProfilePrompt from '../profile-prompt';
+import { ProfileSwitcher } from '../profile-switcher';
 import { Button } from '../ui/button';
 import { Toaster } from '../ui/toaster';
 import DiaperStats from './diaper-stats';
@@ -121,6 +122,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 										transform: `translateY(calc(-20px * var(--header-scroll-progress)))`,
 									}}
 								>
+									<ProfileSwitcher />
 									<Link href="/settings">
 										<Button
 											aria-label={fbt(

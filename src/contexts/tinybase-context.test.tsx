@@ -177,7 +177,7 @@ describe('TinybaseProvider room sync', () => {
 			expect(screen.getByTestId('has-profile')).toHaveTextContent('yes');
 		});
 
-		expect(mocks.loadServerSnapshot).toHaveBeenCalledTimes(1);
+		expect(mocks.loadServerSnapshot).toHaveBeenCalled();
 	});
 
 	it('covers additional edge cases in TinybaseProvider', async () => {

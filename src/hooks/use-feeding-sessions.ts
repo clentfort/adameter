@@ -6,6 +6,7 @@ import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeFeedingSessionForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { feedingSessionSchema } from '@/types/feeding';
 import { createEntityHooks } from './create-entity-hooks';
+import { useSelectedProfileId } from './use-selected-profile-id';
 
 function toFeedingSession(id: string, row: Row): FeedingSession | null {
 	const result = feedingSessionSchema.safeParse({
@@ -40,11 +41,15 @@ export const useFeedingSessionIds = feedingSessionHooks.useIds;
 export function useLatestFeedingSessionRecord() {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.FEEDING_SESSIONS, store);
+	const [selectedProfileId] = useSelectedProfileId();
 
 	return useMemo(() => {
 		let latestSession: FeedingSession | undefined;
 
 		for (const [sessionId, row] of Object.entries(table)) {
+			if (selectedProfileId && row.profileId !== selectedProfileId) {
+				continue;
+			}
 			const session = toFeedingSession(sessionId, row);
 			if (!session) {
 				continue;
@@ -55,5 +60,5 @@ export function useLatestFeedingSessionRecord() {
 		}
 
 		return latestSession;
-	}, [table]);
+	}, [table, selectedProfileId]);
 }

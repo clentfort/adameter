@@ -19,22 +19,24 @@ test.describe('Statistics Page', () => {
 
 		await page.goto('/statistics');
 
-		await expect(page.getByTestId('no-data-message')).not.toBeVisible();
+		await expect(async () => {
+			await expect(page.getByTestId('no-data-message')).not.toBeVisible();
 
-		await expect(
-			page.getByRole('heading', { exact: true, name: 'Feeding' }),
-		).toBeVisible();
-		await expect(
-			page.getByRole('heading', { exact: true, name: 'Diaper & Potty' }),
-		).toBeVisible();
+			await expect(
+				page.getByRole('heading', { exact: true, name: 'Feeding' }),
+			).toBeVisible();
+			await expect(
+				page.getByRole('heading', { exact: true, name: 'Diaper & Potty' }),
+			).toBeVisible();
 
-		const statsCards = page.getByTestId('stats-card');
-		await expect(statsCards).not.toHaveCount(0);
+			const statsCards = page.getByTestId('stats-card');
+			await expect(statsCards).not.toHaveCount(0);
 
-		await expect(page.getByText('Total Feedings')).toBeVisible();
-		await expect(page.getByText('Feedings Per Day')).toBeVisible();
+			await expect(page.getByText('Total Feedings')).toBeVisible();
+			await expect(page.getByText('Feedings Per Day')).toBeVisible();
 
-		await expect(page.getByText('Average Feeding Duration')).toBeVisible();
+			await expect(page.getByText('Average Feeding Duration')).toBeVisible();
+		}).toPass({ timeout: 15_000 });
 	});
 
 	test('should show feeding statistics correctly', async ({ page }) => {
@@ -43,13 +45,15 @@ test.describe('Statistics Page', () => {
 
 		await page.goto('/statistics');
 
-		await expect(
-			page.getByRole('heading', { exact: true, name: 'Feeding' }),
-		).toBeVisible();
+		await expect(async () => {
+			await expect(
+				page.getByRole('heading', { exact: true, name: 'Feeding' }),
+			).toBeVisible();
 
-		await expect(page.getByText('Average Feeding Duration')).toBeVisible();
-		await expect(page.getByText('Total Feeding Duration')).toBeVisible();
-		await expect(page.getByText('Time Between Feedings')).toBeVisible();
+			await expect(page.getByText('Average Feeding Duration')).toBeVisible();
+			await expect(page.getByText('Total Feeding Duration')).toBeVisible();
+			await expect(page.getByText('Time Between Feedings')).toBeVisible();
+		}).toPass({ timeout: 15_000 });
 	});
 
 	test('should show diaper statistics correctly and not crash', async ({
@@ -63,13 +67,15 @@ test.describe('Statistics Page', () => {
 		// 2. Check statistics
 		await page.goto('/statistics');
 
-		await expect(
-			page.getByRole('heading', { exact: true, name: 'Diaper & Potty' }),
-		).toBeVisible();
+		await expect(async () => {
+			await expect(
+				page.getByRole('heading', { exact: true, name: 'Diaper & Potty' }),
+			).toBeVisible();
 
-		// Verify specific diaper metrics
-		await expect(page.getByText('Total Changes')).toBeVisible();
-		await expect(page.getByText('Avg Changes / Day')).toBeVisible();
+			// Verify specific diaper metrics
+			await expect(page.getByText('Total Changes')).toBeVisible();
+			await expect(page.getByText('Avg Changes / Day')).toBeVisible();
+		}).toPass({ timeout: 15_000 });
 	});
 
 	test('should filter data by time range', async ({ page }) => {

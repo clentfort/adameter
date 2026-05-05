@@ -19,6 +19,7 @@ import {
 	useRemoveGrowthMeasurement,
 	useUpsertGrowthMeasurement,
 } from '@/hooks/use-growth-measurements';
+import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
 import { useTooth, useUpsertTooth } from '@/hooks/use-teething';
 import {
 	useGrowthMeasurementsByDate,
@@ -281,12 +282,20 @@ function DateSection({
 	onToothDelete,
 	onToothEdit,
 }: DateSectionProps) {
+	const [selectedProfileId] = useSelectedProfileId();
+	const sliceId = useMemo(() => {
+		if (selectedProfileId && !dateKey.includes(':')) {
+			return `${selectedProfileId}:${dateKey}`;
+		}
+		return dateKey;
+	}, [selectedProfileId, dateKey]);
+
 	const growthRowIds = useSliceRowIds(
 		INDEX_IDS.GROWTH_MEASUREMENTS_BY_DATE,
-		dateKey,
+		sliceId,
 		indexes,
 	);
-	const teethRowIds = useSliceRowIds(INDEX_IDS.TEETH_BY_DATE, dateKey, indexes);
+	const teethRowIds = useSliceRowIds(INDEX_IDS.TEETH_BY_DATE, sliceId, indexes);
 	const store = useStore();
 
 	const interleaved = useMemo(() => {

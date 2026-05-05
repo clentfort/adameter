@@ -4,11 +4,12 @@ import { fbt } from 'fbtee';
 import { useRouter } from 'next/navigation';
 import ProfileForm from '@/components/profile-form';
 import { Card, CardContent } from '@/components/ui/card';
-import { useProfile } from '@/hooks/use-profile';
+import { useProfile, useUpsertProfile } from '@/hooks/use-profile';
 import { SettingsHeader } from '../components/settings-header';
 
 export default function ProfileSettingsPage() {
-	const [profile, setProfile] = useProfile();
+	const [profile] = useProfile();
+	const upsertProfile = useUpsertProfile();
 	const router = useRouter();
 
 	return (
@@ -23,7 +24,9 @@ export default function ProfileSettingsPage() {
 						<ProfileForm
 							initialData={profile}
 							onSave={(data) => {
-								setProfile({ ...data, optedOut: false });
+								if (profile) {
+									upsertProfile({ ...profile, ...data, optedOut: false });
+								}
 								router.push('/settings');
 							}}
 						/>

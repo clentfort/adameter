@@ -81,8 +81,10 @@ export async function addTimerFeedingEntry(
 			name: breast === 'left' ? 'Left Breast' : 'Right Breast',
 		})
 		.click();
-	await expect(page.getByRole('button', { name: 'End Feeding' })).toBeVisible();
-	await page.getByRole('button', { name: 'End Feeding' }).click();
+	const endButton = page.getByRole('button', { name: 'End Feeding' });
+	await expect(endButton).toBeVisible();
+	await endButton.click();
+	await expect(endButton).not.toBeVisible();
 }
 
 export async function seedFeedingEntry(
