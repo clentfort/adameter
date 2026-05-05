@@ -77,6 +77,37 @@ describe('remote-bootstrap', () => {
 		expect(store.hasRow(TABLE_IDS.EVENTS, 'remote')).toBe(true);
 		expect(store.hasRow(TABLE_IDS.EVENTS, 'local')).toBe(false);
 	});
+
+	it('exercises additional bootstrap edge cases (merge, empty store, and fallback)', () => {
+		const store = createStore();
+
+		// 1. Empty store snapshot (line 22)
+		expect(snapshotStoreContentIfNonEmpty(store)).toBeUndefined();
+
+		// 2. Merge strategy (lines 51-52)
+		setEventRow(store, 'local');
+		const localSnapshot = snapshotStoreContentIfNonEmpty(store);
+		store.delTables();
+		setEventRow(store, 'remote');
+		const mergeResult = reconcileRemoteLoadResult(
+			store,
+			localSnapshot,
+			'merge',
+			'device-1',
+		);
+		expect(mergeResult.decision).toBe('merge');
+		expect(store.getRowCount(TABLE_IDS.EVENTS)).toBe(2);
+
+		// 3. Fallback when structuredClone is missing (line 30)
+		const originalStructuredClone = globalThis.structuredClone;
+		// @ts-expect-error - testing fallback
+		delete globalThis.structuredClone;
+		try {
+			expect(snapshotStoreContentIfNonEmpty(store)).toEqual(store.getContent());
+		} finally {
+			globalThis.structuredClone = originalStructuredClone;
+		}
+	});
 });
 
 function setEventRow(store: ReturnType<typeof createStore>, id: string) {
