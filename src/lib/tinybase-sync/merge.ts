@@ -1,5 +1,5 @@
 import type { Content, Store } from 'tinybase';
-import { TABLE_IDS } from './constants';
+import { STORE_VALUE_SELECTED_PROFILE_ID, TABLE_IDS } from './constants';
 
 /**
  * Merges a snapshot into the current store.
@@ -37,6 +37,16 @@ export function mergeStoreContent(
 
 	if (values) {
 		for (const [valueId, value] of Object.entries(values)) {
+			// Special handling for selectedProfileId: if we already have one, keep it.
+			// This ensures that our local "active" child isn't switched just because
+			// we joined a room where someone else had a different active child.
+			if (valueId === STORE_VALUE_SELECTED_PROFILE_ID) {
+				if (!store.hasValue(valueId) || store.getValue(valueId) === '') {
+					store.setValue(valueId, value);
+				}
+				continue;
+			}
+
 			// If the local store doesn't have this value, we take it from remote
 			// For values like 'profile', we might want more sophisticated merging,
 			// but for now, first-come-first-served (prefer existing local if present)

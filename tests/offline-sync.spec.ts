@@ -387,6 +387,8 @@ test.describe('Offline Synchronization', () => {
 
 				if (!hasThirtyMinuteEntry || hasStaleEntries) {
 					await pageB.reload();
+					// Allow some time for hydration after reload within toPass
+					await pageB.waitForTimeout(2000);
 				}
 
 				expect(await thirtyMinuteEntriesB.count()).toBeGreaterThan(0);

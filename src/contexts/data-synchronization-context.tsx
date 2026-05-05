@@ -16,6 +16,7 @@ interface DataSynchronizationContextProps {
 	joinRoom: (roomId: string, strategy: JoinStrategy) => void;
 	joinStrategy: JoinStrategy;
 	leaveRoom: () => void;
+	resetJoinStrategy: () => void;
 	room: string | undefined;
 	setRoom: (room: string | undefined) => void;
 }
@@ -26,6 +27,7 @@ export const DataSynchronizationContext =
 		joinRoom: () => {},
 		joinStrategy: 'merge',
 		leaveRoom: () => {},
+		resetJoinStrategy: () => {},
 		room: undefined,
 		setRoom: (_room: string | undefined) => {},
 	});
@@ -49,6 +51,10 @@ export function DataSynchronizationProvider({
 	const leaveRoom = () => {
 		setRoom(undefined);
 		setJoinStrategy('merge');
+	};
+
+	const resetJoinStrategy = () => {
+		setJoinStrategy('overwrite');
 	};
 
 	useEffect(() => {
@@ -87,6 +93,7 @@ export function DataSynchronizationProvider({
 				joinRoom,
 				joinStrategy,
 				leaveRoom,
+				resetJoinStrategy,
 				room,
 				setRoom,
 			}}

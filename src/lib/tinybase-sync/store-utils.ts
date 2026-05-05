@@ -1,4 +1,4 @@
-import type { Store } from 'tinybase';
+import type { Content, Store } from 'tinybase';
 import {
 	STORE_VALUE_FEEDING_IN_PROGRESS,
 	STORE_VALUE_PROFILE,
@@ -28,4 +28,19 @@ export function isStoreDataEmpty(store: Store) {
 	}
 
 	return true;
+}
+
+export function snapshotStoreContentIfNonEmpty(
+	store: Store,
+): Content | undefined {
+	if (isStoreDataEmpty(store)) {
+		return undefined;
+	}
+
+	const content = store.getContent();
+	if (typeof structuredClone === 'function') {
+		return structuredClone(content);
+	}
+
+	return content;
 }

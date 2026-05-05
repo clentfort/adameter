@@ -18,13 +18,13 @@ export async function setTinyBaseValue(
 		value: unknown;
 		valueId: string;
 	}) => {
-		const checkStore = () => {
-			const store = (
-				window as unknown as {
-					tinybaseStore: { setValue: (id: string, val: unknown) => void };
-				}
-			).tinybaseStore;
-			if (store) {
+		const applyValue = () => {
+			const win = window as unknown as {
+				tinybaseLocalReady?: boolean;
+				tinybaseStore: { setValue: (id: string, val: unknown) => void };
+			};
+			const store = win.tinybaseStore;
+			if (store && win.tinybaseLocalReady) {
 				store.setValue(
 					valueId_,
 					typeof value_ === 'object' ? JSON.stringify(value_) : value_,
@@ -33,11 +33,14 @@ export async function setTinyBaseValue(
 			}
 			return false;
 		};
-		if (!checkStore()) {
-			const interval = setInterval(() => {
-				if (checkStore()) clearInterval(interval);
-			}, 50);
-		}
+
+		const start = Date.now();
+		const interval = setInterval(() => {
+			const success = applyValue();
+			if (success && Date.now() - start > 5000) {
+				clearInterval(interval);
+			}
+		}, 50);
 	};
 
 	if (isContext) {
@@ -52,25 +55,30 @@ export async function setTinyBaseValue(
 			await page.evaluate(
 				({ value: value_, valueId: valueId_ }) => {
 					return new Promise<void>((resolve) => {
-						const checkStore = () => {
-							const store = (
-								window as unknown as {
-									tinybaseStore: {
-										setValue: (id: string, val: unknown) => void;
-									};
-								}
-							).tinybaseStore;
-							if (store) {
+						const applyValue = () => {
+							const win = window as unknown as {
+								tinybaseLocalReady?: boolean;
+								tinybaseStore: { setValue: (id: string, val: unknown) => void };
+							};
+							const store = win.tinybaseStore;
+							if (store && win.tinybaseLocalReady) {
 								store.setValue(
 									valueId_,
 									typeof value_ === 'object' ? JSON.stringify(value_) : value_,
 								);
-								resolve();
-							} else {
-								setTimeout(checkStore, 50);
+								return true;
 							}
+							return false;
 						};
-						checkStore();
+
+						const start = Date.now();
+						const interval = setInterval(() => {
+							const success = applyValue();
+							if (success && Date.now() - start > 5000) {
+								clearInterval(interval);
+								resolve();
+							}
+						}, 50);
 					});
 				},
 				{ value, valueId },
@@ -97,17 +105,19 @@ export async function setTinyBaseRow(
 		rowId: string;
 		tableId: string;
 	}) => {
-		const checkStore = () => {
-			const store = (
-				window as unknown as {
-					tinybaseStore: {
-						getValue: (id: string) => unknown;
-						setRow: (tId: string, rId: string, r: unknown) => void;
-					};
-				}
-			).tinybaseStore;
-			if (store) {
-				const selectedProfileId = store.getValue('selectedProfileId');
+		const applyRow = () => {
+			const win = window as unknown as {
+				__E2E_PROFILE_ID__?: string;
+				tinybaseLocalReady?: boolean;
+				tinybaseStore: {
+					getValue: (id: string) => unknown;
+					setRow: (tId: string, rId: string, r: unknown) => void;
+				};
+			};
+			const store = win.tinybaseStore;
+			if (store && win.tinybaseLocalReady) {
+				const selectedProfileId =
+					store.getValue('selectedProfileId') || win.__E2E_PROFILE_ID__;
 				const finalRow =
 					typeof row_ === 'object' &&
 					row_ !== null &&
@@ -120,11 +130,14 @@ export async function setTinyBaseRow(
 			}
 			return false;
 		};
-		if (!checkStore()) {
-			const interval = setInterval(() => {
-				if (checkStore()) clearInterval(interval);
-			}, 50);
-		}
+
+		const start = Date.now();
+		const interval = setInterval(() => {
+			const success = applyRow();
+			if (success && Date.now() - start > 5000) {
+				clearInterval(interval);
+			}
+		}, 50);
 	};
 
 	if (isContext) {
@@ -140,17 +153,19 @@ export async function setTinyBaseRow(
 			await page.evaluate(
 				({ row: row_, rowId: rowId_, tableId: tableId_ }) => {
 					return new Promise<void>((resolve) => {
-						const checkStore = () => {
-							const store = (
-								window as unknown as {
-									tinybaseStore: {
-										getValue: (id: string) => unknown;
-										setRow: (tId: string, rId: string, r: unknown) => void;
-									};
-								}
-							).tinybaseStore;
-							if (store) {
-								const selectedProfileId = store.getValue('selectedProfileId');
+						const applyRow = () => {
+							const win = window as unknown as {
+								__E2E_PROFILE_ID__?: string;
+								tinybaseLocalReady?: boolean;
+								tinybaseStore: {
+									getValue: (id: string) => unknown;
+									setRow: (tId: string, rId: string, r: unknown) => void;
+								};
+							};
+							const store = win.tinybaseStore;
+							if (store && win.tinybaseLocalReady) {
+								const selectedProfileId =
+									store.getValue('selectedProfileId') || win.__E2E_PROFILE_ID__;
 								const finalRow =
 									typeof row_ === 'object' &&
 									row_ !== null &&
@@ -159,12 +174,19 @@ export async function setTinyBaseRow(
 										? { ...row_, profileId: selectedProfileId }
 										: row_;
 								store.setRow(tableId_, rowId_, finalRow);
-								resolve();
-							} else {
-								setTimeout(checkStore, 50);
+								return true;
 							}
+							return false;
 						};
-						checkStore();
+
+						const start = Date.now();
+						const interval = setInterval(() => {
+							const success = applyRow();
+							if (success && Date.now() - start > 5000) {
+								clearInterval(interval);
+								resolve();
+							}
+						}, 50);
 					});
 				},
 				{ row, rowId, tableId },
@@ -175,6 +197,17 @@ export async function setTinyBaseRow(
 
 export async function enableSkipProfile(pageOrContext: BrowserContext | Page) {
 	const profileId = 'e2e-baby-id';
+
+	const isPage = 'url' in pageOrContext;
+	const context = isPage
+		? (pageOrContext as Page).context()
+		: (pageOrContext as BrowserContext);
+
+	await context.addInitScript((pId) => {
+		(window as unknown as { __E2E_PROFILE_ID__: string }).__E2E_PROFILE_ID__ =
+			pId;
+	}, profileId);
+
 	await setTinyBaseRow(pageOrContext, 'profiles', profileId, {
 		birthday: '2024-01-01',
 		color: 'bg-blue-500',

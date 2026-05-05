@@ -54,7 +54,9 @@ function isExpectedSynchronizerTimeout(error: unknown): boolean {
 }
 
 export function TinybaseProvider({ children }: TinybaseProviderProps) {
-	const { isHydrated, room } = useContext(DataSynchronizationContext);
+	const { isHydrated, joinStrategy, resetJoinStrategy, room } = useContext(
+		DataSynchronizationContext,
+	);
 	const storeRef = useRef<MergeableStore>(defaultStore);
 	const [isLocalReady, setIsLocalReady] = useState(false);
 	const [isSyncReady, setIsSyncReady] = useState(false);
@@ -181,10 +183,17 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			// Fetches the server snapshot, CRDT-merges it into the local store,
 			// then saves the merged result back so peers can benefit from the
 			// combined state (important when we had local changes while offline).
-			const bootstrap = async () => {
+			// Fetches the server snapshot, CRDT-merges it into the local store,
+			// then saves the merged result back so peers can benefit from the
+			// combined state (important when we had local changes while offline).
+			const bootstrap = async (isInitial = false) => {
 				if (isBootstrapping) return;
 				isBootstrapping = true;
 				try {
+					if (isInitial && joinStrategy === 'clear') {
+						store.setContent([{}, {}]);
+					}
+
 					const startBootstrap = performance.now();
 					const didLoad = await loadServerSnapshot(
 						store,
@@ -195,7 +204,20 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 						`[PERF] Server snapshot bootstrap took ${(performance.now() - startBootstrap).toFixed(2)}ms (loaded=${didLoad})`,
 					);
 
-					if (didLoad && !isDisposed) {
+					if (isDisposed) return;
+
+					if (isInitial) {
+						// After initial merge/clear, revert to overwrite for subsequent reconnects.
+						// Note: 'merge' is already handled by loadServerSnapshot because
+						// applyMergeableChanges merges the remote state into the existing
+						// local store.
+						resetJoinStrategy();
+					}
+
+					// Run migrations after merging remote data
+					await runMigrationsIfNeeded(store, { deviceId });
+
+					if (didLoad) {
 						// Push the merged state back so other clients can pick it up.
 						void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
 							(error: unknown) =>
@@ -207,17 +229,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				} finally {
 					isBootstrapping = false;
 				}
-
-				if (isDisposed) return;
-
-				// Run migrations after merging remote data
-				await runMigrationsIfNeeded(store, { deviceId });
 			};
 
 			// Initial bootstrap: load + merge the server snapshot before we start sync.
 			// This runs before we register the reconnect listener so migrations always
 			// complete before the synchronizer starts.
-			await bootstrap();
+			await bootstrap(true);
+
+			if (isDisposed) return;
 
 			storeListenerId = store.addDidFinishTransactionListener(() => {
 				scheduleSave();
@@ -267,7 +286,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				logger.log(
 					'[SYNC] WebSocket reconnected, re-bootstrapping from server snapshot...',
 				);
-				void bootstrap();
+				void bootstrap(false);
 			};
 			connection.addEventListener('open', handleOpen);
 
@@ -322,7 +341,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 			void synchronizer.destroy();
 		};
-	}, [isHydrated, isLocalReady, room]);
+	}, [isHydrated, isLocalReady, joinStrategy, resetJoinStrategy, room]);
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
@@ -332,10 +351,13 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				.__E2E_TESTS__;
 
 			if (isDevelopment || isPreview || isTest) {
-				Object.assign(window, { tinybaseStore: storeRef.current });
+				Object.assign(window, {
+					tinybaseLocalReady: isLocalReady,
+					tinybaseStore: storeRef.current,
+				});
 			}
 		}
-	}, []);
+	}, [isLocalReady]);
 
 	if (!isHydrated || !isLocalReady || !isSyncReady) {
 		return <SplashScreen />;
