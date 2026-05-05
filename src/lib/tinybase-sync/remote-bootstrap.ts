@@ -1,7 +1,10 @@
 import type { Content, Store } from 'tinybase';
 import type { JoinStrategy } from '@/contexts/data-synchronization-context';
 import { mergeStoreContent } from './merge';
-import { isStoreDataEmpty, snapshotStoreContentIfNonEmpty } from './store-utils';
+import {
+	isStoreDataEmpty,
+	snapshotStoreContentIfNonEmpty,
+} from './store-utils';
 
 export { snapshotStoreContentIfNonEmpty };
 

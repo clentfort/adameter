@@ -183,9 +183,6 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			// Fetches the server snapshot, CRDT-merges it into the local store,
 			// then saves the merged result back so peers can benefit from the
 			// combined state (important when we had local changes while offline).
-			// Fetches the server snapshot, CRDT-merges it into the local store,
-			// then saves the merged result back so peers can benefit from the
-			// combined state (important when we had local changes while offline).
 			const bootstrap = async (isInitial = false) => {
 				if (isBootstrapping) return;
 				isBootstrapping = true;
