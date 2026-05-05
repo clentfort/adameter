@@ -1,7 +1,9 @@
 import type { Content, Store } from 'tinybase';
 import type { JoinStrategy } from '@/contexts/data-synchronization-context';
 import { mergeStoreContent } from './merge';
-import { isStoreDataEmpty } from './store-utils';
+import { isStoreDataEmpty, snapshotStoreContentIfNonEmpty } from './store-utils';
+
+export { snapshotStoreContentIfNonEmpty };
 
 type RemoteBootstrapDecision =
 	| 'keep-empty'
@@ -13,21 +15,6 @@ interface RemoteBootstrapResult {
 	decision: RemoteBootstrapDecision;
 	localHadData: boolean;
 	remoteHadData: boolean;
-}
-
-export function snapshotStoreContentIfNonEmpty(
-	store: Store,
-): Content | undefined {
-	if (isStoreDataEmpty(store)) {
-		return undefined;
-	}
-
-	const content = store.getContent();
-	if (typeof structuredClone === 'function') {
-		return structuredClone(content);
-	}
-
-	return content;
 }
 
 export function reconcileRemoteLoadResult(

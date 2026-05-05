@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { getItem, removeItem, setItem, STORAGE_KEYS } from '@/lib/storage';
 
 export type JoinStrategy = 'merge' | 'overwrite' | 'clear';
@@ -43,19 +43,19 @@ export function DataSynchronizationProvider({
 	const [joinStrategy, setJoinStrategy] = useState<JoinStrategy>('merge');
 	const [isHydrated, setIsHydrated] = useState(false);
 
-	const joinRoom = (roomId: string, strategy: JoinStrategy) => {
+	const joinRoom = useCallback((roomId: string, strategy: JoinStrategy) => {
 		setJoinStrategy(strategy);
 		setRoom(roomId);
-	};
+	}, []);
 
-	const leaveRoom = () => {
+	const leaveRoom = useCallback(() => {
 		setRoom(undefined);
 		setJoinStrategy('merge');
-	};
+	}, []);
 
-	const resetJoinStrategy = () => {
+	const resetJoinStrategy = useCallback(() => {
 		setJoinStrategy('overwrite');
-	};
+	}, []);
 
 	useEffect(() => {
 		const restoredRoom = getItem(STORAGE_KEYS.ROOM);
@@ -86,18 +86,29 @@ export function DataSynchronizationProvider({
 		setItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY, joinStrategy);
 	}, [isHydrated, joinStrategy, room]);
 
+	const contextValue = useMemo(
+		() => ({
+			isHydrated,
+			joinRoom,
+			joinStrategy,
+			leaveRoom,
+			resetJoinStrategy,
+			room,
+			setRoom,
+		}),
+		[
+			isHydrated,
+			joinRoom,
+			joinStrategy,
+			leaveRoom,
+			resetJoinStrategy,
+			room,
+			setRoom,
+		],
+	);
+
 	return (
-		<DataSynchronizationContext.Provider
-			value={{
-				isHydrated,
-				joinRoom,
-				joinStrategy,
-				leaveRoom,
-				resetJoinStrategy,
-				room,
-				setRoom,
-			}}
-		>
+		<DataSynchronizationContext.Provider value={contextValue}>
 			{children}
 		</DataSynchronizationContext.Provider>
 	);
