@@ -211,4 +211,40 @@ describe('BarChart', () => {
 		expect(tickCallback(-15.5)).toBe('15.5h');
 		expect(tickCallback(10)).toBe('10h');
 	});
+
+	it('should return early if datasets become empty after initial mount', async () => {
+		const { rerender } = render(
+			<BarChart
+				datasets={[{ backgroundColor: 'red', data: [10], label: 'Set 1' }]}
+				emptyStateMessage="No data"
+				labels={['Day 1']}
+				title="Test Chart"
+				xAxisLabel="Days"
+				yAxisLabel="Hours"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(1);
+
+		rerender(
+			<BarChart
+				datasets={[]}
+				emptyStateMessage="No data"
+				labels={['Day 1']}
+				title="Test Chart"
+				xAxisLabel="Days"
+				yAxisLabel="Hours"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(screen.getByText('No data')).toBeInTheDocument();
+	});
 });
