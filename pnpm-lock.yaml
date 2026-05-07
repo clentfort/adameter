@@ -42,8 +42,8 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3
       fbtee:
-        specifier: 1.7.4
-        version: 1.7.4(@nkzw/babel-plugin-fbtee@1.7.4)(react@19.2.6)
+        specifier: 1.7.5
+        version: 1.7.5(@nkzw/babel-plugin-fbtee@1.7.5)(react@19.2.6)
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
@@ -131,13 +131,13 @@ importers:
         version: 16.2.5
       '@nkzw/babel-preset-fbtee':
         specifier: ^1.7.0
-        version: 1.7.4
+        version: 1.7.5
       '@nkzw/eslint-config':
         specifier: ^3.3.0
         version: 3.3.0(@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3))(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3))(@typescript-eslint/utils@8.59.2(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3))(eslint-import-resolver-node@0.3.10)(eslint-plugin-import@2.32.0)(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3)
       '@nkzw/eslint-plugin-fbtee':
         specifier: ^1.7.1
-        version: 1.7.4(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3)
+        version: 1.7.5(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3)
       '@playwright/test':
         specifier: ^1.58.2
         version: 1.59.1
@@ -1331,15 +1331,15 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@nkzw/babel-plugin-fbtee-auto-import@1.7.4':
-    resolution: {integrity: sha512-Z6qgPzwK6nUABj4DqRgik8cggMHkMo1MhptN97IjAEsEyXfY+350aooP0gW/YcyXlW2bbB4DFHG2kClF7FogOw==}
+  '@nkzw/babel-plugin-fbtee-auto-import@1.7.5':
+    resolution: {integrity: sha512-fYlqUg044TxK6in4deAxOKVeyboVzWDAOhTUMxPwfQ1mT4ETZUN2Wpr7Z2bWA2HmF1Pj8M9OljuEWFkThHeNuw==}
 
-  '@nkzw/babel-plugin-fbtee@1.7.4':
-    resolution: {integrity: sha512-y94rroccGqGHhNG5XTedq3+7+hmLekwu2cewec9HnRSKwgi/PVLxzYxi6jz+YcFM+xFIWOTyTArBACL7a9d3Mg==}
+  '@nkzw/babel-plugin-fbtee@1.7.5':
+    resolution: {integrity: sha512-CX562kd4vVci/5V0qCvPXFNIesVIW3bospTTOGsdzBv6JKW6A2Pr2+3A/s+fG6oySKrKdvVzKkqg52XdhoGBFQ==}
     hasBin: true
 
-  '@nkzw/babel-preset-fbtee@1.7.4':
-    resolution: {integrity: sha512-pt6EJBOsBlv/gCCmKtrdHbE/SJaKhnVdUGIkKkTfncZAV2qWJMbNGIyhISV19qlQDsHbLd02cTQrio55y46F9g==}
+  '@nkzw/babel-preset-fbtee@1.7.5':
+    resolution: {integrity: sha512-KtAxelWbPClLJRhK3BdhTVmxYV5Mj7h0H2OVT4iOJ7YF6gUMt/5dzguZN7r2ed5L46bv4bUfPWZtdR91dxPypQ==}
     hasBin: true
 
   '@nkzw/core@1.3.1':
@@ -1350,8 +1350,8 @@ packages:
     peerDependencies:
       eslint: '>= 9'
 
-  '@nkzw/eslint-plugin-fbtee@1.7.4':
-    resolution: {integrity: sha512-8Ix4caAIk4dSNxYk0u7Gh2XBu3RttoLM4K81cdCxULn/uNTJ8/D1jgXUEz1vhTkYRTh4mSK+nzIF/vqa5pyz1Q==}
+  '@nkzw/eslint-plugin-fbtee@1.7.5':
+    resolution: {integrity: sha512-qhlM3bwKeE7MxXEInEWQGcl/SVJZtpQ+l4t4L04TgmBpZ/teD0KMGBQtsMzXu50JXOI92M2BVfyb3LIuhevZ8Q==}
 
   '@nkzw/eslint-plugin@2.0.0':
     resolution: {integrity: sha512-IoU8kOqHfnf7se2dGxMD/7RPm6WVjzjOjWSo7FulRx3lJzuZvXioSkT5Nd82l66DH3Pl2whw74lPT1di3KMwFA==}
@@ -3329,10 +3329,10 @@ packages:
   fastq@1.20.1:
     resolution: {integrity: sha512-GGToxJ/w1x32s/D2EKND7kTil4n8OVk/9mycTc4VDza13lOvpUZTGX3mFSCtV9ksdGBVzvsyAVLM6mHFThxXxw==}
 
-  fbtee@1.7.4:
-    resolution: {integrity: sha512-a9VMitQRR5ES4zRdGrx4L5ifWnMH6x04p4hpC/iUEVUjhe9zVN0fUs+F4sREgUfkis+x6DyAJsH5VFDy0UQ0ng==}
+  fbtee@1.7.5:
+    resolution: {integrity: sha512-/fC79zyXWMqfHYj4tBcKG9aFZrJ1LorvcjjoH7wSNw+u1hkF7Khr0x+GrhdgkO2sSmCfBQ8o7A1x8H7rWkV2zA==}
     peerDependencies:
-      '@nkzw/babel-plugin-fbtee': ^1.7.4
+      '@nkzw/babel-plugin-fbtee': ^1.7.5
       react: ^19.0.0
 
   fdir@6.5.0:
@@ -7019,15 +7019,15 @@ snapshots:
   '@next/swc-win32-x64-msvc@16.2.5':
     optional: true
 
-  '@nkzw/babel-plugin-fbtee-auto-import@1.7.4':
+  '@nkzw/babel-plugin-fbtee-auto-import@1.7.5':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/types': 7.29.0
-      '@nkzw/babel-plugin-fbtee': 1.7.4
+      '@nkzw/babel-plugin-fbtee': 1.7.5
     transitivePeerDependencies:
       - supports-color
 
-  '@nkzw/babel-plugin-fbtee@1.7.4':
+  '@nkzw/babel-plugin-fbtee@1.7.5':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/generator': 7.29.1
@@ -7036,7 +7036,7 @@ snapshots:
       '@babel/preset-typescript': 7.28.5(@babel/core@7.29.0)
       '@babel/traverse': 7.29.0
       '@babel/types': 7.29.0
-      '@nkzw/babel-plugin-fbtee-auto-import': 1.7.4
+      '@nkzw/babel-plugin-fbtee-auto-import': 1.7.5
       invariant: 2.2.4
       jest-docblock: 30.2.0
       nullthrows: 1.1.1
@@ -7044,10 +7044,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nkzw/babel-preset-fbtee@1.7.4':
+  '@nkzw/babel-preset-fbtee@1.7.5':
     dependencies:
-      '@nkzw/babel-plugin-fbtee': 1.7.4
-      '@nkzw/babel-plugin-fbtee-auto-import': 1.7.4
+      '@nkzw/babel-plugin-fbtee': 1.7.5
+      '@nkzw/babel-plugin-fbtee-auto-import': 1.7.5
     transitivePeerDependencies:
       - supports-color
 
@@ -7077,9 +7077,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@nkzw/eslint-plugin-fbtee@1.7.4(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3)':
+  '@nkzw/eslint-plugin-fbtee@1.7.5(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
-      '@typescript-eslint/utils': 8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.59.2(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3)
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -9318,9 +9318,9 @@ snapshots:
     dependencies:
       reusify: 1.1.0
 
-  fbtee@1.7.4(@nkzw/babel-plugin-fbtee@1.7.4)(react@19.2.6):
+  fbtee@1.7.5(@nkzw/babel-plugin-fbtee@1.7.5)(react@19.2.6):
     dependencies:
-      '@nkzw/babel-plugin-fbtee': 1.7.4
+      '@nkzw/babel-plugin-fbtee': 1.7.5
       invariant: 2.2.4
       react: 19.2.6
 
