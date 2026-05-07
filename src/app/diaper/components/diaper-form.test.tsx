@@ -7,9 +7,12 @@ import {
 	waitFor,
 	within,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nContext } from '@/contexts/i18n-context';
 import DiaperForm from './diaper-form';
+
+const mockUpsert = vi.fn();
 
 vi.mock('@/hooks/use-diaper-changes', () => ({
 	useDiaperChangesSnapshot: () => [],
@@ -21,7 +24,7 @@ vi.mock('@/hooks/use-diaper-products', () => ({
 			? { id: productId, isReusable: false, name: `Product ${productId}` }
 			: undefined,
 	useFrecencySortedDiaperProductIds: () => ['1', '2'],
-	useUpsertDiaperProduct: () => vi.fn(),
+	useUpsertDiaperProduct: () => mockUpsert,
 }));
 
 describe('DiaperForm', () => {
@@ -160,6 +163,36 @@ describe('DiaperForm', () => {
 			name: /cancel/i,
 		});
 		fireEvent.click(cancelButton);
+
+		await waitFor(() => {
+			expect(screen.queryByText(/add product/i)).not.toBeInTheDocument();
+		});
+	});
+
+	it('allows adding a new product and selects it', async () => {
+		const user = userEvent.setup();
+		render(<DiaperForm {...baseProps} />);
+
+		const plusButton = document
+			.querySelector('.lucide-plus')
+			?.closest('button');
+		expect(plusButton).toBeTruthy();
+		await user.click(plusButton!);
+
+		const dialog = await screen.findByRole('dialog', { name: /add product/i });
+		expect(dialog).toBeInTheDocument();
+
+		const nameInput = within(dialog).getByLabelText(/product name/i);
+		await user.type(nameInput, 'New Diaper');
+
+		const saveButton = within(dialog).getByRole('button', { name: /save/i });
+		await user.click(saveButton);
+
+		await waitFor(() => {
+			expect(mockUpsert).toHaveBeenCalledWith(
+				expect.objectContaining({ name: 'New Diaper' }),
+			);
+		});
 
 		await waitFor(() => {
 			expect(screen.queryByText(/add product/i)).not.toBeInTheDocument();
