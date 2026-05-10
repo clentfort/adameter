@@ -115,7 +115,11 @@ describe('PieChart', () => {
 		const labels = ['A', 'B'];
 
 		render(
-			<PieChart datasets={datasets} emptyStateMessage="No data" labels={labels} />,
+			<PieChart
+				datasets={datasets}
+				emptyStateMessage="No data"
+				labels={labels}
+			/>,
 		);
 
 		await act(async () => {
