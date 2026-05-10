@@ -107,4 +107,39 @@ describe('PieChart', () => {
 		expect(screen.getByText('No data to display')).toBeInTheDocument();
 		expect(screen.queryByRole('graphics-document')).not.toBeInTheDocument();
 	});
+
+	it('should exercise the default tooltip label formatter', async () => {
+		const datasets = [
+			{ backgroundColor: ['red', 'blue'], data: [10, 20], label: 'Set 1' },
+		];
+		const labels = ['A', 'B'];
+
+		render(
+			<PieChart datasets={datasets} emptyStateMessage="No data" labels={labels} />,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		const chartConfig = mockChart.mock.calls[0][1] as {
+			options: {
+				plugins: {
+					tooltip: {
+						callbacks: {
+							label: (context: { label: string; parsed: number }) => string;
+						};
+					};
+				};
+			};
+		};
+
+		const labelFormatter = chartConfig.options.plugins.tooltip.callbacks.label;
+
+		// Test with label and parsed value
+		expect(labelFormatter({ label: 'A', parsed: 10 })).toBe('A: 10');
+
+		// Test with empty label
+		expect(labelFormatter({ label: '', parsed: 20 })).toBe('20');
+	});
 });
