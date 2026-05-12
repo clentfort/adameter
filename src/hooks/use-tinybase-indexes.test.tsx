@@ -6,7 +6,10 @@ import {
 	INDEX_IDS,
 	TinybaseIndexesProvider,
 } from '@/contexts/tinybase-indexes-context';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import {
+	STORE_VALUE_SELECTED_PROFILE_ID,
+	TABLE_IDS,
+} from '@/lib/tinybase-sync/constants';
 import {
 	useDateSliceRowIds,
 	useDiaperChangesByDate,
@@ -163,5 +166,53 @@ describe('useDateSliceRowIds', () => {
 		);
 
 		expect(result.current).toEqual([]);
+	});
+});
+
+describe('multi-profile support', () => {
+	function MultiProfileTestWrapper({
+		children,
+	}: {
+		children: React.ReactNode;
+	}) {
+		const store = createStore();
+		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'baby-1');
+
+		// baby-1 diaper changes
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'diaper-b1-1', {
+			profileId: 'baby-1',
+			timestamp: '2024-01-15T10:00:00Z',
+		});
+
+		// baby-2 diaper changes
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'diaper-b2-1', {
+			profileId: 'baby-2',
+			timestamp: '2024-01-15T12:00:00Z',
+		});
+
+		return (
+			<Provider store={store}>
+				<TinybaseIndexesProvider>{children}</TinybaseIndexesProvider>
+			</Provider>
+		);
+	}
+
+	it('should filter date keys by selected profile', () => {
+		const { result } = renderHook(() => useDiaperChangesByDate(), {
+			wrapper: MultiProfileTestWrapper,
+		});
+
+		// Should only include dates for baby-1 and strip the "baby-1:" prefix
+		expect(result.current.dateKeys).toEqual(['2024-01-15']);
+	});
+
+	it('should use prefixed slice ID for row lookups when profile is selected', () => {
+		const { result } = renderHook(
+			() => useDateSliceRowIds(INDEX_IDS.DIAPER_CHANGES_BY_DATE, '2024-01-15'),
+			{ wrapper: MultiProfileTestWrapper },
+		);
+
+		// Should find diaper-b1-1 by using "baby-1:2024-01-15" internally
+		expect(result.current).toEqual(['diaper-b1-1']);
 	});
 });
