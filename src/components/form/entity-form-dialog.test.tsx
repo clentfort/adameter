@@ -61,4 +61,35 @@ describe('EntityFormDialog', () => {
 		fireEvent.click(screen.getByText(/cancel/i));
 		expect(onClose).toHaveBeenCalled();
 	});
+
+	it('renders custom footer and handles onOpenChange', () => {
+		const onSave = vi.fn();
+		const onClose = vi.fn();
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const form = { handleSubmit: vi.fn() } as any;
+
+		const { unmount } = render(
+			<EntityFormDialog
+				footer={<div data-testid="custom-footer">Custom Footer</div>}
+				form={form}
+				onClose={onClose}
+				onSave={onSave}
+				title="Custom Footer Dialog"
+			>
+				<div>Content</div>
+			</EntityFormDialog>,
+		);
+
+		expect(screen.getByTestId('custom-footer')).toBeInTheDocument();
+
+		// Trigger onOpenChange(false) which should call onClose()
+		// Since Dialog is from @base-ui/react, we can try to trigger it via Escape key
+		fireEvent.keyDown(screen.getByRole('dialog'), {
+			code: 'Escape',
+			key: 'Escape',
+		});
+
+		expect(onClose).toHaveBeenCalled();
+		unmount();
+	});
 });
