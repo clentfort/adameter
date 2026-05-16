@@ -677,4 +677,83 @@ describe('LineChart', () => {
 		// Restore context for other tests
 		HTMLCanvasElement.prototype.getContext = originalGetContext;
 	});
+
+	it('exercises early return guard and default vertical line label color', async () => {
+		const mockData = [{ x: new Date('2023-01-01'), y: 10 }];
+		const mockVerticalLines = [
+			{ label: 'Default Color', x: new Date('2023-01-01').getTime() },
+		];
+
+		const { rerender } = render(
+			<LineChart
+				data={mockData}
+				datasetLabel="Main"
+				emptyStateMessage="No data"
+				title="Test Chart"
+				verticalLines={mockVerticalLines}
+				xAxisLabel="X"
+				yAxisLabel="Y"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(1);
+
+		const chartConfig = mockChart.mock.calls.at(-1)![1] as {
+			plugins: { beforeDatasetsDraw: (chart: unknown) => void; id: string }[];
+		};
+		const verticalLinesPlugin = chartConfig.plugins.find(
+			(p) => p.id === 'verticalLines',
+		)!;
+
+		const mockCtx = {
+			beginPath: vi.fn(),
+			fillStyle: '',
+			fillText: vi.fn(),
+			font: '',
+			lineTo: vi.fn(),
+			lineWidth: 0,
+			moveTo: vi.fn(),
+			restore: vi.fn(),
+			save: vi.fn(),
+			setLineDash: vi.fn(),
+			stroke: vi.fn(),
+			strokeStyle: '',
+			textAlign: '',
+		};
+
+		const mockChartObj = {
+			ctx: mockCtx,
+			scales: {
+				x: { getPixelForValue: () => 100, left: 0, right: 200 },
+				y: { bottom: 100, top: 0 },
+			},
+		};
+
+		// Exercise default label and stroke colors (lines 231, 241)
+		verticalLinesPlugin.beforeDatasetsDraw(mockChartObj);
+		expect(mockCtx.strokeStyle).toBe('rgba(0, 0, 0, 0.1)');
+		expect(mockCtx.fillStyle).toBe('rgba(0, 0, 0, 0.4)');
+
+		// Exercise early return guard (line 82)
+		rerender(
+			<LineChart
+				data={[]}
+				datasetLabel="Main"
+				emptyStateMessage="No data"
+				title="Test Chart"
+				xAxisLabel="X"
+				yAxisLabel="Y"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(screen.getByText('No data')).toBeInTheDocument();
+	});
 });
