@@ -105,4 +105,26 @@ describe('useGrowthMeasurements', () => {
 			expect(result.current[0].id).toBe('g1');
 		});
 	});
+
+	describe('toGrowthMeasurement', () => {
+		it('should return null and log warning for invalid data', () => {
+			const store = createTestStore();
+			const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+			// Invalid: missing date (required in growthMeasurementSchema)
+			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'g-invalid', {
+				weight: 3500,
+			});
+
+			const { result } = renderHook(() => useGrowthMeasurement('g-invalid'), {
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			});
+
+			expect(result.current).toBeUndefined();
+			expect(warnSpy).toHaveBeenCalled();
+			warnSpy.mockRestore();
+		});
+	});
 });
