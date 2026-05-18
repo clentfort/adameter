@@ -86,6 +86,30 @@ describe('useGrowthMeasurements', () => {
 				weight: 3500,
 			});
 		});
+
+		it('should return undefined and log a warning for invalid data', () => {
+			const store = createTestStore();
+			// Missing required 'date' field
+			store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'g1', {
+				weight: 3500,
+			});
+
+			const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+			const { result } = renderHook(() => useGrowthMeasurement('g1'), {
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			});
+
+			expect(result.current).toBeUndefined();
+			expect(consoleSpy).toHaveBeenCalledWith(
+				expect.stringContaining('Invalid growth measurement data for id g1:'),
+				expect.any(Array),
+			);
+
+			consoleSpy.mockRestore();
+		});
 	});
 
 	describe('useGrowthMeasurementsSnapshot', () => {
