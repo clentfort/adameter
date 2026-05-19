@@ -2,6 +2,7 @@
 	"name": "adameter",
 	"version": "0.1.0",
 	"private": true,
+	"packageManager": "pnpm@10.30.3",
 	"scripts": {
 		"predev": "pnpm run fbtee:collect && pnpm run fbtee:translate",
 		"dev:next": "next dev",
@@ -23,8 +24,8 @@
 	"devEngines": {
 		"packageManager": {
 			"name": "pnpm",
-			"onFail": "error",
-			"version": ">=11"
+			"onFail": "warn",
+			"version": ">=10"
 		}
 	},
 	"dependencies": {
