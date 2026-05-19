@@ -19,7 +19,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
-        with:
           run_install: false
 
       - name: Install Node.js
@@ -76,7 +75,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
-        with:
           run_install: false
 
       - name: Install Node.js
