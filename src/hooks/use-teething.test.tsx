@@ -78,4 +78,28 @@ describe('useTeething', () => {
 			});
 		});
 	});
+
+	it('should return undefined and log warning when data is invalid', () => {
+		const store = createTestStore();
+		// Missing required toothId
+		store.setRow(TABLE_IDS.TEETHING, 'invalid-id', {
+			date: '2024-01-01',
+		});
+
+		const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+		const { result } = renderHook(() => useTooth('invalid-id'), {
+			wrapper: ({ children }) => (
+				<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+			),
+		});
+
+		expect(result.current).toBeUndefined();
+		expect(consoleSpy).toHaveBeenCalledWith(
+			expect.stringContaining('Invalid tooth data for id invalid-id:'),
+			expect.any(Array),
+		);
+
+		consoleSpy.mockRestore();
+	});
 });
