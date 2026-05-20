@@ -268,8 +268,8 @@ importers:
         specifier: ^5.5.3
         version: 5.5.3
       partysocket:
-        specifier: 1.1.18
-        version: 1.1.18(react@19.2.6)
+        specifier: 1.1.19
+        version: 1.1.19(react@19.2.6)
       qrcode.react:
         specifier: ^4.2.0
         version: 4.2.0(react@19.2.6)
@@ -299,7 +299,7 @@ importers:
         version: 4.3.0
       tinybase:
         specifier: ^8.0.0
-        version: 8.4.1(partykit@0.0.115)(partysocket@1.1.18(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(ws@8.20.1)(zod@4.4.3)
+        version: 8.4.1(partykit@0.0.115)(partysocket@1.1.19(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(ws@8.20.1)(zod@4.4.3)
       tinybase-persister-partykit-client-encrypted:
         specifier: workspace:*
         version: link:packages/tinybase-persister-partykit-client-encrypted
@@ -464,14 +464,14 @@ importers:
         specifier: ^29.0.0
         version: 29.1.1
       partysocket:
-        specifier: 1.1.18
-        version: 1.1.18(react@19.2.6)
+        specifier: 1.1.19
+        version: 1.1.19(react@19.2.6)
       semantic-release:
         specifier: ^25.0.0
         version: 25.0.3(typescript@6.0.3)
       tinybase:
         specifier: ^8.0.0
-        version: 8.4.1(partykit@0.0.115)(partysocket@1.1.18(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(ws@8.20.1)(zod@4.4.3)
+        version: 8.4.1(partykit@0.0.115)(partysocket@1.1.19(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(ws@8.20.1)(zod@4.4.3)
       typescript:
         specifier: ^6.0.0
         version: 6.0.3
@@ -497,14 +497,14 @@ importers:
         specifier: ^24.0.0
         version: 24.12.4
       partysocket:
-        specifier: 1.1.18
-        version: 1.1.18(react@19.2.6)
+        specifier: 1.1.19
+        version: 1.1.19(react@19.2.6)
       semantic-release:
         specifier: ^25.0.0
         version: 25.0.3(typescript@6.0.3)
       tinybase:
         specifier: ^8.0.0
-        version: 8.4.1(partykit@0.0.115)(partysocket@1.1.18(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(ws@8.20.1)(zod@4.4.3)
+        version: 8.4.1(partykit@0.0.115)(partysocket@1.1.19(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(ws@8.20.1)(zod@4.4.3)
       typescript:
         specifier: ^6.0.0
         version: 6.0.3
@@ -4910,8 +4910,8 @@ packages:
     resolution: {integrity: sha512-WHmJIZsAzRWrm1lrtU7wcl0tpD4rg2vgmn4+hXGPjU4mnXgFxyjVq2ZzO547xRXa1IbETOP6J9INl/ergR99bA==}
     hasBin: true
 
-  partysocket@1.1.18:
-    resolution: {integrity: sha512-SyuvH9VavWOSa14v6dYdp3yfSUDII4BQB1+TkGOFBkjfZKjnDBiba4fhdhwBlqGBkqw4ea3gTA1DYhSffX24Wg==}
+  partysocket@1.1.19:
+    resolution: {integrity: sha512-hPwsXSdUc8PKNCinET6TD3JQOxzQ2JaP0bUZQXBVl6UM8UuLn1odgf1LcJXHy4UHSQwWL/RU3AnyhEsGM+W+sg==}
     peerDependencies:
       react: '>=17'
     peerDependenciesMeta:
@@ -10832,7 +10832,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  partysocket@1.1.18(react@19.2.6):
+  partysocket@1.1.19(react@19.2.6):
     dependencies:
       event-target-polyfill: 0.0.4
     optionalDependencies:
@@ -11698,10 +11698,10 @@ snapshots:
 
   time-zone@1.0.0: {}
 
-  tinybase@8.4.1(partykit@0.0.115)(partysocket@1.1.18(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(ws@8.20.1)(zod@4.4.3):
+  tinybase@8.4.1(partykit@0.0.115)(partysocket@1.1.19(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(ws@8.20.1)(zod@4.4.3):
     optionalDependencies:
       partykit: 0.0.115
-      partysocket: 1.1.18(react@19.2.6)
+      partysocket: 1.1.19(react@19.2.6)
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
       ws: 8.20.1
