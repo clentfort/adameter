@@ -1,6 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
-import { STORE_VALUE_FEEDING_IN_PROGRESS } from '@/lib/tinybase-sync/constants';
+import { describe, expect, it, vi } from 'vitest';
+import {
+	STORE_VALUE_FEEDING_IN_PROGRESS,
+	STORE_VALUE_SELECTED_PROFILE_ID,
+} from '@/lib/tinybase-sync/constants';
 import {
 	createTestStore,
 	TinyBaseTestWrapper,
@@ -57,5 +60,77 @@ describe('useFeedingInProgress', () => {
 
 		expect(result.current[0]).toBeNull();
 		expect(store.hasValue(STORE_VALUE_FEEDING_IN_PROGRESS)).toBe(false);
+	});
+
+	it('should handle multi-profile isolation', () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'profile-1');
+		store.setValue(
+			STORE_VALUE_FEEDING_IN_PROGRESS,
+			JSON.stringify({
+				breast: 'left',
+				profileId: 'profile-2',
+				startTime: '2024-01-01T10:00:00Z',
+			}),
+		);
+
+		const { result } = renderHook(() => useFeedingInProgress(), {
+			wrapper: ({ children }) => (
+				<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+			),
+		});
+
+		// Should be null because it belongs to a different profile
+		expect(result.current[0]).toBeNull();
+
+		// Setting should inject the current profile ID
+		act(() => {
+			result.current[1]({
+				breast: 'right',
+				startTime: '2024-01-01T11:00:00Z',
+			});
+		});
+
+		expect(result.current[0]).toEqual({
+			breast: 'right',
+			profileId: 'profile-1',
+			startTime: '2024-01-01T11:00:00Z',
+		});
+		expect(
+			JSON.parse(store.getValue(STORE_VALUE_FEEDING_IN_PROGRESS) as string),
+		).toEqual({
+			breast: 'right',
+			profileId: 'profile-1',
+			startTime: '2024-01-01T11:00:00Z',
+		});
+	});
+
+	it('should return null for invalid data', () => {
+		const store = createTestStore();
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+		const { result } = renderHook(() => useFeedingInProgress(), {
+			wrapper: ({ children }) => (
+				<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+			),
+		});
+
+		// Invalid JSON
+		act(() => {
+			store.setValue(STORE_VALUE_FEEDING_IN_PROGRESS, '{invalid-json');
+		});
+		expect(result.current[0]).toBeNull();
+
+		// Invalid schema (missing startTime)
+		act(() => {
+			store.setValue(
+				STORE_VALUE_FEEDING_IN_PROGRESS,
+				JSON.stringify({ breast: 'left' }),
+			);
+		});
+		expect(result.current[0]).toBeNull();
+		expect(warnSpy).toHaveBeenCalled();
+
+		warnSpy.mockRestore();
 	});
 });
