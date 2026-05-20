@@ -84,7 +84,6 @@
 		"@types/friendly-words": "^1.2.2",
 		"@types/node": "^24.0.0",
 		"@types/papaparse": "^5.5.2",
-		"@types/qrcode.react": "^3.0.0",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@vitejs/plugin-react": "^6.0.0",
