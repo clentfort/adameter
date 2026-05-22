@@ -238,5 +238,52 @@ describe('useDiaperChanges', () => {
 
 			expect(result.current?.id).toBe('d2');
 		});
+
+		it('should improve coverage by handling multi-profile filtering and invalid records', () => {
+			const store = createTestStore();
+			// Set active profile to p1
+			store.setValues({ selectedProfileId: 'p1' });
+
+			// 1. Record for a different profile (p2) - should be filtered out (Line 51)
+			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'other-profile', {
+				containsStool: false,
+				containsUrine: true,
+				profileId: 'p2',
+				timestamp: '2024-01-01T12:00:00Z',
+			});
+
+			// 2. Invalid record for current profile (p1) - should trigger validation error and be skipped (Lines 19-23, 55)
+			// Missing required 'containsUrine' field
+			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'invalid-record', {
+				containsStool: false,
+				profileId: 'p1',
+				timestamp: '2024-01-01T13:00:00Z',
+			});
+
+			// 3. Valid record for current profile (p1)
+			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'valid-older', {
+				containsStool: false,
+				containsUrine: true,
+				profileId: 'p1',
+				timestamp: '2024-01-01T10:00:00Z',
+			});
+
+			// 4. Newer valid record for current profile (p1)
+			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'valid-newer', {
+				containsStool: false,
+				containsUrine: true,
+				profileId: 'p1',
+				timestamp: '2024-01-01T14:00:00Z',
+			});
+
+			const { result } = renderHook(() => useLatestDiaperChangeRecord(), {
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			});
+
+			// Should return the latest valid record for p1
+			expect(result.current?.id).toBe('valid-newer');
+		});
 	});
 });
