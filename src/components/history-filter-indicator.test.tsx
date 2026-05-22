@@ -52,4 +52,17 @@ describe('HistoryFilterIndicator', () => {
 			'border-left-color': 'var(--color-primary)',
 		});
 	});
+
+	it('returns null when isVisible is false', () => {
+		const { container } = render(
+			<HistoryFilterIndicator
+				baseUrl="/test-base"
+				from="2023-10-01T00:00:00.000Z"
+				isVisible={false}
+				to="2023-10-07T00:00:00.000Z"
+			/>,
+		);
+
+		expect(container.firstChild).toBeNull();
+	});
 });
