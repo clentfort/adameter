@@ -1,5 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import { fromTable } from './migration-utils';
+import { fromTable, toRow } from './migration-utils';
+
+describe('toRow', () => {
+	it('converts an entity to a row while stripping id and non-primitives', () => {
+		const result = toRow({
+			complex: { a: 1 },
+			id: 'ignore-me',
+			name: 'Keep Me',
+			other: null,
+			valid: true,
+			value: 123,
+		});
+
+		expect(result).toEqual({
+			name: 'Keep Me',
+			valid: true,
+			value: 123,
+		});
+	});
+});
 
 describe('fromTable', () => {
 	it('extracts all rows from a table', () => {

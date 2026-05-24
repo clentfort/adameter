@@ -1,6 +1,7 @@
 import type { Row } from 'tinybase';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { STORE_VALUE_SELECTED_PROFILE_ID } from '@/lib/tinybase-sync/constants';
 import {
 	createTestStore,
 	TinyBaseTestWrapper,
@@ -35,6 +36,31 @@ const testHooks = createEntityHooks<TestEntity>({
 });
 
 describe('createEntityHooks', () => {
+	it('should filter by profile in useSnapshot and useOne', () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'profile-1');
+
+		store.setRow(TABLE_ID, '1', { name: 'Entity 1', profileId: 'profile-1' });
+		store.setRow(TABLE_ID, '2', { name: 'Entity 2', profileId: 'profile-2' });
+
+		const { result: snapshotResult } = renderHook(() => testHooks.useSnapshot(), {
+			wrapper: ({ children }) => (
+				<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+			),
+		});
+
+		expect(snapshotResult.current).toHaveLength(1);
+		expect(snapshotResult.current[0].id).toBe('1');
+
+		const { result: oneResult } = renderHook(() => testHooks.useOne('2'), {
+			wrapper: ({ children }) => (
+				<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+			),
+		});
+
+		expect(oneResult.current).toBeUndefined();
+	});
+
 	describe('useUpsert', () => {
 		it('should upsert an entity', () => {
 			const store = createTestStore();
