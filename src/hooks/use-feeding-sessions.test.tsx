@@ -1,7 +1,10 @@
 import type { FeedingSession } from '@/types/feeding';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import {
+	STORE_VALUE_SELECTED_PROFILE_ID,
+	TABLE_IDS,
+} from '@/lib/tinybase-sync/constants';
 import {
 	createTestStore,
 	TinyBaseTestWrapper,
@@ -151,6 +154,51 @@ describe('useFeedingSessions', () => {
 			});
 
 			expect(result.current?.id).toBe('f2');
+		});
+
+		it('should improve coverage by handling multi-profile filtering and invalid records', () => {
+			const store = createTestStore();
+			// Valid record for the current profile
+			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'f1', {
+				breast: 'left',
+				durationInSeconds: 600,
+				endTime: '2024-01-01T10:30:00Z',
+				profileId: 'p1',
+				startTime: '2024-01-01T10:20:00Z',
+			});
+			// Another valid record but earlier (to test the comparison branch)
+			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'f0', {
+				breast: 'right',
+				durationInSeconds: 600,
+				endTime: '2024-01-01T09:30:00Z',
+				profileId: 'p1',
+				startTime: '2024-01-01T09:20:00Z',
+			});
+			// Record for a different profile (should be filtered out)
+			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'f2', {
+				breast: 'right',
+				durationInSeconds: 600,
+				endTime: '2024-01-01T11:30:00Z',
+				profileId: 'other-profile',
+				startTime: '2024-01-01T11:20:00Z',
+			});
+			// Invalid record - missing startTime (should be skipped and warn)
+			store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'invalid-record', {
+				breast: 'left',
+				durationInSeconds: 600,
+				endTime: '2024-01-01T12:30:00Z',
+				profileId: 'p1',
+			});
+
+			store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'p1');
+
+			const { result } = renderHook(() => useLatestFeedingSessionRecord(), {
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			});
+
+			expect(result.current?.id).toBe('f1');
 		});
 	});
 });
