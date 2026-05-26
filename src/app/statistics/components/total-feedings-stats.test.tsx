@@ -57,8 +57,11 @@ describe('TotalFeedingsStats', () => {
 		const statsCard = container.firstChild as HTMLElement;
 
 		// Total (4 vs 2) -> +100%
-		const primaryMetricContainer = within(statsCard).getByText('4').parentElement!;
-		expect(within(primaryMetricContainer).getByText(/100%/)).toBeInTheDocument();
+		const primaryMetricContainer =
+			within(statsCard).getByText('4').parentElement!;
+		expect(
+			within(primaryMetricContainer).getByText(/100%/),
+		).toBeInTheDocument();
 		expect(within(primaryMetricContainer).getByText(/↑/)).toBeInTheDocument();
 
 		// Left Breast (2 vs 1) -> +100%
