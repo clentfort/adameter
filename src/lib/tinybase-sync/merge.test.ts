@@ -113,7 +113,10 @@ describe('mergeStoreContent', () => {
 	it('should handle snapshots without tables or values', () => {
 		const store = createStore();
 		// Snapshot with undefined tables and values
-		const snapshot: Content = [undefined as any, undefined as any];
+		const snapshot: Content = [
+			undefined as unknown as Content[0],
+			undefined as unknown as Content[1],
+		];
 
 		expect(() => mergeStoreContent(store, snapshot, 'device1')).not.toThrow();
 	});
