@@ -60,11 +60,11 @@ const getPartykitHostForBuild = () => {
 };
 
 const nextConfig: NextConfig = {
-	experimental: {
-		swcPlugins: [['@nkzw/swc-plugin-fbtee', { fbtCommon }]],
-	},
 	env: {
 		NEXT_PUBLIC_PARTYKIT_HOST: getPartykitHostForBuild(),
+	},
+	experimental: {
+		swcPlugins: [['@nkzw/swc-plugin-fbtee', { fbtCommon }]],
 	},
 	productionBrowserSourceMaps: true,
 	typescript: {
