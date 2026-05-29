@@ -4,5 +4,5 @@ export type UnitSystem = 'imperial' | 'metric';
 
 export function useUnitSystem(): UnitSystem {
 	const { locale } = useLanguage();
-	return locale === 'en_US' ? 'imperial' : 'metric';
+	return locale === 'en-US' ? 'imperial' : 'metric';
 }

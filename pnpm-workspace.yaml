@@ -2,6 +2,7 @@ packages:
   - 'packages/*'
 
 allowBuilds:
+  '@swc/core': true
   '@tailwindcss/oxide': true
   core-js-pure: true
   esbuild: true

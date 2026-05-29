@@ -75,6 +75,8 @@
 		"@nkzw/babel-preset-fbtee": "^2.0.0",
 		"@nkzw/eslint-config": "^3.3.0",
 		"@nkzw/eslint-plugin-fbtee": "^2.0.0",
+		"@nkzw/fbtee-cli": "^2.0.0",
+		"@nkzw/swc-plugin-fbtee": "^2.0.0",
 		"@playwright/test": "^1.58.2",
 		"@rolldown/plugin-babel": "^0.2.3",
 		"@tailwindcss/typography": "^0.5.19",

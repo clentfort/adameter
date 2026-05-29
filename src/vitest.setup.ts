@@ -9,7 +9,7 @@ afterEach(() => {
 
 const viewerContext = {
 	GENDER: IntlVariations.GENDER_UNKNOWN,
-	locale: 'en_US',
+	locale: 'en-US',
 };
 setupFbtee({
 	hooks: { getViewerContext: () => viewerContext },

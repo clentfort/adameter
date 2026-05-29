@@ -41,27 +41,27 @@ describe('i18n', () => {
 
 	it('should correctly manage preferred locale and update system settings', async () => {
 		// Test getPreferredLocale fallback logic
-		localStorageMock.setItem(STORAGE_KEYS.PREFERRED_LANGUAGE, 'de_DE');
-		expect(getPreferredLocale()).toBe('de_DE');
+		localStorageMock.setItem(STORAGE_KEYS.PREFERRED_LANGUAGE, 'de-DE');
+		expect(getPreferredLocale()).toBe('de-DE');
 
 		localStorageMock.clear();
 		vi.stubGlobal('navigator', { language: 'de-DE' });
-		expect(getPreferredLocale()).toBe('de_DE');
+		expect(getPreferredLocale()).toBe('de-DE');
 
 		vi.stubGlobal('navigator', { language: 'fr-FR' });
 		expect(getPreferredLocale()).toBe(DEFAULT_LOCALE);
 
 		// Test setLocale functionality
-		await setLocale('de_DE');
+		await setLocale('de-DE');
 		expect(localStorageMock.setItem).toHaveBeenCalledWith(
 			STORAGE_KEYS.PREFERRED_LANGUAGE,
-			'de_DE',
+			'de-DE',
 		);
 		expect(setDefaultOptions).toHaveBeenCalled();
 
 		vi.clearAllMocks();
 		// @ts-expect-error - testing invalid locale
-		await setLocale('fr_FR');
+		await setLocale('fr-FR');
 		expect(localStorageMock.setItem).not.toHaveBeenCalled();
 		expect(setDefaultOptions).not.toHaveBeenCalled();
 	});

@@ -62,8 +62,8 @@ export default function AppearanceSettingsPage() {
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="de_DE">German</SelectItem>
-									<SelectItem value="en_US">English</SelectItem>
+									<SelectItem value="de-DE">German</SelectItem>
+									<SelectItem value="en-US">English</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>

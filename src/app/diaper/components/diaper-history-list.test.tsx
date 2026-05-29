@@ -46,11 +46,11 @@ const mockUseSearchParams = vi.mocked(useSearchParams);
 function TestWrapper({
 	changes,
 	children,
-	locale = 'en_US',
+	locale = 'en-US',
 }: {
 	changes: DiaperChange[];
 	children: React.ReactNode;
-	locale?: 'en_US' | 'de_DE';
+	locale?: 'en-US' | 'de-DE';
 }) {
 	const store = createStoreWithDiaperChanges(changes);
 	return (
@@ -303,7 +303,7 @@ describe('DiaperHistoryList', () => {
 
 		render(
 			<I18nContext.Provider
-				value={{ locale: 'de_DE', setLocale: async () => {} }}
+				value={{ locale: 'de-DE', setLocale: async () => {} }}
 			>
 				<Provider store={store}>
 					<TinybaseIndexesProvider>

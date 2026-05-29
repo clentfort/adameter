@@ -102,7 +102,7 @@ describe('DiaperForm', () => {
 
 		render(
 			<I18nContext.Provider
-				value={{ locale: 'de_DE', setLocale: async () => {} }}
+				value={{ locale: 'de-DE', setLocale: async () => {} }}
 			>
 				<DiaperForm {...baseProps} change={initialChange} />
 			</I18nContext.Provider>,
@@ -114,7 +114,7 @@ describe('DiaperForm', () => {
 	it('handles potty toggles, leakage, and abnormal temperature warning', async () => {
 		render(
 			<I18nContext.Provider
-				value={{ locale: 'de_DE', setLocale: async () => {} }}
+				value={{ locale: 'de-DE', setLocale: async () => {} }}
 			>
 				<DiaperForm {...baseProps} />
 			</I18nContext.Provider>,
