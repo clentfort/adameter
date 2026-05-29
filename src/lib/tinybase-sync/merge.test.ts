@@ -1,7 +1,7 @@
 import type { Content } from 'tinybase';
 import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
-import { TABLE_IDS } from './constants';
+import { STORE_VALUE_SELECTED_PROFILE_ID, TABLE_IDS } from './constants';
 import { mergeStoreContent } from './merge';
 
 describe('mergeStoreContent', () => {
@@ -68,5 +68,33 @@ describe('mergeStoreContent', () => {
 		expect(store.getValue('existing')).toBe('value');
 		expect(store.getValue('empty')).toBe('filled');
 		expect(store.getValue('new')).toBe('added');
+	});
+
+	it('should handle selectedProfileId and empty snapshots correctly', () => {
+		const store = createStore();
+		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'local-profile');
+
+		const snapshot: Content = [
+			{},
+			{ [STORE_VALUE_SELECTED_PROFILE_ID]: 'remote-profile' },
+		];
+
+		// 1. Preserve local profile if non-empty
+		mergeStoreContent(store, snapshot, 'device1');
+		expect(store.getValue(STORE_VALUE_SELECTED_PROFILE_ID)).toBe(
+			'local-profile',
+		);
+
+		// 2. Merge if local is empty
+		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, '');
+		mergeStoreContent(store, snapshot, 'device1');
+		expect(store.getValue(STORE_VALUE_SELECTED_PROFILE_ID)).toBe(
+			'remote-profile',
+		);
+
+		// 3. Handle empty snapshots
+		// @ts-ignore
+		mergeStoreContent(store, [undefined, undefined], 'device1');
+		expect(store.hasValue(STORE_VALUE_SELECTED_PROFILE_ID)).toBe(true);
 	});
 });
