@@ -1,5 +1,5 @@
 {
-  "fb-locale": "en_US",
+  "fb-locale": "en-US",
   "translations": {
     "T8RxWIRw1YryXdhZfZJAGw==": {
       "description": "Abbreviated format for hours. Example: \"1 h\", \"2 h\". Use the \"h\" abbreviation for hour. [count] will be replaced by the number of hours.",

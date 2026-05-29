@@ -1,10 +1,10 @@
 import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
 import { getItem, setItem, STORAGE_KEYS } from '../lib/storage';
-import german from '../translations/de_DE.json';
-import english from '../translations/en_US.json';
+import german from '../translations/de-DE.json';
+import english from '../translations/en-US.json';
 
-export const DEFAULT_LOCALE = 'en_US';
+export const DEFAULT_LOCALE = 'en-US';
 
 const allTranslations = {
 	...german,
@@ -18,8 +18,8 @@ function isSupportedLocale(locale: string): locale is Locale {
 }
 
 const localeToDateFnsLocale: Record<Locale, () => Promise<DateFnsLocale>> = {
-	de_DE: () => import('date-fns/locale/de').then(({ de }) => de),
-	en_US: () => import('date-fns/locale/en-US').then(({ enUS }) => enUS),
+	'de-DE': () => import('date-fns/locale/de').then(({ de }) => de),
+	'en-US': () => import('date-fns/locale/en-US').then(({ enUS }) => enUS),
 };
 
 interface ViewerContext {
@@ -57,8 +57,7 @@ export function getPreferredLocale(): Locale {
 	let locale = getItem(STORAGE_KEYS.PREFERRED_LANGUAGE);
 
 	if (!locale) {
-		const browserLang = navigator.language;
-		locale = browserLang.replace('-', '_');
+		locale = navigator.language;
 	}
 
 	if (isSupportedLocale(locale)) {

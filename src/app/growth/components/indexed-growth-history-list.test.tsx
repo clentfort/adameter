@@ -66,7 +66,7 @@ describe('IndexedGrowthHistoryList', () => {
 
 		render(
 			<I18nContext.Provider
-				value={{ locale: 'de_DE', setLocale: async () => {} }}
+				value={{ locale: 'de-DE', setLocale: async () => {} }}
 			>
 				<Provider store={store}>
 					<TinybaseIndexesProvider>

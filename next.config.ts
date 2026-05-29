@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process';
 import { NextConfig } from 'next';
+import fbtCommon from './common_strings.json' with { type: 'json' };
 import { getPartykitHostFromEnv } from './src/lib/partykit-host';
 
 /**
@@ -61,6 +62,9 @@ const getPartykitHostForBuild = () => {
 const nextConfig: NextConfig = {
 	env: {
 		NEXT_PUBLIC_PARTYKIT_HOST: getPartykitHostForBuild(),
+	},
+	experimental: {
+		swcPlugins: [['@nkzw/swc-plugin-fbtee', { fbtCommon }]],
 	},
 	productionBrowserSourceMaps: true,
 	typescript: {
