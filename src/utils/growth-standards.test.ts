@@ -49,9 +49,9 @@ describe('growth-standards', () => {
 
 	describe('lookupLms', () => {
 		const mockTable = [
-			{ L: 1, M: 1, S: 1, age: 10 },
-			{ L: 2, M: 2, S: 2, age: 20 },
-			{ L: 3, M: 3, S: 3, age: 30 },
+			{ age: 10, L: 1, M: 1, S: 1 },
+			{ age: 20, L: 2, M: 2, S: 2 },
+			{ age: 30, L: 3, M: 3, S: 3 },
 		];
 
 		it('should return null for empty table', () => {
