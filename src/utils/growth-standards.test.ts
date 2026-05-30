@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	getGrowthRange,
 	getPercentile,
+	lookupLms,
 	zScoreToPercentile,
 } from './growth-standards';
 
@@ -43,6 +44,38 @@ describe('growth-standards', () => {
 
 		it('should convert 1.88079 to 97%', () => {
 			expect(zScoreToPercentile(1.880_79)).toBeCloseTo(0.97, 2);
+		});
+	});
+
+	describe('lookupLms', () => {
+		const mockTable = [
+			{ L: 1, M: 1, S: 1, age: 10 },
+			{ L: 2, M: 2, S: 2, age: 20 },
+			{ L: 3, M: 3, S: 3, age: 30 },
+		];
+
+		it('should return null for empty table', () => {
+			expect(lookupLms([], 15)).toBeNull();
+		});
+
+		it('should return the first entry if age is below range', () => {
+			expect(lookupLms(mockTable, 5)).toEqual(mockTable[0]);
+		});
+
+		it('should return the last entry if age is above range', () => {
+			expect(lookupLms(mockTable, 35)).toEqual(mockTable[2]);
+		});
+
+		it('should return the closest entry if age is between values (closer to low)', () => {
+			expect(lookupLms(mockTable, 12)).toEqual(mockTable[0]);
+		});
+
+		it('should return the closest entry if age is between values (closer to high)', () => {
+			expect(lookupLms(mockTable, 18)).toEqual(mockTable[1]);
+		});
+
+		it('should return the exact entry if age matches', () => {
+			expect(lookupLms(mockTable, 20)).toEqual(mockTable[1]);
 		});
 	});
 
