@@ -1,4 +1,5 @@
-import { createStore, type Store } from 'tinybase';
+import type { Store } from 'tinybase';
+import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
 import {
 	INTERNAL_TABLE_IDS,
