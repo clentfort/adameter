@@ -1,5 +1,5 @@
-import { createStore } from 'tinybase';
-import { describe, expect, it, vi } from 'vitest';
+import { createStore, type Store } from 'tinybase';
+import { describe, expect, it } from 'vitest';
 import {
 	INTERNAL_TABLE_IDS,
 	MIGRATION_ROW_CELLS,
@@ -230,7 +230,7 @@ describe('runMigrations', () => {
 			transaction: (cb: () => void) => store.transaction(cb),
 		};
 
-		const result = runMigrations(mockStore as any);
+		const result = runMigrations(mockStore as unknown as Store);
 
 		// The first migration should be in skippedMigrationIds because wasAlreadyApplied became true
 		expect(result.skippedMigrationIds).toContain(RENAME_MIGRATION_ID);
