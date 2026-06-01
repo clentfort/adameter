@@ -43,6 +43,42 @@ describe('TotalFeedingsStats', () => {
 		expect(within(rightBreastLabelDiv!).getByText('1')).toBeInTheDocument();
 	});
 
+	it('displays comparison values when comparisonSessions are provided', () => {
+		const comparisonSessions: FeedingSession[] = createFeedingSessions([
+			{ breast: 'left', durationInSeconds: 600 },
+			{ breast: 'right', durationInSeconds: 600 },
+		]);
+		const { container } = render(
+			<TotalFeedingsStats
+				comparisonSessions={comparisonSessions}
+				sessions={mockSessions}
+			/>,
+		);
+		const statsCard = container.firstChild as HTMLElement;
+
+		// Total (4 vs 2) -> +100%
+		const primaryMetricContainer =
+			within(statsCard).getByText('4').parentElement!;
+		expect(
+			within(primaryMetricContainer).getByText(/100%/),
+		).toBeInTheDocument();
+		expect(within(primaryMetricContainer).getByText(/↑/)).toBeInTheDocument();
+
+		// Left Breast (2 vs 1) -> +100%
+		const leftBreastLabelDiv = within(statsCard)
+			.getByText(/Left Breast:/)
+			.closest('div')!;
+		expect(within(leftBreastLabelDiv).getByText(/100%/)).toBeInTheDocument();
+		expect(within(leftBreastLabelDiv).getByText(/↑/)).toBeInTheDocument();
+
+		// Right Breast (1 vs 1) -> 0%
+		// ComparisonValue returns null if change < 0.1%
+		const rightBreastLabelDiv = within(statsCard)
+			.getByText(/Right Breast:/)
+			.closest('div');
+		expect(within(rightBreastLabelDiv!).queryByText('%')).toBeNull();
+	});
+
 	it('handles sessions with only one breast type', () => {
 		const leftOnlySessions: FeedingSession[] = [
 			{ ...mockSessions[0], breast: 'left' },
