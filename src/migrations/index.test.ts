@@ -1,3 +1,4 @@
+import type { Store } from 'tinybase';
 import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
 import {
@@ -204,5 +205,36 @@ describe('runMigrations', () => {
 		expect(
 			store.getCell(TABLE_IDS.EVENTS, 'e1', 'description'),
 		).toBeUndefined();
+	});
+
+	it('skips migration if it is concurrently applied by another process', () => {
+		const store = createStore();
+		let calls = 0;
+
+		// We can't mock hasRow directly, so we use a custom store object
+		// that delegates to the real store but overrides hasRow
+		const mockStore = {
+			...store,
+			hasRow: (tableId: string, rowId: string) => {
+				if (
+					tableId === INTERNAL_TABLE_IDS.MIGRATIONS &&
+					rowId === RENAME_MIGRATION_ID
+				) {
+					calls++;
+					// 1st call (outside transaction) -> false (default from empty store)
+					// 2nd call (inside transaction) -> true
+					if (calls === 2) return true;
+				}
+				return store.hasRow(tableId, rowId);
+			},
+			// Ensure transaction works and calls the callback
+			transaction: (cb: () => void) => store.transaction(cb),
+		};
+
+		const result = runMigrations(mockStore as unknown as Store);
+
+		// The first migration should be in skippedMigrationIds because wasAlreadyApplied became true
+		expect(result.skippedMigrationIds).toContain(RENAME_MIGRATION_ID);
+		expect(result.appliedMigrationIds).not.toContain(RENAME_MIGRATION_ID);
 	});
 });
