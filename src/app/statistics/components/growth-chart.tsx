@@ -124,7 +124,7 @@ function calculateGrowthData(
 
 export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [profile] = useProfile();
-	const unitSystem = useUnitSystem();
+	const [unitSystem] = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
 	const [weightRange, setWeightRange] = useState<RangePoint[]>([]);
 	const [heightRange, setHeightRange] = useState<RangePoint[]>([]);

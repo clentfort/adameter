@@ -1,7 +1,7 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { Coins, Globe, LayoutGrid, Moon } from 'lucide-react';
+import { Coins, Globe, LayoutGrid, Moon, Ruler } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -18,12 +18,14 @@ import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDevMode } from '@/hooks/use-dev-mode';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import { Locale } from '@/i18n';
 import { SettingsHeader } from '../components/settings-header';
 
 export default function AppearanceSettingsPage() {
 	const { setTheme, theme } = useTheme();
 	const { locale, setLocale } = useLanguage();
+	const [unitSystem, setUnitSystem] = useUnitSystem();
 	const [currency, setCurrency] = useCurrency();
 	const [devMode, setDevMode] = useDevMode();
 	const [showComparisonCharts, setShowComparisonCharts] =
@@ -64,6 +66,35 @@ export default function AppearanceSettingsPage() {
 								<SelectContent>
 									<SelectItem value="de-DE">German</SelectItem>
 									<SelectItem value="en-US">English</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div className="space-y-2">
+							<div className="flex items-center gap-2">
+								<Ruler className="h-4 w-4" />
+								<p className="text-sm font-medium">
+									<fbt desc="Label for unit system setting">Unit System</fbt>
+								</p>
+							</div>
+							<Select
+								onValueChange={(v) => {
+									if (v) {
+										setUnitSystem(v as 'metric' | 'imperial');
+									}
+								}}
+								value={unitSystem}
+							>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="metric">
+										<fbt desc="Metric unit system option">Metric</fbt>
+									</SelectItem>
+									<SelectItem value="imperial">
+										<fbt desc="Imperial unit system option">Imperial</fbt>
+									</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>

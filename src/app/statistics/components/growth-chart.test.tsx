@@ -39,7 +39,7 @@ vi.mock('@/hooks/use-profile', () => ({
 }));
 
 vi.mock('@/hooks/use-unit-system', () => ({
-	useUnitSystem: () => 'metric',
+	useUnitSystem: () => ['metric', vi.fn()],
 }));
 
 vi.mock('@/utils/growth-standards', () => ({
