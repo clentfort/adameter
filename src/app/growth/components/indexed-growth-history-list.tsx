@@ -46,7 +46,7 @@ function GrowthHistoryEntry({
 }: GrowthHistoryEntryProps) {
 	const measurement = useGrowthMeasurement(rowId);
 	const { locale } = useLanguage();
-	const unitSystem = useUnitSystem();
+	const [unitSystem] = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
 
 	if (!measurement) return null;
