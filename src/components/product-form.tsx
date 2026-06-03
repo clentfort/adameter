@@ -151,7 +151,11 @@ export default function ProductForm({
 						<Label htmlFor="purchase-date">
 							<fbt desc="Label for purchase date in product form">Date</fbt>
 						</Label>
-						<Input id="purchase-date" type="date" {...register('purchaseDate')} />
+						<Input
+							id="purchase-date"
+							type="date"
+							{...register('purchaseDate')}
+						/>
 					</div>
 				</div>
 			)}

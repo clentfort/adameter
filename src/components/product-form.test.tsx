@@ -59,6 +59,7 @@ describe('ProductForm', () => {
 				notes: 'Some notes',
 				upfrontCost: 20,
 			}),
+			undefined,
 		);
 		onSave.mockClear();
 
@@ -98,6 +99,7 @@ describe('ProductForm', () => {
 				isReusable: false,
 				name: 'New Name',
 			}),
+			undefined,
 		);
 
 		// 3. Test cancellation
@@ -117,6 +119,7 @@ describe('ProductForm', () => {
 				isReusable: false,
 				upfrontCost: undefined,
 			}),
+			undefined,
 		);
 	});
 });

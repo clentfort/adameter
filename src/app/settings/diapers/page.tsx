@@ -203,7 +203,10 @@ export default function DiapersSettingsPage() {
 		return fbt('Diaper Products', 'Title for diaper products section');
 	};
 
-	const handleSaveProduct = (product: DiaperProduct, purchase?: DiaperPurchase) => {
+	const handleSaveProduct = (
+		product: DiaperProduct,
+		purchase?: DiaperPurchase,
+	) => {
 		let finalProduct = product;
 
 		if (purchase) {
