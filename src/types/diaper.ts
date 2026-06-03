@@ -112,14 +112,28 @@ export const diaperProductFormSchema = z.object({
 	isReusable: requiredBooleanField,
 	name: requiredNameField,
 	notes: z.string().optional(),
+	purchaseCount: z
+		.string()
+		.optional()
+		.refine(
+			(v) =>
+				v === undefined ||
+				v === '' ||
+				(!Number.isNaN(Number(v)) &&
+					Number.isInteger(Number(v)) &&
+					Number(v) > 0),
+			'Count must be a positive integer',
+		),
+	purchaseDate: z.string().optional(),
+	purchasePrice: numericInputField('Price must be a number'),
 	upfrontCost: numericInputField('Upfront cost must be a number'),
 });
 
 export type DiaperProductFormValues = z.infer<typeof diaperProductFormSchema>;
 
 export const diaperProductFormToDataSchema = diaperProductFormSchema.transform(
-	(values) =>
-		diaperProductSharedSchema.parse({
+	(values) => ({
+		...diaperProductSharedSchema.parse({
 			color: values.color,
 			costPerDiaper: optionalNumberFromInputField(
 				'Cost per diaper must be a number',
@@ -133,6 +147,10 @@ export const diaperProductFormToDataSchema = diaperProductFormSchema.transform(
 					)
 				: undefined,
 		}),
+		purchaseCount: values.purchaseCount,
+		purchaseDate: values.purchaseDate,
+		purchasePrice: values.purchasePrice,
+	}),
 );
 
 export const diaperProductDataSchema = diaperProductSharedSchema.extend({

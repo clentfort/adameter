@@ -34,6 +34,7 @@ import {
 	useFrecencySortedDiaperProductIds,
 	useUpsertDiaperProduct,
 } from '@/hooks/use-diaper-products';
+import { useUpsertDiaperPurchase } from '@/hooks/use-diaper-purchases';
 import { useEntityForm } from '@/hooks/use-entity-form';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { cn } from '@/lib/utils';
@@ -194,6 +195,7 @@ export default function DiaperForm({
 	const unitSystem = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
 	const upsertProduct = useUpsertDiaperProduct();
+	const upsertPurchase = useUpsertDiaperPurchase();
 	const changes = useDiaperChangesSnapshot();
 	const sortedProductIds = useFrecencySortedDiaperProductIds(changes);
 
@@ -494,13 +496,23 @@ export default function DiaperForm({
 						</DialogHeader>
 						<ProductForm
 							onCancel={() => setIsAddingProduct(false)}
-							onSave={(product) => {
-								upsertProduct(product);
-								setValue('diaperProductId', product.id, {
+							onSave={(product, purchase) => {
+								let finalProduct = product;
+								if (purchase) {
+									const avg = purchase.price / purchase.count;
+									finalProduct = {
+										...product,
+										costPerDiaper: Math.round(avg * 100) / 100,
+									};
+									upsertPurchase(purchase);
+								}
+								upsertProduct(finalProduct);
+								setValue('diaperProductId', finalProduct.id, {
 									shouldValidate: true,
 								});
 								setIsAddingProduct(false);
 							}}
+							showPurchaseFields={true}
 						/>
 					</DialogContent>
 				</Dialog>

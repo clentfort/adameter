@@ -20,7 +20,6 @@ import {
 	useUpsertDiaperPurchase,
 } from '@/hooks/use-diaper-purchases';
 import { SettingsHeader } from '../components/settings-header';
-import PurchaseLogDialog from './purchase-log-dialog';
 
 interface DiaperProductListItemProps {
 	currency: Currency;
@@ -204,25 +203,31 @@ export default function DiapersSettingsPage() {
 		return fbt('Diaper Products', 'Title for diaper products section');
 	};
 
-	const handleSavePurchase = (purchase: DiaperPurchase) => {
-		if (purchaseLogProduct) {
+	const handleSaveProduct = (product: DiaperProduct, purchase?: DiaperPurchase) => {
+		let finalProduct = product;
+
+		if (purchase) {
 			const currentStock = Math.max(
 				0,
-				estimatedStockByProduct[purchaseLogProduct.id] || 0,
+				estimatedStockByProduct[product.id] || 0,
 			);
-			const oldAvg = purchaseLogProduct.costPerDiaper || 0;
+			const oldAvg = product.costPerDiaper || 0;
 			const newAvg =
 				(currentStock * oldAvg + purchase.price) /
 				(currentStock + purchase.count);
 
-			upsertProduct({
-				...purchaseLogProduct,
+			finalProduct = {
+				...product,
 				costPerDiaper: Number.isFinite(newAvg)
 					? Math.round(newAvg * 100) / 100
 					: purchase.price / purchase.count,
-			});
+			};
 			upsertPurchase(purchase);
 		}
+
+		upsertProduct(finalProduct);
+		setIsAddingProduct(false);
+		setEditingProductId(null);
 		setPurchaseLogProductId(null);
 	};
 
@@ -233,20 +238,18 @@ export default function DiapersSettingsPage() {
 				title={getTitle()}
 			/>
 
-			{isAddingProduct || editingProductId ? (
+			{isAddingProduct || editingProductId || purchaseLogProductId ? (
 				<Card className="w-full">
 					<CardContent>
 						<ProductForm
-							initialData={editingProduct ?? {}}
+							initialData={editingProduct ?? purchaseLogProduct ?? {}}
 							onCancel={() => {
 								setIsAddingProduct(false);
 								setEditingProductId(null);
+								setPurchaseLogProductId(null);
 							}}
-							onSave={(data) => {
-								upsertProduct(data);
-								setIsAddingProduct(false);
-								setEditingProductId(null);
-							}}
+							onSave={handleSaveProduct}
+							showPurchaseFields={!!(isAddingProduct || purchaseLogProductId)}
 						/>
 					</CardContent>
 				</Card>
@@ -280,15 +283,6 @@ export default function DiapersSettingsPage() {
 						))}
 					</div>
 				</div>
-			)}
-
-			{purchaseLogProduct && (
-				<PurchaseLogDialog
-					diaperProductId={purchaseLogProduct.id}
-					onClose={() => setPurchaseLogProductId(null)}
-					onSave={handleSavePurchase}
-					productName={purchaseLogProduct.name}
-				/>
 			)}
 		</>
 	);
