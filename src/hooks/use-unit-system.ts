@@ -6,7 +6,9 @@ export type UnitSystem = 'imperial' | 'metric';
 
 export function useUnitSystem() {
 	const { locale } = useLanguage();
-	const unitSystem = useValue(STORE_VALUE_UNIT_SYSTEM) as UnitSystem | undefined;
+	const unitSystem = useValue(STORE_VALUE_UNIT_SYSTEM) as
+		| UnitSystem
+		| undefined;
 
 	const setUnitSystem = useSetValueCallback(
 		STORE_VALUE_UNIT_SYSTEM,
@@ -14,7 +16,8 @@ export function useUnitSystem() {
 		[],
 	);
 
-	const defaultUnitSystem: UnitSystem = locale === 'en-US' ? 'imperial' : 'metric';
+	const defaultUnitSystem: UnitSystem =
+		locale === 'en-US' ? 'imperial' : 'metric';
 
 	return [unitSystem ?? defaultUnitSystem, setUnitSystem] as const;
 }

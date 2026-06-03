@@ -17,8 +17,8 @@ import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDevMode } from '@/hooks/use-dev-mode';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
-import { useUnitSystem } from '@/hooks/use-unit-system';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
+import { useUnitSystem } from '@/hooks/use-unit-system';
 import { Locale } from '@/i18n';
 import { SettingsHeader } from '../components/settings-header';
 
