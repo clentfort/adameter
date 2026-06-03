@@ -56,7 +56,10 @@ describe('useProfile', () => {
 
 		act(() => {
 			// 'sex' must be 'boy' or 'girl', so 'invalid' will fail validation
-			store.setRow(TABLE_IDS.PROFILES, 'p1', { name: 'Invalid', sex: 'invalid' });
+			store.setRow(TABLE_IDS.PROFILES, 'p1', {
+				name: 'Invalid',
+				sex: 'invalid',
+			});
 			store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'p1');
 		});
 
