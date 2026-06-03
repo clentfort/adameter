@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { DIAPER_BRANDS } from '@/app/diaper/utils/diaper-brands';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -108,6 +109,7 @@ export default function ProductForm({
 				</Label>
 				<Input
 					id="product-name"
+					list="diaper-brands"
 					placeholder={fbt(
 						'e.g. Pampers Size 1',
 						'Placeholder for product name',
@@ -115,11 +117,16 @@ export default function ProductForm({
 					required
 					{...register('name')}
 				/>
+				<datalist id="diaper-brands">
+					{DIAPER_BRANDS.map((brand) => (
+						<option key={brand.value} value={brand.label} />
+					))}
+				</datalist>
 			</div>
 
 			{!isReusable && showPurchaseFields && (
-				<div className="grid grid-cols-2 gap-4 border p-4 rounded-lg bg-muted/20">
-					<div className="col-span-2 text-sm font-semibold text-muted-foreground flex items-center gap-2">
+				<div className="grid grid-cols-2 gap-4 border p-4 rounded-lg bg-primary/5 border-primary/20">
+					<div className="col-span-2 text-sm font-bold text-primary flex items-center gap-2 uppercase tracking-tight">
 						<fbt desc="Header for logging a purchase within product form">
 							Log Purchase
 						</fbt>
@@ -160,18 +167,37 @@ export default function ProductForm({
 				</div>
 			)}
 
-			<div className="space-y-2">
-				<Label htmlFor="product-cost">
-					<fbt desc="Label for cost per diaper input">Cost per Diaper</fbt>
-				</Label>
-				<Input
-					id="product-cost"
-					placeholder="0.00"
-					step="0.01"
-					type="number"
-					{...register('costPerDiaper')}
-				/>
-			</div>
+			{isReusable && (
+				<div className="space-y-2">
+					<Label htmlFor="product-cost">
+						<fbt desc="Label for cost per diaper input">Cost per Diaper</fbt>
+					</Label>
+					<Input
+						id="product-cost"
+						placeholder="0.00"
+						step="0.01"
+						type="number"
+						{...register('costPerDiaper')}
+					/>
+				</div>
+			)}
+
+			{!isReusable && initialData?.costPerDiaper !== undefined && (
+				<div className="p-3 bg-muted/30 rounded-lg border flex justify-between items-center">
+					<span className="text-sm text-muted-foreground font-medium">
+						<fbt desc="Label for current calculated cost per diaper">
+							Current Avg. Cost
+						</fbt>
+					</span>
+					<span className="font-bold text-sm">
+						<fbt desc="Calculated cost display">
+							$<fbt:param name="cost">
+								{initialData.costPerDiaper.toFixed(2)}
+							</fbt:param>
+						</fbt>
+					</span>
+				</div>
+			)}
 
 			<div className="flex items-center space-x-2">
 				<Switch
