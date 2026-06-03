@@ -16,6 +16,7 @@ const RENAME_EVENT_MIGRATION_ID =
 const ASSIGN_COLORS_MIGRATION_ID =
 	'2026-03-25-assign-colors-to-diaper-products';
 const MULTI_BABY_SUPPORT_MIGRATION_ID = '2026-04-01-multi-baby-support';
+const BACKFILL_COST_MIGRATION_ID = '2026-05-20-backfill-diaper-change-cost';
 
 describe('runMigrationsIfNeeded', () => {
 	it('detects pending migrations from migration metadata', () => {
@@ -31,6 +32,7 @@ describe('runMigrationsIfNeeded', () => {
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
 			MULTI_BABY_SUPPORT_MIGRATION_ID,
+			BACKFILL_COST_MIGRATION_ID,
 		]) {
 			store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, id, {
 				appliedAt: Date.now(),
@@ -51,6 +53,7 @@ describe('runMigrationsIfNeeded', () => {
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
 			MULTI_BABY_SUPPORT_MIGRATION_ID,
+			BACKFILL_COST_MIGRATION_ID,
 		]) {
 			store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, id, {
 				appliedAt: Date.now(),
@@ -91,6 +94,7 @@ describe('runMigrationsIfNeeded', () => {
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
 			MULTI_BABY_SUPPORT_MIGRATION_ID,
+			BACKFILL_COST_MIGRATION_ID,
 		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy note',

@@ -82,7 +82,9 @@ function DiaperProductListItem({
 							•{' '}
 							<fbt desc="Estimated stock display">
 								Stock:{' '}
-								<fbt:param name="stock">{Math.max(0, estimatedStock)}</fbt:param>
+								<fbt:param name="stock">
+									{Math.max(0, estimatedStock)}
+								</fbt:param>
 							</fbt>
 						</span>
 					)}
@@ -204,7 +206,10 @@ export default function DiapersSettingsPage() {
 
 	const handleSavePurchase = (purchase: DiaperPurchase) => {
 		if (purchaseLogProduct) {
-			const currentStock = Math.max(0, estimatedStockByProduct[purchaseLogProduct.id] || 0);
+			const currentStock = Math.max(
+				0,
+				estimatedStockByProduct[purchaseLogProduct.id] || 0,
+			);
 			const oldAvg = purchaseLogProduct.costPerDiaper || 0;
 			const newAvg =
 				(currentStock * oldAvg + purchase.price) /
@@ -212,7 +217,9 @@ export default function DiapersSettingsPage() {
 
 			upsertProduct({
 				...purchaseLogProduct,
-				costPerDiaper: Number.isFinite(newAvg) ? Math.round(newAvg * 100) / 100 : purchase.price / purchase.count,
+				costPerDiaper: Number.isFinite(newAvg)
+					? Math.round(newAvg * 100) / 100
+					: purchase.price / purchase.count,
 			});
 			upsertPurchase(purchase);
 		}

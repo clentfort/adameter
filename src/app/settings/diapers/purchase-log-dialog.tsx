@@ -60,7 +60,8 @@ export default function PurchaseLogDialog({
 				<DialogHeader>
 					<DialogTitle>
 						<fbt desc="Title for logging a diaper purchase">
-							Log Purchase for <fbt:param name="productName">{productName}</fbt:param>
+							Log Purchase for{' '}
+							<fbt:param name="productName">{productName}</fbt:param>
 						</fbt>
 					</DialogTitle>
 				</DialogHeader>

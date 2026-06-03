@@ -25,7 +25,9 @@ function toDiaperPurchase(id: string, row: Row): DiaperPurchase | null {
 
 const diaperPurchaseHooks = createEntityHooks<DiaperPurchase>({
 	sanitize: (purchase) =>
-		sanitizeDiaperPurchaseForStore(purchase as unknown as Record<string, unknown>),
+		sanitizeDiaperPurchaseForStore(
+			purchase as unknown as Record<string, unknown>,
+		),
 	tableId: TABLE_IDS.DIAPER_PURCHASES,
 	toEntity: toDiaperPurchase,
 });
