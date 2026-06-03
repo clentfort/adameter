@@ -60,7 +60,8 @@ export default function DiaperCostChart({
 		diaperChanges.forEach((change) => {
 			if (!change.diaperProductId) return;
 			const product = productById.get(change.diaperProductId);
-			if (!product || !product.costPerDiaper) return;
+			const cost = change.cost ?? product?.costPerDiaper;
+			if (!product || typeof cost !== 'number') return;
 
 			const date = new Date(change.timestamp);
 			if (
@@ -80,7 +81,7 @@ export default function DiaperCostChart({
 					);
 				}
 				const costs = primaryDataByProduct.get(product.id)!;
-				costs[dayIndex] += product.costPerDiaper;
+				costs[dayIndex] += cost;
 			}
 		});
 
@@ -108,7 +109,8 @@ export default function DiaperCostChart({
 				(acc, change) => {
 					if (!change.diaperProductId) return acc;
 					const product = productById.get(change.diaperProductId);
-					if (!product || !product.costPerDiaper) return acc;
+					const cost = change.cost ?? product?.costPerDiaper;
+					if (!product || typeof cost !== 'number') return acc;
 
 					const date = new Date(change.timestamp);
 					if (
@@ -118,7 +120,7 @@ export default function DiaperCostChart({
 						})
 					) {
 						const key = format(date, 'yyyy-MM-dd');
-						acc[key] = (acc[key] || 0) + product.costPerDiaper;
+						acc[key] = (acc[key] || 0) + cost;
 					}
 					return acc;
 				},

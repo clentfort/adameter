@@ -12,6 +12,7 @@ export const STORE_VALUE_SHOW_FEEDING = 'showFeeding';
 export const TABLE_IDS = {
 	DIAPER_CHANGES: 'diaperChanges',
 	DIAPER_PRODUCTS: 'diaperProducts',
+	DIAPER_PURCHASES: 'diaperPurchases',
 	EVENTS: 'events',
 	FEEDING_SESSIONS: 'feedingSessions',
 	GROWTH_MEASUREMENTS: 'growthMeasurements',

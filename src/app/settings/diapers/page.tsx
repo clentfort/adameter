@@ -1,33 +1,43 @@
 'use client';
 
-import type { DiaperProduct } from '@/types/diaper';
+import type { DiaperProduct, DiaperPurchase } from '@/types/diaper';
 import { fbt } from 'fbtee';
-import { Archive, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Archive, Plus, ShoppingCart, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Currency, useCurrency } from '@/hooks/use-currency';
+import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import {
 	useDiaperProduct,
 	useRemoveDiaperProduct,
 	useSortedDiaperProductIds,
 	useUpsertDiaperProduct,
 } from '@/hooks/use-diaper-products';
+import {
+	useDiaperPurchasesSnapshot,
+	useUpsertDiaperPurchase,
+} from '@/hooks/use-diaper-purchases';
 import { SettingsHeader } from '../components/settings-header';
+import PurchaseLogDialog from './purchase-log-dialog';
 
 interface DiaperProductListItemProps {
 	currency: Currency;
+	estimatedStock?: number;
 	onDelete: (productId: string) => void;
 	onEdit: (productId: string) => void;
+	onLogPurchase: (productId: string) => void;
 	onToggleArchived: (product: DiaperProduct) => void;
 	productId: string;
 }
 
 function DiaperProductListItem({
 	currency,
+	estimatedStock,
 	onDelete,
 	onEdit,
+	onLogPurchase,
 	onToggleArchived,
 	productId,
 }: DiaperProductListItemProps) {
@@ -67,6 +77,15 @@ function DiaperProductListItem({
 					) : (
 						<fbt desc="Text showing no cost is set">No cost set</fbt>
 					)}
+					{estimatedStock !== undefined && !product.isReusable && (
+						<span className="ml-2">
+							•{' '}
+							<fbt desc="Estimated stock display">
+								Stock:{' '}
+								<fbt:param name="stock">{Math.max(0, estimatedStock)}</fbt:param>
+							</fbt>
+						</span>
+					)}
 				</p>
 				{product.isReusable && (
 					<p className="text-xs text-muted-foreground">
@@ -89,8 +108,23 @@ function DiaperProductListItem({
 				)}
 			</div>
 			<div className="flex items-center gap-2">
+				{!product.isReusable && (
+					<Button
+						onClick={(e) => {
+							e.stopPropagation();
+							onLogPurchase(product.id);
+						}}
+						size="icon"
+						variant="ghost"
+					>
+						<ShoppingCart className="h-4 w-4" />
+					</Button>
+				)}
 				<Button
-					onClick={() => onToggleArchived(product)}
+					onClick={(e) => {
+						e.stopPropagation();
+						onToggleArchived(product);
+					}}
 					size="icon"
 					variant="ghost"
 				>
@@ -101,7 +135,10 @@ function DiaperProductListItem({
 					)}
 				</Button>
 				<Button
-					onClick={() => onDelete(product.id)}
+					onClick={(e) => {
+						e.stopPropagation();
+						onDelete(product.id);
+					}}
 					size="icon"
 					variant="ghost"
 				>
@@ -117,9 +154,36 @@ export default function DiapersSettingsPage() {
 	const upsertProduct = useUpsertDiaperProduct();
 	const removeProduct = useRemoveDiaperProduct();
 	const productIds = useSortedDiaperProductIds();
+	const diaperChanges = useDiaperChangesSnapshot();
+	const purchases = useDiaperPurchasesSnapshot();
+	const upsertPurchase = useUpsertDiaperPurchase();
+
 	const [editingProductId, setEditingProductId] = useState<string | null>(null);
 	const [isAddingProduct, setIsAddingProduct] = useState(false);
+	const [purchaseLogProductId, setPurchaseLogProductId] = useState<
+		string | null
+	>(null);
+
 	const editingProduct = useDiaperProduct(editingProductId ?? undefined);
+	const purchaseLogProduct = useDiaperProduct(
+		purchaseLogProductId ?? undefined,
+	);
+
+	const estimatedStockByProduct = useMemo(() => {
+		const stock: Record<string, number> = {};
+
+		purchases.forEach((p) => {
+			stock[p.diaperProductId] = (stock[p.diaperProductId] || 0) + p.count;
+		});
+
+		diaperChanges.forEach((c) => {
+			if (c.diaperProductId) {
+				stock[c.diaperProductId] = (stock[c.diaperProductId] || 0) - 1;
+			}
+		});
+
+		return stock;
+	}, [purchases, diaperChanges]);
 
 	const handleBack = () => {
 		if (isAddingProduct || editingProductId) {
@@ -136,6 +200,23 @@ export default function DiapersSettingsPage() {
 		if (editingProductId)
 			return fbt('Edit Product', 'Title for editing a product');
 		return fbt('Diaper Products', 'Title for diaper products section');
+	};
+
+	const handleSavePurchase = (purchase: DiaperPurchase) => {
+		if (purchaseLogProduct) {
+			const currentStock = Math.max(0, estimatedStockByProduct[purchaseLogProduct.id] || 0);
+			const oldAvg = purchaseLogProduct.costPerDiaper || 0;
+			const newAvg =
+				(currentStock * oldAvg + purchase.price) /
+				(currentStock + purchase.count);
+
+			upsertProduct({
+				...purchaseLogProduct,
+				costPerDiaper: Number.isFinite(newAvg) ? Math.round(newAvg * 100) / 100 : purchase.price / purchase.count,
+			});
+			upsertPurchase(purchase);
+		}
+		setPurchaseLogProductId(null);
 	};
 
 	return (
@@ -176,9 +257,11 @@ export default function DiapersSettingsPage() {
 						{productIds.map((productId) => (
 							<DiaperProductListItem
 								currency={currency}
+								estimatedStock={estimatedStockByProduct[productId]}
 								key={productId}
 								onDelete={removeProduct}
 								onEdit={setEditingProductId}
+								onLogPurchase={setPurchaseLogProductId}
 								onToggleArchived={(product) => {
 									upsertProduct({
 										...product,
@@ -190,6 +273,15 @@ export default function DiapersSettingsPage() {
 						))}
 					</div>
 				</div>
+			)}
+
+			{purchaseLogProduct && (
+				<PurchaseLogDialog
+					diaperProductId={purchaseLogProduct.id}
+					onClose={() => setPurchaseLogProductId(null)}
+					onSave={handleSavePurchase}
+					productName={purchaseLogProduct.name}
+				/>
 			)}
 		</>
 	);

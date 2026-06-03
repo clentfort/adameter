@@ -7,6 +7,7 @@ import type { Tooth } from '@/types/teething';
 import {
 	diaperChangeDataSchema,
 	diaperProductDataSchema,
+	diaperPurchaseDataSchema,
 } from '@/types/diaper';
 import { eventDataSchema } from '@/types/event';
 import { feedingSessionDataSchema } from '@/types/feeding';
@@ -64,6 +65,12 @@ export function sanitizeDiaperProductForStore(
 	return sanitizeRowWithSchema({ ...product }, diaperProductDataSchema);
 }
 
+export function sanitizeDiaperPurchaseForStore(
+	purchase: Record<string, unknown>,
+): SanitizedRow | null {
+	return sanitizeRowWithSchema(purchase, diaperPurchaseDataSchema);
+}
+
 export function sanitizeDiaperChangeForStore(
 	change: DiaperChange,
 ): SanitizedRow | null {
@@ -100,6 +107,10 @@ export function sanitizeImportedRow(
 ): SanitizedRow | null | undefined {
 	if (tableId === TABLE_IDS.DIAPER_PRODUCTS) {
 		return sanitizeRowWithSchema(row, diaperProductDataSchema);
+	}
+
+	if (tableId === TABLE_IDS.DIAPER_PURCHASES) {
+		return sanitizeRowWithSchema(row, diaperPurchaseDataSchema);
 	}
 
 	if (tableId === TABLE_IDS.DIAPER_CHANGES) {

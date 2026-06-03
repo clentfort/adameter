@@ -23,6 +23,7 @@ const diaperProductSharedSchema = z.object({
 const diaperChangeSharedSchema = z.object({
 	containsStool: requiredBooleanField,
 	containsUrine: requiredBooleanField,
+	cost: optionalNumberCell,
 	diaperProductId: optionalStringCell,
 	leakage: optionalBooleanCell,
 	notes: optionalStringCell,
@@ -30,6 +31,40 @@ const diaperChangeSharedSchema = z.object({
 	pottyUrine: optionalBooleanCell,
 	temperature: optionalNumberCell,
 });
+
+export const diaperPurchaseDataSchema = z.object({
+	count: z.number().int().positive(),
+	date: z.string().min(1),
+	diaperProductId: z.string().min(1),
+	price: z.number().nonnegative(),
+});
+
+export const diaperPurchaseSchema = baseEntitySchema.extend(
+	diaperPurchaseDataSchema.shape,
+);
+
+export const diaperPurchaseFormSchema = z.object({
+	count: z
+		.string()
+		.min(1)
+		.refine(
+			(v) =>
+				!Number.isNaN(Number(v)) &&
+				Number.isInteger(Number(v)) &&
+				Number(v) > 0,
+			'Count must be a positive integer',
+		),
+	date: z.string().min(1),
+	price: z
+		.string()
+		.min(1)
+		.refine(
+			(v) => !Number.isNaN(Number(v)) && Number(v) >= 0,
+			'Price must be a non-negative number',
+		),
+});
+
+export type DiaperPurchaseFormValues = z.infer<typeof diaperPurchaseFormSchema>;
 
 export const diaperFormSchema = z.object({
 	containsStool: requiredBooleanField,
@@ -123,6 +158,7 @@ export type DiaperProductFormData = z.infer<
 	typeof diaperProductFormToDataSchema
 >;
 export type DiaperFormData = z.infer<typeof diaperFormToDataSchema>;
+export type DiaperPurchaseData = z.infer<typeof diaperPurchaseDataSchema>;
 
 export function parseDiaperProductFormValues(
 	values: DiaperProductFormValues,
@@ -156,6 +192,8 @@ export interface DiaperChange extends BaseEntity {
 	containsStool: boolean;
 	/** Whether the diaper contains urine. */
 	containsUrine: boolean;
+	/** Cost of this specific diaper change. */
+	cost?: number;
 	/** Optional diaper brand (deprecated, use diaperProductId). */
 	diaperBrand?: string;
 	/** Reference to the diaper product used. */
@@ -170,4 +208,15 @@ export interface DiaperChange extends BaseEntity {
 	temperature?: number;
 	/** Timestamp of the diaper change. */
 	timestamp: string;
+}
+
+export interface DiaperPurchase extends BaseEntity {
+	/** Number of diapers in the pack. */
+	count: number;
+	/** Date of purchase. */
+	date: string;
+	/** Reference to the diaper product. */
+	diaperProductId: string;
+	/** Total price of the pack. */
+	price: number;
 }

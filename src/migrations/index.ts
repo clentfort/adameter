@@ -16,6 +16,7 @@ import { cleanupJunkDataMigration } from './2026-03-15-cleanup-junk-data';
 import { renameEventDescriptionToNotesMigration } from './2026-03-24-rename-event-description-to-notes';
 import { assignColorsToDiaperProductsMigration } from './2026-03-25-assign-colors-to-diaper-products';
 import { multiBabySupportMigration } from './2026-04-01-multi-baby-support';
+import { backfillDiaperChangeCostMigration } from './2026-05-20-backfill-diaper-change-cost';
 
 /**
  * Ordered migration list (oldest -> newest).
@@ -31,6 +32,7 @@ export const migrations: readonly Migration[] = [
 	cleanupJunkDataMigration,
 	assignColorsToDiaperProductsMigration,
 	multiBabySupportMigration,
+	backfillDiaperChangeCostMigration,
 ];
 
 export function runMigrations(

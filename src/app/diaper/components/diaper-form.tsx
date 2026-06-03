@@ -243,6 +243,10 @@ export default function DiaperForm({
 			...change,
 			containsStool: parsedValues.containsStool,
 			containsUrine: parsedValues.containsUrine,
+			cost:
+				change?.diaperProductId === parsedValues.diaperProductId
+					? (change?.cost ?? selectedProduct?.costPerDiaper)
+					: selectedProduct?.costPerDiaper,
 			diaperProductId: parsedValues.diaperProductId,
 			id: change?.id || Date.now().toString(),
 			leakage: parsedValues.leakage,
