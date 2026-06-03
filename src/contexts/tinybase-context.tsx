@@ -20,6 +20,9 @@ import { logger } from '@/lib/logger';
 import { PARTYKIT_HOST, resolvePartykitHost } from '@/lib/partykit-host';
 import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
 import {
+	CURRENT_SCHEMA_VERSION,
+	STORE_VALUE_SCHEMA_VERSION,
+	TABLE_IDS,
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
@@ -53,11 +56,43 @@ function isExpectedSynchronizerTimeout(error: unknown): boolean {
 	return message.startsWith('No response from');
 }
 
+interface BaselineMetrics {
+	profileCount: number;
+	profileLinkedRows: number;
+	totalRows: number;
+}
+
+function calculateMetrics(store: MergeableStore): BaselineMetrics {
+	let totalRows = 0;
+	let profileLinkedRows = 0;
+	const profileCount = store.getRowIds(TABLE_IDS.PROFILES).length;
+
+	for (const tableId of store.getTableIds()) {
+		const rowIds = store.getRowIds(tableId);
+		totalRows += rowIds.length;
+
+		// Count profile links only for known domain tables
+		if (
+			Object.values(TABLE_IDS).includes(tableId as string) &&
+			tableId !== TABLE_IDS.PROFILES
+		) {
+			for (const rowId of rowIds) {
+				if (store.hasCell(tableId, rowId, 'profileId')) {
+					profileLinkedRows++;
+				}
+			}
+		}
+	}
+
+	return { profileCount, profileLinkedRows, totalRows };
+}
+
 export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	const { isHydrated, joinStrategy, resetJoinStrategy, room } = useContext(
 		DataSynchronizationContext,
 	);
 	const storeRef = useRef<MergeableStore>(defaultStore);
+	const baselineMetricsRef = useRef<BaselineMetrics | null>(null);
 	const [isLocalReady, setIsLocalReady] = useState(false);
 	const [isSyncReady, setIsSyncReady] = useState(false);
 
@@ -169,14 +204,61 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			// Debounced snapshot save: triggered by any store change while online.
 			// Keeps the server snapshot up-to-date within ~1 second so that peers
 			// coming back online see the latest data even within the 30s interval.
+			const isSnapshotSaveSafe = () => {
+				// Don't overwrite a newer schema version from a stale client
+				const currentSchemaVersion = store.getValue(STORE_VALUE_SCHEMA_VERSION);
+				if (
+					typeof currentSchemaVersion === 'number' &&
+					currentSchemaVersion > CURRENT_SCHEMA_VERSION
+				) {
+					logger.error(
+						`[SYNC] Snapshot save blocked: remote schema version (${currentSchemaVersion}) is newer than client supported version (${CURRENT_SCHEMA_VERSION}).`,
+					);
+					return false;
+				}
+
+				const baseline = baselineMetricsRef.current;
+				if (!baseline) return true;
+
+				const current = calculateMetrics(store);
+
+				// If baseline had substantial data (>= 50 rows)
+				if (baseline.totalRows >= 50) {
+					// Block if lost > 50% total rows
+					if (current.totalRows < baseline.totalRows * 0.5) {
+						logger.error(
+							`[SYNC] Snapshot save blocked: suspicious data loss. Baseline total: ${baseline.totalRows}, current: ${current.totalRows}`,
+						);
+						return false;
+					}
+					// Block if lost > 50% profile-linked rows
+					if (current.profileLinkedRows < baseline.profileLinkedRows * 0.5) {
+						logger.error(
+							`[SYNC] Snapshot save blocked: suspicious profile data loss. Baseline profile-linked: ${baseline.profileLinkedRows}, current: ${current.profileLinkedRows}`,
+						);
+						return false;
+					}
+				}
+
+				return true;
+			};
+
+			const wrappedSaveServerSnapshot = async (reason: string) => {
+				if (!isSnapshotSaveSafe()) {
+					return;
+				}
+				try {
+					await saveServerSnapshot(store, storeUrl, encryptionKey);
+				} catch (error) {
+					logger.error(`Failed to save snapshot (${reason}):`, error);
+				}
+			};
+
 			const scheduleSave = () => {
 				if (debounceTimer) clearTimeout(debounceTimer);
 				debounceTimer = setTimeout(() => {
 					if (isDisposed || connection?.readyState !== 1) return;
-					void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-						(error: unknown) =>
-							logger.error('Failed to save debounced snapshot:', error),
-					);
+					void wrappedSaveServerSnapshot('debounced');
 				}, 1000);
 			};
 
@@ -203,6 +285,13 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 					if (isDisposed) return;
 
+					// Establish baseline metrics immediately after loading the remote snapshot,
+					// before we run migrations or any normalization that could strip fields locally.
+					// This ensures the guardrail has a "remote-truth" baseline to compare against.
+					if (didLoad) {
+						baselineMetricsRef.current = calculateMetrics(store);
+					}
+
 					if (isInitial) {
 						// After initial merge/clear, revert to overwrite for subsequent reconnects.
 						// Note: 'merge' is already handled by loadServerSnapshot because
@@ -211,15 +300,27 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 						resetJoinStrategy();
 					}
 
+					// Check schema compatibility before running migrations or saving snapshots
+					const remoteSchemaVersion = store.getValue(
+						STORE_VALUE_SCHEMA_VERSION,
+					);
+					if (
+						typeof remoteSchemaVersion === 'number' &&
+						remoteSchemaVersion > CURRENT_SCHEMA_VERSION
+					) {
+						logger.warn(
+							`[SYNC] Remote schema version (${remoteSchemaVersion}) is newer than client version (${CURRENT_SCHEMA_VERSION}). Sync may be restricted.`,
+						);
+						// We don't block sync entirely yet, but we avoid saving snapshots
+						// that might downgrade the remote schema metadata.
+					}
+
 					// Run migrations after merging remote data
 					await runMigrationsIfNeeded(store, { deviceId });
 
 					if (didLoad) {
 						// Push the merged state back so other clients can pick it up.
-						void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-							(error: unknown) =>
-								logger.error('Failed to save snapshot after bootstrap:', error),
-						);
+						void wrappedSaveServerSnapshot('bootstrap');
 					}
 				} catch (error) {
 					logger.error('Failed to load server snapshot:', error);
@@ -292,19 +393,13 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			const SNAPSHOT_SAVE_INTERVAL_MS = 30_000;
 			snapshotSaveInterval = setInterval(() => {
 				if (connection?.readyState === 1) {
-					void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-						(error: unknown) =>
-							logger.error('Failed to save periodic server snapshot:', error),
-					);
+					void wrappedSaveServerSnapshot('periodic');
 				}
 			}, SNAPSHOT_SAVE_INTERVAL_MS);
 
 			// Save an initial snapshot immediately so that the first device to
 			// join a room persists its local data for future peers.
-			void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-				(error: unknown) =>
-					logger.error('Failed to save initial server snapshot:', error),
-			);
+			void wrappedSaveServerSnapshot('initial');
 
 			if (!isDisposed) {
 				setIsSyncReady(true);

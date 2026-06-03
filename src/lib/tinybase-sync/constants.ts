@@ -6,6 +6,7 @@ export const STORE_VALUE_CURRENCY = 'currency';
 export const STORE_VALUE_DEV_MODE = 'devMode';
 export const STORE_VALUE_FEEDING_IN_PROGRESS = 'feedingInProgress';
 export const STORE_VALUE_PROFILE = 'profile';
+export const STORE_VALUE_SCHEMA_VERSION = 'schemaVersion';
 export const STORE_VALUE_SELECTED_PROFILE_ID = 'selectedProfileId';
 export const STORE_VALUE_SHOW_FEEDING = 'showFeeding';
 export const STORE_VALUE_UNIT_SYSTEM = 'unitSystem';
@@ -31,3 +32,5 @@ export const MIGRATION_ROW_CELLS = {
 } as const;
 
 export const ROW_ORDER_CELL = 'order';
+
+export const CURRENT_SCHEMA_VERSION = 1;

@@ -183,4 +183,40 @@ describe('entity row schemas', () => {
 		// Unknown table
 		expect(sanitizeImportedRow('unknown', {})).toBeUndefined();
 	});
+
+	it('preserves unknown primitive fields for forward-compatibility', () => {
+		const sanitizedRow = sanitizeImportedRow(TABLE_IDS.EVENTS, {
+			futureField: 'awesome-new-feature',
+			id: 'event-1',
+			notes: 'some notes',
+			startDate: '2026-03-07T08:00:00.000Z',
+			title: 'Future Checkup',
+			type: 'point',
+		});
+
+		expect(sanitizedRow).toEqual({
+			futureField: 'awesome-new-feature',
+			notes: 'some notes',
+			startDate: '2026-03-07T08:00:00.000Z',
+			title: 'Future Checkup',
+			type: 'point',
+		});
+	});
+
+	it('does not preserve non-primitive unknown fields', () => {
+		const sanitizedRow = sanitizeImportedRow(TABLE_IDS.EVENTS, {
+			futureObject: { key: 'value' },
+			id: 'event-1',
+			startDate: '2026-03-07T08:00:00.000Z',
+			title: 'Checkup',
+			type: 'point',
+		});
+
+		expect(sanitizedRow).not.toHaveProperty('futureObject');
+		expect(sanitizedRow).toEqual({
+			startDate: '2026-03-07T08:00:00.000Z',
+			title: 'Checkup',
+			type: 'point',
+		});
+	});
 });
