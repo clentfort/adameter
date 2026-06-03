@@ -8,7 +8,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import MeasurementForm from './growth-form';
 
-const mockUseUnitSystem = vi.fn(() => 'metric');
+const mockUseUnitSystem = vi.fn(() => ['metric', vi.fn()]);
 
 vi.mock('@/hooks/use-unit-system', () => ({
 	useUnitSystem: () => mockUseUnitSystem(),
@@ -33,7 +33,7 @@ describe('MeasurementForm', () => {
 	});
 
 	it('renders correctly and calls onSave with numeric data when submitted', async () => {
-		mockUseUnitSystem.mockReturnValue('metric');
+		mockUseUnitSystem.mockReturnValue(['metric', vi.fn()]);
 		render(<MeasurementForm {...baseProps} />);
 
 		const weightInput = screen.getByLabelText(/weight \(g\)/i);
@@ -60,7 +60,7 @@ describe('MeasurementForm', () => {
 	});
 
 	it('converts correctly between metric and imperial units', async () => {
-		mockUseUnitSystem.mockReturnValue('imperial');
+		mockUseUnitSystem.mockReturnValue(['imperial', vi.fn()]);
 
 		const existingMeasurement = {
 			date: '2025-01-01T12:00:00Z',

@@ -191,7 +191,7 @@ export default function DiaperForm({
 	title,
 	...props
 }: DiaperFormProps) {
-	const unitSystem = useUnitSystem();
+	const [unitSystem] = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
 	const upsertProduct = useUpsertDiaperProduct();
 	const changes = useDiaperChangesSnapshot();

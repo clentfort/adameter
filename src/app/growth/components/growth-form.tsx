@@ -56,7 +56,7 @@ export default function MeasurementForm({
 	...props
 }: MeasurementFormProps) {
 	const measurement = 'measurement' in props ? props.measurement : undefined;
-	const unitSystem = useUnitSystem();
+	const [unitSystem] = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
 
 	const defaultValues = useMemo(() => {

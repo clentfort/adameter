@@ -47,7 +47,7 @@ function DiaperHistoryEntry({
 	onEdit: (changeId: string) => void;
 }) {
 	const change = useDiaperChange(changeId);
-	const unitSystem = useUnitSystem();
+	const [unitSystem] = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
 
 	if (!change) {
