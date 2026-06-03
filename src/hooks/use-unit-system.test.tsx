@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { I18nProvider } from '@/contexts/i18n-context';
 import { useUnitSystem } from './use-unit-system';
 
@@ -30,9 +30,4 @@ describe('useUnitSystem', () => {
 
 		expect(result.current[0]).toBe('metric');
 	});
-
-    it('should persist unit system regardless of locale once set', async () => {
-        // This test might be tricky because I18nProvider might need to be re-rendered with a different locale
-        // But the unit system is stored in TinyBase, which is what we want to verify.
-    });
 });
