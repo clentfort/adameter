@@ -73,7 +73,7 @@ function calculateMetrics(store: MergeableStore): BaselineMetrics {
 
 		// Count profile links only for known domain tables
 		if (
-			Object.values(TABLE_IDS).includes(tableId as string) &&
+			(Object.values(TABLE_IDS) as string[]).includes(tableId) &&
 			tableId !== TABLE_IDS.PROFILES
 		) {
 			for (const rowId of rowIds) {
