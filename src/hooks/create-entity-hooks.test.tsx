@@ -168,13 +168,16 @@ describe('createEntityHooks', () => {
 		noProfileStore.setRow(TABLE_ID, '1', { name: 'P1 Item', profileId: 'p1' });
 		noProfileStore.setRow(TABLE_ID, '2', { name: 'P2 Item', profileId: 'p2' });
 		noProfileStore.setRow(TABLE_ID, '3', { name: 'No Profile Item' });
-		const { result: noProfileIdsResult } = renderHook(() => testHooks.useIds(), {
-			wrapper: ({ children }) => (
-				<TinyBaseTestWrapper store={noProfileStore}>
-					{children}
-				</TinyBaseTestWrapper>
-			),
-		});
+		const { result: noProfileIdsResult } = renderHook(
+			() => testHooks.useIds(),
+			{
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={noProfileStore}>
+						{children}
+					</TinyBaseTestWrapper>
+				),
+			},
+		);
 		expect(noProfileIdsResult.current).toEqual(['1', '2', '3']);
 
 		// 3. profile table exception (should not filter even if selectedProfileId is set)
@@ -248,11 +251,14 @@ describe('createEntityHooks', () => {
 		});
 		expect(store.getRow(TABLE_ID, 'null-test')).toEqual({});
 
-		const { result: validUpsertResult } = renderHook(() => testHooks.useUpsert(), {
-			wrapper: ({ children }) => (
-				<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
-			),
-		});
+		const { result: validUpsertResult } = renderHook(
+			() => testHooks.useUpsert(),
+			{
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			},
+		);
 		act(() => {
 			validUpsertResult.current({ id: 'p1-test', name: 'Test' });
 		});
