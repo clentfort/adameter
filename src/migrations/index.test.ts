@@ -187,6 +187,22 @@ describe('runMigrations', () => {
 		});
 	});
 
+	it('removes invalid diaper changes during normalization', () => {
+		const store = createStore();
+		// Missing required 'timestamp'
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'invalid-d1', {
+			containsStool: false,
+			containsUrine: true,
+		});
+
+		const result = runMigrations(store);
+
+		expect(result.appliedMigrationIds).toContain(
+			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
+		);
+		expect(store.hasRow(TABLE_IDS.DIAPER_CHANGES, 'invalid-d1')).toBe(false);
+	});
+
 	it('renames event description to notes', () => {
 		const store = createStore();
 		store.setRow(TABLE_IDS.EVENTS, 'e1', {
