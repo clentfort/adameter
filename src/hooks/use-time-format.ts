@@ -16,8 +16,7 @@ export function useTimeFormat() {
 		[],
 	);
 
-	const defaultTimeFormat: TimeFormat =
-		locale === 'en-US' ? '12h' : '24h';
+	const defaultTimeFormat: TimeFormat = locale === 'en-US' ? '12h' : '24h';
 
 	return [timeFormat ?? defaultTimeFormat, setTimeFormat] as const;
 }

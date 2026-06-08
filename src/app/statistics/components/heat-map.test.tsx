@@ -3,6 +3,7 @@ import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
 import { describe, expect, it, vi } from 'vitest';
 import { useLanguage } from '@/contexts/i18n-context';
+import type { Locale } from '@/i18n';
 import {
 	createFeedingSession,
 	createFeedingSessions,
@@ -24,7 +25,10 @@ const mockSessions = createFeedingSessions([
 ]);
 
 describe('HeatMap', () => {
-	const renderHeatMap = (sessions = mockSessions, locale = 'de-DE') => {
+	const renderHeatMap = (
+		sessions = mockSessions,
+		locale: Locale = 'de-DE',
+	) => {
 		const store = createStore();
 		vi.mocked(useLanguage).mockReturnValue({
 			locale,

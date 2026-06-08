@@ -187,7 +187,8 @@ export default function BreastfeedingTracker({
 										<fbt desc="Label indicating the start time of the current feeding session">
 											Start
 										</fbt>
-										: {format(
+										:{' '}
+										{format(
 											feedingInProgress.startTime,
 											timeFormat === '24h' ? 'HH:mm' : 'p',
 										)}
