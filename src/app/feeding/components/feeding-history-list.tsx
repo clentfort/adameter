@@ -8,6 +8,7 @@ import IndexedHistoryList from '@/components/indexed-history-list';
 import { BREAST_COLORS } from '@/constants/colors';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { useHistoryRange } from '@/hooks/use-history-range';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import { useFeedingSessionsByDate } from '@/hooks/use-tinybase-indexes';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import { formatEntryTime } from '@/utils/format-history-date';
@@ -28,6 +29,7 @@ function FeedingHistoryEntry({
 	sessionId: string;
 }) {
 	const session = useFeedingSession(sessionId);
+	const [timeFormat] = useTimeFormat();
 
 	if (!session) {
 		return null;
@@ -43,7 +45,14 @@ function FeedingHistoryEntry({
 		<HistoryEntryCard
 			accentColor={accentColor}
 			data-testid="feeding-history-entry"
-			formattedTime={<span>{formatEntryTime(session.startTime)}</span>}
+			formattedTime={
+				<span>
+					{formatEntryTime(
+						session.startTime,
+						timeFormat === '24h' ? 'HH:mm' : 'p',
+					)}
+				</span>
+			}
 			header={
 				<span>
 					{isLeftBreast ? (

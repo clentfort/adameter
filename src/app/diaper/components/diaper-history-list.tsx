@@ -12,6 +12,7 @@ import {
 	useUpsertDiaperChange,
 } from '@/hooks/use-diaper-changes';
 import { useHistoryRange } from '@/hooks/use-history-range';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import { useDiaperChangesByDate } from '@/hooks/use-tinybase-indexes';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
@@ -48,6 +49,7 @@ function DiaperHistoryEntry({
 }) {
 	const change = useDiaperChange(changeId);
 	const [unitSystem] = useUnitSystem();
+	const [timeFormat] = useTimeFormat();
 	const isImperial = unitSystem === 'imperial';
 
 	if (!change) {
@@ -70,7 +72,12 @@ function DiaperHistoryEntry({
 			data-testid="diaper-history-entry"
 			formattedTime={
 				<div className="flex items-center gap-2">
-					<span>{formatEntryTime(change.timestamp)}</span>
+					<span>
+						{formatEntryTime(
+							change.timestamp,
+							timeFormat === '24h' ? 'HH:mm' : 'p',
+						)}
+					</span>
 					{change.temperature && (
 						<>
 							<span className="mx-1">•</span>

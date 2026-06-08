@@ -8,6 +8,7 @@ export const STORE_VALUE_FEEDING_IN_PROGRESS = 'feedingInProgress';
 export const STORE_VALUE_PROFILE = 'profile';
 export const STORE_VALUE_SELECTED_PROFILE_ID = 'selectedProfileId';
 export const STORE_VALUE_SHOW_FEEDING = 'showFeeding';
+export const STORE_VALUE_TIME_FORMAT = 'timeFormat';
 export const STORE_VALUE_UNIT_SYSTEM = 'unitSystem';
 
 export const TABLE_IDS = {

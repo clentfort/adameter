@@ -1,10 +1,17 @@
 import { fireEvent, render, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { createStore } from 'tinybase';
+import { Provider } from 'tinybase/ui-react';
+import { describe, expect, it, vi } from 'vitest';
+import { useLanguage } from '@/contexts/i18n-context';
 import {
 	createFeedingSession,
 	createFeedingSessions,
 } from '@/test-utils/factories/feeding-session';
 import HeatMap from './heat-map';
+
+vi.mock('@/contexts/i18n-context', () => ({
+	useLanguage: vi.fn(),
+}));
 
 const mockSessions = createFeedingSessions([
 	{ breast: 'left', durationInSeconds: 540, startTime: '2024-01-01T00:00:00Z' },
@@ -17,8 +24,21 @@ const mockSessions = createFeedingSessions([
 ]);
 
 describe('HeatMap', () => {
+	const renderHeatMap = (sessions = mockSessions, locale = 'de-DE') => {
+		const store = createStore();
+		vi.mocked(useLanguage).mockReturnValue({
+			locale,
+			setLocale: vi.fn(),
+		});
+		return render(
+			<Provider store={store}>
+				<HeatMap sessions={sessions} />
+			</Provider>,
+		);
+	};
+
 	it('renders null when no sessions are provided', () => {
-		const { container } = render(<HeatMap sessions={[]} />);
+		const { container } = renderHeatMap([]);
 		expect(container.firstChild).toBeNull();
 	});
 
@@ -30,9 +50,7 @@ describe('HeatMap', () => {
 				startTime: '2024-01-01T00:00:00Z',
 			}),
 		];
-		const { container } = render(
-			<HeatMap sessions={singleZeroDurationSession} />,
-		);
+		const { container } = renderHeatMap(singleZeroDurationSession);
 		const heatMapCard = container.firstChild as HTMLElement;
 		expect(heatMapCard).not.toBeNull();
 		expect(
@@ -41,7 +59,7 @@ describe('HeatMap', () => {
 	});
 
 	it('renders the heat map with correct number of interval divs', () => {
-		const { container } = render(<HeatMap sessions={mockSessions} />);
+		const { container } = renderHeatMap();
 		const heatMapCard = container.firstChild as HTMLElement;
 		expect(
 			within(heatMapCard).getAllByText('Daily Feeding Distribution')[0],
@@ -57,7 +75,7 @@ describe('HeatMap', () => {
 	});
 
 	it('renders time markers and legend', () => {
-		const { container } = render(<HeatMap sessions={mockSessions} />);
+		const { container } = renderHeatMap();
 		const heatMapCard = container.firstChild as HTMLElement;
 
 		expect(within(heatMapCard).getAllByText('00:00')[0]).toBeInTheDocument();
@@ -83,8 +101,22 @@ describe('HeatMap', () => {
 		).toBeInTheDocument();
 	});
 
+	it('renders time markers in 12h format for en-US', () => {
+		const { container } = renderHeatMap(mockSessions, 'en-US');
+		const heatMapCard = container.firstChild as HTMLElement;
+
+		expect(within(heatMapCard).getAllByText('12 AM')[0]).toBeInTheDocument();
+		expect(within(heatMapCard).getByText('3 AM')).toBeInTheDocument();
+		expect(within(heatMapCard).getByText('6 AM')).toBeInTheDocument();
+		expect(within(heatMapCard).getByText('9 AM')).toBeInTheDocument();
+		expect(within(heatMapCard).getByText('12 PM')).toBeInTheDocument();
+		expect(within(heatMapCard).getByText('3 PM')).toBeInTheDocument();
+		expect(within(heatMapCard).getByText('6 PM')).toBeInTheDocument();
+		expect(within(heatMapCard).getByText('9 PM')).toBeInTheDocument();
+	});
+
 	it('applies different background colors based on intensity', () => {
-		const { container } = render(<HeatMap sessions={mockSessions} />);
+		const { container } = renderHeatMap();
 		const heatMapCard = container.firstChild as HTMLElement;
 
 		const heatMapContainer = heatMapCard.querySelector('.cursor-crosshair');
@@ -98,7 +130,7 @@ describe('HeatMap', () => {
 	});
 
 	it('shows magnifying lens on pointer interaction', () => {
-		const { container } = render(<HeatMap sessions={mockSessions} />);
+		const { container } = renderHeatMap();
 		const heatMapCard = container.firstChild as HTMLElement;
 
 		const heatMapContainer = heatMapCard.querySelector('.cursor-crosshair');

@@ -1,4 +1,5 @@
 import type { FeedingSession } from '@/types/feeding';
+import { format, parse } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
@@ -8,6 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import { HeatMapTooltip } from './heat-map-tooltip';
 
 interface HeatMapProps {
@@ -75,6 +77,7 @@ function calculateDisplayIntervals(distribution: number[]) {
 
 export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
+	const [timeFormat] = useTimeFormat();
 	const [pointerX, setPointerX] = useState<number | null>(null);
 	const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -89,10 +92,19 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 	const maxCount = useMemo(() => Math.max(...distribution), [distribution]);
 
 	// Create display intervals
-	const displayIntervals = useMemo(
-		() => calculateDisplayIntervals(distribution),
-		[distribution],
-	);
+	const displayIntervals = useMemo(() => {
+		const intervals = calculateDisplayIntervals(distribution);
+		if (timeFormat === '12h') {
+			return intervals.map((interval) => {
+				const date = parse(interval.time, 'HH:mm', new Date());
+				return {
+					...interval,
+					time: format(date, 'p'),
+				};
+			});
+		}
+		return intervals;
+	}, [distribution, timeFormat]);
 
 	const handlePointerMove = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -225,14 +237,18 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 									<div
 										className={`absolute bottom-3 -translate-x-1/2 transform text-[10px] text-muted-foreground ${hour % 6 === 0 ? '' : 'hidden sm:block'}`}
 									>
-										{hour.toString().padStart(2, '0')}:00
+										{timeFormat === '24h'
+											? `${hour.toString().padStart(2, '0')}:00`
+											: format(new Date().setHours(hour, 0, 0, 0), 'h a')}
 									</div>
 								</div>
 							))}
 							<div className="absolute bottom-0 right-0">
 								<div className="h-2 w-px bg-zinc-400 dark:bg-zinc-500"></div>
 								<div className="absolute bottom-3 right-0 translate-x-1/2 transform text-[10px] text-muted-foreground">
-									24:00
+									{timeFormat === '24h'
+										? '24:00'
+										: format(new Date().setHours(0, 0, 0, 0), 'h a')}
 								</div>
 							</div>
 						</div>

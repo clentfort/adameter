@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useFeedingInProgress } from '@/hooks/use-feeding-in-progress';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import { formatDurationShort } from '@/utils/format-duration-short';
 import FeedingForm from './feeding-form';
 
@@ -26,6 +27,7 @@ export default function BreastfeedingTracker({
 	);
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
+	const [timeFormat] = useTimeFormat();
 	const [resumedSessionOriginalId, setResumedSessionOriginalId] = useState<
 		string | null
 	>(null);
@@ -185,7 +187,10 @@ export default function BreastfeedingTracker({
 										<fbt desc="Label indicating the start time of the current feeding session">
 											Start
 										</fbt>
-										: {format(feedingInProgress.startTime, 'p')}
+										: {format(
+											feedingInProgress.startTime,
+											timeFormat === '24h' ? 'HH:mm' : 'p',
+										)}
 									</p>
 								)}
 							</div>
