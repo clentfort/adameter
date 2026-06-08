@@ -1,7 +1,7 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { Coins, Globe, LayoutGrid, Moon, Ruler } from 'lucide-react';
+import { Clock, Coins, Globe, LayoutGrid, Moon, Ruler } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,7 @@ import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDevMode } from '@/hooks/use-dev-mode';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
+import { useTimeFormat } from '@/hooks/use-time-format';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { Locale } from '@/i18n';
 import { SettingsHeader } from '../components/settings-header';
@@ -26,6 +27,7 @@ export default function AppearanceSettingsPage() {
 	const { setTheme, theme } = useTheme();
 	const { locale, setLocale } = useLanguage();
 	const [unitSystem, setUnitSystem] = useUnitSystem();
+	const [timeFormat, setTimeFormat] = useTimeFormat();
 	const [currency, setCurrency] = useCurrency();
 	const [devMode, setDevMode] = useDevMode();
 	const [showComparisonCharts, setShowComparisonCharts] =
@@ -66,6 +68,35 @@ export default function AppearanceSettingsPage() {
 								<SelectContent>
 									<SelectItem value="de-DE">German</SelectItem>
 									<SelectItem value="en-US">English</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div className="space-y-2">
+							<div className="flex items-center gap-2">
+								<Clock className="h-4 w-4" />
+								<p className="text-sm font-medium">
+									<fbt desc="Label for time format setting">Time Format</fbt>
+								</p>
+							</div>
+							<Select
+								onValueChange={(v) => {
+									if (v) {
+										setTimeFormat(v as '12h' | '24h');
+									}
+								}}
+								value={timeFormat}
+							>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="12h">
+										<fbt desc="12-hour time format option">12-hour</fbt>
+									</SelectItem>
+									<SelectItem value="24h">
+										<fbt desc="24-hour time format option">24-hour</fbt>
+									</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
