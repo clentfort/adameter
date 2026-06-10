@@ -237,4 +237,28 @@ describe('runMigrations', () => {
 		expect(result.skippedMigrationIds).toContain(RENAME_MIGRATION_ID);
 		expect(result.appliedMigrationIds).not.toContain(RENAME_MIGRATION_ID);
 	});
+
+	it('improves coverage of diaper row normalization by handling already-normalized and invalid rows', () => {
+		const store = createStore();
+		const normalizedRow = {
+			containsStool: false,
+			containsUrine: true,
+			timestamp: '2026-03-01T08:00:00.000Z',
+		};
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd1', normalizedRow);
+
+		// Invalid row: Missing required 'timestamp' field
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd2', {
+			containsStool: false,
+			containsUrine: true,
+		});
+
+		const result = runMigrations(store);
+
+		expect(result.appliedMigrationIds).toContain(
+			NORMALIZE_DIAPER_ROWS_MIGRATION_ID,
+		);
+		expect(store.getRow(TABLE_IDS.DIAPER_CHANGES, 'd1')).toEqual(normalizedRow);
+		expect(store.hasRow(TABLE_IDS.DIAPER_CHANGES, 'd2')).toBe(false);
+	});
 });
