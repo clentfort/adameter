@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createIndexes, createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { STORE_VALUE_SELECTED_PROFILE_ID } from '@/lib/tinybase-sync/constants';
 import IndexedHistoryList from './indexed-history-list';
 
 const TEST_TABLE_ID = 'testTable';
@@ -228,5 +229,89 @@ describe('IndexedHistoryList', () => {
 		expect(renderedEntries[0]).toHaveTextContent('entry-late');
 		expect(renderedEntries[1]).toHaveTextContent('entry-mid');
 		expect(renderedEntries[2]).toHaveTextContent('entry-early');
+	});
+
+	it('should provide maximum coverage by exercising optional callbacks and profile isolation', () => {
+		const entries = [
+			{
+				id: 'profile-entry',
+				timestamp: '2024-01-15T10:00:00Z',
+				value: 'profile-value',
+			},
+		];
+		const store = createStore();
+		// Set profile ID to test profile isolation in DateSection
+		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'profile-1');
+		store.setRow(TEST_TABLE_ID, 'profile-entry', {
+			timestamp: '2024-01-15T10:00:00Z',
+			value: 'profile-value',
+		});
+
+		const indexes = createIndexes(store);
+		// Define an index that expects profile-prefixed slice IDs
+		indexes.setIndexDefinition(
+			TEST_INDEX_ID,
+			TEST_TABLE_ID,
+			(getCell) => {
+				const timestamp = getCell('timestamp');
+				if (typeof timestamp !== 'string') return '';
+				return `profile-1:${timestamp.slice(0, 10)}`;
+			},
+			(getCell) => Date.parse(getCell('timestamp') as string),
+		);
+
+		const onLoadMoreNewer = vi.fn();
+		const onLoadMoreOlder = vi.fn();
+
+		const { rerender } = render(
+			<Provider store={store}>
+				<IndexedHistoryList
+					dateKeys={['2024-01-15']}
+					hasMoreNewerInStore={true}
+					hasMoreOlderInStore={true}
+					indexes={indexes}
+					indexId={TEST_INDEX_ID}
+					initialVisibleCount={5}
+					newerRangeDescription="Newer stuff"
+					olderRangeDescription="Older stuff"
+					onLoadMoreNewer={onLoadMoreNewer}
+					onLoadMoreOlder={onLoadMoreOlder}
+				>
+					{(rowId) => <div data-testid="entry">{rowId}</div>}
+				</IndexedHistoryList>
+			</Provider>,
+		);
+
+		// Verify newer entries button and callback
+		expect(screen.getByText('Show newer entries')).toBeInTheDocument();
+		expect(screen.getByText('Newer stuff')).toBeInTheDocument();
+		fireEvent.click(screen.getByText('Show newer entries'));
+		expect(onLoadMoreNewer).toHaveBeenCalledTimes(1);
+
+		// Verify older entries button and callback
+		expect(screen.getByText('Show older entries')).toBeInTheDocument();
+		expect(screen.getByText('Older stuff')).toBeInTheDocument();
+		fireEvent.click(screen.getByText('Show older entries'));
+		expect(onLoadMoreOlder).toHaveBeenCalledTimes(1);
+
+		// Check that the entry was rendered (verifying DateSection logic)
+		expect(screen.getByTestId('entry')).toHaveTextContent('profile-entry');
+
+		// Coverage for: button exists but no callback (exercises the "else if" false branch)
+		rerender(
+			<Provider store={store}>
+				<IndexedHistoryList
+					dateKeys={['2024-01-15']}
+					hasMoreOlderInStore={true}
+					indexes={indexes}
+					indexId={TEST_INDEX_ID}
+				>
+					{(rowId) => <div data-testid="entry">{rowId}</div>}
+				</IndexedHistoryList>
+			</Provider>,
+		);
+		fireEvent.click(screen.getByText('Show older entries'));
+		// Should not crash, and onLoadMoreOlder should not have been called again
+		expect(onLoadMoreOlder).toHaveBeenCalledTimes(1);
 	});
 });
