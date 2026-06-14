@@ -1,4 +1,5 @@
 import type { GrowthMeasurement } from '@/types/growth';
+import type { Profile } from '@/types/profile';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import GrowthChart from './growth-chart';
@@ -34,7 +35,10 @@ vi.mock('@/components/charts/line-chart', () => ({
 	},
 }));
 
-const mockUseProfile = vi.fn(() => [{ dob: '2024-01-01', sex: 'boy' }, vi.fn()]);
+const mockUseProfile = vi.fn(() => [
+	{ dob: '2024-01-01', sex: 'boy' } as Profile,
+	vi.fn(),
+]);
 vi.mock('@/hooks/use-profile', () => ({
 	useProfile: () => mockUseProfile(),
 }));
@@ -220,7 +224,9 @@ describe('GrowthChart', () => {
 	it('improves coverage by testing imperial units and profile edge cases', async () => {
 		// Test imperial units
 		mockUseUnitSystem.mockReturnValue(['imperial', vi.fn()]);
-		const { rerender } = render(<GrowthChart measurements={mockMeasurements} />);
+		const { rerender } = render(
+			<GrowthChart measurements={mockMeasurements} />,
+		);
 
 		expect(screen.getByText('Weight (lbs)')).toBeInTheDocument();
 		expect(screen.getByText('Height (in)')).toBeInTheDocument();
@@ -243,7 +249,7 @@ describe('GrowthChart', () => {
 		// Test profile with no dob or opted out
 		mockUseUnitSystem.mockReturnValue(['metric', vi.fn()]);
 		mockUseProfile.mockReturnValue([
-			{ dob: '', optedOut: true, sex: 'boy' },
+			{ dob: '', optedOut: true, sex: 'boy' } as Profile,
 			vi.fn(),
 		]);
 
