@@ -1,4 +1,5 @@
 import type { GrowthMeasurement } from '@/types/growth';
+import type { Profile } from '@/types/profile';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import GrowthChart from './growth-chart';
@@ -34,12 +35,17 @@ vi.mock('@/components/charts/line-chart', () => ({
 	},
 }));
 
+const mockUseProfile = vi.fn(() => [
+	{ dob: '2024-01-01', sex: 'boy' } as Profile,
+	vi.fn(),
+]);
 vi.mock('@/hooks/use-profile', () => ({
-	useProfile: () => [{ dob: '2024-01-01', sex: 'boy' }, vi.fn()],
+	useProfile: () => mockUseProfile(),
 }));
 
+const mockUseUnitSystem = vi.fn(() => ['metric', vi.fn()]);
 vi.mock('@/hooks/use-unit-system', () => ({
-	useUnitSystem: () => ['metric', vi.fn()],
+	useUnitSystem: () => mockUseUnitSystem(),
 }));
 
 vi.mock('@/utils/growth-standards', () => ({
@@ -213,6 +219,53 @@ describe('GrowthChart', () => {
 		// Use findAllByText because P50 appears multiple times (Weight, Height, HC)
 		const elements = await screen.findAllByText('P50', {}, { timeout: 3000 });
 		expect(elements).toHaveLength(3);
+	});
+
+	it('improves coverage by testing imperial units and profile edge cases', async () => {
+		// Test imperial units
+		mockUseUnitSystem.mockReturnValue(['imperial', vi.fn()]);
+		const { rerender } = render(
+			<GrowthChart measurements={mockMeasurements} />,
+		);
+
+		expect(screen.getByText('Weight (lbs)')).toBeInTheDocument();
+		expect(screen.getByText('Height (in)')).toBeInTheDocument();
+		expect(screen.getByText('Head Circumference (in)')).toBeInTheDocument();
+
+		// Wait for ranges to load to cover unit conversion branches for ranges
+		await vi.waitFor(() => {
+			const weightChartCall = mockLineChart.mock.calls.findLast(
+				(call) =>
+					call[0].title.toString() === 'Weight' &&
+					call[0].rangeData &&
+					call[0].rangeData.length > 0,
+			);
+			expect(weightChartCall).toBeDefined();
+			expect(weightChartCall?.[0].yAxisUnit).toBe('lbs');
+			// 3000g should be approx 6.61 lbs
+			expect(weightChartCall?.[0].data[0].y).toBeCloseTo(6.61, 1);
+		});
+
+		// Test profile with no dob or opted out
+		mockUseUnitSystem.mockReturnValue(['metric', vi.fn()]);
+		mockUseProfile.mockReturnValue([
+			{ dob: '', optedOut: true, sex: 'boy' } as Profile,
+			vi.fn(),
+		]);
+
+		rerender(<GrowthChart measurements={mockMeasurements} />);
+
+		// Should still render titles because measurements are present
+		expect(screen.getByText('Weight (g)')).toBeInTheDocument();
+
+		// LineChart should not have range data
+		await vi.waitFor(() => {
+			const weightChartCall = mockLineChart.mock.calls.findLast(
+				(call) => call[0].title.toString() === 'Weight',
+			);
+			expect(weightChartCall).toBeDefined();
+			expect(weightChartCall?.[0].rangeData).toEqual([]);
+		});
 	});
 
 	afterEach(() => {
