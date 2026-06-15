@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
 import { saveAs } from 'file-saver';
+import { describe, expect, it, vi } from 'vitest';
 import { createZip, downloadZip, extractFiles } from './zip';
 
 vi.mock('file-saver', () => ({
@@ -28,9 +28,7 @@ describe('zip utilities', () => {
 	});
 
 	it('skips directories in extractFiles', async () => {
-		const mockFiles = [
-			{ content: 'id,name\n1,Ada', name: 'profiles.csv' },
-		];
+		const mockFiles = [{ content: 'id,name\n1,Ada', name: 'profiles.csv' }];
 
 		const blob = await createZip(mockFiles);
 		const zip = await import('jszip').then((m) => new m.default());
@@ -38,7 +36,9 @@ describe('zip utilities', () => {
 		zip.folder('test-dir');
 		const blobWithDir = await zip.generateAsync({ type: 'blob' });
 
-		const file = new File([blobWithDir], 'test.zip', { type: 'application/zip' });
+		const file = new File([blobWithDir], 'test.zip', {
+			type: 'application/zip',
+		});
 		const extracted = await extractFiles(file);
 
 		expect(extracted).toEqual([
