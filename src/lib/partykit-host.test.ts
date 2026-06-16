@@ -49,7 +49,9 @@ describe('resolvePartykitHost', () => {
 
 	it('covers additional edge cases and environment helper', () => {
 		expect(
-			getPartykitHostFromEnv({ NEXT_PUBLIC_PARTYKIT_HOST: 'env.example.com' }),
+			getPartykitHostFromEnv({
+				NEXT_PUBLIC_PARTYKIT_HOST: 'env.example.com',
+			} as unknown as NodeJS.ProcessEnv),
 		).toBe('env.example.com');
 
 		expect(resolvePartykitHost({ vercelEnv: 'preview' })).toBe(
