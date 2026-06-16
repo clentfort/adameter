@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolvePartykitHost } from './partykit-host';
+import { getPartykitHostFromEnv, resolvePartykitHost } from './partykit-host';
 
 describe('resolvePartykitHost', () => {
 	it('returns production host by default', () => {
@@ -45,5 +45,21 @@ describe('resolvePartykitHost', () => {
 				explicitHost: 'https://custom.adameter.example/',
 			}),
 		).toBe('custom.adameter.example');
+	});
+
+	it('covers additional edge cases and environment helper', () => {
+		expect(
+			getPartykitHostFromEnv({
+				NEXT_PUBLIC_PARTYKIT_HOST: 'env.example.com',
+			} as unknown as NodeJS.ProcessEnv),
+		).toBe('env.example.com');
+
+		expect(resolvePartykitHost({ vercelEnv: 'preview' })).toBe(
+			'adameter-party.clentfort.partykit.dev',
+		);
+
+		expect(
+			resolvePartykitHost({ vercelEnv: 'preview', vercelGitCommitRef: '!!!' }),
+		).toBe('branch-preview.adameter-party.clentfort.partykit.dev');
 	});
 });
