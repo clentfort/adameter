@@ -1,3 +1,4 @@
+import type { DiaperChange } from '@/types/diaper';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { useLatestDiaperChangeRecord } from '@/hooks/use-diaper-changes';
@@ -21,7 +22,7 @@ describe('useLastUsedDiaperProduct', () => {
 			diaperProductId: 'test-product-id',
 			id: 'test-id',
 			timestamp: '2024-01-01T10:00:00Z',
-		} as any);
+		} as unknown as DiaperChange);
 
 		const { result } = renderHook(() => useLastUsedDiaperProduct());
 
@@ -32,7 +33,7 @@ describe('useLastUsedDiaperProduct', () => {
 		vi.mocked(useLatestDiaperChangeRecord).mockReturnValue({
 			id: 'test-id',
 			timestamp: '2024-01-01T10:00:00Z',
-		} as any);
+		} as unknown as DiaperChange);
 
 		const { result } = renderHook(() => useLastUsedDiaperProduct());
 
