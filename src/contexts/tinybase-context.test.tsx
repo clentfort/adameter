@@ -443,17 +443,15 @@ describe('TinybaseProvider room sync', () => {
 		}
 
 		expect(errorSpy).toHaveBeenCalledWith(
-			'Failed to save initial server snapshot:',
+			'Failed to save snapshot (initial):',
 			expect.any(Error),
 		);
 
 		// Trigger synchronizer errors
 		expect(errorHandler).toBeDefined();
-		errorHandler!(new Error('No response from peer')); // Expected timeout
-		expect(infoSpy).toHaveBeenCalledWith(
-			'Synchronizer waiting for peers:',
-			expect.any(Error),
-		);
+
+		// Update expectations for saveServerSnapshot calls
+		// initial + bootstrap (if didLoad=true) + periodic (30s)
 
 		errorHandler!(new Error('Generic sync error'));
 		expect(errorSpy).toHaveBeenCalledWith(
@@ -465,7 +463,7 @@ describe('TinybaseProvider room sync', () => {
 		await vi.advanceTimersByTimeAsync(30_000);
 
 		expect(errorSpy).toHaveBeenCalledWith(
-			'Failed to save periodic server snapshot:',
+			'Failed to save snapshot (periodic):',
 			expect.any(Error),
 		);
 

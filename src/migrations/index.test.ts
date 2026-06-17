@@ -2,8 +2,10 @@ import type { Store } from 'tinybase';
 import { createStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
 import {
+	CURRENT_SCHEMA_VERSION,
 	INTERNAL_TABLE_IDS,
 	MIGRATION_ROW_CELLS,
+	STORE_VALUE_SCHEMA_VERSION,
 	TABLE_IDS,
 } from '@/lib/tinybase-sync/constants';
 import { migrations, runMigrations } from './index';
@@ -22,6 +24,7 @@ const RENAME_EVENT_MIGRATION_ID =
 const ASSIGN_COLORS_MIGRATION_ID =
 	'2026-03-25-assign-colors-to-diaper-products';
 const MULTI_BABY_SUPPORT_MIGRATION_ID = '2026-04-01-multi-baby-support';
+const REPAIR_PROFILE_IDS_MIGRATION_ID = '2026-06-01-repair-missing-profile-ids';
 
 describe('runMigrations', () => {
 	it('keeps manifest ids in sync with registered migrations', () => {
@@ -48,6 +51,7 @@ describe('runMigrations', () => {
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
 			MULTI_BABY_SUPPORT_MIGRATION_ID,
+			REPAIR_PROFILE_IDS_MIGRATION_ID,
 		]);
 		expect(result.hasChanges).toBe(true);
 		expect(result.skippedMigrationIds).toEqual([]);
@@ -72,6 +76,20 @@ describe('runMigrations', () => {
 		expect(migrationMetadata[MIGRATION_ROW_CELLS.DESCRIPTION]).toBeTypeOf(
 			'string',
 		);
+
+		expect(store.getValue(STORE_VALUE_SCHEMA_VERSION)).toBe(
+			CURRENT_SCHEMA_VERSION,
+		);
+	});
+
+	it('does not downgrade schema version', () => {
+		const store = createStore();
+		const newerVersion = CURRENT_SCHEMA_VERSION + 1;
+		store.setValue(STORE_VALUE_SCHEMA_VERSION, newerVersion);
+
+		runMigrations(store);
+
+		expect(store.getValue(STORE_VALUE_SCHEMA_VERSION)).toBe(newerVersion);
 	});
 
 	it('is idempotent and skips migrations that were already applied', () => {
@@ -97,6 +115,7 @@ describe('runMigrations', () => {
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
 			MULTI_BABY_SUPPORT_MIGRATION_ID,
+			REPAIR_PROFILE_IDS_MIGRATION_ID,
 		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy notes',
