@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { getPreferredLocale, setLocale } from '@/i18n';
+import { getPreferredLocale, Locale, setLocale } from '@/i18n';
 import { I18nContext, I18nProvider, useLanguage } from './i18n-context';
 
 vi.mock('@/i18n', async (importOriginal) => {
@@ -11,6 +11,11 @@ vi.mock('@/i18n', async (importOriginal) => {
 		setLocale: vi.fn(() => Promise.resolve()),
 	};
 });
+
+type I18nContextType = {
+	locale: Locale;
+	setLocale: (lang: Locale) => Promise<void>;
+};
 
 describe('I18nContext', () => {
 	it('should provide default locale', () => {
@@ -58,7 +63,9 @@ describe('I18nContext', () => {
 			},
 			{
 				wrapper: ({ children }) => (
-					<I18nContext.Provider value={null as any}>{children}</I18nContext.Provider>
+					<I18nContext.Provider value={null as unknown as I18nContextType}>
+						{children}
+					</I18nContext.Provider>
 				),
 			},
 		);
