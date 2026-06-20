@@ -57,9 +57,8 @@ describe('I18nContext', () => {
 				}
 			},
 			{
-				// @ts-expect-error - testing error branch
 				wrapper: ({ children }) => (
-					<I18nContext.Provider value={null}>{children}</I18nContext.Provider>
+					<I18nContext.Provider value={null as any}>{children}</I18nContext.Provider>
 				),
 			},
 		);
