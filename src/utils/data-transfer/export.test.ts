@@ -4,7 +4,11 @@ import { exportStoreAsZip } from './export';
 import { createZip, downloadZip } from './zip';
 
 vi.mock('./zip', () => ({
-	createZip: vi.fn().mockResolvedValue(new Blob(['mock zip content'], { type: 'application/zip' })),
+	createZip: vi
+		.fn()
+		.mockResolvedValue(
+			new Blob(['mock zip content'], { type: 'application/zip' }),
+		),
 	downloadZip: vi.fn(),
 }));
 
