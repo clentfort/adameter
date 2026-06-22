@@ -35,4 +35,20 @@ describe('TotalDurationStats', () => {
 		render(<TotalDurationStats sessions={zeroDurationSessions} />);
 		expect(screen.getByText('0 min')).toBeInTheDocument();
 	});
+
+	it('displays comparison value when comparisonSessions are provided', () => {
+		const comparisonSessions = createFeedingSessions([
+			{ breast: 'left', durationInSeconds: 300 },
+		]);
+		render(
+			<TotalDurationStats
+				comparisonSessions={comparisonSessions}
+				sessions={mockSessions}
+			/>,
+		);
+		// mockSessions total is 1800s (30 min)
+		// comparisonSessions total is 300s (5 min)
+		// Increase is 1500s. 1500/300 * 100 = 500%
+		expect(screen.getByText('↑500%')).toBeInTheDocument();
+	});
 });
