@@ -15,7 +15,7 @@ import {
 	setLocale as setAppLocale,
 } from '@/i18n';
 
-type I18nContextType = {
+export type I18nContextType = {
 	locale: Locale;
 	setLocale: (lang: Locale) => Promise<void>;
 };

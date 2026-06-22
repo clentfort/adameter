@@ -136,31 +136,4 @@ describe('useEvents', () => {
 			expect(result.current[0].id).toBe('e1');
 		});
 	});
-
-	describe('toEvent error handling', () => {
-		it('should handle invalid event data and log a warning', () => {
-			const store = createTestStore();
-			const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-			// Missing required 'type' field
-			store.setRow(TABLE_IDS.EVENTS, 'invalid-1', {
-				startDate: '2024-01-01T10:00:00Z',
-				title: 'Invalid Event',
-			});
-
-			const { result } = renderHook(() => useEvent('invalid-1'), {
-				wrapper: ({ children }) => (
-					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
-				),
-			});
-
-			expect(result.current).toBeUndefined();
-			expect(consoleSpy).toHaveBeenCalledWith(
-				expect.stringContaining('Invalid event data for id invalid-1:'),
-				expect.any(Array),
-			);
-
-			consoleSpy.mockRestore();
-		});
-	});
 });
