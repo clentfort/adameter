@@ -1,5 +1,4 @@
-import babel from '@rolldown/plugin-babel';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { configDefaults, defineConfig } from 'vitest/config';
 import fbtCommon from './common_strings.json' with { type: 'json' };
@@ -7,9 +6,8 @@ import fbtCommon from './common_strings.json' with { type: 'json' };
 export default defineConfig({
 	plugins: [
 		tsconfigPaths(),
-		react(),
-		babel({
-			presets: [['@nkzw/babel-preset-fbtee', { fbtCommon }]],
+		react({
+			plugins: [['@nkzw/swc-plugin-fbtee', { fbtCommon }]],
 		}),
 	],
 	test: {
