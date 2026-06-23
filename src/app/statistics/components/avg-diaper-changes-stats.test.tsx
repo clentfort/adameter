@@ -12,14 +12,14 @@ describe('AvgDiaperChangesStats', () => {
 	it('calculates averages correctly for a single day', () => {
 		const diaperChanges = createDiaperChanges([
 			{
-				timestamp: '2024-01-01T10:00:00Z',
-				containsUrine: true,
 				containsStool: false,
+				containsUrine: true,
+				timestamp: '2024-01-01T10:00:00Z',
 			},
 			{
-				timestamp: '2024-01-01T14:00:00Z',
-				containsUrine: false,
 				containsStool: true,
+				containsUrine: false,
+				timestamp: '2024-01-01T14:00:00Z',
 			},
 		]);
 
@@ -35,19 +35,19 @@ describe('AvgDiaperChangesStats', () => {
 	it('calculates averages correctly across multiple days', () => {
 		const diaperChanges = createDiaperChanges([
 			{
+				containsStool: false,
+				containsUrine: true,
 				timestamp: '2024-01-01T10:00:00Z',
-				containsUrine: true,
-				containsStool: false,
 			},
 			{
-				timestamp: '2024-01-02T10:00:00Z',
-				containsUrine: true,
 				containsStool: true,
+				containsUrine: true,
+				timestamp: '2024-01-02T10:00:00Z',
 			},
 			{
-				timestamp: '2024-01-03T10:00:00Z',
-				containsUrine: false,
 				containsStool: false,
+				containsUrine: false,
+				timestamp: '2024-01-03T10:00:00Z',
 			},
 		]);
 
@@ -63,17 +63,17 @@ describe('AvgDiaperChangesStats', () => {
 
 	it('displays comparison values when comparisonDiaperChanges are provided', () => {
 		const currentChanges = createDiaperChanges([
-			{ timestamp: '2024-01-01T10:00:00Z', containsUrine: true },
-			{ timestamp: '2024-01-01T14:00:00Z', containsUrine: true },
+			{ containsUrine: true, timestamp: '2024-01-01T10:00:00Z' },
+			{ containsUrine: true, timestamp: '2024-01-01T14:00:00Z' },
 		]);
 		const comparisonChanges = createDiaperChanges([
-			{ timestamp: '2024-01-01T10:00:00Z', containsUrine: true },
+			{ containsUrine: true, timestamp: '2024-01-01T10:00:00Z' },
 		]);
 
 		render(
 			<AvgDiaperChangesStats
-				diaperChanges={currentChanges}
 				comparisonDiaperChanges={comparisonChanges}
+				diaperChanges={currentChanges}
 			/>,
 		);
 
