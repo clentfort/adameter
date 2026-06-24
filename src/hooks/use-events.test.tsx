@@ -136,4 +136,28 @@ describe('useEvents', () => {
 			expect(result.current[0].id).toBe('e1');
 		});
 	});
+
+	describe('toEvent error handling', () => {
+		it('should warn and return null for invalid event data', () => {
+			const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+			const store = createTestStore();
+			// Missing required fields like title and startDate
+			store.setRow(TABLE_IDS.EVENTS, 'invalid-id', {
+				type: 'point',
+			});
+
+			const { result } = renderHook(() => useEvent('invalid-id'), {
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			});
+
+			expect(result.current).toBeUndefined();
+			expect(consoleSpy).toHaveBeenCalledWith(
+				expect.stringContaining('Invalid event data for id invalid-id:'),
+				expect.any(Array),
+			);
+			consoleSpy.mockRestore();
+		});
+	});
 });
