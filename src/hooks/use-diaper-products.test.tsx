@@ -87,6 +87,30 @@ describe('useDiaperProducts', () => {
 				name: 'Pampers',
 			});
 		});
+
+		it('should return undefined and log warning for invalid data', () => {
+			const store = createTestStore();
+			const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+			// Missing required name and isReusable
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'invalid-p', {
+				notes: 'Only notes',
+			});
+
+			const { result } = renderHook(() => useDiaperProduct('invalid-p'), {
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			});
+
+			expect(result.current).toBeUndefined();
+			expect(consoleSpy).toHaveBeenCalledWith(
+				expect.stringContaining('Invalid diaper product data for id invalid-p'),
+				expect.any(Array),
+			);
+
+			consoleSpy.mockRestore();
+		});
 	});
 
 	describe('useSortedDiaperProductIds', () => {
@@ -116,6 +140,50 @@ describe('useDiaperProducts', () => {
 
 			// A, C, B (archived)
 			expect(result.current).toEqual(['p3', 'p2', 'p1']);
+		});
+
+		it('should handle missing name during sorting', () => {
+			const store = createTestStore();
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
+				isReusable: false,
+				name: 'B',
+			});
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p2', {
+				isReusable: false,
+				// missing name
+			});
+
+			const { result } = renderHook(() => useSortedDiaperProductIds(), {
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			});
+
+			// Empty name comes before 'B'
+			expect(result.current).toEqual(['p2', 'p1']);
+		});
+
+		it('should handle archived products during sorting', () => {
+			const store = createTestStore();
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
+				archived: true,
+				isReusable: false,
+				name: 'A',
+			});
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p2', {
+				archived: false,
+				isReusable: false,
+				name: 'B',
+			});
+
+			const { result } = renderHook(() => useSortedDiaperProductIds(), {
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			});
+
+			// Archived 'A' comes after non-archived 'B'
+			expect(result.current).toEqual(['p2', 'p1']);
 		});
 	});
 
