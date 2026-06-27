@@ -1,7 +1,8 @@
+import type { Locale } from '@/i18n';
 import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nContext } from '@/contexts/i18n-context';
-import { DEFAULT_LOCALE, type Locale } from '@/i18n';
+import { DEFAULT_LOCALE } from '@/i18n';
 import TimeSince from './time-since';
 
 // Mock HeaderIndicator to simplify testing
