@@ -17,21 +17,47 @@ describe('PottyRecords', () => {
 		const diaperChanges = createDiaperChanges([
 			{ containsUrine: true, timestamp: '2024-01-01T10:00:00Z' },
 		]);
-		const { container } = render(<PottyRecords diaperChanges={diaperChanges} />);
+		const { container } = render(
+			<PottyRecords diaperChanges={diaperChanges} />,
+		);
 		expect(container.firstChild).toBeNull();
 	});
 
 	it('calculates and displays the day with most potty hits (excluding today)', () => {
 		const diaperChanges = createDiaperChanges([
 			// 2 hits on Jan 1
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-01T10:00:00Z' },
-			{ containsUrine: false, pottyStool: true, timestamp: '2024-01-01T14:00:00Z' },
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-01T10:00:00Z',
+			},
+			{
+				containsUrine: false,
+				pottyStool: true,
+				timestamp: '2024-01-01T14:00:00Z',
+			},
 			// 1 hit on Jan 2
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-02T10:00:00Z' },
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-02T10:00:00Z',
+			},
 			// 3 hits on today (Jan 10) - should be excluded
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-10T10:00:00Z' },
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-10T11:00:00Z' },
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-10T12:00:00Z' },
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-10T10:00:00Z',
+			},
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-10T11:00:00Z',
+			},
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-10T12:00:00Z',
+			},
 		]);
 
 		render(<PottyRecords diaperChanges={diaperChanges} />);
@@ -44,16 +70,40 @@ describe('PottyRecords', () => {
 	it('calculates and displays the longest potty streak', () => {
 		const diaperChanges = createDiaperChanges([
 			// Streak of 2
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-01T10:00:00Z' },
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-01T14:00:00Z' },
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-01T10:00:00Z',
+			},
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-01T14:00:00Z',
+			},
 			// Accident breaks streak
 			{ containsUrine: true, timestamp: '2024-01-02T10:00:00Z' },
 			// Streak of 3
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-03T10:00:00Z' },
-			{ containsUrine: false, pottyStool: true, timestamp: '2024-01-04T10:00:00Z' },
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-05T10:00:00Z' },
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-03T10:00:00Z',
+			},
+			{
+				containsUrine: false,
+				pottyStool: true,
+				timestamp: '2024-01-04T10:00:00Z',
+			},
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-05T10:00:00Z',
+			},
 			// Mixed success/accident - success but contains urine
-			{ containsUrine: true, pottyUrine: true, timestamp: '2024-01-06T10:00:00Z' },
+			{
+				containsUrine: true,
+				pottyUrine: true,
+				timestamp: '2024-01-06T10:00:00Z',
+			},
 		]);
 
 		render(<PottyRecords diaperChanges={diaperChanges} />);
@@ -66,7 +116,11 @@ describe('PottyRecords', () => {
 
 	it('renders correctly for a single-day streak', () => {
 		const diaperChanges = createDiaperChanges([
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-01T10:00:00Z' },
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-01T10:00:00Z',
+			},
 		]);
 
 		render(<PottyRecords diaperChanges={diaperChanges} />);
@@ -77,9 +131,21 @@ describe('PottyRecords', () => {
 
 	it('sorts diaper changes for streak calculation', () => {
 		const diaperChanges = createDiaperChanges([
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-03T10:00:00Z' },
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-01T10:00:00Z' },
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-02T10:00:00Z' },
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-03T10:00:00Z',
+			},
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-01T10:00:00Z',
+			},
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-02T10:00:00Z',
+			},
 		]);
 
 		render(<PottyRecords diaperChanges={diaperChanges} />);
@@ -90,7 +156,11 @@ describe('PottyRecords', () => {
 
 	it('handles case with no potty changes on other days than today', () => {
 		const diaperChanges = createDiaperChanges([
-			{ containsUrine: false, pottyUrine: true, timestamp: '2024-01-10T10:00:00Z' },
+			{
+				containsUrine: false,
+				pottyUrine: true,
+				timestamp: '2024-01-10T10:00:00Z',
+			},
 		]);
 
 		render(<PottyRecords diaperChanges={diaperChanges} />);
