@@ -31,7 +31,10 @@ describe('useIdleCallback', () => {
 		renderHook(() => useIdleCallback(callback));
 
 		expect(idleHandler).toBeDefined();
-		idleHandler?.({ didTimeout: false, timeRemaining: () => 50 } as IdleDeadline);
+		idleHandler?.({
+			didTimeout: false,
+			timeRemaining: () => 50,
+		} as IdleDeadline);
 		expect(callback).toHaveBeenCalled();
 	});
 
@@ -67,7 +70,10 @@ describe('useIdleCallback', () => {
 
 		expect(requestIdleCallback).toHaveBeenCalledTimes(1);
 
-		idleHandler?.({ didTimeout: false, timeRemaining: () => 50 } as IdleDeadline);
+		idleHandler?.({
+			didTimeout: false,
+			timeRemaining: () => 50,
+		} as IdleDeadline);
 		expect(callback1).not.toHaveBeenCalled();
 		expect(callback2).toHaveBeenCalled();
 	});
