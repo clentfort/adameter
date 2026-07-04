@@ -10,7 +10,9 @@ describe('TimeBetweenDiaperChangesStats', () => {
 	});
 
 	it('should render 0 min when there is only one diaper change', () => {
-		const changes = createDiaperChanges([{ timestamp: '2024-01-01T10:00:00Z' }]);
+		const changes = createDiaperChanges([
+			{ timestamp: '2024-01-01T10:00:00Z' },
+		]);
 		render(<TimeBetweenDiaperChangesStats diaperChanges={changes} />);
 		expect(screen.getByText('0 min')).toBeInTheDocument();
 	});
