@@ -11,7 +11,9 @@ describe('cn', () => {
 	});
 
 	it('should handle conditional classes', () => {
-		expect(cn('base', true && 'is-true', false && 'is-false')).toBe(
+		const isTrue = Boolean(true);
+		const isFalse = Boolean(false);
+		expect(cn('base', isTrue && 'is-true', isFalse && 'is-false')).toBe(
 			'base is-true',
 		);
 	});
