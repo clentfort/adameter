@@ -14,6 +14,7 @@ export const STORE_VALUE_UNIT_SYSTEM = 'unitSystem';
 export const TABLE_IDS = {
 	DIAPER_CHANGES: 'diaperChanges',
 	DIAPER_PRODUCTS: 'diaperProducts',
+	DIAPER_PURCHASES: 'diaperPurchases',
 	EVENTS: 'events',
 	FEEDING_SESSIONS: 'feedingSessions',
 	GROWTH_MEASUREMENTS: 'growthMeasurements',

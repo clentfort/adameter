@@ -4,11 +4,13 @@ import type {
 	DiaperProduct,
 	DiaperProductFormData,
 	DiaperProductFormValues,
+	DiaperPurchase,
 } from '@/types/diaper';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { DIAPER_BRANDS } from '@/app/diaper/utils/diaper-brands';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,11 +18,13 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { PRODUCT_COLORS } from '@/constants/colors';
 import { diaperProductFormToDataSchema } from '@/types/diaper';
+import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 
 interface ProductFormProps {
 	initialData?: Partial<DiaperProduct>;
 	onCancel: () => void;
-	onSave: (data: DiaperProduct) => void;
+	onSave: (data: DiaperProduct, purchase?: DiaperPurchase) => void;
+	showPurchaseFields?: boolean;
 }
 
 function getDefaultValues(
@@ -32,6 +36,9 @@ function getDefaultValues(
 		isReusable: initialData?.isReusable ?? false,
 		name: initialData?.name ?? '',
 		notes: initialData?.notes ?? '',
+		purchaseCount: '',
+		purchaseDate: dateToDateInputValue(new Date()),
+		purchasePrice: '',
 		upfrontCost: initialData?.upfrontCost?.toString() ?? '',
 	};
 }
@@ -40,6 +47,7 @@ export default function ProductForm({
 	initialData,
 	onCancel,
 	onSave,
+	showPurchaseFields,
 }: ProductFormProps) {
 	const {
 		formState: { isValid },
@@ -61,18 +69,36 @@ export default function ProductForm({
 	}, [initialData, reset]);
 
 	const handleSave = (parsedValues: DiaperProductFormData) => {
-		onSave({
+		const productId = initialData?.id ?? crypto.randomUUID();
+		const product: DiaperProduct = {
 			...(initialData as DiaperProduct),
 			color:
 				parsedValues.color ||
 				PRODUCT_COLORS[Math.floor(Math.random() * PRODUCT_COLORS.length)],
 			costPerDiaper: parsedValues.costPerDiaper,
-			id: initialData?.id ?? crypto.randomUUID(),
+			id: productId,
 			isReusable: parsedValues.isReusable,
 			name: parsedValues.name,
 			notes: parsedValues.notes,
 			upfrontCost: parsedValues.upfrontCost,
-		});
+		};
+
+		let purchase: DiaperPurchase | undefined;
+		if (
+			!parsedValues.isReusable &&
+			parsedValues.purchaseCount &&
+			parsedValues.purchasePrice
+		) {
+			purchase = {
+				count: Number.parseInt(parsedValues.purchaseCount, 10),
+				date: parsedValues.purchaseDate || dateToDateInputValue(new Date()),
+				diaperProductId: productId,
+				id: crypto.randomUUID(),
+				price: Number.parseFloat(parsedValues.purchasePrice),
+			};
+		}
+
+		onSave(product, purchase);
 	};
 
 	return (
@@ -83,6 +109,7 @@ export default function ProductForm({
 				</Label>
 				<Input
 					id="product-name"
+					list="diaper-brands"
 					placeholder={fbt(
 						'e.g. Pampers Size 1',
 						'Placeholder for product name',
@@ -90,20 +117,87 @@ export default function ProductForm({
 					required
 					{...register('name')}
 				/>
+				<datalist id="diaper-brands">
+					{DIAPER_BRANDS.map((brand) => (
+						<option key={brand.value} value={brand.label} />
+					))}
+				</datalist>
 			</div>
 
-			<div className="space-y-2">
-				<Label htmlFor="product-cost">
-					<fbt desc="Label for cost per diaper input">Cost per Diaper</fbt>
-				</Label>
-				<Input
-					id="product-cost"
-					placeholder="0.00"
-					step="0.01"
-					type="number"
-					{...register('costPerDiaper')}
-				/>
-			</div>
+			{!isReusable && showPurchaseFields && (
+				<div className="grid grid-cols-2 gap-4 border p-4 rounded-lg bg-primary/5 border-primary/20">
+					<div className="col-span-2 text-sm font-bold text-primary flex items-center gap-2 uppercase tracking-tight">
+						<fbt desc="Header for logging a purchase within product form">
+							Log Purchase
+						</fbt>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="purchase-count">
+							<fbt desc="Label for purchase count in product form">Count</fbt>
+						</Label>
+						<Input
+							id="purchase-count"
+							placeholder="e.g. 50"
+							type="number"
+							{...register('purchaseCount')}
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="purchase-price">
+							<fbt desc="Label for purchase price in product form">Price</fbt>
+						</Label>
+						<Input
+							id="purchase-price"
+							placeholder="0.00"
+							step="0.01"
+							type="number"
+							{...register('purchasePrice')}
+						/>
+					</div>
+					<div className="col-span-2 space-y-2">
+						<Label htmlFor="purchase-date">
+							<fbt desc="Label for purchase date in product form">Date</fbt>
+						</Label>
+						<Input
+							id="purchase-date"
+							type="date"
+							{...register('purchaseDate')}
+						/>
+					</div>
+				</div>
+			)}
+
+			{isReusable && (
+				<div className="space-y-2">
+					<Label htmlFor="product-cost">
+						<fbt desc="Label for cost per diaper input">Cost per Diaper</fbt>
+					</Label>
+					<Input
+						id="product-cost"
+						placeholder="0.00"
+						step="0.01"
+						type="number"
+						{...register('costPerDiaper')}
+					/>
+				</div>
+			)}
+
+			{!isReusable && initialData?.costPerDiaper !== undefined && (
+				<div className="p-3 bg-muted/30 rounded-lg border flex justify-between items-center">
+					<span className="text-sm text-muted-foreground font-medium">
+						<fbt desc="Label for current calculated cost per diaper">
+							Current Avg. Cost
+						</fbt>
+					</span>
+					<span className="font-bold text-sm">
+						<fbt desc="Calculated cost display">
+							$<fbt:param name="cost">
+								{initialData.costPerDiaper.toFixed(2)}
+							</fbt:param>
+						</fbt>
+					</span>
+				</div>
+			)}
 
 			<div className="flex items-center space-x-2">
 				<Switch

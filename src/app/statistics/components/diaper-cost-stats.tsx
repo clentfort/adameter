@@ -29,7 +29,9 @@ function calculateCostMetrics(
 ) {
 	let totalCost = 0;
 	for (const change of changes) {
-		if (change.diaperProductId) {
+		if (typeof change.cost === 'number') {
+			totalCost += change.cost;
+		} else if (change.diaperProductId) {
 			totalCost += productCostById.get(change.diaperProductId) || 0;
 		}
 	}

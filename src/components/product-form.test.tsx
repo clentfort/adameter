@@ -28,15 +28,15 @@ describe('ProductForm', () => {
 		const nameInput = screen.getByLabelText(/product name/i);
 		await user.type(nameInput, 'Test Diaper');
 
-		// Fill in cost per diaper
-		const costInput = screen.getByLabelText(/cost per diaper/i);
-		await user.type(costInput, '0.50');
-
 		// Toggle reusable
 		const reusableSwitch = screen.getByRole('switch', {
 			name: /reusable diaper/i,
 		});
 		await user.click(reusableSwitch);
+
+		// Fill in cost per diaper (now visible)
+		const costInput = screen.getByLabelText(/cost per diaper/i);
+		await user.type(costInput, '0.50');
 
 		// Fill in upfront cost (only appears when reusable is checked)
 		const upfrontCostInput = screen.getByLabelText(/upfront cost/i);
@@ -59,6 +59,7 @@ describe('ProductForm', () => {
 				notes: 'Some notes',
 				upfrontCost: 20,
 			}),
+			undefined,
 		);
 		onSave.mockClear();
 
@@ -83,7 +84,8 @@ describe('ProductForm', () => {
 		});
 
 		expect(screen.getByDisplayValue('Old Name')).toBeInTheDocument();
-		expect(screen.getByDisplayValue('0.25')).toBeInTheDocument();
+		// 0.25 is now in a display-only field, not an input, for disposable diapers
+		expect(screen.getByText('$0.25')).toBeInTheDocument();
 		expect(screen.getByDisplayValue('Old Notes')).toBeInTheDocument();
 
 		// Change name and save
@@ -98,6 +100,7 @@ describe('ProductForm', () => {
 				isReusable: false,
 				name: 'New Name',
 			}),
+			undefined,
 		);
 
 		// 3. Test cancellation
@@ -117,6 +120,7 @@ describe('ProductForm', () => {
 				isReusable: false,
 				upfrontCost: undefined,
 			}),
+			undefined,
 		);
 	});
 });
