@@ -7,8 +7,7 @@ export type TimeFormat = '12h' | '24h';
 export function useTimeFormat() {
 	const { locale } = useLanguage();
 	const timeFormat = useValue(STORE_VALUE_TIME_FORMAT) as
-		| TimeFormat
-		| undefined;
+		TimeFormat | undefined;
 
 	const setTimeFormat = useSetValueCallback(
 		STORE_VALUE_TIME_FORMAT,

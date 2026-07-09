@@ -9,10 +9,7 @@ import {
 export { snapshotStoreContentIfNonEmpty };
 
 type RemoteBootstrapDecision =
-	| 'keep-empty'
-	| 'keep-remote'
-	| 'restore-local'
-	| 'merge';
+	'keep-empty' | 'keep-remote' | 'restore-local' | 'merge';
 
 interface RemoteBootstrapResult {
 	decision: RemoteBootstrapDecision;

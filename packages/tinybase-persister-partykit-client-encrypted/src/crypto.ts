@@ -221,8 +221,7 @@ export async function encryptChanges(
 				await encryptChangedTable(
 					tableId,
 					table as
-						| Record<string, Record<string, unknown> | undefined>
-						| undefined,
+						Record<string, Record<string, unknown> | undefined> | undefined,
 					key,
 					getRow,
 				),
@@ -264,8 +263,7 @@ export async function decryptChanges(
 				tableId,
 				await decryptChangedTable(
 					table as
-						| Record<string, Record<string, unknown> | undefined>
-						| undefined,
+						Record<string, Record<string, unknown> | undefined> | undefined,
 					key,
 				),
 			]),

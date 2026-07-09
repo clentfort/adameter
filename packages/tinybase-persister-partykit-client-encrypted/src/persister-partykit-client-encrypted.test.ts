@@ -62,9 +62,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('encrypts incremental changes before websocket send', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -109,9 +111,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('propagates add, update, and delete changes over websocket', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -182,9 +186,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('encrypts full content before PUT save', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -222,9 +228,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('skips full save until initial load succeeds', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -255,9 +263,11 @@ describe('createSecurePartyKitPersister', () => {
 		const store = createStore();
 		store.setCell('table1', 'row1', 'cell1', 'local-value');
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -291,9 +301,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('loads persisted data and decrypts it', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -335,9 +347,11 @@ describe('createSecurePartyKitPersister', () => {
 			'legacy-value',
 			encryptionKey,
 		);
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -392,9 +406,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('skips migration when rows are already packed', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -436,9 +452,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('decrypts incoming websocket messages', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -483,9 +501,11 @@ describe('createSecurePartyKitPersister', () => {
 		store.setValue('updatedValue', 'old');
 
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -542,9 +562,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('calls ignored error callback on malformed message', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -582,9 +604,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('covers catch blocks in execution chain', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -608,9 +632,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('uses https for non-local hosts', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'example.com',
 			party: 'tinybase',
 			room: 'test-room',
@@ -624,9 +650,11 @@ describe('createSecurePartyKitPersister', () => {
 	it('continues execution chain after error', async () => {
 		const store = createStore();
 		const encryptionKey = await getEncryptionKey('test-room');
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: 'test-room',
@@ -656,9 +684,11 @@ describe('createSecurePartyKitPersister', () => {
 		const roomName = 'existing-room';
 		const encryptionKey = await getEncryptionKey(roomName);
 		const hashedRoomId = await hashRoomId(roomName);
-		const connection = new (PartySocket as unknown as new (
-			options: Record<string, unknown>,
-		) => PartySocket)({
+		const connection = new (
+			PartySocket as unknown as new (
+				options: Record<string, unknown>,
+			) => PartySocket
+		)({
 			host: 'localhost',
 			party: 'tinybase',
 			room: hashedRoomId,

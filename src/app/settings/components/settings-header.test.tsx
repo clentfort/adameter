@@ -26,7 +26,9 @@ describe('SettingsHeader', () => {
 
 	it('should call router.push("/settings") when onBack is not provided and back button is clicked', async () => {
 		const push = vi.fn();
-		vi.mocked(useRouter).mockReturnValue({ push } as unknown as ReturnType<typeof useRouter>);
+		vi.mocked(useRouter).mockReturnValue({ push } as unknown as ReturnType<
+			typeof useRouter
+		>);
 
 		render(<SettingsHeader title="Test Title" />);
 
