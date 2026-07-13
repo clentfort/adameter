@@ -7,8 +7,7 @@ export type UnitSystem = 'imperial' | 'metric';
 export function useUnitSystem() {
 	const { locale } = useLanguage();
 	const unitSystem = useValue(STORE_VALUE_UNIT_SYSTEM) as
-		| UnitSystem
-		| undefined;
+		UnitSystem | undefined;
 
 	const setUnitSystem = useSetValueCallback(
 		STORE_VALUE_UNIT_SYSTEM,

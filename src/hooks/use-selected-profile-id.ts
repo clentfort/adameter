@@ -3,8 +3,7 @@ import { STORE_VALUE_SELECTED_PROFILE_ID } from '@/lib/tinybase-sync/constants';
 
 export const useSelectedProfileId = () => {
 	const selectedProfileId = useValue(STORE_VALUE_SELECTED_PROFILE_ID) as
-		| string
-		| undefined;
+		string | undefined;
 
 	const setSelectedProfileId = useSetValueCallback(
 		STORE_VALUE_SELECTED_PROFILE_ID,

@@ -110,9 +110,7 @@ export function lookupLms(table: LmsData[], age: number): LmsData | null {
 
 export async function getGrowthTable(
 	indicator:
-		| 'weight-for-age'
-		| 'length-height-for-age'
-		| 'head-circumference-for-age',
+		'weight-for-age' | 'length-height-for-age' | 'head-circumference-for-age',
 	sex: Sex,
 	ageInDays: number,
 ): Promise<{ index: number; table: LmsData[] } | null> {
@@ -160,9 +158,7 @@ export async function getGrowthTable(
 
 export async function getPercentile(
 	indicator:
-		| 'weight-for-age'
-		| 'length-height-for-age'
-		| 'head-circumference-for-age',
+		'weight-for-age' | 'length-height-for-age' | 'head-circumference-for-age',
 	sex: Sex,
 	ageInDays: number,
 	value: number,
@@ -190,9 +186,7 @@ export async function getPercentile(
 
 export async function getGrowthRange(
 	indicator:
-		| 'weight-for-age'
-		| 'length-height-for-age'
-		| 'head-circumference-for-age',
+		'weight-for-age' | 'length-height-for-age' | 'head-circumference-for-age',
 	sex: Sex,
 	ageInDays: number,
 ): Promise<GrowthRange | null> {
