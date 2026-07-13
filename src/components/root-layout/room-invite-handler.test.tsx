@@ -42,7 +42,9 @@ describe('RoomInviteHandler', () => {
 		} as unknown as ReturnType<typeof useRouter>);
 
 		// Default: no room in URL
-		mockUseSearchParams.mockReturnValue(new URLSearchParams() as any);
+		mockUseSearchParams.mockReturnValue(
+			new URLSearchParams() as unknown as ReturnType<typeof useSearchParams>,
+		);
 
 		// Mock window.location
 		const mockLocation = new URL('https://example.com/page?room=test-room');
@@ -67,7 +69,9 @@ describe('RoomInviteHandler', () => {
 
 	it('should show JoinRoomDialog when room param is present and no current room', () => {
 		mockUseSearchParams.mockReturnValue(
-			new URLSearchParams('room=test-room') as any,
+			new URLSearchParams('room=test-room') as unknown as ReturnType<
+				typeof useSearchParams
+			>,
 		);
 
 		render(
@@ -88,7 +92,9 @@ describe('RoomInviteHandler', () => {
 
 	it('should show LeaveRoomWarningDialog when room param is present and is different from current room', () => {
 		mockUseSearchParams.mockReturnValue(
-			new URLSearchParams('room=new-room') as any,
+			new URLSearchParams('room=new-room') as unknown as ReturnType<
+				typeof useSearchParams
+			>,
 		);
 
 		render(
@@ -106,7 +112,9 @@ describe('RoomInviteHandler', () => {
 
 	it('should show JoinRoomDialog after confirming LeaveRoomWarningDialog', async () => {
 		mockUseSearchParams.mockReturnValue(
-			new URLSearchParams('room=new-room') as any,
+			new URLSearchParams('room=new-room') as unknown as ReturnType<
+				typeof useSearchParams
+			>,
 		);
 
 		render(
@@ -128,7 +136,9 @@ describe('RoomInviteHandler', () => {
 
 	it('should clear URL param when cancelling JoinRoomDialog', async () => {
 		mockUseSearchParams.mockReturnValue(
-			new URLSearchParams('room=test-room') as any,
+			new URLSearchParams('room=test-room') as unknown as ReturnType<
+				typeof useSearchParams
+			>,
 		);
 
 		render(
@@ -150,7 +160,9 @@ describe('RoomInviteHandler', () => {
 
 	it('should clear URL param when joining in JoinRoomDialog', async () => {
 		mockUseSearchParams.mockReturnValue(
-			new URLSearchParams('room=test-room') as any,
+			new URLSearchParams('room=test-room') as unknown as ReturnType<
+				typeof useSearchParams
+			>,
 		);
 
 		render(
