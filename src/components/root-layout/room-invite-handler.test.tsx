@@ -42,7 +42,9 @@ describe('RoomInviteHandler', () => {
 		} as unknown as ReturnType<typeof useRouter>);
 
 		// Default: no room in URL
-		mockUseSearchParams.mockReturnValue(new URLSearchParams());
+		mockUseSearchParams.mockReturnValue(
+			new URLSearchParams() as unknown as ReturnType<typeof useSearchParams>,
+		);
 
 		// Mock window.location
 		const mockLocation = new URL('https://example.com/page?room=test-room');
