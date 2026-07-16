@@ -2,7 +2,10 @@ import { renderHook } from '@testing-library/react';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
 import { describe, expect, it } from 'vitest';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import {
+	STORE_VALUE_SELECTED_PROFILE_ID,
+	TABLE_IDS,
+} from '@/lib/tinybase-sync/constants';
 import {
 	METRIC_IDS,
 	TinybaseMetricsProvider,
@@ -150,5 +153,54 @@ describe('TinybaseMetricsProvider', () => {
 		store.delRow(TABLE_IDS.DIAPER_CHANGES, 'new-diaper');
 
 		expect(metrics.getMetric(METRIC_IDS.DIAPER_CHANGES_TOTAL)).toBeUndefined();
+	});
+
+	it('should handle multi-profile filtering', () => {
+		const store = createStore();
+		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'baby-1');
+
+		// Records for selected profile
+		store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'feeding-1', {
+			durationInSeconds: 600,
+			profileId: 'baby-1',
+		});
+		store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-1', {
+			profileId: 'baby-1',
+			weight: 4000,
+		});
+		store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-2', {
+			height: 50,
+			profileId: 'baby-1',
+		});
+
+		// Records for OTHER profile (should be ignored by metrics)
+		store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'feeding-other', {
+			durationInSeconds: 1200,
+			profileId: 'baby-other',
+		});
+		store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-other-weight', {
+			profileId: 'baby-other',
+			weight: 5000,
+		});
+		store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-other-height', {
+			height: 60,
+			profileId: 'baby-other',
+		});
+
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<Provider store={store}>
+				<TinybaseMetricsProvider>{children}</TinybaseMetricsProvider>
+			</Provider>
+		);
+
+		const { result } = renderHook(() => useTinybaseMetrics(), { wrapper });
+		const metrics = result.current!;
+
+		// Should only count baby-1
+		// Feeding sessions for baby-1: 600. For baby-other: ignored (0).
+		// Avg = (600 + 0) / 2 = 300.
+		expect(metrics.getMetric(METRIC_IDS.FEEDING_AVG_DURATION)).toBe(300);
+		expect(metrics.getMetric(METRIC_IDS.GROWTH_MAX_WEIGHT)).toBe(4000);
+		expect(metrics.getMetric(METRIC_IDS.GROWTH_MAX_HEIGHT)).toBe(50);
 	});
 });
