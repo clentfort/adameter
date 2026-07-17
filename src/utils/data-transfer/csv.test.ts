@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
 import Papa from 'papaparse';
+import { describe, expect, it, vi } from 'vitest';
 import { fromCsv, toCsv } from './csv';
 
 describe('CSV Data Transfer Utility', () => {
@@ -10,8 +10,8 @@ describe('CSV Data Transfer Utility', () => {
 
 		it('formats a basic row of data properly', () => {
 			const rows = [
-				{ id: '1', name: 'Ada', age: 1 },
-				{ id: '2', name: 'Bob', age: 2 },
+				{ age: 1, id: '1', name: 'Ada' },
+				{ age: 2, id: '2', name: 'Bob' },
 			];
 			const csv = toCsv(rows);
 			expect(csv).toContain('id,age,name');
@@ -20,7 +20,7 @@ describe('CSV Data Transfer Utility', () => {
 		});
 
 		it('sorts fields alphabetically with id first', () => {
-			const rows = [{ zebra: 'stripes', id: 'abc', apple: 'red' }];
+			const rows = [{ apple: 'red', id: 'abc', zebra: 'stripes' }];
 			const csv = toCsv(rows);
 			const firstLine = csv.split('\n')[0].replace(/\r$/, '');
 			expect(firstLine).toBe('id,apple,zebra');
@@ -33,7 +33,7 @@ describe('CSV Data Transfer Utility', () => {
 		});
 
 		it('handles case where there is no id field in getCsvFields', () => {
-			const rows = [{ zebra: 'stripes', apple: 'red' }];
+			const rows = [{ apple: 'red', zebra: 'stripes' }];
 			const csv = toCsv(rows);
 			const firstLine = csv.split('\n')[0].replace(/\r$/, '');
 			expect(firstLine).toBe('apple,zebra');
@@ -45,37 +45,32 @@ describe('CSV Data Transfer Utility', () => {
 			const csv = 'id,name,age,active\n1,Ada,1,true\n2,Bob,2,false';
 			const parsed = fromCsv(csv);
 			expect(parsed).toEqual([
-				{ id: '1', name: 'Ada', age: 1, active: true },
-				{ id: '2', name: 'Bob', age: 2, active: false },
+				{ active: true, age: 1, id: '1', name: 'Ada' },
+				{ active: false, age: 2, id: '2', name: 'Bob' },
 			]);
 		});
 
 		it('skips empty columns / empty field names', () => {
 			const csv = 'id,,name\n1,ignored,Ada';
 			const parsed = fromCsv(csv);
-			expect(parsed).toEqual([
-				{ id: '1', name: 'Ada' },
-			]);
+			expect(parsed).toEqual([{ id: '1', name: 'Ada' }]);
 		});
 
 		it('maps legacy abnormalities field to notes if notes is missing', () => {
 			const csv = 'id,abnormalities\n1,Very abnormal';
 			const parsed = fromCsv(csv);
-			expect(parsed).toEqual([
-				{ id: '1', notes: 'Very abnormal' },
-			]);
+			expect(parsed).toEqual([{ id: '1', notes: 'Very abnormal' }]);
 		});
 
 		it('does not map abnormalities if notes is already present', () => {
 			const csv = 'id,notes,abnormalities\n1,Fine notes,Legacy ignored';
 			const parsed = fromCsv(csv);
-			expect(parsed).toEqual([
-				{ id: '1', notes: 'Fine notes' },
-			]);
+			expect(parsed).toEqual([{ id: '1', notes: 'Fine notes' }]);
 		});
 
 		it('parses various kinds of numbers correctly', () => {
-			const csv = 'id,value,negative,decimal,tooBig,notQuiteNumeric\n1,123,-45,67.89,9999999999999999999999,9999-99-99';
+			const csv =
+				'id,value,negative,decimal,tooBig,notQuiteNumeric\n1,123,-45,67.89,9999999999999999999999,9999-99-99';
 			const parsed = fromCsv(csv);
 			expect(parsed[0].value).toBe(123);
 			expect(parsed[0].negative).toBe(-45);
@@ -95,9 +90,7 @@ describe('CSV Data Transfer Utility', () => {
 		it('keeps id and valueJson as string types even if they look like numbers', () => {
 			const csv = 'id,valueJson\n123,456';
 			const parsed = fromCsv(csv);
-			expect(parsed).toEqual([
-				{ id: '123', valueJson: '456' },
-			]);
+			expect(parsed).toEqual([{ id: '123', valueJson: '456' }]);
 		});
 
 		it('handles non-string raw values gracefully by defaulting to empty string', () => {
@@ -120,12 +113,14 @@ describe('CSV Data Transfer Utility', () => {
 				},
 			};
 
-			const spy = vi.spyOn(Papa, 'parse').mockReturnValueOnce(mockResult as unknown as any);
+			const spy = vi
+				.spyOn(Papa, 'parse')
+				.mockReturnValueOnce(
+					mockResult as unknown as ReturnType<typeof Papa.parse>,
+				);
 
 			const parsed = fromCsv('id,nonStringField\n1,null');
-			expect(parsed).toEqual([
-				{ id: '1', nonStringField: '' },
-			]);
+			expect(parsed).toEqual([{ id: '1', nonStringField: '' }]);
 
 			spy.mockRestore();
 		});
