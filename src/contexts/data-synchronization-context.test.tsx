@@ -12,6 +12,13 @@ let mockStorage: Record<string, string> = {};
 
 vi.mock('@/lib/storage', () => {
 	return {
+		getItem: vi.fn((key: string) => mockStorage[key] || null),
+		removeItem: vi.fn((key: string) => {
+			delete mockStorage[key];
+		}),
+		setItem: vi.fn((key: string, value: string) => {
+			mockStorage[key] = value;
+		}),
 		STORAGE_KEYS: {
 			DEVICE_ID: 'deviceId',
 			PREFERRED_LANGUAGE: 'preferredLanguage',
@@ -19,13 +26,6 @@ vi.mock('@/lib/storage', () => {
 			ROOM_JOIN_STRATEGY: 'room-join-strategy',
 			SHOW_COMPARISON_CHARTS: 'adameter-show-comparison',
 		},
-		getItem: vi.fn((key: string) => mockStorage[key] || null),
-		setItem: vi.fn((key: string, value: string) => {
-			mockStorage[key] = value;
-		}),
-		removeItem: vi.fn((key: string) => {
-			delete mockStorage[key];
-		}),
 	};
 });
 
