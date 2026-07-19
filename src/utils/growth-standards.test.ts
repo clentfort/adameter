@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+	calculateValue,
+	calculateZScore,
 	getGrowthRange,
 	getPercentile,
 	lookupLms,
@@ -146,6 +148,51 @@ describe('growth-standards', () => {
 		it('should return null for weight for age over 5 years (missing data)', async () => {
 			const range = await getGrowthRange('weight-for-age', 'girl', 2000);
 			expect(range).toBeNull();
+		});
+
+		it('should return null and handle errors gracefully when getGrowthTable throws', async () => {
+			const range = await getGrowthRange(
+				'weight-for-age',
+				'boy',
+				Symbol('invalid') as unknown as number,
+			);
+			expect(range).toBeNull();
+		});
+
+		it('should return null if indicator is invalid', async () => {
+			const range = await getGrowthRange('invalid' as any, 'boy', 10);
+			expect(range).toBeNull();
+		});
+	});
+
+	describe('calculateValue', () => {
+		it('should handle L === 0 case', () => {
+			const val = calculateValue(0, 10, 2, 1);
+			expect(val).toBeCloseTo(10 * Math.exp(2 * 1));
+		});
+	});
+
+	describe('calculateZScore', () => {
+		it('should handle L === 0 case', () => {
+			const z = calculateZScore(0, 10, 2, 20);
+			expect(z).toBeCloseTo(Math.log(20 / 10) / 2);
+		});
+	});
+
+	describe('getPercentile error handling', () => {
+		it('should return null and handle errors gracefully when getGrowthTable throws', async () => {
+			const p = await getPercentile(
+				'weight-for-age',
+				'boy',
+				Symbol('invalid') as unknown as number,
+				3000,
+			);
+			expect(p).toBeNull();
+		});
+
+		it('should return null if indicator is invalid', async () => {
+			const p = await getPercentile('invalid' as any, 'boy', 10, 3000);
+			expect(p).toBeNull();
 		});
 	});
 });
