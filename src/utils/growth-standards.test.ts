@@ -160,7 +160,11 @@ describe('growth-standards', () => {
 		});
 
 		it('should return null if indicator is invalid', async () => {
-			const range = await getGrowthRange('invalid' as any, 'boy', 10);
+			const range = await getGrowthRange(
+				'invalid' as unknown as 'weight-for-age',
+				'boy',
+				10,
+			);
 			expect(range).toBeNull();
 		});
 	});
@@ -191,7 +195,12 @@ describe('growth-standards', () => {
 		});
 
 		it('should return null if indicator is invalid', async () => {
-			const p = await getPercentile('invalid' as any, 'boy', 10, 3000);
+			const p = await getPercentile(
+				'invalid' as unknown as 'weight-for-age',
+				'boy',
+				10,
+				3000,
+			);
 			expect(p).toBeNull();
 		});
 	});
