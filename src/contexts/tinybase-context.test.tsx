@@ -26,7 +26,9 @@ const mocks = vi.hoisted(() => ({
 	getStoreUrl: vi.fn(),
 	hashRoomId: vi.fn(),
 	loadServerSnapshot: vi.fn(),
+	partySocketAddEventListener: vi.fn(),
 	partySocketClose: vi.fn(),
+	partySocketRemoveEventListener: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
 	saveServerSnapshot: vi.fn(),
 }));
@@ -36,11 +38,15 @@ vi.mock('partysocket', () => ({
 		partySocketOptions = { host: 'localhost:1999', room: 'test-room' };
 		name = 'tinybase';
 		readyState = 1; // WebSocket.OPEN
-		addEventListener() {}
+		addEventListener(type: string, listener: () => void) {
+			mocks.partySocketAddEventListener(type, listener);
+		}
 		close() {
 			mocks.partySocketClose();
 		}
-		removeEventListener() {}
+		removeEventListener(type: string, listener: () => void) {
+			mocks.partySocketRemoveEventListener(type, listener);
+		}
 		send() {}
 	},
 }));
@@ -472,5 +478,57 @@ describe('TinybaseProvider room sync', () => {
 		vi.unstubAllEnvs();
 		errorSpy.mockRestore();
 		infoSpy.mockRestore();
+	});
+
+	it('handles WebSocket reconnection and re-bootstrapping from server snapshot', async () => {
+		let openListener: (() => void) | undefined;
+		mocks.partySocketAddEventListener.mockImplementation((type, listener) => {
+			if (type === 'open') {
+				openListener = listener;
+			}
+		});
+
+		mocks.loadServerSnapshot.mockResolvedValue(true);
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		// Wait for initial hydration and local load to complete
+		await waitFor(() => {
+			expect(mocks.runMigrationsIfNeeded).toHaveBeenCalled();
+		});
+
+		// Trigger room join
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		// Wait for initial bootstrap to complete and synchronizer to be created
+		await waitFor(() => {
+			expect(mocks.createEncryptedPartyKitSynchronizer).toHaveBeenCalled();
+			expect(openListener).toBeDefined();
+		});
+
+		// Reset calls to focus on reconnection-triggered bootstrap
+		mocks.loadServerSnapshot.mockClear();
+		mocks.runMigrationsIfNeeded.mockClear();
+		mocks.saveServerSnapshot.mockClear();
+
+		// Trigger the captured WebSocket 'open' event listener
+		expect(openListener).toBeDefined();
+		openListener!();
+
+		// Verify that a secondary bootstrap (isInitial = false) has occurred
+		await waitFor(() => {
+			// loadServerSnapshot should be called during re-bootstrapping
+			expect(mocks.loadServerSnapshot).toHaveBeenCalledTimes(1);
+			// migrations are run after loading server snapshot
+			expect(mocks.runMigrationsIfNeeded).toHaveBeenCalledTimes(1);
+			// saveServerSnapshot is triggered because loadServerSnapshot resolved to true
+			expect(mocks.saveServerSnapshot).toHaveBeenCalled();
+		});
 	});
 });
