@@ -177,7 +177,7 @@ describe('IndexedGrowthHistoryList', () => {
 		expect(screen.getByText(/4,500 g/i)).toBeDefined();
 		expect(screen.getByText(/55 cm/i)).toBeDefined();
 		expect(screen.getByText(/38 cm/i)).toBeDefined();
-		expect(screen.getByText(/Growing well/i)).toBeDefined();
-		expect(screen.getByText(/First tooth/i)).toBeDefined();
+		expect(screen.getByText(/growing well/i)).toBeDefined();
+		expect(screen.getByText(/first tooth/i)).toBeDefined();
 	});
 });
