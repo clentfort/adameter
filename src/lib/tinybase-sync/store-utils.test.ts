@@ -1,5 +1,5 @@
 import { createStore } from 'tinybase';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
 	STORE_VALUE_FEEDING_IN_PROGRESS,
 	STORE_VALUE_PROFILE,
