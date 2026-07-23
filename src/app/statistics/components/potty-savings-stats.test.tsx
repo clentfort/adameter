@@ -21,12 +21,17 @@ describe('PottySavingsStats', () => {
 
 	it('renders with zero savings when no changes are provided', () => {
 		render(
-			<PottySavingsStats diaperChanges={[]} disposableChanges={mockDisposableChanges} />,
+			<PottySavingsStats
+				diaperChanges={[]}
+				disposableChanges={mockDisposableChanges}
+			/>,
 		);
 
 		expect(screen.getByText('Potty Savings')).toBeInTheDocument();
 		expect(screen.getByText('$0.00')).toBeInTheDocument();
-		expect(screen.getByText('Estimated savings from successful potty hits.')).toBeInTheDocument();
+		expect(
+			screen.getByText('Estimated savings from successful potty hits.'),
+		).toBeInTheDocument();
 	});
 
 	it('calculates and renders savings when successful potty hits occur', () => {
