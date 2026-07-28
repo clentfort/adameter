@@ -216,82 +216,87 @@ describe('DiaperForm', () => {
 		});
 	});
 
-	it('filters out archived products that are not selected or current', async () => {
+	it('improves test coverage for archived products, dropdown selection, and dialog dismissal', async () => {
 		const user = userEvent.setup();
-		render(<DiaperForm {...baseProps} />);
 
-		const selectTrigger = screen.getByRole('combobox', { name: /product/i });
-		await user.click(selectTrigger);
+		// 1. Test filtering of archived products (not selected / not current)
+		{
+			render(<DiaperForm {...baseProps} />);
+			const selectTrigger = screen.getByRole('combobox', { name: /product/i });
+			await user.click(selectTrigger);
 
-		expect(
-			await screen.findByRole('option', { name: 'Product 1' }),
-		).toBeInTheDocument();
-		expect(
-			screen.queryByRole('option', { name: 'Archived Product' }),
-		).not.toBeInTheDocument();
-	});
+			expect(
+				await screen.findByRole('option', { name: 'Product 1' }),
+			).toBeInTheDocument();
+			expect(
+				screen.queryByRole('option', { name: 'Archived Product' }),
+			).not.toBeInTheDocument();
+			cleanup();
+		}
 
-	it('includes archived product when it is the current/selected product', async () => {
-		const user = userEvent.setup();
-		const initialChange: DiaperChange = {
-			containsStool: true,
-			containsUrine: true,
-			diaperProductId: 'archived-id',
-			id: '1',
-			leakage: false,
-			notes: '',
-			pottyStool: false,
-			pottyUrine: false,
-			temperature: 37,
-			timestamp: '2023-10-27T10:00:00.000Z',
-		};
+		// 2. Test inclusion of archived product when it is the current/selected product
+		{
+			const initialChange: DiaperChange = {
+				containsStool: true,
+				containsUrine: true,
+				diaperProductId: 'archived-id',
+				id: '1',
+				leakage: false,
+				notes: '',
+				pottyStool: false,
+				pottyUrine: false,
+				temperature: 37,
+				timestamp: '2023-10-27T10:00:00.000Z',
+			};
 
-		render(<DiaperForm {...baseProps} change={initialChange} />);
+			render(<DiaperForm {...baseProps} change={initialChange} />);
+			const selectTrigger = screen.getByRole('combobox', { name: /product/i });
+			await user.click(selectTrigger);
 
-		const selectTrigger = screen.getByRole('combobox', { name: /product/i });
-		await user.click(selectTrigger);
+			expect(
+				await screen.findByRole('option', { name: 'Archived Product' }),
+			).toBeInTheDocument();
+			cleanup();
+		}
 
-		expect(
-			await screen.findByRole('option', { name: 'Archived Product' }),
-		).toBeInTheDocument();
-	});
+		// 3. Test selecting a product from the dropdown
+		{
+			render(<DiaperForm {...baseProps} />);
+			const selectTrigger = screen.getByRole('combobox', { name: /product/i });
+			await user.click(selectTrigger);
 
-	it('allows selecting a product from the dropdown', async () => {
-		const user = userEvent.setup();
-		render(<DiaperForm {...baseProps} />);
+			const option = await screen.findByRole('option', { name: 'Product 1' });
+			await user.click(option);
 
-		const selectTrigger = screen.getByRole('combobox', { name: /product/i });
-		await user.click(selectTrigger);
+			expect(selectTrigger).toHaveTextContent('Product 1');
 
-		const option = await screen.findByRole('option', { name: 'Product 1' });
-		await user.click(option);
+			fireEvent.click(screen.getByTestId('save-button'));
+			await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
+			const savedChange = mockOnSave.mock.calls[0][0];
+			expect(savedChange.diaperProductId).toBe('1');
+			cleanup();
+		}
 
-		expect(selectTrigger).toHaveTextContent('Product 1');
+		// 4. Test closing the add product dialog via onOpenChange(false)
+		{
+			render(<DiaperForm {...baseProps} />);
+			const plusButton = document
+				.querySelector('.lucide-plus')
+				?.closest('button');
+			expect(plusButton).toBeTruthy();
+			await user.click(plusButton!);
 
-		fireEvent.click(screen.getByTestId('save-button'));
-		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
-		const savedChange = mockOnSave.mock.calls[0][0];
-		expect(savedChange.diaperProductId).toBe('1');
-	});
+			const dialog = await screen.findByRole('dialog', {
+				name: /add product/i,
+			});
+			expect(dialog).toBeInTheDocument();
 
-	it('closes the add product dialog when onOpenChange is triggered with false', async () => {
-		const user = userEvent.setup();
-		render(<DiaperForm {...baseProps} />);
+			// Trigger escape key on the dialog to simulate closing via onOpenChange(false)
+			fireEvent.keyDown(dialog, { code: 'Escape', key: 'Escape' });
 
-		const plusButton = document
-			.querySelector('.lucide-plus')
-			?.closest('button');
-		expect(plusButton).toBeTruthy();
-		await user.click(plusButton!);
-
-		const dialog = await screen.findByRole('dialog', { name: /add product/i });
-		expect(dialog).toBeInTheDocument();
-
-		// Trigger escape key on the dialog to simulate closing via onOpenChange(false)
-		fireEvent.keyDown(dialog, { key: 'Escape', code: 'Escape' });
-
-		await waitFor(() => {
-			expect(screen.queryByText(/add product/i)).not.toBeInTheDocument();
-		});
+			await waitFor(() => {
+				expect(screen.queryByText(/add product/i)).not.toBeInTheDocument();
+			});
+		}
 	});
 });
