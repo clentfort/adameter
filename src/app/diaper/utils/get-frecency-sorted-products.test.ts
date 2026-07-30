@@ -97,4 +97,28 @@ describe('getFrecencySortedProducts', () => {
 		expect(sorted[0].id).toBe('2');
 		expect(sorted[1].id).toBe('1');
 	});
+
+	it('ignores diaper changes without a diaperProductId', () => {
+		const now = new Date();
+		const changes: DiaperChange[] = [
+			{
+				containsStool: false,
+				containsUrine: true,
+				diaperProductId: '1',
+				id: 'c1',
+				timestamp: subDays(now, 1).toISOString(),
+			},
+			{
+				containsStool: false,
+				containsUrine: true,
+				diaperProductId: undefined,
+				id: 'c2',
+				timestamp: subDays(now, 1).toISOString(),
+			},
+		];
+
+		// This should run without errors and treat Brand A (id: '1') as more used than Brand B (id: '2')
+		const sorted = getFrecencySortedProducts(products, changes);
+		expect(sorted[0].id).toBe('1');
+	});
 });
