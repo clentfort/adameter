@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
+import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DeferredSection from './deferred-section';
 
@@ -63,5 +64,53 @@ describe('DeferredSection', () => {
 		expect(screen.getByText('Content')).toBeInTheDocument();
 		expect(screen.queryByText('Fallback')).not.toBeInTheDocument();
 		expect(disconnect).toHaveBeenCalled();
+	});
+
+	it('handles case when containerRef.current is null', () => {
+		const useRefSpy = vi
+			.spyOn(React, 'useRef')
+			.mockReturnValue({ current: null });
+
+		render(
+			<DeferredSection fallback={<div>Fallback</div>}>
+				<div>Content</div>
+			</DeferredSection>,
+		);
+
+		expect(screen.getByText('Fallback')).toBeInTheDocument();
+		useRefSpy.mockRestore();
+	});
+
+	it('handles disconnect and cleanup on unmount', () => {
+		const { unmount } = render(
+			<DeferredSection fallback={<div>Fallback</div>}>
+				<div>Content</div>
+			</DeferredSection>,
+		);
+
+		unmount();
+		expect(disconnect).toHaveBeenCalled();
+	});
+
+	it('does not trigger intersect state if entries is empty or first entry is not intersecting', () => {
+		render(
+			<DeferredSection fallback={<div>Fallback</div>}>
+				<div>Content</div>
+			</DeferredSection>,
+		);
+
+		act(() => {
+			// Empty entries
+			intersectionObserverCallback([]);
+		});
+		expect(screen.getByText('Fallback')).toBeInTheDocument();
+
+		act(() => {
+			// Entry is not intersecting
+			intersectionObserverCallback([
+				{ isIntersecting: false },
+			] as IntersectionObserverEntry[]);
+		});
+		expect(screen.getByText('Fallback')).toBeInTheDocument();
 	});
 });
