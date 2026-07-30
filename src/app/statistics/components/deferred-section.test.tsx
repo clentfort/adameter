@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
+import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DeferredSection from './deferred-section';
 
@@ -67,7 +68,7 @@ describe('DeferredSection', () => {
 
 	it('handles case when containerRef.current is null', () => {
 		const useRefSpy = vi
-			.spyOn(require('react'), 'useRef')
+			.spyOn(React, 'useRef')
 			.mockReturnValue({ current: null });
 
 		render(
