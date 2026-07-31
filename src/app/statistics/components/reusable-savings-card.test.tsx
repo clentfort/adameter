@@ -231,10 +231,10 @@ describe('ReusableSavingsCard', () => {
 				id: 'product-bad-upfront',
 				isReusable: true,
 				name: 'Bad Upfront',
-				upfrontCost: NaN,
+				upfrontCost: Number.NaN,
 			},
 			{
-				costPerDiaper: NaN,
+				costPerDiaper: Number.NaN,
 				id: 'product-bad-cost',
 				isReusable: true,
 				name: 'Bad Cost',
@@ -319,7 +319,7 @@ describe('ReusableSavingsCard', () => {
 
 		const edgeProducts: DiaperProduct[] = [
 			{
-				costPerDiaper: NaN,
+				costPerDiaper: Number.NaN,
 				id: 'product-disposable-nan',
 				isReusable: false,
 				name: 'NaN Disposable',
