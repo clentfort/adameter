@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { TABLE_IDS } from './constants';
 import {
+	sanitizeDiaperChangeForStore,
 	sanitizeDiaperProductForStore,
 	sanitizeEventForStore,
 	sanitizeFeedingSessionForStore,
 	sanitizeGrowthMeasurementForStore,
 	sanitizeImportedRow,
+	sanitizeProfileForStore,
 	sanitizeToothForStore,
 } from './entity-row-schemas';
 
@@ -111,6 +113,70 @@ describe('entity row schemas', () => {
 		});
 	});
 
+	it('sanitizes diaper change writes before persisting them', () => {
+		expect(
+			sanitizeDiaperChangeForStore({
+				containsStool: true,
+				containsUrine: false,
+				id: 'change-1',
+				timestamp: '2026-03-07T08:00:00.000Z',
+			}),
+		).toEqual({
+			containsStool: true,
+			containsUrine: false,
+			timestamp: '2026-03-07T08:00:00.000Z',
+		});
+	});
+
+	it('sanitizes profile writes before persisting them', () => {
+		expect(
+			sanitizeProfileForStore({
+				birthday: '2026-03-01',
+				color: '#ff0000',
+				id: 'profile-1',
+				name: 'Baby name',
+				optedOut: false,
+				sex: 'girl',
+			}),
+		).toEqual({
+			birthday: '2026-03-01',
+			color: '#ff0000',
+			name: 'Baby name',
+			optedOut: false,
+			sex: 'girl',
+		});
+	});
+
+	it('returns null when safeParse fails due to invalid data', () => {
+		expect(
+			sanitizeDiaperChangeForStore({
+				containsStool: undefined as unknown as boolean,
+				containsUrine: false,
+				id: 'change-invalid',
+				timestamp: '2026-03-07T08:00:00.000Z',
+			}),
+		).toBeNull();
+	});
+
+	it('correctly maps profileId and deviceId to the sanitized row', () => {
+		expect(
+			sanitizeDiaperChangeForStore({
+				containsStool: true,
+				containsUrine: false,
+				deviceId: 'device-abc',
+				id: 'change-1',
+				profileId: 'profile-xyz',
+				timestamp: '2026-03-07T08:00:00.000Z',
+			}),
+		).toEqual({
+			containsStool: true,
+			containsUrine: false,
+			deviceId: 'device-abc',
+			profileId: 'profile-xyz',
+			timestamp: '2026-03-07T08:00:00.000Z',
+		});
+	});
+
 	it('covers all branches of sanitizeImportedRow', () => {
 		// DIAPER_CHANGES
 		expect(
@@ -178,6 +244,18 @@ describe('entity row schemas', () => {
 		).toEqual({
 			date: '2026-03-07T12:00:00.000Z',
 			toothId: 51,
+		});
+
+		// PROFILES
+		expect(
+			sanitizeImportedRow(TABLE_IDS.PROFILES, {
+				birthday: '2026-03-01',
+				id: 'profile-1',
+				name: 'Baby name',
+			}),
+		).toEqual({
+			birthday: '2026-03-01',
+			name: 'Baby name',
 		});
 
 		// Unknown table
