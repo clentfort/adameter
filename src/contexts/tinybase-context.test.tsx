@@ -531,4 +531,136 @@ describe('TinybaseProvider room sync', () => {
 			expect(mocks.saveServerSnapshot).toHaveBeenCalled();
 		});
 	});
+
+	it('covers edge cases of getErrorMessage, expected timeout checking, and catch handlers in initialize/bootstrap/save', async () => {
+		const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
+		const infoSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
+
+		// 1. Force runMigrationsIfNeeded to fail to test initialize() catch block
+		mocks.runMigrationsIfNeeded.mockRejectedValueOnce(
+			new Error('Migration failed'),
+		);
+
+		let errorHandler: ((error: unknown) => void) | undefined;
+		mocks.createEncryptedPartyKitSynchronizer.mockImplementation(
+			async (_store, _connection, _key, onSynchronizerError) => {
+				errorHandler = onSynchronizerError;
+				return {
+					destroy: vi.fn(async () => {}),
+					startSync: vi.fn(async () => {}),
+				};
+			},
+		);
+
+		let localOpenListener: (() => void) | undefined;
+		mocks.partySocketAddEventListener.mockImplementation((type, listener) => {
+			if (type === 'open') {
+				localOpenListener = listener;
+			}
+		});
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		// Wait for initialize catch block to set isLocalReady to true
+		await waitFor(() => {
+			expect(screen.getByTestId('event-count')).toBeInTheDocument();
+		});
+
+		// Trigger joinRoom and connectRoomSync
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		// Wait for synchronizer creation to get the captured errorHandler
+		await waitFor(() => {
+			expect(mocks.createEncryptedPartyKitSynchronizer).toHaveBeenCalled();
+			expect(errorHandler).toBeDefined();
+		});
+
+		// 2. Test getErrorMessage and isExpectedSynchronizerTimeout variations via the errorHandler
+		// Case A: string direct error
+		errorHandler!('Some string error');
+		expect(errorSpy).toHaveBeenLastCalledWith(
+			'Synchronizer error:',
+			'Some string error',
+		);
+
+		// Case B: non-Error object
+		errorHandler!({ custom: 'error details' });
+		expect(errorSpy).toHaveBeenLastCalledWith('Synchronizer error:', {
+			custom: 'error details',
+		});
+
+		// Case C: undefined/null String conversion
+		errorHandler!(null);
+		expect(errorSpy).toHaveBeenLastCalledWith('Synchronizer error:', null);
+
+		// Case D: Synchronizer Timeout (expecting info log instead of error log)
+		errorHandler!(new Error('No response from peer'));
+		expect(infoSpy).toHaveBeenLastCalledWith(
+			'Synchronizer waiting for peers:',
+			expect.any(Error),
+		);
+
+		// 3. Trigger bootstrap load failure catch block
+		mocks.loadServerSnapshot.mockRejectedValueOnce(
+			new Error('Bootstrap load failed'),
+		);
+
+		// Trigger reconnection to call bootstrap again
+		expect(localOpenListener).toBeDefined();
+		localOpenListener!();
+
+		await waitFor(() => {
+			expect(errorSpy).toHaveBeenCalledWith(
+				'Failed to load server snapshot:',
+				expect.any(Error),
+			);
+		});
+
+		// 4. Trigger bootstrap save failure catch block (loadServerSnapshot succeeds but saveServerSnapshot fails)
+		mocks.loadServerSnapshot.mockResolvedValueOnce(true);
+		mocks.saveServerSnapshot.mockRejectedValueOnce(
+			new Error('Bootstrap save failed'),
+		);
+		localOpenListener!();
+
+		await waitFor(() => {
+			expect(errorSpy).toHaveBeenCalledWith(
+				'Failed to save snapshot after bootstrap:',
+				expect.any(Error),
+			);
+		});
+
+		// 5. Trigger debounced save snapshot failure catch block
+		const store = (window as unknown as { tinybaseStore: Store }).tinybaseStore;
+		expect(store).toBeDefined();
+
+		mocks.saveServerSnapshot.mockRejectedValueOnce(
+			new Error('Debounced save failed'),
+		);
+
+		vi.useFakeTimers();
+		store.setRow(TABLE_IDS.EVENTS, 'debounced-event', {
+			deviceId: 'local-device',
+			startDate: '2026-03-03T00:00:00.000Z',
+			title: 'Debounced event',
+			type: 'point',
+		});
+
+		await vi.advanceTimersByTimeAsync(1100);
+
+		expect(errorSpy).toHaveBeenCalledWith(
+			'Failed to save debounced snapshot:',
+			expect.any(Error),
+		);
+
+		errorSpy.mockRestore();
+		infoSpy.mockRestore();
+		vi.useRealTimers();
+	});
 });
