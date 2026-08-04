@@ -79,4 +79,33 @@ describe('useTodayDiaperStats', () => {
 
 		expect(result.current).toEqual({ stoolCount: 0, urineCount: 0 });
 	});
+
+	it('should filter today diaper changes by selected profile id', () => {
+		const store = createTestStore();
+		const now = new Date();
+
+		store.setValue('selectedProfileId', 'profile-a');
+
+		// Match profile-a
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd1', {
+			containsUrine: true,
+			profileId: 'profile-a',
+			timestamp: now.toISOString(),
+		});
+
+		// Does not match profile-a
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd2', {
+			containsStool: true,
+			profileId: 'profile-b',
+			timestamp: now.toISOString(),
+		});
+
+		const { result } = renderHook(() => useTodayDiaperStats(), {
+			wrapper: ({ children }) => (
+				<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+			),
+		});
+
+		expect(result.current).toEqual({ stoolCount: 0, urineCount: 1 });
+	});
 });
