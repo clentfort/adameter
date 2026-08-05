@@ -113,4 +113,20 @@ describe('DeferredSection', () => {
 		});
 		expect(screen.getByText('Fallback')).toBeInTheDocument();
 	});
+
+	it('does not set shouldRender if isIntersecting is false during useIdleCallback', () => {
+		render(
+			<DeferredSection fallback={<div>Fallback</div>}>
+				<div>Content</div>
+			</DeferredSection>,
+		);
+
+		// Trigger requestIdleCallback via fake timers, but isIntersecting remains false
+		act(() => {
+			vi.runAllTimers();
+		});
+
+		expect(screen.getByText('Fallback')).toBeInTheDocument();
+		expect(screen.queryByText('Content')).not.toBeInTheDocument();
+	});
 });
