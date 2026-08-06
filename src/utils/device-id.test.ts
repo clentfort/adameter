@@ -38,4 +38,26 @@ describe('getDeviceId', () => {
 		const id = getDeviceId();
 		expect(id).toBe('server');
 	});
+
+	it('returns a fallback pseudo-random ID when crypto is undefined', () => {
+		vi.mocked(localStorage.getItem).mockReturnValue(null);
+		vi.stubGlobal('crypto', undefined);
+
+		const id = getDeviceId();
+
+		expect(id).toBeDefined();
+		expect(id).toMatch(/^device-[a-z0-9]+-[a-z0-9]+$/);
+		expect(localStorage.setItem).toHaveBeenCalledWith('deviceId', id);
+	});
+
+	it('returns a fallback pseudo-random ID when crypto exists but randomUUID is undefined', () => {
+		vi.mocked(localStorage.getItem).mockReturnValue(null);
+		vi.stubGlobal('crypto', {});
+
+		const id = getDeviceId();
+
+		expect(id).toBeDefined();
+		expect(id).toMatch(/^device-[a-z0-9]+-[a-z0-9]+$/);
+		expect(localStorage.setItem).toHaveBeenCalledWith('deviceId', id);
+	});
 });
