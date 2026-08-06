@@ -46,7 +46,7 @@ describe('getDeviceId', () => {
 		const id = getDeviceId();
 
 		expect(id).toBeDefined();
-		expect(id).toMatch(/^device-[a-z0-9]+-[a-z0-9]+$/);
+		expect(id).toMatch(/^device(?:-[\da-z]+){2}$/);
 		expect(localStorage.setItem).toHaveBeenCalledWith('deviceId', id);
 	});
 
@@ -57,7 +57,7 @@ describe('getDeviceId', () => {
 		const id = getDeviceId();
 
 		expect(id).toBeDefined();
-		expect(id).toMatch(/^device-[a-z0-9]+-[a-z0-9]+$/);
+		expect(id).toMatch(/^device(?:-[\da-z]+){2}$/);
 		expect(localStorage.setItem).toHaveBeenCalledWith('deviceId', id);
 	});
 });
