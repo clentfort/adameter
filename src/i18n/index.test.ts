@@ -3,6 +3,30 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STORAGE_KEYS } from '../lib/storage';
 import { DEFAULT_LOCALE, getPreferredLocale, setLocale } from './index';
 
+vi.mock('fbtee', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('fbtee')>();
+	return {
+		...actual,
+		setupFbtee: vi.fn((config) => {
+			(globalThis as any).capturedHooks = config.hooks;
+			actual.setupFbtee(config);
+		}),
+	};
+});
+
+vi.mock('../translations/de-DE.json', () => ({
+	default: {
+		'de-DE': {},
+		'fr-FR': {},
+	},
+}));
+
+vi.mock('../translations/en-US.json', () => ({
+	default: {
+		'en-US': {},
+	},
+}));
+
 vi.mock('date-fns', async (importOriginal) => {
 	const actual = await importOriginal<typeof import('date-fns')>();
 	return {
@@ -48,7 +72,7 @@ describe('i18n', () => {
 		vi.stubGlobal('navigator', { language: 'de-DE' });
 		expect(getPreferredLocale()).toBe('de-DE');
 
-		vi.stubGlobal('navigator', { language: 'fr-FR' });
+		vi.stubGlobal('navigator', { language: 'it-IT' });
 		expect(getPreferredLocale()).toBe(DEFAULT_LOCALE);
 
 		// Test setLocale functionality
@@ -61,8 +85,45 @@ describe('i18n', () => {
 
 		vi.clearAllMocks();
 		// @ts-expect-error - testing invalid locale
-		await setLocale('fr-FR');
+		await setLocale('it-IT');
 		expect(localStorageMock.setItem).not.toHaveBeenCalled();
+		expect(setDefaultOptions).not.toHaveBeenCalled();
+	});
+
+	it('should support en-US locale and load its date-fns locale', async () => {
+		await setLocale('en-US');
+		expect(localStorageMock.setItem).toHaveBeenCalledWith(
+			STORAGE_KEYS.PREFERRED_LANGUAGE,
+			'en-US',
+		);
+		expect(setDefaultOptions).toHaveBeenCalled();
+	});
+
+	it('should return the viewer context in fbtee hook and update it when locale changes', async () => {
+		const capturedHooks = (globalThis as any).capturedHooks;
+		expect(capturedHooks).toBeDefined();
+		const context1 = capturedHooks.getViewerContext();
+		expect(context1.locale).toBe('en-US');
+		expect(context1.GENDER).toBeDefined();
+
+		await setLocale('de-DE');
+		const context2 = capturedHooks.getViewerContext();
+		expect(context2.locale).toBe('de-DE');
+		expect(context2.GENDER).toBeDefined();
+	});
+
+	it('should handle locales with no dateFnsLocale defined by returning early', async () => {
+		// fr-FR is supported (via our mock) but has no dateFnsLocale loader defined
+		// @ts-expect-error - testing mock supported locale missing in real type definitions
+		await setLocale('fr-FR');
+		expect(localStorageMock.setItem).toHaveBeenCalledWith(
+			STORAGE_KEYS.PREFERRED_LANGUAGE,
+			'fr-FR',
+		);
+
+		vi.clearAllMocks();
+		// @ts-expect-error - testing mock supported locale missing in real type definitions
+		await setLocale('fr-FR');
 		expect(setDefaultOptions).not.toHaveBeenCalled();
 	});
 });
