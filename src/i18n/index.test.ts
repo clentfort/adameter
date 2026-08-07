@@ -8,7 +8,8 @@ vi.mock('fbtee', async (importOriginal) => {
 	return {
 		...actual,
 		setupFbtee: vi.fn((config) => {
-			(globalThis as any).capturedHooks = config.hooks;
+			(globalThis as unknown as Record<string, unknown>).capturedHooks =
+				config.hooks;
 			actual.setupFbtee(config);
 		}),
 	};
@@ -100,7 +101,12 @@ describe('i18n', () => {
 	});
 
 	it('should return the viewer context in fbtee hook and update it when locale changes', async () => {
-		const capturedHooks = (globalThis as any).capturedHooks;
+		const capturedHooks = (
+			globalThis as unknown as Record<
+				string,
+				{ getViewerContext: () => { GENDER: unknown; locale: string } }
+			>
+		).capturedHooks;
 		expect(capturedHooks).toBeDefined();
 		const context1 = capturedHooks.getViewerContext();
 		expect(context1.locale).toBe('en-US');
