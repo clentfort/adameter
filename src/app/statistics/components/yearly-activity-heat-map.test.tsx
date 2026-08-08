@@ -92,4 +92,54 @@ describe('YearlyActivityHeatMap', () => {
 		const diaperDayCell = screen.getByTestId('yearly-cell-2024-01-02');
 		expect(diaperDayCell).toHaveClass('bg-amber-600');
 	});
+
+	it('renders without title and description when noCard is false', () => {
+		render(<YearlyActivityHeatMap dates={[]} />);
+		expect(screen.queryByText('Title')).not.toBeInTheDocument();
+	});
+
+	it('improves coverage by handling invalid/future dates, noCard prop, and all contribution levels', () => {
+		render(
+			<YearlyActivityHeatMap
+				dates={[
+					'invalid-date',
+					'2024-06-16T10:00:00Z',
+					'2024-06-15T01:00:00Z',
+					'2024-06-15T02:00:00Z',
+					'2024-06-15T03:00:00Z',
+					'2024-06-15T04:00:00Z',
+					'2024-06-14T01:00:00Z',
+					'2024-06-14T02:00:00Z',
+					'2024-06-14T03:00:00Z',
+					'2024-06-13T01:00:00Z',
+					'2024-06-13T02:00:00Z',
+					'2024-06-12T01:00:00Z',
+				]}
+				noCard={true}
+			/>,
+		);
+
+		expect(screen.queryByText('Title')).not.toBeInTheDocument();
+
+		const level4Cell = screen.getByTestId('yearly-cell-2024-06-15');
+		const level3Cell = screen.getByTestId('yearly-cell-2024-06-14');
+		const level2Cell = screen.getByTestId('yearly-cell-2024-06-13');
+		const level1Cell = screen.getByTestId('yearly-cell-2024-06-12');
+		const level0Cell = screen.getByTestId('yearly-cell-2024-06-11');
+
+		expect(level4Cell).toHaveAttribute('title', 'June 15th, 2024: 4');
+		expect(level3Cell).toHaveAttribute('title', 'June 14th, 2024: 3');
+		expect(level2Cell).toHaveAttribute('title', 'June 13th, 2024: 2');
+		expect(level1Cell).toHaveAttribute('title', 'June 12th, 2024: 1');
+		expect(level0Cell).toHaveAttribute('title', 'June 11th, 2024: 0');
+
+		expect(level4Cell).toHaveClass('bg-left-breast');
+		expect(level3Cell).toHaveClass('bg-left-breast/55');
+		expect(level2Cell).toHaveClass('bg-left-breast/30');
+		expect(level1Cell).toHaveClass('bg-left-breast/15');
+		expect(level0Cell).toHaveClass('bg-muted');
+
+		const futureCell = screen.queryByTestId('yearly-cell-2024-06-16');
+		expect(futureCell).toBeNull();
+	});
 });
