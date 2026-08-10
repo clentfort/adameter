@@ -196,6 +196,8 @@ describe('FeedingHistoryList', () => {
 			</TestWrapper>,
 		);
 
-		expect(screen.queryByTestId('feeding-history-entry')).not.toBeInTheDocument();
+		expect(
+			screen.queryByTestId('feeding-history-entry'),
+		).not.toBeInTheDocument();
 	});
 });
