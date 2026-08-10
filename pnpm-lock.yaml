@@ -335,8 +335,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@nkzw/swc-plugin-fbtee':
-        specifier: ^2.0.0
-        version: 2.0.0(@swc/core@1.15.47)
+        specifier: ^3.0.0
+        version: 3.0.1(@swc/core@1.15.47)
       '@playwright/test':
         specifier: ^1.58.2
         version: 1.61.1
@@ -1654,8 +1654,8 @@ packages:
     resolution: {integrity: sha512-e0bU14Bb6FNI0ELstvNenADKUauIlvgauOKKzgTf8by73PPDI6icbepFfDM82OSv5I7kkudbdrsie1QkND/6VQ==}
     hasBin: true
 
-  '@nkzw/swc-plugin-fbtee@2.0.0':
-    resolution: {integrity: sha512-BDgRJCvTHXc1wOrXnnJUncF8/L/rqg88ApZ/tICYbWovEghnZGCpxU88xTggH2gTye4ndFpANZIu496CrchMDQ==}
+  '@nkzw/swc-plugin-fbtee@3.0.1':
+    resolution: {integrity: sha512-vvCnGvboZ5UZKPJV1GDYOBOLHQymr9bON+9YMihGn2EJe29fgLrD0Ll1EnlPgH3sGUMGE1kZEZQV1wgFNg3y6A==}
     peerDependencies:
       '@swc/core': ^1.15.0
 
@@ -7593,7 +7593,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nkzw/swc-plugin-fbtee@2.0.0(@swc/core@1.15.47)':
+  '@nkzw/swc-plugin-fbtee@3.0.1(@swc/core@1.15.47)':
     dependencies:
       '@swc/core': 1.15.47
 
