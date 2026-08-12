@@ -80,10 +80,10 @@ describe('getFrecencySortedProductIds', () => {
 		// Purely sorting by name (no changes)
 		// We want to force every pairwise comparison of (string, string), (string, non-string), (non-string, string), (non-string, non-string)
 		const productsById: Record<string, Row> = {
-			'1': { name: 123 },      // non-string
+			'1': { name: 123 }, // non-string
 			'2': { name: 'Brand Z' }, // string
 			'3': { name: 'Brand A' }, // string
-			'4': { name: undefined }, // non-string (missing)
+			'4': {}, // non-string (missing)
 		};
 
 		const sortedIds = getFrecencySortedProductIds(productsById, []);
