@@ -14,4 +14,5 @@ export const MIGRATION_IDS = [
 	'2026-03-15-cleanup-junk-data',
 	'2026-03-25-assign-colors-to-diaper-products',
 	'2026-04-01-multi-baby-support',
+	'2026-06-01-repair-missing-profile-ids',
 ] as const;

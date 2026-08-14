@@ -20,6 +20,13 @@ type CellValue = boolean | number | string;
 type InputRow = Record<string, unknown>;
 type SanitizedRow = Record<string, CellValue>;
 
+const KNOWN_LEGACY_CELLS = new Set([
+	'abnormalities',
+	'description',
+	'json',
+	'rawJson',
+]);
+
 function getDeviceId(row: InputRow): string | undefined {
 	return typeof row.deviceId === 'string' && row.deviceId.length > 0
 		? row.deviceId
@@ -45,7 +52,23 @@ function sanitizeRowWithSchema(
 		return null;
 	}
 
-	const sanitizedRow = toRow(parsedRow.data as Record<string, unknown>);
+	// Start with all primitive cells from the original row to ensure forward-compatibility.
+	// This prevents stripping fields added by newer versions of the app.
+	const sanitizedRow = toRow(row);
+
+	// Strip empty strings as they are typically artifacts (e.g. from CSV)
+	// and we want to allow the schema to "drop" them by normalizing to undefined.
+	for (const key in sanitizedRow) {
+		if (sanitizedRow[key] === '' || KNOWN_LEGACY_CELLS.has(key)) {
+			delete sanitizedRow[key];
+		}
+	}
+
+	// Overwrite with validated and normalized data from the schema.
+	Object.assign(sanitizedRow, toRow(parsedRow.data as Record<string, unknown>));
+
+	// Ensure special fields are handled correctly if they weren't in the schema
+	// (though they should be preserved by toRow(row) anyway).
 	const deviceId = getDeviceId(row);
 	if (deviceId) {
 		sanitizedRow.deviceId = deviceId;

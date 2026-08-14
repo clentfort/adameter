@@ -5,8 +5,10 @@ import type {
 	MigrationRunResult,
 } from './types';
 import {
+	CURRENT_SCHEMA_VERSION,
 	INTERNAL_TABLE_IDS,
 	MIGRATION_ROW_CELLS,
+	STORE_VALUE_SCHEMA_VERSION,
 } from '@/lib/tinybase-sync/constants';
 import { renameDiaperAbnormalitiesToNotesMigration } from './2026-03-01-rename-diaper-abnormalities-to-notes';
 import { normalizeDiaperStoreRowsMigration } from './2026-03-07-normalize-diaper-store-rows';
@@ -16,6 +18,7 @@ import { cleanupJunkDataMigration } from './2026-03-15-cleanup-junk-data';
 import { renameEventDescriptionToNotesMigration } from './2026-03-24-rename-event-description-to-notes';
 import { assignColorsToDiaperProductsMigration } from './2026-03-25-assign-colors-to-diaper-products';
 import { multiBabySupportMigration } from './2026-04-01-multi-baby-support';
+import { repairMissingProfileIdsMigration } from './2026-06-01-repair-missing-profile-ids';
 
 /**
  * Ordered migration list (oldest -> newest).
@@ -31,6 +34,7 @@ export const migrations: readonly Migration[] = [
 	cleanupJunkDataMigration,
 	assignColorsToDiaperProductsMigration,
 	multiBabySupportMigration,
+	repairMissingProfileIdsMigration,
 ];
 
 export function runMigrations(
@@ -76,6 +80,14 @@ export function runMigrations(
 
 		hasChanges = true;
 		appliedMigrationIds.push(migration.id);
+	}
+
+	const existingSchemaVersion = store.getValue(STORE_VALUE_SCHEMA_VERSION);
+	if (
+		typeof existingSchemaVersion !== 'number' ||
+		existingSchemaVersion < CURRENT_SCHEMA_VERSION
+	) {
+		store.setValue(STORE_VALUE_SCHEMA_VERSION, CURRENT_SCHEMA_VERSION);
 	}
 
 	return {

@@ -33,12 +33,6 @@ export const cleanupJunkDataMigration: Migration = {
 		store.transaction(() => {
 			// 1. Clean up tables and rows using entity schemas
 			for (const tableId of store.getTableIds()) {
-				if (!VALID_TABLE_IDS.has(tableId)) {
-					store.delTable(tableId);
-					hasChanges = true;
-					continue;
-				}
-
 				// Only sanitize tables we have a schema for (entity tables)
 				if (ENTITY_TABLE_IDS.has(tableId)) {
 					for (const rowId of store.getRowIds(tableId)) {
@@ -66,12 +60,6 @@ export const cleanupJunkDataMigration: Migration = {
 
 			// 2. Clean up values using value schemas
 			for (const valueId of store.getValueIds()) {
-				if (!VALID_VALUE_IDS.has(valueId)) {
-					store.delValue(valueId);
-					hasChanges = true;
-					continue;
-				}
-
 				if (
 					valueId === STORE_VALUE_PROFILE ||
 					valueId === STORE_VALUE_FEEDING_IN_PROGRESS

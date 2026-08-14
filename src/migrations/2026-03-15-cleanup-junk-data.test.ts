@@ -4,7 +4,7 @@ import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { cleanupJunkDataMigration } from './2026-03-15-cleanup-junk-data';
 
 describe('cleanupJunkDataMigration', () => {
-	it('removes unknown tables and values', () => {
+	it('preserves unknown tables and values', () => {
 		const store = createStore();
 		store.setTable('unknownTable', { row1: { cell1: 'junk' } });
 		store.setValue('unknownValue', 'junk');
@@ -19,9 +19,9 @@ describe('cleanupJunkDataMigration', () => {
 
 		const hasChanges = cleanupJunkDataMigration.migrate(store);
 
-		expect(hasChanges).toBe(true);
-		expect(store.hasTable('unknownTable')).toBe(false);
-		expect(store.hasValue('unknownValue')).toBe(false);
+		expect(hasChanges).toBe(false);
+		expect(store.hasTable('unknownTable')).toBe(true);
+		expect(store.hasValue('unknownValue')).toBe(true);
 		expect(store.hasTable(TABLE_IDS.DIAPER_CHANGES)).toBe(true);
 		expect(store.getValue('currency')).toBe('USD');
 	});
@@ -44,10 +44,10 @@ describe('cleanupJunkDataMigration', () => {
 
 		expect(hasChanges).toBe(true);
 		const row = store.getRow(TABLE_IDS.DIAPER_CHANGES, 'change1');
-		expect(row.d).toBeUndefined();
+		expect(row.d).toBe('junk-packed-row');
 		expect(row.json).toBeUndefined();
 		expect(row.rawJson).toBeUndefined();
-		expect(row.unknownCell).toBeUndefined();
+		expect(row.unknownCell).toBe(123);
 		expect(row.containsStool).toBe(true);
 		expect(row.containsUrine).toBe(true);
 		expect(row.timestamp).toBe('2024-01-01T00:00:00Z');
