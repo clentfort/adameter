@@ -63,4 +63,22 @@ describe('FeedingsPerDayStats', () => {
 		render(<FeedingsPerDayStats sessions={singleSession} />);
 		expect(screen.getByText('1.0')).toBeInTheDocument();
 	});
+
+	it('renders comparison values correctly when comparisonSessions prop is provided', () => {
+		const comparisonSessions = createFeedingSessions([
+			{
+				breast: 'left',
+				durationInSeconds: 600,
+				startTime: '2023-12-25T10:00:00Z',
+			},
+		]);
+		render(
+			<FeedingsPerDayStats
+				comparisonSessions={comparisonSessions}
+				sessions={mockSessions}
+			/>,
+		);
+		expect(screen.getByText('1.7')).toBeInTheDocument();
+		expect(screen.getByText(/↑.*67%/)).toBeInTheDocument();
+	});
 });
