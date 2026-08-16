@@ -68,4 +68,41 @@ describe('TimeBetweenStats', () => {
 		const statsCard = container.firstChild as HTMLElement;
 		expect(within(statsCard).getByText('2 h')).toBeInTheDocument();
 	});
+
+	it('renders comparison value when comparisonSessions are provided', () => {
+		const comparisonSessions = createFeedingSessions([
+			{
+				breast: 'left',
+				durationInSeconds: 600,
+				startTime: '2023-12-01T10:00:00Z',
+			},
+			{
+				breast: 'right',
+				durationInSeconds: 900,
+				startTime: '2023-12-01T14:00:00Z',
+			},
+		]);
+		const { container } = render(
+			<TimeBetweenStats
+				comparisonSessions={comparisonSessions}
+				sessions={mockSessions}
+			/>,
+		);
+		const statsCard = container.firstChild as HTMLElement;
+		expect(within(statsCard).getByText('2 h 30 min')).toBeInTheDocument();
+		expect(within(statsCard).getByText(/37/)).toBeInTheDocument();
+	});
+
+	it('handles edge case where timeBetweenCount is 0 due to all identical start times', () => {
+		const identicalSessions = [
+			mockSessions[0],
+			{ ...mockSessions[0], id: 'session-2' },
+			{ ...mockSessions[0], id: 'session-3' },
+		];
+		const { container } = render(
+			<TimeBetweenStats sessions={identicalSessions} />,
+		);
+		const statsCard = container.firstChild as HTMLElement;
+		expect(within(statsCard).getByText('0 min')).toBeInTheDocument();
+	});
 });
