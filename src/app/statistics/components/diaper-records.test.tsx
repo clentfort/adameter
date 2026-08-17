@@ -8,6 +8,21 @@ import {
 } from '@/test-utils/factories/diaper-change';
 import DiaperRecords from './diaper-records';
 
+let mockIsValidOverride: ((date: unknown) => boolean) | null = null;
+
+vi.mock('date-fns', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('date-fns')>();
+	return {
+		...actual,
+		isValid: (date: unknown) => {
+			if (mockIsValidOverride) {
+				return mockIsValidOverride(date);
+			}
+			return actual.isValid(date);
+		},
+	};
+});
+
 const mockDiaperChanges = createDiaperChanges([
 	{
 		containsStool: false,
@@ -43,6 +58,7 @@ describe('DiaperRecords', () => {
 
 	afterEach(() => {
 		vi.useRealTimers();
+		mockIsValidOverride = null;
 	});
 
 	it('renders null when no changes are provided', () => {
@@ -116,5 +132,23 @@ describe('DiaperRecords', () => {
 		expect(
 			screen.getByText('Fewest diaper changes in a day'),
 		).toBeInTheDocument();
+	});
+
+	it('returns dayKey as fallback when formatDay encounters an invalid date', () => {
+		vi.setSystemTime(new Date('2024-01-04T12:00:00Z'));
+
+		let callCount = 0;
+		mockIsValidOverride = () => {
+			callCount++;
+			// getDayKey calls isValid first for each change in calculateDiaperStats
+			if (callCount > 5) {
+				return false;
+			}
+			return true;
+		};
+
+		render(<DiaperRecords diaperChanges={mockDiaperChanges} />);
+
+		expect(screen.getAllByText('2024-01-01')).toHaveLength(1);
 	});
 });
