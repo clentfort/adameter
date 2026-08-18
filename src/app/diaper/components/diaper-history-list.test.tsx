@@ -385,4 +385,27 @@ describe('DiaperHistoryList', () => {
 			screen.queryByText(/do you really want to delete this entry\?/i),
 		).not.toBeInTheDocument();
 	});
+
+	it('should render null for invalid diaper change record', () => {
+		const store = createStore();
+		// Set invalid record row with a valid timestamp so it gets indexed into a date slice,
+		// but missing required schema fields (e.g., containsUrine, containsStool) so toDiaperChange returns null.
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'invalid-change', {
+			timestamp: '2024-01-15T10:00:00Z',
+		});
+
+		render(
+			<Provider store={store}>
+				<I18nProvider>
+					<TinybaseIndexesProvider>
+						<DiaperHistoryList />
+					</TinybaseIndexesProvider>
+				</I18nProvider>
+			</Provider>,
+		);
+
+		expect(
+			screen.queryByTestId('diaper-history-entry'),
+		).not.toBeInTheDocument();
+	});
 });
