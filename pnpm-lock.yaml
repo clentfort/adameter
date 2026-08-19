@@ -298,8 +298,8 @@ importers:
         specifier: ^4.1.4
         version: 4.3.3
       tinybase:
-        specifier: ^8.0.0
-        version: 8.5.0(partykit@0.0.115)(partysocket@1.3.0(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(ws@8.21.0)(zod@4.4.3)
+        specifier: ^9.0.0
+        version: 9.4.0(partykit@0.0.115)(partysocket@1.3.0(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(zod@4.4.3)
       tinybase-persister-partykit-client-encrypted:
         specifier: workspace:*
         version: link:packages/tinybase-persister-partykit-client-encrypted
@@ -464,8 +464,8 @@ importers:
         specifier: ^25.0.0
         version: 25.0.9(typescript@6.0.3)
       tinybase:
-        specifier: ^8.0.0
-        version: 8.5.0(partykit@0.0.115)(partysocket@1.3.0(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(ws@8.21.0)(zod@4.4.3)
+        specifier: ^9.0.0
+        version: 9.4.0(partykit@0.0.115)(partysocket@1.3.0(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(zod@4.4.3)
       typescript:
         specifier: ^6.0.0
         version: 6.0.3
@@ -497,8 +497,8 @@ importers:
         specifier: ^25.0.0
         version: 25.0.9(typescript@6.0.3)
       tinybase:
-        specifier: ^8.0.0
-        version: 8.5.0(partykit@0.0.115)(partysocket@1.3.0(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(ws@8.21.0)(zod@4.4.3)
+        specifier: ^9.0.0
+        version: 9.4.0(partykit@0.0.115)(partysocket@1.3.0(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(zod@4.4.3)
       typescript:
         specifier: ^6.0.0
         version: 6.0.3
@@ -6006,36 +6006,36 @@ packages:
     resolution: {integrity: sha512-TIsDdtKo6+XrPtiTm1ssmMngN1sAhyKnTO2kunQWqNPWIVvCm15Wmw4SWInwTVgJ5u/Tr04+8Ei9TNcw4x4ONA==}
     engines: {node: '>=4'}
 
-  tinybase@8.5.0:
-    resolution: {integrity: sha512-4PSCmCVH2Eq5LK7vHI1h4HoVWDYwhwH+js6qS1wmgGoYxmSn16icGvHM4/GOOWGCRYwVJ46Ve3UbiDkFL+3O6Q==}
+  tinybase@9.4.0:
+    resolution: {integrity: sha512-K41V+Ty5ngTqfBgTQhwN+0EWGYGt8Cmd/ZrWC9W/oGgDoVgJji7KzTr8LKxj+GsY0E8n62vMTE9naQNRPkaCnA==}
     peerDependencies:
       '@automerge/automerge-repo': ^2.5.6
-      '@cloudflare/workers-types': ^4.20260621.1
-      '@electric-sql/pglite': ^0.5.3
+      '@cloudflare/workers-types': ^5.20260807.2
+      '@electric-sql/pglite': ^0.5.4
       '@libsql/client': ^0.17.4
-      '@powersync/common': ^1.55.0
-      '@sinclair/typebox': ^0.34.49
+      '@powersync/common': ^2.0.0
+      '@sinclair/typebox': ^0.34.52
       '@sqlite.org/sqlite-wasm': ^3.53.0-build1
       '@vlcn.io/crsqlite-wasm': ^0.16.0
-      arktype: ^2.2.1
+      arktype: ^2.2.3
       bun: ^1.3.14
-      effect: ^3.21.4
+      effect: ^3.22.1
       electric-sql: ^0.12.1
-      expo: ^56.0.12
-      expo-sqlite: ^56.0.5
+      expo: ^57.0.11
+      expo-sqlite: ^57.0.1
       partykit: ^0.0.115
-      partysocket: ^1.2.0
+      partysocket: ^1.3.0
       postgres: ^3.4.9
-      react: ^19.2.7
-      react-dom: ^19.2.7
-      react-native-mmkv: 4.3.1
+      react: ^19.2.8
+      react-dom: ^19.2.8
+      react-native-mmkv: 4.3.2
       react-native-sqlite-storage: ^6.0.1
-      solid-js: ^1.9.13
+      solid-js: ^1.9.14
       sqlite3: ^5.1.7
-      svelte: ^5.56.3
-      valibot: ^1.4.1
-      ws: ^8.21.0
-      yjs: ^13.6.31
+      svelte: ^5.56.8
+      valibot: ^1.4.2
+      ws: ^8.21.3
+      yjs: ^13.6.32
       zod: ^4.4.3
     peerDependenciesMeta:
       '@automerge/automerge-repo':
@@ -12250,13 +12250,12 @@ snapshots:
 
   time-zone@1.0.0: {}
 
-  tinybase@8.5.0(partykit@0.0.115)(partysocket@1.3.0(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(ws@8.21.0)(zod@4.4.3):
+  tinybase@9.4.0(partykit@0.0.115)(partysocket@1.3.0(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(zod@4.4.3):
     optionalDependencies:
       partykit: 0.0.115
       partysocket: 1.3.0(react@19.2.8)
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
-      ws: 8.21.0
       zod: 4.4.3
 
   tinybench@2.9.0: {}
