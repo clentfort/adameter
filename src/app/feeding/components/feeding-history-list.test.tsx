@@ -178,4 +178,26 @@ describe('FeedingHistoryList', () => {
 			screen.queryByText(/do you really want to delete this entry\?/i),
 		).not.toBeInTheDocument();
 	});
+
+	it('should handle undefined feeding session gracefully', () => {
+		const mockSession: FeedingSession = {
+			breast: 'left',
+			durationInSeconds: 600,
+			endTime: '2023-01-01T10:10:00Z',
+			id: 'test-session-missing',
+			startTime: '2023-01-01T10:00:00Z',
+		};
+
+		mockUseFeedingSession.mockReturnValue(undefined);
+
+		render(
+			<TestWrapper sessions={[mockSession]}>
+				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+			</TestWrapper>,
+		);
+
+		expect(
+			screen.queryByTestId('feeding-history-entry'),
+		).not.toBeInTheDocument();
+	});
 });
