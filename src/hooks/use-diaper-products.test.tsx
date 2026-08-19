@@ -152,6 +152,10 @@ describe('useDiaperProducts', () => {
 				isReusable: false,
 				// missing name
 			});
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p3', {
+				isReusable: false,
+				name: 123 as unknown as string, // non-string name
+			});
 
 			const { result } = renderHook(() => useSortedDiaperProductIds(), {
 				wrapper: ({ children }) => (
@@ -159,8 +163,8 @@ describe('useDiaperProducts', () => {
 				),
 			});
 
-			// Empty name comes before 'B'
-			expect(result.current).toEqual(['p2', 'p1']);
+			// Empty name and non-string name come before 'B'
+			expect(result.current).toEqual(['p2', 'p3', 'p1']);
 		});
 
 		it('should handle archived products during sorting', () => {
@@ -168,12 +172,17 @@ describe('useDiaperProducts', () => {
 			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p1', {
 				archived: true,
 				isReusable: false,
-				name: 'A',
+				name: 'B',
 			});
 			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p2', {
 				archived: false,
 				isReusable: false,
-				name: 'B',
+				name: 'C',
+			});
+			store.setRow(TABLE_IDS.DIAPER_PRODUCTS, 'p3', {
+				archived: true,
+				isReusable: false,
+				name: 'A',
 			});
 
 			const { result } = renderHook(() => useSortedDiaperProductIds(), {
@@ -182,8 +191,8 @@ describe('useDiaperProducts', () => {
 				),
 			});
 
-			// Archived 'A' comes after non-archived 'B'
-			expect(result.current).toEqual(['p2', 'p1']);
+			// Active 'C' (p2) first, then archived sorted alphabetically: 'A' (p3), 'B' (p1)
+			expect(result.current).toEqual(['p2', 'p3', 'p1']);
 		});
 	});
 
