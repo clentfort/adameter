@@ -41,8 +41,14 @@ function createRequest(
 	method: string,
 	path: string,
 	body?: string,
+	ifMatch: string | null = method === 'PUT' ? '"0"' : null,
 ): PartyRequest {
+	const headers = new Headers();
+	if (ifMatch) {
+		headers.set('If-Match', ifMatch);
+	}
 	return {
+		headers,
 		method,
 		text: () => Promise.resolve(body ?? ''),
 		url: `https://example.com${path}`,
@@ -79,6 +85,7 @@ describe('EncryptedSyncRelayServer', () => {
 			expect(response.status).toBe(200);
 			expect(await response.text()).toBe('null');
 			expect(response.headers.get('Content-Type')).toBe('text/plain');
+			expect(response.headers.get('ETag')).toBe('"0"');
 		});
 
 		it('returns stored snapshot (GET /store)', async () => {
@@ -101,6 +108,85 @@ describe('EncryptedSyncRelayServer', () => {
 				'new-encrypted-snapshot',
 			);
 			expect(room.storage.delete).toHaveBeenCalledWith('snapshot_chunk_count');
+			expect(room.storage.put).toHaveBeenCalledWith('snapshot_revision', '1');
+			expect(response.headers.get('ETag')).toBe('"1"');
+		});
+
+		it('rejects unversioned writes from stale clients', async () => {
+			const response = await server.onRequest(
+				createRequest('PUT', '/store', 'stale-snapshot', null),
+			);
+
+			expect(response.status).toBe(428);
+			expect(room.storage.put).not.toHaveBeenCalledWith(
+				'snapshot',
+				'stale-snapshot',
+			);
+		});
+
+		it('rejects a stale snapshot version without overwriting the room', async () => {
+			room.storage.get.mockImplementation(async (key?: string) => {
+				if (key === 'snapshot_revision') return '3';
+				return undefined;
+			});
+			const request = createRequest('PUT', '/store', 'stale-snapshot', '"2"');
+			const readBody = vi.spyOn(request, 'text');
+
+			const response = await server.onRequest(request);
+
+			expect(response.status).toBe(412);
+			expect(response.headers.get('ETag')).toBe('"3"');
+			expect(readBody).toHaveBeenCalledOnce();
+			expect(room.storage.put).not.toHaveBeenCalledWith(
+				'snapshot',
+				'stale-snapshot',
+			);
+		});
+
+		it('serializes concurrent writes before checking their versions', async () => {
+			let revision = '0';
+			let releaseFirstWrite!: () => void;
+			const firstWriteBlocked = new Promise<void>((resolve) => {
+				releaseFirstWrite = resolve;
+			});
+			room.storage.get.mockImplementation(async (key?: string) => {
+				if (key === 'snapshot_revision') return revision;
+				return undefined;
+			});
+			room.storage.put.mockImplementation(async (key, value) => {
+				if (key === 'snapshot' && value === 'first-snapshot') {
+					await firstWriteBlocked;
+				}
+				if (key === 'snapshot_revision') {
+					revision = value;
+				}
+			});
+
+			const firstResponse = server.onRequest(
+				createRequest('PUT', '/store', 'first-snapshot', '"0"'),
+			);
+			await vi.waitFor(() => {
+				expect(room.storage.put).toHaveBeenCalledWith(
+					'snapshot',
+					'first-snapshot',
+				);
+			});
+			const secondResponse = server.onRequest(
+				createRequest('PUT', '/store', 'second-snapshot', '"0"'),
+			);
+			releaseFirstWrite();
+
+			const [first, second] = await Promise.all([
+				firstResponse,
+				secondResponse,
+			]);
+
+			expect(first.status).toBe(200);
+			expect(second.status).toBe(412);
+			expect(room.storage.put).not.toHaveBeenCalledWith(
+				'snapshot',
+				'second-snapshot',
+			);
 		});
 
 		it('stores oversized snapshots in chunks (PUT /store)', async () => {

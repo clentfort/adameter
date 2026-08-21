@@ -1,15 +1,9 @@
 import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
 import { getItem, setItem, STORAGE_KEYS } from '../lib/storage';
-import german from '../translations/de-DE.json';
-import english from '../translations/en-US.json';
+import allTranslations from './translations.json' with { type: 'json' };
 
 export const DEFAULT_LOCALE = 'en-US';
-
-const allTranslations = {
-	...german,
-	...english,
-};
 
 export type Locale = keyof typeof allTranslations & string;
 

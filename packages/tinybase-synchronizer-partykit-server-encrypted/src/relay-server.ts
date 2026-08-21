@@ -8,6 +8,7 @@ import type {
 
 const MESSAGE_SEPARATOR = '\n';
 const SNAPSHOT_KEY = 'snapshot';
+const SNAPSHOT_REVISION_KEY = 'snapshot_revision';
 const SNAPSHOT_CHUNK_COUNT_KEY = 'snapshot_chunk_count';
 const SNAPSHOT_CHUNK_KEY_PREFIX = 'snapshot_chunk_';
 
@@ -33,9 +34,10 @@ export interface EncryptedSyncRelayConfig {
 }
 
 const DEFAULT_RESPONSE_HEADERS: Record<string, string> = {
-	'Access-Control-Allow-Headers': '*',
+	'Access-Control-Allow-Headers': 'If-Match',
 	'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
 	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Expose-Headers': 'ETag',
 };
 
 /**
@@ -75,6 +77,8 @@ export class EncryptedSyncRelayServer implements Server {
 	 */
 	readonly config: EncryptedSyncRelayConfig = {};
 
+	private snapshotWriteQueue: Promise<void> = Promise.resolve();
+
 	constructor(readonly room: Room) {}
 
 	private getSnapshotChunkKey(index: number): string {
@@ -94,6 +98,12 @@ export class EncryptedSyncRelayServer implements Server {
 		}
 		const parsed = Number.parseInt(chunkCount, 10);
 		return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+	}
+
+	private async getSnapshotRevision(): Promise<number> {
+		const revision = await this.room.storage.get<string>(SNAPSHOT_REVISION_KEY);
+		const parsed = Number.parseInt(revision ?? '0', 10);
+		return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 	}
 
 	private async clearChunkedSnapshot(): Promise<void> {
@@ -152,6 +162,45 @@ export class EncryptedSyncRelayServer implements Server {
 		await this.room.storage.delete(SNAPSHOT_KEY);
 	}
 
+	private async writeVersionedSnapshot(
+		snapshot: string,
+		expectedRevision: string | null,
+		headers: Record<string, string>,
+	): Promise<Response> {
+		let releaseQueue: (() => void) | undefined;
+		const previousWrite = this.snapshotWriteQueue;
+		this.snapshotWriteQueue = new Promise<void>((resolve) => {
+			releaseQueue = resolve;
+		});
+
+		await previousWrite;
+		try {
+			const revision = await this.getSnapshotRevision();
+			if (!expectedRevision) {
+				return new Response('Snapshot version required', {
+					headers,
+					status: 428,
+				});
+			}
+			if (expectedRevision !== `"${revision}"`) {
+				return new Response('Snapshot version conflict', {
+					headers: { ...headers, ETag: `"${revision}"` },
+					status: 412,
+				});
+			}
+
+			await this.writeSnapshot(snapshot);
+			const nextRevision = revision + 1;
+			await this.room.storage.put(SNAPSHOT_REVISION_KEY, String(nextRevision));
+			return new Response('ok', {
+				headers: { ...headers, ETag: `"${nextRevision}"` },
+				status: 200,
+			});
+		} finally {
+			releaseQueue?.();
+		}
+	}
+
 	async onRequest(request: Request): Promise<Response> {
 		const headers = this.config.responseHeaders ?? DEFAULT_RESPONSE_HEADERS;
 
@@ -167,20 +216,26 @@ export class EncryptedSyncRelayServer implements Server {
 
 		try {
 			if (request.method === 'GET') {
-				const snapshot = await this.readSnapshot();
+				const [snapshot, revision] = await Promise.all([
+					this.readSnapshot(),
+					this.getSnapshotRevision(),
+				]);
 				return new Response(snapshot ?? 'null', {
-					headers: { ...headers, 'Content-Type': 'text/plain' },
+					headers: {
+						...headers,
+						'Content-Type': 'text/plain',
+						'ETag': `"${revision}"`,
+					},
 					status: 200,
 				});
 			}
 
 			if (request.method === 'PUT') {
+				const expectedRevision = request.headers.get('If-Match');
+				// Workerd requires request streams to be consumed before a response is
+				// returned, including precondition failures.
 				const body = await request.text();
-				await this.writeSnapshot(body);
-				return new Response('ok', {
-					headers,
-					status: 200,
-				});
+				return this.writeVersionedSnapshot(body, expectedRevision, headers);
 			}
 
 			return new Response('Method not allowed', { status: 405 });

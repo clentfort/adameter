@@ -1,6 +1,7 @@
 import type { Store } from 'tinybase';
 import type { MigrationRunOptions, MigrationRunResult } from './types';
 import { INTERNAL_TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { MIGRATION_IDS } from './manifest';
 
 const EMPTY_RESULT: MigrationRunResult = {
@@ -19,7 +20,7 @@ export async function runMigrationsIfNeeded(
 	store: Store,
 	options: MigrationRunOptions = {},
 ): Promise<MigrationRunResult> {
-	if (!hasPendingMigrations(store)) {
+	if (!hasPendingMigrations(store) || isStoreDataEmpty(store)) {
 		return EMPTY_RESULT;
 	}
 

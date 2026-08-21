@@ -1,9 +1,67 @@
+import type { MergeableContent, MergeableStore } from 'tinybase';
+import { createMergeableStore } from 'tinybase';
+import {
+	decrypt,
+	getEncryptionKey,
+	jsonParseWithUndefined,
+} from 'tinybase-synchronizer-partykit-client-encrypted';
 import { expect, test } from './fixtures/test';
 import { addManualFeedingEntry } from './helpers/feeding';
 import {
 	createRoomAndJoinPeer,
 	createRoomSyncSession,
 } from './helpers/room-sync';
+
+async function waitForSnapshotMatching(
+	page: Parameters<typeof addManualFeedingEntry>[0],
+	roomName: string,
+	matches: (store: MergeableStore) => boolean,
+) {
+	const encryptionKey = await getEncryptionKey(roomName);
+	return page.waitForResponse(
+		async (response) => {
+			if (
+				!response.ok() ||
+				!response.url().includes('/store') ||
+				response.request().method() !== 'PUT'
+			) {
+				return false;
+			}
+
+			const encrypted = response.request().postData();
+			if (!encrypted) {
+				return false;
+			}
+
+			try {
+				const content = jsonParseWithUndefined<MergeableContent>(
+					await decrypt(encrypted, encryptionKey),
+				);
+				const snapshotStore = createMergeableStore();
+				snapshotStore.setMergeableContent(content);
+				return matches(snapshotStore);
+			} catch {
+				return false;
+			}
+		},
+		{ timeout: 30_000 },
+	);
+}
+
+async function waitForDebouncedSnapshotSave(
+	page: Parameters<typeof addManualFeedingEntry>[0],
+) {
+	// Let any request already in flight finish before observing the transaction's
+	// one-second debounced save.
+	await page.waitForTimeout(500);
+	await page.waitForResponse(
+		(res) =>
+			res.url().includes('/store') &&
+			res.request().method() === 'PUT' &&
+			res.ok(),
+		{ timeout: 30_000 },
+	);
+}
 
 async function addManualFeedingEntryOffline(
 	page: Parameters<typeof addManualFeedingEntry>[0],
@@ -29,23 +87,21 @@ test.describe('Offline Synchronization', () => {
 		const { contextB, pageA, pageB } = session;
 
 		try {
-			// 1. Both devices share a room
+			// 1. Both devices share a room. Let bootstrap and initial snapshot saves
+			// settle so the response below can only belong to the new feeding.
 			await createRoomAndJoinPeer(session);
+			await pageA.waitForTimeout(1500);
 
 			// 2. Device B goes offline
 			await contextB.setOffline(true);
 
-			// 3. Device A records a feeding; wait for snapshot to be saved
+			// 3. Device A records a feeding. Ignore any navigation-triggered save
+			// already in flight, then wait for the event's debounced snapshot save.
 			await pageA.goto('/feeding');
-			const saveAPromise = pageA.waitForResponse(
-				(res) =>
-					res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30_000 },
-			);
 			await pageA.getByRole('button', { name: 'Left Breast' }).click();
 			await pageA.getByRole('button', { name: 'End Feeding' }).click();
 			await expect(pageA.getByText('Left Breast')).toHaveCount(2);
-			await saveAPromise;
+			await waitForDebouncedSnapshotSave(pageA);
 
 			// 4. Device A goes offline
 			await pageA.context().setOffline(true);
@@ -85,6 +141,7 @@ test.describe('Offline Synchronization', () => {
 			await expect(
 				pageB.getByRole('button', { name: 'Right Breast' }),
 			).toBeVisible();
+			await pageA.waitForTimeout(1500);
 
 			// 2. Both go offline simultaneously
 			await contextA.setOffline(true);
@@ -304,7 +361,7 @@ test.describe('Offline Synchronization', () => {
 
 		try {
 			// 1. Both devices share a room and see the same initial entries
-			await createRoomAndJoinPeer(session);
+			const roomName = await createRoomAndJoinPeer(session);
 			await addManualFeedingEntry(pageA, { minutes: 10 });
 			await addManualFeedingEntry(pageA, { minutes: 20 });
 			await pageB.goto('/feeding');
@@ -318,12 +375,24 @@ test.describe('Offline Synchronization', () => {
 					.getByTestId('feeding-history-entry')
 					.filter({ hasText: '20 min' }),
 			).toBeVisible();
+			await pageA.waitForTimeout(1500);
 
 			// 2. Device B goes offline
 			await contextB.setOffline(true);
 
 			// 3. Device A edits the 20-min entry to 30 min and deletes the 10-min
 			//    entry. Target entries by text to avoid relying on list order.
+			const finalSnapshotSave = waitForSnapshotMatching(
+				pageA,
+				roomName,
+				(snapshotStore) => {
+					const rows = snapshotStore.getTable('feedingSessions');
+					return (
+						Object.keys(rows).length === 1 &&
+						Object.values(rows)[0]?.durationInSeconds === 1800
+					);
+				},
+			);
 			const twentyMinuteEntryA = pageA
 				.getByTestId('feeding-history-entry')
 				.filter({ hasText: '20 min' })
@@ -338,12 +407,7 @@ test.describe('Offline Synchronization', () => {
 					.getByTestId('feeding-history-entry')
 					.filter({ hasText: '30 min' }),
 			).toHaveCount(1);
-
-			const saveAPromise = pageA.waitForResponse(
-				(res) =>
-					res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30_000 },
-			);
+			await waitForDebouncedSnapshotSave(pageA);
 			const tenMinuteEntryA = pageA
 				.getByTestId('feeding-history-entry')
 				.filter({ hasText: '10 min' })
@@ -360,7 +424,7 @@ test.describe('Offline Synchronization', () => {
 					.getByTestId('feeding-history-entry')
 					.filter({ hasText: '10 min' }),
 			).toHaveCount(0);
-			await saveAPromise;
+			await finalSnapshotSave;
 
 			// 4. Device A goes offline
 			await pageA.context().setOffline(true);
@@ -368,33 +432,35 @@ test.describe('Offline Synchronization', () => {
 			// 5. Device B comes back online and does a full page navigation —
 			//    this exercises the initial bootstrap() path (not handleOpen).
 			await contextB.setOffline(false);
-			await pageB.goto('/feeding');
-			await expect(async () => {
-				const thirtyMinuteEntriesB = pageB
+			await expect(
+				pageB
 					.getByTestId('feeding-history-entry')
-					.filter({ hasText: '30 min' });
-				const tenMinuteEntriesB = pageB
+					.filter({ hasText: '30 min' }),
+			).toHaveCount(1, { timeout: 20_000 });
+			await expect(
+				pageB
 					.getByTestId('feeding-history-entry')
-					.filter({ hasText: '10 min' });
-				const twentyMinuteEntriesB = pageB
+					.filter({ hasText: '10 min' }),
+			).toHaveCount(0, { timeout: 20_000 });
+
+			// Reload only after reconnect bootstrap has applied the snapshot. Reloading
+			// while that request is in flight can abort the very update under test.
+			await pageB.reload();
+			await expect(
+				pageB
 					.getByTestId('feeding-history-entry')
-					.filter({ hasText: '20 min' });
-
-				const hasThirtyMinuteEntry = (await thirtyMinuteEntriesB.count()) > 0;
-				const hasStaleEntries =
-					(await tenMinuteEntriesB.count()) > 0 ||
-					(await twentyMinuteEntriesB.count()) > 0;
-
-				if (!hasThirtyMinuteEntry || hasStaleEntries) {
-					await pageB.reload();
-					// Allow some time for hydration after reload within toPass
-					await pageB.waitForTimeout(2000);
-				}
-
-				expect(await thirtyMinuteEntriesB.count()).toBeGreaterThan(0);
-				expect(await tenMinuteEntriesB.count()).toBe(0);
-				expect(await twentyMinuteEntriesB.count()).toBe(0);
-			}).toPass({ timeout: 60_000 });
+					.filter({ hasText: '30 min' }),
+			).toHaveCount(1, { timeout: 20_000 });
+			await expect(
+				pageB
+					.getByTestId('feeding-history-entry')
+					.filter({ hasText: '10 min' }),
+			).toHaveCount(0, { timeout: 20_000 });
+			await expect(
+				pageB
+					.getByTestId('feeding-history-entry')
+					.filter({ hasText: '20 min' }),
+			).toHaveCount(0, { timeout: 20_000 });
 		} finally {
 			try {
 				await session.close();

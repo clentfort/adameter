@@ -5,6 +5,34 @@ import {
 	TABLE_IDS,
 } from '@/lib/tinybase-sync/constants';
 
+function stableStringify(value: Record<string, unknown>) {
+	return JSON.stringify(
+		Object.fromEntries(
+			Object.entries(value).sort(([left], [right]) =>
+				left.localeCompare(right),
+			),
+		),
+	);
+}
+
+function hashLegacyProfile(profile: Record<string, unknown>) {
+	const serialized = stableStringify(profile);
+	let firstHash = 0x81_1c_9d_c5;
+	let secondHash = 0x9e_37_79_b9;
+
+	for (let index = 0; index < serialized.length; index++) {
+		const character = serialized.charCodeAt(index);
+		firstHash = Math.imul(firstHash ^ character, 0x01_00_01_93);
+		secondHash = Math.imul(secondHash ^ character, 0x85_eb_ca_6b);
+	}
+
+	return `legacy-${(firstHash >>> 0).toString(16).padStart(8, '0')}${(
+		secondHash >>> 0
+	)
+		.toString(16)
+		.padStart(8, '0')}`;
+}
+
 export const multiBabySupportMigration: Migration = {
 	description:
 		'Move profile from global value to profiles table and link all data',
@@ -26,13 +54,11 @@ export const multiBabySupportMigration: Migration = {
 			return false;
 		}
 
-		const profileId = crypto.randomUUID();
+		const profileId = hashLegacyProfile(profileData as Record<string, unknown>);
 
-		// Add profile to table
-		store.setRow(TABLE_IDS.PROFILES, profileId, {
-			...profileData,
-			id: profileId,
-		});
+		// A deterministic ID ensures that two devices migrating the same legacy
+		// room offline converge on one profile instead of creating duplicates.
+		store.setRow(TABLE_IDS.PROFILES, profileId, profileData);
 
 		// Set selected profile ID
 		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, profileId);

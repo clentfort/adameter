@@ -1,15 +1,3 @@
-# AGENTS.md - AdaMeter Agent Guide
-
-This guide is for coding agents working in this repository. Use it as the
-default source of truth for commands and conventions.
-
-## External Agent Rule Files
-
-- `.cursor/rules/`: not present
-- `.cursorrules`: not present
-- `.github/copilot-instructions.md`: not present
-- Result: this file is the primary in-repo agent instruction set.
-
 ## Tech Stack
 
 - Next.js 16 (App Router), React 19, TypeScript (`strict: true`)
@@ -36,70 +24,6 @@ Run from repo root: `/Users/lentfortc/Code/adameter`.
 
 - Production build: `pnpm build`
 - Run production server: `pnpm start`
-
-### Tests (Vitest)
-
-- Watch mode: `pnpm test`
-- Run once: `pnpm exec vitest run`
-- Coverage: `pnpm exec vitest run --coverage`
-
-Single-test execution (important):
-
-- One file once: `pnpm test src/utils/date-to-date-input-value.test.ts --run`
-- One test by name in one file:
-  `pnpm test src/utils/date-to-date-input-value.test.ts -t "should format date" --run`
-- Name filter across suite: `pnpm test -t "useSortedEvents" --run`
-- Vitest config note: `vitest.config.mts` sets `test.root = './src'`; `src/...`
-  paths are safest for single-file runs.
-
-### Lint
-
-- Defined script: `pnpm lint` (currently `next lint` in `package.json`)
-- Current repo status:
-  - `next lint` is unavailable in Next.js 16 CLI and fails
-  - direct `eslint` invocation also fails here due config compatibility
-  - if linting is requested, run and report the failure explicitly
-
-### Format
-
-- Format all: `pnpm exec prettier --write .`
-- Format specific files:
-  `pnpm exec prettier --write src/path/file.ts src/path/file.tsx`
-
-### Typecheck
-
-- `pnpm exec tsc --noEmit`
-
-### i18n
-
-- Collect source strings: `pnpm run fbtee:collect`
-- Compile translations: `pnpm run fbtee:translate`
-
-## Code Style Guidelines
-
-Derived from `.prettierrc`, `tsconfig.json`, `eslint.config.mjs`, and source
-code.
-
-### Imports
-
-- Import sorting is automated by `@ianvs/prettier-plugin-sort-imports`
-- Keep import groups in this order:
-  1. type imports
-  2. built-in modules
-  3. third-party modules
-  4. alias imports (`@/...`)
-  5. relative imports
-- Prefer `import type` for type-only imports
-- Prefer alias imports (`@/*` -> `./src/*`) over deep `../../..` paths
-
-### Formatting
-
-- Tabs enabled (`useTabs: true`, width 2)
-- Semicolons required
-- Single quotes for TS/JS
-- Trailing commas enabled
-- Print width 80
-- Run Prettier after each change set
 
 ### Types and Type Safety
 
@@ -150,4 +74,20 @@ code.
 - Targeted tests for changed behavior
 - `pnpm exec tsc --noEmit` for TS-impacting changes
 - `pnpm build` for routing/config/build-impacting changes
-- Document lint-command limitations if encountered
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may
+all differ from your training data. Read the relevant guide in
+`node_modules/next/dist/docs/` (resolved from this file's directory; in
+monorepos the `next` package may not be visible from the repo root) before
+writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at
+`node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a
+diff only re-creates the uncommitted change; committing it with your work keeps
+the tree clean.
+
+<!-- END:nextjs-agent-rules -->

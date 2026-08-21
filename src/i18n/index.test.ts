@@ -15,16 +15,11 @@ vi.mock('fbtee', async (importOriginal) => {
 	};
 });
 
-vi.mock('../translations/de-DE.json', () => ({
+vi.mock('./translations.json', () => ({
 	default: {
 		'de-DE': {},
-		'fr-FR': {},
-	},
-}));
-
-vi.mock('../translations/en-US.json', () => ({
-	default: {
 		'en-US': {},
+		'fr-FR': {},
 	},
 }));
 

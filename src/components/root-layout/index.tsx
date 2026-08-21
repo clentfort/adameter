@@ -183,8 +183,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
 				>
 					<Suspense fallback={null}>
 						<RoomInviteHandler />
+						<ProfilePrompt />
 					</Suspense>
-					<ProfilePrompt />
 					{children}
 				</div>
 			</main>

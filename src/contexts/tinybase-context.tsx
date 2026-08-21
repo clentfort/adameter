@@ -18,12 +18,15 @@ import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
 import { logger } from '@/lib/logger';
 import { PARTYKIT_HOST, resolvePartykitHost } from '@/lib/partykit-host';
+import { getItem, setItem, STORAGE_KEYS } from '@/lib/storage';
 import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
 import {
+	STORE_VALUE_SELECTED_PROFILE_ID,
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
 import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
+import { repairMissingProfileIds } from '@/migrations/2026-06-05-consolidate-duplicate-profiles';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
@@ -57,6 +60,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	const { isHydrated, joinStrategy, resetJoinStrategy, room } = useContext(
 		DataSynchronizationContext,
 	);
+	const joinStrategyRef = useRef(joinStrategy);
+	joinStrategyRef.current = joinStrategy;
 	const storeRef = useRef<MergeableStore>(defaultStore);
 	const [isLocalReady, setIsLocalReady] = useState(false);
 	const [isSyncReady, setIsSyncReady] = useState(false);
@@ -100,8 +105,19 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			await localPersister.startAutoSave();
 
+			const localSelectedProfileId = store.getValue(
+				STORE_VALUE_SELECTED_PROFILE_ID,
+			);
+			if (
+				typeof localSelectedProfileId === 'string' &&
+				!getItem(STORAGE_KEYS.SELECTED_PROFILE_ID)
+			) {
+				setItem(STORAGE_KEYS.SELECTED_PROFILE_ID, localSelectedProfileId);
+			}
+
 			const startMigrations = performance.now();
 			await runMigrationsIfNeeded(store, { deviceId: getDeviceId() });
+			repairMissingProfileIds(store);
 			logger.log(
 				`[PERF] Initial local migrations took ${(performance.now() - startMigrations).toFixed(2)}ms`,
 			);
@@ -145,6 +161,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 		const store = storeRef.current;
 		const deviceId = getDeviceId();
+		const initialJoinStrategy = joinStrategyRef.current;
 
 		setIsSyncReady(false);
 
@@ -184,10 +201,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			// then saves the merged result back so peers can benefit from the
 			// combined state (important when we had local changes while offline).
 			const bootstrap = async (isInitial = false) => {
-				if (isBootstrapping) return;
+				if (isBootstrapping) return false;
 				isBootstrapping = true;
 				try {
-					if (isInitial && joinStrategy === 'clear') {
+					if (isInitial && initialJoinStrategy === 'clear') {
 						store.setContent([{}, {}]);
 					}
 
@@ -211,8 +228,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 						resetJoinStrategy();
 					}
 
-					// Run migrations after merging remote data
+					// Run migrations and repair rows written by pre-profile clients after
+					// merging remote data.
 					await runMigrationsIfNeeded(store, { deviceId });
+					repairMissingProfileIds(store);
 
 					if (didLoad) {
 						// Push the merged state back so other clients can pick it up.
@@ -221,8 +240,13 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 								logger.error('Failed to save snapshot after bootstrap:', error),
 						);
 					}
+					return true;
 				} catch (error) {
 					logger.error('Failed to load server snapshot:', error);
+					if (isInitial) {
+						throw error;
+					}
+					return false;
 				} finally {
 					isBootstrapping = false;
 				}
@@ -265,9 +289,12 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				return;
 			}
 
-			// Start CRDT sync.  This exchanges hashes with any connected
-			// peers and applies diffs — all through encrypted messages.
-			await synchronizer!.startSync();
+			// Start CRDT sync in the background. A room may have no online peers,
+			// so waiting for a peer response here would keep the splash screen up
+			// even though the persisted snapshot loaded successfully.
+			void synchronizer!.startSync().catch((error: unknown) => {
+				logger.error('Failed to start synchronizer:', error);
+			});
 
 			logger.log(
 				`[PERF] Total connectRoomSync took ${(performance.now() - startConnect).toFixed(2)}ms`,
@@ -313,9 +340,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 		void connectRoomSync().catch((error) => {
 			logger.error('[SYNC] Failed to connect room sync:', error);
-			if (!isDisposed) {
-				setIsSyncReady(true);
-			}
+			// Fail closed: rendering an empty store here would show the profile
+			// prompt and could let this client overwrite an established room.
+			// Keep the splash screen visible and never start snapshot saving.
 		});
 
 		return () => {
@@ -338,7 +365,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 			void synchronizer.destroy();
 		};
-	}, [isHydrated, isLocalReady, joinStrategy, resetJoinStrategy, room]);
+	}, [isHydrated, isLocalReady, resetJoinStrategy, room]);
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') {

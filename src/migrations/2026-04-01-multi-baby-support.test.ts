@@ -35,13 +35,33 @@ describe('multiBabySupportMigration', () => {
 
 		const profileRow = store.getRow(TABLE_IDS.PROFILES, selectedProfileId);
 		expect(profileRow.name).toBe('Baby One');
-		expect(profileRow.id).toBe(selectedProfileId);
+		expect(profileRow.id).toBeUndefined();
 
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'dc1', 'profileId')).toBe(
 			selectedProfileId,
 		);
 		expect(store.getCell(TABLE_IDS.FEEDING_SESSIONS, 'fs1', 'profileId')).toBe(
 			selectedProfileId,
+		);
+	});
+
+	it('uses the same profile ID when two devices migrate the same legacy data', () => {
+		const profile = JSON.stringify({
+			color: 'bg-pink-500',
+			dob: '2024-01-01',
+			name: 'Ada',
+			sex: 'girl',
+		});
+		const firstStore = createMergeableStore();
+		const secondStore = createMergeableStore();
+		firstStore.setValue(STORE_VALUE_PROFILE, profile);
+		secondStore.setValue(STORE_VALUE_PROFILE, profile);
+
+		multiBabySupportMigration.migrate(firstStore);
+		multiBabySupportMigration.migrate(secondStore);
+
+		expect(firstStore.getRowIds(TABLE_IDS.PROFILES)).toEqual(
+			secondStore.getRowIds(TABLE_IDS.PROFILES),
 		);
 	});
 
