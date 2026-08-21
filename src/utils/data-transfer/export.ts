@@ -4,7 +4,7 @@ import { createZip, downloadZip } from './zip';
 
 const VALUES_EXPORT_FILE_NAME = '__values';
 
-export const exportStoreAsZip = async (store: Store) => {
+export const exportStoreAsZip = async (store: Store, date?: Date) => {
 	const [tables, values] = store.getContent();
 	const files = Object.entries(tables).map(([tableId, table]) => {
 		const rows = Object.entries(table).map(([rowId, row]) => ({
@@ -31,5 +31,5 @@ export const exportStoreAsZip = async (store: Store) => {
 	}
 
 	const zipBlob = await createZip(files);
-	downloadZip(zipBlob);
+	downloadZip(zipBlob, date);
 };

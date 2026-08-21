@@ -46,9 +46,22 @@ describe('zip utilities', () => {
 		]);
 	});
 
-	it('calls saveAs in downloadZip', () => {
+	it('calls saveAs in downloadZip with formatted filename when date is provided', () => {
+		const blob = new Blob(['test'], { type: 'text/plain' });
+		const date = new Date(2026, 2, 30, 14, 15, 9);
+		downloadZip(blob, date);
+		expect(saveAs).toHaveBeenCalledWith(
+			blob,
+			'adameter-export-20260330-141509.zip',
+		);
+	});
+
+	it('calls saveAs in downloadZip with default current date when date is omitted', () => {
 		const blob = new Blob(['test'], { type: 'text/plain' });
 		downloadZip(blob);
-		expect(saveAs).toHaveBeenCalledWith(blob, 'adameter-export.zip');
+		expect(saveAs).toHaveBeenCalledWith(
+			blob,
+			expect.stringMatching(/^adameter-export-\d{8}-\d{6}\.zip$/),
+		);
 	});
 });

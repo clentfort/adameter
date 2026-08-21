@@ -18,7 +18,8 @@ describe('exportStoreAsZip', () => {
 		store.setTable('t1', { r1: { c1: 'v1' } });
 		store.setValues({ v1: 'val1', v2: 2 });
 
-		await exportStoreAsZip(store);
+		const exportDate = new Date(2026, 2, 30, 14, 15, 9);
+		await exportStoreAsZip(store, exportDate);
 
 		expect(createZip).toHaveBeenCalledWith(
 			expect.arrayContaining([
@@ -30,7 +31,7 @@ describe('exportStoreAsZip', () => {
 				}),
 			]),
 		);
-		expect(downloadZip).toHaveBeenCalled();
+		expect(downloadZip).toHaveBeenCalledWith(expect.any(Blob), exportDate);
 	});
 
 	it('should not include __values.csv if there are no values', async () => {

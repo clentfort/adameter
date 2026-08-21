@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
@@ -9,8 +10,9 @@ export const createZip = (files: { content: string; name: string }[]) => {
 	return zip.generateAsync({ type: 'blob' });
 };
 
-export const downloadZip = (blob: Blob) => {
-	saveAs(blob, 'adameter-export.zip');
+export const downloadZip = (blob: Blob, date: Date = new Date()) => {
+	const timestamp = format(date, 'yyyyMMdd-HHmmss');
+	saveAs(blob, `adameter-export-${timestamp}.zip`);
 };
 
 export const extractFiles = async (file: File) => {
