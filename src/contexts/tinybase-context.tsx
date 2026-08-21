@@ -240,7 +240,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 								logger.error('Failed to save snapshot after bootstrap:', error),
 						);
 					}
-					return true;
+					return didLoad;
 				} catch (error) {
 					logger.error('Failed to load server snapshot:', error);
 					if (isInitial) {
@@ -255,7 +255,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			// Initial bootstrap: load + merge the server snapshot before we start sync.
 			// This runs before we register the reconnect listener so migrations always
 			// complete before the synchronizer starts.
-			await bootstrap(true);
+			const didLoadInitialSnapshot = await bootstrap(true);
 
 			if (isDisposed) return;
 
@@ -326,12 +326,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				}
 			}, SNAPSHOT_SAVE_INTERVAL_MS);
 
-			// Save an initial snapshot immediately so that the first device to
-			// join a room persists its local data for future peers.
-			void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-				(error: unknown) =>
-					logger.error('Failed to save initial server snapshot:', error),
-			);
+			// Save immediately when this is a new room. Existing snapshots are
+			// already saved after bootstrap with the merged local state.
+			if (!didLoadInitialSnapshot) {
+				void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
+					(error: unknown) =>
+						logger.error('Failed to save initial server snapshot:', error),
+				);
+			}
 
 			if (!isDisposed) {
 				setIsSyncReady(true);
