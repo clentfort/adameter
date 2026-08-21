@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
 	PREFERRED_LANGUAGE: 'preferredLanguage',
 	ROOM: 'room',
 	ROOM_JOIN_STRATEGY: 'room-join-strategy',
+	SELECTED_PROFILE_ID: 'selectedProfileId-local',
 	SHOW_COMPARISON_CHARTS: 'adameter-show-comparison',
 } as const;
 

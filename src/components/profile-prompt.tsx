@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useContext, useEffect, useState } from 'react';
 import {
 	Dialog,
 	DialogContent,
@@ -8,6 +9,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
+import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import {
 	useProfile,
 	useProfileIds,
@@ -17,6 +19,8 @@ import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
 import ProfileForm from './profile-form';
 
 export default function ProfilePrompt() {
+	const searchParams = useSearchParams();
+	const { room } = useContext(DataSynchronizationContext);
 	const [profile] = useProfile();
 	const profileIds = useProfileIds();
 	const upsertProfile = useUpsertProfile();
@@ -31,7 +35,12 @@ export default function ProfilePrompt() {
 		return null;
 	}
 
-	if (profileIds.length > 0 || profile?.optedOut) {
+	const invitedRoom = searchParams.get('room');
+	if (
+		(invitedRoom && invitedRoom !== room) ||
+		profileIds.length > 0 ||
+		profile?.optedOut
+	) {
 		return null;
 	}
 

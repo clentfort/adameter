@@ -16,8 +16,48 @@ const RENAME_EVENT_MIGRATION_ID =
 const ASSIGN_COLORS_MIGRATION_ID =
 	'2026-03-25-assign-colors-to-diaper-products';
 const MULTI_BABY_SUPPORT_MIGRATION_ID = '2026-04-01-multi-baby-support';
+const CONSOLIDATE_DUPLICATE_PROFILES_MIGRATION_ID =
+	'2026-06-05-consolidate-duplicate-profiles';
 
 describe('runMigrationsIfNeeded', () => {
+	it('does not mark migrations as applied on an empty fresh device', async () => {
+		const store = createStore();
+
+		const result = await runMigrationsIfNeeded(store, {
+			deviceId: 'fresh-device',
+		});
+
+		expect(result.hasChanges).toBe(false);
+		expect(store.getRowCount(INTERNAL_TABLE_IDS.MIGRATIONS)).toBe(0);
+	});
+
+	it('migrates an ancient room after an empty fresh device joins it', async () => {
+		const store = createStore();
+		await runMigrationsIfNeeded(store, { deviceId: 'fresh-device' });
+
+		store.setValue(
+			'profile',
+			JSON.stringify({
+				dob: '2024-01-01',
+				name: 'Ada',
+				sex: 'girl',
+			}),
+		);
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'legacy-change', {
+			containsStool: false,
+			containsUrine: true,
+			timestamp: '2026-01-01T00:00:00.000Z',
+		});
+
+		await runMigrationsIfNeeded(store, { deviceId: 'fresh-device' });
+
+		const [profileId] = store.getRowIds(TABLE_IDS.PROFILES);
+		expect(profileId).toBeDefined();
+		expect(
+			store.getCell(TABLE_IDS.DIAPER_CHANGES, 'legacy-change', 'profileId'),
+		).toBe(profileId);
+	});
+
 	it('detects pending migrations from migration metadata', () => {
 		const store = createStore();
 		expect(hasPendingMigrations(store)).toBe(true);
@@ -31,6 +71,7 @@ describe('runMigrationsIfNeeded', () => {
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
 			MULTI_BABY_SUPPORT_MIGRATION_ID,
+			CONSOLIDATE_DUPLICATE_PROFILES_MIGRATION_ID,
 		]) {
 			store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, id, {
 				appliedAt: Date.now(),
@@ -51,6 +92,7 @@ describe('runMigrationsIfNeeded', () => {
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
 			MULTI_BABY_SUPPORT_MIGRATION_ID,
+			CONSOLIDATE_DUPLICATE_PROFILES_MIGRATION_ID,
 		]) {
 			store.setRow(INTERNAL_TABLE_IDS.MIGRATIONS, id, {
 				appliedAt: Date.now(),
@@ -91,6 +133,7 @@ describe('runMigrationsIfNeeded', () => {
 			CLEANUP_JUNK_DATA_MIGRATION_ID,
 			ASSIGN_COLORS_MIGRATION_ID,
 			MULTI_BABY_SUPPORT_MIGRATION_ID,
+			CONSOLIDATE_DUPLICATE_PROFILES_MIGRATION_ID,
 		]);
 		expect(store.getCell(TABLE_IDS.DIAPER_CHANGES, 'd1', 'notes')).toBe(
 			'Legacy note',
@@ -129,6 +172,12 @@ describe('runMigrationsIfNeeded', () => {
 			store.hasRow(
 				INTERNAL_TABLE_IDS.MIGRATIONS,
 				MULTI_BABY_SUPPORT_MIGRATION_ID,
+			),
+		).toBe(true);
+		expect(
+			store.hasRow(
+				INTERNAL_TABLE_IDS.MIGRATIONS,
+				CONSOLIDATE_DUPLICATE_PROFILES_MIGRATION_ID,
 			),
 		).toBe(true);
 	});

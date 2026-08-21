@@ -186,6 +186,31 @@ describe('TinybaseProvider room sync', () => {
 		expect(mocks.loadServerSnapshot).toHaveBeenCalled();
 	});
 
+	it('renders after snapshot bootstrap even when no peer answers sync', async () => {
+		mocks.createEncryptedPartyKitSynchronizer.mockResolvedValueOnce({
+			destroy: vi.fn(async () => {}),
+			startSync: vi.fn(() => new Promise(() => {})),
+		});
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		await waitFor(() => {
+			expect(screen.getByRole('button', { name: 'Create room' })).toBeVisible();
+		});
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		await waitFor(() => {
+			expect(screen.getByRole('button', { name: 'Create room' })).toBeVisible();
+			expect(mocks.saveServerSnapshot).toHaveBeenCalled();
+		});
+	});
+
 	it('covers additional edge cases in TinybaseProvider', async () => {
 		vi.stubEnv('NEXT_PUBLIC_VERCEL_ENV', 'preview');
 		vi.stubEnv('NEXT_PUBLIC_MAIN_ROOM_NAME', 'main-room');
@@ -359,6 +384,34 @@ describe('TinybaseProvider room sync', () => {
 		},
 	);
 
+	it('fails closed when the room snapshot cannot be loaded', async () => {
+		mocks.loadServerSnapshot.mockRejectedValueOnce(
+			new Error('Snapshot unavailable'),
+		);
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		await waitFor(() => {
+			expect(screen.getByRole('button', { name: 'Create room' })).toBeVisible();
+		});
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		await waitFor(() => {
+			expect(mocks.loadServerSnapshot).toHaveBeenCalledOnce();
+			expect(
+				screen.queryByRole('button', { name: 'Create room' }),
+			).not.toBeInTheDocument();
+		});
+		expect(mocks.createEncryptedPartyKitSynchronizer).not.toHaveBeenCalled();
+		expect(mocks.saveServerSnapshot).not.toHaveBeenCalled();
+	});
+
 	it('handles errors during room sync connection', async () => {
 		const syncError = new Error('Sync failed');
 		mocks.hashRoomId.mockRejectedValueOnce(syncError);
@@ -382,10 +435,13 @@ describe('TinybaseProvider room sync', () => {
 			expect(mocks.hashRoomId).toHaveBeenCalledWith('regression-room');
 		});
 
-		// Ensure we don't crash and continue to render
-		expect(
-			screen.getByRole('button', { name: 'Create room' }),
-		).toBeInTheDocument();
+		// A failed connection must not expose an empty room or start saving.
+		await waitFor(() => {
+			expect(
+				screen.queryByRole('button', { name: 'Create room' }),
+			).not.toBeInTheDocument();
+		});
+		expect(mocks.saveServerSnapshot).not.toHaveBeenCalled();
 	});
 
 	it('covers additional synchronization and error paths', async () => {
