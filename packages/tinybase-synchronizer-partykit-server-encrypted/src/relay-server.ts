@@ -38,6 +38,7 @@ const DEFAULT_RESPONSE_HEADERS: Record<string, string> = {
 	'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
 	'Access-Control-Allow-Origin': '*',
 	'Access-Control-Expose-Headers': 'ETag',
+	'Cache-Control': 'no-store',
 };
 
 /**
@@ -182,7 +183,9 @@ export class EncryptedSyncRelayServer implements Server {
 					status: 428,
 				});
 			}
-			if (expectedRevision !== `"${revision}"`) {
+			// Cloudflare may weaken response ETags while compressing snapshots.
+			// Treat W/"n" as the same opaque revision as "n".
+			if (expectedRevision.replace(/^W\//, '') !== `"${revision}"`) {
 				return new Response('Snapshot version conflict', {
 					headers: { ...headers, ETag: `"${revision}"` },
 					status: 412,

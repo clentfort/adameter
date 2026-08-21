@@ -369,11 +369,11 @@ describe('saveServerSnapshot', () => {
 		});
 	});
 
-	it('sends the loaded snapshot version when saving', async () => {
+	it('sends a strong snapshot version when Cloudflare weakens the ETag', async () => {
 		const storeUrl = 'https://example.com/versioned-store';
 		mockFetch
 			.mockResolvedValueOnce({
-				headers: { get: () => '"7"' },
+				headers: { get: () => 'W/"7"' },
 				ok: true,
 				text: () => Promise.resolve('null'),
 			})
@@ -427,6 +427,48 @@ describe('saveServerSnapshot', () => {
 		expect(store.applyMergeableChanges).toHaveBeenCalledWith(remoteContent);
 		expect(mockFetch.mock.calls[3][1].headers).toEqual({
 			'If-Match': '"2"',
+		});
+	});
+
+	it('retries repeated conflicts from competing devices', async () => {
+		vi.spyOn(Math, 'random').mockReturnValue(0);
+		const storeUrl = 'https://example.com/repeated-conflicts';
+		const remoteContent = [[{}, '', ''], [{}, '', ''], ''];
+		const encryptedRemote = await encrypt(
+			jsonStringWithUndefined(remoteContent),
+			encryptionKey,
+		);
+		mockFetch
+			.mockResolvedValueOnce({
+				headers: { get: () => '"1"' },
+				ok: true,
+				text: () => Promise.resolve('null'),
+			})
+			.mockResolvedValueOnce({ ok: false, status: 412 })
+			.mockResolvedValueOnce({
+				headers: { get: () => '"2"' },
+				ok: true,
+				text: () => Promise.resolve(encryptedRemote),
+			})
+			.mockResolvedValueOnce({ ok: false, status: 412 })
+			.mockResolvedValueOnce({
+				headers: { get: () => '"3"' },
+				ok: true,
+				text: () => Promise.resolve(encryptedRemote),
+			})
+			.mockResolvedValueOnce({
+				headers: { get: () => '"4"' },
+				ok: true,
+				status: 200,
+			});
+		const store = createMockStore();
+
+		await loadServerSnapshot(store as never, storeUrl, encryptionKey);
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+
+		expect(mockFetch).toHaveBeenCalledTimes(6);
+		expect(mockFetch.mock.calls[5][1].headers).toEqual({
+			'If-Match': '"3"',
 		});
 	});
 

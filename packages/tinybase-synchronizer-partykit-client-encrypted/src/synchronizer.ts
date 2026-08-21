@@ -30,8 +30,10 @@ type Send = (
 	body: unknown,
 ) => void;
 
+const MAX_SNAPSHOT_SAVE_ATTEMPTS = 6;
 const MESSAGE_SEPARATOR = '\n';
 const REQUEST_TIMEOUT_SECONDS = 1;
+const SNAPSHOT_RETRY_BASE_DELAY_MS = 100;
 
 interface SnapshotSaveArguments {
 	encryptionKey: CryptoKey;
@@ -68,10 +70,20 @@ function runSnapshotOperation<Result>(
 	});
 }
 
+function waitForSnapshotRetry(attempt: number): Promise<void> {
+	const exponentialDelay = SNAPSHOT_RETRY_BASE_DELAY_MS * 2 ** attempt;
+	const jitter = Math.random() * SNAPSHOT_RETRY_BASE_DELAY_MS;
+	return new Promise((resolve) => {
+		setTimeout(resolve, exponentialDelay + jitter);
+	});
+}
+
 function updateSnapshotVersion(storeUrl: string, response: Response) {
 	const version = response.headers?.get('ETag');
 	if (version) {
-		snapshotVersions.set(storeUrl, version);
+		// Cloudflare can weaken ETags when compressing responses. The revision is
+		// still exact application metadata, so send its strong form in If-Match.
+		snapshotVersions.set(storeUrl, version.replace(/^W\//, ''));
 	} else {
 		snapshotVersions.delete(storeUrl);
 	}
@@ -273,7 +285,7 @@ async function performSnapshotSave({
 	store,
 	storeUrl,
 }: SnapshotSaveArguments): Promise<void> {
-	const save = async (canRetry: boolean): Promise<void> => {
+	for (let attempt = 0; attempt < MAX_SNAPSHOT_SAVE_ATTEMPTS; attempt += 1) {
 		const content = store.getMergeableContent();
 		const serialized = jsonStringWithUndefined(content);
 		const encrypted = await encrypt(serialized, encryptionKey);
@@ -287,10 +299,12 @@ async function performSnapshotSave({
 			mode: 'cors',
 		});
 
-		if (response.status === 412 && canRetry) {
+		if (response.status === 412 && attempt < MAX_SNAPSHOT_SAVE_ATTEMPTS - 1) {
+			// Multiple devices can race through the same GET/PUT cycle. Back off
+			// with jitter before reloading so they do not remain in lockstep.
+			await waitForSnapshotRetry(attempt);
 			await performSnapshotLoad(store, storeUrl, encryptionKey);
-			await save(false);
-			return;
+			continue;
 		}
 
 		if (!response.ok) {
@@ -301,9 +315,8 @@ async function performSnapshotSave({
 		}
 
 		updateSnapshotVersion(storeUrl, response);
-	};
-
-	await save(true);
+		return;
+	}
 }
 
 export function saveServerSnapshot(

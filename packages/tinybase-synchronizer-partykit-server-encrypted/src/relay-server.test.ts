@@ -85,6 +85,7 @@ describe('EncryptedSyncRelayServer', () => {
 			expect(response.status).toBe(200);
 			expect(await response.text()).toBe('null');
 			expect(response.headers.get('Content-Type')).toBe('text/plain');
+			expect(response.headers.get('Cache-Control')).toBe('no-store');
 			expect(response.headers.get('ETag')).toBe('"0"');
 		});
 
@@ -110,6 +111,20 @@ describe('EncryptedSyncRelayServer', () => {
 			expect(room.storage.delete).toHaveBeenCalledWith('snapshot_chunk_count');
 			expect(room.storage.put).toHaveBeenCalledWith('snapshot_revision', '1');
 			expect(response.headers.get('ETag')).toBe('"1"');
+		});
+
+		it('accepts a matching ETag weakened by Cloudflare', async () => {
+			room.storage.get.mockResolvedValue(undefined);
+
+			const response = await server.onRequest(
+				createRequest('PUT', '/store', 'new-encrypted-snapshot', 'W/"0"'),
+			);
+
+			expect(response.status).toBe(200);
+			expect(room.storage.put).toHaveBeenCalledWith(
+				'snapshot',
+				'new-encrypted-snapshot',
+			);
 		});
 
 		it('rejects unversioned writes from stale clients', async () => {
