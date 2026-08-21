@@ -1,14 +1,36 @@
 import { Locale as DateFnsLocale, setDefaultOptions } from 'date-fns';
 import { IntlVariations, setupFbtee } from 'fbtee';
 import { getItem, setItem, STORAGE_KEYS } from '../lib/storage';
-import german from '../translations/de-DE.json';
-import english from '../translations/en-US.json';
+import german from '../translations/de_DE.json' with { type: 'json' };
+import english from '../translations/en_US.json' with { type: 'json' };
 
 export const DEFAULT_LOCALE = 'en-US';
 
+type NormalizeLocale<Locale extends string> =
+	Locale extends `${infer Language}_${infer Region}`
+		? `${Language}-${Region}`
+		: Locale;
+
+function normalizeLocaleIdentifiers<
+	const Translations extends Record<string, unknown>,
+>(translations: Translations) {
+	return Object.fromEntries(
+		Object.entries(translations).map(([locale, messages]) => [
+			locale.replace('_', '-'),
+			messages,
+		]),
+	) as {
+		[
+			Locale in keyof Translations as Locale extends string
+				? NormalizeLocale<Locale>
+				: never
+		]: Translations[Locale];
+	};
+}
+
 const allTranslations = {
-	...german,
-	...english,
+	...normalizeLocaleIdentifiers(german),
+	...normalizeLocaleIdentifiers(english),
 };
 
 export type Locale = keyof typeof allTranslations & string;
