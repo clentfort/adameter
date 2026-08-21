@@ -231,6 +231,45 @@ describe('loadServerSnapshot', () => {
 		expect(store.hasValue('profile')).toBe(true);
 	});
 
+	it('blocks saves until an in-flight snapshot load has been applied', async () => {
+		const storeUrl = 'https://example.com/loading-store';
+		const remoteContent = [[{}, '', ''], [{}, '', ''], ''];
+		const encryptedRemote = await encrypt(
+			jsonStringWithUndefined(remoteContent),
+			encryptionKey,
+		);
+		let resolveSnapshotText!: (value: string) => void;
+		mockFetch
+			.mockResolvedValueOnce({
+				headers: { get: () => '"5"' },
+				ok: true,
+				text: () =>
+					new Promise<string>((resolve) => {
+						resolveSnapshotText = resolve;
+					}),
+			})
+			.mockResolvedValueOnce({
+				headers: { get: () => '"6"' },
+				ok: true,
+				status: 200,
+			});
+		const store = createMockStore();
+
+		const load = loadServerSnapshot(store as never, storeUrl, encryptionKey);
+		await waitForMockCallCount(mockFetch, 1);
+		const save = saveServerSnapshot(store as never, storeUrl, encryptionKey);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		expect(mockFetch).toHaveBeenCalledOnce();
+		resolveSnapshotText(encryptedRemote);
+		await Promise.all([load, save]);
+
+		expect(store.applyMergeableChanges).toHaveBeenCalledWith(remoteContent);
+		expect(mockFetch.mock.calls[1][1].headers).toEqual({
+			'If-Match': '"5"',
+		});
+	});
+
 	it('passes correct fetch options', async () => {
 		mockFetch.mockResolvedValue({ ok: true, text: () => Promise.resolve('') });
 		const store = createMockStore();
@@ -280,6 +319,54 @@ describe('saveServerSnapshot', () => {
 		expect(options.mode).toBe('cors');
 		expect(typeof options.body).toBe('string');
 		expect(options.body.length).toBeGreaterThan(0);
+	});
+
+	it('serializes overlapping saves for the same room', async () => {
+		const storeUrl = 'https://example.com/queued-store';
+		let resolveFirstSave!: (response: {
+			headers: { get: () => string };
+			ok: boolean;
+			status: number;
+		}) => void;
+		mockFetch
+			.mockImplementationOnce(
+				() =>
+					new Promise((resolve) => {
+						resolveFirstSave = resolve;
+					}),
+			)
+			.mockResolvedValueOnce({
+				headers: { get: () => '"2"' },
+				ok: true,
+				status: 200,
+			});
+		const store = createMockStore();
+
+		const firstSave = saveServerSnapshot(
+			store as never,
+			storeUrl,
+			encryptionKey,
+		);
+		await waitForMockCallCount(mockFetch, 1);
+		const secondSave = saveServerSnapshot(
+			store as never,
+			storeUrl,
+			encryptionKey,
+		);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		expect(mockFetch).toHaveBeenCalledOnce();
+		resolveFirstSave({
+			headers: { get: () => '"1"' },
+			ok: true,
+			status: 200,
+		});
+		await Promise.all([firstSave, secondSave]);
+
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+		expect(mockFetch.mock.calls[1][1].headers).toEqual({
+			'If-Match': '"1"',
+		});
 	});
 
 	it('sends the loaded snapshot version when saving', async () => {

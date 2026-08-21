@@ -79,11 +79,9 @@ test.describe('Child Profile', () => {
 		await page.goto('/');
 		await expect(page.getByText('Welcome to AdaMeter!')).not.toBeVisible();
 
-		// Check settings again to be sure
-		await page
-			.getByRole('button', { name: /settings/i })
-			.click({ force: true });
-		await page.getByTestId('settings-profile').click();
+		// Check settings again to be sure. Navigate directly so the home page's
+		// default activity redirect cannot race the settings link click.
+		await page.goto('/settings/children');
 		await page.getByRole('button', { name: 'Edit' }).click();
 		await expect(page.getByLabel(/Name/)).toHaveValue('Baby Ada');
 	});

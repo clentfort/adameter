@@ -77,6 +77,8 @@ export class EncryptedSyncRelayServer implements Server {
 	 */
 	readonly config: EncryptedSyncRelayConfig = {};
 
+	private snapshotWriteQueue: Promise<void> = Promise.resolve();
+
 	constructor(readonly room: Room) {}
 
 	private getSnapshotChunkKey(index: number): string {
@@ -160,6 +162,45 @@ export class EncryptedSyncRelayServer implements Server {
 		await this.room.storage.delete(SNAPSHOT_KEY);
 	}
 
+	private async writeVersionedSnapshot(
+		snapshot: string,
+		expectedRevision: string | null,
+		headers: Record<string, string>,
+	): Promise<Response> {
+		let releaseQueue: (() => void) | undefined;
+		const previousWrite = this.snapshotWriteQueue;
+		this.snapshotWriteQueue = new Promise<void>((resolve) => {
+			releaseQueue = resolve;
+		});
+
+		await previousWrite;
+		try {
+			const revision = await this.getSnapshotRevision();
+			if (!expectedRevision) {
+				return new Response('Snapshot version required', {
+					headers,
+					status: 428,
+				});
+			}
+			if (expectedRevision !== `"${revision}"`) {
+				return new Response('Snapshot version conflict', {
+					headers: { ...headers, ETag: `"${revision}"` },
+					status: 412,
+				});
+			}
+
+			await this.writeSnapshot(snapshot);
+			const nextRevision = revision + 1;
+			await this.room.storage.put(SNAPSHOT_REVISION_KEY, String(nextRevision));
+			return new Response('ok', {
+				headers: { ...headers, ETag: `"${nextRevision}"` },
+				status: 200,
+			});
+		} finally {
+			releaseQueue?.();
+		}
+	}
+
 	async onRequest(request: Request): Promise<Response> {
 		const headers = this.config.responseHeaders ?? DEFAULT_RESPONSE_HEADERS;
 
@@ -190,32 +231,11 @@ export class EncryptedSyncRelayServer implements Server {
 			}
 
 			if (request.method === 'PUT') {
-				const revision = await this.getSnapshotRevision();
 				const expectedRevision = request.headers.get('If-Match');
-				if (!expectedRevision) {
-					return new Response('Snapshot version required', {
-						headers,
-						status: 428,
-					});
-				}
-				if (expectedRevision !== `"${revision}"`) {
-					return new Response('Snapshot version conflict', {
-						headers: { ...headers, ETag: `"${revision}"` },
-						status: 412,
-					});
-				}
-
+				// Workerd requires request streams to be consumed before a response is
+				// returned, including precondition failures.
 				const body = await request.text();
-				await this.writeSnapshot(body);
-				const nextRevision = revision + 1;
-				await this.room.storage.put(
-					SNAPSHOT_REVISION_KEY,
-					String(nextRevision),
-				);
-				return new Response('ok', {
-					headers: { ...headers, ETag: `"${nextRevision}"` },
-					status: 200,
-				});
+				return this.writeVersionedSnapshot(body, expectedRevision, headers);
 			}
 
 			return new Response('Method not allowed', { status: 405 });

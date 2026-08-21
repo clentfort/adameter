@@ -129,16 +129,63 @@ describe('EncryptedSyncRelayServer', () => {
 				if (key === 'snapshot_revision') return '3';
 				return undefined;
 			});
+			const request = createRequest('PUT', '/store', 'stale-snapshot', '"2"');
+			const readBody = vi.spyOn(request, 'text');
 
-			const response = await server.onRequest(
-				createRequest('PUT', '/store', 'stale-snapshot', '"2"'),
-			);
+			const response = await server.onRequest(request);
 
 			expect(response.status).toBe(412);
 			expect(response.headers.get('ETag')).toBe('"3"');
+			expect(readBody).toHaveBeenCalledOnce();
 			expect(room.storage.put).not.toHaveBeenCalledWith(
 				'snapshot',
 				'stale-snapshot',
+			);
+		});
+
+		it('serializes concurrent writes before checking their versions', async () => {
+			let revision = '0';
+			let releaseFirstWrite!: () => void;
+			const firstWriteBlocked = new Promise<void>((resolve) => {
+				releaseFirstWrite = resolve;
+			});
+			room.storage.get.mockImplementation(async (key?: string) => {
+				if (key === 'snapshot_revision') return revision;
+				return undefined;
+			});
+			room.storage.put.mockImplementation(async (key, value) => {
+				if (key === 'snapshot' && value === 'first-snapshot') {
+					await firstWriteBlocked;
+				}
+				if (key === 'snapshot_revision') {
+					revision = value;
+				}
+			});
+
+			const firstResponse = server.onRequest(
+				createRequest('PUT', '/store', 'first-snapshot', '"0"'),
+			);
+			await vi.waitFor(() => {
+				expect(room.storage.put).toHaveBeenCalledWith(
+					'snapshot',
+					'first-snapshot',
+				);
+			});
+			const secondResponse = server.onRequest(
+				createRequest('PUT', '/store', 'second-snapshot', '"0"'),
+			);
+			releaseFirstWrite();
+
+			const [first, second] = await Promise.all([
+				firstResponse,
+				secondResponse,
+			]);
+
+			expect(first.status).toBe(200);
+			expect(second.status).toBe(412);
+			expect(room.storage.put).not.toHaveBeenCalledWith(
+				'snapshot',
+				'second-snapshot',
 			);
 		});
 

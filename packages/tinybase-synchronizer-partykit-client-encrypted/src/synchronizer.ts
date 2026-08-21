@@ -32,7 +32,41 @@ type Send = (
 
 const MESSAGE_SEPARATOR = '\n';
 const REQUEST_TIMEOUT_SECONDS = 1;
+
+interface SnapshotSaveArguments {
+	encryptionKey: CryptoKey;
+	store: MergeableStore;
+	storeUrl: string;
+}
+
+interface SnapshotSaveQueue {
+	latest?: SnapshotSaveArguments;
+	running: Promise<void>;
+}
+
+const snapshotOperationQueues = new Map<string, Promise<void>>();
+const snapshotSaveQueues = new Map<string, SnapshotSaveQueue>();
 const snapshotVersions = new Map<string, string>();
+
+function runSnapshotOperation<Result>(
+	storeUrl: string,
+	operation: () => Promise<Result>,
+): Promise<Result> {
+	const previousOperation =
+		snapshotOperationQueues.get(storeUrl) ?? Promise.resolve();
+	const result = previousOperation.catch(() => {}).then(operation);
+	const completion = result.then(
+		() => undefined,
+		() => undefined,
+	);
+	snapshotOperationQueues.set(storeUrl, completion);
+
+	return result.finally(() => {
+		if (snapshotOperationQueues.get(storeUrl) === completion) {
+			snapshotOperationQueues.delete(storeUrl);
+		}
+	});
+}
 
 function updateSnapshotVersion(storeUrl: string, response: Response) {
 	const version = response.headers?.get('ETag');
@@ -177,7 +211,7 @@ export async function createEncryptedPartyKitSynchronizer(
  *
  * Returns true if a snapshot was loaded and applied.
  */
-export async function loadServerSnapshot(
+async function performSnapshotLoad(
 	store: MergeableStore,
 	storeUrl: string,
 	encryptionKey: CryptoKey,
@@ -193,14 +227,17 @@ export async function loadServerSnapshot(
 		);
 	}
 
-	updateSnapshotVersion(storeUrl, response);
 	const encrypted = await response.text();
-	if (!encrypted || encrypted === 'null') return false;
+	if (!encrypted || encrypted === 'null') {
+		updateSnapshotVersion(storeUrl, response);
+		return false;
+	}
 
 	if (encrypted.startsWith('[')) {
 		const legacyContent = jsonParseWithUndefined<Content>(encrypted);
 		const decryptedContent = await decryptContent(legacyContent, encryptionKey);
 		mergeLegacyContent(store, decryptedContent);
+		updateSnapshotVersion(storeUrl, response);
 		return true;
 	}
 
@@ -211,18 +248,31 @@ export async function loadServerSnapshot(
 	store.applyMergeableChanges(
 		mergeableContent as MergeableChanges | MergeableContent,
 	);
+	// Publish the loaded revision only after its content has been applied. A
+	// concurrent save must not use a fresh ETag with stale local data.
+	updateSnapshotVersion(storeUrl, response);
 	return true;
+}
+
+export function loadServerSnapshot(
+	store: MergeableStore,
+	storeUrl: string,
+	encryptionKey: CryptoKey,
+): Promise<boolean> {
+	return runSnapshotOperation(storeUrl, () =>
+		performSnapshotLoad(store, storeUrl, encryptionKey),
+	);
 }
 
 /**
  * Encrypts the store's MergeableContent and saves it to the server.
  * Used to persist state for clients that connect when no peers are online.
  */
-export async function saveServerSnapshot(
-	store: MergeableStore,
-	storeUrl: string,
-	encryptionKey: CryptoKey,
-): Promise<void> {
+async function performSnapshotSave({
+	encryptionKey,
+	store,
+	storeUrl,
+}: SnapshotSaveArguments): Promise<void> {
 	const save = async (canRetry: boolean): Promise<void> => {
 		const content = store.getMergeableContent();
 		const serialized = jsonStringWithUndefined(content);
@@ -238,7 +288,7 @@ export async function saveServerSnapshot(
 		});
 
 		if (response.status === 412 && canRetry) {
-			await loadServerSnapshot(store, storeUrl, encryptionKey);
+			await performSnapshotLoad(store, storeUrl, encryptionKey);
 			await save(false);
 			return;
 		}
@@ -254,6 +304,40 @@ export async function saveServerSnapshot(
 	};
 
 	await save(true);
+}
+
+export function saveServerSnapshot(
+	store: MergeableStore,
+	storeUrl: string,
+	encryptionKey: CryptoKey,
+): Promise<void> {
+	const snapshotSaveArguments = { encryptionKey, store, storeUrl };
+	const existingQueue = snapshotSaveQueues.get(storeUrl);
+	if (existingQueue) {
+		// Replace any pending save with one that will capture the latest store
+		// state. Every caller awaits the same queue-draining promise.
+		existingQueue.latest = snapshotSaveArguments;
+		return existingQueue.running;
+	}
+
+	const queue: SnapshotSaveQueue = {
+		latest: snapshotSaveArguments,
+		running: Promise.resolve(),
+	};
+	queue.running = (async () => {
+		while (queue.latest) {
+			const latest = queue.latest;
+			queue.latest = undefined;
+			await runSnapshotOperation(storeUrl, () => performSnapshotSave(latest));
+		}
+	})().finally(() => {
+		if (snapshotSaveQueues.get(storeUrl) === queue) {
+			snapshotSaveQueues.delete(storeUrl);
+		}
+	});
+	snapshotSaveQueues.set(storeUrl, queue);
+
+	return queue.running;
 }
 
 /**
