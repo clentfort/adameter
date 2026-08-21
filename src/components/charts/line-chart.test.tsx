@@ -756,4 +756,46 @@ describe('LineChart', () => {
 
 		expect(screen.getByText('No data')).toBeInTheDocument();
 	});
+
+	it('updates existing chart instance when props change after mount', async () => {
+		const initialData = [{ x: new Date('2023-01-01'), y: 10 }];
+		const { rerender } = render(
+			<LineChart
+				data={initialData}
+				datasetLabel="Initial Dataset"
+				emptyStateMessage="No data"
+				title="Test Chart"
+				xAxisLabel="X"
+				yAxisLabel="Y"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		const updatedData = [
+			{ x: new Date('2023-01-01'), y: 10 },
+			{ x: 1_672_617_600_000, y: 20 },
+		];
+
+		rerender(
+			<LineChart
+				data={updatedData}
+				datasetLabel="Updated Dataset"
+				emptyStateMessage="No data"
+				forecastDate={new Date('2023-01-05')}
+				title="Test Chart"
+				xAxisLabel="X"
+				yAxisLabel="Y"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(2);
+		expect(mockDestroy).toHaveBeenCalledTimes(1);
+	});
 });
