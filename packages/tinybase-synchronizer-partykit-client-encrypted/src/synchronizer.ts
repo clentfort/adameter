@@ -1,10 +1,12 @@
 import type PartySocket from 'partysocket';
 import type {
+	Content,
 	MergeableChanges,
 	MergeableContent,
 	MergeableStore,
 } from 'tinybase';
 import type { Synchronizer } from 'tinybase/synchronizers';
+import { decryptContent } from 'tinybase-persister-partykit-client-encrypted';
 import { createCustomSynchronizer } from 'tinybase/synchronizers';
 import {
 	decrypt,
@@ -30,6 +32,34 @@ type Send = (
 
 const MESSAGE_SEPARATOR = '\n';
 const REQUEST_TIMEOUT_SECONDS = 1;
+const snapshotVersions = new Map<string, string>();
+
+function updateSnapshotVersion(storeUrl: string, response: Response) {
+	const version = response.headers?.get('ETag');
+	if (version) {
+		snapshotVersions.set(storeUrl, version);
+	} else {
+		snapshotVersions.delete(storeUrl);
+	}
+}
+
+function mergeLegacyContent(store: MergeableStore, content: Content) {
+	const [tables, values] = content;
+	store.transaction(() => {
+		for (const [tableId, table] of Object.entries(tables)) {
+			for (const [rowId, row] of Object.entries(table)) {
+				if (!store.hasRow(tableId, rowId)) {
+					store.setRow(tableId, rowId, row);
+				}
+			}
+		}
+		for (const [valueId, value] of Object.entries(values)) {
+			if (!store.hasValue(valueId)) {
+				store.setValue(valueId, value);
+			}
+		}
+	});
+}
 
 function getStoreProtocol(host: string): 'http' | 'https' {
 	return host.startsWith('localhost') || host.startsWith('127.0.0.1')
@@ -111,19 +141,33 @@ export async function createEncryptedPartyKitSynchronizer(
 		onIgnoredError,
 	) as Synchronizer;
 
-	// Wait for the WebSocket connection to be open before returning
+	// Wait for the WebSocket to open, while also polling readyState to avoid
+	// missing an `open` event that fires between the initial check and listener
+	// registration (a race seen on very fast local and mobile connections).
 	return new Promise<Synchronizer>((resolve) => {
-		if (connection.readyState === WebSocket.OPEN) {
+		const timers: {
+			fallback?: ReturnType<typeof setTimeout>;
+			poll?: ReturnType<typeof setInterval>;
+		} = {};
+		const finish = () => {
+			if (timers.poll) clearInterval(timers.poll);
+			if (timers.fallback) clearTimeout(timers.fallback);
+			connection.removeEventListener('open', finish);
+			connection.removeEventListener('error', finish);
+			resolve(synchronizer);
+		};
+
+		if (connection.readyState === 1) {
 			resolve(synchronizer);
 			return;
 		}
-		const onAttempt = () => {
-			connection.removeEventListener('open', onAttempt);
-			connection.removeEventListener('error', onAttempt);
-			resolve(synchronizer);
-		};
-		connection.addEventListener('open', onAttempt);
-		connection.addEventListener('error', onAttempt);
+
+		connection.addEventListener('open', finish);
+		connection.addEventListener('error', finish);
+		timers.poll = setInterval(() => {
+			if (connection.readyState === 1) finish();
+		}, 25);
+		timers.fallback = setTimeout(finish, 5000);
 	});
 }
 
@@ -149,8 +193,16 @@ export async function loadServerSnapshot(
 		);
 	}
 
+	updateSnapshotVersion(storeUrl, response);
 	const encrypted = await response.text();
 	if (!encrypted || encrypted === 'null') return false;
+
+	if (encrypted.startsWith('[')) {
+		const legacyContent = jsonParseWithUndefined<Content>(encrypted);
+		const decryptedContent = await decryptContent(legacyContent, encryptionKey);
+		mergeLegacyContent(store, decryptedContent);
+		return true;
+	}
 
 	const decrypted = await decrypt(encrypted, encryptionKey);
 	const mergeableContent = jsonParseWithUndefined(decrypted);
@@ -171,23 +223,37 @@ export async function saveServerSnapshot(
 	storeUrl: string,
 	encryptionKey: CryptoKey,
 ): Promise<void> {
-	const content = store.getMergeableContent();
-	const serialized = jsonStringWithUndefined(content);
-	const encrypted = await encrypt(serialized, encryptionKey);
+	const save = async (canRetry: boolean): Promise<void> => {
+		const content = store.getMergeableContent();
+		const serialized = jsonStringWithUndefined(content);
+		const encrypted = await encrypt(serialized, encryptionKey);
+		const version = snapshotVersions.get(storeUrl);
 
-	const response = await fetch(storeUrl, {
-		body: encrypted,
-		cache: 'no-store',
-		method: 'PUT',
-		mode: 'cors',
-	});
+		const response = await fetch(storeUrl, {
+			body: encrypted,
+			cache: 'no-store',
+			headers: version ? { 'If-Match': version } : undefined,
+			method: 'PUT',
+			mode: 'cors',
+		});
 
-	if (!response.ok) {
-		const errorBody = await response.text();
-		throw new Error(
-			`Snapshot PUT failed (${response.status}): ${errorBody || response.statusText}`,
-		);
-	}
+		if (response.status === 412 && canRetry) {
+			await loadServerSnapshot(store, storeUrl, encryptionKey);
+			await save(false);
+			return;
+		}
+
+		if (!response.ok) {
+			const errorBody = await response.text();
+			throw new Error(
+				`Snapshot PUT failed (${response.status}): ${errorBody || response.statusText}`,
+			);
+		}
+
+		updateSnapshotVersion(storeUrl, response);
+	};
+
+	await save(true);
 }
 
 /**

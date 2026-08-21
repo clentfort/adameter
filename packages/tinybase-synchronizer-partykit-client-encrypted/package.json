@@ -36,6 +36,9 @@
 		"test": "vitest",
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
+	"dependencies": {
+		"tinybase-persister-partykit-client-encrypted": "workspace:*"
+	},
 	"peerDependencies": {
 		"partysocket": ">=1 <2",
 		"tinybase": ">=7 <9"

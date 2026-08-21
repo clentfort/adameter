@@ -8,6 +8,7 @@ import type {
 
 const MESSAGE_SEPARATOR = '\n';
 const SNAPSHOT_KEY = 'snapshot';
+const SNAPSHOT_REVISION_KEY = 'snapshot_revision';
 const SNAPSHOT_CHUNK_COUNT_KEY = 'snapshot_chunk_count';
 const SNAPSHOT_CHUNK_KEY_PREFIX = 'snapshot_chunk_';
 
@@ -33,9 +34,10 @@ export interface EncryptedSyncRelayConfig {
 }
 
 const DEFAULT_RESPONSE_HEADERS: Record<string, string> = {
-	'Access-Control-Allow-Headers': '*',
+	'Access-Control-Allow-Headers': 'If-Match',
 	'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
 	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Expose-Headers': 'ETag',
 };
 
 /**
@@ -94,6 +96,12 @@ export class EncryptedSyncRelayServer implements Server {
 		}
 		const parsed = Number.parseInt(chunkCount, 10);
 		return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+	}
+
+	private async getSnapshotRevision(): Promise<number> {
+		const revision = await this.room.storage.get<string>(SNAPSHOT_REVISION_KEY);
+		const parsed = Number.parseInt(revision ?? '0', 10);
+		return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 	}
 
 	private async clearChunkedSnapshot(): Promise<void> {
@@ -167,18 +175,45 @@ export class EncryptedSyncRelayServer implements Server {
 
 		try {
 			if (request.method === 'GET') {
-				const snapshot = await this.readSnapshot();
+				const [snapshot, revision] = await Promise.all([
+					this.readSnapshot(),
+					this.getSnapshotRevision(),
+				]);
 				return new Response(snapshot ?? 'null', {
-					headers: { ...headers, 'Content-Type': 'text/plain' },
+					headers: {
+						...headers,
+						'Content-Type': 'text/plain',
+						'ETag': `"${revision}"`,
+					},
 					status: 200,
 				});
 			}
 
 			if (request.method === 'PUT') {
+				const revision = await this.getSnapshotRevision();
+				const expectedRevision = request.headers.get('If-Match');
+				if (!expectedRevision) {
+					return new Response('Snapshot version required', {
+						headers,
+						status: 428,
+					});
+				}
+				if (expectedRevision !== `"${revision}"`) {
+					return new Response('Snapshot version conflict', {
+						headers: { ...headers, ETag: `"${revision}"` },
+						status: 412,
+					});
+				}
+
 				const body = await request.text();
 				await this.writeSnapshot(body);
+				const nextRevision = revision + 1;
+				await this.room.storage.put(
+					SNAPSHOT_REVISION_KEY,
+					String(nextRevision),
+				);
 				return new Response('ok', {
-					headers,
+					headers: { ...headers, ETag: `"${nextRevision}"` },
 					status: 200,
 				});
 			}

@@ -1,3 +1,5 @@
+import { createMergeableStore } from 'tinybase';
+import { encryptContent } from 'tinybase-persister-partykit-client-encrypted';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { encrypt, getEncryptionKey, jsonStringWithUndefined } from './crypto';
 import {
@@ -190,6 +192,45 @@ describe('loadServerSnapshot', () => {
 		expect(store.applyMergeableChanges).toHaveBeenCalledWith(mergeableContent);
 	});
 
+	it('loads and merges legacy encrypted Content snapshots', async () => {
+		const encryptedContent = await encryptContent(
+			[
+				{
+					events: {
+						remote: {
+							startDate: '2026-01-01T00:00:00.000Z',
+							title: 'Remote event',
+							type: 'point',
+						},
+					},
+				},
+				{ profile: JSON.stringify({ name: 'Ada' }) },
+			],
+			encryptionKey,
+		);
+		mockFetch.mockResolvedValue({
+			headers: { get: () => '"4"' },
+			ok: true,
+			text: () => Promise.resolve(jsonStringWithUndefined(encryptedContent)),
+		});
+		const store = createMergeableStore();
+		store.setRow('events', 'local', {
+			startDate: '2026-01-02T00:00:00.000Z',
+			title: 'Local event',
+			type: 'point',
+		});
+
+		const result = await loadServerSnapshot(
+			store,
+			'https://example.com/legacy-store',
+			encryptionKey,
+		);
+
+		expect(result).toBe(true);
+		expect(store.getRowIds('events').sort()).toEqual(['local', 'remote']);
+		expect(store.hasValue('profile')).toBe(true);
+	});
+
 	it('passes correct fetch options', async () => {
 		mockFetch.mockResolvedValue({ ok: true, text: () => Promise.resolve('') });
 		const store = createMockStore();
@@ -239,6 +280,67 @@ describe('saveServerSnapshot', () => {
 		expect(options.mode).toBe('cors');
 		expect(typeof options.body).toBe('string');
 		expect(options.body.length).toBeGreaterThan(0);
+	});
+
+	it('sends the loaded snapshot version when saving', async () => {
+		const storeUrl = 'https://example.com/versioned-store';
+		mockFetch
+			.mockResolvedValueOnce({
+				headers: { get: () => '"7"' },
+				ok: true,
+				text: () => Promise.resolve('null'),
+			})
+			.mockResolvedValueOnce({
+				headers: { get: () => '"8"' },
+				ok: true,
+				status: 200,
+			});
+		const store = createMockStore();
+
+		await loadServerSnapshot(store as never, storeUrl, encryptionKey);
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+
+		expect(mockFetch.mock.calls[1][1].headers).toEqual({
+			'If-Match': '"7"',
+		});
+	});
+
+	it('reloads, merges, and retries after a version conflict', async () => {
+		const storeUrl = 'https://example.com/conflicting-store';
+		const remoteContent = [[{}, '', ''], [{}, '', ''], ''];
+		const encryptedRemote = await encrypt(
+			jsonStringWithUndefined(remoteContent),
+			encryptionKey,
+		);
+		mockFetch
+			.mockResolvedValueOnce({
+				headers: { get: () => '"1"' },
+				ok: true,
+				text: () => Promise.resolve('null'),
+			})
+			.mockResolvedValueOnce({
+				ok: false,
+				status: 412,
+			})
+			.mockResolvedValueOnce({
+				headers: { get: () => '"2"' },
+				ok: true,
+				text: () => Promise.resolve(encryptedRemote),
+			})
+			.mockResolvedValueOnce({
+				headers: { get: () => '"3"' },
+				ok: true,
+				status: 200,
+			});
+		const store = createMockStore();
+
+		await loadServerSnapshot(store as never, storeUrl, encryptionKey);
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+
+		expect(store.applyMergeableChanges).toHaveBeenCalledWith(remoteContent);
+		expect(mockFetch.mock.calls[3][1].headers).toEqual({
+			'If-Match': '"2"',
+		});
 	});
 
 	it('throws when PUT snapshot fails', async () => {
@@ -316,6 +418,29 @@ describe('createEncryptedPartyKitSynchronizer', () => {
 		expect(mockReceive).toHaveBeenCalledWith('sender-b', 'req-2', 2, {
 			response: 'ok',
 		});
+	});
+
+	it('resolves if the open event is missed but readyState changes', async () => {
+		vi.useFakeTimers();
+		const connection = {
+			addEventListener: vi.fn(),
+			partySocketOptions: { host: 'localhost', room: 'room' },
+			readyState: 0,
+			removeEventListener: vi.fn(),
+			send: vi.fn(),
+		};
+		const store = createMockStore();
+
+		const synchronizerPromise = createEncryptedPartyKitSynchronizer(
+			store as never,
+			connection as never,
+			encryptionKey,
+		);
+		connection.readyState = 1;
+		await vi.advanceTimersByTimeAsync(25);
+
+		await expect(synchronizerPromise).resolves.toBeDefined();
+		vi.useRealTimers();
 	});
 
 	it('handles errors in send and receive', async () => {
