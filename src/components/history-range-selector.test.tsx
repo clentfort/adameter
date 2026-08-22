@@ -10,7 +10,9 @@ describe('HistoryRangeSelector', () => {
 
 		render(<HistoryRangeSelector onRangeChange={handleRangeChange} />);
 
-		const triggerBtn = screen.getByRole('button', { name: /select timeframe/i });
+		const triggerBtn = screen.getByRole('button', {
+			name: /select timeframe/i,
+		});
 		expect(triggerBtn).toBeInTheDocument();
 
 		await user.click(triggerBtn);
@@ -44,7 +46,9 @@ describe('HistoryRangeSelector', () => {
 			/>,
 		);
 
-		const triggerBtn = screen.getByRole('button', { name: /select timeframe/i });
+		const triggerBtn = screen.getByRole('button', {
+			name: /select timeframe/i,
+		});
 		await user.click(triggerBtn);
 
 		let fromInput = screen.getByLabelText(/from/i) as HTMLInputElement;
