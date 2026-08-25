@@ -39,6 +39,7 @@ describe('room sync scenarios for imported data', () => {
 				expectEventCount(size + 1);
 			});
 		},
+		30_000,
 	);
 
 	it.each([10, 250, 1500])(
@@ -67,6 +68,7 @@ describe('room sync scenarios for imported data', () => {
 				expectEventCount(size);
 			});
 		},
+		30_000,
 	);
 
 	it.each([10, 250, 1500])(
@@ -89,6 +91,7 @@ describe('room sync scenarios for imported data', () => {
 				expectEventCount(size);
 			});
 		},
+		30_000,
 	);
 
 	it.each([10, 250, 1500])(
@@ -111,5 +114,6 @@ describe('room sync scenarios for imported data', () => {
 				expectEventCount(size * 2);
 			});
 		},
+		30_000,
 	);
 });

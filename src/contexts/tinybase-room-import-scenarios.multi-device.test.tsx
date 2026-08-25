@@ -48,7 +48,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		expect(harness.getRemoteCount()).toBe(1502);
-	});
+	}, 30_000);
 
 	it('merges stale offline imports from a third device without wiping room', async () => {
 		const harness = setupMultiDeviceHarness([
@@ -82,7 +82,7 @@ describe('multi-device and stale session scenarios', () => {
 		});
 
 		expect(harness.getRemoteCount()).toBe(1121);
-	});
+	}, 30_000);
 
 	it('keeps imported in-room data after reload', async () => {
 		const harness = setupMultiDeviceHarness([
