@@ -104,4 +104,25 @@ describe('useSelectedProfileId', () => {
 		});
 		expect(result.current[0]).toBe('noam');
 	});
+
+	it('updates selection on window storage events', async () => {
+		const store = createStore();
+		store.setRow(TABLE_IDS.PROFILES, 'ada', { name: 'Ada' });
+		store.setRow(TABLE_IDS.PROFILES, 'noam', { name: 'Noam' });
+
+		const { result } = renderHook(() => useSelectedProfileId(), {
+			wrapper: createWrapper(store),
+		});
+
+		expect(result.current[0]).toBe('ada');
+
+		act(() => {
+			window.localStorage.setItem(STORAGE_KEYS.SELECTED_PROFILE_ID, 'noam');
+			window.dispatchEvent(new Event('storage'));
+		});
+
+		await waitFor(() => {
+			expect(result.current[0]).toBe('noam');
+		});
+	});
 });
