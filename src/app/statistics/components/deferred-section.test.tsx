@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
+import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DeferredSection from './deferred-section';
 
@@ -128,5 +129,15 @@ describe('DeferredSection', () => {
 
 		expect(screen.getByText('Fallback')).toBeInTheDocument();
 		expect(screen.queryByText('Content')).not.toBeInTheDocument();
+	});
+
+	it('renders fallback in SSR via renderToString', () => {
+		const html = renderToString(
+			<DeferredSection fallback={<div>Fallback</div>}>
+				<div>Content</div>
+			</DeferredSection>,
+		);
+
+		expect(html).toContain('Fallback');
 	});
 });
