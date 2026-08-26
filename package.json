@@ -25,7 +25,7 @@
 		"packageManager": {
 			"name": "pnpm",
 			"onFail": "warn",
-			"version": "11.9.0"
+			"version": "11.21.0"
 		}
 	},
 	"dependencies": {
