@@ -121,7 +121,9 @@ describe('TinybaseProvider room sync', () => {
 		mocks.loadServerSnapshot.mockResolvedValue(false);
 		mocks.saveServerSnapshot.mockResolvedValue(undefined);
 		mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
+		mocks.partySocketAddEventListener.mockReset();
 		mocks.partySocketClose.mockReset();
+		mocks.partySocketRemoveEventListener.mockReset();
 
 		mocks.createEncryptedPartyKitSynchronizer.mockResolvedValue({
 			destroy: vi.fn(async () => {}),
