@@ -82,13 +82,15 @@ function buildEventRow(index: number, prefix: string) {
 }
 
 function seedEvents(store: Store, count: number, prefix: string) {
-	for (let index = 0; index < count; index++) {
-		store.setRow(
-			TABLE_IDS.EVENTS,
-			`${prefix}-${index}`,
-			buildEventRow(index, prefix),
-		);
-	}
+	store.transaction(() => {
+		for (let index = 0; index < count; index++) {
+			store.setRow(
+				TABLE_IDS.EVENTS,
+				`${prefix}-${index}`,
+				buildEventRow(index, prefix),
+			);
+		}
+	});
 }
 
 function RoomSyncProbe({ importCount }: { importCount: number }) {
