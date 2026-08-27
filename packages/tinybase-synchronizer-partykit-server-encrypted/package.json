@@ -1,7 +1,7 @@
 {
 	"name": "tinybase-synchronizer-partykit-server-encrypted",
 	"version": "0.0.1",
-	"description": "Encrypted PartyKit server relay for TinyBase MergeableStore synchronization",
+	"description": "Encrypted PartyServer relay for TinyBase MergeableStore synchronization",
 	"type": "module",
 	"sideEffects": false,
 	"files": [
@@ -37,15 +37,16 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"peerDependencies": {
-		"partykit": ">=0.0.100"
+		"partyserver": ">=0.5.10"
 	},
 	"devDependencies": {
 		"@semantic-release/commit-analyzer": "^13.0.1",
 		"@semantic-release/github": "^12.0.0",
 		"@semantic-release/npm": "^13.0.0",
 		"@semantic-release/release-notes-generator": "^14.0.3",
+		"@cloudflare/workers-types": "4.20260702.1",
 		"@types/node": "^24.0.0",
-		"partykit": "0.0.115",
+		"partyserver": "0.5.10",
 		"semantic-release": "^25.0.0",
 		"typescript": "^6.0.0",
 		"vitest": "^4.0.0"

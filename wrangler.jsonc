@@ -1,0 +1,43 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "adameter-party",
+	"main": "party/main.ts",
+	"compatibility_date": "2026-07-08",
+	"workers_dev": true,
+	"preview_urls": true,
+	"upload_source_maps": true,
+	"observability": {
+		"enabled": true,
+		"logs": {
+			"enabled": true,
+			"invocation_logs": true,
+		},
+	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "Tinybase",
+				"class_name": "Tinybase",
+			},
+		],
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["Tinybase"],
+		},
+	],
+	"env": {
+		"preview": {
+			"name": "adameter-party-preview",
+			"durable_objects": {
+				"bindings": [
+					{
+						"name": "Tinybase",
+						"class_name": "Tinybase",
+					},
+				],
+			},
+		},
+	},
+}

@@ -6,8 +6,11 @@
 	"scripts": {
 		"predev": "pnpm run fbtee:collect && pnpm run fbtee:translate",
 		"dev:next": "next dev",
-		"dev:partykit": "partykit dev",
+		"dev:partyserver": "wrangler dev --port 1999",
 		"dev": "concurrently \"pnpm:dev:*\"",
+		"deploy:partyserver": "wrangler deploy --env=\"\"",
+		"deploy:partyserver:preview": "wrangler deploy --env preview",
+		"check:partyserver": "wrangler deploy --dry-run --env=\"\"",
 		"prebuild": "pnpm run fbtee:collect && pnpm run fbtee:translate",
 		"build": "next build",
 		"start": "next start",
@@ -16,7 +19,7 @@
 		"test": "vitest",
 		"test:unit": "vitest run",
 		"test:e2e": "playwright test",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "tsc --noEmit && tsc --noEmit -p party/tsconfig.json && pnpm --filter tinybase-synchronizer-partykit-server-encrypted typecheck",
 		"fbtee:collect": "fbtee collect --common ./common_strings.json --src src",
 		"fbtee:translate": "fbtee translate --translations translations/*.json --output-file src/i18n/translations.json --locale-style bcp47",
 		"prepare": "husky"
@@ -67,6 +70,7 @@
 		"zod": "^4.0.0"
 	},
 	"devDependencies": {
+		"@cloudflare/workers-types": "4.20260702.1",
 		"@eslint/eslintrc": "^3.3.3",
 		"@ianvs/prettier-plugin-sort-imports": "^4.4.1",
 		"@next/eslint-plugin-next": "^16.1.6",
@@ -96,7 +100,7 @@
 		"husky": "^9.1.7",
 		"jsdom": "^29.0.0",
 		"lint-staged": "^17.0.0",
-		"partykit": "0.0.115",
+		"partyserver": "0.5.10",
 		"playwright": "^1.58.2",
 		"postcss": "^8",
 		"prettier": "^3.5.3",
@@ -106,6 +110,7 @@
 		"typescript-eslint": "^8.54.0",
 		"vite-tsconfig-paths": "^6.0.0",
 		"vitest": "^4.0.0",
+		"wrangler": "4.107.0",
 		"xlsx": "^0.18.5"
 	}
 }

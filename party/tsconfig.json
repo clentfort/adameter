@@ -1,0 +1,18 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"incremental": false,
+		"lib": ["es2022"],
+		"plugins": [],
+		"target": "es2022",
+		"types": ["@cloudflare/workers-types"]
+	},
+	"include": [
+		"./**/*.ts",
+		"../packages/tinybase-synchronizer-partykit-server-encrypted/src/**/*.ts"
+	],
+	"exclude": [
+		"../node_modules",
+		"../packages/tinybase-synchronizer-partykit-server-encrypted/src/**/*.test.ts"
+	]
+}

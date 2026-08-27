@@ -178,8 +178,9 @@ source_strings.json
 src/i18n/translations.json
 src/translations/
 
-# Partykit
+# PartyKit / Cloudflare Workers
 .partykit/
+.wrangler/
 
 # Playwright
 /playwright-report/

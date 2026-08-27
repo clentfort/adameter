@@ -1,6 +1,23 @@
-import type { Request as PartyRequest } from 'partykit/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EncryptedSyncRelayServer } from './relay-server';
+
+vi.mock('partyserver', () => ({
+	Server: class MockPartyServer {
+		readonly ctx: ReturnType<typeof createMockRoom>;
+
+		constructor(ctx: unknown) {
+			this.ctx = ctx as ReturnType<typeof createMockRoom>;
+		}
+
+		broadcast(message: string, exclude?: string[]) {
+			this.ctx.broadcast(message, exclude);
+		}
+
+		getConnections() {
+			return this.ctx.getConnections();
+		}
+	},
+}));
 
 function createMockSend() {
 	return vi.fn<(message: string) => void>();
@@ -42,7 +59,7 @@ function createRequest(
 	path: string,
 	body?: string,
 	ifMatch: string | null = method === 'PUT' ? '"0"' : null,
-): PartyRequest {
+): Request {
 	const headers = new Headers();
 	if (ifMatch) {
 		headers.set('If-Match', ifMatch);
@@ -52,7 +69,7 @@ function createRequest(
 		method,
 		text: () => Promise.resolve(body ?? ''),
 		url: `https://example.com${path}`,
-	} as unknown as PartyRequest;
+	} as unknown as Request;
 }
 
 describe('EncryptedSyncRelayServer', () => {
@@ -61,7 +78,7 @@ describe('EncryptedSyncRelayServer', () => {
 
 	beforeEach(() => {
 		room = createMockRoom();
-		server = new EncryptedSyncRelayServer(room as never);
+		server = new EncryptedSyncRelayServer(room as never, {} as never);
 	});
 
 	describe('onRequest', () => {
@@ -305,7 +322,7 @@ describe('EncryptedSyncRelayServer', () => {
 			const clientA = room.addConnection('client-a');
 			const clientB = room.addConnection('client-b');
 
-			server.onMessage('\nencrypted-payload', sender as never);
+			server.onMessage(sender as never, '\nencrypted-payload');
 
 			expect(room.broadcast).toHaveBeenCalledWith(
 				'sender-1\nencrypted-payload',
@@ -320,7 +337,7 @@ describe('EncryptedSyncRelayServer', () => {
 			const target = room.addConnection('target-1');
 			const bystander = room.addConnection('bystander');
 
-			server.onMessage('target-1\nencrypted-payload', sender as never);
+			server.onMessage(sender as never, 'target-1\nencrypted-payload');
 
 			expect(target.send).toHaveBeenCalledWith('sender-1\nencrypted-payload');
 			expect(bystander.send).not.toHaveBeenCalled();
@@ -330,7 +347,7 @@ describe('EncryptedSyncRelayServer', () => {
 			const sender = room.addConnection('sender-1');
 
 			// Should not throw
-			server.onMessage('non-existent\nencrypted-payload', sender as never);
+			server.onMessage(sender as never, 'non-existent\nencrypted-payload');
 			expect(room.broadcast).not.toHaveBeenCalled();
 		});
 
@@ -338,7 +355,7 @@ describe('EncryptedSyncRelayServer', () => {
 			const sender = room.addConnection('sender-1');
 			room.addConnection('client-a');
 
-			server.onMessage('no-separator-here', sender as never);
+			server.onMessage(sender as never, 'no-separator-here');
 
 			expect(room.broadcast).not.toHaveBeenCalled();
 		});
@@ -346,7 +363,7 @@ describe('EncryptedSyncRelayServer', () => {
 		it('ignores non-string messages', () => {
 			const sender = room.addConnection('sender-1');
 
-			server.onMessage(new ArrayBuffer(10), sender as never);
+			server.onMessage(sender as never, new ArrayBuffer(10));
 
 			expect(room.broadcast).not.toHaveBeenCalled();
 		});
@@ -354,7 +371,7 @@ describe('EncryptedSyncRelayServer', () => {
 
 	describe('config', () => {
 		it('uses custom storePath', async () => {
-			server = new EncryptedSyncRelayServer(room as never);
+			server = new EncryptedSyncRelayServer(room as never, {} as never);
 			Object.defineProperty(server, 'config', {
 				value: { storePath: '/my-store' },
 			});
@@ -373,7 +390,7 @@ describe('EncryptedSyncRelayServer', () => {
 		});
 
 		it('uses custom responseHeaders', async () => {
-			server = new EncryptedSyncRelayServer(room as never);
+			server = new EncryptedSyncRelayServer(room as never, {} as never);
 			Object.defineProperty(server, 'config', {
 				value: {
 					responseHeaders: {

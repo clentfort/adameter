@@ -1,10 +1,5 @@
-import type {
-	Connection,
-	ConnectionContext,
-	Request,
-	Room,
-	Server,
-} from 'partykit/server';
+import type { Connection, ConnectionContext, WSMessage } from 'partyserver';
+import { Server } from 'partyserver';
 
 const MESSAGE_SEPARATOR = '\n';
 const SNAPSHOT_KEY = 'snapshot';
@@ -12,7 +7,7 @@ const SNAPSHOT_REVISION_KEY = 'snapshot_revision';
 const SNAPSHOT_CHUNK_COUNT_KEY = 'snapshot_chunk_count';
 const SNAPSHOT_CHUNK_KEY_PREFIX = 'snapshot_chunk_';
 
-// Durable Object storage value limit observed in PartyKit runtime.
+// Cloudflare Durable Object storage value limit.
 const MAX_STORAGE_VALUE_BYTES = 131_072;
 const SNAPSHOT_CHUNK_SIZE_BYTES = 120_000;
 
@@ -42,7 +37,7 @@ const DEFAULT_RESPONSE_HEADERS: Record<string, string> = {
 };
 
 /**
- * PartyKit server that acts as an opaque relay for the encrypted TinyBase
+ * PartyServer Durable Object that acts as an opaque relay for the encrypted TinyBase
  * synchronizer protocol.
  *
  * - WebSocket messages are forwarded between clients without decryption.
@@ -58,13 +53,13 @@ const DEFAULT_RESPONSE_HEADERS: Record<string, string> = {
  *
  * @example
  * ```ts
- * // party/tinybase.ts
- * export { EncryptedSyncRelayServer as default } from 'tinybase-synchronizer-partykit-server-encrypted';
+ * // party/main.ts
+ * export class Tinybase extends EncryptedSyncRelayServer {}
  * ```
  *
  * @example
  * ```ts
- * // party/tinybase.ts — with custom config
+ * // party/main.ts — with custom config
  * import { EncryptedSyncRelayServer } from 'tinybase-synchronizer-partykit-server-encrypted';
  *
  * export default class MyServer extends EncryptedSyncRelayServer {
@@ -72,15 +67,15 @@ const DEFAULT_RESPONSE_HEADERS: Record<string, string> = {
  * }
  * ```
  */
-export class EncryptedSyncRelayServer implements Server {
+export class EncryptedSyncRelayServer extends Server {
+	static options = { hibernate: true };
+
 	/**
 	 * Optional configuration. Override in subclasses to customize.
 	 */
 	readonly config: EncryptedSyncRelayConfig = {};
 
 	private snapshotWriteQueue: Promise<void> = Promise.resolve();
-
-	constructor(readonly room: Room) {}
 
 	private getSnapshotChunkKey(index: number): string {
 		return `${SNAPSHOT_CHUNK_KEY_PREFIX}${index}`;
@@ -91,7 +86,7 @@ export class EncryptedSyncRelayServer implements Server {
 	}
 
 	private async getChunkCount(): Promise<number> {
-		const chunkCount = await this.room.storage.get<string>(
+		const chunkCount = await this.ctx.storage.get<string>(
 			SNAPSHOT_CHUNK_COUNT_KEY,
 		);
 		if (!chunkCount) {
@@ -102,7 +97,7 @@ export class EncryptedSyncRelayServer implements Server {
 	}
 
 	private async getSnapshotRevision(): Promise<number> {
-		const revision = await this.room.storage.get<string>(SNAPSHOT_REVISION_KEY);
+		const revision = await this.ctx.storage.get<string>(SNAPSHOT_REVISION_KEY);
 		const parsed = Number.parseInt(revision ?? '0', 10);
 		return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 	}
@@ -111,10 +106,10 @@ export class EncryptedSyncRelayServer implements Server {
 		const chunkCount = await this.getChunkCount();
 		if (chunkCount > 0) {
 			for (let index = 0; index < chunkCount; index += 1) {
-				await this.room.storage.delete(this.getSnapshotChunkKey(index));
+				await this.ctx.storage.delete(this.getSnapshotChunkKey(index));
 			}
 		}
-		await this.room.storage.delete(SNAPSHOT_CHUNK_COUNT_KEY);
+		await this.ctx.storage.delete(SNAPSHOT_CHUNK_COUNT_KEY);
 	}
 
 	private async readSnapshot(): Promise<string | undefined> {
@@ -122,7 +117,7 @@ export class EncryptedSyncRelayServer implements Server {
 		if (chunkCount > 0) {
 			const chunks = await Promise.all(
 				Array.from({ length: chunkCount }, async (_value, index) => {
-					return this.room.storage.get<string>(this.getSnapshotChunkKey(index));
+					return this.ctx.storage.get<string>(this.getSnapshotChunkKey(index));
 				}),
 			);
 			if (chunks.some((chunk) => chunk == null)) {
@@ -130,12 +125,12 @@ export class EncryptedSyncRelayServer implements Server {
 			}
 			return chunks.join('');
 		}
-		return this.room.storage.get<string>(SNAPSHOT_KEY);
+		return this.ctx.storage.get<string>(SNAPSHOT_KEY);
 	}
 
 	private async writeSnapshot(snapshot: string): Promise<void> {
 		if (this.getByteLength(snapshot) <= MAX_STORAGE_VALUE_BYTES) {
-			await this.room.storage.put(SNAPSHOT_KEY, snapshot);
+			await this.ctx.storage.put(SNAPSHOT_KEY, snapshot);
 			await this.clearChunkedSnapshot();
 			return;
 		}
@@ -151,16 +146,13 @@ export class EncryptedSyncRelayServer implements Server {
 		}
 
 		for (let index = 0; index < chunks.length; index += 1) {
-			await this.room.storage.put(
+			await this.ctx.storage.put(
 				this.getSnapshotChunkKey(index),
 				chunks[index],
 			);
 		}
-		await this.room.storage.put(
-			SNAPSHOT_CHUNK_COUNT_KEY,
-			String(chunks.length),
-		);
-		await this.room.storage.delete(SNAPSHOT_KEY);
+		await this.ctx.storage.put(SNAPSHOT_CHUNK_COUNT_KEY, String(chunks.length));
+		await this.ctx.storage.delete(SNAPSHOT_KEY);
 	}
 
 	private async writeVersionedSnapshot(
@@ -194,7 +186,7 @@ export class EncryptedSyncRelayServer implements Server {
 
 			await this.writeSnapshot(snapshot);
 			const nextRevision = revision + 1;
-			await this.room.storage.put(SNAPSHOT_REVISION_KEY, String(nextRevision));
+			await this.ctx.storage.put(SNAPSHOT_REVISION_KEY, String(nextRevision));
 			return new Response('ok', {
 				headers: { ...headers, ETag: `"${nextRevision}"` },
 				status: 200,
@@ -254,7 +246,7 @@ export class EncryptedSyncRelayServer implements Server {
 		void connection;
 	}
 
-	onMessage(message: string | ArrayBuffer, sender: Connection): void {
+	onMessage(sender: Connection, message: WSMessage): void {
 		if (typeof message !== 'string') return;
 
 		const splitAt = message.indexOf(MESSAGE_SEPARATOR);
@@ -270,10 +262,10 @@ export class EncryptedSyncRelayServer implements Server {
 
 		if (toClientId === '') {
 			// Broadcast to all except sender
-			this.room.broadcast(forwardedPayload, [sender.id]);
+			this.broadcast(forwardedPayload, [sender.id]);
 		} else {
 			// Direct message to a specific client
-			for (const conn of this.room.getConnections()) {
+			for (const conn of this.getConnections()) {
 				if (conn.id === toClientId) {
 					conn.send(forwardedPayload);
 					break;
