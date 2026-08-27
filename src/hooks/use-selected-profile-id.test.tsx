@@ -1,4 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -124,5 +125,79 @@ describe('useSelectedProfileId', () => {
 		await waitFor(() => {
 			expect(result.current[0]).toBe('noam');
 		});
+	});
+
+	it('handles SSR via renderToString', () => {
+		const store = createStore();
+		store.setRow(TABLE_IDS.PROFILES, 'ada', { name: 'Ada' });
+
+		function TestComponent() {
+			const [selectedProfileId] = useSelectedProfileId();
+			return <div>{selectedProfileId ?? 'none'}</div>;
+		}
+
+		const Wrapper = createWrapper(store);
+		const html = renderToString(
+			<Wrapper>
+				<TestComponent />
+			</Wrapper>,
+		);
+
+		expect(html).toContain('ada');
+	});
+
+	it('handles SSR when window is undefined during renderToString', () => {
+		const store = createStore();
+
+		function TestComponent() {
+			const [selectedProfileId] = useSelectedProfileId();
+			return <div>{selectedProfileId ?? 'none'}</div>;
+		}
+
+		const Wrapper = createWrapper(store);
+		const originalWindow = globalThis.window;
+		try {
+			// @ts-expect-error - simulating non-browser environment
+			delete globalThis.window;
+
+			const html = renderToString(
+				<Wrapper>
+					<TestComponent />
+				</Wrapper>,
+			);
+
+			expect(html).toContain('none');
+		} finally {
+			globalThis.window = originalWindow;
+		}
+	});
+
+	it('returns dummy cleanup from subscribe when window is undefined during mount', () => {
+		const store = createStore();
+		const originalWindow = globalThis.window;
+
+		Object.defineProperty(globalThis, 'window', {
+			configurable: true,
+			get() {
+				const stack = new Error().stack ?? '';
+				if (stack.includes('subscribeToLocallySelectedProfileId')) {
+					return undefined;
+				}
+				return originalWindow;
+			},
+		});
+
+		try {
+			const { unmount } = renderHook(() => useSelectedProfileId(), {
+				wrapper: createWrapper(store),
+			});
+			unmount();
+		} finally {
+			Object.defineProperty(globalThis, 'window', {
+				configurable: true,
+				value: originalWindow,
+				writable: true,
+			});
+		}
 	});
 });
