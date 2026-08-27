@@ -1,0 +1,48 @@
+name: Validate PartyServer
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'party/**'
+      - 'packages/tinybase-synchronizer-partykit-server-encrypted/**'
+      - 'wrangler.jsonc'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: partyserver-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check PartyServer
+        run: pnpm typecheck
+
+      - name: Test encrypted relay
+        run: pnpm --filter tinybase-synchronizer-partykit-server-encrypted test -- --run
+
+      - name: Build Cloudflare Worker
+        run: pnpm check:partyserver

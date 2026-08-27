@@ -1,4 +1,4 @@
-name: PartyKit Deploy Reusable
+name: PartyServer Deploy Reusable
 
 on:
   workflow_call:
@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       deploy_command:
-        description: PartyKit deploy command
+        description: Wrangler deploy command
         required: true
         type: string
       deployment_description:
@@ -31,10 +31,6 @@ on:
         description: Failure deployment status description
         required: true
         type: string
-      transient_environment:
-        description: Whether environment is transient
-        required: true
-        type: boolean
       production_environment:
         description: Whether environment is production
         required: true
@@ -44,8 +40,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      PARTYKIT_ACCOUNT: clentfort
-      PARTYKIT_PROJECT_NAME: adameter-party
+      CLOUDFLARE_ACCOUNT_ID: 296ad2d28c982363548f2493c36c1844
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -62,7 +57,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Create GitHub deployment
         id: create_deployment
@@ -76,7 +71,6 @@ jobs:
               environment: '${{ inputs.deployment_environment }}',
               auto_merge: false,
               required_contexts: [],
-              transient_environment: ${{ inputs.transient_environment }},
               production_environment: ${{ inputs.production_environment }},
               description: '${{ inputs.deployment_description }}',
             });
@@ -100,15 +94,14 @@ jobs:
               description: process.env.DEPLOYMENT_DESCRIPTION,
             });
 
-      - name: Deploy PartyKit environment
-        id: deploy_partykit
+      - name: Deploy PartyServer environment
+        id: deploy_partyserver
         run: ${{ inputs.deploy_command }}
         env:
-          PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}
-          PARTYKIT_LOGIN: ${{ secrets.PARTYKIT_LOGIN  }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Mark deployment successful
-        if: always() && steps.deploy_partykit.outcome == 'success'
+        if: always() && steps.deploy_partyserver.outcome == 'success'
         uses: actions/github-script@v9
         env:
           DEPLOYMENT_ID: ${{ steps.create_deployment.outputs.result }}
@@ -127,7 +120,7 @@ jobs:
             });
 
       - name: Mark deployment failed
-        if: always() && steps.deploy_partykit.outcome != 'success'
+        if: always() && steps.deploy_partyserver.outcome != 'success'
         uses: actions/github-script@v9
         env:
           DEPLOYMENT_ID: ${{ steps.create_deployment.outputs.result }}

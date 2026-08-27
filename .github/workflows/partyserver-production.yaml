@@ -1,0 +1,48 @@
+name: Deploy PartyServer
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'party/**'
+      - 'packages/tinybase-synchronizer-partykit-server-encrypted/**'
+      - 'wrangler.jsonc'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/partyserver-*.yaml'
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: partyserver-production-main
+  cancel-in-progress: true
+
+jobs:
+  deploy-production:
+    uses: ./.github/workflows/partyserver-deploy-reusable.yaml
+    with:
+      deployment_environment: partyserver-production
+      deployment_url: https://adameter-party.adameter.workers.dev
+      deploy_command: pnpm deploy:partyserver
+      deployment_description: PartyServer production deployment
+      in_progress_description: PartyServer production deployment in progress
+      success_description: PartyServer production deployment is ready
+      failure_description: PartyServer production deployment failed
+      production_environment: true
+    secrets: inherit
+
+  deploy-preview:
+    uses: ./.github/workflows/partyserver-deploy-reusable.yaml
+    with:
+      deployment_environment: partyserver-shared-preview
+      deployment_url: https://adameter-party-preview.adameter.workers.dev
+      deploy_command: pnpm deploy:partyserver:preview
+      deployment_description: PartyServer shared preview deployment
+      in_progress_description: PartyServer shared preview deployment in progress
+      success_description: PartyServer shared preview is ready
+      failure_description: PartyServer shared preview deployment failed
+      production_environment: false
+    secrets: inherit
