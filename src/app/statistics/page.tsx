@@ -3,7 +3,7 @@
 import type { TimeRange } from '@/utils/get-range-dates';
 import { addDays, format, isWithinInterval } from 'date-fns';
 import { fbt } from 'fbtee';
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import {
 	Card,
 	CardContent,
@@ -55,6 +55,21 @@ import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
 
 export default function StatisticsPage() {
+	useEffect(() => {
+		// Applying snap to the root element ensures it works with the main scroll container
+		const root = document.documentElement;
+		const originalClasses = root.className;
+		const originalScrollPadding = root.style.scrollPaddingTop;
+
+		root.classList.add('snap-y', 'snap-proximity');
+		root.style.scrollPaddingTop = '76px';
+
+		return () => {
+			root.className = originalClasses;
+			root.style.scrollPaddingTop = originalScrollPadding;
+		};
+	}, []);
+
 	const diaperChanges = useDiaperChangesSnapshot();
 	const diaperProducts = useDiaperProductsSnapshot();
 	const events = useEventsSnapshot();
@@ -157,6 +172,8 @@ export default function StatisticsPage() {
 				),
 		[diaperChanges, productById],
 	);
+
+	const chartHeight = 'calc(100dvh - var(--header-height-sticky) - 120px)';
 
 	return (
 		<div className={cn('w-full transition-opacity', isPending && 'opacity-50')}>
@@ -378,7 +395,7 @@ export default function StatisticsPage() {
 								/>
 							</div>
 
-							<Card className="mt-4">
+							<Card className="mt-4 snap-start">
 								<CardHeader className="p-4 pb-2">
 									<CardTitle className="text-base">
 										<fbt desc="Title for the diaper activity card showing Activity, Cost and Brand tabs">
@@ -425,6 +442,7 @@ export default function StatisticsPage() {
 												<DiaperPottyActivityChart
 													className="px-4 pb-4"
 													diaperChanges={diaperChanges}
+													height={chartHeight}
 													primaryRange={primary}
 													secondaryRange={secondary}
 												/>
@@ -437,6 +455,7 @@ export default function StatisticsPage() {
 												<DiaperCostChart
 													className="px-4 pb-4"
 													diaperChanges={diaperChanges}
+													height={chartHeight}
 													primaryRange={primary}
 													products={diaperProducts}
 													secondaryRange={secondary}
