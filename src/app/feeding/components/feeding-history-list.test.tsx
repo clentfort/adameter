@@ -178,4 +178,30 @@ describe('FeedingHistoryList', () => {
 			screen.queryByText(/do you really want to delete this entry\?/i),
 		).not.toBeInTheDocument();
 	});
+
+	it('should render notes and midnight crossing notice when present', () => {
+		const mockSession: FeedingSession = {
+			breast: 'left',
+			durationInSeconds: 3600,
+			endTime: '2023-01-02T00:30:00Z',
+			id: 'test-session-overnight',
+			notes: 'Late night feeding session',
+			startTime: '2023-01-01T23:30:00Z',
+		};
+
+		mockUseFeedingSession.mockImplementation((id) =>
+			id === mockSession.id ? mockSession : undefined,
+		);
+
+		render(
+			<TestWrapper sessions={[mockSession]}>
+				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+			</TestWrapper>,
+		);
+
+		expect(screen.getByText('Late night feeding session')).toBeInTheDocument();
+		expect(
+			screen.getByText('This session crosses midnight'),
+		).toBeInTheDocument();
+	});
 });
