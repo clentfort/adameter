@@ -84,10 +84,7 @@ describe('FeedingsPerDayStats', () => {
 
 	it('handles empty comparisonSessions array gracefully', () => {
 		render(
-			<FeedingsPerDayStats
-				comparisonSessions={[]}
-				sessions={mockSessions}
-			/>,
+			<FeedingsPerDayStats comparisonSessions={[]} sessions={mockSessions} />,
 		);
 		expect(screen.getByText('1.7')).toBeInTheDocument();
 	});
