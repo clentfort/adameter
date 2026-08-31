@@ -180,4 +180,34 @@ describe('IndexedGrowthHistoryList', () => {
 		expect(screen.getByText(/growing well/i)).toBeDefined();
 		expect(screen.getByText(/first tooth/i)).toBeDefined();
 	});
+
+	it('should handle date keys that already include a colon when selected profile ID is set', () => {
+		const store = createStore();
+
+		// Add a growth measurement without a profileId
+		store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-1', {
+			date: '2024-01-15T11:00:00Z',
+			weight: 4000,
+		});
+
+		// Add a teething entry WITH profileId 'profile-1', so its sliceId in TEETH_BY_DATE becomes 'profile-1:2024-01-15'
+		store.setRow(TABLE_IDS.TEETHING, 'tooth-1', {
+			date: '2024-01-15T10:00:00Z',
+			profileId: 'profile-1',
+			toothId: 51,
+		});
+
+		// Now set selected profile ID to 'profile-1' AFTER teethDateKeys includes '2024-01-15'
+		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'profile-1');
+
+		render(
+			<Provider store={store}>
+				<TinybaseIndexesProvider>
+					<IndexedGrowthHistoryList />
+				</TinybaseIndexesProvider>
+			</Provider>,
+		);
+
+		expect(screen.getByText(/tooth 51/i)).toBeInTheDocument();
+	});
 });
