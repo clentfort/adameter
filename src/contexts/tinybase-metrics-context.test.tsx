@@ -203,4 +203,42 @@ describe('TinybaseMetricsProvider', () => {
 		expect(metrics.getMetric(METRIC_IDS.GROWTH_MAX_WEIGHT)).toBe(4000);
 		expect(metrics.getMetric(METRIC_IDS.GROWTH_MAX_HEIGHT)).toBe(50);
 	});
+
+	it('should handle rows with missing or non-string timestamp, startTime, and duration', () => {
+		const store = createStore();
+		store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'baby-1');
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'diaper-other-profile', {
+			profileId: 'baby-2',
+		});
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, 'diaper-invalid-ts', {
+			containsStool: false,
+			containsUrine: false,
+			profileId: 'baby-1',
+			timestamp: 12_345,
+		});
+		store.setRow(TABLE_IDS.FEEDING_SESSIONS, 'feeding-invalid-start', {
+			profileId: 'baby-1',
+			startTime: 12_345,
+		});
+		store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-empty', {
+			notes: 'empty measurement',
+			profileId: 'baby-1',
+		});
+
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<Provider store={store}>
+				<TinybaseMetricsProvider>{children}</TinybaseMetricsProvider>
+			</Provider>
+		);
+
+		const { result } = renderHook(() => useTinybaseMetrics(), { wrapper });
+		const metrics = result.current!;
+
+		expect(metrics.getMetric(METRIC_IDS.DIAPER_CHANGES_TOTAL)).toBe(1);
+		expect(metrics.getMetric(METRIC_IDS.DIAPER_CHANGES_TODAY)).toBe(0);
+		expect(metrics.getMetric(METRIC_IDS.FEEDING_SESSIONS_TODAY)).toBe(0);
+		expect(metrics.getMetric(METRIC_IDS.FEEDING_AVG_DURATION)).toBe(0);
+		expect(metrics.getMetric(METRIC_IDS.GROWTH_MAX_WEIGHT)).toBe(0);
+		expect(metrics.getMetric(METRIC_IDS.GROWTH_MAX_HEIGHT)).toBe(0);
+	});
 });
