@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('idle-callback polyfill', () => {
 	beforeEach(() => {
+		vi.resetModules();
 		vi.useFakeTimers();
 	});
 
