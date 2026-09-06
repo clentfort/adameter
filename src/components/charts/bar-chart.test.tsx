@@ -10,7 +10,19 @@ const mockChartInstance = {
 		labels: [],
 	},
 	destroy: mockDestroy,
-	options: {},
+	options: {
+		plugins: {
+			title: {
+				text: '',
+			},
+		},
+		scales: {
+			y: {
+				max: undefined as number | undefined,
+				min: undefined as number | undefined,
+			},
+		},
+	},
 	update: mockUpdate,
 };
 const mockChart = vi.fn((...args: unknown[]) => mockChartInstance);
@@ -246,5 +258,148 @@ describe('BarChart', () => {
 		});
 
 		expect(screen.getByText('No data')).toBeInTheDocument();
+	});
+
+	it('should exercise chart updates, dark mode, default tooltips, and vertical line edge cases', async () => {
+		document.documentElement.classList.add('dark');
+
+		const initialDatasets = [
+			{
+				backgroundColor: 'red',
+				data: [10],
+				label: 'Set 1',
+				stack: 'comparison',
+			},
+		];
+		const verticalLines = [
+			{ color: 'purple', label: 'Marker', x: 0 },
+			{ x: 100 }, // Out of bounds pixel xPos, default colors
+		];
+
+		const { rerender } = render(
+			<BarChart
+				datasets={initialDatasets}
+				emptyStateMessage="No data"
+				grouped={false}
+				labels={['Day 1']}
+				title="Initial Title"
+				verticalLines={verticalLines}
+				xAxisLabel="X Axis"
+				yAxisLabel="Y Axis"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		type MockChartConfig = {
+			data: {
+				datasets: {
+					borderRadius: number;
+					categoryPercentage: number;
+					grouped: boolean;
+
+				}[];
+			};
+			options: {
+				plugins: {
+					title: { display: boolean; text: string };
+					tooltip: {
+						callbacks: {
+							label: (ctx: { dataset: { label?: string }; parsed: { y: number | null } }) => string;
+						};
+					};
+				};
+				scales: {
+					y: { ticks: { callback: (val: number) => string | number } };
+				};
+			};
+			plugins: {
+				beforeDatasetsDraw: (chart: {
+					ctx: unknown;
+					scales: {
+						x: { getPixelForValue: (v: number) => number; left: number; right: number };
+						y: { bottom: number; top: number };
+					};
+				}) => void;
+				id: string;
+			}[];
+		};
+
+		const chartConfig = mockChart.mock.calls[0][1] as unknown as MockChartConfig;
+
+		// Check categoryPercentage and borderRadius for grouped=false and stack='comparison'
+		expect(chartConfig.data.datasets[0].categoryPercentage).toBe(1.0);
+		expect(chartConfig.data.datasets[0].borderRadius).toBe(0);
+
+		// Test default tooltip label callback without unit or label, and with null parsed y
+		const labelCallback = chartConfig.options.plugins.tooltip.callbacks.label;
+		expect(labelCallback({ dataset: {}, parsed: { y: 12.34 } })).toBe('12.3');
+		expect(labelCallback({ dataset: { label: 'Set 1' }, parsed: { y: null } })).toBe('Set 1: ');
+
+		// Test y-axis tick callback without unit
+		const tickCallback = chartConfig.options.scales.y.ticks.callback;
+		expect(tickCallback(25.43)).toBe(25.4);
+
+		// Test vertical line plugin in dark mode with out-of-bounds line and default color line
+		const verticalLinesPlugin = chartConfig.plugins.find((p) => p.id === 'verticalLines')!;
+		const mockCtx = {
+			beginPath: vi.fn(),
+			fillStyle: '',
+			fillText: vi.fn(),
+			font: '',
+			lineTo: vi.fn(),
+			lineWidth: 0,
+			moveTo: vi.fn(),
+			restore: vi.fn(),
+			save: vi.fn(),
+			setLineDash: vi.fn(),
+			stroke: vi.fn(),
+			strokeStyle: '',
+			textAlign: '',
+		};
+
+		const mockScales = {
+			x: {
+				getPixelForValue: vi.fn((val) => (val === 0 ? 50 : 250)),
+				left: 0,
+				right: 200,
+			},
+			y: { bottom: 100, top: 0 },
+		};
+
+		verticalLinesPlugin.beforeDatasetsDraw({ ctx: mockCtx, scales: mockScales });
+		expect(mockCtx.save).toHaveBeenCalled();
+		expect(mockCtx.fillText).toHaveBeenCalledWith('Marker', 50, 15);
+		expect(mockCtx.restore).toHaveBeenCalled();
+
+		// Update chart instance via rerender
+		const updatedDatasets = [
+			{ backgroundColor: 'blue', data: [20], label: 'Updated Set' },
+		];
+
+		rerender(
+			<BarChart
+				datasets={updatedDatasets}
+				emptyStateMessage="No data"
+				grouped={true}
+				labels={['Day 1']}
+				title="Updated Title"
+				xAxisLabel="X Axis"
+				yAxisLabel="Y Axis"
+				yMax={100}
+				yMin={0}
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(2);
+		expect(mockDestroy).toHaveBeenCalledTimes(1);
+
+		document.documentElement.classList.remove('dark');
 	});
 });
