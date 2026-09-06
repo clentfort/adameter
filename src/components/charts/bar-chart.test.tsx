@@ -299,7 +299,6 @@ describe('BarChart', () => {
 					borderRadius: number;
 					categoryPercentage: number;
 					grouped: boolean;
-
 				}[];
 			};
 			options: {
@@ -307,7 +306,10 @@ describe('BarChart', () => {
 					title: { display: boolean; text: string };
 					tooltip: {
 						callbacks: {
-							label: (ctx: { dataset: { label?: string }; parsed: { y: number | null } }) => string;
+							label: (ctx: {
+								dataset: { label?: string };
+								parsed: { y: number | null };
+							}) => string;
 						};
 					};
 				};
@@ -319,7 +321,11 @@ describe('BarChart', () => {
 				beforeDatasetsDraw: (chart: {
 					ctx: unknown;
 					scales: {
-						x: { getPixelForValue: (v: number) => number; left: number; right: number };
+						x: {
+							getPixelForValue: (v: number) => number;
+							left: number;
+							right: number;
+						};
 						y: { bottom: number; top: number };
 					};
 				}) => void;
@@ -327,7 +333,8 @@ describe('BarChart', () => {
 			}[];
 		};
 
-		const chartConfig = mockChart.mock.calls[0][1] as unknown as MockChartConfig;
+		const chartConfig = mockChart.mock
+			.calls[0][1] as unknown as MockChartConfig;
 
 		// Check categoryPercentage and borderRadius for grouped=false and stack='comparison'
 		expect(chartConfig.data.datasets[0].categoryPercentage).toBe(1.0);
@@ -336,14 +343,18 @@ describe('BarChart', () => {
 		// Test default tooltip label callback without unit or label, and with null parsed y
 		const labelCallback = chartConfig.options.plugins.tooltip.callbacks.label;
 		expect(labelCallback({ dataset: {}, parsed: { y: 12.34 } })).toBe('12.3');
-		expect(labelCallback({ dataset: { label: 'Set 1' }, parsed: { y: null } })).toBe('Set 1: ');
+		expect(
+			labelCallback({ dataset: { label: 'Set 1' }, parsed: { y: null } }),
+		).toBe('Set 1: ');
 
 		// Test y-axis tick callback without unit
 		const tickCallback = chartConfig.options.scales.y.ticks.callback;
 		expect(tickCallback(25.43)).toBe(25.4);
 
 		// Test vertical line plugin in dark mode with out-of-bounds line and default color line
-		const verticalLinesPlugin = chartConfig.plugins.find((p) => p.id === 'verticalLines')!;
+		const verticalLinesPlugin = chartConfig.plugins.find(
+			(p) => p.id === 'verticalLines',
+		)!;
 		const mockCtx = {
 			beginPath: vi.fn(),
 			fillStyle: '',
@@ -369,7 +380,10 @@ describe('BarChart', () => {
 			y: { bottom: 100, top: 0 },
 		};
 
-		verticalLinesPlugin.beforeDatasetsDraw({ ctx: mockCtx, scales: mockScales });
+		verticalLinesPlugin.beforeDatasetsDraw({
+			ctx: mockCtx,
+			scales: mockScales,
+		});
 		expect(mockCtx.save).toHaveBeenCalled();
 		expect(mockCtx.fillText).toHaveBeenCalledWith('Marker', 50, 15);
 		expect(mockCtx.restore).toHaveBeenCalled();
