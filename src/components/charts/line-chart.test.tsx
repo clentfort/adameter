@@ -880,7 +880,9 @@ describe('LineChart', () => {
 
 		// Rerender with updated props and rangeData to trigger lines 82-160
 		const updatedData = [{ x: new Date('2023-01-01'), y: 20 }];
-		const updatedRangeData = [{ x: new Date('2023-01-01'), yMax: 25, yMin: 15 }];
+		const updatedRangeData = [
+			{ x: new Date('2023-01-01'), yMax: 25, yMin: 15 },
+		];
 		rerender(
 			<LineChart
 				data={updatedData}
