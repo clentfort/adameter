@@ -150,6 +150,11 @@ describe('growth-standards', () => {
 			expect(range).toBeNull();
 		});
 
+		it('should handle weight for age over 5 years in getPercentile', async () => {
+			const p = await getPercentile('weight-for-age', 'boy', 2000, 15_000);
+			expect(p).toBeNull();
+		});
+
 		it('should return null and handle errors gracefully when getGrowthTable throws', async () => {
 			const range = await getGrowthRange(
 				'weight-for-age',
@@ -202,6 +207,50 @@ describe('growth-standards', () => {
 				3000,
 			);
 			expect(p).toBeNull();
+		});
+
+		it('should catch errors thrown during getPercentile execution', async () => {
+			const throwingValue = {
+				[Symbol.toPrimitive]() {
+					throw new Error('Test error');
+				},
+				valueOf() {
+					throw new Error('Test error');
+				},
+			};
+			const p = await getPercentile(
+				'weight-for-age',
+				'boy',
+				0,
+				throwingValue as unknown as number,
+			);
+			expect(p).toBeNull();
+		});
+
+		it('should catch errors thrown during getGrowthRange execution', async () => {
+			let calls = 0;
+			const sneakyAge = {
+				[Symbol.toPrimitive]() {
+					calls++;
+					if (calls > 1) {
+						throw new Error('Test error');
+					}
+					return 10;
+				},
+				valueOf() {
+					calls++;
+					if (calls > 1) {
+						throw new Error('Test error');
+					}
+					return 10;
+				},
+			};
+			const range = await getGrowthRange(
+				'weight-for-age',
+				'boy',
+				sneakyAge as unknown as number,
+			);
+			expect(range).toBeNull();
 		});
 	});
 });
