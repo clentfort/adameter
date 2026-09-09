@@ -268,6 +268,31 @@ describe('GrowthChart', () => {
 		});
 	});
 
+	it('handles measurements with missing or zero values for weight, height, and head circumference', async () => {
+		mockUseUnitSystem.mockReturnValue(['metric', vi.fn()]);
+		mockUseProfile.mockReturnValue([
+			{ dob: '2024-01-01', sex: 'boy' } as Profile,
+			vi.fn(),
+		]);
+
+		const zeroMeasurements: GrowthMeasurement[] = [
+			{
+				date: new Date('2024-01-01T00:00:00Z').toISOString(),
+				headCircumference: 0,
+				height: 0,
+				id: 'zero-1',
+				weight: 0,
+			},
+		];
+
+		render(<GrowthChart measurements={zeroMeasurements} />);
+
+		await vi.waitFor(() => {
+			expect(screen.getByText('Weight (g)')).toBeInTheDocument();
+			expect(screen.queryByText(/^P\d+/)).not.toBeInTheDocument();
+		});
+	});
+
 	afterEach(() => {
 		cleanup();
 	});
