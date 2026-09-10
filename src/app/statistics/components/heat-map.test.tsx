@@ -181,11 +181,15 @@ describe('HeatMap', () => {
 			expect(within(heatMapCard).getByText('2 Feedings')).toBeInTheDocument();
 
 			fireEvent.pointerUp(heatMapContainer);
-			expect(within(heatMapCard).queryByText('2 Feedings')).not.toBeInTheDocument();
+			expect(
+				within(heatMapCard).queryByText('2 Feedings'),
+			).not.toBeInTheDocument();
 
 			fireEvent.pointerDown(heatMapContainer, { clientX: 1, clientY: 80 });
 			fireEvent.pointerCancel(heatMapContainer);
-			expect(within(heatMapCard).queryByText('2 Feedings')).not.toBeInTheDocument();
+			expect(
+				within(heatMapCard).queryByText('2 Feedings'),
+			).not.toBeInTheDocument();
 		}
 	});
 
