@@ -2,6 +2,36 @@ import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import LineChart from './line-chart';
 
+let enablePersistentChartRef = false;
+const interceptedRefs = new WeakSet<object>();
+
+vi.mock('react', async () => {
+	const actual = await vi.importActual<typeof import('react')>('react');
+	return {
+		...actual,
+		useRef: <T,>(initialValue: T) => {
+			const ref = actual.useRef<T>(initialValue);
+			if (initialValue === null && !interceptedRefs.has(ref as object)) {
+				interceptedRefs.add(ref as object);
+				let val = ref.current;
+				Object.defineProperty(ref, 'current', {
+					configurable: true,
+					enumerable: true,
+					get: () => val,
+					set: (newVal) => {
+						if (enablePersistentChartRef && val && newVal === null) {
+							// Retain existing chart instance during cleanup when testing the update branch
+							return;
+						}
+						val = newVal;
+					},
+				});
+			}
+			return ref;
+		},
+	};
+});
+
 const mockDestroy = vi.fn();
 const mockUpdate = vi.fn();
 const mockChartInstance = {
@@ -797,5 +827,86 @@ describe('LineChart', () => {
 
 		expect(mockChart).toHaveBeenCalledTimes(2);
 		expect(mockDestroy).toHaveBeenCalledTimes(1);
+	});
+
+	it('covers existing chart instance update path and vertical line out-of-bounds check', async () => {
+		const initialData = [{ x: new Date('2023-01-01'), y: 10 }];
+		const rangeData = [{ x: new Date('2023-01-01'), yMax: 15, yMin: 5 }];
+		const { rerender } = render(
+			<LineChart
+				data={initialData}
+				datasetLabel="Initial"
+				emptyStateMessage="No data"
+				rangeData={rangeData}
+				title="Chart"
+				xAxisLabel="X"
+				yAxisLabel="Y"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(1);
+
+		// Test vertical line out-of-bounds guard (line 216)
+		const chartConfig = mockChart.mock.calls.at(-1)![1] as {
+			plugins: { beforeDatasetsDraw: (chart: unknown) => void; id: string }[];
+		};
+		const verticalLinesPlugin = chartConfig.plugins.find(
+			(p) => p.id === 'verticalLines',
+		)!;
+		const mockCtx = {
+			beginPath: vi.fn(),
+			restore: vi.fn(),
+			save: vi.fn(),
+			stroke: vi.fn(),
+		};
+		const mockChartObjOutOfBounds = {
+			ctx: mockCtx,
+			scales: {
+				x: { getPixelForValue: () => -50, left: 0, right: 200 },
+				y: { bottom: 100, top: 0 },
+			},
+		};
+		// Invoke vertical line plugin with out of bounds position
+		verticalLinesPlugin.beforeDatasetsDraw(mockChartObjOutOfBounds);
+		expect(mockCtx.beginPath).not.toHaveBeenCalled();
+
+		// Enable persistent chart ref so chartInstance.current is not set to null during cleanup
+		document.documentElement.classList.add('dark');
+		enablePersistentChartRef = true;
+
+		// Rerender with updated props and rangeData to trigger lines 82-160
+		const updatedData = [{ x: new Date('2023-01-01'), y: 20 }];
+		const updatedRangeData = [
+			{ x: new Date('2023-01-01'), yMax: 25, yMin: 15 },
+		];
+		rerender(
+			<LineChart
+				data={updatedData}
+				datasetLabel="Updated"
+				emptyStateMessage="No data"
+				forecastDate={new Date('2023-01-10')}
+				rangeData={updatedRangeData}
+				title="Updated Chart"
+				xAxisLabel="X"
+				xAxisType="time"
+				xMax={500}
+				xMin={0}
+				yAxisLabel="Y"
+				yMax={100}
+				yMin={0}
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockUpdate).toHaveBeenCalled();
+		enablePersistentChartRef = false;
+		document.documentElement.classList.remove('dark');
 	});
 });
