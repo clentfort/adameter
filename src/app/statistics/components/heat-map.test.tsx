@@ -175,6 +175,105 @@ describe('HeatMap', () => {
 			// Simulate pointer leave
 			fireEvent.pointerLeave(heatMapContainer);
 			expect(within(heatMapCard).queryByText('00:10')).not.toBeInTheDocument();
+
+			// Simulate pointer cancel, down, up
+			fireEvent.pointerDown(heatMapContainer, { clientX: 1, clientY: 80 });
+			expect(within(heatMapCard).getByText('2 Feedings')).toBeInTheDocument();
+
+			fireEvent.pointerUp(heatMapContainer);
+			expect(
+				within(heatMapCard).queryByText('2 Feedings'),
+			).not.toBeInTheDocument();
+
+			fireEvent.pointerDown(heatMapContainer, { clientX: 1, clientY: 80 });
+			fireEvent.pointerCancel(heatMapContainer);
+			expect(
+				within(heatMapCard).queryByText('2 Feedings'),
+			).not.toBeInTheDocument();
+		}
+	});
+
+	it('handles sessions that span midnight', () => {
+		const midnightSession = [
+			createFeedingSession({
+				breast: 'left',
+				durationInSeconds: 1200, // 20 minutes (23:55 to 00:15)
+				endTime: '2024-01-02T00:15:00Z',
+				startTime: '2024-01-01T23:55:00Z',
+			}),
+		];
+		const { container } = renderHeatMap(midnightSession);
+		const heatMapCard = container.firstChild as HTMLElement;
+		const heatMapContainer = heatMapCard.querySelector('.cursor-crosshair');
+		expect(heatMapContainer).not.toBeNull();
+		if (heatMapContainer) {
+			// Interval 287 (23:55) and intervals 0, 1, 2, 3 (00:00 to 00:15) should have feedings
+			expect(heatMapContainer.children[287]).toHaveClass('bg-right-breast');
+			expect(heatMapContainer.children[0]).toHaveClass('bg-right-breast');
+			expect(heatMapContainer.children[1]).toHaveClass('bg-right-breast');
+			expect(heatMapContainer.children[2]).toHaveClass('bg-right-breast');
+			expect(heatMapContainer.children[3]).toHaveClass('bg-right-breast');
+			expect(heatMapContainer.children[4]).toHaveClass('bg-muted/60');
+		}
+	});
+
+	it('renders all intensity levels based on session count distribution', () => {
+		// Create 10 sessions at 00:00 to make maxCount = 10
+		// Level 0: count = 0 (intensity 0)
+		// Level 1: count = 1 (intensity 0.1 < 0.2)
+		// Level 2: count = 3 (intensity 0.3 < 0.4)
+		// Level 3: count = 5 (intensity 0.5 < 0.6)
+		// Level 4: count = 7 (intensity 0.7 < 0.8)
+		// Level 5: count = 10 (intensity 1.0 >= 0.8)
+		const multiIntensitySessions = [
+			...createFeedingSessions(
+				Array.from({ length: 10 }, () => ({
+					breast: 'left',
+					durationInSeconds: 60,
+					startTime: '2024-01-01T00:00:00Z',
+				})),
+			),
+			...createFeedingSessions(
+				Array.from({ length: 7 }, () => ({
+					breast: 'left',
+					durationInSeconds: 60,
+					startTime: '2024-01-01T00:05:00Z',
+				})),
+			),
+			...createFeedingSessions(
+				Array.from({ length: 5 }, () => ({
+					breast: 'left',
+					durationInSeconds: 60,
+					startTime: '2024-01-01T00:10:00Z',
+				})),
+			),
+			...createFeedingSessions(
+				Array.from({ length: 3 }, () => ({
+					breast: 'left',
+					durationInSeconds: 60,
+					startTime: '2024-01-01T00:15:00Z',
+				})),
+			),
+			...createFeedingSessions(
+				Array.from({ length: 1 }, () => ({
+					breast: 'left',
+					durationInSeconds: 60,
+					startTime: '2024-01-01T00:20:00Z',
+				})),
+			),
+		];
+
+		const { container } = renderHeatMap(multiIntensitySessions);
+		const heatMapCard = container.firstChild as HTMLElement;
+		const heatMapContainer = heatMapCard.querySelector('.cursor-crosshair');
+		expect(heatMapContainer).not.toBeNull();
+		if (heatMapContainer) {
+			expect(heatMapContainer.children[0]).toHaveClass('bg-right-breast'); // level 5
+			expect(heatMapContainer.children[1]).toHaveClass('bg-right-breast/65'); // level 4
+			expect(heatMapContainer.children[2]).toHaveClass('bg-right-breast/45'); // level 3
+			expect(heatMapContainer.children[3]).toHaveClass('bg-left-breast/45'); // level 2
+			expect(heatMapContainer.children[4]).toHaveClass('bg-left-breast/20'); // level 1
+			expect(heatMapContainer.children[5]).toHaveClass('bg-muted/60'); // level 0
 		}
 	});
 });
