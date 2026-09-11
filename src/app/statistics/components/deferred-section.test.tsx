@@ -131,6 +131,27 @@ describe('DeferredSection', () => {
 		expect(screen.queryByText('Content')).not.toBeInTheDocument();
 	});
 
+	it('renders children when intersection occurs before idle callback execution', async () => {
+		render(
+			<DeferredSection fallback={<div>Fallback</div>}>
+				<div>Content</div>
+			</DeferredSection>,
+		);
+
+		act(() => {
+			intersectionObserverCallback([
+				{ isIntersecting: true },
+			] as IntersectionObserverEntry[]);
+		});
+
+		act(() => {
+			vi.runAllTimers();
+		});
+
+		expect(screen.getByText('Content')).toBeInTheDocument();
+		expect(screen.queryByText('Fallback')).not.toBeInTheDocument();
+	});
+
 	it('renders fallback in SSR via renderToString', () => {
 		const html = renderToString(
 			<DeferredSection fallback={<div>Fallback</div>}>
