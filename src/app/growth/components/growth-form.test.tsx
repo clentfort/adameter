@@ -102,4 +102,72 @@ describe('MeasurementForm', () => {
 		expect(savedMeasurement.weight).toBe(3629);
 		expect(mockOnClose).toHaveBeenCalledTimes(1);
 	});
+
+	it('handles imperial conversions, validation errors, and NaN values when creating measurements', async () => {
+		// 1. Validation error when submitting empty values
+		mockUseUnitSystem.mockReturnValue(['metric', vi.fn()]);
+
+		const { unmount } = render(<MeasurementForm {...baseProps} />);
+
+		fireEvent.click(screen.getByTestId('save-button'));
+
+		await waitFor(() => {
+			expect(
+				screen.getByText(
+					/please enter at least a weight, height, or head circumference/i,
+				),
+			).toBeInTheDocument();
+		});
+		expect(mockOnSave).not.toHaveBeenCalled();
+		unmount();
+
+		// 2. Imperial conversion for height/headCircumference, generating a new ID when no measurement is provided
+		mockUseUnitSystem.mockReturnValue(['imperial', vi.fn()]);
+
+		const { unmount: unmountImperial } = render(
+			<MeasurementForm {...baseProps} />,
+		);
+
+		const heightInput = screen.getByLabelText(/height \(in\)/i);
+		const headCircumferenceInput = screen.getByLabelText(
+			/head circumference \(in\)/i,
+		);
+
+		fireEvent.change(heightInput, { target: { value: '20.0' } });
+		fireEvent.change(headCircumferenceInput, { target: { value: '14.0' } });
+
+		fireEvent.click(screen.getByTestId('save-button'));
+
+		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
+		const savedMeasurement = mockOnSave.mock.calls[0][0];
+
+		// 20.0 inches * 2.54 = 50.8 cm
+		expect(savedMeasurement.height).toBe(50.8);
+		// 14.0 inches * 2.54 = 35.56 cm -> rounded to 35.6 cm
+		expect(savedMeasurement.headCircumference).toBe(35.6);
+		expect(typeof savedMeasurement.id).toBe('string');
+		expect(savedMeasurement.id.length).toBeGreaterThan(0);
+		expect(mockOnClose).toHaveBeenCalledTimes(1);
+		unmountImperial();
+
+		// 3. Handling NaN numeric fields in imperial mode without throwing
+		const invalidMeasurement = {
+			date: '2025-01-01T12:00:00Z',
+			headCircumference: Number.NaN,
+			height: Number.NaN,
+			id: '123',
+			notes: '',
+			weight: Number.NaN,
+		};
+
+		render(
+			<MeasurementForm
+				{...baseProps}
+				measurement={invalidMeasurement}
+				title="Edit Measurement"
+			/>,
+		);
+
+		expect(screen.getByLabelText(/weight \(lbs\)/i)).toHaveValue(null);
+	});
 });
