@@ -147,4 +147,68 @@ describe('PieChart', () => {
 		// Test with null parsed
 		expect(labelFormatter({ label: 'Apples', parsed: null })).toBe('Apples: ');
 	});
+
+	it('exercises custom tooltipLabelFormatter, dark mode, and null canvas context', async () => {
+		document.documentElement.classList.add('dark');
+		const customFormatter = vi.fn().mockReturnValue('custom');
+		const datasets = [{ backgroundColor: ['red'], data: [10], label: 'Set 1' }];
+
+		const { unmount } = render(
+			<PieChart
+				datasets={datasets}
+				emptyStateMessage="No data"
+				labels={['A']}
+				title="Dark Chart"
+				tooltipLabelFormatter={customFormatter}
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		const chartConfig = mockChart.mock.calls.at(-1)![1] as {
+			options: {
+				plugins: {
+					title: { color: string };
+					tooltip: {
+						callbacks: {
+							label: (context: unknown) => string;
+						};
+					};
+				};
+			};
+		};
+
+		expect(chartConfig.options.plugins.title.color).toBe('#f4f4f5');
+		expect(
+			chartConfig.options.plugins.tooltip.callbacks.label({
+				label: 'A',
+				parsed: 10,
+			}),
+		).toBe('custom');
+		expect(customFormatter).toHaveBeenCalled();
+
+		unmount();
+		document.documentElement.classList.remove('dark');
+
+		const originalGetContext = HTMLCanvasElement.prototype.getContext;
+		HTMLCanvasElement.prototype.getContext = vi.fn(
+			() => null,
+		) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+
+		render(
+			<PieChart
+				datasets={datasets}
+				emptyStateMessage="No data"
+				labels={['A']}
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		HTMLCanvasElement.prototype.getContext = originalGetContext;
+	});
 });
