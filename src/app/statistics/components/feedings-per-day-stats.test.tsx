@@ -81,4 +81,11 @@ describe('FeedingsPerDayStats', () => {
 		expect(screen.getByText('1.7')).toBeInTheDocument();
 		expect(screen.getByText(/↑.*67%/)).toBeInTheDocument();
 	});
+
+	it('handles empty comparisonSessions array gracefully', () => {
+		render(
+			<FeedingsPerDayStats comparisonSessions={[]} sessions={mockSessions} />,
+		);
+		expect(screen.getByText('1.7')).toBeInTheDocument();
+	});
 });
