@@ -29,7 +29,11 @@ describe('EventForm', () => {
 
 		render(
 			<TestWrapper>
-				<EventForm onClose={mockOnClose} onSave={mockOnSave} title="Add Event" />
+				<EventForm
+					onClose={mockOnClose}
+					onSave={mockOnSave}
+					title="Add Event"
+				/>
 			</TestWrapper>,
 		);
 
@@ -97,9 +101,7 @@ describe('EventForm', () => {
 		await user.click(pointRadio);
 
 		// End date switch should disappear
-		expect(
-			screen.queryByTestId('has-end-date-switch'),
-		).not.toBeInTheDocument();
+		expect(screen.queryByTestId('has-end-date-switch')).not.toBeInTheDocument();
 
 		// Switch back to period
 		const periodRadio = screen.getByTestId('period-event-radio');
