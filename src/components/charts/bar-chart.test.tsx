@@ -471,7 +471,12 @@ describe('BarChart', () => {
 		enablePersistentChartRef = true;
 
 		const updatedDatasets = [
-			{ backgroundColor: 'blue', data: [20], label: 'Set 1', stack: 'comparison' },
+			{
+				backgroundColor: 'blue',
+				data: [20],
+				label: 'Set 1',
+				stack: 'comparison',
+			},
 		];
 
 		rerender(
