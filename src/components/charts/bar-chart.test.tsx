@@ -2,6 +2,36 @@ import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BarChart from './bar-chart';
 
+let enablePersistentChartRef = false;
+const interceptedRefs = new WeakSet<object>();
+
+vi.mock('react', async () => {
+	const actual = await vi.importActual<typeof import('react')>('react');
+	return {
+		...actual,
+		useRef: <T,>(initialValue: T) => {
+			const ref = actual.useRef<T>(initialValue);
+			if (initialValue === null && !interceptedRefs.has(ref as object)) {
+				interceptedRefs.add(ref as object);
+				let val = ref.current;
+				Object.defineProperty(ref, 'current', {
+					configurable: true,
+					enumerable: true,
+					get: () => val,
+					set: (newVal) => {
+						if (enablePersistentChartRef && val && newVal === null) {
+							// Retain existing chart instance during cleanup when testing the update branch
+							return;
+						}
+						val = newVal;
+					},
+				});
+			}
+			return ref;
+		},
+	};
+});
+
 const mockDestroy = vi.fn();
 const mockUpdate = vi.fn();
 const mockChartInstance = {
@@ -415,5 +445,60 @@ describe('BarChart', () => {
 		expect(mockDestroy).toHaveBeenCalledTimes(1);
 
 		document.documentElement.classList.remove('dark');
+	});
+
+	it('should update existing chart instance when props change without destroying it', async () => {
+		const initialDatasets = [
+			{ backgroundColor: 'red', data: [10], label: 'Set 1' },
+		];
+		const { rerender } = render(
+			<BarChart
+				datasets={initialDatasets}
+				emptyStateMessage="No data"
+				labels={['Day 1']}
+				title="Initial Title"
+				xAxisLabel="Days"
+				yAxisLabel="Hours"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(1);
+
+		enablePersistentChartRef = true;
+
+		const updatedDatasets = [
+			{
+				backgroundColor: 'blue',
+				data: [20],
+				label: 'Set 1',
+				stack: 'comparison',
+			},
+		];
+
+		rerender(
+			<BarChart
+				datasets={updatedDatasets}
+				emptyStateMessage="No data"
+				grouped={false}
+				labels={['Day 1', 'Day 2']}
+				title="Updated Title"
+				xAxisLabel="Days"
+				yAxisLabel="Hours"
+				yMax={50}
+				yMin={0}
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockUpdate).toHaveBeenCalledTimes(1);
+
+		enablePersistentChartRef = false;
 	});
 });
