@@ -181,6 +181,9 @@ describe('EventsList', () => {
 		fireEvent.click(screen.getByText('Edit'));
 		expect(screen.getByText('Edit Event Entry')).toBeInTheDocument();
 
+		// Save Edit Dialog
+		fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
 		// Close Edit Dialog via Cancel
 		fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
 		expect(screen.queryByText('Edit Event Entry')).not.toBeInTheDocument();
@@ -218,6 +221,38 @@ describe('EventsList', () => {
 		);
 
 		expect(screen.getByText('Checkup')).toBeInTheDocument();
+	});
+
+	it('should fallback to startDate and omit color param in extra actions navigation when color or endDate are absent', () => {
+		const store = createStore();
+		store.setRow(TABLE_IDS.EVENTS, 'event-no-color', {
+			color: '',
+			endDate: '',
+			notes: '',
+			startDate: '2024-01-14T10:00:00Z',
+			title: 'Simple Event',
+			type: 'point',
+		});
+
+		render(
+			<Provider store={store}>
+				<I18nProvider>
+					<TinybaseIndexesProvider>
+						<EventsList />
+					</TinybaseIndexesProvider>
+				</I18nProvider>
+			</Provider>,
+		);
+
+		const actionButton = screen.getByTestId('history-entry-actions');
+		fireEvent.click(actionButton);
+
+		const feedingOption = screen.getByText('Show Feeding Sessions');
+		fireEvent.click(feedingOption);
+
+		expect(mockPush).toHaveBeenLastCalledWith(
+			'/feeding?from=2024-01-14T10:00:00Z&to=2024-01-14T10:00:00Z&event=Simple%20Event',
+		);
 	});
 
 	it('should render null for non-existent event in list item', () => {
