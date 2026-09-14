@@ -8,7 +8,9 @@ describe('LocationPicker', () => {
 		render(<LocationPicker onChange={onChange} />);
 
 		expect(screen.getByTestId('get-location-button')).toBeInTheDocument();
-		expect(screen.queryByTestId('toggle-manual-location-button')).not.toBeInTheDocument();
+		expect(
+			screen.queryByTestId('toggle-manual-location-button'),
+		).not.toBeInTheDocument();
 	});
 
 	it('handles geolocation acquisition successfully', () => {
@@ -61,7 +63,13 @@ describe('LocationPicker', () => {
 
 	it('renders location coordinates display and clear button when location is present', () => {
 		const onChange = vi.fn();
-		render(<LocationPicker latitude={52.52} longitude={13.405} onChange={onChange} />);
+		render(
+			<LocationPicker
+				latitude={52.52}
+				longitude={13.405}
+				onChange={onChange}
+			/>,
+		);
 
 		expect(screen.getByText('52.52, 13.405')).toBeInTheDocument();
 

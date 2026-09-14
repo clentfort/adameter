@@ -14,7 +14,9 @@ describe('LocationMap', () => {
 		expect(iframe.src).toContain('marker=52.52%2C13.405');
 
 		expect(screen.getByText('52.52000, 13.40500')).toBeInTheDocument();
-		expect(screen.getByRole('link', { name: /view on openstreetmap/i })).toHaveAttribute(
+		expect(
+			screen.getByRole('link', { name: /view on openstreetmap/i }),
+		).toHaveAttribute(
 			'href',
 			'https://www.openstreetmap.org/?mlat=52.52&mlon=13.405#map=16/52.52/13.405',
 		);

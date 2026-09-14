@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
-import { LocationMap } from '@/components/location-map';
-import { Button } from '@/components/ui/button';
 import HistoryFilterIndicator from '@/components/history-filter-indicator';
 import IndexedHistoryList from '@/components/indexed-history-list';
+import { LocationMap } from '@/components/location-map';
 import Markdown from '@/components/markdown';
+import { Button } from '@/components/ui/button';
 import {
 	useDiaperChange,
 	useRemoveDiaperChange,
