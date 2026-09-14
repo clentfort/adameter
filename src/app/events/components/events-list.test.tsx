@@ -20,16 +20,21 @@ const mockUseSearchParams = vi.mocked(useSearchParams);
 function createStoreWithEvents(events: Event[]) {
 	const store = createStore();
 	for (const event of events) {
-		store.setRow(TABLE_IDS.EVENTS, event.id, {
+		const row: Record<string, boolean | number | string> = {
 			color: event.color ?? '#6366f1',
 			endDate: event.endDate ?? '',
-			locationLatitude: event.locationLatitude,
-			locationLongitude: event.locationLongitude,
 			notes: event.notes ?? '',
 			startDate: event.startDate,
 			title: event.title,
 			type: event.type,
-		});
+		};
+		if (event.locationLatitude !== undefined) {
+			row.locationLatitude = event.locationLatitude;
+		}
+		if (event.locationLongitude !== undefined) {
+			row.locationLongitude = event.locationLongitude;
+		}
+		store.setRow(TABLE_IDS.EVENTS, event.id, row);
 	}
 	return store;
 }

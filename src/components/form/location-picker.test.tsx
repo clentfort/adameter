@@ -16,8 +16,8 @@ describe('LocationPicker', () => {
 		const mockGetCurrentPosition = vi.fn((success) => {
 			success({
 				coords: {
-					latitude: 52.520008,
-					longitude: 13.404954,
+					latitude: 52.520_008,
+					longitude: 13.404_954,
 				},
 			});
 		});
@@ -33,7 +33,7 @@ describe('LocationPicker', () => {
 		fireEvent.click(screen.getByTestId('get-location-button'));
 
 		expect(mockGetCurrentPosition).toHaveBeenCalled();
-		expect(onChange).toHaveBeenCalledWith(52.52001, 13.40495);
+		expect(onChange).toHaveBeenCalledWith(52.520_01, 13.404_95);
 
 		vi.unstubAllGlobals();
 	});

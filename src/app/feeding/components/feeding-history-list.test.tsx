@@ -25,14 +25,19 @@ const mockUseSearchParams = vi.mocked(useSearchParams);
 function createStoreWithSessions(sessions: FeedingSession[]) {
 	const store = createStore();
 	for (const session of sessions) {
-		store.setRow(TABLE_IDS.FEEDING_SESSIONS, session.id, {
+		const row: Record<string, boolean | number | string> = {
 			breast: session.breast,
 			durationInSeconds: session.durationInSeconds,
 			endTime: session.endTime,
-			locationLatitude: session.locationLatitude,
-			locationLongitude: session.locationLongitude,
 			startTime: session.startTime,
-		});
+		};
+		if (session.locationLatitude !== undefined) {
+			row.locationLatitude = session.locationLatitude;
+		}
+		if (session.locationLongitude !== undefined) {
+			row.locationLongitude = session.locationLongitude;
+		}
+		store.setRow(TABLE_IDS.FEEDING_SESSIONS, session.id, row);
 	}
 	return store;
 }

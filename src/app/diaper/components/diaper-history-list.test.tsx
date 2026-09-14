@@ -20,19 +20,24 @@ vi.mock('@/i18n', async (importOriginal) => {
 function createStoreWithDiaperChanges(changes: DiaperChange[]) {
 	const store = createStore();
 	for (const change of changes) {
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, {
+		const row: Record<string, boolean | number | string> = {
 			containsStool: change.containsStool,
 			containsUrine: change.containsUrine,
 			diaperProductId: change.diaperProductId ?? '',
 			leakage: change.leakage ?? false,
-			locationLatitude: change.locationLatitude,
-			locationLongitude: change.locationLongitude,
 			notes: change.notes ?? '',
 			pottyStool: change.pottyStool ?? false,
 			pottyUrine: change.pottyUrine ?? false,
 			temperature: change.temperature ?? 0,
 			timestamp: change.timestamp,
-		});
+		};
+		if (change.locationLatitude !== undefined) {
+			row.locationLatitude = change.locationLatitude;
+		}
+		if (change.locationLongitude !== undefined) {
+			row.locationLongitude = change.locationLongitude;
+		}
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, row);
 	}
 	return store;
 }

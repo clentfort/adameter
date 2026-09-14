@@ -1,5 +1,4 @@
 import { format } from 'date-fns';
-import { fbt } from 'fbtee';
 import { ArrowRight, Baby, Calendar, MapPin, Milk } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';

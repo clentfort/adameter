@@ -43,8 +43,8 @@ export function LocationPicker({
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
 				setIsLoading(false);
-				const lat = Math.round(position.coords.latitude * 100000) / 100000;
-				const lon = Math.round(position.coords.longitude * 100000) / 100000;
+				const lat = Math.round(position.coords.latitude * 100_000) / 100_000;
+				const lon = Math.round(position.coords.longitude * 100_000) / 100_000;
 				onChange(lat, lon);
 			},
 			(err) => {
@@ -81,7 +81,7 @@ export function LocationPicker({
 			},
 			{
 				enableHighAccuracy: true,
-				timeout: 10000,
+				timeout: 10_000,
 			},
 		);
 	};
