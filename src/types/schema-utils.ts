@@ -65,13 +65,14 @@ export const requiredNameField = z.string().trim().min(1);
 
 export function numericInputField(message: string) {
 	return z
-		.string()
+		.union([z.number(), z.string()])
 		.optional()
 		.refine(
-			(value) =>
-				value === undefined ||
-				value.length === 0 ||
-				!Number.isNaN(Number(value)),
+			(value) => {
+				if (value === undefined) return true;
+				if (typeof value === 'number') return Number.isFinite(value);
+				return value.length === 0 || !Number.isNaN(Number(value));
+			},
 			{ message },
 		);
 }
@@ -84,7 +85,15 @@ export function positiveNumericInputField(message: string) {
 
 export function optionalNumberFromInputField(message: string) {
 	return numericInputField(message).transform((value) => {
-		if (value === undefined || value.length === 0) {
+		if (value === undefined) {
+			return undefined;
+		}
+
+		if (typeof value === 'number') {
+			return Number.isFinite(value) ? value : undefined;
+		}
+
+		if (value.length === 0) {
 			return undefined;
 		}
 

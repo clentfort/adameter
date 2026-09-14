@@ -9,6 +9,7 @@ import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
+import { LocationPicker } from '@/components/form/location-picker';
 import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
 import {
@@ -175,6 +176,8 @@ function getDefaultValues(
 		date: dateToDateInputValue(change?.timestamp ?? new Date()),
 		diaperProductId: change?.diaperProductId ?? presetDiaperProductId ?? '',
 		leakage: change?.leakage ?? false,
+		locationLatitude: change?.locationLatitude?.toString() ?? '',
+		locationLongitude: change?.locationLongitude?.toString() ?? '',
 		notes: change?.notes ?? '',
 		pottyStool: change?.pottyStool ?? false,
 		pottyUrine: change?.pottyUrine ?? false,
@@ -232,6 +235,8 @@ export default function DiaperForm({
 		diaperProductId.length > 0 ? diaperProductId : undefined,
 	);
 	const temperature = watch('temperature');
+	const locationLatitude = watch('locationLatitude');
+	const locationLongitude = watch('locationLongitude');
 
 	const handleSave = (parsedValues: DiaperFormData) => {
 		let temperature = parsedValues.temperature;
@@ -246,6 +251,8 @@ export default function DiaperForm({
 			diaperProductId: parsedValues.diaperProductId,
 			id: change?.id || Date.now().toString(),
 			leakage: parsedValues.leakage,
+			locationLatitude: parsedValues.locationLatitude,
+			locationLongitude: parsedValues.locationLongitude,
 			notes: parsedValues.notes,
 			pottyStool: parsedValues.pottyStool,
 			pottyUrine: parsedValues.pottyUrine,
@@ -468,6 +475,19 @@ export default function DiaperForm({
 							{...register('notes')}
 						/>
 					</div>
+
+					<LocationPicker
+						latitude={locationLatitude}
+						longitude={locationLongitude}
+						onChange={(lat, lon) => {
+							setValue('locationLatitude', lat?.toString() ?? '', {
+								shouldValidate: true,
+							});
+							setValue('locationLongitude', lon?.toString() ?? '', {
+								shouldValidate: true,
+							});
+						}}
+					/>
 				</div>
 			</EntityFormDialog>
 

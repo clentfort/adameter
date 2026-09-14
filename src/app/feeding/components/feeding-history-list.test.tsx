@@ -29,6 +29,8 @@ function createStoreWithSessions(sessions: FeedingSession[]) {
 			breast: session.breast,
 			durationInSeconds: session.durationInSeconds,
 			endTime: session.endTime,
+			locationLatitude: session.locationLatitude,
+			locationLongitude: session.locationLongitude,
 			startTime: session.startTime,
 		});
 	}
@@ -203,5 +205,37 @@ describe('FeedingHistoryList', () => {
 		expect(
 			screen.getByText('This session crosses midnight'),
 		).toBeInTheDocument();
+	});
+
+	it('should render map toggle button and lazy load location map when expanded', () => {
+		const mockSession: FeedingSession = {
+			breast: 'left',
+			durationInSeconds: 600,
+			endTime: '2023-01-01T10:10:00Z',
+			id: 'test-session-location',
+			locationLatitude: 52.52,
+			locationLongitude: 13.405,
+			startTime: '2023-01-01T10:00:00Z',
+		};
+
+		mockUseFeedingSession.mockImplementation((id) =>
+			id === mockSession.id ? mockSession : undefined,
+		);
+
+		render(
+			<TestWrapper sessions={[mockSession]}>
+				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+			</TestWrapper>,
+		);
+
+		const toggleBtn = screen.getByTestId('toggle-map-button');
+		expect(toggleBtn).toBeInTheDocument();
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.getByTestId('location-map')).toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
 	});
 });

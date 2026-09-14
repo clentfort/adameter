@@ -25,6 +25,8 @@ function createStoreWithDiaperChanges(changes: DiaperChange[]) {
 			containsUrine: change.containsUrine,
 			diaperProductId: change.diaperProductId ?? '',
 			leakage: change.leakage ?? false,
+			locationLatitude: change.locationLatitude,
+			locationLongitude: change.locationLongitude,
 			notes: change.notes ?? '',
 			pottyStool: change.pottyStool ?? false,
 			pottyUrine: change.pottyUrine ?? false,
@@ -384,6 +386,33 @@ describe('DiaperHistoryList', () => {
 		expect(
 			screen.queryByText(/do you really want to delete this entry\?/i),
 		).not.toBeInTheDocument();
+	});
+
+	it('should render map toggle button and lazy load location map when expanded', () => {
+		const mockChange: DiaperChange = {
+			containsStool: false,
+			containsUrine: true,
+			id: 'change-loc-1',
+			locationLatitude: 52.52,
+			locationLongitude: 13.405,
+			timestamp: '2024-01-15T10:30:00Z',
+		};
+
+		render(
+			<TestWrapper changes={[mockChange]}>
+				<DiaperHistoryList />
+			</TestWrapper>,
+		);
+
+		const toggleBtn = screen.getByTestId('toggle-map-button');
+		expect(toggleBtn).toBeInTheDocument();
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.getByTestId('location-map')).toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
 	});
 
 	it('should render null for invalid diaper change record', () => {

@@ -23,6 +23,8 @@ function createStoreWithEvents(events: Event[]) {
 		store.setRow(TABLE_IDS.EVENTS, event.id, {
 			color: event.color ?? '#6366f1',
 			endDate: event.endDate ?? '',
+			locationLatitude: event.locationLatitude,
+			locationLongitude: event.locationLongitude,
 			notes: event.notes ?? '',
 			startDate: event.startDate,
 			title: event.title,
@@ -195,6 +197,33 @@ describe('EventsList', () => {
 		// Confirm deletion
 		fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
 		expect(screen.getByText('No data recorded yet.')).toBeInTheDocument();
+	});
+
+	it('should render map toggle button and lazy load location map when expanded', () => {
+		const event: Event = {
+			id: 'event-location',
+			locationLatitude: 52.52,
+			locationLongitude: 13.405,
+			startDate: '2024-01-15T10:00:00Z',
+			title: 'Trip to Park',
+			type: 'point',
+		};
+
+		render(
+			<TestWrapper events={[event]}>
+				<EventsList />
+			</TestWrapper>,
+		);
+
+		const toggleBtn = screen.getByTestId('toggle-map-button');
+		expect(toggleBtn).toBeInTheDocument();
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.getByTestId('location-map')).toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
 	});
 
 	it('should respect searchParams from/to to set initialVisibleCount', () => {
