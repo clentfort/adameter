@@ -34,7 +34,7 @@ describe('diaper schema transforms', () => {
 		});
 	});
 
-	it('parses diaper form values into persisted change data', () => {
+	it('parses diaper form values into persisted change data including location coordinates', () => {
 		expect(
 			parseDiaperFormValues({
 				containsStool: false,
@@ -42,6 +42,8 @@ describe('diaper schema transforms', () => {
 				date: '2026-03-07',
 				diaperProductId: '',
 				leakage: false,
+				locationLatitude: '37.7749',
+				locationLongitude: '-122.4194',
 				notes: '  Rash improved  ',
 				pottyStool: false,
 				pottyUrine: true,
@@ -53,6 +55,8 @@ describe('diaper schema transforms', () => {
 			containsUrine: true,
 			diaperProductId: undefined,
 			leakage: undefined,
+			locationLatitude: 37.7749,
+			locationLongitude: -122.4194,
 			notes: 'Rash improved',
 			pottyStool: false,
 			pottyUrine: true,

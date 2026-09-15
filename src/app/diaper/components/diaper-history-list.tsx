@@ -1,11 +1,14 @@
 import { fbt } from 'fbtee';
+import { MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { useCell, useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import HistoryFilterIndicator from '@/components/history-filter-indicator';
 import IndexedHistoryList from '@/components/indexed-history-list';
+import { LocationMap } from '@/components/location-map';
 import Markdown from '@/components/markdown';
+import { Button } from '@/components/ui/button';
 import {
 	useDiaperChange,
 	useRemoveDiaperChange,
@@ -50,6 +53,7 @@ function DiaperHistoryEntry({
 	const change = useDiaperChange(changeId);
 	const [unitSystem] = useUnitSystem();
 	const [timeFormat] = useTimeFormat();
+	const [isMapExpanded, setIsMapExpanded] = useState(false);
 	const isImperial = unitSystem === 'imperial';
 
 	if (!change) {
@@ -166,6 +170,31 @@ function DiaperHistoryEntry({
 						{change.notes}
 					</Markdown>
 				)}
+				{change.locationLatitude !== undefined &&
+					change.locationLongitude !== undefined && (
+						<div className="pt-1">
+							<Button
+								className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+								data-testid="toggle-map-button"
+								onClick={() => setIsMapExpanded(!isMapExpanded)}
+								type="button"
+								variant="outline"
+							>
+								<MapPin className="h-3 w-3" />
+								{isMapExpanded ? (
+									<fbt desc="Button label to hide location map">Hide Map</fbt>
+								) : (
+									<fbt desc="Button label to show location map">Show Map</fbt>
+								)}
+							</Button>
+							{isMapExpanded && (
+								<LocationMap
+									latitude={change.locationLatitude}
+									longitude={change.locationLongitude}
+								/>
+							)}
+						</div>
+					)}
 			</div>
 		</HistoryEntryCard>
 	);

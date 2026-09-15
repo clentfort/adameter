@@ -25,12 +25,19 @@ const mockUseSearchParams = vi.mocked(useSearchParams);
 function createStoreWithSessions(sessions: FeedingSession[]) {
 	const store = createStore();
 	for (const session of sessions) {
-		store.setRow(TABLE_IDS.FEEDING_SESSIONS, session.id, {
+		const row: Record<string, boolean | number | string> = {
 			breast: session.breast,
 			durationInSeconds: session.durationInSeconds,
 			endTime: session.endTime,
 			startTime: session.startTime,
-		});
+		};
+		if (session.locationLatitude !== undefined) {
+			row.locationLatitude = session.locationLatitude;
+		}
+		if (session.locationLongitude !== undefined) {
+			row.locationLongitude = session.locationLongitude;
+		}
+		store.setRow(TABLE_IDS.FEEDING_SESSIONS, session.id, row);
 	}
 	return store;
 }
@@ -203,5 +210,37 @@ describe('FeedingHistoryList', () => {
 		expect(
 			screen.getByText('This session crosses midnight'),
 		).toBeInTheDocument();
+	});
+
+	it('should render map toggle button and lazy load location map when expanded', () => {
+		const mockSession: FeedingSession = {
+			breast: 'left',
+			durationInSeconds: 600,
+			endTime: '2023-01-01T10:10:00Z',
+			id: 'test-session-location',
+			locationLatitude: 52.52,
+			locationLongitude: 13.405,
+			startTime: '2023-01-01T10:00:00Z',
+		};
+
+		mockUseFeedingSession.mockImplementation((id) =>
+			id === mockSession.id ? mockSession : undefined,
+		);
+
+		render(
+			<TestWrapper sessions={[mockSession]}>
+				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+			</TestWrapper>,
+		);
+
+		const toggleBtn = screen.getByTestId('toggle-map-button');
+		expect(toggleBtn).toBeInTheDocument();
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.getByTestId('location-map')).toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
 	});
 });

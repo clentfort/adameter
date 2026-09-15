@@ -8,6 +8,7 @@ import { fbt } from 'fbtee';
 import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
+import { LocationPicker } from '@/components/form/location-picker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +35,8 @@ function getDefaultValues(
 		duration: feeding?.durationInSeconds
 			? Math.round(feeding.durationInSeconds / 60).toString()
 			: '',
+		locationLatitude: feeding?.locationLatitude?.toString() ?? '',
+		locationLongitude: feeding?.locationLongitude?.toString() ?? '',
 		notes: feeding?.notes ?? '',
 		time: dateToTimeInputValue(feeding?.startTime ?? new Date()),
 	};
@@ -56,6 +59,8 @@ export default function FeedingForm({
 	const { formState, register, setValue, watch } = form;
 
 	const breast = watch('breast');
+	const locationLatitude = watch('locationLatitude');
+	const locationLongitude = watch('locationLongitude');
 
 	const handleSave = (parsedValues: FeedingSessionFormData) => {
 		const updatedSession: FeedingSession = {
@@ -64,6 +69,8 @@ export default function FeedingForm({
 			durationInSeconds: parsedValues.durationInSeconds,
 			endTime: parsedValues.endTime,
 			id: feeding?.id ?? Date.now().toString(),
+			locationLatitude: parsedValues.locationLatitude,
+			locationLongitude: parsedValues.locationLongitude,
 			notes: parsedValues.notes,
 			startTime: parsedValues.startTime,
 		};
@@ -182,6 +189,19 @@ export default function FeedingForm({
 						{...register('notes')}
 					/>
 				</div>
+
+				<LocationPicker
+					latitude={locationLatitude}
+					longitude={locationLongitude}
+					onChange={(lat, lon) => {
+						setValue('locationLatitude', lat?.toString() ?? '', {
+							shouldValidate: true,
+						});
+						setValue('locationLongitude', lon?.toString() ?? '', {
+							shouldValidate: true,
+						});
+					}}
+				/>
 			</div>
 		</EntityFormDialog>
 	);

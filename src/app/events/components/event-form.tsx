@@ -4,6 +4,7 @@ import { fbt } from 'fbtee';
 import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
+import { LocationPicker } from '@/components/form/location-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -44,6 +45,8 @@ function getDefaultValues(event: Event | undefined): EventFormValues {
 		endDate: dateToDateInputValue(event?.endDate ?? new Date()),
 		endTime: dateToTimeInputValue(event?.endDate ?? new Date()),
 		hasEndDate: !!event?.endDate,
+		locationLatitude: event?.locationLatitude?.toString() ?? '',
+		locationLongitude: event?.locationLongitude?.toString() ?? '',
 		notes: event?.notes ?? '',
 		startDate: dateToDateInputValue(event?.startDate ?? new Date()),
 		startTime: dateToTimeInputValue(event?.startDate ?? new Date()),
@@ -72,6 +75,8 @@ export default function EventForm({
 	const eventType = watch('type');
 	const hasEndDate = watch('hasEndDate');
 	const color = watch('color');
+	const locationLatitude = watch('locationLatitude');
+	const locationLongitude = watch('locationLongitude');
 
 	const handleSave = (parsedValues: EventFormData) => {
 		const newEvent: Event = {
@@ -79,6 +84,8 @@ export default function EventForm({
 			color: parsedValues.color,
 			endDate: parsedValues.endDate,
 			id: event?.id || Date.now().toString(),
+			locationLatitude: parsedValues.locationLatitude,
+			locationLongitude: parsedValues.locationLongitude,
 			notes: parsedValues.notes,
 			startDate: parsedValues.startDate,
 			title: parsedValues.title,
@@ -241,6 +248,19 @@ export default function EventForm({
 						))}
 					</div>
 				</div>
+
+				<LocationPicker
+					latitude={locationLatitude}
+					longitude={locationLongitude}
+					onChange={(lat, lon) => {
+						setValue('locationLatitude', lat?.toString() ?? '', {
+							shouldValidate: true,
+						});
+						setValue('locationLongitude', lon?.toString() ?? '', {
+							shouldValidate: true,
+						});
+					}}
+				/>
 			</div>
 		</EntityFormDialog>
 	);

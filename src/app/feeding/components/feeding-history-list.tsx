@@ -1,10 +1,13 @@
 import type { FeedingSession } from '@/types/feeding';
 import { isSameDay } from 'date-fns';
+import { MapPin } from 'lucide-react';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import HistoryFilterIndicator from '@/components/history-filter-indicator';
 import IndexedHistoryList from '@/components/indexed-history-list';
+import { LocationMap } from '@/components/location-map';
+import { Button } from '@/components/ui/button';
 import { BREAST_COLORS } from '@/constants/colors';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { useHistoryRange } from '@/hooks/use-history-range';
@@ -30,6 +33,7 @@ function FeedingHistoryEntry({
 }) {
 	const session = useFeedingSession(sessionId);
 	const [timeFormat] = useTimeFormat();
+	const [isMapExpanded, setIsMapExpanded] = useState(false);
 
 	if (!session) {
 		return null;
@@ -88,6 +92,31 @@ function FeedingHistoryEntry({
 						</fbt>
 					</p>
 				)}
+				{session.locationLatitude !== undefined &&
+					session.locationLongitude !== undefined && (
+						<div className="pt-1">
+							<Button
+								className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+								data-testid="toggle-map-button"
+								onClick={() => setIsMapExpanded(!isMapExpanded)}
+								type="button"
+								variant="outline"
+							>
+								<MapPin className="h-3 w-3" />
+								{isMapExpanded ? (
+									<fbt desc="Button label to hide location map">Hide Map</fbt>
+								) : (
+									<fbt desc="Button label to show location map">Show Map</fbt>
+								)}
+							</Button>
+							{isMapExpanded && (
+								<LocationMap
+									latitude={session.locationLatitude}
+									longitude={session.locationLongitude}
+								/>
+							)}
+						</div>
+					)}
 			</div>
 		</HistoryEntryCard>
 	);

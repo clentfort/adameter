@@ -1,7 +1,13 @@
 import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
-import { optionalStringCell, positiveNumericInputField } from './schema-utils';
+import {
+	numericInputField,
+	optionalNumberCell,
+	optionalNumberFromInputField,
+	optionalStringCell,
+	positiveNumericInputField,
+} from './schema-utils';
 
 const breastSchema = z.enum(['left', 'right']);
 
@@ -9,6 +15,8 @@ const feedingSessionSharedSchema = z.object({
 	breast: breastSchema,
 	durationInSeconds: z.number().int().positive(),
 	endTime: z.string().min(1),
+	locationLatitude: optionalNumberCell,
+	locationLongitude: optionalNumberCell,
 	notes: optionalStringCell,
 	startTime: z.string().min(1),
 });
@@ -17,6 +25,8 @@ export const feedingFormSchema = z.object({
 	breast: breastSchema,
 	date: z.string().min(1),
 	duration: positiveNumericInputField('Duration must be a positive number'),
+	locationLatitude: numericInputField('Latitude must be a number'),
+	locationLongitude: numericInputField('Longitude must be a number'),
 	notes: z.string().optional(),
 	time: z.string().min(1),
 });
@@ -38,6 +48,12 @@ export const feedingSessionFormToDataSchema = feedingFormSchema.transform(
 			breast: values.breast,
 			durationInSeconds: durationInMinutes * 60,
 			endTime: endTime.toISOString(),
+			locationLatitude: optionalNumberFromInputField(
+				'Latitude must be a number',
+			).parse(values.locationLatitude),
+			locationLongitude: optionalNumberFromInputField(
+				'Longitude must be a number',
+			).parse(values.locationLongitude),
 			notes: values.notes,
 			startTime: startTime.toISOString(),
 		});

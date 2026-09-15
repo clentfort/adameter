@@ -20,7 +20,7 @@ vi.mock('@/i18n', async (importOriginal) => {
 function createStoreWithDiaperChanges(changes: DiaperChange[]) {
 	const store = createStore();
 	for (const change of changes) {
-		store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, {
+		const row: Record<string, boolean | number | string> = {
 			containsStool: change.containsStool,
 			containsUrine: change.containsUrine,
 			diaperProductId: change.diaperProductId ?? '',
@@ -30,7 +30,14 @@ function createStoreWithDiaperChanges(changes: DiaperChange[]) {
 			pottyUrine: change.pottyUrine ?? false,
 			temperature: change.temperature ?? 0,
 			timestamp: change.timestamp,
-		});
+		};
+		if (change.locationLatitude !== undefined) {
+			row.locationLatitude = change.locationLatitude;
+		}
+		if (change.locationLongitude !== undefined) {
+			row.locationLongitude = change.locationLongitude;
+		}
+		store.setRow(TABLE_IDS.DIAPER_CHANGES, change.id, row);
 	}
 	return store;
 }
@@ -384,6 +391,33 @@ describe('DiaperHistoryList', () => {
 		expect(
 			screen.queryByText(/do you really want to delete this entry\?/i),
 		).not.toBeInTheDocument();
+	});
+
+	it('should render map toggle button and lazy load location map when expanded', () => {
+		const mockChange: DiaperChange = {
+			containsStool: false,
+			containsUrine: true,
+			id: 'change-loc-1',
+			locationLatitude: 52.52,
+			locationLongitude: 13.405,
+			timestamp: '2024-01-15T10:30:00Z',
+		};
+
+		render(
+			<TestWrapper changes={[mockChange]}>
+				<DiaperHistoryList />
+			</TestWrapper>,
+		);
+
+		const toggleBtn = screen.getByTestId('toggle-map-button');
+		expect(toggleBtn).toBeInTheDocument();
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.getByTestId('location-map')).toBeInTheDocument();
+
+		fireEvent.click(toggleBtn);
+		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
 	});
 
 	it('should render null for invalid diaper change record', () => {
