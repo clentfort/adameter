@@ -1,7 +1,15 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { Clock, Coins, Globe, LayoutGrid, MapPin, Moon, Ruler } from 'lucide-react';
+import {
+	Clock,
+	Coins,
+	Globe,
+	LayoutGrid,
+	MapPin,
+	Moon,
+	Ruler,
+} from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -249,7 +257,8 @@ export default function AppearanceSettingsPage() {
 									</div>
 									<p className="text-xs text-muted-foreground">
 										<fbt desc="Description for location tracking setting">
-											Automatically capture location for recent diaper and feeding events
+											Automatically capture location for recent diaper and
+											feeding events
 										</fbt>
 									</p>
 								</div>

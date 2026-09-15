@@ -2,9 +2,8 @@ import { useSetValueCallback, useValue } from 'tinybase/ui-react';
 import { STORE_VALUE_LOCATION_TRACKING } from '@/lib/tinybase-sync/constants';
 
 export const useLocationTracking = () => {
-	const locationTracking = useValue(
-		STORE_VALUE_LOCATION_TRACKING,
-	) as boolean | undefined;
+	const locationTracking = useValue(STORE_VALUE_LOCATION_TRACKING) as
+		boolean | undefined;
 
 	// Default value is true
 	const effectiveLocationTracking = locationTracking ?? true;
