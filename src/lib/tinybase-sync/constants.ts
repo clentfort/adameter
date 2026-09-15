@@ -5,6 +5,7 @@ export const TINYBASE_LOCAL_DB_NAME = 'adameter-tinybase';
 export const STORE_VALUE_CURRENCY = 'currency';
 export const STORE_VALUE_DEV_MODE = 'devMode';
 export const STORE_VALUE_FEEDING_IN_PROGRESS = 'feedingInProgress';
+export const STORE_VALUE_LOCATION_TRACKING = 'locationTracking';
 export const STORE_VALUE_PROFILE = 'profile';
 export const STORE_VALUE_SELECTED_PROFILE_ID = 'selectedProfileId';
 export const STORE_VALUE_SHOW_FEEDING = 'showFeeding';

@@ -1,7 +1,7 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { Clock, Coins, Globe, LayoutGrid, Moon, Ruler } from 'lucide-react';
+import { Clock, Coins, Globe, LayoutGrid, MapPin, Moon, Ruler } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDevMode } from '@/hooks/use-dev-mode';
+import { useLocationTracking } from '@/hooks/use-location-tracking';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
 import { useTimeFormat } from '@/hooks/use-time-format';
@@ -33,6 +34,7 @@ export default function AppearanceSettingsPage() {
 	const [showComparisonCharts, setShowComparisonCharts] =
 		useShowComparisonCharts();
 	const [showFeeding, setShowFeeding] = useShowFeeding();
+	const [locationTracking, setLocationTracking] = useLocationTracking();
 
 	const updateLocale = async (code: Locale) => {
 		await setLocale(code);
@@ -229,6 +231,32 @@ export default function AppearanceSettingsPage() {
 									checked={showFeeding ?? true}
 									id="show-feeding"
 									onCheckedChange={setShowFeeding}
+								/>
+							</div>
+
+							<div className="flex items-center justify-between">
+								<div className="space-y-0.5">
+									<div className="flex items-center gap-2">
+										<MapPin className="h-4 w-4" />
+										<Label
+											className="text-sm font-medium"
+											htmlFor="location-tracking"
+										>
+											<fbt desc="Label for location tracking setting">
+												Location Tracking
+											</fbt>
+										</Label>
+									</div>
+									<p className="text-xs text-muted-foreground">
+										<fbt desc="Description for location tracking setting">
+											Automatically capture location for recent diaper and feeding events
+										</fbt>
+									</p>
+								</div>
+								<Switch
+									checked={locationTracking}
+									id="location-tracking"
+									onCheckedChange={setLocationTracking}
 								/>
 							</div>
 

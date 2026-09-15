@@ -10,6 +10,11 @@ import {
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nContext } from '@/contexts/i18n-context';
+import { STORE_VALUE_LOCATION_TRACKING } from '@/lib/tinybase-sync/constants';
+import {
+	createTestStore,
+	TinyBaseTestWrapper,
+} from '@/test-utils/tinybase-test-wrapper';
 import DiaperForm from './diaper-form';
 
 const mockUpsert = vi.fn();
@@ -56,10 +61,20 @@ describe('DiaperForm', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: vi.fn((_success, error) => {
+					if (error) {
+						error({ code: 2, POSITION_UNAVAILABLE: 2 });
+					}
+				}),
+			},
+		});
 	});
 
 	afterEach(() => {
 		cleanup();
+		vi.unstubAllGlobals();
 	});
 
 	it('renders with initial data and calls onSave when submitted', async () => {
@@ -214,6 +229,95 @@ describe('DiaperForm', () => {
 		await waitFor(() => {
 			expect(screen.queryByText(/add product/i)).not.toBeInTheDocument();
 		});
+	});
+
+	it('automatically fetches location when adding a new diaper entry within 15 mins', async () => {
+		const store = createTestStore();
+		const mockGetCurrentPosition = vi.fn((success) => {
+			success({
+				coords: {
+					latitude: 52.52,
+					longitude: 13.405,
+				},
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		render(
+			<TinyBaseTestWrapper store={store}>
+				<DiaperForm {...baseProps} />
+			</TinyBaseTestWrapper>,
+		);
+
+		fireEvent.click(screen.getByTestId('save-button'));
+
+		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
+		const savedChange = mockOnSave.mock.calls[0][0];
+		expect(mockGetCurrentPosition).toHaveBeenCalled();
+		expect(savedChange.locationLatitude).toBe(52.52);
+		expect(savedChange.locationLongitude).toBe(13.405);
+	});
+
+	it('disables location tracking setting when location permission is denied', async () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, true);
+
+		const mockGetCurrentPosition = vi.fn((_success, error) => {
+			error({
+				code: 1, // PERMISSION_DENIED
+				PERMISSION_DENIED: 1,
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		render(
+			<TinyBaseTestWrapper store={store}>
+				<DiaperForm {...baseProps} />
+			</TinyBaseTestWrapper>,
+		);
+
+		fireEvent.click(screen.getByTestId('save-button'));
+
+		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
+		expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
+	});
+
+	it('preserves existing location when editing an entry without fetching location', async () => {
+		const mockGetCurrentPosition = vi.fn();
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		const initialChange: DiaperChange = {
+			containsStool: true,
+			containsUrine: true,
+			id: '1',
+			locationLatitude: 10.123,
+			locationLongitude: 20.456,
+			timestamp: '2023-10-27T10:00:00.000Z',
+		};
+
+		render(<DiaperForm {...baseProps} change={initialChange} />);
+
+		fireEvent.click(screen.getByTestId('save-button'));
+
+		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
+		const savedChange = mockOnSave.mock.calls[0][0];
+		expect(mockGetCurrentPosition).not.toHaveBeenCalled();
+		expect(savedChange.locationLatitude).toBe(10.123);
+		expect(savedChange.locationLongitude).toBe(20.456);
 	});
 
 	it('improves test coverage for archived products, dropdown selection, and dialog dismissal', async () => {
