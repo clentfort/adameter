@@ -98,8 +98,7 @@ describe('BreastfeedingTracker', () => {
 		fireEvent.click(screen.getByText('End Feeding'));
 
 		expect(mockOnCreateSession).toHaveBeenCalledTimes(1);
-		const createdSession: FeedingSession =
-			mockOnCreateSession.mock.calls[0][0];
+		const createdSession: FeedingSession = mockOnCreateSession.mock.calls[0][0];
 		expect(createdSession.id).toBe(pregenId);
 		expect(createdSession.breast).toBe('left');
 
@@ -173,8 +172,7 @@ describe('BreastfeedingTracker', () => {
 		fireEvent.click(screen.getByTestId('save-button'));
 
 		await waitFor(() => expect(mockOnCreateSession).toHaveBeenCalledTimes(1));
-		const createdSession: FeedingSession =
-			mockOnCreateSession.mock.calls[0][0];
+		const createdSession: FeedingSession = mockOnCreateSession.mock.calls[0][0];
 		expect(createdSession.id).toBe(sessionId);
 		expect(createdSession.breast).toBe('right');
 	});
@@ -241,8 +239,7 @@ describe('BreastfeedingTracker', () => {
 		fireEvent.click(screen.getByText('End Feeding'));
 
 		expect(mockOnUpdateSession).toHaveBeenCalledTimes(1);
-		const updatedSession: FeedingSession =
-			mockOnUpdateSession.mock.calls[0][0];
+		const updatedSession: FeedingSession = mockOnUpdateSession.mock.calls[0][0];
 		expect(updatedSession.id).toBe('resumable-id-1');
 	});
 });
