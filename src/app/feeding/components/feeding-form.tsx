@@ -8,16 +8,17 @@ import { fbt } from 'fbtee';
 import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
-import { LocationPicker } from '@/components/form/location-picker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useEntityForm } from '@/hooks/use-entity-form';
+import { useLocationTracking } from '@/hooks/use-location-tracking';
 import { feedingSessionFormToDataSchema } from '@/types/feeding';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import { requestAutomaticLocation } from '@/utils/get-automatic-location';
 
 interface FeedingFormProps {
 	feeding?: FeedingSession;
@@ -49,6 +50,7 @@ export default function FeedingForm({
 	title,
 }: FeedingFormProps) {
 	const defaultValues = useMemo(() => getDefaultValues(feeding), [feeding]);
+	const [locationTracking, setLocationTracking] = useLocationTracking();
 
 	const form = useEntityForm<
 		FeedingFormValues,
@@ -59,18 +61,31 @@ export default function FeedingForm({
 	const { formState, register, setValue, watch } = form;
 
 	const breast = watch('breast');
-	const locationLatitude = watch('locationLatitude');
-	const locationLongitude = watch('locationLongitude');
 
-	const handleSave = (parsedValues: FeedingSessionFormData) => {
+	const handleSave = async (parsedValues: FeedingSessionFormData) => {
+		let lat = feeding?.locationLatitude;
+		let lon = feeding?.locationLongitude;
+
+		if (!feeding) {
+			const location = await requestAutomaticLocation({
+				isLocationTrackingEnabled: locationTracking,
+				onPermissionDenied: () => setLocationTracking(false),
+				timestamp: parsedValues.startTime,
+			});
+			if (location) {
+				lat = location.latitude;
+				lon = location.longitude;
+			}
+		}
+
 		const updatedSession: FeedingSession = {
 			...feeding,
 			breast: parsedValues.breast,
 			durationInSeconds: parsedValues.durationInSeconds,
 			endTime: parsedValues.endTime,
 			id: feeding?.id ?? Date.now().toString(),
-			locationLatitude: parsedValues.locationLatitude,
-			locationLongitude: parsedValues.locationLongitude,
+			locationLatitude: lat,
+			locationLongitude: lon,
 			notes: parsedValues.notes,
 			startTime: parsedValues.startTime,
 		};
@@ -189,19 +204,6 @@ export default function FeedingForm({
 						{...register('notes')}
 					/>
 				</div>
-
-				<LocationPicker
-					latitude={locationLatitude}
-					longitude={locationLongitude}
-					onChange={(lat, lon) => {
-						setValue('locationLatitude', lat?.toString() ?? '', {
-							shouldValidate: true,
-						});
-						setValue('locationLongitude', lon?.toString() ?? '', {
-							shouldValidate: true,
-						});
-					}}
-				/>
 			</div>
 		</EntityFormDialog>
 	);

@@ -9,7 +9,6 @@ import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
-import { LocationPicker } from '@/components/form/location-picker';
 import ProductForm from '@/components/product-form';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,11 +35,13 @@ import {
 	useUpsertDiaperProduct,
 } from '@/hooks/use-diaper-products';
 import { useEntityForm } from '@/hooks/use-entity-form';
+import { useLocationTracking } from '@/hooks/use-location-tracking';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { cn } from '@/lib/utils';
 import { diaperFormToDataSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import { requestAutomaticLocation } from '@/utils/get-automatic-location';
 import {
 	celsiusToFahrenheit,
 	fahrenheitToCelsius,
@@ -196,6 +197,7 @@ export default function DiaperForm({
 }: DiaperFormProps) {
 	const [unitSystem] = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
+	const [locationTracking, setLocationTracking] = useLocationTracking();
 	const upsertProduct = useUpsertDiaperProduct();
 	const changes = useDiaperChangesSnapshot();
 	const sortedProductIds = useFrecencySortedDiaperProductIds(changes);
@@ -235,13 +237,26 @@ export default function DiaperForm({
 		diaperProductId.length > 0 ? diaperProductId : undefined,
 	);
 	const temperature = watch('temperature');
-	const locationLatitude = watch('locationLatitude');
-	const locationLongitude = watch('locationLongitude');
 
-	const handleSave = (parsedValues: DiaperFormData) => {
+	const handleSave = async (parsedValues: DiaperFormData) => {
 		let temperature = parsedValues.temperature;
 		if (isImperial && temperature != null) {
 			temperature = Math.round(fahrenheitToCelsius(temperature) * 10) / 10;
+		}
+
+		let lat = change?.locationLatitude;
+		let lon = change?.locationLongitude;
+
+		if (!change) {
+			const location = await requestAutomaticLocation({
+				isLocationTrackingEnabled: locationTracking,
+				onPermissionDenied: () => setLocationTracking(false),
+				timestamp: parsedValues.timestamp,
+			});
+			if (location) {
+				lat = location.latitude;
+				lon = location.longitude;
+			}
 		}
 
 		const updatedChange: DiaperChange = {
@@ -251,8 +266,8 @@ export default function DiaperForm({
 			diaperProductId: parsedValues.diaperProductId,
 			id: change?.id || Date.now().toString(),
 			leakage: parsedValues.leakage,
-			locationLatitude: parsedValues.locationLatitude,
-			locationLongitude: parsedValues.locationLongitude,
+			locationLatitude: lat,
+			locationLongitude: lon,
 			notes: parsedValues.notes,
 			pottyStool: parsedValues.pottyStool,
 			pottyUrine: parsedValues.pottyUrine,
@@ -475,19 +490,6 @@ export default function DiaperForm({
 							{...register('notes')}
 						/>
 					</div>
-
-					<LocationPicker
-						latitude={locationLatitude}
-						longitude={locationLongitude}
-						onChange={(lat, lon) => {
-							setValue('locationLatitude', lat?.toString() ?? '', {
-								shouldValidate: true,
-							});
-							setValue('locationLongitude', lon?.toString() ?? '', {
-								shouldValidate: true,
-							});
-						}}
-					/>
 				</div>
 			</EntityFormDialog>
 
