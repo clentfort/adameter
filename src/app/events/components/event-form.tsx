@@ -14,6 +14,7 @@ import { useEntityForm } from '@/hooks/use-entity-form';
 import { eventFormToDataSchema } from '@/types/event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import { generateId } from '@/utils/generate-id';
 
 interface AddEventFormProps {
 	onClose: () => void;
@@ -83,7 +84,7 @@ export default function EventForm({
 			...event,
 			color: parsedValues.color,
 			endDate: parsedValues.endDate,
-			id: event?.id || Date.now().toString(),
+			id: event?.id || generateId(),
 			locationLatitude: parsedValues.locationLatitude,
 			locationLongitude: parsedValues.locationLongitude,
 			notes: parsedValues.notes,

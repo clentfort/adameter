@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { PRODUCT_COLORS } from '@/constants/colors';
 import { diaperProductFormToDataSchema } from '@/types/diaper';
+import { generateId } from '@/utils/generate-id';
 
 interface ProductFormProps {
 	initialData?: Partial<DiaperProduct>;
@@ -67,7 +68,7 @@ export default function ProductForm({
 				parsedValues.color ||
 				PRODUCT_COLORS[Math.floor(Math.random() * PRODUCT_COLORS.length)],
 			costPerDiaper: parsedValues.costPerDiaper,
-			id: initialData?.id ?? crypto.randomUUID(),
+			id: initialData?.id ?? generateId(),
 			isReusable: parsedValues.isReusable,
 			name: parsedValues.name,
 			notes: parsedValues.notes,

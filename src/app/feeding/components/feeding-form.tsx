@@ -18,6 +18,7 @@ import { useLocationTracking } from '@/hooks/use-location-tracking';
 import { feedingSessionFormToDataSchema } from '@/types/feeding';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import { generateId } from '@/utils/generate-id';
 import { requestAutomaticLocation } from '@/utils/get-automatic-location';
 
 interface FeedingFormProps {
@@ -83,7 +84,7 @@ export default function FeedingForm({
 			breast: parsedValues.breast,
 			durationInSeconds: parsedValues.durationInSeconds,
 			endTime: parsedValues.endTime,
-			id: feeding?.id ?? Date.now().toString(),
+			id: feeding?.id ?? generateId(),
 			locationLatitude: lat,
 			locationLongitude: lon,
 			notes: parsedValues.notes,
