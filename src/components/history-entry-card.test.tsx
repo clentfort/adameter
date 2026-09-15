@@ -4,9 +4,10 @@ import { describe, expect, it, vi } from 'vitest';
 import HistoryEntryCard from './history-entry-card';
 
 describe('HistoryEntryCard', () => {
-	it('renders header, formattedTime, and children', () => {
+	it('renders header, formattedTime, children, and footer', () => {
 		render(
 			<HistoryEntryCard
+				footer={<div>Test Footer</div>}
 				formattedTime="10:00 AM"
 				header="Test Header"
 				onDelete={vi.fn()}
@@ -19,6 +20,7 @@ describe('HistoryEntryCard', () => {
 		expect(screen.getByText('Test Header')).toBeInTheDocument();
 		expect(screen.getByText('10:00 AM')).toBeInTheDocument();
 		expect(screen.getByText('Test Children')).toBeInTheDocument();
+		expect(screen.getByText('Test Footer')).toBeInTheDocument();
 	});
 
 	it('applies accentColor style when provided', () => {
