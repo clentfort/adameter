@@ -15,6 +15,7 @@ import { useEntityForm } from '@/hooks/use-entity-form';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { growthFormToDataSchema } from '@/types/growth';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
+import { generateId } from '@/utils/generate-id';
 import {
 	cmToInches,
 	gramsToLbs,
@@ -116,7 +117,7 @@ export default function MeasurementForm({
 			date: parsedValues.date,
 			headCircumference,
 			height,
-			id: measurement?.id || Date.now().toString(),
+			id: measurement?.id || generateId(),
 			notes: parsedValues.notes,
 			weight,
 		};
