@@ -41,6 +41,7 @@ import { cn } from '@/lib/utils';
 import { diaperFormToDataSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import { generateId } from '@/utils/generate-id';
 import { requestAutomaticLocation } from '@/utils/get-automatic-location';
 import {
 	celsiusToFahrenheit,
@@ -264,7 +265,7 @@ export default function DiaperForm({
 			containsStool: parsedValues.containsStool,
 			containsUrine: parsedValues.containsUrine,
 			diaperProductId: parsedValues.diaperProductId,
-			id: change?.id || Date.now().toString(),
+			id: change?.id || generateId(),
 			leakage: parsedValues.leakage,
 			locationLatitude: lat,
 			locationLongitude: lon,

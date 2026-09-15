@@ -20,6 +20,7 @@ import {
 	useUpsertProfile,
 } from '@/hooks/use-profile';
 import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
+import { generateId } from '@/utils/generate-id';
 import { SettingsHeader } from '../components/settings-header';
 
 export default function ChildrenSettingsPage() {
@@ -130,7 +131,7 @@ export default function ChildrenSettingsPage() {
 					</DialogHeader>
 					<ProfileForm
 						onSave={(data) => {
-							const id = crypto.randomUUID();
+							const id = generateId();
 							upsertProfile({ ...data, id, optedOut: false });
 							setSelectedProfileId(id);
 							setIsAdding(false);
