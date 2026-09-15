@@ -16,9 +16,7 @@ describe('LocationMap', () => {
 		expect(mapElement).toHaveAttribute('lang', 'en-US');
 
 		// Ensure no iframe is rendered
-		expect(
-			screen.queryByTitle('Location map'),
-		).toBeNull();
+		expect(screen.queryByTitle('Location map')).toBeNull();
 
 		expect(screen.getByText('52.52000, 13.40500')).toBeInTheDocument();
 

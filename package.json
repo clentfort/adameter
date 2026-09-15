@@ -19,6 +19,7 @@
 		"test": "vitest",
 		"test:unit": "vitest run",
 		"test:e2e": "playwright test",
+		"pretypecheck": "pnpm run fbtee:collect && pnpm run fbtee:translate",
 		"typecheck": "tsc --noEmit && tsc --noEmit -p party/tsconfig.json && pnpm --filter tinybase-synchronizer-partykit-server-encrypted typecheck",
 		"fbtee:collect": "fbtee collect --common ./common_strings.json --src src",
 		"fbtee:translate": "fbtee translate --translations translations/*.json --output-file src/i18n/translations.json --locale-style bcp47",

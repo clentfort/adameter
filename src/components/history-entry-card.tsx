@@ -51,7 +51,10 @@ export default function HistoryEntryCard({
 
 	return (
 		<div
-			className={cn('border rounded-lg p-4 shadow-xs overflow-hidden', className)}
+			className={cn(
+				'border rounded-lg p-4 shadow-xs overflow-hidden',
+				className,
+			)}
 			data-testid="history-entry-card"
 			style={cardStyle}
 			{...props}
