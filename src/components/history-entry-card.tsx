@@ -13,6 +13,7 @@ interface HistoryEntryCardProps {
 	children?: ReactNode;
 	className?: string;
 	extraActions?: ReactNode;
+	footer?: ReactNode;
 	formattedTime?: ReactNode;
 	header: ReactNode;
 	onDelete: () => void;
@@ -22,13 +23,14 @@ interface HistoryEntryCardProps {
 /**
  * Standardized card component for history entries (Diaper, Feeding, Growth, Events).
  * Provides a consistent layout with a header, secondary info line (time/date),
- * content area, and a dropdown menu for actions.
+ * content area, optional full-width footer, and a dropdown menu for actions.
  */
 export default function HistoryEntryCard({
 	accentColor,
 	children,
 	className,
 	extraActions,
+	footer,
 	formattedTime,
 	header,
 	onDelete,
@@ -49,7 +51,10 @@ export default function HistoryEntryCard({
 
 	return (
 		<div
-			className={cn('border rounded-lg p-4 shadow-xs', className)}
+			className={cn(
+				'border rounded-lg p-4 shadow-xs overflow-hidden',
+				className,
+			)}
 			data-testid="history-entry-card"
 			style={cardStyle}
 			{...props}
@@ -95,6 +100,7 @@ export default function HistoryEntryCard({
 					</DropdownMenu>
 				</div>
 			</div>
+			{footer && <div className="-mx-4 -mb-4 mt-3">{footer}</div>}
 		</div>
 	);
 }

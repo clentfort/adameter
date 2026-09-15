@@ -80,6 +80,16 @@ function EventListItem({
 			accentColor={event.color || '#6366f1'}
 			data-testid="event-entry"
 			extraActions={extraActions}
+			footer={
+				isMapExpanded &&
+				event.locationLatitude !== undefined &&
+				event.locationLongitude !== undefined ? (
+					<LocationMap
+						latitude={event.locationLatitude}
+						longitude={event.locationLongitude}
+					/>
+				) : null
+			}
 			formattedTime={
 				event.type === 'period' ? (
 					<div className="flex items-center gap-1">
@@ -129,12 +139,6 @@ function EventListItem({
 								<fbt desc="Button label to show location map">Show Map</fbt>
 							)}
 						</Button>
-						{isMapExpanded && (
-							<LocationMap
-								latitude={event.locationLatitude}
-								longitude={event.locationLongitude}
-							/>
-						)}
 					</div>
 				)}
 		</HistoryEntryCard>

@@ -211,4 +211,26 @@ describe('PieChart', () => {
 
 		HTMLCanvasElement.prototype.getContext = originalGetContext;
 	});
+
+	it('handles early return branches when datasets become empty after canvas render or chart is already instantiated', async () => {
+		const datasets = [{ backgroundColor: ['red'], data: [10], label: 'Set 1' }];
+
+		render(
+			<PieChart
+				datasets={datasets}
+				emptyStateMessage="No data"
+				labels={['A']}
+			/>,
+		);
+
+		// Mutate datasets array in place before idle callback runs so canvas is present but datasets is empty in effect
+		datasets.length = 0;
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		// mockChart should not have been called because datasets was empty in effect
+		expect(mockChart).not.toHaveBeenCalled();
+	});
 });

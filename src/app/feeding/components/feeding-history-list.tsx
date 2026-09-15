@@ -49,6 +49,16 @@ function FeedingHistoryEntry({
 		<HistoryEntryCard
 			accentColor={accentColor}
 			data-testid="feeding-history-entry"
+			footer={
+				isMapExpanded &&
+				session.locationLatitude !== undefined &&
+				session.locationLongitude !== undefined ? (
+					<LocationMap
+						latitude={session.locationLatitude}
+						longitude={session.locationLongitude}
+					/>
+				) : null
+			}
 			formattedTime={
 				<span>
 					{formatEntryTime(
@@ -109,12 +119,6 @@ function FeedingHistoryEntry({
 									<fbt desc="Button label to show location map">Show Map</fbt>
 								)}
 							</Button>
-							{isMapExpanded && (
-								<LocationMap
-									latitude={session.locationLatitude}
-									longitude={session.locationLongitude}
-								/>
-							)}
 						</div>
 					)}
 			</div>

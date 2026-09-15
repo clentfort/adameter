@@ -74,6 +74,16 @@ function DiaperHistoryEntry({
 		<HistoryEntryCard
 			accentColor={accentColor}
 			data-testid="diaper-history-entry"
+			footer={
+				isMapExpanded &&
+				change.locationLatitude !== undefined &&
+				change.locationLongitude !== undefined ? (
+					<LocationMap
+						latitude={change.locationLatitude}
+						longitude={change.locationLongitude}
+					/>
+				) : null
+			}
 			formattedTime={
 				<div className="flex items-center gap-2">
 					<span>
@@ -187,12 +197,6 @@ function DiaperHistoryEntry({
 									<fbt desc="Button label to show location map">Show Map</fbt>
 								)}
 							</Button>
-							{isMapExpanded && (
-								<LocationMap
-									latitude={change.locationLatitude}
-									longitude={change.locationLongitude}
-								/>
-							)}
 						</div>
 					)}
 			</div>
