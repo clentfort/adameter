@@ -20,10 +20,8 @@ const mockMarker = vi.fn((_latlng: unknown, _options?: unknown) => ({
 vi.mock('leaflet', () => {
 	const leafletMock = {
 		divIcon: (options?: unknown) => mockDivIcon(options),
-		map: (element: HTMLElement, options?: unknown) =>
-			mockMap(element, options),
-		marker: (latlng: unknown, options?: unknown) =>
-			mockMarker(latlng, options),
+		map: (element: HTMLElement, options?: unknown) => mockMap(element, options),
+		marker: (latlng: unknown, options?: unknown) => mockMarker(latlng, options),
 		tileLayer: (urlTemplate: string, options?: unknown) =>
 			mockTileLayer(urlTemplate, options),
 	};
