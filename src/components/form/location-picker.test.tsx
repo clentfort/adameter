@@ -115,7 +115,10 @@ describe('LocationPicker', () => {
 	it('displays appropriate error messages for position unavailable, timeout, or generic error', () => {
 		const onChange = vi.fn();
 
-		const testError = (errorCodeObj: Record<string, number>, expectedMessage: string) => {
+		const testError = (
+			errorCodeObj: Record<string, number>,
+			expectedMessage: string,
+		) => {
 			const mockGetCurrentPosition = vi.fn((_success, error) => {
 				error(errorCodeObj);
 			});
