@@ -84,13 +84,17 @@ describe('AppearanceSettingsPage', () => {
 
 		// Time format select (1)
 		await user.click(comboboxes[1]);
-		const timeFormatOption = await screen.findByRole('option', { name: /24-hour/i });
+		const timeFormatOption = await screen.findByRole('option', {
+			name: /24-hour/i,
+		});
 		await user.click(timeFormatOption);
 		expect(store.getValue(STORE_VALUE_TIME_FORMAT)).toBe('24h');
 
 		// Unit system select (2)
 		await user.click(comboboxes[2]);
-		const imperialOption = await screen.findByRole('option', { name: /imperial/i });
+		const imperialOption = await screen.findByRole('option', {
+			name: /imperial/i,
+		});
 		await user.click(imperialOption);
 		expect(store.getValue(STORE_VALUE_UNIT_SYSTEM)).toBe('imperial');
 
