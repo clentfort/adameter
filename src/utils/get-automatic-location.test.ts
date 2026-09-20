@@ -20,6 +20,14 @@ describe('requestAutomaticLocation', () => {
 		expect(result).toBeNull();
 	});
 
+	it('returns null if timestamp is invalid', async () => {
+		const result = await requestAutomaticLocation({
+			isLocationTrackingEnabled: true,
+			timestamp: 'invalid-date',
+		});
+		expect(result).toBeNull();
+	});
+
 	it('returns null if timestamp is more than 15 minutes away', async () => {
 		const result = await requestAutomaticLocation({
 			isLocationTrackingEnabled: true,
@@ -78,5 +86,16 @@ describe('requestAutomaticLocation', () => {
 
 		expect(result).toBeNull();
 		expect(onPermissionDenied).toHaveBeenCalled();
+	});
+
+	it('returns null if window or navigator.geolocation is unavailable', async () => {
+		vi.stubGlobal('navigator', {});
+
+		const result = await requestAutomaticLocation({
+			isLocationTrackingEnabled: true,
+			timestamp: new Date('2025-01-01T12:00:00Z'),
+		});
+
+		expect(result).toBeNull();
 	});
 });
