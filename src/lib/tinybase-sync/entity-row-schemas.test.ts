@@ -158,13 +158,15 @@ describe('entity row schemas', () => {
 		).toBeNull();
 	});
 
-	it('correctly maps profileId and deviceId to the sanitized row', () => {
+	it('correctly maps profileId, deviceId, locationLatitude, and locationLongitude to the sanitized row', () => {
 		expect(
 			sanitizeDiaperChangeForStore({
 				containsStool: true,
 				containsUrine: false,
 				deviceId: 'device-abc',
 				id: 'change-1',
+				locationLatitude: 37.7749,
+				locationLongitude: -122.4194,
 				profileId: 'profile-xyz',
 				timestamp: '2026-03-07T08:00:00.000Z',
 			}),
@@ -172,8 +174,48 @@ describe('entity row schemas', () => {
 			containsStool: true,
 			containsUrine: false,
 			deviceId: 'device-abc',
+			locationLatitude: 37.7749,
+			locationLongitude: -122.4194,
 			profileId: 'profile-xyz',
 			timestamp: '2026-03-07T08:00:00.000Z',
+		});
+	});
+
+	it('preserves location coordinates provided as numeric strings during import for all entities', () => {
+		const rawRow = {
+			containsStool: true,
+			containsUrine: false,
+			id: 'change-1',
+			locationLatitude: '52.52',
+			locationLongitude: '13.405',
+			timestamp: '2026-03-07T08:00:00.000Z',
+		};
+
+		expect(
+			sanitizeImportedRow(TABLE_IDS.DIAPER_CHANGES, rawRow),
+		).toEqual({
+			containsStool: true,
+			containsUrine: false,
+			locationLatitude: 52.52,
+			locationLongitude: 13.405,
+			timestamp: '2026-03-07T08:00:00.000Z',
+		});
+
+		const growthRow = {
+			date: '2026-03-07T12:00:00.000Z',
+			height: 51,
+			id: 'growth-1',
+			locationLatitude: '48.8566',
+			locationLongitude: '2.3522',
+		};
+
+		expect(
+			sanitizeImportedRow(TABLE_IDS.GROWTH_MEASUREMENTS, growthRow),
+		).toEqual({
+			date: '2026-03-07T12:00:00.000Z',
+			height: 51,
+			locationLatitude: 48.8566,
+			locationLongitude: 2.3522,
 		});
 	});
 

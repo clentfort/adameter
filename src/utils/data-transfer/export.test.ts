@@ -45,4 +45,28 @@ describe('exportStoreAsZip', () => {
 		expect(files.find((f) => f.name === '__values.csv')).toBeUndefined();
 		expect(files.find((f) => f.name === 't1.csv')).toBeDefined();
 	});
+
+	it('should include location coordinates in the exported CSV for entities with location data', async () => {
+		vi.clearAllMocks();
+		const store = createStore();
+		store.setTable('diaper_changes', {
+			change1: {
+				containsStool: true,
+				containsUrine: false,
+				locationLatitude: 37.7749,
+				locationLongitude: -122.4194,
+				timestamp: '2026-03-03T08:00:00Z',
+			},
+		});
+
+		await exportStoreAsZip(store);
+
+		const files = vi.mocked(createZip).mock.calls[0][0];
+		const diaperFile = files.find((f) => f.name === 'diaper_changes.csv');
+		expect(diaperFile).toBeDefined();
+		expect(diaperFile?.content).toContain('locationLatitude');
+		expect(diaperFile?.content).toContain('locationLongitude');
+		expect(diaperFile?.content).toContain('37.7749');
+		expect(diaperFile?.content).toContain('-122.4194');
+	});
 });

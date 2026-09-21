@@ -22,6 +22,24 @@ describe('CSV Integration', () => {
 		expect(parsedData).toEqual(data);
 	});
 
+	it('round-trips location latitude and longitude floating-point coordinates without loss', () => {
+		const data = [
+			{
+				containsStool: true,
+				containsUrine: false,
+				id: 'change-with-loc',
+				locationLatitude: 52.52,
+				locationLongitude: 13.405,
+				timestamp: '2026-03-03T08:00:00Z',
+			},
+		];
+
+		const csv = toCsv(data);
+		const parsedData = fromCsv(csv);
+
+		expect(parsedData).toEqual(data);
+	});
+
 	it('exports every discovered column across table rows', () => {
 		const data = [
 			{ id: 'row-1', pottyUrine: true, title: 'first' },
