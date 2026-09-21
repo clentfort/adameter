@@ -191,9 +191,7 @@ describe('entity row schemas', () => {
 			timestamp: '2026-03-07T08:00:00.000Z',
 		};
 
-		expect(
-			sanitizeImportedRow(TABLE_IDS.DIAPER_CHANGES, rawRow),
-		).toEqual({
+		expect(sanitizeImportedRow(TABLE_IDS.DIAPER_CHANGES, rawRow)).toEqual({
 			containsStool: true,
 			containsUrine: false,
 			locationLatitude: 52.52,
