@@ -130,4 +130,47 @@ describe('EventForm', () => {
 		expect(savedEvent.type).toBe('period');
 		expect(savedEvent.color).toBe('#10b981');
 	});
+
+	it('supports acquiring and clearing location', async () => {
+		const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+
+		const getCurrentPositionMock = vi.fn().mockImplementation((success) => {
+			success({
+				coords: {
+					latitude: 52.52,
+					longitude: 13.405,
+				},
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			...globalThis.navigator,
+			geolocation: {
+				getCurrentPosition: getCurrentPositionMock,
+			},
+		});
+
+		render(
+			<TestWrapper>
+				<EventForm
+					onClose={mockOnClose}
+					onSave={mockOnSave}
+					title="Add Event with Location"
+				/>
+			</TestWrapper>,
+		);
+
+		const getLocationButton = screen.getByTestId('get-location-button');
+		await user.click(getLocationButton);
+
+		expect(getCurrentPositionMock).toHaveBeenCalledTimes(1);
+		expect(screen.getByText('52.52, 13.405')).toBeInTheDocument();
+
+		const clearLocationButton = screen.getByTestId('clear-location-button');
+		await user.click(clearLocationButton);
+
+		expect(screen.queryByText('52.52, 13.405')).not.toBeInTheDocument();
+
+		vi.unstubAllGlobals();
+	});
 });
