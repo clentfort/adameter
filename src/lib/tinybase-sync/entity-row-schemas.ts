@@ -32,6 +32,38 @@ function getProfileId(row: InputRow): string | undefined {
 		: undefined;
 }
 
+function getLocationLatitude(row: InputRow): number | undefined {
+	if (
+		typeof row.locationLatitude === 'number' &&
+		Number.isFinite(row.locationLatitude)
+	) {
+		return row.locationLatitude;
+	}
+	if (typeof row.locationLatitude === 'string') {
+		const parsed = Number(row.locationLatitude.trim());
+		if (row.locationLatitude.trim().length > 0 && Number.isFinite(parsed)) {
+			return parsed;
+		}
+	}
+	return undefined;
+}
+
+function getLocationLongitude(row: InputRow): number | undefined {
+	if (
+		typeof row.locationLongitude === 'number' &&
+		Number.isFinite(row.locationLongitude)
+	) {
+		return row.locationLongitude;
+	}
+	if (typeof row.locationLongitude === 'string') {
+		const parsed = Number(row.locationLongitude.trim());
+		if (row.locationLongitude.trim().length > 0 && Number.isFinite(parsed)) {
+			return parsed;
+		}
+	}
+	return undefined;
+}
+
 function sanitizeRowWithSchema(
 	row: InputRow,
 	schema: {
@@ -53,6 +85,14 @@ function sanitizeRowWithSchema(
 	const profileId = getProfileId(row);
 	if (profileId) {
 		sanitizedRow.profileId = profileId;
+	}
+	const locationLatitude = getLocationLatitude(row);
+	if (locationLatitude !== undefined) {
+		sanitizedRow.locationLatitude = locationLatitude;
+	}
+	const locationLongitude = getLocationLongitude(row);
+	if (locationLongitude !== undefined) {
+		sanitizedRow.locationLongitude = locationLongitude;
 	}
 
 	return sanitizedRow;
