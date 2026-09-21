@@ -4,6 +4,28 @@ import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DeferredSection from './deferred-section';
 
+let mockCustomRef: React.RefObject<HTMLDivElement> | null = null;
+let mockEffectInterceptor: ((cb: React.EffectCallback) => void) | null = null;
+
+vi.mock('react', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('react')>();
+	return {
+		...actual,
+		useEffect: (cb: React.EffectCallback, deps?: React.DependencyList) => {
+			if (mockEffectInterceptor) {
+				mockEffectInterceptor(cb);
+			}
+			return actual.useEffect(cb, deps);
+		},
+		useRef: <T,>(initialValue: T) => {
+			if (mockCustomRef) {
+				return mockCustomRef;
+			}
+			return actual.useRef(initialValue);
+		},
+	};
+});
+
 describe('DeferredSection', () => {
 	let intersectionObserverCallback: (
 		entries: IntersectionObserverEntry[],
@@ -67,10 +89,13 @@ describe('DeferredSection', () => {
 		expect(disconnect).toHaveBeenCalled();
 	});
 
-	it('handles case when containerRef.current is null', () => {
-		const useRefSpy = vi
-			.spyOn(React, 'useRef')
-			.mockReturnValue({ current: null });
+	it('returns early when container element ref is null in useEffect', () => {
+		mockCustomRef = Object.defineProperty({}, 'current', {
+			get() {
+				return null;
+			},
+			set(_v) {},
+		}) as unknown as React.RefObject<HTMLDivElement>;
 
 		render(
 			<DeferredSection fallback={<div>Fallback</div>}>
@@ -79,7 +104,34 @@ describe('DeferredSection', () => {
 		);
 
 		expect(screen.getByText('Fallback')).toBeInTheDocument();
-		useRefSpy.mockRestore();
+		mockCustomRef = null;
+	});
+
+	it('returns early in useEffect when window is undefined', () => {
+		let effectCb: React.EffectCallback | undefined;
+		mockEffectInterceptor = (cb) => {
+			if (!effectCb) {
+				effectCb = cb;
+			}
+		};
+
+		render(
+			<DeferredSection fallback={<div>Fallback</div>}>
+				<div>Content</div>
+			</DeferredSection>,
+		);
+
+		mockEffectInterceptor = null;
+
+		expect(effectCb).toBeDefined();
+
+		vi.stubGlobal('window', undefined);
+		try {
+			const cleanup = effectCb!();
+			expect(cleanup).toBeUndefined();
+		} finally {
+			vi.unstubAllGlobals();
+		}
 	});
 
 	it('handles disconnect and cleanup on unmount', () => {
