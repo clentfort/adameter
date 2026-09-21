@@ -5,6 +5,8 @@ import {
 	ChevronRight,
 	Database,
 	Globe,
+	Maximize2,
+	Minimize2,
 	Package,
 	Share2,
 	User,
@@ -13,12 +15,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useContext } from 'react';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
+import { useFullscreen } from '@/hooks/use-fullscreen';
 import { useProfile } from '@/hooks/use-profile';
 import { SettingsHeader } from './components/settings-header';
 
 export default function SettingsPage() {
 	const [profile] = useProfile();
 	const { room } = useContext(DataSynchronizationContext);
+	const { enterFullscreen, exitFullscreen, fullscreenMode, isFullscreen } =
+		useFullscreen();
 	const router = useRouter();
 
 	return (
@@ -155,6 +160,53 @@ export default function SettingsPage() {
 					</div>
 					<ChevronRight className="h-5 w-5 text-muted-foreground" />
 				</Link>
+
+				<button
+					className="w-full flex items-center justify-between p-4 bg-card rounded-xl border shadow-sm hover:bg-accent transition-colors"
+					data-testid="settings-fullscreen"
+					onClick={() => {
+						if (isFullscreen || fullscreenMode) {
+							void exitFullscreen();
+						} else {
+							void enterFullscreen();
+						}
+					}}
+					type="button"
+				>
+					<div className="flex items-center gap-3">
+						<div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center text-red-600 dark:text-red-300">
+							{isFullscreen || fullscreenMode ? (
+								<Minimize2 className="h-5 w-5" />
+							) : (
+								<Maximize2 className="h-5 w-5" />
+							)}
+						</div>
+						<div className="text-left">
+							<p className="font-medium">
+								{isFullscreen || fullscreenMode ? (
+									<fbt desc="Label for exit fullscreen option">
+										Exit Fullscreen
+									</fbt>
+								) : (
+									<fbt desc="Label for enter fullscreen option">
+										Enter Fullscreen
+									</fbt>
+								)}
+							</p>
+							<p className="text-sm text-muted-foreground">
+								{isFullscreen || fullscreenMode ? (
+									<fbt desc="Subtext for exit fullscreen option">
+										Exit full screen app mode
+									</fbt>
+								) : (
+									<fbt desc="Subtext for enter fullscreen option">
+										Enter full screen app mode
+									</fbt>
+								)}
+							</p>
+						</div>
+					</div>
+				</button>
 			</div>
 		</>
 	);

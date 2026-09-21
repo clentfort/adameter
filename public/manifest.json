@@ -2,7 +2,7 @@
 	"name": "AdaMeter",
 	"short_name": "AdaMeter",
 	"start_url": "/",
-	"display": "standalone",
+	"display": "fullscreen",
 	"background_color": "#faf7ee",
 	"theme_color": "#000",
 	"icons": [

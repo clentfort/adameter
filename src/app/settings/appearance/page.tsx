@@ -7,6 +7,7 @@ import {
 	Globe,
 	LayoutGrid,
 	MapPin,
+	Maximize2,
 	Moon,
 	Ruler,
 } from 'lucide-react';
@@ -24,6 +25,7 @@ import { Switch } from '@/components/ui/switch';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDevMode } from '@/hooks/use-dev-mode';
+import { useFullscreen } from '@/hooks/use-fullscreen';
 import { useLocationTracking } from '@/hooks/use-location-tracking';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
@@ -43,6 +45,7 @@ export default function AppearanceSettingsPage() {
 		useShowComparisonCharts();
 	const [showFeeding, setShowFeeding] = useShowFeeding();
 	const [locationTracking, setLocationTracking] = useLocationTracking();
+	const { enterFullscreen, exitFullscreen, fullscreenMode } = useFullscreen();
 
 	const updateLocale = async (code: Locale) => {
 		await setLocale(code);
@@ -266,6 +269,39 @@ export default function AppearanceSettingsPage() {
 									checked={locationTracking}
 									id="location-tracking"
 									onCheckedChange={setLocationTracking}
+								/>
+							</div>
+
+							<div className="flex items-center justify-between">
+								<div className="space-y-0.5">
+									<div className="flex items-center gap-2">
+										<Maximize2 className="h-4 w-4" />
+										<Label
+											className="text-sm font-medium"
+											htmlFor="fullscreen-mode"
+										>
+											<fbt desc="Label for fullscreen mode setting">
+												Fullscreen Mode
+											</fbt>
+										</Label>
+									</div>
+									<p className="text-xs text-muted-foreground">
+										<fbt desc="Description for fullscreen mode setting">
+											Keep app full screen so children cannot easily swipe it
+											away
+										</fbt>
+									</p>
+								</div>
+								<Switch
+									checked={fullscreenMode}
+									id="fullscreen-mode"
+									onCheckedChange={(checked) => {
+										if (checked) {
+											void enterFullscreen();
+										} else {
+											void exitFullscreen();
+										}
+									}}
 								/>
 							</div>
 

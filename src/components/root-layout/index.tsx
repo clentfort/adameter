@@ -11,6 +11,7 @@ import { useLatestDiaperChangeRecord } from '@/hooks/use-diaper-changes';
 import { useLatestFeedingSessionRecord } from '@/hooks/use-feeding-sessions';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
 import ConsoleDebugger from '../console-debugger';
+import { FullscreenHandler } from '../fullscreen-handler';
 import ProfilePrompt from '../profile-prompt';
 import { ProfileSwitcher } from '../profile-switcher';
 import { Button } from '../ui/button';
@@ -188,6 +189,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					{children}
 				</div>
 			</main>
+			<FullscreenHandler />
 			<ConsoleDebugger />
 			<Toaster />
 			<Footer />
