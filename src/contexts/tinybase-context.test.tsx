@@ -10,8 +10,12 @@ import { useContext } from 'react';
 import { useStore, useTable, useValue } from 'tinybase/ui-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { logger } from '@/lib/logger';
-import { clear } from '@/lib/storage';
-import { STORE_VALUE_PROFILE, TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { clear, getItem, STORAGE_KEYS } from '@/lib/storage';
+import {
+	STORE_VALUE_PROFILE,
+	STORE_VALUE_SELECTED_PROFILE_ID,
+	TABLE_IDS,
+} from '@/lib/tinybase-sync/constants';
 import {
 	DataSynchronizationContext,
 	DataSynchronizationProvider,
@@ -718,5 +722,56 @@ describe('TinybaseProvider room sync', () => {
 		errorSpy.mockRestore();
 		infoSpy.mockRestore();
 		vi.useRealTimers();
+	});
+
+	it('handles clear join strategy, profile id syncing to localStorage, and startSync error', async () => {
+		const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
+
+		mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
+			destroy: vi.fn(async () => {}),
+			load: vi.fn(async () => {
+				store.setContent([{}, {}]);
+				store.setValue(STORE_VALUE_SELECTED_PROFILE_ID, 'profile-123');
+			}),
+			startAutoSave: vi.fn(async () => {}),
+			stopAutoSave: vi.fn(async () => {}),
+		}));
+
+		mocks.createEncryptedPartyKitSynchronizer.mockResolvedValueOnce({
+			destroy: vi.fn(async () => {}),
+			startSync: vi.fn().mockRejectedValueOnce(new Error('startSync failed')),
+		});
+
+		function CustomRoomProbe() {
+			const { joinRoom } = useContext(DataSynchronizationContext);
+			return (
+				<button onClick={() => joinRoom('clear-room', 'clear')} type="button">
+					Join Clear Room
+				</button>
+			);
+		}
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<CustomRoomProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
+		);
+
+		await waitFor(() => {
+			expect(getItem(STORAGE_KEYS.SELECTED_PROFILE_ID)).toBe('profile-123');
+		});
+
+		fireEvent.click(screen.getByRole('button', { name: 'Join Clear Room' }));
+
+		await waitFor(() => {
+			expect(errorSpy).toHaveBeenCalledWith(
+				'Failed to start synchronizer:',
+				expect.any(Error),
+			);
+		});
+
+		errorSpy.mockRestore();
 	});
 });
