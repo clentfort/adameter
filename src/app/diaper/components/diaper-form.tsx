@@ -238,26 +238,14 @@ export default function DiaperForm({
 	);
 	const temperature = watch('temperature');
 
-	const handleSave = async (parsedValues: DiaperFormData) => {
+	const handleSave = (parsedValues: DiaperFormData) => {
 		let temperature = parsedValues.temperature;
 		if (isImperial && temperature != null) {
 			temperature = Math.round(fahrenheitToCelsius(temperature) * 10) / 10;
 		}
 
-		let lat = change?.locationLatitude;
-		let lon = change?.locationLongitude;
-
-		if (!change) {
-			const location = await requestAutomaticLocation({
-				isLocationTrackingEnabled: locationTracking,
-				onPermissionDenied: () => setLocationTracking(false),
-				timestamp: parsedValues.timestamp,
-			});
-			if (location) {
-				lat = location.latitude;
-				lon = location.longitude;
-			}
-		}
+		const lat = parsedValues.locationLatitude ?? change?.locationLatitude;
+		const lon = parsedValues.locationLongitude ?? change?.locationLongitude;
 
 		const updatedChange: DiaperChange = {
 			...change,
@@ -277,6 +265,22 @@ export default function DiaperForm({
 
 		onSave(updatedChange);
 		onClose();
+
+		if (!change && lat === undefined && lon === undefined) {
+			void requestAutomaticLocation({
+				isLocationTrackingEnabled: locationTracking,
+				onPermissionDenied: () => setLocationTracking(false),
+				timestamp: parsedValues.timestamp,
+			}).then((location) => {
+				if (location) {
+					onSave({
+						...updatedChange,
+						locationLatitude: location.latitude,
+						locationLongitude: location.longitude,
+					});
+				}
+			});
+		}
 	};
 
 	return (

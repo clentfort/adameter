@@ -62,21 +62,9 @@ export default function FeedingForm({
 
 	const breast = watch('breast');
 
-	const handleSave = async (parsedValues: FeedingSessionFormData) => {
-		let lat = feeding?.locationLatitude;
-		let lon = feeding?.locationLongitude;
-
-		if (!feeding) {
-			const location = await requestAutomaticLocation({
-				isLocationTrackingEnabled: locationTracking,
-				onPermissionDenied: () => setLocationTracking(false),
-				timestamp: parsedValues.startTime,
-			});
-			if (location) {
-				lat = location.latitude;
-				lon = location.longitude;
-			}
-		}
+	const handleSave = (parsedValues: FeedingSessionFormData) => {
+		const lat = parsedValues.locationLatitude ?? feeding?.locationLatitude;
+		const lon = parsedValues.locationLongitude ?? feeding?.locationLongitude;
 
 		const updatedSession: FeedingSession = {
 			...feeding,
@@ -92,6 +80,22 @@ export default function FeedingForm({
 
 		onSave(updatedSession);
 		onClose();
+
+		if (!feeding && lat === undefined && lon === undefined) {
+			void requestAutomaticLocation({
+				isLocationTrackingEnabled: locationTracking,
+				onPermissionDenied: () => setLocationTracking(false),
+				timestamp: parsedValues.startTime,
+			}).then((location) => {
+				if (location) {
+					onSave({
+						...updatedSession,
+						locationLatitude: location.latitude,
+						locationLongitude: location.longitude,
+					});
+				}
+			});
+		}
 	};
 
 	return (
@@ -108,6 +112,7 @@ export default function FeedingForm({
 								: 'bg-right-breast hover:bg-right-breast-dark'
 						}
 						data-testid="save-button"
+						disabled={formState.isSubmitting}
 						type="submit"
 					>
 						<fbt common>Save</fbt>

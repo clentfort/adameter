@@ -38,7 +38,7 @@ export function EntityFormDialog<
 	onSave,
 	title,
 }: EntityFormDialogProps<TFieldValues, TTransformedValues>) {
-	const { handleSubmit } = form;
+	const { formState, handleSubmit } = form;
 
 	return (
 		<Dialog onOpenChange={(open) => !open && onClose()} open={true}>
@@ -60,7 +60,11 @@ export function EntityFormDialog<
 							<Button onClick={onClose} type="button" variant="outline">
 								<fbt common>Cancel</fbt>
 							</Button>
-							<Button data-testid="save-button" type="submit">
+							<Button
+								data-testid="save-button"
+								disabled={formState.isSubmitting}
+								type="submit"
+							>
 								<fbt common>Save</fbt>
 							</Button>
 						</DialogFooter>

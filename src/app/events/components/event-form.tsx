@@ -11,9 +11,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useEntityForm } from '@/hooks/use-entity-form';
+import { useLocationTracking } from '@/hooks/use-location-tracking';
 import { eventFormToDataSchema } from '@/types/event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
+import { requestAutomaticLocation } from '@/utils/get-automatic-location';
 
 interface AddEventFormProps {
 	onClose: () => void;
@@ -70,6 +72,8 @@ export default function EventForm({
 		defaultValues,
 	);
 
+	const [locationTracking, setLocationTracking] = useLocationTracking();
+
 	const { register, setValue, watch } = form;
 
 	const eventType = watch('type');
@@ -79,13 +83,16 @@ export default function EventForm({
 	const locationLongitude = watch('locationLongitude');
 
 	const handleSave = (parsedValues: EventFormData) => {
+		const lat = parsedValues.locationLatitude;
+		const lon = parsedValues.locationLongitude;
+
 		const newEvent: Event = {
 			...event,
 			color: parsedValues.color,
 			endDate: parsedValues.endDate,
 			id: event?.id || Date.now().toString(),
-			locationLatitude: parsedValues.locationLatitude,
-			locationLongitude: parsedValues.locationLongitude,
+			locationLatitude: lat,
+			locationLongitude: lon,
 			notes: parsedValues.notes,
 			startDate: parsedValues.startDate,
 			title: parsedValues.title,
@@ -94,6 +101,22 @@ export default function EventForm({
 
 		onSave(newEvent);
 		onClose();
+
+		if (!event && lat === undefined && lon === undefined) {
+			void requestAutomaticLocation({
+				isLocationTrackingEnabled: locationTracking,
+				onPermissionDenied: () => setLocationTracking(false),
+				timestamp: parsedValues.startDate,
+			}).then((location) => {
+				if (location) {
+					onSave({
+						...newEvent,
+						locationLatitude: location.latitude,
+						locationLongitude: location.longitude,
+					});
+				}
+			});
+		}
 	};
 
 	return (
