@@ -89,10 +89,13 @@ describe('FeedingForm', () => {
 
 	it('automatically fetches location when adding a new feeding session within 15 mins', async () => {
 		const store = createTestStore();
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		let resolveLocation: (pos: any) => void;
 		const mockGetCurrentPosition = vi.fn((success) => {
-			resolveLocation = success;
+			success({
+				coords: {
+					latitude: 48.8566,
+					longitude: 2.3522,
+				},
+			});
 		});
 
 		vi.stubGlobal('navigator', {
@@ -114,23 +117,11 @@ describe('FeedingForm', () => {
 		fireEvent.click(screen.getByTestId('save-button'));
 
 		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
-		const initialSession = mockOnSave.mock.calls[0][0];
-		expect(initialSession.locationLatitude).toBeUndefined();
-		expect(initialSession.locationLongitude).toBeUndefined();
-		expect(mockOnClose).toHaveBeenCalledTimes(1);
-
-		resolveLocation!({
-			coords: {
-				latitude: 48.8566,
-				longitude: 2.3522,
-			},
-		});
-
-		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(2));
-		const updatedSession = mockOnSave.mock.calls[1][0];
+		const savedSession = mockOnSave.mock.calls[0][0];
 		expect(mockGetCurrentPosition).toHaveBeenCalled();
-		expect(updatedSession.locationLatitude).toBe(48.8566);
-		expect(updatedSession.locationLongitude).toBe(2.3522);
+		expect(savedSession.locationLatitude).toBe(48.8566);
+		expect(savedSession.locationLongitude).toBe(2.3522);
+		expect(mockOnClose).toHaveBeenCalledTimes(1);
 	});
 
 	it('disables location tracking setting when location permission is denied', async () => {

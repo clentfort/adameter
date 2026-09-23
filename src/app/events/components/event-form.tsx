@@ -10,12 +10,11 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useAutomaticLocation } from '@/hooks/use-automatic-location';
 import { useEntityForm } from '@/hooks/use-entity-form';
-import { useLocationTracking } from '@/hooks/use-location-tracking';
 import { eventFormToDataSchema } from '@/types/event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
-import { requestAutomaticLocation } from '@/utils/get-automatic-location';
 
 interface AddEventFormProps {
 	onClose: () => void;
@@ -72,7 +71,7 @@ export default function EventForm({
 		defaultValues,
 	);
 
-	const [locationTracking, setLocationTracking] = useLocationTracking();
+	const { getLocation } = useAutomaticLocation({ enabled: !event });
 
 	const { register, setValue, watch } = form;
 
@@ -82,9 +81,17 @@ export default function EventForm({
 	const locationLatitude = watch('locationLatitude');
 	const locationLongitude = watch('locationLongitude');
 
-	const handleSave = (parsedValues: EventFormData) => {
-		const lat = parsedValues.locationLatitude;
-		const lon = parsedValues.locationLongitude;
+	const handleSave = async (parsedValues: EventFormData) => {
+		let lat = parsedValues.locationLatitude;
+		let lon = parsedValues.locationLongitude;
+
+		if (!event && lat === undefined && lon === undefined) {
+			const autoLocation = await getLocation(parsedValues.startDate);
+			if (autoLocation) {
+				lat = autoLocation.latitude;
+				lon = autoLocation.longitude;
+			}
+		}
 
 		const newEvent: Event = {
 			...event,
@@ -101,22 +108,6 @@ export default function EventForm({
 
 		onSave(newEvent);
 		onClose();
-
-		if (!event && lat === undefined && lon === undefined) {
-			void requestAutomaticLocation({
-				isLocationTrackingEnabled: locationTracking,
-				onPermissionDenied: () => setLocationTracking(false),
-				timestamp: parsedValues.startDate,
-			}).then((location) => {
-				if (location) {
-					onSave({
-						...newEvent,
-						locationLatitude: location.latitude,
-						locationLongitude: location.longitude,
-					});
-				}
-			});
-		}
 	};
 
 	return (

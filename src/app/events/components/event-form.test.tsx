@@ -169,7 +169,7 @@ describe('EventForm', () => {
 		const getLocationButton = screen.getByTestId('get-location-button');
 		await user.click(getLocationButton);
 
-		expect(getCurrentPositionMock).toHaveBeenCalledTimes(1);
+		expect(getCurrentPositionMock).toHaveBeenCalled();
 		expect(screen.getByText('52.52, 13.405')).toBeInTheDocument();
 
 		const clearLocationButton = screen.getByTestId('clear-location-button');
@@ -181,10 +181,13 @@ describe('EventForm', () => {
 	});
 
 	it('automatically fetches location in background when adding a new event within 15 mins', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		let resolveLocation: (pos: any) => void;
 		const getCurrentPositionMock = vi.fn((success) => {
-			resolveLocation = success;
+			success({
+				coords: {
+					latitude: 52.52,
+					longitude: 13.405,
+				},
+			});
 		});
 
 		vi.stubGlobal('navigator', {
@@ -213,25 +216,11 @@ describe('EventForm', () => {
 		await vi.runAllTimersAsync();
 
 		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
-		const initialSave = mockOnSave.mock.calls[0][0] as Event;
-		expect(initialSave.locationLatitude).toBeUndefined();
-		expect(initialSave.locationLongitude).toBeUndefined();
-		expect(mockOnClose).toHaveBeenCalledTimes(1);
-
-		resolveLocation!({
-			coords: {
-				latitude: 52.52,
-				longitude: 13.405,
-			},
-		});
-
-		await vi.runAllTimersAsync();
-
-		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(2));
-		const updatedSave = mockOnSave.mock.calls[1][0] as Event;
+		const savedEvent = mockOnSave.mock.calls[0][0] as Event;
 		expect(getCurrentPositionMock).toHaveBeenCalled();
-		expect(updatedSave.locationLatitude).toBe(52.52);
-		expect(updatedSave.locationLongitude).toBe(13.405);
+		expect(savedEvent.locationLatitude).toBe(52.52);
+		expect(savedEvent.locationLongitude).toBe(13.405);
+		expect(mockOnClose).toHaveBeenCalledTimes(1);
 
 		vi.unstubAllGlobals();
 	});
