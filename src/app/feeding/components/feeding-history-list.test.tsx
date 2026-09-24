@@ -243,4 +243,26 @@ describe('FeedingHistoryList', () => {
 		fireEvent.click(toggleBtn);
 		expect(screen.queryByTestId('location-map')).not.toBeInTheDocument();
 	});
+
+	it('should render null when session is undefined', () => {
+		const mockSession: FeedingSession = {
+			breast: 'left',
+			durationInSeconds: 600,
+			endTime: '2023-01-01T10:10:00Z',
+			id: 'non-existent-session',
+			startTime: '2023-01-01T10:00:00Z',
+		};
+
+		mockUseFeedingSession.mockReturnValue(undefined);
+
+		render(
+			<TestWrapper sessions={[mockSession]}>
+				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+			</TestWrapper>,
+		);
+
+		expect(
+			screen.queryByTestId('feeding-history-entry'),
+		).not.toBeInTheDocument();
+	});
 });
