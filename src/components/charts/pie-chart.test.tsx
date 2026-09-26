@@ -233,4 +233,5 @@ describe('PieChart', () => {
 		// mockChart should not have been called because datasets was empty in effect
 		expect(mockChart).not.toHaveBeenCalled();
 	});
+
 });
