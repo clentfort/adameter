@@ -261,6 +261,7 @@ describe('DiaperForm', () => {
 		expect(mockGetCurrentPosition).toHaveBeenCalled();
 		expect(savedChange.locationLatitude).toBe(52.52);
 		expect(savedChange.locationLongitude).toBe(13.405);
+		expect(mockOnClose).toHaveBeenCalledTimes(1);
 	});
 
 	it('disables location tracking setting when location permission is denied', async () => {

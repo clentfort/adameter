@@ -1,5 +1,11 @@
 import type { Event } from '@/types/event';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import {
+	cleanup,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '@/contexts/i18n-context';
@@ -163,13 +169,58 @@ describe('EventForm', () => {
 		const getLocationButton = screen.getByTestId('get-location-button');
 		await user.click(getLocationButton);
 
-		expect(getCurrentPositionMock).toHaveBeenCalledTimes(1);
+		expect(getCurrentPositionMock).toHaveBeenCalled();
 		expect(screen.getByText('52.52, 13.405')).toBeInTheDocument();
 
 		const clearLocationButton = screen.getByTestId('clear-location-button');
 		await user.click(clearLocationButton);
 
 		expect(screen.queryByText('52.52, 13.405')).not.toBeInTheDocument();
+
+		vi.unstubAllGlobals();
+	});
+
+	it('automatically fetches location in background when adding a new event within 15 mins', async () => {
+		const getCurrentPositionMock = vi.fn((success) => {
+			success({
+				coords: {
+					latitude: 52.52,
+					longitude: 13.405,
+				},
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			...globalThis.navigator,
+			geolocation: {
+				getCurrentPosition: getCurrentPositionMock,
+			},
+		});
+
+		render(
+			<TestWrapper>
+				<EventForm
+					onClose={mockOnClose}
+					onSave={mockOnSave}
+					title="Add Event"
+				/>
+			</TestWrapper>,
+		);
+
+		const titleInput = screen.getByLabelText(/title/i);
+		fireEvent.change(titleInput, { target: { value: 'New Event' } });
+
+		const saveButton = screen.getByRole('button', { name: /save/i });
+		fireEvent.click(saveButton);
+
+		await vi.runAllTimersAsync();
+
+		await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(1));
+		const savedEvent = mockOnSave.mock.calls[0][0] as Event;
+		expect(getCurrentPositionMock).toHaveBeenCalled();
+		expect(savedEvent.locationLatitude).toBe(52.52);
+		expect(savedEvent.locationLongitude).toBe(13.405);
+		expect(mockOnClose).toHaveBeenCalledTimes(1);
 
 		vi.unstubAllGlobals();
 	});

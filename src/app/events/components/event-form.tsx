@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useAutomaticLocation } from '@/hooks/use-automatic-location';
 import { useEntityForm } from '@/hooks/use-entity-form';
 import { eventFormToDataSchema } from '@/types/event';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
@@ -70,6 +71,8 @@ export default function EventForm({
 		defaultValues,
 	);
 
+	const { getLocation } = useAutomaticLocation({ enabled: !event });
+
 	const { register, setValue, watch } = form;
 
 	const eventType = watch('type');
@@ -78,14 +81,25 @@ export default function EventForm({
 	const locationLatitude = watch('locationLatitude');
 	const locationLongitude = watch('locationLongitude');
 
-	const handleSave = (parsedValues: EventFormData) => {
+	const handleSave = async (parsedValues: EventFormData) => {
+		let lat = parsedValues.locationLatitude;
+		let lon = parsedValues.locationLongitude;
+
+		if (!event && lat === undefined && lon === undefined) {
+			const autoLocation = await getLocation(parsedValues.startDate);
+			if (autoLocation) {
+				lat = autoLocation.latitude;
+				lon = autoLocation.longitude;
+			}
+		}
+
 		const newEvent: Event = {
 			...event,
 			color: parsedValues.color,
 			endDate: parsedValues.endDate,
 			id: event?.id || Date.now().toString(),
-			locationLatitude: parsedValues.locationLatitude,
-			locationLongitude: parsedValues.locationLongitude,
+			locationLatitude: lat,
+			locationLongitude: lon,
 			notes: parsedValues.notes,
 			startDate: parsedValues.startDate,
 			title: parsedValues.title,

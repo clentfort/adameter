@@ -121,6 +121,7 @@ describe('FeedingForm', () => {
 		expect(mockGetCurrentPosition).toHaveBeenCalled();
 		expect(savedSession.locationLatitude).toBe(48.8566);
 		expect(savedSession.locationLongitude).toBe(2.3522);
+		expect(mockOnClose).toHaveBeenCalledTimes(1);
 	});
 
 	it('disables location tracking setting when location permission is denied', async () => {

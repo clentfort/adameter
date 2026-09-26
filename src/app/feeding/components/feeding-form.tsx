@@ -13,12 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
+import { useAutomaticLocation } from '@/hooks/use-automatic-location';
 import { useEntityForm } from '@/hooks/use-entity-form';
-import { useLocationTracking } from '@/hooks/use-location-tracking';
 import { feedingSessionFormToDataSchema } from '@/types/feeding';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
-import { requestAutomaticLocation } from '@/utils/get-automatic-location';
 
 interface FeedingFormProps {
 	feeding?: FeedingSession;
@@ -50,7 +49,7 @@ export default function FeedingForm({
 	title,
 }: FeedingFormProps) {
 	const defaultValues = useMemo(() => getDefaultValues(feeding), [feeding]);
-	const [locationTracking, setLocationTracking] = useLocationTracking();
+	const { getLocation } = useAutomaticLocation({ enabled: !feeding });
 
 	const form = useEntityForm<
 		FeedingFormValues,
@@ -63,18 +62,14 @@ export default function FeedingForm({
 	const breast = watch('breast');
 
 	const handleSave = async (parsedValues: FeedingSessionFormData) => {
-		let lat = feeding?.locationLatitude;
-		let lon = feeding?.locationLongitude;
+		let lat = parsedValues.locationLatitude ?? feeding?.locationLatitude;
+		let lon = parsedValues.locationLongitude ?? feeding?.locationLongitude;
 
-		if (!feeding) {
-			const location = await requestAutomaticLocation({
-				isLocationTrackingEnabled: locationTracking,
-				onPermissionDenied: () => setLocationTracking(false),
-				timestamp: parsedValues.startTime,
-			});
-			if (location) {
-				lat = location.latitude;
-				lon = location.longitude;
+		if (!feeding && lat === undefined && lon === undefined) {
+			const autoLocation = await getLocation(parsedValues.startTime);
+			if (autoLocation) {
+				lat = autoLocation.latitude;
+				lon = autoLocation.longitude;
 			}
 		}
 
@@ -108,6 +103,7 @@ export default function FeedingForm({
 								: 'bg-right-breast hover:bg-right-breast-dark'
 						}
 						data-testid="save-button"
+						disabled={formState.isSubmitting}
 						type="submit"
 					>
 						<fbt common>Save</fbt>
