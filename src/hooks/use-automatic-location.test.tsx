@@ -49,8 +49,9 @@ describe('useAutomaticLocation', () => {
 		expect(location).toEqual({ latitude: 52.52, longitude: 13.405 });
 	});
 
-	it('returns null and does not initiate request if disabled', async () => {
+	it('returns null and does not initiate request if disabled or tracking is off', async () => {
 		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, false);
 		const mockGetCurrentPosition = vi.fn();
 
 		vi.stubGlobal('navigator', {
@@ -71,5 +72,77 @@ describe('useAutomaticLocation', () => {
 		const location = await result.current.getLocation();
 		expect(mockGetCurrentPosition).not.toHaveBeenCalled();
 		expect(location).toBeNull();
+	});
+
+	it('disables location tracking when permission is denied during automatic fetch on mount', async () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, true);
+
+		const PERMISSION_DENIED = 1;
+		const mockGetCurrentPosition = vi.fn((_success, error) => {
+			error({
+				code: PERMISSION_DENIED,
+				PERMISSION_DENIED,
+				message: 'User denied Geolocation',
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		renderHook(() => useAutomaticLocation({ enabled: true }), {
+			wrapper: ({ children }) => (
+				<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+			),
+		});
+
+		await vi.waitFor(() => {
+			expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
+		});
+	});
+
+	it('fetches location on demand in getLocation when not pre-initialized on mount', async () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, false);
+
+		const mockGetCurrentPosition = vi.fn((success) => {
+			success({
+				coords: {
+					latitude: 48.8566,
+					longitude: 2.3522,
+				},
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		let enabled = false;
+
+		const { result, rerender } = renderHook(
+			() => useAutomaticLocation({ enabled }),
+			{
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			},
+		);
+
+		// While enabled=false, locationPromiseRef.current is null.
+		// Now enable location tracking and set enabled=true without mounting a new effect state.
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, true);
+		enabled = true;
+		rerender();
+
+		// getLocation should check !locationPromiseRef.current and initiate request
+		const location = await result.current.getLocation();
+		expect(mockGetCurrentPosition).toHaveBeenCalledTimes(1);
+		expect(location).toEqual({ latitude: 48.8566, longitude: 2.3522 });
 	});
 });
