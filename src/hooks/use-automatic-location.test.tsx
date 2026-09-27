@@ -82,8 +82,8 @@ describe('useAutomaticLocation', () => {
 		const mockGetCurrentPosition = vi.fn((_success, error) => {
 			error({
 				code: PERMISSION_DENIED,
-				PERMISSION_DENIED,
 				message: 'User denied Geolocation',
+				PERMISSION_DENIED,
 			});
 		});
 
@@ -125,7 +125,7 @@ describe('useAutomaticLocation', () => {
 
 		let enabled = false;
 
-		const { result, rerender } = renderHook(
+		const { rerender, result } = renderHook(
 			() => useAutomaticLocation({ enabled }),
 			{
 				wrapper: ({ children }) => (
