@@ -72,4 +72,35 @@ describe('useAutomaticLocation', () => {
 		expect(mockGetCurrentPosition).not.toHaveBeenCalled();
 		expect(location).toBeNull();
 	});
+
+	it('disables location tracking when permission is denied during location fetch', async () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, true);
+
+		const mockGetCurrentPosition = vi.fn((_success, error) => {
+			error({
+				code: 1,
+				PERMISSION_DENIED: 1,
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		const { result } = renderHook(
+			() => useAutomaticLocation({ enabled: true }),
+			{
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			},
+		);
+
+		const location = await result.current.getLocation();
+		expect(location).toBeNull();
+		expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
+	});
 });
