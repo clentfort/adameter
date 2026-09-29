@@ -233,4 +233,36 @@ describe('PieChart', () => {
 		// mockChart should not have been called because datasets was empty in effect
 		expect(mockChart).not.toHaveBeenCalled();
 	});
+
+	it('skips initialization when chartInstance.current is already set', async () => {
+		const datasets = [{ backgroundColor: ['red'], data: [10], label: 'Set 1' }];
+
+		const { rerender } = render(
+			<PieChart
+				datasets={datasets}
+				emptyStateMessage="No data"
+				labels={['A']}
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(1);
+
+		// Prevent cleanup from setting chartInstance.current = null on unmount/re-effect
+		const instance = mockChartInstance;
+		// Re-render with new prop reference to trigger effect dependency checks or re-render
+		rerender(
+			<PieChart
+				datasets={[...datasets]}
+				emptyStateMessage="No data"
+				labels={['A']}
+			/>,
+		);
+
+		expect(mockChart).toHaveBeenCalledTimes(1);
+		expect(instance).toBeDefined();
+	});
 });
