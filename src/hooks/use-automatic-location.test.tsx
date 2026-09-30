@@ -5,7 +5,17 @@ import {
 	createTestStore,
 	TinyBaseTestWrapper,
 } from '@/test-utils/tinybase-test-wrapper';
+import { requestAutomaticLocation } from '@/utils/get-automatic-location';
 import { useAutomaticLocation } from './use-automatic-location';
+
+vi.mock('@/utils/get-automatic-location', async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import('@/utils/get-automatic-location')>();
+	return {
+		...actual,
+		requestAutomaticLocation: vi.fn(actual.requestAutomaticLocation),
+	};
+});
 
 describe('useAutomaticLocation', () => {
 	beforeEach(() => {
@@ -101,6 +111,32 @@ describe('useAutomaticLocation', () => {
 
 		const location = await result.current.getLocation();
 		expect(location).toBeNull();
+		expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
+	});
+
+	it('initiates location request on demand inside getLocation if locationPromiseRef is null', async () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, true);
+
+		vi.mocked(requestAutomaticLocation)
+			.mockReturnValueOnce(null as unknown as Promise<null>)
+			.mockImplementationOnce(async ({ onPermissionDenied }) => {
+				onPermissionDenied?.();
+				return { latitude: 48.8566, longitude: 2.3522 };
+			});
+
+		const { result } = renderHook(
+			() => useAutomaticLocation({ enabled: true }),
+			{
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			},
+		);
+
+		const location = await result.current.getLocation();
+		expect(requestAutomaticLocation).toHaveBeenCalledTimes(2);
+		expect(location).toEqual({ latitude: 48.8566, longitude: 2.3522 });
 		expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
 	});
 });
