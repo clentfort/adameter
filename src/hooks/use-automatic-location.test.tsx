@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STORE_VALUE_LOCATION_TRACKING } from '@/lib/tinybase-sync/constants';
 import {
@@ -100,6 +101,54 @@ describe('useAutomaticLocation', () => {
 		);
 
 		const location = await result.current.getLocation();
+		expect(location).toBeNull();
+		expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
+	});
+
+	it('creates location request on demand in getLocation when called before useEffect flushes and handles permission denied', async () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, true);
+
+		const mockGetCurrentPosition = vi.fn((_success, error) => {
+			error({
+				code: 1,
+				PERMISSION_DENIED: 1,
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		let capturedGetLocation:
+			| ((
+					overrideTimestamp?: Date | number | string,
+			  ) => Promise<{ latitude: number; longitude: number } | null>)
+			| null = null;
+
+		function TestComponent() {
+			const { getLocation } = useAutomaticLocation({ enabled: true });
+			if (!capturedGetLocation) {
+				capturedGetLocation = getLocation;
+				// Synchronously call getLocation before useEffect flushes
+				void getLocation();
+			}
+			return null;
+		}
+
+		renderHook(() => null, {
+			wrapper: ({ children }) => (
+				<TinyBaseTestWrapper store={store}>
+					<TestComponent />
+					{children}
+				</TinyBaseTestWrapper>
+			),
+		});
+
+		expect(mockGetCurrentPosition).toHaveBeenCalledTimes(1);
+		const location = await capturedGetLocation!();
 		expect(location).toBeNull();
 		expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
 	});
