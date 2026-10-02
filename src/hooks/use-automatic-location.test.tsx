@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react';
+import { render, renderHook } from '@testing-library/react';
+import { useLayoutEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STORE_VALUE_LOCATION_TRACKING } from '@/lib/tinybase-sync/constants';
 import {
@@ -100,6 +101,49 @@ describe('useAutomaticLocation', () => {
 		);
 
 		const location = await result.current.getLocation();
+		expect(location).toBeNull();
+		expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
+	});
+
+	it('fetches location on demand via getLocation before useEffect runs and handles overrideTimestamp and permission denied', async () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, true);
+
+		const mockGetCurrentPosition = vi.fn((_success, error) => {
+			error({
+				code: 1,
+				PERMISSION_DENIED: 1,
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		let locationPromise: Promise<{
+			latitude: number;
+			longitude: number;
+		} | null> | null = null;
+
+		const testTimestamp = new Date();
+
+		function TestComponent() {
+			const { getLocation } = useAutomaticLocation({ enabled: true });
+			useLayoutEffect(() => {
+				locationPromise = getLocation(testTimestamp);
+			}, [getLocation]);
+			return null;
+		}
+
+		render(
+			<TinyBaseTestWrapper store={store}>
+				<TestComponent />
+			</TinyBaseTestWrapper>,
+		);
+
+		const location = await locationPromise;
 		expect(location).toBeNull();
 		expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
 	});
