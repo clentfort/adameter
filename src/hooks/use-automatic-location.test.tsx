@@ -1,3 +1,4 @@
+import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STORE_VALUE_LOCATION_TRACKING } from '@/lib/tinybase-sync/constants';
@@ -102,5 +103,80 @@ describe('useAutomaticLocation', () => {
 		const location = await result.current.getLocation();
 		expect(location).toBeNull();
 		expect(store.getValue(STORE_VALUE_LOCATION_TRACKING)).toBe(false);
+	});
+
+	it('fetches location on demand with override timestamp when location promise is not initialized', async () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, true);
+
+		const mockGetCurrentPosition = vi.fn((success) => {
+			success({
+				coords: {
+					latitude: 48.8566,
+					longitude: 2.3522,
+				},
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		let locationPromise: Promise<{ latitude: number; longitude: number } | null> | null = null;
+
+		renderHook(
+			() => {
+				const hook = useAutomaticLocation({ enabled: true });
+				if (!locationPromise) {
+					locationPromise = hook.getLocation();
+				}
+				return hook;
+			},
+			{
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			},
+		);
+
+		const location = await locationPromise;
+		expect(mockGetCurrentPosition).toHaveBeenCalledTimes(1);
+		expect(location).toEqual({ latitude: 48.8566, longitude: 2.3522 });
+	});
+
+	it('returns locationPromiseRef if locationPromiseRef is already initialized when getLocation is called', async () => {
+		const store = createTestStore();
+		store.setValue(STORE_VALUE_LOCATION_TRACKING, true);
+
+		const mockGetCurrentPosition = vi.fn((success) => {
+			success({
+				coords: {
+					latitude: 52.52,
+					longitude: 13.405,
+				},
+			});
+		});
+
+		vi.stubGlobal('navigator', {
+			geolocation: {
+				getCurrentPosition: mockGetCurrentPosition,
+			},
+		});
+
+		const { result } = renderHook(
+			() => useAutomaticLocation({ enabled: true }),
+			{
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			},
+		);
+
+		const location1 = await result.current.getLocation();
+		const location2 = await result.current.getLocation();
+		expect(mockGetCurrentPosition).toHaveBeenCalledTimes(1);
+		expect(location1).toEqual(location2);
 	});
 });
