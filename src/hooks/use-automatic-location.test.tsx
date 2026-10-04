@@ -124,7 +124,10 @@ describe('useAutomaticLocation', () => {
 			},
 		});
 
-		let locationPromise: Promise<{ latitude: number; longitude: number } | null> | null = null;
+		let locationPromise: Promise<{
+			latitude: number;
+			longitude: number;
+		} | null> | null = null;
 
 		function TestComponent() {
 			const { getLocation } = useAutomaticLocation({ enabled: true });
