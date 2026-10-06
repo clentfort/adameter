@@ -89,11 +89,9 @@ describe('FeedingsPerDayStats', () => {
 		expect(screen.getByText('1.7')).toBeInTheDocument();
 	});
 
-	it('returns 0 when calculateAvgFeedingsPerDay is called with comparisonSessions that have empty keys', () => {
-		// When comparisonSessions is passed as an empty array, prevAvgFeedingsPerDay resolves to 0
-		render(
-			<FeedingsPerDayStats comparisonSessions={[]} sessions={mockSessions} />,
-		);
-		expect(screen.getByText('1.7')).toBeInTheDocument();
+	it('returns 0 when calculateAvgFeedingsPerDay receives sparse sessions array', () => {
+		const sparseSessions = new Array(1);
+		render(<FeedingsPerDayStats sessions={sparseSessions} />);
+		expect(screen.getByText('0.0')).toBeInTheDocument();
 	});
 });
