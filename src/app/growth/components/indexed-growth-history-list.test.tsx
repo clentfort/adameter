@@ -210,4 +210,23 @@ describe('IndexedGrowthHistoryList', () => {
 
 		expect(screen.getByText(/tooth 51/i)).toBeInTheDocument();
 	});
+
+	it('should return null when a growth measurement or tooth is missing or invalid', () => {
+		const store = createStore();
+
+		// Add a tooth without a date property
+		store.setRow(TABLE_IDS.TEETHING, 'tooth-no-date', {
+			toothId: 52,
+		});
+
+		render(
+			<Provider store={store}>
+				<TinybaseIndexesProvider>
+					<IndexedGrowthHistoryList />
+				</TinybaseIndexesProvider>
+			</Provider>,
+		);
+
+		expect(screen.getByText(/no history recorded yet/i)).toBeInTheDocument();
+	});
 });
