@@ -210,4 +210,25 @@ describe('IndexedGrowthHistoryList', () => {
 
 		expect(screen.getByText(/tooth 51/i)).toBeInTheDocument();
 	});
+
+	it('should return null for teething entries with missing or invalid date', () => {
+		const store = createStore();
+		store.setRow(TABLE_IDS.TEETHING, 'tooth-invalid', {
+			toothId: 51,
+		});
+		store.setRow(TABLE_IDS.GROWTH_MEASUREMENTS, 'growth-1', {
+			date: '2024-01-15T11:00:00Z',
+			weight: 4500,
+		});
+
+		render(
+			<Provider store={store}>
+				<TinybaseIndexesProvider>
+					<IndexedGrowthHistoryList />
+				</TinybaseIndexesProvider>
+			</Provider>,
+		);
+
+		expect(screen.queryByText(/tooth 51/i)).toBeNull();
+	});
 });
