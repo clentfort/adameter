@@ -296,8 +296,7 @@ describe('PieChart', () => {
 
 		// Test optional chaining when plugins is empty object
 		const originalPlugins = mockChartInstance.options.plugins;
-		mockChartInstance.options.plugins =
-			{} as unknown as typeof originalPlugins;
+		mockChartInstance.options.plugins = {} as unknown as typeof originalPlugins;
 
 		rerender(
 			<PieChart
