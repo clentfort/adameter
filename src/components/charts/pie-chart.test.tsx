@@ -265,4 +265,50 @@ describe('PieChart', () => {
 		expect(mockChart).toHaveBeenCalledTimes(1);
 		expect(instance).toBeDefined();
 	});
+
+	it('handles title fallback and optional plugin options during chart update', async () => {
+		const datasets = [{ backgroundColor: ['red'], data: [10], label: 'Set 1' }];
+
+		const { rerender } = render(
+			<PieChart
+				datasets={datasets}
+				emptyStateMessage="No data"
+				labels={['A']}
+				title="Chart Title"
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		// Rerender with undefined title to test title?.toString() || '' in update effect
+		rerender(
+			<PieChart
+				datasets={datasets}
+				emptyStateMessage="No data"
+				labels={['A']}
+				title={undefined}
+			/>,
+		);
+
+		expect(mockChartInstance.options.plugins.title.text).toBe('');
+
+		// Test optional chaining when plugins is empty object
+		const originalPlugins = mockChartInstance.options.plugins;
+		mockChartInstance.options.plugins =
+			{} as unknown as typeof originalPlugins;
+
+		rerender(
+			<PieChart
+				datasets={datasets}
+				emptyStateMessage="No data"
+				labels={['A', 'B']}
+			/>,
+		);
+
+		expect(mockUpdate).toHaveBeenCalled();
+
+		mockChartInstance.options.plugins = originalPlugins;
+	});
 });
