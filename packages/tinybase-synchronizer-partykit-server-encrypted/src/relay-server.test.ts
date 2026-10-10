@@ -72,6 +72,14 @@ function createRequest(
 	} as unknown as Request;
 }
 
+function createLegacyPut(body: string, authorization?: string) {
+	const request = createRequest('PUT', '/legacy-store', body, null);
+	if (authorization) {
+		request.headers.set('Authorization', authorization);
+	}
+	return request;
+}
+
 describe('EncryptedSyncRelayServer', () => {
 	let room: ReturnType<typeof createMockRoom>;
 	let server: EncryptedSyncRelayServer;
@@ -313,6 +321,118 @@ describe('EncryptedSyncRelayServer', () => {
 			expect(response.status).toBe(500);
 			const body = JSON.parse(await response.text());
 			expect(body.error).toContain('storage down');
+		});
+	});
+
+	describe('legacy store', () => {
+		class ImportingServer extends EncryptedSyncRelayServer {
+			protected override getLegacyImportSecret() {
+				return 'import-secret';
+			}
+		}
+
+		it('returns "null" when nothing was imported', async () => {
+			room.storage.get.mockResolvedValue(undefined);
+
+			const response = await server.onRequest(
+				createRequest('GET', '/legacy-store'),
+			);
+			expect(response.status).toBe(200);
+			expect(await response.text()).toBe('null');
+			expect(room.storage.get).toHaveBeenCalledWith('legacy_snapshot');
+		});
+
+		it('rejects imports when no secret is configured', async () => {
+			const response = await server.onRequest(
+				createLegacyPut('blob', 'Bearer anything'),
+			);
+			expect(response.status).toBe(401);
+			expect(room.storage.put).not.toHaveBeenCalled();
+		});
+
+		it('rejects imports with a wrong secret', async () => {
+			const importingServer = new ImportingServer(room as never, {} as never);
+			const response = await importingServer.onRequest(
+				createLegacyPut('blob', 'Bearer wrong'),
+			);
+			expect(response.status).toBe(401);
+			expect(room.storage.put).not.toHaveBeenCalled();
+		});
+
+		it('rejects empty imports', async () => {
+			const importingServer = new ImportingServer(room as never, {} as never);
+			const response = await importingServer.onRequest(
+				createLegacyPut('null', 'Bearer import-secret'),
+			);
+			expect(response.status).toBe(400);
+			expect(room.storage.put).not.toHaveBeenCalled();
+		});
+
+		it('stores imports apart from the live snapshot', async () => {
+			room.storage.get.mockResolvedValue(undefined);
+			const importingServer = new ImportingServer(room as never, {} as never);
+
+			const response = await importingServer.onRequest(
+				createLegacyPut('legacy-blob', 'Bearer import-secret'),
+			);
+
+			expect(response.status).toBe(200);
+			expect(room.storage.put).toHaveBeenCalledWith(
+				'legacy_snapshot',
+				'legacy-blob',
+			);
+			expect(room.storage.put).not.toHaveBeenCalledWith(
+				'snapshot',
+				expect.anything(),
+			);
+			expect(room.storage.put).not.toHaveBeenCalledWith(
+				'snapshot_revision',
+				expect.anything(),
+			);
+		});
+
+		it('chunks oversized imports', async () => {
+			room.storage.get.mockResolvedValue(undefined);
+			const importingServer = new ImportingServer(room as never, {} as never);
+			const largeSnapshot = 'x'.repeat(250_000);
+
+			const response = await importingServer.onRequest(
+				createLegacyPut(largeSnapshot, 'Bearer import-secret'),
+			);
+
+			expect(response.status).toBe(200);
+			expect(room.storage.put).toHaveBeenCalledWith(
+				'legacy_snapshot_chunk_count',
+				'3',
+			);
+			expect(room.storage.delete).toHaveBeenCalledWith('legacy_snapshot');
+		});
+
+		it('reconstructs chunked imports on GET', async () => {
+			const values: Record<string, string> = {
+				legacy_snapshot_chunk_0: 'abc',
+				legacy_snapshot_chunk_1: 'def',
+				legacy_snapshot_chunk_count: '2',
+			};
+			room.storage.get.mockImplementation((key: string) =>
+				Promise.resolve(values[key]),
+			);
+
+			const response = await server.onRequest(
+				createRequest('GET', '/legacy-store'),
+			);
+			expect(await response.text()).toBe('abcdef');
+		});
+
+		it('does not treat /legacy-store as the live store', async () => {
+			room.storage.get.mockImplementation((key: string) =>
+				Promise.resolve(key === 'snapshot' ? 'live' : undefined),
+			);
+
+			const response = await server.onRequest(
+				createRequest('GET', '/legacy-store'),
+			);
+			expect(await response.text()).toBe('null');
 		});
 	});
 
