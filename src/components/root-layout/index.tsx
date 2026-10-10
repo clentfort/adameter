@@ -10,6 +10,7 @@ import { Suspense, useEffect, useRef } from 'react';
 import { useLatestDiaperChangeRecord } from '@/hooks/use-diaper-changes';
 import { useLatestFeedingSessionRecord } from '@/hooks/use-feeding-sessions';
 import { useShowFeeding } from '@/hooks/use-show-feeding';
+import { BackupReminder } from '../backup-reminder';
 import ConsoleDebugger from '../console-debugger';
 import ProfilePrompt from '../profile-prompt';
 import { ProfileSwitcher } from '../profile-switcher';
@@ -189,6 +190,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 				</div>
 			</main>
 			<ConsoleDebugger />
+			<BackupReminder />
 			<Toaster />
 			<Footer />
 		</div>

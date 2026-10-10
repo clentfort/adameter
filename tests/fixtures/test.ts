@@ -231,18 +231,43 @@ export async function enableSkipProfile(pageOrContext: BrowserContext | Page) {
 	}
 }
 
+/**
+ * Treats a backup as just downloaded, so the weekly reminder's modal does not
+ * block tests. Keeps any state a test already wrote.
+ */
+export async function skipBackupReminder(context: BrowserContext) {
+	await context.addInitScript(() => {
+		try {
+			if (!window.localStorage.getItem('backup-reminder')) {
+				window.localStorage.setItem(
+					'backup-reminder',
+					JSON.stringify({ lastBackupAt: Date.now(), mode: 'ask' }),
+				);
+			}
+		} catch {
+			// Storage is unavailable on about:blank and opaque origins.
+		}
+	});
+}
+
 type Fixtures = {
+	/** Show the weekly backup reminder instead of treating a backup as done. */
+	showBackupReminder: boolean;
 	skipProfile: void;
 };
 
 export const test = base.extend<Fixtures>({
-	context: async ({ context }, use) => {
+	context: async ({ context, showBackupReminder }, use) => {
 		await context.addInitScript(() => {
 			(window as unknown as { __E2E_TESTS__: boolean }).__E2E_TESTS__ = true;
 		});
+		if (!showBackupReminder) {
+			await skipBackupReminder(context);
+		}
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		await use(context);
 	},
+	showBackupReminder: [false, { option: true }],
 	skipProfile: [
 		async ({ context }, use) => {
 			await enableSkipProfile(context);

@@ -4,8 +4,9 @@ import { Server } from 'partyserver';
 const MESSAGE_SEPARATOR = '\n';
 const SNAPSHOT_KEY = 'snapshot';
 const SNAPSHOT_REVISION_KEY = 'snapshot_revision';
-const SNAPSHOT_CHUNK_COUNT_KEY = 'snapshot_chunk_count';
-const SNAPSHOT_CHUNK_KEY_PREFIX = 'snapshot_chunk_';
+// Snapshot copied from the retired managed PartyKit deployment. Kept apart from
+// the live snapshot so clients can CRDT-merge it instead of it being overwritten.
+const LEGACY_SNAPSHOT_KEY = 'legacy_snapshot';
 
 // Cloudflare Durable Object storage value limit.
 const MAX_STORAGE_VALUE_BYTES = 131_072;
@@ -15,6 +16,13 @@ const SNAPSHOT_CHUNK_SIZE_BYTES = 120_000;
  * Configuration for the encrypted synchronizer relay server.
  */
 export interface EncryptedSyncRelayConfig {
+	/**
+	 * The HTTP endpoint path for the imported legacy snapshot. GET is public,
+	 * PUT requires `Authorization: Bearer <legacy import secret>`.
+	 * Defaults to '/legacy-store'.
+	 */
+	legacyStorePath?: string;
+
 	/**
 	 * Custom response headers, e.g. for CORS.
 	 * Defaults to permissive CORS headers.
@@ -67,7 +75,9 @@ const DEFAULT_RESPONSE_HEADERS: Record<string, string> = {
  * }
  * ```
  */
-export class EncryptedSyncRelayServer extends Server {
+export class EncryptedSyncRelayServer<
+	Env extends Cloudflare.Env = Cloudflare.Env,
+> extends Server<Env> {
 	static options = { hibernate: true };
 
 	/**
@@ -77,17 +87,13 @@ export class EncryptedSyncRelayServer extends Server {
 
 	private snapshotWriteQueue: Promise<void> = Promise.resolve();
 
-	private getSnapshotChunkKey(index: number): string {
-		return `${SNAPSHOT_CHUNK_KEY_PREFIX}${index}`;
-	}
-
 	private getByteLength(value: string): number {
 		return new TextEncoder().encode(value).byteLength;
 	}
 
-	private async getChunkCount(): Promise<number> {
+	private async getChunkCount(baseKey: string): Promise<number> {
 		const chunkCount = await this.ctx.storage.get<string>(
-			SNAPSHOT_CHUNK_COUNT_KEY,
+			`${baseKey}_chunk_count`,
 		);
 		if (!chunkCount) {
 			return 0;
@@ -102,22 +108,22 @@ export class EncryptedSyncRelayServer extends Server {
 		return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 	}
 
-	private async clearChunkedSnapshot(): Promise<void> {
-		const chunkCount = await this.getChunkCount();
-		if (chunkCount > 0) {
-			for (let index = 0; index < chunkCount; index += 1) {
-				await this.ctx.storage.delete(this.getSnapshotChunkKey(index));
-			}
+	private async clearChunkedSnapshot(baseKey: string): Promise<void> {
+		const chunkCount = await this.getChunkCount(baseKey);
+		for (let index = 0; index < chunkCount; index += 1) {
+			await this.ctx.storage.delete(`${baseKey}_chunk_${index}`);
 		}
-		await this.ctx.storage.delete(SNAPSHOT_CHUNK_COUNT_KEY);
+		await this.ctx.storage.delete(`${baseKey}_chunk_count`);
 	}
 
-	private async readSnapshot(): Promise<string | undefined> {
-		const chunkCount = await this.getChunkCount();
+	private async readSnapshot(
+		baseKey = SNAPSHOT_KEY,
+	): Promise<string | undefined> {
+		const chunkCount = await this.getChunkCount(baseKey);
 		if (chunkCount > 0) {
 			const chunks = await Promise.all(
 				Array.from({ length: chunkCount }, async (_value, index) => {
-					return this.ctx.storage.get<string>(this.getSnapshotChunkKey(index));
+					return this.ctx.storage.get<string>(`${baseKey}_chunk_${index}`);
 				}),
 			);
 			if (chunks.some((chunk) => chunk == null)) {
@@ -125,17 +131,20 @@ export class EncryptedSyncRelayServer extends Server {
 			}
 			return chunks.join('');
 		}
-		return this.ctx.storage.get<string>(SNAPSHOT_KEY);
+		return this.ctx.storage.get<string>(baseKey);
 	}
 
-	private async writeSnapshot(snapshot: string): Promise<void> {
+	private async writeSnapshot(
+		snapshot: string,
+		baseKey = SNAPSHOT_KEY,
+	): Promise<void> {
 		if (this.getByteLength(snapshot) <= MAX_STORAGE_VALUE_BYTES) {
-			await this.ctx.storage.put(SNAPSHOT_KEY, snapshot);
-			await this.clearChunkedSnapshot();
+			await this.ctx.storage.put(baseKey, snapshot);
+			await this.clearChunkedSnapshot(baseKey);
 			return;
 		}
 
-		await this.clearChunkedSnapshot();
+		await this.clearChunkedSnapshot(baseKey);
 		const chunks: string[] = [];
 		for (
 			let start = 0;
@@ -146,13 +155,50 @@ export class EncryptedSyncRelayServer extends Server {
 		}
 
 		for (let index = 0; index < chunks.length; index += 1) {
-			await this.ctx.storage.put(
-				this.getSnapshotChunkKey(index),
-				chunks[index],
-			);
+			await this.ctx.storage.put(`${baseKey}_chunk_${index}`, chunks[index]);
 		}
-		await this.ctx.storage.put(SNAPSHOT_CHUNK_COUNT_KEY, String(chunks.length));
-		await this.ctx.storage.delete(SNAPSHOT_KEY);
+		await this.ctx.storage.put(`${baseKey}_chunk_count`, String(chunks.length));
+		await this.ctx.storage.delete(baseKey);
+	}
+
+	/**
+	 * Secret that authorizes writes to the legacy snapshot endpoint. Override in
+	 * subclasses to enable imports; returning `undefined` disables them.
+	 */
+	protected getLegacyImportSecret(): string | undefined {
+		return undefined;
+	}
+
+	private async handleLegacyStoreRequest(
+		request: Request,
+		headers: Record<string, string>,
+	): Promise<Response> {
+		if (request.method === 'GET') {
+			const snapshot = await this.readSnapshot(LEGACY_SNAPSHOT_KEY);
+			return new Response(snapshot ?? 'null', {
+				headers: { ...headers, 'Content-Type': 'text/plain' },
+				status: 200,
+			});
+		}
+
+		if (request.method !== 'PUT') {
+			return new Response('Method not allowed', { headers, status: 405 });
+		}
+
+		const body = await request.text();
+		const secret = this.getLegacyImportSecret();
+		if (
+			!secret ||
+			request.headers.get('Authorization') !== `Bearer ${secret}`
+		) {
+			return new Response('Unauthorized', { headers, status: 401 });
+		}
+		if (!body || body === 'null') {
+			return new Response('Empty snapshot', { headers, status: 400 });
+		}
+
+		await this.writeSnapshot(body, LEGACY_SNAPSHOT_KEY);
+		return new Response('ok', { headers, status: 200 });
 	}
 
 	private async writeVersionedSnapshot(
@@ -204,7 +250,18 @@ export class EncryptedSyncRelayServer extends Server {
 		}
 
 		const storePath = this.config.storePath ?? '/store';
+		const legacyStorePath = this.config.legacyStorePath ?? '/legacy-store';
 		const url = new URL(request.url);
+		if (url.pathname.endsWith(legacyStorePath)) {
+			try {
+				return await this.handleLegacyStoreRequest(request, headers);
+			} catch (error) {
+				return new Response(JSON.stringify({ error: String(error) }), {
+					headers: { ...headers, 'Content-Type': 'application/json' },
+					status: 500,
+				});
+			}
+		}
 		if (!url.pathname.endsWith(storePath)) {
 			return new Response('Not found', { status: 404 });
 		}

@@ -1,10 +1,17 @@
 import { routePartykitRequest } from 'partyserver';
 import { EncryptedSyncRelayServer } from 'tinybase-synchronizer-partykit-server-encrypted';
 
-export class Tinybase extends EncryptedSyncRelayServer {}
-
 interface Env extends Cloudflare.Env {
+	// Set with `wrangler secret put LEGACY_IMPORT_SECRET` while rooms are copied
+	// from the retired managed PartyKit deployment. Unset disables imports.
+	LEGACY_IMPORT_SECRET?: string;
 	Tinybase: DurableObjectNamespace<Tinybase>;
+}
+
+export class Tinybase extends EncryptedSyncRelayServer<Env> {
+	protected override getLegacyImportSecret() {
+		return this.env.LEGACY_IMPORT_SECRET || undefined;
+	}
 }
 
 export default {

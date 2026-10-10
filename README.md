@@ -61,10 +61,9 @@ feature, or improving translations, your help is appreciated.
 
 ### Preview Environments
 
-- Branch previews deploy to PartyKit using the name `branch-<slug>`.
-- Vercel preview builds automatically target
-  `branch-<slug>.adameter-party.clentfort.partykit.dev`.
-- You can override the PartyKit target manually by setting
+- Vercel preview builds target the shared PartyServer preview at
+  `adameter-party-preview.adameter.workers.dev` (see `party/README.md`).
+- You can override the sync server manually by setting
   `NEXT_PUBLIC_PARTYKIT_HOST`.
 
 ### Translations

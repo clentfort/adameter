@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { cloneRoomData } from './cloning';
+import { cloneRoomData, cloneRoomDataFromHosts } from './cloning';
 
 vi.mock('tinybase-persister-partykit-client-encrypted', () => ({
 	decryptContent: vi.fn(),
@@ -17,6 +17,33 @@ const { decrypt, getEncryptionKey, hashRoomId, jsonParseWithUndefined } =
 
 const { decryptContent } =
 	await import('tinybase-persister-partykit-client-encrypted');
+
+function mockHosts(responses: Record<string, string>) {
+	vi.mocked(hashRoomId).mockResolvedValue('hashed-room');
+	vi.mocked(getEncryptionKey).mockResolvedValue({} as CryptoKey);
+	vi.mocked(decrypt).mockImplementation((body) => Promise.resolve(body));
+	vi.mocked(jsonParseWithUndefined).mockImplementation((body) => [
+		{ source: body },
+		{},
+		'0',
+		1,
+	]);
+	vi.mocked(fetch).mockImplementation((url) => {
+		const host = new URL(String(url)).host;
+		const body = responses[host];
+		return Promise.resolve({
+			ok: true,
+			text: () => Promise.resolve(body ?? 'null'),
+		} as Response);
+	});
+}
+
+function createMockStore() {
+	return {
+		applyMergeableChanges: vi.fn(),
+		setContent: vi.fn(),
+	};
+}
 
 describe('cloneRoomData', () => {
 	const sourceRoomName = 'test-room';
@@ -106,5 +133,53 @@ describe('cloneRoomData', () => {
 				mockStore as unknown as Parameters<typeof cloneRoomData>[2],
 			),
 		).rejects.toThrow(/Failed to parse/);
+	});
+
+	describe('cloneRoomDataFromHosts', () => {
+		it('merges data from every host that has it', async () => {
+			mockHosts({ 'legacy.example': 'legacy', 'new.example': 'new' });
+			const store = createMockStore();
+
+			await cloneRoomDataFromHosts(
+				sourceRoomName,
+				['legacy.example', 'new.example'],
+				store as unknown as Parameters<typeof cloneRoomDataFromHosts>[2],
+			);
+
+			expect(store.applyMergeableChanges).toHaveBeenCalledTimes(2);
+		});
+
+		it('succeeds when only the legacy host has data', async () => {
+			mockHosts({ 'legacy.example': 'legacy' });
+			const store = createMockStore();
+
+			await cloneRoomDataFromHosts(
+				sourceRoomName,
+				['legacy.example', 'new.example'],
+				store as unknown as Parameters<typeof cloneRoomDataFromHosts>[2],
+			);
+
+			expect(store.applyMergeableChanges).toHaveBeenCalledTimes(1);
+			expect(store.applyMergeableChanges).toHaveBeenCalledWith([
+				{ source: 'legacy' },
+				{},
+				'0',
+				1,
+			]);
+		});
+
+		it('fails when no host has data', async () => {
+			mockHosts({});
+
+			await expect(
+				cloneRoomDataFromHosts(
+					sourceRoomName,
+					['legacy.example', 'new.example'],
+					createMockStore() as unknown as Parameters<
+						typeof cloneRoomDataFromHosts
+					>[2],
+				),
+			).rejects.toThrow('Failed to clone room from any host.');
+		});
 	});
 });
