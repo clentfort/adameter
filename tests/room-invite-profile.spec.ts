@@ -1,4 +1,9 @@
-import { enableSkipProfile, expect, test } from './fixtures/test';
+import {
+	enableSkipProfile,
+	expect,
+	skipBackupReminder,
+	test,
+} from './fixtures/test';
 import { createRoom } from './helpers/rooms';
 
 test('fresh device joins an existing room before profile setup is shown', async ({
@@ -6,6 +11,8 @@ test('fresh device joins an existing room before profile setup is shown', async 
 }) => {
 	const ownerContext = await browser.newContext();
 	const freshContext = await browser.newContext();
+	await skipBackupReminder(ownerContext);
+	await skipBackupReminder(freshContext);
 
 	try {
 		await enableSkipProfile(ownerContext);

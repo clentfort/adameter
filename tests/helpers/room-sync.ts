@@ -1,5 +1,5 @@
 import type { Browser, BrowserContext, Page } from '@playwright/test';
-import { enableSkipProfile } from '../fixtures/test';
+import { enableSkipProfile, skipBackupReminder } from '../fixtures/test';
 import { createRoom, joinRoom } from './rooms';
 
 interface RoomSyncSession {
@@ -16,6 +16,8 @@ export async function createRoomSyncSession(
 	const contextA = await browser.newContext();
 	const contextB = await browser.newContext();
 
+	await skipBackupReminder(contextA);
+	await skipBackupReminder(contextB);
 	await enableSkipProfile(contextA);
 	await enableSkipProfile(contextB);
 
