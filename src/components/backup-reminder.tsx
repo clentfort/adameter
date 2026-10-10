@@ -1,5 +1,6 @@
 'use client';
 
+import type { Store } from 'tinybase';
 import { fbt } from 'fbtee';
 import { useContext, useEffect, useState } from 'react';
 import {
@@ -23,8 +24,16 @@ import {
 	writeBackupReminderState,
 } from '@/lib/backup-reminder';
 import { logger } from '@/lib/logger';
-import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
+import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { exportStoreAsZip } from '@/utils/data-transfer/export';
+
+// Profiles alone are not worth a reminder; wait until something was tracked.
+function hasTrackedEntries(store: Store) {
+	return Object.values(TABLE_IDS).some(
+		(tableId) =>
+			tableId !== TABLE_IDS.PROFILES && store.getRowCount(tableId) > 0,
+	);
+}
 
 /**
  * Asks once a week to download a local backup, or downloads it automatically
@@ -39,7 +48,7 @@ export function BackupReminder() {
 
 	useEffect(() => {
 		const state = readBackupReminderState();
-		if (!isBackupDue(state) || isStoreDataEmpty(store)) {
+		if (!isBackupDue(state) || !hasTrackedEntries(store)) {
 			return;
 		}
 

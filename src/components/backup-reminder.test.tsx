@@ -55,6 +55,13 @@ describe('BackupReminder', () => {
 		expect(screen.queryByText('Back up your data')).not.toBeInTheDocument();
 	});
 
+	it('stays hidden when only profiles exist', () => {
+		const store = createMergeableStore();
+		store.setRow(TABLE_IDS.PROFILES, 'profile-1', { name: 'Ada' });
+		renderReminder(store);
+		expect(screen.queryByText('Back up your data')).not.toBeInTheDocument();
+	});
+
 	it('stays hidden within a week of the last backup', () => {
 		writeBackupReminderState({ lastBackupAt: Date.now() });
 		renderReminder();
