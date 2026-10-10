@@ -19,17 +19,21 @@ import { SplashScreen } from '@/components/splash-screen';
 import { logger } from '@/lib/logger';
 import {
 	LEGACY_PARTYKIT_HOST,
+	LEGACY_PRODUCTION_PARTYKIT_HOST,
 	PARTYKIT_HOST,
 	resolvePartykitHost,
 } from '@/lib/partykit-host';
 import { getItem, setItem, STORAGE_KEYS } from '@/lib/storage';
-import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
+import { cloneRoomDataFromHosts } from '@/lib/tinybase-sync/cloning';
 import {
 	STORE_VALUE_SELECTED_PROFILE_ID,
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
-import { mergeLegacyRoomData } from '@/lib/tinybase-sync/legacy-room-migration';
+import {
+	LEGACY_PARTYKIT_SHUTDOWN,
+	mergeLegacyRoomData,
+} from '@/lib/tinybase-sync/legacy-room-migration';
 import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { repairMissingProfileIds } from '@/migrations/2026-06-05-consolidate-duplicate-profiles';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
@@ -96,9 +100,15 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 					const productionHost = resolvePartykitHost({
 						vercelEnv: 'production',
 					});
-					await cloneRoomData(
+					// Production rooms only fill up on the new server as clients
+					// migrate, so also read the legacy host while it exists.
+					const sourceHosts =
+						new Date() < LEGACY_PARTYKIT_SHUTDOWN
+							? [LEGACY_PRODUCTION_PARTYKIT_HOST, productionHost]
+							: [productionHost];
+					await cloneRoomDataFromHosts(
 						process.env.NEXT_PUBLIC_MAIN_ROOM_NAME,
-						productionHost,
+						sourceHosts,
 						store,
 					);
 					await localPersister.save();

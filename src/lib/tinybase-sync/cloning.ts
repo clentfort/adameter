@@ -55,3 +55,25 @@ export async function cloneRoomData(
 		);
 	}
 }
+
+/**
+ * Clones a room from several hosts, merging their data. Fails only if no
+ * host returned data.
+ */
+export async function cloneRoomDataFromHosts(
+	sourceRoomName: string,
+	sourceHosts: string[],
+	store: MergeableStore,
+) {
+	const errors: unknown[] = [];
+	for (const sourceHost of sourceHosts) {
+		try {
+			await cloneRoomData(sourceRoomName, sourceHost, store);
+		} catch (error) {
+			errors.push(error);
+		}
+	}
+	if (errors.length === sourceHosts.length) {
+		throw new AggregateError(errors, 'Failed to clone room from any host.');
+	}
+}
