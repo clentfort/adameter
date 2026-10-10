@@ -1,5 +1,7 @@
 export const STORAGE_KEYS = {
+	BACKUP_REMINDER: 'backup-reminder',
 	DEVICE_ID: 'deviceId',
+	LEGACY_ROOM_MIGRATIONS: 'legacy-room-migrations',
 	PREFERRED_LANGUAGE: 'preferredLanguage',
 	ROOM: 'room',
 	ROOM_JOIN_STRATEGY: 'room-join-strategy',

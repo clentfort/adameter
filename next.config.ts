@@ -1,8 +1,9 @@
 import { NextConfig } from 'next';
 import fbtCommon from './common_strings.json' with { type: 'json' };
-import { getPartykitHostFromEnv } from './src/lib/partykit-host';
-
-const SHARED_PREVIEW_HOST = 'preview.adameter-party.clentfort.partykit.dev';
+import {
+	getPartykitHostFromEnv,
+	resolveLegacyPartykitHost,
+} from './src/lib/partykit-host';
 
 const getPartykitHostForBuild = () => {
 	const explicitHost = process.env.NEXT_PUBLIC_PARTYKIT_HOST;
@@ -14,16 +15,19 @@ const getPartykitHostForBuild = () => {
 		return 'localhost:1999';
 	}
 
-	if (process.env.VERCEL_ENV === 'preview') {
-		return SHARED_PREVIEW_HOST;
-	}
-
 	return getPartykitHostFromEnv();
 };
 
+const partykitHost = getPartykitHostForBuild();
+const legacyPartykitHost = resolveLegacyPartykitHost(
+	partykitHost,
+	process.env.NEXT_PUBLIC_LEGACY_PARTYKIT_HOST,
+);
+
 const nextConfig: NextConfig = {
 	env: {
-		NEXT_PUBLIC_PARTYKIT_HOST: getPartykitHostForBuild(),
+		NEXT_PUBLIC_LEGACY_PARTYKIT_HOST: legacyPartykitHost ?? '',
+		NEXT_PUBLIC_PARTYKIT_HOST: partykitHost,
 	},
 	experimental: {
 		swcPlugins: [['@nkzw/swc-plugin-fbtee', { fbtCommon }]],

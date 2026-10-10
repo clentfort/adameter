@@ -1,42 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { getPartykitHostFromEnv, resolvePartykitHost } from './partykit-host';
+import {
+	getPartykitHostFromEnv,
+	LEGACY_PREVIEW_PARTYKIT_HOST,
+	LEGACY_PRODUCTION_PARTYKIT_HOST,
+	PREVIEW_PARTYKIT_HOST,
+	PRODUCTION_PARTYKIT_HOST,
+	resolveLegacyPartykitHost,
+	resolvePartykitHost,
+} from './partykit-host';
 
 describe('resolvePartykitHost', () => {
-	it('returns production host by default', () => {
-		expect(resolvePartykitHost()).toBe('adameter-party.clentfort.partykit.dev');
+	it('returns the Cloudflare production host by default', () => {
+		expect(resolvePartykitHost()).toBe('adameter-party.adameter.workers.dev');
 	});
 
-	it('returns per-PR preview host when vercelPrId is provided', () => {
-		expect(
-			resolvePartykitHost({
-				vercelEnv: 'preview',
-				vercelPrId: '123',
-			}),
-		).toBe('pr-123.adameter-party.clentfort.partykit.dev');
-	});
-
-	it('returns per-branch preview host on vercel branch previews without PR ID', () => {
-		expect(
-			resolvePartykitHost({
-				vercelEnv: 'preview',
-				vercelGitCommitRef: 'feat/partykit-preview',
-			}),
-		).toBe(
-			'branch-feat-partykit-preview.adameter-party.clentfort.partykit.dev',
+	it('returns the shared Cloudflare preview host on Vercel previews', () => {
+		expect(resolvePartykitHost({ vercelEnv: 'preview' })).toBe(
+			'adameter-party-preview.adameter.workers.dev',
 		);
-	});
-
-	it('sanitizes long branch names for preview hosts', () => {
-		const host = resolvePartykitHost({
-			vercelEnv: 'preview',
-			vercelGitCommitRef:
-				'feature/This Is a Very Very Long Branch Name __ With Symbols!!! and More',
-		});
-
-		expect(host).toMatch(
-			/^branch-[\da-z-]+\.adameter-party\.clentfort\.partykit\.dev$/,
-		);
-		expect(host.length).toBeLessThanOrEqual(110);
 	});
 
 	it('normalizes explicit host values', () => {
@@ -47,19 +28,37 @@ describe('resolvePartykitHost', () => {
 		).toBe('custom.adameter.example');
 	});
 
-	it('covers additional edge cases and environment helper', () => {
+	it('reads the host from the environment', () => {
 		expect(
 			getPartykitHostFromEnv({
 				NEXT_PUBLIC_PARTYKIT_HOST: 'env.example.com',
 			} as unknown as NodeJS.ProcessEnv),
 		).toBe('env.example.com');
-
-		expect(resolvePartykitHost({ vercelEnv: 'preview' })).toBe(
-			'adameter-party.clentfort.partykit.dev',
-		);
-
 		expect(
-			resolvePartykitHost({ vercelEnv: 'preview', vercelGitCommitRef: '!!!' }),
-		).toBe('branch-preview.adameter-party.clentfort.partykit.dev');
+			getPartykitHostFromEnv({
+				VERCEL_ENV: 'preview',
+			} as unknown as NodeJS.ProcessEnv),
+		).toBe(PREVIEW_PARTYKIT_HOST);
+	});
+});
+
+describe('resolveLegacyPartykitHost', () => {
+	it('maps Cloudflare hosts to their managed PartyKit predecessors', () => {
+		expect(resolveLegacyPartykitHost(PRODUCTION_PARTYKIT_HOST)).toBe(
+			LEGACY_PRODUCTION_PARTYKIT_HOST,
+		);
+		expect(resolveLegacyPartykitHost(PREVIEW_PARTYKIT_HOST)).toBe(
+			LEGACY_PREVIEW_PARTYKIT_HOST,
+		);
+	});
+
+	it('has no legacy host for local or custom hosts', () => {
+		expect(resolveLegacyPartykitHost('localhost:1999')).toBeUndefined();
+	});
+
+	it('prefers an explicit legacy host', () => {
+		expect(
+			resolveLegacyPartykitHost('localhost:1999', 'https://legacy.example/'),
+		).toBe('legacy.example');
 	});
 });

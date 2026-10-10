@@ -17,7 +17,11 @@ import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-
 import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
 import { logger } from '@/lib/logger';
-import { PARTYKIT_HOST, resolvePartykitHost } from '@/lib/partykit-host';
+import {
+	LEGACY_PARTYKIT_HOST,
+	PARTYKIT_HOST,
+	resolvePartykitHost,
+} from '@/lib/partykit-host';
 import { getItem, setItem, STORAGE_KEYS } from '@/lib/storage';
 import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
 import {
@@ -25,6 +29,7 @@ import {
 	TINYBASE_LOCAL_DB_NAME,
 	TINYBASE_PARTYKIT_PARTY,
 } from '@/lib/tinybase-sync/constants';
+import { mergeLegacyRoomData } from '@/lib/tinybase-sync/legacy-room-migration';
 import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { repairMissingProfileIds } from '@/migrations/2026-06-05-consolidate-duplicate-profiles';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
@@ -209,11 +214,27 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 					}
 
 					const startBootstrap = performance.now();
-					const didLoad = await loadServerSnapshot(
+					const didLoadServerSnapshot = await loadServerSnapshot(
 						store,
 						storeUrl,
 						encryptionKey,
 					);
+					// Pull in data that only exists on the retired managed PartyKit
+					// deployment. Never blocks sync: failures are logged and retried
+					// on the next start.
+					const didMergeLegacy = isInitial
+						? await mergeLegacyRoomData({
+								encryptionKey,
+								hashedRoomId,
+								legacyHost: LEGACY_PARTYKIT_HOST,
+								store,
+								storeUrl,
+							}).catch((error: unknown) => {
+								logger.error('Failed to merge legacy room data:', error);
+								return false;
+							})
+						: false;
+					const didLoad = didLoadServerSnapshot || didMergeLegacy;
 					logger.log(
 						`[PERF] Server snapshot bootstrap took ${(performance.now() - startBootstrap).toFixed(2)}ms (loaded=${didLoad})`,
 					);

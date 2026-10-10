@@ -185,3 +185,8 @@ src/translations/
 # Playwright
 /playwright-report/
 /test-results/
+
+# Legacy PartyKit room migration
+/export
+/rooms.txt
+.dev.vars
