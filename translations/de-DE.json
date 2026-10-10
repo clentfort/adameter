@@ -5013,6 +5013,166 @@
         }
       ],
       "types": []
+    },
+    "j6Lh4RoTTRkvA4GjX7u+RA==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Deine wöchentliche Sicherung wurde heruntergeladen.",
+          "variations": []
+        }
+      ]
+    },
+    "4MU4dZRLWXqAPHwesquU2Q==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Sichere deine Daten",
+          "variations": []
+        }
+      ]
+    },
+    "hZ25GbgOEfjjDB+niiF0dQ==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Wir sind auf einen neuen Sync-Server umgezogen. Deine Daten werden automatisch übertragen, aber bitte lade zur Sicherheit jetzt eine Sicherung herunter.",
+          "variations": []
+        }
+      ]
+    },
+    "zZO7X1pfcu5lw9fxophthw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Deine Einträge liegen auf deinen Geräten. Lade regelmäßig eine Sicherung herunter, damit nichts verloren geht, wenn ein Gerät verloren geht oder sein Speicher gelöscht wird.",
+          "variations": []
+        }
+      ]
+    },
+    "rCVT0ySnUpSa/Gmfu63HJQ==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Jede Woche automatisch herunterladen",
+          "variations": []
+        }
+      ]
+    },
+    "PD7ImZxuIcF+RKbI2OtIYw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Nicht mehr erinnern",
+          "variations": []
+        }
+      ]
+    },
+    "uw7wnz7vVguvX5L79hANrw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Nächste Woche",
+          "variations": []
+        }
+      ]
+    },
+    "BXkY2018f6ZahrizPtVDEQ==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Sicherung herunterladen",
+          "variations": []
+        }
+      ]
+    },
+    "0hPx3RUwAL+lMAFXAcJ/QA==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Sicherungserinnerung",
+          "variations": []
+        }
+      ]
+    },
+    "j2IqB63VEKrHMVKxlPjzXA==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "AdaMeter kann dich einmal pro Woche daran erinnern, eine Sicherung herunterzuladen, oder sie automatisch herunterladen.",
+          "variations": []
+        }
+      ]
+    },
+    "B4l07LIT322ON6cwMH/7PA==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Jede Woche fragen",
+          "variations": []
+        }
+      ]
+    },
+    "ld6Jkl6oo2W9IDESdbVQdQ==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Jede Woche automatisch herunterladen",
+          "variations": []
+        }
+      ]
+    },
+    "1GeeK4jDJ9VpBHTuG5uWhw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Aus",
+          "variations": []
+        }
+      ]
+    },
+    "oloKcT0yHudgZhIZBlgEdw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Letzte Sicherung: {date}",
+          "variations": []
+        }
+      ]
+    },
+    "swdUlJwpybJC2mH7G15QBw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Auf diesem Gerät wurde noch keine Sicherung heruntergeladen.",
+          "variations": []
+        }
+      ]
+    },
+    "gekpJcZFrDEZc+VWSGnQkg==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Erinnerungen an Sicherungen sind aus. Du kannst sie unter Einstellungen > Datenverwaltung wieder einschalten.",
+          "variations": []
+        }
+      ]
     }
   }
 }
