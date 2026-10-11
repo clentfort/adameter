@@ -1,12 +1,10 @@
+import type { JoinStrategy } from '@/contexts/data-synchronization-context';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-	DataSynchronizationContext,
-	type JoinStrategy,
-} from '@/contexts/data-synchronization-context';
+import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { logger } from '@/lib/logger';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
 import { STORE_VALUE_DEV_MODE } from '@/lib/tinybase-sync/constants';
@@ -48,7 +46,9 @@ describe('ConsoleDebugger', () => {
 
 	it('should not render anything when devMode is disabled', () => {
 		renderConsoleDebugger({ devMode: false });
-		expect(screen.queryByTestId('console-debugger-trigger')).not.toBeInTheDocument();
+		expect(
+			screen.queryByTestId('console-debugger-trigger'),
+		).not.toBeInTheDocument();
 	});
 
 	it('should render floating terminal button when devMode is enabled', () => {
