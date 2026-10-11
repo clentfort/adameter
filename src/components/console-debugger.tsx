@@ -1,12 +1,14 @@
 'use client';
 
 import { Copy, Terminal, Trash2, X } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { useDevMode } from '@/hooks/use-dev-mode';
 import { logger } from '@/lib/logger';
+import { PARTYKIT_HOST } from '@/lib/partykit-host';
 
 type LogEntry = {
 	args: unknown[];
@@ -17,6 +19,7 @@ type LogEntry = {
 
 export default function ConsoleDebugger() {
 	const [devMode] = useDevMode();
+	const { room } = useContext(DataSynchronizationContext);
 	const [logs, setLogs] = useState<LogEntry[]>([]);
 	const [isOpen, setIsOpen] = useState(false);
 	const logsRef = useRef<LogEntry[]>([]);
@@ -68,7 +71,9 @@ export default function ConsoleDebugger() {
 		<>
 			<div className="fixed bottom-20 right-4 z-[100]">
 				<Button
+					aria-label="Open debug console"
 					className="rounded-full h-12 w-12 shadow-lg"
+					data-testid="console-debugger-trigger"
 					onClick={() => setIsOpen(true)}
 					size="icon"
 					variant="secondary"
@@ -85,37 +90,61 @@ export default function ConsoleDebugger() {
 			{isOpen && (
 				<div className="fixed inset-0 z-[110] bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
 					<Card className="w-full max-w-2xl h-[80vh] flex flex-col shadow-2xl border-2">
-						<CardHeader className="flex flex-row items-center justify-between border-b px-4 py-3 shrink-0">
-							<CardTitle className="text-lg font-bold flex items-center gap-2">
-								<Terminal className="h-5 w-5" />
-								<fbt desc="Console Debugger title">Console Logs</fbt>
-							</CardTitle>
-							<div className="flex items-center gap-2">
-								<Button
-									disabled={logs.length === 0}
-									onClick={copyToClipboard}
-									size="icon"
-									variant="ghost"
-								>
-									<Copy className="h-4 w-4" />
-								</Button>
-								<Button
-									onClick={() => {
-										logsRef.current = [];
-										setLogs([]);
-									}}
-									size="icon"
-									variant="ghost"
-								>
-									<Trash2 className="h-4 w-4" />
-								</Button>
-								<Button
-									onClick={() => setIsOpen(false)}
-									size="icon"
-									variant="ghost"
-								>
-									<X className="h-5 w-5" />
-								</Button>
+						<CardHeader className="flex flex-col border-b px-4 py-3 shrink-0 gap-2">
+							<div className="flex flex-row items-center justify-between">
+								<CardTitle className="text-lg font-bold flex items-center gap-2">
+									<Terminal className="h-5 w-5" />
+									<fbt desc="Console Debugger title">Console Logs</fbt>
+								</CardTitle>
+								<div className="flex items-center gap-2">
+									<Button
+										aria-label="Copy logs"
+										data-testid="console-debugger-copy"
+										disabled={logs.length === 0}
+										onClick={copyToClipboard}
+										size="icon"
+										variant="ghost"
+									>
+										<Copy className="h-4 w-4" />
+									</Button>
+									<Button
+										aria-label="Clear logs"
+										data-testid="console-debugger-clear"
+										onClick={() => {
+											logsRef.current = [];
+											setLogs([]);
+										}}
+										size="icon"
+										variant="ghost"
+									>
+										<Trash2 className="h-4 w-4" />
+									</Button>
+									<Button
+										aria-label="Close debug console"
+										data-testid="console-debugger-close"
+										onClick={() => setIsOpen(false)}
+										size="icon"
+										variant="ghost"
+									>
+										<X className="h-5 w-5" />
+									</Button>
+								</div>
+							</div>
+							<div className="text-xs text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 font-mono bg-muted/50 px-2.5 py-1 rounded border">
+								<div className="flex items-center gap-1.5">
+									<span className="font-semibold text-foreground">
+										<fbt desc="Backend label in console debugger">Backend:</fbt>
+									</span>
+									<span className="truncate">{PARTYKIT_HOST}</span>
+								</div>
+								{room && (
+									<div className="flex items-center gap-1.5">
+										<span className="font-semibold text-foreground">
+											<fbt desc="Room label in console debugger">Room:</fbt>
+										</span>
+										<span className="truncate">{room}</span>
+									</div>
+								)}
 							</div>
 						</CardHeader>
 						<CardContent className="flex-grow overflow-hidden p-0">
