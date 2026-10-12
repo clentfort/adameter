@@ -132,4 +132,17 @@ describe('BackupReminder', () => {
 
 		expect(await screen.findByText('Back up your data')).toBeInTheDocument();
 	});
+
+	it('handles manual backup download failure with error toast', async () => {
+		mocks.exportStoreAsZip.mockRejectedValueOnce(new Error('Export failed'));
+		renderReminder();
+
+		await userEvent.click(
+			await screen.findByTestId('backup-reminder-download'),
+		);
+
+		await waitFor(() => {
+			expect(mocks.toast.error).toHaveBeenCalled();
+		});
+	});
 });
