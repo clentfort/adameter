@@ -1,33 +1,45 @@
 import type { FeedingSession } from '@/types/feeding';
+import type { FeedingInProgress } from '@/types/feeding-in-progress';
 import { Duration, format, intervalToDuration } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
-import { useStore } from 'tinybase/ui-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useFeedingInProgress } from '@/hooks/use-feeding-in-progress';
 import { useTimeFormat } from '@/hooks/use-time-format';
-import {
-	STORE_VALUE_FEEDING_IN_PROGRESS,
-	TABLE_IDS,
-} from '@/lib/tinybase-sync/constants';
 import { formatDurationShort } from '@/utils/format-duration-short';
 import { generateId } from '@/utils/generate-id';
 import FeedingForm from './feeding-form';
 
 interface BreastfeedingTrackerProps {
 	nextBreast: 'left' | 'right';
-	onCreateSession: (session: FeedingSession) => void;
-	onUpdateSession: (session: FeedingSession) => void;
+	onSaveSession: (session: FeedingSession) => void;
 	resumableSession?: FeedingSession;
+}
+
+// Legacy in-progress values may lack an id, so one is generated on save.
+function toFeedingSession({
+	breast,
+	id,
+	startTime,
+}: FeedingInProgress): FeedingSession {
+	const endTime = new Date();
+	return {
+		breast,
+		durationInSeconds: Math.max(
+			1,
+			Math.floor((endTime.getTime() - new Date(startTime).getTime()) / 1000),
+		),
+		endTime: endTime.toISOString(),
+		id: id ?? generateId(),
+		startTime,
+	};
 }
 
 export default function BreastfeedingTracker({
 	nextBreast,
-	onCreateSession,
-	onUpdateSession,
+	onSaveSession,
 	resumableSession,
 }: BreastfeedingTrackerProps) {
-	const store = useStore();
 	const [elapsedTime, setElapsedTime] = useState<null | Duration>(null);
 	const [manualSession, setManualSession] = useState<FeedingSession | null>(
 		null,
@@ -35,9 +47,6 @@ export default function BreastfeedingTracker({
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
 	const [timeFormat] = useTimeFormat();
-	const [resumedSessionOriginalId, setResumedSessionOriginalId] = useState<
-		string | null
-	>(null);
 
 	// Check for active session on component mount
 	useEffect(() => {
@@ -68,53 +77,16 @@ export default function BreastfeedingTracker({
 		};
 	}, [feedingInProgress]);
 
-	const checkIsSessionStillRunning = (activeSessionId: string): boolean => {
-		if (!store) {
-			return true;
-		}
-
-		// 1. Check if the session was already saved into FEEDING_SESSIONS table
-		// (only for new sessions; resumed sessions were already in table before resuming)
-		const isAlreadySavedInTable =
-			!resumedSessionOriginalId &&
-			store.hasRow(TABLE_IDS.FEEDING_SESSIONS, activeSessionId);
-
-		if (isAlreadySavedInTable) {
-			return false;
-		}
-
-		// 2. Check if STORE_VALUE_FEEDING_IN_PROGRESS still exists and matches activeSessionId
-		const rawInProgress = store.getValue(STORE_VALUE_FEEDING_IN_PROGRESS);
-		if (typeof rawInProgress !== 'string' || !rawInProgress) {
-			return false;
-		}
-
-		try {
-			const parsed = JSON.parse(rawInProgress);
-			if (parsed.id && parsed.id !== activeSessionId) {
-				return false;
-			}
-		} catch {
-			return false;
-		}
-
-		return true;
-	};
-
 	const startFeeding = (breast: 'left' | 'right') => {
-		const now = new Date();
-		setResumedSessionOriginalId(null);
-		const newId = generateId();
 		setFeedingInProgress({
 			breast,
-			id: newId,
-			startTime: now.toISOString(),
+			id: generateId(),
+			startTime: new Date().toISOString(),
 		});
 		setElapsedTime({ seconds: 0 });
 	};
 
 	const resumeFeeding = (sessionToResume: FeedingSession) => {
-		setResumedSessionOriginalId(sessionToResume.id);
 		setFeedingInProgress({
 			breast: sessionToResume.breast,
 			id: sessionToResume.id,
@@ -126,77 +98,12 @@ export default function BreastfeedingTracker({
 		if (!feedingInProgress) {
 			return;
 		}
-
-		const currentId = feedingInProgress.id ?? resumedSessionOriginalId;
-
-		if (currentId && !checkIsSessionStillRunning(currentId)) {
-			// Session was already ended on another device or is no longer running!
-			resetTracker();
-			return;
-		}
-
-		const { breast, startTime } = feedingInProgress;
-		const endTime = new Date();
-		const durationInSeconds = Math.max(
-			1,
-			Math.floor((endTime.getTime() - new Date(startTime).getTime()) / 1000),
-		);
-
-		const sessionId = currentId ?? generateId();
-
-		const session: FeedingSession = {
-			breast,
-			durationInSeconds,
-			endTime: endTime.toISOString(),
-			id: sessionId,
-			startTime,
-		};
-
-		if (resumedSessionOriginalId) {
-			onUpdateSession(session);
-		} else {
-			onCreateSession(session);
-		}
+		onSaveSession(toFeedingSession(feedingInProgress));
 		resetTracker();
 	};
 
-	const handleManualEntryClick = () => {
-		if (!feedingInProgress) {
-			return;
-		}
-
-		const currentId = feedingInProgress.id ?? resumedSessionOriginalId;
-
-		if (currentId && !checkIsSessionStillRunning(currentId)) {
-			// Session was already ended on another device or is no longer running!
-			resetTracker();
-			return;
-		}
-
-		const sessionId = currentId ?? generateId();
-
-		setManualSession({
-			breast: feedingInProgress.breast,
-			durationInSeconds: Math.max(
-				1,
-				Math.floor(
-					(new Date().getTime() -
-						new Date(feedingInProgress.startTime).getTime()) /
-						1000,
-				),
-			),
-			endTime: new Date().toISOString(),
-			id: sessionId,
-			startTime: feedingInProgress.startTime,
-		});
-	};
-
 	const handleManualSave = (session: FeedingSession) => {
-		if (resumedSessionOriginalId) {
-			onUpdateSession(session);
-		} else {
-			onCreateSession(session);
-		}
+		onSaveSession(session);
 		setManualSession(null);
 		resetTracker();
 	};
@@ -204,7 +111,6 @@ export default function BreastfeedingTracker({
 	const resetTracker = () => {
 		setFeedingInProgress(null);
 		setElapsedTime(null);
-		setResumedSessionOriginalId(null);
 
 		if (timerRef.current) {
 			clearInterval(timerRef.current);
@@ -299,7 +205,11 @@ export default function BreastfeedingTracker({
 						</Button>
 						<Button
 							className="h-16"
-							onClick={handleManualEntryClick}
+							onClick={() => {
+								if (feedingInProgress) {
+									setManualSession(toFeedingSession(feedingInProgress));
+								}
+							}}
 							size="lg"
 							variant="outline"
 						>

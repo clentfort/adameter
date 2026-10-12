@@ -34,8 +34,7 @@ export default function Feedings() {
 			<div className="w-full">
 				<BreastfeedingTracker
 					nextBreast={nextBreast}
-					onCreateSession={upsertFeedingSession}
-					onUpdateSession={upsertFeedingSession}
+					onSaveSession={upsertFeedingSession}
 					resumableSession={resumableSession}
 				/>
 

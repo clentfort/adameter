@@ -1,5 +1,6 @@
 import type { FeedingSession } from '@/types/feeding';
 import {
+	act,
 	cleanup,
 	fireEvent,
 	render,
@@ -7,10 +8,7 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-	STORE_VALUE_FEEDING_IN_PROGRESS,
-	TABLE_IDS,
-} from '@/lib/tinybase-sync/constants';
+import { STORE_VALUE_FEEDING_IN_PROGRESS } from '@/lib/tinybase-sync/constants';
 import {
 	createTestStore,
 	TinyBaseTestWrapper,
@@ -18,8 +16,7 @@ import {
 import BreastfeedingTracker from './feeding-tracker';
 
 describe('BreastfeedingTracker', () => {
-	const mockOnCreateSession = vi.fn();
-	const mockOnUpdateSession = vi.fn();
+	const mockOnSaveSession = vi.fn();
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -35,8 +32,7 @@ describe('BreastfeedingTracker', () => {
 			<TinyBaseTestWrapper store={store}>
 				<BreastfeedingTracker
 					nextBreast="left"
-					onCreateSession={mockOnCreateSession}
-					onUpdateSession={mockOnUpdateSession}
+					onSaveSession={mockOnSaveSession}
 				/>
 			</TinyBaseTestWrapper>,
 		);
@@ -52,8 +48,7 @@ describe('BreastfeedingTracker', () => {
 			<TinyBaseTestWrapper store={store}>
 				<BreastfeedingTracker
 					nextBreast="left"
-					onCreateSession={mockOnCreateSession}
-					onUpdateSession={mockOnUpdateSession}
+					onSaveSession={mockOnSaveSession}
 				/>
 			</TinyBaseTestWrapper>,
 		);
@@ -87,8 +82,7 @@ describe('BreastfeedingTracker', () => {
 			<TinyBaseTestWrapper store={store}>
 				<BreastfeedingTracker
 					nextBreast="left"
-					onCreateSession={mockOnCreateSession}
-					onUpdateSession={mockOnUpdateSession}
+					onSaveSession={mockOnSaveSession}
 				/>
 			</TinyBaseTestWrapper>,
 		);
@@ -97,23 +91,20 @@ describe('BreastfeedingTracker', () => {
 
 		fireEvent.click(screen.getByText('End Feeding'));
 
-		expect(mockOnCreateSession).toHaveBeenCalledTimes(1);
-		const createdSession: FeedingSession = mockOnCreateSession.mock.calls[0][0];
+		expect(mockOnSaveSession).toHaveBeenCalledTimes(1);
+		const createdSession: FeedingSession = mockOnSaveSession.mock.calls[0][0];
 		expect(createdSession.id).toBe(pregenId);
 		expect(createdSession.breast).toBe('left');
 
 		expect(store.hasValue(STORE_VALUE_FEEDING_IN_PROGRESS)).toBe(false);
 	});
 
-	it('prevents saving duplicate session when session is no longer running in store', () => {
+	it('generates an ID when ending a legacy session without one', () => {
 		const store = createTestStore();
-		const sessionId = 'session-ended-elsewhere';
-
 		store.setValue(
 			STORE_VALUE_FEEDING_IN_PROGRESS,
 			JSON.stringify({
 				breast: 'left',
-				id: sessionId,
 				startTime: new Date(Date.now() - 60_000).toISOString(),
 			}),
 		);
@@ -122,27 +113,20 @@ describe('BreastfeedingTracker', () => {
 			<TinyBaseTestWrapper store={store}>
 				<BreastfeedingTracker
 					nextBreast="left"
-					onCreateSession={mockOnCreateSession}
-					onUpdateSession={mockOnUpdateSession}
+					onSaveSession={mockOnSaveSession}
 				/>
 			</TinyBaseTestWrapper>,
 		);
 
-		store.setRow(TABLE_IDS.FEEDING_SESSIONS, sessionId, {
-			breast: 'left',
-			durationInSeconds: 60,
-			endTime: new Date().toISOString(),
-			id: sessionId,
-			startTime: new Date(Date.now() - 60_000).toISOString(),
-		});
-		store.delValue(STORE_VALUE_FEEDING_IN_PROGRESS);
-
 		fireEvent.click(screen.getByText('End Feeding'));
 
-		expect(mockOnCreateSession).not.toHaveBeenCalled();
+		const savedSession: FeedingSession = mockOnSaveSession.mock.calls[0][0];
+		expect(savedSession.id).toMatch(
+			/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i,
+		);
 	});
 
-	it('opens manual save dialog when session is still running and allows saving', async () => {
+	it('saves a manual entry with the pre-generated ID', async () => {
 		const store = createTestStore();
 		const sessionId = 'session-running-123';
 
@@ -159,8 +143,7 @@ describe('BreastfeedingTracker', () => {
 			<TinyBaseTestWrapper store={store}>
 				<BreastfeedingTracker
 					nextBreast="right"
-					onCreateSession={mockOnCreateSession}
-					onUpdateSession={mockOnUpdateSession}
+					onSaveSession={mockOnSaveSession}
 				/>
 			</TinyBaseTestWrapper>,
 		);
@@ -171,44 +154,44 @@ describe('BreastfeedingTracker', () => {
 
 		fireEvent.click(screen.getByTestId('save-button'));
 
-		await waitFor(() => expect(mockOnCreateSession).toHaveBeenCalledTimes(1));
-		const createdSession: FeedingSession = mockOnCreateSession.mock.calls[0][0];
+		await waitFor(() => expect(mockOnSaveSession).toHaveBeenCalledTimes(1));
+		const createdSession: FeedingSession = mockOnSaveSession.mock.calls[0][0];
 		expect(createdSession.id).toBe(sessionId);
 		expect(createdSession.breast).toBe('right');
 	});
 
-	it('prevents opening manual save dialog if session is no longer running in store', () => {
+	it('returns to the start buttons when the session is ended on another device', () => {
 		const store = createTestStore();
-		const sessionId = 'session-ended-elsewhere-manual';
-
 		store.setValue(
 			STORE_VALUE_FEEDING_IN_PROGRESS,
 			JSON.stringify({
-				breast: 'right',
-				id: sessionId,
-				startTime: new Date(Date.now() - 120_000).toISOString(),
+				breast: 'left',
+				id: 'session-ended-elsewhere',
+				startTime: new Date(Date.now() - 60_000).toISOString(),
 			}),
 		);
 
 		render(
 			<TinyBaseTestWrapper store={store}>
 				<BreastfeedingTracker
-					nextBreast="right"
-					onCreateSession={mockOnCreateSession}
-					onUpdateSession={mockOnUpdateSession}
+					nextBreast="left"
+					onSaveSession={mockOnSaveSession}
 				/>
 			</TinyBaseTestWrapper>,
 		);
 
-		store.delValue(STORE_VALUE_FEEDING_IN_PROGRESS);
+		expect(screen.getByText('End Feeding')).toBeInTheDocument();
 
-		fireEvent.click(screen.getByText('Enter Time Manually'));
+		act(() => {
+			store.delValue(STORE_VALUE_FEEDING_IN_PROGRESS);
+		});
 
-		expect(screen.queryByText('Add Feeding Entry')).not.toBeInTheDocument();
-		expect(mockOnCreateSession).not.toHaveBeenCalled();
+		expect(screen.queryByText('End Feeding')).not.toBeInTheDocument();
+		expect(screen.getByText('Left Breast')).toBeInTheDocument();
+		expect(mockOnSaveSession).not.toHaveBeenCalled();
 	});
 
-	it('allows resuming an existing session and updates it on end', () => {
+	it('keeps the original session id when resuming', () => {
 		const store = createTestStore();
 		const resumableSession: FeedingSession = {
 			breast: 'left',
@@ -222,8 +205,7 @@ describe('BreastfeedingTracker', () => {
 			<TinyBaseTestWrapper store={store}>
 				<BreastfeedingTracker
 					nextBreast="left"
-					onCreateSession={mockOnCreateSession}
-					onUpdateSession={mockOnUpdateSession}
+					onSaveSession={mockOnSaveSession}
 					resumableSession={resumableSession}
 				/>
 			</TinyBaseTestWrapper>,
@@ -238,8 +220,8 @@ describe('BreastfeedingTracker', () => {
 
 		fireEvent.click(screen.getByText('End Feeding'));
 
-		expect(mockOnUpdateSession).toHaveBeenCalledTimes(1);
-		const updatedSession: FeedingSession = mockOnUpdateSession.mock.calls[0][0];
+		expect(mockOnSaveSession).toHaveBeenCalledTimes(1);
+		const updatedSession: FeedingSession = mockOnSaveSession.mock.calls[0][0];
 		expect(updatedSession.id).toBe('resumable-id-1');
 	});
 });
