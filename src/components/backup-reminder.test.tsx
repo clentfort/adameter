@@ -132,4 +132,28 @@ describe('BackupReminder', () => {
 
 		expect(await screen.findByText('Back up your data')).toBeInTheDocument();
 	});
+
+	it('handles failure during manual download', async () => {
+		mocks.exportStoreAsZip.mockRejectedValue(new Error('export error'));
+		renderReminder();
+
+		await userEvent.click(
+			await screen.findByTestId('backup-reminder-download'),
+		);
+
+		await waitFor(() => {
+			expect(mocks.toast.error).toHaveBeenCalled();
+		});
+	});
+
+	it('postpones when dialog is closed via onOpenChange', async () => {
+		renderReminder();
+		expect(await screen.findByText('Back up your data')).toBeInTheDocument();
+
+		await userEvent.keyboard('{Escape}');
+
+		await waitFor(() => {
+			expect(readBackupReminderState().lastPromptAt).toBeDefined();
+		});
+	});
 });
