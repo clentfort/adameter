@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import ProductForm from './product-form';
 
+vi.mock('nanoid', () => ({ nanoid: () => 'generated-id' }));
+
 describe('ProductForm', () => {
 	afterEach(() => {
 		cleanup();
@@ -13,11 +15,6 @@ describe('ProductForm', () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
 		const onCancel = vi.fn();
-
-		// Mock crypto.randomUUID for creation mode
-		vi.stubGlobal('crypto', {
-			randomUUID: () => 'generated-uuid',
-		});
 
 		// 1. Test creation mode
 		const { rerender } = render(
@@ -53,7 +50,7 @@ describe('ProductForm', () => {
 		expect(onSave).toHaveBeenCalledWith(
 			expect.objectContaining({
 				costPerDiaper: 0.5,
-				id: 'generated-uuid',
+				id: 'generated-id',
 				isReusable: true,
 				name: 'Test Diaper',
 				notes: 'Some notes',

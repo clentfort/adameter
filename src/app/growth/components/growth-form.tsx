@@ -5,6 +5,7 @@ import type {
 	GrowthMeasurement,
 } from '@/types/growth';
 import { fbt } from 'fbtee';
+import { nanoid } from 'nanoid';
 import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
@@ -15,7 +16,6 @@ import { useEntityForm } from '@/hooks/use-entity-form';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { growthFormToDataSchema } from '@/types/growth';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
-import { generateId } from '@/utils/generate-id';
 import {
 	cmToInches,
 	gramsToLbs,
@@ -117,7 +117,7 @@ export default function MeasurementForm({
 			date: parsedValues.date,
 			headCircumference,
 			height,
-			id: measurement?.id || generateId(),
+			id: measurement?.id || nanoid(),
 			notes: parsedValues.notes,
 			weight,
 		};

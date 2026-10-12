@@ -42,7 +42,7 @@ describe('BreastfeedingTracker', () => {
 		expect(screen.getByText('Next')).toBeInTheDocument();
 	});
 
-	it('pre-generates UUID session ID and sets feedingInProgress when starting feeding', () => {
+	it('pre-generates the session ID and sets feedingInProgress when starting feeding', () => {
 		const store = createTestStore();
 		render(
 			<TinyBaseTestWrapper store={store}>
@@ -60,14 +60,12 @@ describe('BreastfeedingTracker', () => {
 
 		const parsed = JSON.parse(rawVal);
 		expect(parsed.breast).toBe('left');
-		expect(parsed.id).toMatch(
-			/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i,
-		);
+		expect(parsed.id).toMatch(/^[\w-]{21}$/);
 	});
 
 	it('ends feeding session using the pre-generated ID', () => {
 		const store = createTestStore();
-		const pregenId = '12345678-1234-4234-8234-123456789abc';
+		const pregenId = 'pregenerated-session-id';
 
 		store.setValue(
 			STORE_VALUE_FEEDING_IN_PROGRESS,
@@ -121,9 +119,7 @@ describe('BreastfeedingTracker', () => {
 		fireEvent.click(screen.getByText('End Feeding'));
 
 		const savedSession: FeedingSession = mockOnSaveSession.mock.calls[0][0];
-		expect(savedSession.id).toMatch(
-			/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i,
-		);
+		expect(savedSession.id).toMatch(/^[\w-]{21}$/);
 	});
 
 	it('saves a manual entry with the pre-generated ID', async () => {

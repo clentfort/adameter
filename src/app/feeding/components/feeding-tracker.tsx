@@ -1,13 +1,13 @@
 import type { FeedingSession } from '@/types/feeding';
 import type { FeedingInProgress } from '@/types/feeding-in-progress';
 import { Duration, format, intervalToDuration } from 'date-fns';
+import { nanoid } from 'nanoid';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useFeedingInProgress } from '@/hooks/use-feeding-in-progress';
 import { useTimeFormat } from '@/hooks/use-time-format';
 import { formatDurationShort } from '@/utils/format-duration-short';
-import { generateId } from '@/utils/generate-id';
 import FeedingForm from './feeding-form';
 
 interface BreastfeedingTrackerProps {
@@ -30,7 +30,7 @@ function toFeedingSession({
 			Math.floor((endTime.getTime() - new Date(startTime).getTime()) / 1000),
 		),
 		endTime: endTime.toISOString(),
-		id: id ?? generateId(),
+		id: id ?? nanoid(),
 		startTime,
 	};
 }
@@ -80,7 +80,7 @@ export default function BreastfeedingTracker({
 	const startFeeding = (breast: 'left' | 'right') => {
 		setFeedingInProgress({
 			breast,
-			id: generateId(),
+			id: nanoid(),
 			startTime: new Date().toISOString(),
 		});
 		setElapsedTime({ seconds: 0 });

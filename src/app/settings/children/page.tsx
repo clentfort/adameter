@@ -3,6 +3,7 @@
 import type { Profile } from '@/types/profile';
 import { fbt } from 'fbtee';
 import { Plus, Trash2 } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import { useState } from 'react';
 import ProfileForm from '@/components/profile-form';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,6 @@ import {
 	useUpsertProfile,
 } from '@/hooks/use-profile';
 import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
-import { generateId } from '@/utils/generate-id';
 import { SettingsHeader } from '../components/settings-header';
 
 export default function ChildrenSettingsPage() {
@@ -131,7 +131,7 @@ export default function ChildrenSettingsPage() {
 					</DialogHeader>
 					<ProfileForm
 						onSave={(data) => {
-							const id = generateId();
+							const id = nanoid();
 							upsertProfile({ ...data, id, optedOut: false });
 							setSelectedProfileId(id);
 							setIsAdding(false);

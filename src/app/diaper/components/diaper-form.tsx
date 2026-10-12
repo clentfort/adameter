@@ -6,6 +6,7 @@ import type {
 } from '@/types/diaper';
 import { fbt } from 'fbtee';
 import { Plus } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import { useMemo, useState } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
@@ -41,7 +42,6 @@ import { cn } from '@/lib/utils';
 import { diaperFormToDataSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
-import { generateId } from '@/utils/generate-id';
 import {
 	celsiusToFahrenheit,
 	fahrenheitToCelsius,
@@ -260,7 +260,7 @@ export default function DiaperForm({
 			containsStool: parsedValues.containsStool,
 			containsUrine: parsedValues.containsUrine,
 			diaperProductId: parsedValues.diaperProductId,
-			id: change?.id || generateId(),
+			id: change?.id || nanoid(),
 			leakage: parsedValues.leakage,
 			locationLatitude: lat,
 			locationLongitude: lon,
