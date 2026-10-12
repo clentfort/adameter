@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Event, EventFormData, EventFormValues } from '@/types/event';
 import { fbt } from 'fbtee';
+import { nanoid } from 'nanoid';
 import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
@@ -97,7 +98,7 @@ export default function EventForm({
 			...event,
 			color: parsedValues.color,
 			endDate: parsedValues.endDate,
-			id: event?.id || Date.now().toString(),
+			id: event?.id || nanoid(),
 			locationLatitude: lat,
 			locationLongitude: lon,
 			notes: parsedValues.notes,

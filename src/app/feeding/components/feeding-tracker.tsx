@@ -1,5 +1,7 @@
 import type { FeedingSession } from '@/types/feeding';
+import type { FeedingInProgress } from '@/types/feeding-in-progress';
 import { Duration, format, intervalToDuration } from 'date-fns';
+import { nanoid } from 'nanoid';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,15 +12,32 @@ import FeedingForm from './feeding-form';
 
 interface BreastfeedingTrackerProps {
 	nextBreast: 'left' | 'right';
-	onCreateSession: (session: FeedingSession) => void;
-	onUpdateSession: (session: FeedingSession) => void;
+	onSaveSession: (session: FeedingSession) => void;
 	resumableSession?: FeedingSession;
+}
+
+// Legacy in-progress values may lack an id, so one is generated on save.
+function toFeedingSession({
+	breast,
+	id,
+	startTime,
+}: FeedingInProgress): FeedingSession {
+	const endTime = new Date();
+	return {
+		breast,
+		durationInSeconds: Math.max(
+			1,
+			Math.floor((endTime.getTime() - new Date(startTime).getTime()) / 1000),
+		),
+		endTime: endTime.toISOString(),
+		id: id ?? nanoid(),
+		startTime,
+	};
 }
 
 export default function BreastfeedingTracker({
 	nextBreast,
-	onCreateSession,
-	onUpdateSession,
+	onSaveSession,
 	resumableSession,
 }: BreastfeedingTrackerProps) {
 	const [elapsedTime, setElapsedTime] = useState<null | Duration>(null);
@@ -28,9 +47,6 @@ export default function BreastfeedingTracker({
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 	const [feedingInProgress, setFeedingInProgress] = useFeedingInProgress();
 	const [timeFormat] = useTimeFormat();
-	const [resumedSessionOriginalId, setResumedSessionOriginalId] = useState<
-		string | null
-	>(null);
 
 	// Check for active session on component mount
 	useEffect(() => {
@@ -62,19 +78,18 @@ export default function BreastfeedingTracker({
 	}, [feedingInProgress]);
 
 	const startFeeding = (breast: 'left' | 'right') => {
-		const now = new Date();
-		setResumedSessionOriginalId(null);
 		setFeedingInProgress({
 			breast,
-			startTime: now.toISOString(),
+			id: nanoid(),
+			startTime: new Date().toISOString(),
 		});
 		setElapsedTime({ seconds: 0 });
 	};
 
 	const resumeFeeding = (sessionToResume: FeedingSession) => {
-		setResumedSessionOriginalId(sessionToResume.id);
 		setFeedingInProgress({
 			breast: sessionToResume.breast,
+			id: sessionToResume.id,
 			startTime: sessionToResume.startTime,
 		});
 	};
@@ -83,35 +98,12 @@ export default function BreastfeedingTracker({
 		if (!feedingInProgress) {
 			return;
 		}
-		const { breast, startTime } = feedingInProgress;
-		const endTime = new Date();
-		const durationInSeconds = Math.max(
-			1,
-			Math.floor((endTime.getTime() - new Date(startTime).getTime()) / 1000),
-		);
-
-		const session: FeedingSession = {
-			breast,
-			durationInSeconds,
-			endTime: endTime.toISOString(),
-			id: resumedSessionOriginalId ?? Date.now().toString(),
-			startTime,
-		};
-
-		if (resumedSessionOriginalId) {
-			onUpdateSession(session);
-		} else {
-			onCreateSession(session);
-		}
+		onSaveSession(toFeedingSession(feedingInProgress));
 		resetTracker();
 	};
 
 	const handleManualSave = (session: FeedingSession) => {
-		if (resumedSessionOriginalId) {
-			onUpdateSession(session);
-		} else {
-			onCreateSession(session);
-		}
+		onSaveSession(session);
 		setManualSession(null);
 		resetTracker();
 	};
@@ -119,7 +111,6 @@ export default function BreastfeedingTracker({
 	const resetTracker = () => {
 		setFeedingInProgress(null);
 		setElapsedTime(null);
-		setResumedSessionOriginalId(null);
 
 		if (timerRef.current) {
 			clearInterval(timerRef.current);
@@ -215,20 +206,9 @@ export default function BreastfeedingTracker({
 						<Button
 							className="h-16"
 							onClick={() => {
-								if (!feedingInProgress) {
-									return;
+								if (feedingInProgress) {
+									setManualSession(toFeedingSession(feedingInProgress));
 								}
-								setManualSession({
-									breast: feedingInProgress.breast,
-									durationInSeconds: Math.floor(
-										(new Date().getTime() -
-											new Date(feedingInProgress.startTime).getTime()) /
-											1000,
-									),
-									endTime: new Date().toISOString(),
-									id: resumedSessionOriginalId ?? '',
-									startTime: feedingInProgress.startTime,
-								});
 							}}
 							size="lg"
 							variant="outline"

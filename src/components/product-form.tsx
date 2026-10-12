@@ -7,6 +7,7 @@ import type {
 } from '@/types/diaper';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
+import { nanoid } from 'nanoid';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -67,7 +68,7 @@ export default function ProductForm({
 				parsedValues.color ||
 				PRODUCT_COLORS[Math.floor(Math.random() * PRODUCT_COLORS.length)],
 			costPerDiaper: parsedValues.costPerDiaper,
-			id: initialData?.id ?? crypto.randomUUID(),
+			id: initialData?.id ?? nanoid(),
 			isReusable: parsedValues.isReusable,
 			name: parsedValues.name,
 			notes: parsedValues.notes,

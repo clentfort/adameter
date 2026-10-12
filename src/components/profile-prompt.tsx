@@ -1,5 +1,6 @@
 'use client';
 
+import { nanoid } from 'nanoid';
 import { useSearchParams } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 import {
@@ -62,12 +63,12 @@ export default function ProfilePrompt() {
 				</DialogHeader>
 				<ProfileForm
 					onOptOut={() => {
-						const id = crypto.randomUUID();
+						const id = nanoid();
 						upsertProfile({ id, optedOut: true });
 						setSelectedProfileId(id);
 					}}
 					onSave={(data) => {
-						const id = crypto.randomUUID();
+						const id = nanoid();
 						upsertProfile({ ...data, id, optedOut: false });
 						setSelectedProfileId(id);
 					}}

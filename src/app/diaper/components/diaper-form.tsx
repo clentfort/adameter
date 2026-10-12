@@ -6,6 +6,7 @@ import type {
 } from '@/types/diaper';
 import { fbt } from 'fbtee';
 import { Plus } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import { useMemo, useState } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
@@ -259,7 +260,7 @@ export default function DiaperForm({
 			containsStool: parsedValues.containsStool,
 			containsUrine: parsedValues.containsUrine,
 			diaperProductId: parsedValues.diaperProductId,
-			id: change?.id || Date.now().toString(),
+			id: change?.id || nanoid(),
 			leakage: parsedValues.leakage,
 			locationLatitude: lat,
 			locationLongitude: lon,

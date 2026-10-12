@@ -5,6 +5,7 @@ import type {
 	FeedingSessionFormData,
 } from '@/types/feeding';
 import { fbt } from 'fbtee';
+import { nanoid } from 'nanoid';
 import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
@@ -78,7 +79,7 @@ export default function FeedingForm({
 			breast: parsedValues.breast,
 			durationInSeconds: parsedValues.durationInSeconds,
 			endTime: parsedValues.endTime,
-			id: feeding?.id ?? Date.now().toString(),
+			id: feeding?.id ?? nanoid(),
 			locationLatitude: lat,
 			locationLongitude: lon,
 			notes: parsedValues.notes,
