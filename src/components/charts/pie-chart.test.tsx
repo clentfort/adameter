@@ -234,14 +234,37 @@ describe('PieChart', () => {
 		expect(mockChart).not.toHaveBeenCalled();
 	});
 
-	it('skips initialization when chartInstance.current is already set', async () => {
+	it('handles early return branches when labels are empty or chartInstance is already initialized', async () => {
 		const datasets = [{ backgroundColor: ['red'], data: [10], label: 'Set 1' }];
+		const labels = ['A'];
 
+		// Case 1: Empty labels when canvas ref is attached during mount effect
 		const { rerender } = render(
 			<PieChart
 				datasets={datasets}
 				emptyStateMessage="No data"
-				labels={['A']}
+				labels={labels}
+			/>,
+		);
+
+		// Mutate labels in place before idle callback triggers
+		labels.length = 0;
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).not.toHaveBeenCalled();
+
+		// Case 2: chartInstance.current already exists when mount effect runs
+		labels.push('A');
+
+		// Re-render to trigger mount effect again with non-empty labels while chartInstance is mock initialized
+		const { rerender: rerenderChart } = render(
+			<PieChart
+				datasets={datasets}
+				emptyStateMessage="No data"
+				labels={labels}
 			/>,
 		);
 
@@ -251,18 +274,15 @@ describe('PieChart', () => {
 
 		expect(mockChart).toHaveBeenCalledTimes(1);
 
-		// Prevent cleanup from setting chartInstance.current = null on unmount/re-effect
-		const instance = mockChartInstance;
-		// Re-render with new prop reference to trigger effect dependency checks or re-render
-		rerender(
+		// Re-render component without unmounting to trigger mount effect evaluation when chartInstance.current is populated
+		rerenderChart(
 			<PieChart
-				datasets={[...datasets]}
+				datasets={[{ backgroundColor: ['blue'], data: [20], label: 'Set 2' }]}
 				emptyStateMessage="No data"
-				labels={['A']}
+				labels={labels}
 			/>,
 		);
 
 		expect(mockChart).toHaveBeenCalledTimes(1);
-		expect(instance).toBeDefined();
 	});
 });
