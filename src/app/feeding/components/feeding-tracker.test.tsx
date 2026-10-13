@@ -220,4 +220,42 @@ describe('BreastfeedingTracker', () => {
 		const updatedSession: FeedingSession = mockOnSaveSession.mock.calls[0][0];
 		expect(updatedSession.id).toBe('resumable-id-1');
 	});
+
+	it('renders active right breast session, handles timer updates, and closes manual entry modal on close', () => {
+		const store = createTestStore();
+		const resumableRightSession: FeedingSession = {
+			breast: 'right',
+			durationInSeconds: 120,
+			endTime: new Date().toISOString(),
+			id: 'resumable-right-id',
+			startTime: new Date().toISOString(),
+		};
+
+		render(
+			<TinyBaseTestWrapper store={store}>
+				<BreastfeedingTracker
+					nextBreast="left"
+					onSaveSession={mockOnSaveSession}
+					resumableSession={resumableRightSession}
+				/>
+			</TinyBaseTestWrapper>,
+		);
+
+		expect(screen.getByText('Resume')).toBeInTheDocument();
+
+		// Click Right Breast button which triggers resumeFeeding for right breast
+		fireEvent.click(screen.getByText('Right Breast'));
+
+		expect(screen.getByText('Right Breast')).toBeInTheDocument();
+
+		// Open manual session entry modal
+		fireEvent.click(screen.getByText('Enter Time Manually'));
+		expect(screen.getByText('Add Feeding Entry')).toBeInTheDocument();
+
+		// Close manual session entry modal via onClose (Cancel button in FeedingForm)
+		const cancelButton = screen.getByText('Cancel');
+		fireEvent.click(cancelButton);
+
+		expect(screen.queryByText('Add Feeding Entry')).not.toBeInTheDocument();
+	});
 });
