@@ -7,7 +7,8 @@ import {
 	setupSyncHarness,
 } from './tinybase-room-import-scenarios.harness';
 
-describe('room sync scenarios for imported data', () => {
+// The 1500-row scenarios take several seconds on CI runners.
+describe('room sync scenarios for imported data', { timeout: 15_000 }, () => {
 	beforeEach(() => {
 		resetRoomImportScenarioMocks();
 	});
