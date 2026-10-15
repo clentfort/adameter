@@ -594,7 +594,7 @@ describe('createSecurePartyKitPersister', () => {
 		await listener({ data: 'svalid-json-but-not-encrypted' } as MessageEvent);
 		expect(onIgnoredError).toHaveBeenCalledTimes(2);
 
-		persister.destroy();
+		await persister.destroy();
 		expect(mockRemoveEventListener).toHaveBeenCalledWith(
 			'message',
 			expect.any(Function),
