@@ -54,6 +54,12 @@ describe('backup reminder', () => {
 		setItem(STORAGE_KEYS.BACKUP_REMINDER, '{not json');
 		expect(readBackupReminderState()).toEqual({ mode: 'ask' });
 
+		setItem(STORAGE_KEYS.BACKUP_REMINDER, JSON.stringify(null));
+		expect(readBackupReminderState()).toEqual({ mode: 'ask' });
+
+		setItem(STORAGE_KEYS.BACKUP_REMINDER, JSON.stringify('string-value'));
+		expect(readBackupReminderState()).toEqual({ mode: 'ask' });
+
 		setItem(
 			STORAGE_KEYS.BACKUP_REMINDER,
 			JSON.stringify({ lastBackupAt: 'yesterday', mode: 'sometimes' }),
