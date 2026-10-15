@@ -1,3 +1,4 @@
+import fbtee from '@nkzw/vite-plugin-fbtee';
 import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { configDefaults, defineConfig } from 'vitest/config';
@@ -6,9 +7,8 @@ import fbtCommon from './common_strings.json' with { type: 'json' };
 export default defineConfig({
 	plugins: [
 		tsconfigPaths(),
-		react({
-			plugins: [['@nkzw/swc-plugin-fbtee', { fbtCommon }]],
-		}),
+		fbtee({ fbtCommon }),
+		react(),
 	],
 	test: {
 		coverage: {
