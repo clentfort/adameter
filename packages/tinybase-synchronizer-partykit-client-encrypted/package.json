@@ -53,6 +53,6 @@
 		"semantic-release": "^25.0.0",
 		"tinybase": "9.7.1",
 		"typescript": "^6.0.0",
-		"vitest": "^4.0.0"
+		"vitest": "5.0.4"
 	}
 }
