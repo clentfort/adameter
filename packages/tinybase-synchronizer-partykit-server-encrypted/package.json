@@ -40,11 +40,11 @@
 		"partyserver": ">=0.5.10"
 	},
 	"devDependencies": {
+		"@cloudflare/workers-types": "5.20261014.1",
 		"@semantic-release/commit-analyzer": "^13.0.1",
-		"@semantic-release/github": "^12.0.0",
-		"@semantic-release/npm": "^13.0.0",
+		"@semantic-release/github": "12.0.10",
+		"@semantic-release/npm": "13.2.0",
 		"@semantic-release/release-notes-generator": "^14.0.3",
-		"@cloudflare/workers-types": "4.20260702.1",
 		"@types/node": "^24.0.0",
 		"partyserver": "0.5.10",
 		"semantic-release": "^25.0.0",
