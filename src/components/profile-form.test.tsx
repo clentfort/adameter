@@ -23,7 +23,7 @@ describe('ProfileForm', () => {
 		// Select sex
 		const sexSelect = screen.getByRole('combobox', { name: 'Sex' });
 		await user.click(sexSelect);
-		const girlOption = screen.getByRole('option', { name: 'Girl' });
+		const girlOption = await screen.findByRole('option', { name: 'Girl' });
 		await user.click(girlOption);
 
 		// Select color
