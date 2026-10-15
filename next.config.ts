@@ -1,3 +1,4 @@
+import withFbtee from '@nkzw/next-plugin-fbtee';
 import { NextConfig } from 'next';
 import fbtCommon from './common_strings.json' with { type: 'json' };
 import {
@@ -29,9 +30,6 @@ const nextConfig: NextConfig = {
 		NEXT_PUBLIC_LEGACY_PARTYKIT_HOST: legacyPartykitHost ?? '',
 		NEXT_PUBLIC_PARTYKIT_HOST: partykitHost,
 	},
-	experimental: {
-		swcPlugins: [['@nkzw/swc-plugin-fbtee', { fbtCommon }]],
-	},
 	productionBrowserSourceMaps: true,
 	typescript: {
 		// Warning: This allows production builds to successfully complete even if
@@ -40,4 +38,4 @@ const nextConfig: NextConfig = {
 	},
 };
 
-export default nextConfig;
+export default withFbtee({ fbtCommon })(nextConfig);
