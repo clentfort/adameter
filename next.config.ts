@@ -31,6 +31,9 @@ const nextConfig: NextConfig = {
 	},
 	experimental: {
 		swcPlugins: [['@nkzw/swc-plugin-fbtee', { fbtCommon }]],
+		// `typescript` is aliased to TypeScript 6, which ships `tsc6` instead of
+		// `tsc`. Type checking runs through `pnpm typecheck` with TypeScript 7.
+		useTypeScriptCli: false,
 	},
 	productionBrowserSourceMaps: true,
 	typescript: {
