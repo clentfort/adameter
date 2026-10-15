@@ -220,4 +220,43 @@ describe('BreastfeedingTracker', () => {
 		const updatedSession: FeedingSession = mockOnSaveSession.mock.calls[0][0];
 		expect(updatedSession.id).toBe('resumable-id-1');
 	});
+
+	it('handles right breast in-progress session, timer updates, and closing manual session dialog', async () => {
+		vi.useFakeTimers();
+		const store = createTestStore();
+		const startTime = new Date(Date.now() - 5000).toISOString();
+
+		store.setValue(
+			STORE_VALUE_FEEDING_IN_PROGRESS,
+			JSON.stringify({
+				breast: 'right',
+				id: 'right-breast-session-id',
+				startTime,
+			}),
+		);
+
+		const { unmount } = render(
+			<TinyBaseTestWrapper store={store}>
+				<BreastfeedingTracker
+					nextBreast="left"
+					onSaveSession={mockOnSaveSession}
+				/>
+			</TinyBaseTestWrapper>,
+		);
+
+		expect(screen.getByText('Right Breast')).toBeInTheDocument();
+
+		act(() => {
+			vi.advanceTimersByTime(2000);
+		});
+
+		fireEvent.click(screen.getByText('Enter Time Manually'));
+		expect(screen.getByText('Add Feeding Entry')).toBeInTheDocument();
+
+		fireEvent.click(screen.getByText('Cancel'));
+		expect(screen.queryByText('Add Feeding Entry')).not.toBeInTheDocument();
+
+		unmount();
+		vi.useRealTimers();
+	});
 });
