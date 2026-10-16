@@ -11,6 +11,7 @@ import {
 	isWithinInterval,
 } from 'date-fns';
 import { useMemo } from 'react';
+import { resolveChartStartDate } from '@/app/statistics/utils/resolve-chart-start-date';
 import BarChart from '@/components/charts/bar-chart';
 import { useProfile } from '@/hooks/use-profile';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
@@ -34,20 +35,11 @@ export default function FeedingActivityChart({
 	const [showComparisonCharts] = useShowComparisonCharts();
 
 	const { datasets, effectivePrimaryFrom, labels } = useMemo(() => {
-		let effectivePrimaryFrom = primaryRange.from;
-		// If "All Data" (Date(0)), find the first session or default to 30 days ago
-		if (primaryRange.from.getTime() === 0) {
-			if (sessions.length > 0) {
-				const firstSessionTime = sessions.reduce((min, s) => {
-					const t = new Date(s.startTime).getTime();
-					return t < min ? t : min;
-				}, new Date(sessions[0].startTime).getTime());
-				effectivePrimaryFrom = new Date(firstSessionTime);
-			} else {
-				effectivePrimaryFrom = new Date();
-				effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
-			}
-		}
+		const effectivePrimaryFrom = resolveChartStartDate(
+			primaryRange.from,
+			sessions,
+			(s) => s.startTime,
+		);
 
 		const primaryDays = eachDayOfInterval({
 			end: primaryRange.to,
