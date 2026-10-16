@@ -1,14 +1,5 @@
-import { useSetValueCallback, useValue } from 'tinybase/ui-react';
 import { STORE_VALUE_DEV_MODE } from '@/lib/tinybase-sync/constants';
+import { useStoreValueSetting } from './use-store-value-setting';
 
-export const useDevMode = () => {
-	const devMode = useValue(STORE_VALUE_DEV_MODE) as boolean | undefined;
-
-	const setDevMode = useSetValueCallback(
-		STORE_VALUE_DEV_MODE,
-		(newDevMode: boolean) => newDevMode,
-		[],
-	);
-
-	return [devMode ?? false, setDevMode] as const;
-};
+export const useDevMode = () =>
+	useStoreValueSetting<boolean>(STORE_VALUE_DEV_MODE, false);
