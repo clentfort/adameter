@@ -3,6 +3,7 @@ import { differenceInDays } from 'date-fns';
 import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/i18n-context';
 import { useCurrency } from '@/hooks/use-currency';
+import { formatCurrency } from '@/utils/format-currency';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
@@ -72,12 +73,7 @@ export default function PottySavingsStats({
 		[comparisonDiaperChanges, disposableChanges],
 	);
 
-	const formattedSavings = new Intl.NumberFormat(locale.replace('_', '-'), {
-		currency,
-		maximumFractionDigits: 2,
-		minimumFractionDigits: 2,
-		style: 'currency',
-	}).format(savings);
+	const formattedSavings = formatCurrency(savings, currency, locale);
 
 	return (
 		<StatsCard

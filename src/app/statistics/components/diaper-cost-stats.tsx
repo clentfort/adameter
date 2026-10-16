@@ -4,7 +4,8 @@ import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { differenceInDays } from 'date-fns';
 import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/i18n-context';
-import { Currency, useCurrency } from '@/hooks/use-currency';
+import { useCurrency } from '@/hooks/use-currency';
+import { formatCurrency } from '@/utils/format-currency';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
@@ -12,15 +13,6 @@ interface DiaperCostStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
 	diaperChanges: DiaperChange[];
 	products: DiaperProduct[];
-}
-
-function formatCurrency(value: number, currency: Currency, locale: string) {
-	return new Intl.NumberFormat(locale.replace('_', '-'), {
-		currency,
-		maximumFractionDigits: 2,
-		minimumFractionDigits: 2,
-		style: 'currency',
-	}).format(value);
 }
 
 function calculateCostMetrics(
