@@ -24,14 +24,24 @@ describe('DropdownMenu components', () => {
 			<DropdownMenu open>
 				<DropdownMenuTrigger>Open Menu</DropdownMenuTrigger>
 				<DropdownMenuPortal>
-					<DropdownMenuContent className="custom-content" align="center" side="top">
+					<DropdownMenuContent
+						className="custom-content"
+						align="center"
+						side="top"
+					>
 						<DropdownMenuGroup className="custom-group">
 							<DropdownMenuLabel inset className="custom-label">
 								Menu Header
 							</DropdownMenuLabel>
-							<DropdownMenuItem inset variant="destructive" className="custom-item">
+							<DropdownMenuItem
+								inset
+								variant="destructive"
+								className="custom-item"
+							>
 								Delete Item
-								<DropdownMenuShortcut className="custom-shortcut">Ctrl+D</DropdownMenuShortcut>
+								<DropdownMenuShortcut className="custom-shortcut">
+									Ctrl+D
+								</DropdownMenuShortcut>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator className="custom-separator" />
@@ -39,7 +49,11 @@ describe('DropdownMenu components', () => {
 							Checkbox Option
 						</DropdownMenuCheckboxItem>
 						<DropdownMenuRadioGroup value="option1">
-							<DropdownMenuRadioItem value="option1" inset className="custom-radio">
+							<DropdownMenuRadioItem
+								value="option1"
+								inset
+								className="custom-radio"
+							>
 								Radio Option 1
 							</DropdownMenuRadioItem>
 						</DropdownMenuRadioGroup>
