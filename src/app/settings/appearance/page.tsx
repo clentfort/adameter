@@ -12,15 +12,6 @@ import {
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { useLanguage } from '@/contexts/i18n-context';
 import { Currency, useCurrency } from '@/hooks/use-currency';
 import { useDevMode } from '@/hooks/use-dev-mode';
@@ -31,6 +22,8 @@ import { useTimeFormat } from '@/hooks/use-time-format';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { Locale } from '@/i18n';
 import { SettingsHeader } from '../components/settings-header';
+import { SettingsSelectField } from '../components/settings-select-field';
+import { SettingsSwitchRow } from '../components/settings-switch-row';
 
 export default function AppearanceSettingsPage() {
 	const { setTheme, theme } = useTheme();
@@ -44,10 +37,6 @@ export default function AppearanceSettingsPage() {
 	const [showFeeding, setShowFeeding] = useShowFeeding();
 	const [locationTracking, setLocationTracking] = useLocationTracking();
 
-	const updateLocale = async (code: Locale) => {
-		await setLocale(code);
-	};
-
 	return (
 		<>
 			<SettingsHeader
@@ -57,235 +46,149 @@ export default function AppearanceSettingsPage() {
 			<div className="space-y-4 w-full">
 				<Card>
 					<CardContent className="space-y-6">
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<Globe className="h-4 w-4" />
-								<p className="text-sm font-medium">
-									<fbt desc="Label for language setting">Language</fbt>
-								</p>
-							</div>
-							<Select
-								onValueChange={(v) => {
-									if (v) {
-										void updateLocale(v as Locale);
-									}
-								}}
-								value={locale}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="de-DE">German</SelectItem>
-									<SelectItem value="en-US">English</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
+						<SettingsSelectField<Locale>
+							icon={<Globe className="h-4 w-4" />}
+							label={<fbt desc="Label for language setting">Language</fbt>}
+							onChange={setLocale}
+							options={[
+								{ label: 'German', value: 'de-DE' },
+								{ label: 'English', value: 'en-US' },
+							]}
+							value={locale}
+						/>
 
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<Clock className="h-4 w-4" />
-								<p className="text-sm font-medium">
-									<fbt desc="Label for time format setting">Time Format</fbt>
-								</p>
-							</div>
-							<Select
-								onValueChange={(v) => {
-									if (v) {
-										setTimeFormat(v as '12h' | '24h');
-									}
-								}}
-								value={timeFormat}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="12h">
-										<fbt desc="12-hour time format option">12-hour</fbt>
-									</SelectItem>
-									<SelectItem value="24h">
-										<fbt desc="24-hour time format option">24-hour</fbt>
-									</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
+						<SettingsSelectField<'12h' | '24h'>
+							icon={<Clock className="h-4 w-4" />}
+							label={
+								<fbt desc="Label for time format setting">Time Format</fbt>
+							}
+							onChange={setTimeFormat}
+							options={[
+								{
+									label: <fbt desc="12-hour time format option">12-hour</fbt>,
+									value: '12h',
+								},
+								{
+									label: <fbt desc="24-hour time format option">24-hour</fbt>,
+									value: '24h',
+								},
+							]}
+							value={timeFormat}
+						/>
 
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<Ruler className="h-4 w-4" />
-								<p className="text-sm font-medium">
-									<fbt desc="Label for unit system setting">Unit System</fbt>
-								</p>
-							</div>
-							<Select
-								onValueChange={(v) => {
-									if (v) {
-										setUnitSystem(v as 'metric' | 'imperial');
-									}
-								}}
-								value={unitSystem}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="metric">
-										<fbt desc="Metric unit system option">Metric</fbt>
-									</SelectItem>
-									<SelectItem value="imperial">
-										<fbt desc="Imperial unit system option">Imperial</fbt>
-									</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
+						<SettingsSelectField<'metric' | 'imperial'>
+							icon={<Ruler className="h-4 w-4" />}
+							label={
+								<fbt desc="Label for unit system setting">Unit System</fbt>
+							}
+							onChange={setUnitSystem}
+							options={[
+								{
+									label: <fbt desc="Metric unit system option">Metric</fbt>,
+									value: 'metric',
+								},
+								{
+									label: <fbt desc="Imperial unit system option">Imperial</fbt>,
+									value: 'imperial',
+								},
+							]}
+							value={unitSystem}
+						/>
 
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<Moon className="h-4 w-4" />
-								<p className="text-sm font-medium">
-									<fbt desc="Label for theme setting">Theme</fbt>
-								</p>
-							</div>
-							<Select
-								onValueChange={(v) => {
-									if (v) {
-										setTheme(v);
-									}
-								}}
-								value={theme}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="light">
-										<fbt desc="Light theme option">Light</fbt>
-									</SelectItem>
-									<SelectItem value="dark">
-										<fbt desc="Dark theme option">Dark</fbt>
-									</SelectItem>
-									<SelectItem value="system">
-										<fbt desc="System theme option">System</fbt>
-									</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
+						<SettingsSelectField<string>
+							icon={<Moon className="h-4 w-4" />}
+							label={<fbt desc="Label for theme setting">Theme</fbt>}
+							onChange={setTheme}
+							options={[
+								{
+									label: <fbt desc="Light theme option">Light</fbt>,
+									value: 'light',
+								},
+								{
+									label: <fbt desc="Dark theme option">Dark</fbt>,
+									value: 'dark',
+								},
+								{
+									label: <fbt desc="System theme option">System</fbt>,
+									value: 'system',
+								},
+							]}
+							value={theme ?? ''}
+						/>
 
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<Coins className="h-4 w-4" />
-								<p className="text-sm font-medium">
-									<fbt desc="Label for currency setting">Currency</fbt>
-								</p>
-							</div>
-							<Select
-								onValueChange={(v) => {
-									if (v) {
-										setCurrency(v as Currency);
-									}
-								}}
-								value={currency}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="GBP">£ GBP</SelectItem>
-									<SelectItem value="EUR">€ EUR</SelectItem>
-									<SelectItem value="USD">$ USD</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
+						<SettingsSelectField<Currency>
+							icon={<Coins className="h-4 w-4" />}
+							label={<fbt desc="Label for currency setting">Currency</fbt>}
+							onChange={setCurrency}
+							options={[
+								{ label: '£ GBP', value: 'GBP' },
+								{ label: '€ EUR', value: 'EUR' },
+								{ label: '$ USD', value: 'USD' },
+							]}
+							value={currency}
+						/>
 
 						<div className="space-y-4 border-t pt-4">
-							<div className="flex items-center justify-between">
-								<div className="space-y-0.5">
-									<div className="flex items-center gap-2">
-										<LayoutGrid className="h-4 w-4" />
-										<Label className="text-sm font-medium" htmlFor="butterfly">
-											<fbt desc="Label for butterfly charts setting">
-												Butterfly Charts
-											</fbt>
-										</Label>
-									</div>
-									<p className="text-xs text-muted-foreground">
-										<fbt desc="Description for butterfly charts setting">
-											Show comparison data in statistics
-										</fbt>
-									</p>
-								</div>
-								<Switch
-									checked={showComparisonCharts}
-									id="butterfly"
-									onCheckedChange={setShowComparisonCharts}
-								/>
-							</div>
+							<SettingsSwitchRow
+								checked={showComparisonCharts}
+								description={
+									<fbt desc="Description for butterfly charts setting">
+										Show comparison data in statistics
+									</fbt>
+								}
+								icon={<LayoutGrid className="h-4 w-4" />}
+								id="butterfly"
+								label={
+									<fbt desc="Label for butterfly charts setting">
+										Butterfly Charts
+									</fbt>
+								}
+								onCheckedChange={setShowComparisonCharts}
+							/>
 
-							<div className="flex items-center justify-between">
-								<div className="space-y-0.5">
-									<Label className="text-sm font-medium" htmlFor="show-feeding">
-										<fbt desc="Label for show feeding setting">
-											Show Feeding
-										</fbt>
-									</Label>
-									<p className="text-xs text-muted-foreground">
-										<fbt desc="Description for show feeding setting">
-											Show breastfeeding and feeding tracking features
-										</fbt>
-									</p>
-								</div>
-								<Switch
-									checked={showFeeding ?? true}
-									id="show-feeding"
-									onCheckedChange={setShowFeeding}
-								/>
-							</div>
+							<SettingsSwitchRow
+								checked={showFeeding ?? true}
+								description={
+									<fbt desc="Description for show feeding setting">
+										Show breastfeeding and feeding tracking features
+									</fbt>
+								}
+								id="show-feeding"
+								label={
+									<fbt desc="Label for show feeding setting">Show Feeding</fbt>
+								}
+								onCheckedChange={setShowFeeding}
+							/>
 
-							<div className="flex items-center justify-between">
-								<div className="space-y-0.5">
-									<div className="flex items-center gap-2">
-										<MapPin className="h-4 w-4" />
-										<Label
-											className="text-sm font-medium"
-											htmlFor="location-tracking"
-										>
-											<fbt desc="Label for location tracking setting">
-												Location Tracking
-											</fbt>
-										</Label>
-									</div>
-									<p className="text-xs text-muted-foreground">
-										<fbt desc="Description for location tracking setting">
-											Automatically capture location for recent diaper and
-											feeding events
-										</fbt>
-									</p>
-								</div>
-								<Switch
-									checked={locationTracking}
-									id="location-tracking"
-									onCheckedChange={setLocationTracking}
-								/>
-							</div>
+							<SettingsSwitchRow
+								checked={locationTracking}
+								description={
+									<fbt desc="Description for location tracking setting">
+										Automatically capture location for recent diaper and feeding
+										events
+									</fbt>
+								}
+								icon={<MapPin className="h-4 w-4" />}
+								id="location-tracking"
+								label={
+									<fbt desc="Label for location tracking setting">
+										Location Tracking
+									</fbt>
+								}
+								onCheckedChange={setLocationTracking}
+							/>
 
-							<div className="flex items-center justify-between">
-								<div className="space-y-0.5">
-									<Label className="text-sm font-medium" htmlFor="dev-mode">
-										<fbt desc="Label for dev mode setting">Dev Mode</fbt>
-									</Label>
-									<p className="text-xs text-muted-foreground">
-										<fbt desc="Description for dev mode setting">
-											Enable developer tools and error details
-										</fbt>
-									</p>
-								</div>
-								<Switch
-									checked={devMode}
-									id="dev-mode"
-									onCheckedChange={setDevMode}
-								/>
-							</div>
+							<SettingsSwitchRow
+								checked={devMode}
+								description={
+									<fbt desc="Description for dev mode setting">
+										Enable developer tools and error details
+									</fbt>
+								}
+								id="dev-mode"
+								label={<fbt desc="Label for dev mode setting">Dev Mode</fbt>}
+								onCheckedChange={setDevMode}
+							/>
 						</div>
 					</CardContent>
 				</Card>
