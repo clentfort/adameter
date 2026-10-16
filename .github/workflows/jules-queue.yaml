@@ -1,0 +1,112 @@
+# Feeds issues labelled `jules-queue` to Google Jules, one at a time.
+#
+# Jules starts a task when the `jules` label is added to an issue. It refuses new
+# tasks when too many are running or its daily quota is used up, and then
+# comments "failed to create a task". This workflow adds or re-adds the label
+# only when:
+# - fewer than MAX_RUNNING Jules tasks are running
+# - fewer than DAILY_BUDGET tasks were started in the last 24 hours, which
+#   leaves part of the quota for manual use
+# - every issue referenced in the issue's "Blocked by" line is closed
+# - Jules hasn't refused a task in the last BACKOFF_MINUTES
+#
+# The label must be added by a real user, so a JULES_PAT secret is required:
+# a fine-grained token of the account linked to Jules, with Issues read/write
+# on this repository.
+name: Jules queue
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: jules-queue
+
+jobs:
+  feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v9
+        env:
+          MAX_RUNNING: '2'
+          DAILY_BUDGET: '10'
+          BACKOFF_MINUTES: '60'
+        with:
+          github-token: ${{ secrets.JULES_PAT }}
+          script: |
+            const QUEUE = 'jules-queue';
+            const LABEL = 'jules';
+            const BOT = 'google-labs-jules[bot]';
+            const maxRunning = Number(process.env.MAX_RUNNING);
+            const dailyBudget = Number(process.env.DAILY_BUDGET);
+            const backoffMs = Number(process.env.BACKOFF_MINUTES) * 60_000;
+            const { owner, repo } = context.repo;
+            const now = Date.now();
+
+            // Every issue Jules may have touched in the last 24 hours, plus everything queued or labelled.
+            const since = new Date(now - 24 * 3600_000).toISOString();
+            const issues = new Map();
+            const add = (list) => list.filter((i) => !i.pull_request).forEach((i) => issues.set(i.number, i));
+            add(await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'all', since, per_page: 100 }));
+            add(await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', labels: LABEL, per_page: 100 }));
+            add(await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', labels: QUEUE, per_page: 100 }));
+
+            const info = [];
+            for (const issue of issues.values()) {
+              const comments = (await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: issue.number, per_page: 100 }))
+                .filter((c) => c.user?.login === BOT);
+              const last = comments.at(-1);
+              const state = !last ? 'none'
+                : /failed to create/.test(last.body) ? 'failed'
+                : /on it/i.test(last.body) ? 'running'
+                : 'done';
+              const labels = issue.labels.map((l) => (typeof l === 'string' ? l : l.name));
+              info.push({ issue, comments, state, labels, lastAt: last ? Date.parse(last.created_at) : 0 });
+            }
+
+            const running = info.filter((i) => i.issue.state === 'open' && i.state === 'running').length;
+            const started24h = info.flatMap((i) => i.comments)
+              .filter((c) => /on it/i.test(c.body) && Date.parse(c.created_at) > now - 24 * 3600_000).length;
+            const lastRefusal = Math.max(0, ...info.flatMap((i) => i.comments)
+              .filter((c) => /failed to create/.test(c.body)).map((c) => Date.parse(c.created_at)));
+            core.info(`running=${running}/${maxRunning} started24h=${started24h}/${dailyBudget}`);
+
+            // Issues that got a task leave the queue.
+            for (const i of info) {
+              if (i.labels.includes(QUEUE) && (i.state === 'running' || i.state === 'done')) {
+                await github.rest.issues.removeLabel({ owner, repo, issue_number: i.issue.number, name: QUEUE });
+                core.info(`#${i.issue.number} has a Jules task, removed from queue`);
+              }
+            }
+
+            const isOpen = async (n) => {
+              const known = issues.get(n);
+              if (known) return known.state === 'open';
+              const { data } = await github.rest.issues.get({ owner, repo, issue_number: n });
+              return data.state === 'open';
+            };
+            const candidates = [];
+            for (const i of info.filter((x) => x.issue.state === 'open' && x.labels.includes(QUEUE) && (x.state === 'none' || x.state === 'failed'))) {
+              const line = (i.issue.body ?? '').split('\n').find((l) => /blocked by/i.test(l)) ?? '';
+              const blockers = [...line.matchAll(/#(\d+)/g)].map((m) => Number(m[1]));
+              const open = [];
+              for (const b of blockers) if (await isOpen(b)) open.push(b);
+              if (open.length) { core.info(`#${i.issue.number} waits for ${open.map((b) => '#' + b).join(', ')}`); continue; }
+              candidates.push(i);
+            }
+            candidates.sort((a, b) => a.issue.number - b.issue.number);
+            core.info(`ready: ${candidates.map((c) => '#' + c.issue.number).join(' ') || 'none'}`);
+
+            if (!candidates.length) return;
+            if (running >= maxRunning) return core.info('All slots busy.');
+            if (started24h >= dailyBudget) return core.info('Daily budget used up.');
+            if (now - lastRefusal < backoffMs) return core.info('Jules refused a task recently, backing off.');
+
+            const next = candidates[0];
+            if (next.labels.includes(LABEL)) {
+              await github.rest.issues.removeLabel({ owner, repo, issue_number: next.issue.number, name: LABEL });
+              await new Promise((r) => setTimeout(r, 5000));
+            }
+            await github.rest.issues.addLabels({ owner, repo, issue_number: next.issue.number, labels: [LABEL] });
+            core.notice(`Handed #${next.issue.number} to Jules: ${next.issue.title}`);
