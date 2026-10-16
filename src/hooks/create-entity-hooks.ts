@@ -1,4 +1,5 @@
 import type { Cell, Row } from 'tinybase';
+import type { ZodType } from 'zod';
 import { useMemo } from 'react';
 import {
 	useDelRowCallback,
@@ -16,6 +17,26 @@ interface EntityHooksConfig<T extends { id: string }> {
 	sanitize: (entity: T) => Record<string, unknown> | null;
 	tableId: string;
 	toEntity: (id: string, row: Row) => T | null;
+}
+
+export function createRowParser<T>(
+	schema: ZodType<T>,
+	label: string,
+): (id: string, row: Row) => T | null {
+	return (id: string, row: Row): T | null => {
+		const result = schema.safeParse({
+			...row,
+			id,
+		});
+
+		if (!result.success) {
+			// eslint-disable-next-line no-console
+			console.warn(`Invalid ${label} data for id ${id}:`, result.error.issues);
+			return null;
+		}
+
+		return result.data;
+	};
 }
 
 export function createEntityHooks<T extends { id: string }>(

@@ -1,25 +1,11 @@
-import type { Row } from 'tinybase';
 import type { Profile } from '@/types/profile';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeProfileForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { profileSchema } from '@/types/profile';
-import { createEntityHooks } from './create-entity-hooks';
+import { createEntityHooks, createRowParser } from './create-entity-hooks';
 import { useSelectedProfileId } from './use-selected-profile-id';
 
-function toProfile(id: string, row: Row): Profile | null {
-	const result = profileSchema.safeParse({
-		...row,
-		id,
-	});
-
-	if (!result.success) {
-		// eslint-disable-next-line no-console
-		console.warn(`Invalid profile data for id ${id}:`, result.error.issues);
-		return null;
-	}
-
-	return result.data;
-}
+const toProfile = createRowParser(profileSchema, 'profile');
 
 const profileHooks = createEntityHooks<Profile>({
 	sanitize: sanitizeProfileForStore,
