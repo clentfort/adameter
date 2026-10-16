@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import ReactConfetti from 'react-confetti';
 import HistoryHeader from '@/components/history-header';
-import { useUpsertDiaperChange } from '@/hooks/use-diaper-changes';
-import { useDiaperChangesTotal } from '@/hooks/use-tinybase-metrics';
+import {
+	useDiaperChangesTotal,
+	useUpsertDiaperChange,
+} from '@/hooks/use-diaper-changes';
 import DiaperForm from './components/diaper-form';
 import DiaperHistoryList from './components/diaper-history-list';
 import DiaperTracker from './components/diaper-tracker';

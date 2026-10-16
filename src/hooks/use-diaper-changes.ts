@@ -38,6 +38,10 @@ export const useDiaperChange = diaperChangeHooks.useOne;
 export const useDiaperChangesSnapshot = diaperChangeHooks.useSnapshot;
 export const useDiaperChangeIds = diaperChangeHooks.useIds;
 
+export function useDiaperChangesTotal() {
+	return useDiaperChangeIds().length;
+}
+
 export function useLatestDiaperChangeRecord() {
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.DIAPER_CHANGES, store);

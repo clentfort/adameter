@@ -9,6 +9,7 @@ import {
 import {
 	useDiaperChange,
 	useDiaperChangesSnapshot,
+	useDiaperChangesTotal,
 	useLatestDiaperChangeRecord,
 	useRemoveDiaperChange,
 	useUpsertDiaperChange,
@@ -206,6 +207,37 @@ describe('useDiaperChanges', () => {
 			});
 
 			expect(result.current).toEqual([]);
+		});
+	});
+
+	describe('useDiaperChangesTotal', () => {
+		it('should return 0 when no diaper changes exist', () => {
+			const { result } = renderHook(() => useDiaperChangesTotal(), {
+				wrapper: TinyBaseTestWrapper,
+			});
+			expect(result.current).toBe(0);
+		});
+
+		it('should return total number of diaper changes for selected profile', () => {
+			const store = createTestStore();
+			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd1', {
+				containsStool: false,
+				containsUrine: true,
+				timestamp: '2024-01-01T10:00:00Z',
+			});
+			store.setRow(TABLE_IDS.DIAPER_CHANGES, 'd2', {
+				containsStool: true,
+				containsUrine: false,
+				timestamp: '2024-01-01T11:00:00Z',
+			});
+
+			const { result } = renderHook(() => useDiaperChangesTotal(), {
+				wrapper: ({ children }) => (
+					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+				),
+			});
+
+			expect(result.current).toBe(2);
 		});
 	});
 

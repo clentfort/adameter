@@ -1,8 +1,10 @@
 import type { DiaperChange } from '@/types/diaper';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useUpsertDiaperChange } from '@/hooks/use-diaper-changes';
-import { useDiaperChangesTotal } from '@/hooks/use-tinybase-metrics';
+import {
+	useDiaperChangesTotal,
+	useUpsertDiaperChange,
+} from '@/hooks/use-diaper-changes';
 import { useLastUsedDiaperProduct } from '../hooks/use-last-used-diaper-product';
 import DiaperForm from './diaper-form';
 
