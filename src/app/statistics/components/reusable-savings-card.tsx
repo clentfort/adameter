@@ -20,8 +20,9 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { useLanguage } from '@/contexts/i18n-context';
-import { Currency, useCurrency } from '@/hooks/use-currency';
+import { useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/utils/format-currency';
 
 interface ReusableSavingsCardProps {
 	allDiaperChanges: DiaperChange[];
@@ -39,15 +40,6 @@ interface ReusableSavingsMetrics {
 	totalSavings: number;
 	upfrontCostTotal: number;
 	usageCost: number;
-}
-
-function formatCurrency(value: number, currency: Currency, locale: string) {
-	return new Intl.NumberFormat(locale.replace('_', '-'), {
-		currency,
-		maximumFractionDigits: 2,
-		minimumFractionDigits: 2,
-		style: 'currency',
-	}).format(value);
 }
 
 function createProductById(products: DiaperProduct[]) {
