@@ -10,7 +10,6 @@ import {
 	useEvent,
 	useEventsSnapshot,
 	useRemoveEvent,
-	useSortedEventIds,
 	useUpsertEvent,
 } from './use-events';
 
@@ -90,30 +89,6 @@ describe('useEvents', () => {
 				title: 'Nap',
 				type: 'point',
 			});
-		});
-	});
-
-	describe('useSortedEventIds', () => {
-		it('should return event IDs sorted by startDate descending', () => {
-			const store = createTestStore();
-			store.setRow(TABLE_IDS.EVENTS, 'e1', {
-				startDate: '2024-01-01T10:00:00Z',
-				title: 'Nap 1',
-				type: 'point',
-			});
-			store.setRow(TABLE_IDS.EVENTS, 'e2', {
-				startDate: '2024-01-01T11:00:00Z',
-				title: 'Nap 2',
-				type: 'point',
-			});
-
-			const { result } = renderHook(() => useSortedEventIds(), {
-				wrapper: ({ children }) => (
-					<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
-				),
-			});
-
-			expect(result.current).toEqual(['e2', 'e1']);
 		});
 	});
 
