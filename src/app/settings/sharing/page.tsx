@@ -1,9 +1,9 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { DataSharingContent } from '@/components/root-layout/data-sharing-switcher';
 import { Card, CardContent } from '@/components/ui/card';
 import { SettingsHeader } from '../components/settings-header';
+import { DataSharingContent } from './components/data-sharing-content';
 
 export default function SharingSettingsPage() {
 	return (

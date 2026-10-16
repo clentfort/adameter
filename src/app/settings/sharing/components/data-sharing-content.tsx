@@ -1,35 +1,26 @@
 import { fbt } from 'fbtee';
-import { Copy, Wifi, WifiOff } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { useContext, useState } from 'react';
 import { toast } from 'sonner';
+import { JoinRoomDialog } from '@/components/root-layout/join-room-dialog';
+import { RoomQRCode } from '@/components/root-layout/room-qr-code';
+import { RoomQRScanner } from '@/components/root-layout/room-qr-scanner';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { generateRoomName } from '@/utils/room-name';
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { ScrollArea } from '../ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { JoinRoomDialog } from './join-room-dialog';
-import { RoomQRCode } from './room-qr-code';
-import { RoomQRScanner } from './room-qr-scanner';
 
-export function DataSharingContent({ onClose }: { onClose?: () => void }) {
-	const { joinRoom, room, setRoom } = useContext(DataSynchronizationContext);
+export function DataSharingContent() {
+	const { joinRoom, leaveRoom, room } = useContext(DataSynchronizationContext);
 	const [inputRoom, setInputRoom] = useState('');
 	const [pendingJoinRoom, setPendingJoinRoom] = useState<string | null>(null);
 
 	const handleCreateRoom = () => {
 		const newRoom = generateRoomName();
 		joinRoom(newRoom, 'merge');
-		onClose?.();
 	};
 
 	const handleJoinRoom = () => {
@@ -70,7 +61,7 @@ export function DataSharingContent({ onClose }: { onClose?: () => void }) {
 							<Copy className="mr-2 h-4 w-4" />
 							<fbt desc="Button to copy invite link">Copy Invite Link</fbt>
 						</Button>
-						<Button onClick={() => setRoom(undefined)} variant="destructive">
+						<Button onClick={leaveRoom} variant="destructive">
 							<fbt desc="Button to leave current room">Leave Room</fbt>
 						</Button>
 					</div>
@@ -155,53 +146,10 @@ export function DataSharingContent({ onClose }: { onClose?: () => void }) {
 					onCancel={() => setPendingJoinRoom(null)}
 					onJoin={() => {
 						setPendingJoinRoom(null);
-						onClose?.();
 					}}
 					roomId={pendingJoinRoom}
 				/>
 			)}
 		</>
-	);
-}
-
-export default function DataSharingSwitcher() {
-	const { room } = useContext(DataSynchronizationContext);
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-	const Icon = room ? Wifi : WifiOff;
-
-	return (
-		<Dialog onOpenChange={setIsDialogOpen} open={isDialogOpen}>
-			<DialogTrigger
-				render={
-					<Button
-						aria-label={fbt('Sharing', 'Label for the sharing switcher button')}
-						size="icon"
-						title={fbt('Sharing', 'Label for the sharing switcher button')}
-						type="button"
-						variant="outline"
-					/>
-				}
-			>
-				<Icon className="h-4 w-4" />
-			</DialogTrigger>
-			<DialogContent className="sm:max-w-[425px]">
-				<DialogHeader>
-					<DialogTitle>
-						<fbt desc="Title of a dialog to configure sharing options">
-							Sharing
-						</fbt>
-					</DialogTitle>
-				</DialogHeader>
-
-				<DataSharingContent onClose={() => setIsDialogOpen(false)} />
-
-				<DialogFooter>
-					<Button onClick={() => setIsDialogOpen(false)} variant="ghost">
-						<fbt common={true}>Close</fbt>
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
 	);
 }
