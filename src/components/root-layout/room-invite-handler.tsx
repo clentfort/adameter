@@ -10,42 +10,29 @@ export function RoomInviteHandler() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const { room: currentRoom } = useContext(DataSynchronizationContext);
-	const [pendingRoom, setPendingRoom] = useState<string | null>(null);
-	const [showWarning, setShowWarning] = useState(false);
-	const [showJoin, setShowJoin] = useState(false);
+	const [invite, setInvite] = useState<{
+		room: string;
+		step: 'warn' | 'join';
+	} | null>(null);
 
 	useEffect(() => {
 		const roomFromUrl = searchParams.get('room');
 		if (roomFromUrl && roomFromUrl !== currentRoom) {
-			setPendingRoom(roomFromUrl);
-			if (currentRoom) {
-				setShowWarning(true);
-			} else {
-				setShowJoin(true);
-			}
+			setInvite({
+				room: roomFromUrl,
+				step: currentRoom ? 'warn' : 'join',
+			});
 		}
 	}, [searchParams, currentRoom]);
 
 	const handleWarningConfirm = () => {
-		setShowWarning(false);
-		setShowJoin(true);
+		if (invite) {
+			setInvite({ ...invite, step: 'join' });
+		}
 	};
 
-	const handleCancel = () => {
-		setPendingRoom(null);
-		setShowWarning(false);
-		setShowJoin(false);
-
-		// Clear the URL param
-		const url = new URL(window.location.href);
-		url.searchParams.delete('room');
-		router.replace(url.pathname + url.search);
-	};
-
-	const handleJoin = () => {
-		setPendingRoom(null);
-		setShowWarning(false);
-		setShowJoin(false);
+	const dismissInvite = () => {
+		setInvite(null);
 
 		// Clear the URL param
 		const url = new URL(window.location.href);
@@ -55,17 +42,17 @@ export function RoomInviteHandler() {
 
 	return (
 		<>
-			{showWarning && pendingRoom && (
+			{invite?.step === 'warn' && (
 				<LeaveRoomWarningDialog
-					onCancel={handleCancel}
+					onCancel={dismissInvite}
 					onConfirm={handleWarningConfirm}
 				/>
 			)}
-			{showJoin && pendingRoom && (
+			{invite?.step === 'join' && (
 				<JoinRoomDialog
-					onCancel={handleCancel}
-					onJoin={handleJoin}
-					roomId={pendingRoom}
+					onCancel={dismissInvite}
+					onJoin={dismissInvite}
+					roomId={invite.room}
 				/>
 			)}
 		</>
