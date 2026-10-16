@@ -4,6 +4,7 @@ import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useMemo } from 'react';
+import { resolveChartStartDate } from '@/app/statistics/utils/resolve-chart-start-date';
 import BarChart from '@/components/charts/bar-chart';
 import { useCurrency } from '@/hooks/use-currency';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
@@ -32,19 +33,11 @@ export default function DiaperCostChart({
 	);
 
 	const { datasets, labels } = useMemo(() => {
-		let effectivePrimaryFrom = primaryRange.from;
-		if (primaryRange.from.getTime() === 0) {
-			if (diaperChanges.length > 0) {
-				const firstTime = diaperChanges.reduce((min, c) => {
-					const t = new Date(c.timestamp).getTime();
-					return t < min ? t : min;
-				}, new Date(diaperChanges[0].timestamp).getTime());
-				effectivePrimaryFrom = new Date(firstTime);
-			} else {
-				effectivePrimaryFrom = new Date();
-				effectivePrimaryFrom.setDate(effectivePrimaryFrom.getDate() - 30);
-			}
-		}
+		const effectivePrimaryFrom = resolveChartStartDate(
+			primaryRange.from,
+			diaperChanges,
+			(c) => c.timestamp,
+		);
 
 		const primaryDays = eachDayOfInterval({
 			end: primaryRange.to,
