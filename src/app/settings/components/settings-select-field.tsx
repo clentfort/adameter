@@ -21,7 +21,7 @@ export function SettingsSelectField<T extends string>({
 	onChange: (value: T) => void;
 	options: { label: ReactNode; value: T }[];
 	value: T;
-}): JSX.Element {
+}) {
 	return (
 		<div className="space-y-2">
 			<div className="flex items-center gap-2">

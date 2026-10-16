@@ -16,7 +16,7 @@ export function SettingsSwitchRow({
 	id: string;
 	label: ReactNode;
 	onCheckedChange: (checked: boolean) => void;
-}): JSX.Element {
+}) {
 	return (
 		<div className="flex items-center justify-between">
 			<div className="space-y-0.5">
