@@ -1,27 +1,23 @@
 'use client';
 
-import type { Indexes } from 'tinybase';
 import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
 import { fbt } from 'fbtee';
 import { useMemo, useState } from 'react';
-import { useSliceRowIds, useStore } from 'tinybase/ui-react';
+import { useStore } from 'tinybase/ui-react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import Markdown from '@/components/markdown';
 import { useLanguage } from '@/contexts/i18n-context';
-import {
-	INDEX_IDS,
-	useTinybaseIndexes,
-} from '@/contexts/tinybase-indexes-context';
+import { INDEX_IDS } from '@/contexts/tinybase-indexes-context';
 import {
 	useGrowthMeasurement,
 	useRemoveGrowthMeasurement,
 	useUpsertGrowthMeasurement,
 } from '@/hooks/use-growth-measurements';
-import { useSelectedProfileId } from '@/hooks/use-selected-profile-id';
 import { useTooth, useUpsertTooth } from '@/hooks/use-teething';
 import {
+	useDateSliceRowIds,
 	useGrowthMeasurementsByDate,
 	useTeethByDate,
 } from '@/hooks/use-tinybase-indexes';
@@ -190,7 +186,6 @@ export default function IndexedGrowthHistoryList() {
 
 	const { dateKeys: growthDateKeys } = useGrowthMeasurementsByDate();
 	const { dateKeys: teethDateKeys } = useTeethByDate();
-	const indexes = useTinybaseIndexes();
 
 	const allDateKeys = useMemo(() => {
 		const keys = new Set([...growthDateKeys, ...teethDateKeys]);
@@ -222,7 +217,6 @@ export default function IndexedGrowthHistoryList() {
 				{allDateKeys.map((dateKey) => (
 					<DateSection
 						dateKey={dateKey}
-						indexes={indexes}
 						key={dateKey}
 						onMeasurementDelete={setMeasurementToDelete}
 						onMeasurementEdit={setMeasurementToEdit}
@@ -267,7 +261,6 @@ export default function IndexedGrowthHistoryList() {
 
 interface DateSectionProps {
 	dateKey: string;
-	indexes: Indexes | undefined;
 	onMeasurementDelete: (id: string) => void;
 	onMeasurementEdit: (measurement: GrowthMeasurement) => void;
 	onToothDelete: (tooth: Tooth) => void;
@@ -276,26 +269,16 @@ interface DateSectionProps {
 
 function DateSection({
 	dateKey,
-	indexes,
 	onMeasurementDelete,
 	onMeasurementEdit,
 	onToothDelete,
 	onToothEdit,
 }: DateSectionProps) {
-	const [selectedProfileId] = useSelectedProfileId();
-	const sliceId = useMemo(() => {
-		if (selectedProfileId && !dateKey.includes(':')) {
-			return `${selectedProfileId}:${dateKey}`;
-		}
-		return dateKey;
-	}, [selectedProfileId, dateKey]);
-
-	const growthRowIds = useSliceRowIds(
+	const growthRowIds = useDateSliceRowIds(
 		INDEX_IDS.GROWTH_MEASUREMENTS_BY_DATE,
-		sliceId,
-		indexes,
+		dateKey,
 	);
-	const teethRowIds = useSliceRowIds(INDEX_IDS.TEETH_BY_DATE, sliceId, indexes);
+	const teethRowIds = useDateSliceRowIds(INDEX_IDS.TEETH_BY_DATE, dateKey);
 	const store = useStore();
 
 	const interleaved = useMemo(() => {
