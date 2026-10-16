@@ -16,6 +16,15 @@ import {
 } from '@/hooks/use-diaper-products';
 import { SettingsHeader } from '../components/settings-header';
 
+type EditorState =
+	{ mode: 'list' } | { mode: 'add' } | { mode: 'edit'; productId: string };
+
+const CURRENCY_SYMBOLS: Record<Currency, string> = {
+	EUR: '€',
+	GBP: '£',
+	USD: '$',
+};
+
 interface DiaperProductListItemProps {
 	currency: Currency;
 	onDelete: (productId: string) => void;
@@ -58,7 +67,7 @@ function DiaperProductListItem({
 						<fbt desc="Cost per diaper display">
 							Cost per item:{' '}
 							<fbt:param name="currency">
-								{currency === 'GBP' ? '£' : currency === 'EUR' ? '€' : '$'}
+								{CURRENCY_SYMBOLS[currency]}
 							</fbt:param>
 							<fbt:param name="cost">
 								{product.costPerDiaper.toFixed(2)}
@@ -74,7 +83,7 @@ function DiaperProductListItem({
 							<fbt desc="Reusable diaper upfront cost display">
 								Upfront cost:{' '}
 								<fbt:param name="currency">
-									{currency === 'GBP' ? '£' : currency === 'EUR' ? '€' : '$'}
+									{CURRENCY_SYMBOLS[currency]}
 								</fbt:param>
 								<fbt:param name="upfrontCost">
 									{product.upfrontCost.toFixed(2)}
@@ -117,23 +126,17 @@ export default function DiapersSettingsPage() {
 	const upsertProduct = useUpsertDiaperProduct();
 	const removeProduct = useRemoveDiaperProduct();
 	const productIds = useSortedDiaperProductIds();
-	const [editingProductId, setEditingProductId] = useState<string | null>(null);
-	const [isAddingProduct, setIsAddingProduct] = useState(false);
-	const editingProduct = useDiaperProduct(editingProductId ?? undefined);
+	const [editor, setEditor] = useState<EditorState>({ mode: 'list' });
+	const closeEditor = () => setEditor({ mode: 'list' });
 
-	const handleBack = () => {
-		if (isAddingProduct || editingProductId) {
-			setIsAddingProduct(false);
-			setEditingProductId(null);
-		} else {
-			window.history.back();
-		}
-	};
+	const editingProduct = useDiaperProduct(
+		editor.mode === 'edit' ? editor.productId : undefined,
+	);
 
 	const getTitle = () => {
-		if (isAddingProduct)
+		if (editor.mode === 'add')
 			return fbt('Add Product', 'Title for adding a product');
-		if (editingProductId)
+		if (editor.mode === 'edit')
 			return fbt('Edit Product', 'Title for editing a product');
 		return fbt('Diaper Products', 'Title for diaper products section');
 	};
@@ -141,23 +144,19 @@ export default function DiapersSettingsPage() {
 	return (
 		<>
 			<SettingsHeader
-				onBack={isAddingProduct || editingProductId ? handleBack : undefined}
+				onBack={editor.mode === 'list' ? undefined : closeEditor}
 				title={getTitle()}
 			/>
 
-			{isAddingProduct || editingProductId ? (
+			{editor.mode !== 'list' ? (
 				<Card className="w-full">
 					<CardContent>
 						<ProductForm
 							initialData={editingProduct ?? {}}
-							onCancel={() => {
-								setIsAddingProduct(false);
-								setEditingProductId(null);
-							}}
+							onCancel={closeEditor}
 							onSave={(data) => {
 								upsertProduct(data);
-								setIsAddingProduct(false);
-								setEditingProductId(null);
+								closeEditor();
 							}}
 						/>
 					</CardContent>
@@ -166,7 +165,7 @@ export default function DiapersSettingsPage() {
 				<div className="space-y-4 w-full">
 					<Button
 						className="w-full h-12 flex items-center gap-2 justify-center"
-						onClick={() => setIsAddingProduct(true)}
+						onClick={() => setEditor({ mode: 'add' })}
 					>
 						<Plus className="h-5 w-5" />
 						<fbt desc="Button to add a new diaper product">Add Product</fbt>
@@ -178,7 +177,7 @@ export default function DiapersSettingsPage() {
 								currency={currency}
 								key={productId}
 								onDelete={removeProduct}
-								onEdit={setEditingProductId}
+								onEdit={(id) => setEditor({ mode: 'edit', productId: id })}
 								onToggleArchived={(product) => {
 									upsertProduct({
 										...product,
