@@ -63,29 +63,6 @@ export default function BarChart({
 			return;
 		}
 
-		if (chartInstance.current) {
-			const chart = chartInstance.current;
-			chart.data.labels = labels;
-			chart.data.datasets = datasets.map((ds) => ({
-				...ds,
-				borderRadius: ds.stack === 'comparison' ? 0 : 4,
-				categoryPercentage: grouped ? 0.8 : 1.0,
-				grouped,
-			}));
-
-			// Update options that might have changed
-			if (chart.options.plugins?.title) {
-				chart.options.plugins.title.text = title?.toString() || '';
-			}
-			if (chart.options.scales?.y) {
-				chart.options.scales.y.max = yMax;
-				chart.options.scales.y.min = yMin;
-			}
-
-			chart.update();
-			return;
-		}
-
 		const ctx = chartRef.current.getContext('2d');
 		if (!ctx) return;
 
