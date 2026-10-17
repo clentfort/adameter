@@ -1,6 +1,9 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
+import { EllipsisVertical, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { LocationMap } from './location-map';
+import { Button } from './ui/button';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -16,6 +19,7 @@ interface HistoryEntryCardProps {
 	footer?: ReactNode;
 	formattedTime?: ReactNode;
 	header: ReactNode;
+	location?: { latitude?: number; longitude?: number };
 	onDelete: () => void;
 	onEdit: () => void;
 }
@@ -33,11 +37,16 @@ export default function HistoryEntryCard({
 	footer,
 	formattedTime,
 	header,
+	location,
 	onDelete,
 	onEdit,
 	style,
 	...props
 }: HistoryEntryCardProps & ComponentPropsWithoutRef<'div'>) {
+	const [isMapExpanded, setIsMapExpanded] = useState(false);
+	const hasLocation =
+		location?.latitude !== undefined && location?.longitude !== undefined;
+
 	const cardStyle = accentColor
 		? {
 				borderBottomColor: `color-mix(in srgb, ${accentColor}, transparent 70%)`,
@@ -48,6 +57,15 @@ export default function HistoryEntryCard({
 				...style,
 			}
 		: style;
+
+	const effectiveFooter =
+		footer ??
+		(isMapExpanded && hasLocation ? (
+			<LocationMap
+				latitude={location.latitude!}
+				longitude={location.longitude!}
+			/>
+		) : null);
 
 	return (
 		<div
@@ -68,6 +86,24 @@ export default function HistoryEntryCard({
 						</div>
 					)}
 					{children && <div className="mt-2">{children}</div>}
+					{hasLocation && (
+						<div className="pt-1">
+							<Button
+								className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+								data-testid="toggle-map-button"
+								onClick={() => setIsMapExpanded(!isMapExpanded)}
+								type="button"
+								variant="outline"
+							>
+								<MapPin className="h-3 w-3" />
+								{isMapExpanded ? (
+									<fbt desc="Button label to hide location map">Hide Map</fbt>
+								) : (
+									<fbt desc="Button label to show location map">Show Map</fbt>
+								)}
+							</Button>
+						</div>
+					)}
 				</div>
 				<div className="shrink-0 ml-2">
 					<DropdownMenu>
@@ -100,7 +136,9 @@ export default function HistoryEntryCard({
 					</DropdownMenu>
 				</div>
 			</div>
-			{footer && <div className="-mx-4 -mb-4 mt-3">{footer}</div>}
+			{effectiveFooter && (
+				<div className="-mx-4 -mb-4 mt-3">{effectiveFooter}</div>
+			)}
 		</div>
 	);
 }

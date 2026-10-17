@@ -1,13 +1,11 @@
 import { format } from 'date-fns';
-import { ArrowRight, Baby, Calendar, MapPin, Milk } from 'lucide-react';
+import { ArrowRight, Baby, Calendar, Milk } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import IndexedHistoryList from '@/components/indexed-history-list';
-import { LocationMap } from '@/components/location-map';
 import Markdown from '@/components/markdown';
-import { Button } from '@/components/ui/button';
 import {
 	DropdownMenuItem,
 	DropdownMenuSeparator,
@@ -27,7 +25,6 @@ function EventListItem({
 }) {
 	const event = useEvent(eventId);
 	const router = useRouter();
-	const [isMapExpanded, setIsMapExpanded] = useState(false);
 
 	if (!event) {
 		return null;
@@ -80,16 +77,6 @@ function EventListItem({
 			accentColor={event.color || '#6366f1'}
 			data-testid="event-entry"
 			extraActions={extraActions}
-			footer={
-				isMapExpanded &&
-				event.locationLatitude !== undefined &&
-				event.locationLongitude !== undefined ? (
-					<LocationMap
-						latitude={event.locationLatitude}
-						longitude={event.locationLongitude}
-					/>
-				) : null
-			}
 			formattedTime={
 				event.type === 'period' ? (
 					<div className="flex items-center gap-1">
@@ -114,6 +101,10 @@ function EventListItem({
 				) : null
 			}
 			header={event.title}
+			location={{
+				latitude: event.locationLatitude,
+				longitude: event.locationLongitude,
+			}}
 			onDelete={() => onDelete(event.id)}
 			onEdit={() => onEdit(event.id)}
 		>
@@ -122,25 +113,6 @@ function EventListItem({
 					{event.notes}
 				</Markdown>
 			)}
-			{event.locationLatitude !== undefined &&
-				event.locationLongitude !== undefined && (
-					<div className="pt-1">
-						<Button
-							className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
-							data-testid="toggle-map-button"
-							onClick={() => setIsMapExpanded(!isMapExpanded)}
-							type="button"
-							variant="outline"
-						>
-							<MapPin className="h-3 w-3" />
-							{isMapExpanded ? (
-								<fbt desc="Button label to hide location map">Hide Map</fbt>
-							) : (
-								<fbt desc="Button label to show location map">Show Map</fbt>
-							)}
-						</Button>
-					</div>
-				)}
 		</HistoryEntryCard>
 	);
 }
