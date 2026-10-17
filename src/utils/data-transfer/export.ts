@@ -2,7 +2,7 @@ import type { Store } from 'tinybase';
 import { toCsv } from './csv';
 import { createZip, downloadZip } from './zip';
 
-const VALUES_EXPORT_FILE_NAME = '__values';
+export const VALUES_EXPORT_FILE_NAME = '__values';
 
 export const exportStoreAsZip = async (store: Store, date?: Date) => {
 	const [tables, values] = store.getContent();
