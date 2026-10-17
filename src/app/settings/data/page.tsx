@@ -2,7 +2,6 @@
 
 import { fbt } from 'fbtee';
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
-import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -29,40 +28,10 @@ import {
 	recordBackup,
 	writeBackupReminderState,
 } from '@/lib/backup-reminder';
-import { TINYBASE_LOCAL_DB_NAME } from '@/lib/tinybase-sync/constants';
-import { sanitizeImportedRow } from '@/lib/tinybase-sync/entity-row-schemas';
-import { fromCsv } from '@/utils/data-transfer/csv';
+import { backupAndClearLocalStore } from '@/lib/tinybase-sync/factory-reset';
 import { exportStoreAsZip } from '@/utils/data-transfer/export';
-import { extractFiles } from '@/utils/data-transfer/zip';
+import { importZipIntoStore } from '@/utils/data-transfer/import';
 import { SettingsHeader } from '../components/settings-header';
-
-const VALUES_EXPORT_FILE_NAME = '__values';
-
-type CsvImportRow = {
-	id?: unknown;
-	valueJson?: unknown;
-};
-
-function isCellValue(value: unknown): value is boolean | number | string {
-	return (
-		typeof value === 'boolean' ||
-		typeof value === 'number' ||
-		typeof value === 'string'
-	);
-}
-
-function parseValueFromJson(valueJson: unknown) {
-	if (typeof valueJson !== 'string' || valueJson.length === 0) {
-		return undefined;
-	}
-
-	try {
-		const parsedValue = JSON.parse(valueJson) as unknown;
-		return isCellValue(parsedValue) ? parsedValue : undefined;
-	} catch {
-		return undefined;
-	}
-}
 
 export default function DataSettingsPage() {
 	const { store } = useContext(tinybaseContext);
@@ -84,17 +53,7 @@ export default function DataSettingsPage() {
 		try {
 			leaveRoom();
 			await exportStoreAsZip(store);
-			const backupDbName = `${TINYBASE_LOCAL_DB_NAME}-backup-${Date.now()}`;
-			const backupPersister = createIndexedDbPersister(store, backupDbName);
-			await backupPersister.save();
-			await backupPersister.destroy();
-			store.delTables().delValues();
-			const mainPersister = createIndexedDbPersister(
-				store,
-				TINYBASE_LOCAL_DB_NAME,
-			);
-			await mainPersister.save();
-			await mainPersister.destroy();
+			await backupAndClearLocalStore(store);
 			toast.success(
 				fbt('App reset successfully.', 'Success message for factory reset'),
 			);
@@ -132,57 +91,7 @@ export default function DataSettingsPage() {
 
 		setIsLoading(true);
 		try {
-			const files = await extractFiles(file);
-
-			for (const { content, name } of files) {
-				const data = fromCsv(content) as CsvImportRow[];
-
-				store.transaction(() => {
-					if (name === VALUES_EXPORT_FILE_NAME) {
-						for (const row of data) {
-							const valueId = row.id;
-							if (typeof valueId !== 'string' || valueId.length === 0) {
-								continue;
-							}
-
-							const parsedValue = parseValueFromJson(row.valueJson);
-							if (parsedValue !== undefined) {
-								store.setValue(valueId, parsedValue);
-							}
-						}
-						return;
-					}
-
-					for (const row of data) {
-						const rowId = row.id;
-						if (
-							(typeof rowId !== 'string' && typeof rowId !== 'number') ||
-							String(rowId).length === 0
-						) {
-							continue;
-						}
-
-						const normalizedRowId = String(rowId);
-						const sanitizedRow = sanitizeImportedRow(name, row);
-						if (sanitizedRow === null) {
-							continue;
-						}
-
-						if (sanitizedRow) {
-							store.setRow(name, normalizedRowId, sanitizedRow);
-							continue;
-						}
-
-						for (const [cellId, cellValue] of Object.entries(row)) {
-							if (cellId === 'id' || !isCellValue(cellValue)) {
-								continue;
-							}
-
-							store.setCell(name, normalizedRowId, cellId, cellValue);
-						}
-					}
-				});
-			}
+			await importZipIntoStore(store, file);
 			toast.success(
 				fbt('Data imported successfully.', 'Import success message'),
 			);
