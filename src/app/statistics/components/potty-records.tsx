@@ -1,7 +1,7 @@
 import type { DiaperChange } from '@/types/diaper';
 import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
-import StatsCard from './stats-card';
+import { RecordCard } from './record-card';
 
 interface PottyRecordsProps {
 	diaperChanges: readonly DiaperChange[];
@@ -87,37 +87,33 @@ export default function PottyRecords({
 	return (
 		<>
 			{mostChanges && (
-				<StatsCard
+				<RecordCard
+					date={parseISO(mostChanges[0])}
 					title={
 						<fbt desc="Title for the day with the most potty successes">
 							Most potty hits in a day
 						</fbt>
 					}
-				>
-					<div className="text-2xl font-bold">{mostChanges[1]}</div>
-					<div className="text-sm text-muted-foreground">
-						{format(parseISO(mostChanges[0]), 'PP')}
-					</div>
-				</StatsCard>
+					value={mostChanges[1]}
+				/>
 			)}
 			{longestStreak.streak > 0 && (
-				<StatsCard
+				<RecordCard
+					date={
+						longestStreak.startDate
+							? parseISO(longestStreak.startDate)
+							: undefined
+					}
+					endDate={
+						longestStreak.endDate ? parseISO(longestStreak.endDate) : undefined
+					}
 					title={
 						<fbt desc="Title for the longest potty streak stat card">
 							Longest potty streak
 						</fbt>
 					}
-				>
-					<div className="text-2xl font-bold">{longestStreak.streak}</div>
-					<div className="text-sm text-muted-foreground">
-						{longestStreak.startDate &&
-							longestStreak.endDate &&
-							(format(parseISO(longestStreak.startDate), 'yyyy-MM-dd') ===
-							format(parseISO(longestStreak.endDate), 'yyyy-MM-dd')
-								? format(parseISO(longestStreak.startDate), 'PP')
-								: `${format(parseISO(longestStreak.startDate), 'PP')} - ${format(parseISO(longestStreak.endDate), 'PP')}`)}
-					</div>
-				</StatsCard>
+					value={longestStreak.streak}
+				/>
 			)}
 		</>
 	);
