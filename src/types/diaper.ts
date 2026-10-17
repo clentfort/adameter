@@ -2,11 +2,14 @@ import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
 import {
+	combineLocalDateAndTime,
+	locationFormFields,
 	numericInputField,
 	optionalBooleanCell,
 	optionalNumberCell,
 	optionalNumberFromInputField,
 	optionalStringCell,
+	parseLocationFormFields,
 	requiredBooleanField,
 	requiredNameField,
 } from './schema-utils';
@@ -39,8 +42,7 @@ export const diaperFormSchema = z.object({
 	date: z.string().min(1),
 	diaperProductId: z.string().optional(),
 	leakage: requiredBooleanField,
-	locationLatitude: numericInputField('Latitude must be a number'),
-	locationLongitude: numericInputField('Longitude must be a number'),
+	...locationFormFields,
 	notes: z.string().optional(),
 	pottyStool: requiredBooleanField,
 	pottyUrine: requiredBooleanField,
@@ -51,9 +53,7 @@ export const diaperFormSchema = z.object({
 export type DiaperFormValues = z.infer<typeof diaperFormSchema>;
 
 export const diaperFormToDataSchema = diaperFormSchema.transform((values) => {
-	const [year, month, day] = values.date.split('-').map(Number);
-	const [hours, minutes] = values.time.split(':').map(Number);
-	const timestamp = new Date(year, month - 1, day, hours, minutes);
+	const timestamp = combineLocalDateAndTime(values.date, values.time);
 
 	return diaperChangeSharedSchema
 		.extend({
@@ -65,12 +65,7 @@ export const diaperFormToDataSchema = diaperFormSchema.transform((values) => {
 			containsUrine: values.containsUrine,
 			diaperProductId: values.diaperProductId,
 			leakage: values.leakage ? true : undefined,
-			locationLatitude: optionalNumberFromInputField(
-				'Latitude must be a number',
-			).parse(values.locationLatitude),
-			locationLongitude: optionalNumberFromInputField(
-				'Longitude must be a number',
-			).parse(values.locationLongitude),
+			...parseLocationFormFields(values),
 			notes: values.notes,
 			pottyStool: values.pottyStool,
 			pottyUrine: values.pottyUrine,

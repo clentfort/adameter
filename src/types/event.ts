@@ -2,10 +2,10 @@ import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
 import {
-	numericInputField,
+	locationFormFields,
 	optionalNumberCell,
-	optionalNumberFromInputField,
 	optionalStringCell,
+	parseLocationFormFields,
 	requiredNameField,
 } from './schema-utils';
 
@@ -27,8 +27,7 @@ export const eventFormSchema = z.object({
 	endDate: z.string(),
 	endTime: z.string(),
 	hasEndDate: z.boolean(),
-	locationLatitude: numericInputField('Latitude must be a number'),
-	locationLongitude: numericInputField('Longitude must be a number'),
+	...locationFormFields,
 	notes: z.string(),
 	startDate: z.string().min(1),
 	startTime: z.string().min(1),
@@ -51,12 +50,7 @@ export const eventFormToDataSchema = eventFormSchema.transform((values) => {
 	return eventSharedSchema.parse({
 		color: values.color,
 		endDate: endDateTime?.toISOString(),
-		locationLatitude: optionalNumberFromInputField(
-			'Latitude must be a number',
-		).parse(values.locationLatitude),
-		locationLongitude: optionalNumberFromInputField(
-			'Longitude must be a number',
-		).parse(values.locationLongitude),
+		...parseLocationFormFields(values),
 		notes: values.notes,
 		startDate: startDateTime.toISOString(),
 		title: values.title,

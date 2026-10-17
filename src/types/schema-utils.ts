@@ -16,7 +16,7 @@ export const optionalBooleanCell = z.preprocess(
 	z.boolean().optional(),
 );
 
-export const optionalNumberCell = z.preprocess((value) => {
+function coerceNumericString(value: unknown) {
 	const normalizedValue = emptyStringToUndefined(value);
 	if (typeof normalizedValue === 'string') {
 		const numericValue = Number(normalizedValue);
@@ -24,17 +24,17 @@ export const optionalNumberCell = z.preprocess((value) => {
 	}
 
 	return normalizedValue;
-}, z.number().finite().optional());
+}
 
-export const optionalPositiveNumberCell = z.preprocess((value) => {
-	const normalizedValue = emptyStringToUndefined(value);
-	if (typeof normalizedValue === 'string') {
-		const numericValue = Number(normalizedValue);
-		return Number.isFinite(numericValue) ? numericValue : normalizedValue;
-	}
+export const optionalNumberCell = z.preprocess(
+	coerceNumericString,
+	z.number().finite().optional(),
+);
 
-	return normalizedValue;
-}, z.number().finite().positive().optional());
+export const optionalPositiveNumberCell = z.preprocess(
+	coerceNumericString,
+	z.number().finite().positive().optional(),
+);
 
 export const optionalIntegerCell = z.preprocess((value) => {
 	const normalizedValue = emptyStringToUndefined(value);
@@ -104,4 +104,29 @@ export function optionalPositiveNumberFromInputField(message: string) {
 			? parsedValue
 			: undefined;
 	});
+}
+
+export const locationFormFields = {
+	locationLatitude: numericInputField('Latitude must be a number'),
+	locationLongitude: numericInputField('Longitude must be a number'),
+};
+
+export function parseLocationFormFields(values: {
+	locationLatitude?: string;
+	locationLongitude?: string;
+}): { locationLatitude?: number; locationLongitude?: number } {
+	return {
+		locationLatitude: optionalNumberFromInputField(
+			'Latitude must be a number',
+		).parse(values.locationLatitude),
+		locationLongitude: optionalNumberFromInputField(
+			'Longitude must be a number',
+		).parse(values.locationLongitude),
+	};
+}
+
+export function combineLocalDateAndTime(date: string, time: string): Date {
+	const [year, month, day] = date.split('-').map(Number);
+	const [hours, minutes] = time.split(':').map(Number);
+	return new Date(year, month - 1, day, hours, minutes);
 }
