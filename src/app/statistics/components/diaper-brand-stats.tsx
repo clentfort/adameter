@@ -7,7 +7,6 @@ import PieChart from '@/components/charts/pie-chart';
 interface DiaperBrandStatsProps {
 	className?: string;
 	diaperChanges: DiaperChange[];
-	noCard?: boolean;
 	products: DiaperProduct[];
 }
 

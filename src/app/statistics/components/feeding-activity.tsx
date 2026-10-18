@@ -71,11 +71,7 @@ export default function FeedingActivity({
 						/>
 					</TabsContent>
 					<TabsContent className="mt-0" value="frequency">
-						<YearlyActivityHeatMap
-							dates={sessionDates}
-							noCard={true}
-							palette="feeding"
-						/>
+						<YearlyActivityHeatMap dates={sessionDates} palette="feeding" />
 					</TabsContent>
 				</Tabs>
 			</CardContent>

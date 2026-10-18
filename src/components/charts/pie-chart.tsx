@@ -1,6 +1,6 @@
 'use client';
 
-import type { Chart as ChartJS, TooltipItem } from 'chart.js';
+import type { Chart as ChartJS } from 'chart.js';
 import Chart from 'chart.js/auto';
 import { useEffect, useRef, useState } from 'react';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
@@ -14,19 +14,13 @@ interface PieDataset {
 interface PieChartProps {
 	datasets: PieDataset[];
 	emptyStateMessage: React.ReactNode;
-	hideLegend?: boolean;
 	labels: string[];
-	title?: React.ReactNode;
-	tooltipLabelFormatter?: (context: TooltipItem<'pie'>) => string;
 }
 
 export default function PieChart({
 	datasets,
 	emptyStateMessage,
-	hideLegend = false,
 	labels,
-	title,
-	tooltipLabelFormatter,
 }: PieChartProps) {
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<ChartJS<'pie', number[]> | null>(null);
@@ -67,7 +61,7 @@ export default function PieChart({
 				maintainAspectRatio: false,
 				plugins: {
 					legend: {
-						display: !hideLegend,
+						display: true,
 						labels: {
 							color: foregroundColor,
 							pointStyle: 'circle',
@@ -77,23 +71,21 @@ export default function PieChart({
 					},
 					title: {
 						color: foregroundColor,
-						display: !!title,
-						text: title?.toString() || '',
+						display: false,
+						text: '',
 					},
 					tooltip: {
 						callbacks: {
-							label: tooltipLabelFormatter
-								? tooltipLabelFormatter
-								: (context) => {
-										let label = context.label || '';
-										if (label) {
-											label += ': ';
-										}
-										if (context.parsed !== null) {
-											label += context.parsed.toLocaleString();
-										}
-										return label;
-									},
+							label: (context) => {
+								let label = context.label || '';
+								if (label) {
+									label += ': ';
+								}
+								if (context.parsed !== null) {
+									label += context.parsed.toLocaleString();
+								}
+								return label;
+							},
 						},
 					},
 				},
@@ -119,19 +111,9 @@ export default function PieChart({
 				borderWidth: 1,
 			}));
 
-			if (chartInstance.current.options.plugins?.title) {
-				chartInstance.current.options.plugins.title.display = !!title;
-				chartInstance.current.options.plugins.title.text =
-					title?.toString() || '';
-			}
-
-			if (chartInstance.current.options.plugins?.legend) {
-				chartInstance.current.options.plugins.legend.display = !hideLegend;
-			}
-
 			chartInstance.current.update();
 		}
-	}, [datasets, labels, title, hideLegend]);
+	}, [datasets, labels]);
 
 	if (datasets.length === 0 || labels.length === 0) {
 		return (
