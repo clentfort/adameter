@@ -1,27 +1,10 @@
 'use client';
 
+import type { JSX } from 'react';
 import type { TimeRange } from '@/utils/get-range-dates';
-import { addDays, format, isWithinInterval } from 'date-fns';
-import { fbt } from 'fbtee';
+import { addDays, isWithinInterval } from 'date-fns';
 import { useMemo, useState, useTransition } from 'react';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useDiaperProductsSnapshot } from '@/hooks/use-diaper-products';
 import { useEventsSnapshot } from '@/hooks/use-events';
@@ -32,12 +15,9 @@ import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { getRangeDates } from '@/utils/get-range-dates';
 import AvgDiaperChangesStats from './components/avg-diaper-changes-stats';
 import DeferredSection from './components/deferred-section';
-import DiaperBrandStats from './components/diaper-brand-stats';
-import DiaperCostChart from './components/diaper-cost-chart';
+import DiaperActivity from './components/diaper-activity';
 import DiaperCostStats from './components/diaper-cost-stats';
-import DiaperPottyActivityChart from './components/diaper-potty-activity-chart';
 import DiaperRecords from './components/diaper-records';
-import DiaperYearlyActivity from './components/diaper-yearly-activity';
 import DurationStats from './components/duration-stats';
 import FeedingActivity from './components/feeding-activity';
 import FeedingRecords from './components/feeding-records';
@@ -50,14 +30,15 @@ import PottySuccessStats from './components/potty-success-stats';
 import ReusableSavingsCard from './components/reusable-savings-card';
 import TimeBetweenDiaperChangesStats from './components/time-between-diaper-changes-stats';
 import TimeBetweenStats from './components/time-between-stats';
+import TimeRangePicker from './components/time-range-picker';
 import TotalDiaperChangesStats from './components/total-diaper-changes-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
 
-export default function StatisticsPage() {
+export default function StatisticsPage(): JSX.Element {
 	const diaperChanges = useDiaperChangesSnapshot();
 	const diaperProducts = useDiaperProductsSnapshot();
-	const events = useEventsSnapshot();
+	useEventsSnapshot();
 	const measurements = useGrowthMeasurementsSnapshot();
 	const sessions = useFeedingSessionsSnapshot();
 
@@ -160,120 +141,17 @@ export default function StatisticsPage() {
 
 	return (
 		<div className={cn('w-full transition-opacity', isPending && 'opacity-50')}>
-			<div
-				className="flex flex-col gap-4 mb-6 sticky z-30 bg-background -mx-4 px-4 py-3 border-b shadow-sm transition-all"
-				style={
-					{
-						top: `calc(var(--header-height-expanded) - (var(--header-height-expanded) - var(--header-height-sticky)) * var(--header-scroll-progress))`,
-					} as React.CSSProperties
-				}
-			>
-				<div className="flex justify-between items-start">
-					<h2 className="text-xl font-semibold pt-1">
-						<fbt desc="Title for the statistics page">Statistics</fbt>
-					</h2>
-					<div className="flex flex-col items-end gap-1">
-						<Select
-							onValueChange={(value) => {
-								if (value) {
-									startTransition(() => {
-										setTimeRange(value as TimeRange);
-									});
-								}
-							}}
-							value={timeRange}
-						>
-							<SelectTrigger className="w-[140px]">
-								<SelectValue
-									placeholder={
-										<fbt desc="Placeholder text for the time range select input on the statistics page">
-											Time Range
-										</fbt>
-									}
-								/>
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="7">
-									<fbt desc="Option to display data for the last 7 days in statistics">
-										Last 7 Days
-									</fbt>
-								</SelectItem>
-								<SelectItem value="14">
-									<fbt desc="Option to display data for the last 14 days in statistics">
-										Last 14 Days
-									</fbt>
-								</SelectItem>
-								<SelectItem value="30">
-									<fbt desc="Option to display data for the last 30 days in statistics">
-										Last 30 Days
-									</fbt>
-								</SelectItem>
-								<SelectItem value="custom">
-									<fbt desc="Option to display a custom time range in statistics">
-										Custom Range
-									</fbt>
-								</SelectItem>
-								<SelectItem value="all">
-									<fbt desc="Option to display all data in statistics">
-										All Data
-									</fbt>
-								</SelectItem>
-							</SelectContent>
-						</Select>
-						{secondary && (
-							<div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-								<fbt desc="Label for the comparison date range in statistics">
-									Comparing to:{' '}
-									<fbt:param name="from">
-										{format(secondary.from, 'MMM d')}
-									</fbt:param>{' '}
-									-{' '}
-									<fbt:param name="to">
-										{format(secondary.to, 'MMM d')}
-									</fbt:param>
-								</fbt>
-							</div>
-						)}
-					</div>
-				</div>
-
-				{timeRange === 'custom' && (
-					<div className="flex items-center gap-4 justify-end">
-						<div className="flex items-center gap-2">
-							<Label className="text-xs text-muted-foreground" htmlFor="from">
-								<fbt desc="Label for the start date of a custom time range">
-									From
-								</fbt>
-							</Label>
-							<Input
-								className="w-[140px]"
-								id="from"
-								onChange={(e) =>
-									setCustomRange((prev) => ({ ...prev, from: e.target.value }))
-								}
-								type="date"
-								value={customRange.from}
-							/>
-						</div>
-						<div className="flex items-center gap-2">
-							<Label className="text-xs text-muted-foreground" htmlFor="to">
-								<fbt desc="Label for the end date of a custom time range">
-									To
-								</fbt>
-							</Label>
-							<Input
-								className="w-[140px]"
-								id="to"
-								onChange={(e) =>
-									setCustomRange((prev) => ({ ...prev, to: e.target.value }))
-								}
-								type="date"
-								value={customRange.to}
-							/>
-						</div>
-					</div>
-				)}
-			</div>
+			<TimeRangePicker
+				customRange={customRange}
+				onCustomRangeChange={setCustomRange}
+				onTimeRangeChange={(value) => {
+					startTransition(() => {
+						setTimeRange(value);
+					});
+				}}
+				secondaryRange={secondary}
+				timeRange={timeRange}
+			/>
 
 			{filteredSessions.length === 0 &&
 			filteredDiaperChanges.length === 0 &&
@@ -378,95 +256,14 @@ export default function StatisticsPage() {
 								/>
 							</div>
 
-							<Card className="mt-4">
-								<CardHeader className="p-4 pb-2">
-									<CardTitle className="text-base">
-										<fbt desc="Title for the diaper activity card showing Activity, Cost and Brand tabs">
-											Diaper Activity
-										</fbt>
-									</CardTitle>
-									<CardDescription>
-										<fbt desc="Description for the diaper activity card">
-											Visualize diaper changes, costs and brand distribution.
-										</fbt>
-									</CardDescription>
-								</CardHeader>
-								<CardContent className="p-0">
-									<Tabs className="w-full" defaultValue="activity">
-										<div className="px-4 pt-2">
-											<TabsList className="flex w-full mb-2">
-												<TabsTrigger value="activity">
-													<fbt desc="Label for the activity tab in diaper stats">
-														Activity
-													</fbt>
-												</TabsTrigger>
-												<TabsTrigger value="cost">
-													<fbt desc="Label for the cost tab in diaper stats">
-														Cost
-													</fbt>
-												</TabsTrigger>
-												<TabsTrigger value="brand">
-													<fbt desc="Label for the brand tab in diaper stats">
-														Brand
-													</fbt>
-												</TabsTrigger>
-												<TabsTrigger value="yearly">
-													<fbt desc="Label for the yearly tab in diaper stats">
-														Yearly
-													</fbt>
-												</TabsTrigger>
-											</TabsList>
-										</div>
-
-										<TabsContent className="mt-0" value="activity">
-											<DeferredSection
-												fallback={<Skeleton className="h-64 px-4 pb-4" />}
-											>
-												<DiaperPottyActivityChart
-													className="px-4 pb-4"
-													diaperChanges={diaperChanges}
-													primaryRange={primary}
-													secondaryRange={secondary}
-												/>
-											</DeferredSection>
-										</TabsContent>
-										<TabsContent className="mt-0" value="cost">
-											<DeferredSection
-												fallback={<Skeleton className="h-64 px-4 pb-4" />}
-											>
-												<DiaperCostChart
-													className="px-4 pb-4"
-													diaperChanges={diaperChanges}
-													primaryRange={primary}
-													products={diaperProducts}
-													secondaryRange={secondary}
-												/>
-											</DeferredSection>
-										</TabsContent>
-										<TabsContent className="mt-0" value="brand">
-											<DeferredSection
-												fallback={<Skeleton className="h-64 px-4 pb-4" />}
-											>
-												<div className="px-4 pb-4">
-													<DiaperBrandStats
-														diaperChanges={filteredDiaperChanges}
-														products={diaperProducts}
-													/>
-												</div>
-											</DeferredSection>
-										</TabsContent>
-										<TabsContent className="mt-0" value="yearly">
-											<DeferredSection
-												fallback={<Skeleton className="h-64 px-4 pb-4" />}
-											>
-												<div className="px-4 pb-4">
-													<DiaperYearlyActivity diaperChanges={diaperChanges} />
-												</div>
-											</DeferredSection>
-										</TabsContent>
-									</Tabs>
-								</CardContent>
-							</Card>
+							<DiaperActivity
+								className="mt-4"
+								diaperChanges={diaperChanges}
+								filteredDiaperChanges={filteredDiaperChanges}
+								primaryRange={primary}
+								products={diaperProducts}
+								secondaryRange={secondary}
+							/>
 
 							<div className="grid grid-cols-2 gap-4 mt-4">
 								<DiaperRecords diaperChanges={diaperChanges} />
