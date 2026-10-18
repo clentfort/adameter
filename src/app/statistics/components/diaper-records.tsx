@@ -1,7 +1,7 @@
 import type { DiaperChange } from '@/types/diaper';
 import { format, isValid, parseISO } from 'date-fns';
 import { useMemo } from 'react';
-import StatsCard from './stats-card';
+import { RecordCard } from './record-card';
 
 function getDayKey(timestamp: unknown): string | undefined {
 	if (typeof timestamp !== 'string') {
@@ -16,13 +16,8 @@ function getDayKey(timestamp: unknown): string | undefined {
 	return format(parsedTimestamp, 'yyyy-MM-dd');
 }
 
-function formatDay(dayKey: string) {
-	const parsedDay = parseISO(dayKey);
-	if (!isValid(parsedDay)) {
-		return dayKey;
-	}
-
-	return format(parsedDay, 'PP');
+function parseDay(dayKey: string): Date {
+	return parseISO(dayKey);
 }
 
 interface DiaperRecordsProps {
@@ -61,32 +56,30 @@ export default function DiaperRecords({
 	);
 
 	if (diaperChanges.length === 0 || !mostChanges || !fewestChanges) return null;
+
+	const mostChangesDate = parseDay(mostChanges[0]);
+	const fewestChangesDate = parseDay(fewestChanges[0]);
+
 	return (
 		<>
-			<StatsCard
+			<RecordCard
+				date={mostChangesDate}
 				title={
 					<fbt desc="Title for the day with the most diaper changes">
 						Most diaper changes in a day
 					</fbt>
 				}
-			>
-				<div className="text-2xl font-bold">{mostChanges[1]}</div>
-				<div className="text-sm text-muted-foreground">
-					{formatDay(mostChanges[0])}
-				</div>
-			</StatsCard>
-			<StatsCard
+				value={mostChanges[1]}
+			/>
+			<RecordCard
+				date={fewestChangesDate}
 				title={
 					<fbt desc="Title for the day with the fewest diaper changes">
 						Fewest diaper changes in a day
 					</fbt>
 				}
-			>
-				<div className="text-2xl font-bold">{fewestChanges[1]}</div>
-				<div className="text-sm text-muted-foreground">
-					{formatDay(fewestChanges[0])}
-				</div>
-			</StatsCard>
+				value={fewestChanges[1]}
+			/>
 		</>
 	);
 }

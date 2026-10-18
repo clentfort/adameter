@@ -2,7 +2,7 @@ import type { FeedingSession } from '@/types/feeding';
 import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
-import StatsCard from './stats-card';
+import { RecordCard } from './record-card';
 
 interface FeedingRecordsProps {
 	sessions: readonly FeedingSession[];
@@ -95,73 +95,52 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 	return (
 		<>
 			{longestGap && longestGap.duration > 0 && (
-				<StatsCard
+				<RecordCard
+					date={parseISO(longestGap.date)}
 					title={
 						<fbt desc="Title for the longest time between two feeding sessions">
 							Longest gap between feedings
 						</fbt>
 					}
-				>
-					<div className="text-2xl font-bold">
-						{formatDurationAbbreviated(longestGap.duration)}
-					</div>
-					<div className="text-sm text-muted-foreground">
-						{format(parseISO(longestGap.date), 'PP')}
-					</div>
-				</StatsCard>
+					value={formatDurationAbbreviated(longestGap.duration)}
+				/>
 			)}
-			<StatsCard
+			<RecordCard
+				date={parseISO(mostSessions[0])}
 				title={
 					<fbt desc="Title for the day with the most feeding sessions">
 						Most feedings in a day
 					</fbt>
 				}
-			>
-				<div className="text-2xl font-bold">{mostSessions[1].count}</div>
-				<div className="text-sm text-muted-foreground">
-					{format(parseISO(mostSessions[0]), 'PP')}
-				</div>
-			</StatsCard>
-			<StatsCard
+				value={mostSessions[1].count}
+			/>
+			<RecordCard
+				date={parseISO(fewestSessions[0])}
 				title={
 					<fbt desc="Title for the day with the fewest feeding sessions">
 						Fewest feedings in a day
 					</fbt>
 				}
-			>
-				<div className="text-2xl font-bold">{fewestSessions[1].count}</div>
-				<div className="text-sm text-muted-foreground">
-					{format(parseISO(fewestSessions[0]), 'PP')}
-				</div>
-			</StatsCard>
-			<StatsCard
+				value={fewestSessions[1].count}
+			/>
+			<RecordCard
+				date={parseISO(longestDuration[0])}
 				title={
 					<fbt desc="Title for the day with the longest total feeding duration">
 						Longest feeding day
 					</fbt>
 				}
-			>
-				<div className="text-2xl font-bold">
-					{formatDurationAbbreviated(longestDuration[1].duration)}
-				</div>
-				<div className="text-sm text-muted-foreground">
-					{format(parseISO(longestDuration[0]), 'PP')}
-				</div>
-			</StatsCard>
-			<StatsCard
+				value={formatDurationAbbreviated(longestDuration[1].duration)}
+			/>
+			<RecordCard
+				date={parseISO(shortestDuration[0])}
 				title={
 					<fbt desc="Title for the day with the shortest total feeding duration">
 						Shortest feeding day
 					</fbt>
 				}
-			>
-				<div className="text-2xl font-bold">
-					{formatDurationAbbreviated(shortestDuration[1].duration)}
-				</div>
-				<div className="text-sm text-muted-foreground">
-					{format(parseISO(shortestDuration[0]), 'PP')}
-				</div>
-			</StatsCard>
+				value={formatDurationAbbreviated(shortestDuration[1].duration)}
+			/>
 		</>
 	);
 }
