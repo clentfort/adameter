@@ -2,12 +2,27 @@ import { act, renderHook } from '@testing-library/react';
 import { addDays, endOfDay, startOfDay, subDays } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useHistoryRange } from './use-history-range';
+import { getDefaultHistoryRange, useHistoryRange } from './use-history-range';
 
 vi.mock('next/navigation', () => ({
 	useRouter: vi.fn(),
 	useSearchParams: vi.fn(),
 }));
+
+describe('getDefaultHistoryRange', () => {
+	it('returns start of day 6 days ago and end of current day', () => {
+		const now = new Date('2024-01-10T12:00:00Z');
+		vi.setSystemTime(now);
+
+		const range = getDefaultHistoryRange();
+
+		const expectedEnd = endOfDay(now);
+		const expectedStart = startOfDay(subDays(expectedEnd, 6));
+
+		expect(range.from).toEqual(expectedStart);
+		expect(range.to).toEqual(expectedEnd);
+	});
+});
 
 describe('useHistoryRange', () => {
 	const mockReplace = vi.fn();
@@ -42,10 +57,14 @@ describe('useHistoryRange', () => {
 		const expectedEnd = endOfDay(now);
 		const expectedStart = startOfDay(subDays(expectedEnd, 6));
 
-		expect(result.current.effectiveRange.from).toEqual(expectedStart);
-		expect(result.current.effectiveRange.to).toEqual(expectedEnd);
+		expect(result.current.historyFilterIndicatorProps.from).toBe(
+			expectedStart.toISOString(),
+		);
+		expect(result.current.historyFilterIndicatorProps.to).toBe(
+			expectedEnd.toISOString(),
+		);
 
-		// Should NOT sync to URL automatically anymore
+		// Should NOT sync to URL automatically
 		expect(mockReplace).not.toHaveBeenCalled();
 	});
 
@@ -53,7 +72,7 @@ describe('useHistoryRange', () => {
 		const dateKeys = ['2024-01-20', '2024-01-10', '2024-01-01'];
 		const { result } = setup({}, dateKeys);
 
-		expect(result.current.filteredDateKeys).toEqual(dateKeys);
+		expect(result.current.indexedHistoryListProps.dateKeys).toEqual(dateKeys);
 		expect(result.current.historyFilterIndicatorProps.isVisible).toBe(false);
 	});
 
@@ -63,8 +82,8 @@ describe('useHistoryRange', () => {
 
 		const { result } = setup({ from, to });
 
-		expect(result.current.effectiveRange.from).toEqual(new Date(from));
-		expect(result.current.effectiveRange.to).toEqual(new Date(to));
+		expect(result.current.historyFilterIndicatorProps.from).toBe(from);
+		expect(result.current.historyFilterIndicatorProps.to).toBe(to);
 		expect(result.current.historyFilterIndicatorProps.isVisible).toBe(true);
 		expect(mockReplace).not.toHaveBeenCalled();
 	});
@@ -82,7 +101,7 @@ describe('useHistoryRange', () => {
 
 		const { result } = setup({ from, to }, dateKeys);
 
-		expect(result.current.filteredDateKeys).toEqual([
+		expect(result.current.indexedHistoryListProps.dateKeys).toEqual([
 			'2024-01-05T10:00:00Z',
 			'2024-01-03T10:00:00Z',
 			'2024-01-01T10:00:00Z',
@@ -100,8 +119,12 @@ describe('useHistoryRange', () => {
 
 		const { result } = setup({ from, to }, dateKeys);
 
-		expect(result.current.hasMoreNewerInStore).toBe(true);
-		expect(result.current.hasMoreOlderInStore).toBe(true);
+		expect(result.current.indexedHistoryListProps.hasMoreNewerInStore).toBe(
+			true,
+		);
+		expect(result.current.indexedHistoryListProps.hasMoreOlderInStore).toBe(
+			true,
+		);
 	});
 
 	it('indicator is visible when filtered even if no newer entries', () => {
@@ -113,7 +136,9 @@ describe('useHistoryRange', () => {
 
 		const { result } = setup({ from, to }, dateKeys);
 
-		expect(result.current.hasMoreNewerInStore).toBe(false);
+		expect(result.current.indexedHistoryListProps.hasMoreNewerInStore).toBe(
+			false,
+		);
 		expect(result.current.historyFilterIndicatorProps.isVisible).toBe(true);
 	});
 
@@ -124,7 +149,7 @@ describe('useHistoryRange', () => {
 		const { result } = setup({ from, to });
 
 		act(() => {
-			result.current.handleLoadMoreOlder();
+			result.current.indexedHistoryListProps.onLoadMoreOlder?.();
 		});
 
 		const expectedNewFrom = subDays(new Date(from), 7).toISOString();
@@ -142,10 +167,10 @@ describe('useHistoryRange', () => {
 		const { result } = setup({ from, to });
 
 		act(() => {
-			result.current.handleLoadMoreNewer();
+			result.current.indexedHistoryListProps.onLoadMoreNewer?.();
 		});
 
-		const expectedNewTo = endOfDay(addDays(new Date(to), 7)).toISOString();
+		const expectedNewTo = addDays(new Date(to), 7).toISOString();
 		const encodedTo = encodeURIComponent(expectedNewTo);
 		expect(mockReplace).toHaveBeenCalledWith(
 			expect.stringContaining(`to=${encodedTo}`),

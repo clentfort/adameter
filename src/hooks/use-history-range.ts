@@ -14,6 +14,12 @@ interface UseHistoryRangeOptions {
 	dateKeys: string[];
 }
 
+export function getDefaultHistoryRange(): { from: Date; to: Date } {
+	const end = endOfDay(new Date());
+	const start = startOfDay(subDays(end, 6));
+	return { from: start, to: end };
+}
+
 export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -30,10 +36,7 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 			};
 		}
 
-		// Default to last 7 days
-		const end = endOfDay(new Date());
-		const start = startOfDay(subDays(end, 6));
-		return { from: start, to: end };
+		return getDefaultHistoryRange();
 	}, [from, to]);
 
 	const filteredDateKeys = useMemo(() => {
@@ -64,29 +67,35 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 		[baseUrl, router, searchParams],
 	);
 
-	const handleLoadMoreNewer = () => {
-		const nextTo = addDays(effectiveRange.to, 7);
-		updateRange(effectiveRange.from, nextTo);
-	};
+	const nextTo = useMemo(
+		() => addDays(effectiveRange.to, 7),
+		[effectiveRange.to],
+	);
 
-	const handleLoadMoreOlder = () => {
-		const nextFrom = subDays(effectiveRange.from, 7);
+	const nextFrom = useMemo(
+		() => subDays(effectiveRange.from, 7),
+		[effectiveRange.from],
+	);
+
+	const handleLoadMoreNewer = useCallback(() => {
+		updateRange(effectiveRange.from, nextTo);
+	}, [effectiveRange.from, nextTo, updateRange]);
+
+	const handleLoadMoreOlder = useCallback(() => {
 		updateRange(nextFrom, effectiveRange.to);
-	};
+	}, [effectiveRange.to, nextFrom, updateRange]);
 
 	const newerRangeDescription = useMemo(() => {
 		if (!hasMoreNewerInStore) return undefined;
-		const nextTo = addDays(effectiveRange.to, 7);
 		const start = addDays(effectiveRange.to, 1);
 		return `${format(start, 'MMM d')} - ${format(nextTo, 'MMM d')}`;
-	}, [hasMoreNewerInStore, effectiveRange.to]);
+	}, [hasMoreNewerInStore, effectiveRange.to, nextTo]);
 
 	const olderRangeDescription = useMemo(() => {
 		if (!hasMoreOlderInStore) return undefined;
-		const nextFrom = subDays(effectiveRange.from, 7);
 		const end = subDays(effectiveRange.from, 1);
 		return `${format(nextFrom, 'MMM d')} - ${format(end, 'MMM d')}`;
-	}, [hasMoreOlderInStore, effectiveRange.from]);
+	}, [hasMoreOlderInStore, effectiveRange.from, nextFrom]);
 
 	const indexedHistoryListProps = {
 		dateKeys: filteredDateKeys,
@@ -109,16 +118,7 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 	};
 
 	return {
-		effectiveRange,
-		filteredDateKeys,
-		handleLoadMoreNewer,
-		handleLoadMoreOlder,
-		hasMoreNewerInStore,
-		hasMoreOlderInStore,
 		historyFilterIndicatorProps,
 		indexedHistoryListProps,
-		newerRangeDescription,
-		olderRangeDescription,
-		updateRange,
 	};
 }
