@@ -26,6 +26,34 @@ const INTENSITY_CLASSES = [
 	'bg-right-breast dark:bg-right-breast-light',
 ] as const;
 
+const LEGEND_LABELS = [
+	<fbt desc="Heat map legend label for very high activity" key="very-high">
+		Very High Activity
+	</fbt>,
+	<fbt desc="Heat map legend label for high activity" key="high">
+		High Activity
+	</fbt>,
+	<fbt desc="Heat map legend label for medium activity" key="medium">
+		Medium Activity
+	</fbt>,
+	<fbt desc="Heat map legend label for low activity" key="low">
+		Low Activity
+	</fbt>,
+	<fbt desc="Heat map legend label for very low activity" key="very-low">
+		Very Low Activity
+	</fbt>,
+];
+
+function getIntensityLevel(count: number, max: number): number {
+	if (count === 0) return 0;
+	const intensity = max > 0 ? count / max : 0;
+	if (intensity < 0.2) return 1;
+	if (intensity < 0.4) return 2;
+	if (intensity < 0.6) return 3;
+	if (intensity < 0.8) return 4;
+	return 5;
+}
+
 function calculateHeatMapDistribution(sessions: FeedingSession[]) {
 	const dist = Array(288).fill(0); // 288 5-minute intervals in a day
 	sessions.forEach((session) => {
@@ -161,54 +189,29 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 							ref={containerRef}
 						>
 							{displayIntervals.map((interval, index) => {
-								const intensity = maxCount > 0 ? interval.count / maxCount : 0;
-								const level =
-									interval.count === 0
-										? 0
-										: intensity < 0.2
-											? 1
-											: intensity < 0.4
-												? 2
-												: intensity < 0.6
-													? 3
-													: intensity < 0.8
-														? 4
-														: 5;
+								const level = getIntensityLevel(interval.count, maxCount);
+								const label =
+									interval.count === 1
+										? fbt(
+												fbt.param('time', interval.time) + ': 1 Feeding',
+												'Singular label for a heat map interval',
+											)
+										: fbt(
+												fbt.param('time', interval.time) +
+													': ' +
+													fbt.param('count', interval.count) +
+													' Feedings',
+												'Plural label for a heat map interval',
+											);
 
 								return (
 									<div
-										aria-label={
-											interval.count === 1
-												? fbt(
-														fbt.param('time', interval.time) + ': 1 Feeding',
-														'Singular label for a heat map interval',
-													)
-												: fbt(
-														fbt.param('time', interval.time) +
-															': ' +
-															fbt.param('count', interval.count) +
-															' Feedings',
-														'Plural label for a heat map interval',
-													)
-										}
+										aria-label={label}
 										className={`h-full border-y border-r border-black/5 first:border-l dark:border-white/10 transition-colors ${INTENSITY_CLASSES[level]} ${activeIndex === index ? 'ring-2 ring-inset ring-white/50 z-10' : ''}`}
 										key={index}
 										role="img"
 										style={{ width: `${100 / displayIntervals.length}%` }}
-										title={
-											interval.count === 1
-												? fbt(
-														fbt.param('time', interval.time) + ': 1 Feeding',
-														'Singular label for a heat map interval',
-													)
-												: fbt(
-														fbt.param('time', interval.time) +
-															': ' +
-															fbt.param('count', interval.count) +
-															' Feedings',
-														'Plural label for a heat map interval',
-													)
-										}
+										title={label}
 									/>
 								);
 							})}
@@ -255,46 +258,17 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 					</div>
 
 					<div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
-						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-full border border-black/5 bg-right-breast dark:border-white/10 dark:bg-right-breast-light"></div>
-							<span>
-								<fbt desc="Heat map legend label for very high activity">
-									Very High Activity
-								</fbt>
-							</span>
-						</div>
-						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-full border border-black/5 bg-right-breast/65 dark:border-white/10 dark:bg-right-breast/70"></div>
-							<span>
-								<fbt desc="Heat map legend label for high activity">
-									High Activity
-								</fbt>
-							</span>
-						</div>
-						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-full border border-black/5 bg-right-breast/45 dark:border-white/10 dark:bg-right-breast/55"></div>
-							<span>
-								<fbt desc="Heat map legend label for medium activity">
-									Medium Activity
-								</fbt>
-							</span>
-						</div>
-						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-full border border-black/5 bg-left-breast/45 dark:border-white/10 dark:bg-left-breast/55"></div>
-							<span>
-								<fbt desc="Heat map legend label for low activity">
-									Low Activity
-								</fbt>
-							</span>
-						</div>
-						<div className="flex items-center gap-1">
-							<div className="h-3 w-3 rounded-full border border-black/5 bg-left-breast/20 dark:border-white/10 dark:bg-left-breast/35"></div>
-							<span>
-								<fbt desc="Heat map legend label for very low activity">
-									Very Low Activity
-								</fbt>
-							</span>
-						</div>
+						{LEGEND_LABELS.map((label, i) => {
+							const level = 5 - i;
+							return (
+								<div className="flex items-center gap-1" key={level}>
+									<div
+										className={`h-3 w-3 rounded-full border border-black/5 dark:border-white/10 ${INTENSITY_CLASSES[level]}`}
+									/>
+									<span>{label}</span>
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			</CardContent>
