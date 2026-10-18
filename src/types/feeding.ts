@@ -2,10 +2,11 @@ import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
 import {
-	numericInputField,
+	combineLocalDateAndTime,
+	locationFormFields,
 	optionalNumberCell,
-	optionalNumberFromInputField,
 	optionalStringCell,
+	parseLocationFormFields,
 	positiveNumericInputField,
 } from './schema-utils';
 
@@ -25,8 +26,7 @@ export const feedingFormSchema = z.object({
 	breast: breastSchema,
 	date: z.string().min(1),
 	duration: positiveNumericInputField('Duration must be a positive number'),
-	locationLatitude: numericInputField('Latitude must be a number'),
-	locationLongitude: numericInputField('Longitude must be a number'),
+	...locationFormFields,
 	notes: z.string().optional(),
 	time: z.string().min(1),
 });
@@ -36,10 +36,7 @@ export type FeedingFormValues = z.infer<typeof feedingFormSchema>;
 export const feedingSessionFormToDataSchema = feedingFormSchema.transform(
 	(values) => {
 		const durationInMinutes = Number(values.duration);
-		const [year, month, day] = values.date.split('-').map(Number);
-		const [hours, minutes] = values.time.split(':').map(Number);
-
-		const startTime = new Date(year, month - 1, day, hours, minutes);
+		const startTime = combineLocalDateAndTime(values.date, values.time);
 		const endTime = new Date(
 			startTime.getTime() + durationInMinutes * 60 * 1000,
 		);
@@ -48,12 +45,7 @@ export const feedingSessionFormToDataSchema = feedingFormSchema.transform(
 			breast: values.breast,
 			durationInSeconds: durationInMinutes * 60,
 			endTime: endTime.toISOString(),
-			locationLatitude: optionalNumberFromInputField(
-				'Latitude must be a number',
-			).parse(values.locationLatitude),
-			locationLongitude: optionalNumberFromInputField(
-				'Longitude must be a number',
-			).parse(values.locationLongitude),
+			...parseLocationFormFields(values),
 			notes: values.notes,
 			startTime: startTime.toISOString(),
 		});

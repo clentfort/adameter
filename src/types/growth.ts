@@ -5,6 +5,7 @@ import {
 	optionalPositiveNumberCell,
 	optionalPositiveNumberFromInputField,
 	optionalStringCell,
+	positiveNumericInputField,
 } from './schema-utils';
 
 const growthMeasurementSharedSchema = z
@@ -29,25 +30,10 @@ const growthMeasurementSharedSchema = z
 export const growthFormSchema = z
 	.object({
 		date: z.string().min(1),
-		headCircumference: z
-			.string()
-			.refine(
-				(v) => v === '' || (!Number.isNaN(Number(v)) && Number(v) > 0),
-				'Must be a positive number',
-			),
-		height: z
-			.string()
-			.refine(
-				(v) => v === '' || (!Number.isNaN(Number(v)) && Number(v) > 0),
-				'Must be a positive number',
-			),
+		headCircumference: positiveNumericInputField('Must be a positive number'),
+		height: positiveNumericInputField('Must be a positive number'),
 		notes: z.string(),
-		weight: z
-			.string()
-			.refine(
-				(v) => v === '' || (!Number.isNaN(Number(v)) && Number(v) > 0),
-				'Must be a positive number',
-			),
+		weight: positiveNumericInputField('Must be a positive number'),
 	})
 	.refine(
 		(values) =>
