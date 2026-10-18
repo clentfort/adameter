@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLocationTracking } from '@/hooks/use-location-tracking';
 import { requestAutomaticLocation } from '@/utils/get-automatic-location';
 
@@ -17,15 +17,24 @@ export function useAutomaticLocation({
 		longitude: number;
 	} | null> | null>(null);
 
-	useEffect(() => {
-		if (enabled && locationTracking && !locationPromiseRef.current) {
-			locationPromiseRef.current = requestAutomaticLocation({
+	const startRequest = useCallback(
+		(reqTimestamp: Date | number | string) => {
+			const promise = requestAutomaticLocation({
 				isLocationTrackingEnabled: locationTracking,
 				onPermissionDenied: () => setLocationTracking(false),
-				timestamp: timestamp ?? new Date(),
+				timestamp: reqTimestamp,
 			});
+			locationPromiseRef.current = promise;
+			return promise;
+		},
+		[locationTracking, setLocationTracking],
+	);
+
+	useEffect(() => {
+		if (enabled && locationTracking && !locationPromiseRef.current) {
+			startRequest(timestamp ?? new Date());
 		}
-	}, [enabled, locationTracking, setLocationTracking, timestamp]);
+	}, [enabled, locationTracking, startRequest, timestamp]);
 
 	const getLocation = async (
 		overrideTimestamp?: Date | number | string,
@@ -35,11 +44,7 @@ export function useAutomaticLocation({
 		}
 
 		if (!locationPromiseRef.current) {
-			locationPromiseRef.current = requestAutomaticLocation({
-				isLocationTrackingEnabled: locationTracking,
-				onPermissionDenied: () => setLocationTracking(false),
-				timestamp: overrideTimestamp ?? timestamp ?? new Date(),
-			});
+			return startRequest(overrideTimestamp ?? timestamp ?? new Date());
 		}
 
 		return locationPromiseRef.current;
