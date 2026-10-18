@@ -13,19 +13,6 @@ describe('YearlyActivityHeatMap', () => {
 		vi.useRealTimers();
 	});
 
-	it('renders title and description', () => {
-		render(
-			<YearlyActivityHeatMap
-				dates={[]}
-				description="Description"
-				title="Title"
-			/>,
-		);
-
-		expect(screen.getByText('Title')).toBeInTheDocument();
-		expect(screen.getByText('Description')).toBeInTheDocument();
-	});
-
 	it('counts entries per day and applies higher intensity for busier days', () => {
 		render(
 			<YearlyActivityHeatMap
@@ -35,8 +22,6 @@ describe('YearlyActivityHeatMap', () => {
 					'2024-01-03T09:00:00Z',
 					'2023-12-31T09:00:00Z',
 				]}
-				description="Description"
-				title="Title"
 			/>,
 		);
 
@@ -63,8 +48,6 @@ describe('YearlyActivityHeatMap', () => {
 					'2023-06-15T10:00:00Z', // Exactly one year ago
 					'2023-06-14T10:00:00Z', // One year and one day ago
 				]}
-				description="Description"
-				title="Title"
 			/>,
 		);
 
@@ -83,9 +66,7 @@ describe('YearlyActivityHeatMap', () => {
 		render(
 			<YearlyActivityHeatMap
 				dates={['2024-01-02T09:00:00Z']}
-				description="Description"
 				palette="diaper"
-				title="Title"
 			/>,
 		);
 
@@ -93,12 +74,7 @@ describe('YearlyActivityHeatMap', () => {
 		expect(diaperDayCell).toHaveClass('bg-amber-600');
 	});
 
-	it('renders without title and description when noCard is false', () => {
-		render(<YearlyActivityHeatMap dates={[]} />);
-		expect(screen.queryByText('Title')).not.toBeInTheDocument();
-	});
-
-	it('improves coverage by handling invalid/future dates, noCard prop, and all contribution levels', () => {
+	it('improves coverage by handling invalid/future dates and all contribution levels', () => {
 		render(
 			<YearlyActivityHeatMap
 				dates={[
@@ -115,11 +91,8 @@ describe('YearlyActivityHeatMap', () => {
 					'2024-06-13T02:00:00Z',
 					'2024-06-12T01:00:00Z',
 				]}
-				noCard={true}
 			/>,
 		);
-
-		expect(screen.queryByText('Title')).not.toBeInTheDocument();
 
 		const level4Cell = screen.getByTestId('yearly-cell-2024-06-15');
 		const level3Cell = screen.getByTestId('yearly-cell-2024-06-14');

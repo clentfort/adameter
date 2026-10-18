@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import {
 	differenceInCalendarWeeks,
 	eachDayOfInterval,
@@ -12,22 +11,12 @@ import {
 	subYears,
 } from 'date-fns';
 import { useMemo } from 'react';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 interface YearlyActivityHeatMapProps {
 	className?: string;
 	dates: string[];
-	description?: ReactNode;
-	noCard?: boolean;
 	palette?: 'diaper' | 'feeding';
-	title?: ReactNode;
 }
 
 const CONTRIBUTION_PALETTES = {
@@ -146,10 +135,7 @@ function calculateCells(
 export default function YearlyActivityHeatMap({
 	className,
 	dates,
-	description,
-	noCard = false,
 	palette = 'feeding',
-	title,
 }: YearlyActivityHeatMapProps) {
 	const { levelClasses, todayRingClass } = CONTRIBUTION_PALETTES[palette];
 	const { gridEnd, gridStart, now, startDate } = useMemo(
@@ -172,8 +158,9 @@ export default function YearlyActivityHeatMap({
 		() => calculateCells(gridStart, gridEnd, countsByDate, todayKey, maxCount),
 		[gridEnd, gridStart, countsByDate, todayKey, maxCount],
 	);
-	const content = (
-		<div className={cn('p-4 pt-0', !noCard && 'pt-0')}>
+
+	return (
+		<div className={cn('p-4 pt-0', className)}>
 			<div className="overflow-x-auto pb-2">
 				<div className="inline-block min-w-full">
 					<div
@@ -223,19 +210,5 @@ export default function YearlyActivityHeatMap({
 				</span>
 			</div>
 		</div>
-	);
-	if (noCard) {
-		return <div className={className}>{content}</div>;
-	}
-	return (
-		<Card className={className}>
-			{(title || description) && (
-				<CardHeader className="p-4 pb-2">
-					{title && <CardTitle className="text-base">{title}</CardTitle>}
-					{description && <CardDescription>{description}</CardDescription>}
-				</CardHeader>
-			)}
-			<CardContent className="p-0">{content}</CardContent>
-		</Card>
 	);
 }

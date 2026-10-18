@@ -16,7 +16,7 @@ const mockChartInstance = {
 				display: true,
 			},
 			title: {
-				display: true,
+				display: false,
 				text: '',
 			},
 		},
@@ -60,7 +60,6 @@ describe('PieChart', () => {
 				datasets={datasets}
 				emptyStateMessage="No data"
 				labels={labels}
-				title="Initial Title"
 			/>,
 		);
 
@@ -81,9 +80,7 @@ describe('PieChart', () => {
 			<PieChart
 				datasets={updatedDatasets}
 				emptyStateMessage="No data"
-				hideLegend={true}
 				labels={updatedLabels}
-				title="Updated Title"
 			/>,
 		);
 
@@ -92,8 +89,6 @@ describe('PieChart', () => {
 		expect(mockChartInstance.data.datasets[0]).toMatchObject(
 			updatedDatasets[0],
 		);
-		expect(mockChartInstance.options.plugins.title.text).toBe('Updated Title');
-		expect(mockChartInstance.options.plugins.legend.display).toBe(false);
 
 		// 3. Render empty state to exercise the early return logic
 		rerender(
@@ -148,9 +143,8 @@ describe('PieChart', () => {
 		expect(labelFormatter({ label: 'Apples', parsed: null })).toBe('Apples: ');
 	});
 
-	it('exercises custom tooltipLabelFormatter, dark mode, and null canvas context', async () => {
+	it('exercises dark mode and null canvas context', async () => {
 		document.documentElement.classList.add('dark');
-		const customFormatter = vi.fn().mockReturnValue('custom');
 		const datasets = [{ backgroundColor: ['red'], data: [10], label: 'Set 1' }];
 
 		const { unmount } = render(
@@ -158,8 +152,6 @@ describe('PieChart', () => {
 				datasets={datasets}
 				emptyStateMessage="No data"
 				labels={['A']}
-				title="Dark Chart"
-				tooltipLabelFormatter={customFormatter}
 			/>,
 		);
 
@@ -170,24 +162,14 @@ describe('PieChart', () => {
 		const chartConfig = mockChart.mock.calls.at(-1)![1] as {
 			options: {
 				plugins: {
+					legend: { labels: { color: string } };
 					title: { color: string };
-					tooltip: {
-						callbacks: {
-							label: (context: unknown) => string;
-						};
-					};
 				};
 			};
 		};
 
+		expect(chartConfig.options.plugins.legend.labels.color).toBe('#f4f4f5');
 		expect(chartConfig.options.plugins.title.color).toBe('#f4f4f5');
-		expect(
-			chartConfig.options.plugins.tooltip.callbacks.label({
-				label: 'A',
-				parsed: 10,
-			}),
-		).toBe('custom');
-		expect(customFormatter).toHaveBeenCalled();
 
 		unmount();
 		document.documentElement.classList.remove('dark');
@@ -239,7 +221,7 @@ describe('PieChart', () => {
 		const labels = ['A'];
 
 		// Case 1: Empty labels when canvas ref is attached during mount effect
-		const { rerender } = render(
+		render(
 			<PieChart
 				datasets={datasets}
 				emptyStateMessage="No data"

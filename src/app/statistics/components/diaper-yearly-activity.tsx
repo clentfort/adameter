@@ -54,11 +54,7 @@ export default function DiaperYearlyActivity({
 					</Label>
 				</div>
 			</div>
-			<YearlyActivityHeatMap
-				dates={filteredDates}
-				noCard={true}
-				palette="diaper"
-			/>
+			<YearlyActivityHeatMap dates={filteredDates} palette="diaper" />
 		</div>
 	);
 }
