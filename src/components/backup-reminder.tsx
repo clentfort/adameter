@@ -16,16 +16,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { tinybaseContext } from '@/contexts/tinybase-context';
+import { downloadBackup } from '@/lib/backup';
 import {
 	isBackupDue,
 	readBackupReminderState,
-	recordBackup,
 	SYNC_SERVER_MOVE_NOTICE_UNTIL,
 	writeBackupReminderState,
 } from '@/lib/backup-reminder';
 import { logger } from '@/lib/logger';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import { exportStoreAsZip } from '@/utils/data-transfer/export';
 
 // Profiles alone are not worth a reminder; wait until something was tracked.
 function hasTrackedEntries(store: Store) {
@@ -57,9 +56,8 @@ export function BackupReminder() {
 			return;
 		}
 
-		void exportStoreAsZip(store)
+		void downloadBackup(store)
 			.then(() => {
-				recordBackup();
 				toast.success(
 					fbt(
 						'Your weekly backup was downloaded.',
@@ -76,8 +74,7 @@ export function BackupReminder() {
 	const handleDownload = async () => {
 		setIsExporting(true);
 		try {
-			await exportStoreAsZip(store);
-			recordBackup();
+			await downloadBackup(store);
 			writeBackupReminderState({
 				mode: downloadAutomatically ? 'auto' : 'ask',
 			});
