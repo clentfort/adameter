@@ -2,7 +2,7 @@ import type { FeedingSession } from '@/types/feeding';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 import ComparisonValue from './comparison-value';
-import StatsCard from './stats-card';
+import StatsCard, { StatHeadline } from './stats-card';
 
 interface FeedingsPerDayStatsProps {
 	comparisonSessions?: FeedingSession[];
@@ -57,15 +57,17 @@ export default function FeedingsPerDayStats({
 				</fbt>
 			}
 		>
-			<div className="flex items-baseline">
-				<div className="text-2xl font-bold">{avgFeedingsPerDay.toFixed(1)}</div>
-				{prevAvgFeedingsPerDay !== null && (
-					<ComparisonValue
-						current={avgFeedingsPerDay}
-						previous={prevAvgFeedingsPerDay}
-					/>
-				)}
-			</div>
+			<StatHeadline
+				comparison={
+					prevAvgFeedingsPerDay !== null && (
+						<ComparisonValue
+							current={avgFeedingsPerDay}
+							previous={prevAvgFeedingsPerDay}
+						/>
+					)
+				}
+				value={avgFeedingsPerDay.toFixed(1)}
+			/>
 		</StatsCard>
 	);
 }

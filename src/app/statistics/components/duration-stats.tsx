@@ -2,7 +2,7 @@ import type { FeedingSession } from '@/types/feeding';
 import { useMemo } from 'react';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import ComparisonValue from './comparison-value';
-import StatsCard from './stats-card';
+import StatsCard, { StatBreakdownRow, StatHeadline } from './stats-card';
 
 interface DurationStatsProps {
 	comparisonSessions?: FeedingSession[];
@@ -56,47 +56,58 @@ export default function DurationStats({
 				</fbt>
 			}
 		>
-			<div className="flex items-baseline">
-				<div className="text-2xl font-bold">
-					{formatDurationAbbreviated(avgDuration.total)}
-				</div>
-				{prevAvgDuration && (
-					<ComparisonValue
-						current={avgDuration.total}
-						previous={prevAvgDuration.total}
-					/>
-				)}
-			</div>
-			<div className="text-xs text-muted-foreground mt-1">
-				<fbt desc="Label for the average feeding duration on the left breast">
-					Left Breast
-				</fbt>
-				:{' '}
-				<span className="text-left-breast-dark">
-					{formatDurationAbbreviated(avgDuration.left)}
-				</span>
-				{prevAvgDuration && (
-					<ComparisonValue
-						current={avgDuration.left}
-						previous={prevAvgDuration.left}
-					/>
-				)}
-			</div>
-			<div className="text-xs text-muted-foreground">
-				<fbt desc="Label for the average feeding duration on the right breast">
-					Right Breast
-				</fbt>
-				:{' '}
-				<span className="text-right-breast-dark">
-					{formatDurationAbbreviated(avgDuration.right)}
-				</span>
-				{prevAvgDuration && (
-					<ComparisonValue
-						current={avgDuration.right}
-						previous={prevAvgDuration.right}
-					/>
-				)}
-			</div>
+			<StatHeadline
+				comparison={
+					prevAvgDuration && (
+						<ComparisonValue
+							current={avgDuration.total}
+							previous={prevAvgDuration.total}
+						/>
+					)
+				}
+				value={formatDurationAbbreviated(avgDuration.total)}
+			/>
+			<StatBreakdownRow
+				className="mt-1"
+				label={
+					<fbt desc="Label for the average feeding duration on the left breast">
+						Left Breast
+					</fbt>
+				}
+				value={
+					<>
+						<span className="text-left-breast-dark">
+							{formatDurationAbbreviated(avgDuration.left)}
+						</span>
+						{prevAvgDuration && (
+							<ComparisonValue
+								current={avgDuration.left}
+								previous={prevAvgDuration.left}
+							/>
+						)}
+					</>
+				}
+			/>
+			<StatBreakdownRow
+				label={
+					<fbt desc="Label for the average feeding duration on the right breast">
+						Right Breast
+					</fbt>
+				}
+				value={
+					<>
+						<span className="text-right-breast-dark">
+							{formatDurationAbbreviated(avgDuration.right)}
+						</span>
+						{prevAvgDuration && (
+							<ComparisonValue
+								current={avgDuration.right}
+								previous={prevAvgDuration.right}
+							/>
+						)}
+					</>
+				}
+			/>
 		</StatsCard>
 	);
 }

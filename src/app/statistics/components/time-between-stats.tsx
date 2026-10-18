@@ -3,7 +3,7 @@ import { differenceInSeconds } from 'date-fns';
 import { useMemo } from 'react';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import ComparisonValue from './comparison-value';
-import StatsCard from './stats-card';
+import StatsCard, { StatHeadline } from './stats-card';
 
 interface TimeBetweenStatsProps {
 	comparisonSessions?: FeedingSession[];
@@ -61,18 +61,19 @@ export default function TimeBetweenStats({
 				</fbt>
 			}
 		>
-			<div className="flex items-baseline">
-				<div className="text-2xl font-bold">
-					{formatDurationAbbreviated(avgTime)}
-				</div>
-				{prevAvgTime ? (
-					<ComparisonValue
-						current={avgTime}
-						inverse={true}
-						previous={prevAvgTime}
-					/>
-				) : null}
-			</div>
+			<StatHeadline
+				comparison={
+					// TODO: prevAvgTime hides comparison when previous value is 0
+					prevAvgTime ? (
+						<ComparisonValue
+							current={avgTime}
+							inverse={true}
+							previous={prevAvgTime}
+						/>
+					) : null
+				}
+				value={formatDurationAbbreviated(avgTime)}
+			/>
 		</StatsCard>
 	);
 }
