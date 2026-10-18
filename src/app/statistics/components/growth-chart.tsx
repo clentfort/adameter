@@ -23,14 +23,7 @@ import {
 } from '@/components/ui/popover';
 import { useProfile } from '@/hooks/use-profile';
 import { useUnitSystem } from '@/hooks/use-unit-system';
-import {
-	calculateValue,
-	getGrowthTable,
-	getPercentile,
-	lookupLms,
-	Z_3RD,
-	Z_97TH,
-} from '@/utils/growth-standards';
+import { getGrowthRange, getPercentile } from '@/utils/growth-standards';
 import { cmToInches, gramsToLbs } from '@/utils/unit-conversions';
 
 interface GrowthChartProps {
@@ -149,14 +142,18 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	);
 
 	useEffect(() => {
+		let ignore = false;
+
 		async function loadRanges() {
 			if (!dob || !profile?.sex || profile.optedOut) {
-				setWeightRange([]);
-				setHeightRange([]);
-				setHeadRange([]);
-				setWeightPercentile(null);
-				setHeightPercentile(null);
-				setHeadPercentile(null);
+				if (!ignore) {
+					setWeightRange([]);
+					setHeightRange([]);
+					setHeadRange([]);
+					setWeightPercentile(null);
+					setHeightPercentile(null);
+					setHeadPercentile(null);
+				}
 				return;
 			}
 
@@ -184,8 +181,10 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					profile.sex,
 					differenceInDays(new Date(latestWeight.date), dob),
 					latestWeight.weight,
-				).then(setWeightPercentile);
-			} else {
+				).then((p) => {
+					if (!ignore) setWeightPercentile(p);
+				});
+			} else if (!ignore) {
 				setWeightPercentile(null);
 			}
 
@@ -195,8 +194,10 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					profile.sex,
 					differenceInDays(new Date(latestHeight.date), dob),
 					latestHeight.height,
-				).then(setHeightPercentile);
-			} else {
+				).then((p) => {
+					if (!ignore) setHeightPercentile(p);
+				});
+			} else if (!ignore) {
 				setHeightPercentile(null);
 			}
 
@@ -206,8 +207,10 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					profile.sex,
 					differenceInDays(new Date(latestHead.date), dob),
 					latestHead.headCircumference,
-				).then(setHeadPercentile);
-			} else {
+				).then((p) => {
+					if (!ignore) setHeadPercentile(p);
+				});
+			} else if (!ignore) {
 				setHeadPercentile(null);
 			}
 
@@ -222,7 +225,6 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 
 			const startDate = min([dob, firstMeasureDate]);
 			const endDate = addDays(lastMeasureDate, 30);
-			const maxAgeInDays = differenceInDays(endDate, dob);
 
 			const points: Date[] = [];
 			let current = startDate;
@@ -238,16 +240,15 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				points.push(endDate);
 			}
 
-			// Load tables once per indicator based on the maximum age in the range
-			const [wTableRes, hTableRes, hcTableRes] = await Promise.all([
-				getGrowthTable('weight-for-age', profile.sex, maxAgeInDays),
-				getGrowthTable('length-height-for-age', profile.sex, maxAgeInDays),
-				getGrowthTable('head-circumference-for-age', profile.sex, maxAgeInDays),
-			]);
-
 			const wRange: RangePoint[] = [];
 			const hRange: RangePoint[] = [];
 			const hcRange: RangePoint[] = [];
+
+			const metrics = [
+				{ indicator: 'weight-for-age', push: wRange },
+				{ indicator: 'length-height-for-age', push: hRange },
+				{ indicator: 'head-circumference-for-age', push: hcRange },
+			] as const;
 
 			for (const date of points) {
 				const ageInDays = differenceInDays(date, dob);
@@ -255,46 +256,30 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 
 				const ageInMonths = ageInDays / DAYS_PER_MONTH;
 
-				if (wTableRes) {
-					const lms = lookupLms(wTableRes.table, ageInDays);
-					if (lms) {
-						wRange.push({
+				for (const { indicator, push } of metrics) {
+					const range = await getGrowthRange(indicator, profile.sex, ageInDays);
+					if (range) {
+						push.push({
 							x: ageInMonths,
-							yMax: calculateValue(lms.L, lms.M, lms.S, Z_97TH) * 1000,
-							yMin: calculateValue(lms.L, lms.M, lms.S, Z_3RD) * 1000,
-						});
-					}
-				}
-
-				if (hTableRes) {
-					const lms = lookupLms(hTableRes.table, ageInDays);
-					if (lms) {
-						hRange.push({
-							x: ageInMonths,
-							yMax: calculateValue(lms.L, lms.M, lms.S, Z_97TH),
-							yMin: calculateValue(lms.L, lms.M, lms.S, Z_3RD),
-						});
-					}
-				}
-
-				if (hcTableRes) {
-					const lms = lookupLms(hcTableRes.table, ageInDays);
-					if (lms) {
-						hcRange.push({
-							x: ageInMonths,
-							yMax: calculateValue(lms.L, lms.M, lms.S, Z_97TH),
-							yMin: calculateValue(lms.L, lms.M, lms.S, Z_3RD),
+							yMax: range.max,
+							yMin: range.min,
 						});
 					}
 				}
 			}
 
-			setWeightRange(wRange);
-			setHeightRange(hRange);
-			setHeadRange(hcRange);
+			if (!ignore) {
+				setWeightRange(wRange);
+				setHeightRange(hRange);
+				setHeadRange(hcRange);
+			}
 		}
 
 		loadRanges();
+
+		return () => {
+			ignore = true;
+		};
 	}, [dob, profile?.sex, profile?.optedOut, sortedMeasurements]);
 
 	const displayWeightRange = useMemo(
