@@ -19,6 +19,18 @@ interface EntityHooksConfig<T extends { id: string }> {
 	toEntity: (id: string, row: Row) => T | null;
 }
 
+function isInSelectedProfile(
+	tableId: string,
+	row: Row | undefined,
+	selectedProfileId: string | undefined,
+): boolean {
+	return (
+		tableId === TABLE_IDS.PROFILES ||
+		!selectedProfileId ||
+		row?.profileId === selectedProfileId
+	);
+}
+
 export function createRowParser<T>(
 	schema: ZodType<T>,
 	label: string,
@@ -82,11 +94,7 @@ export function createEntityHooks<T extends { id: string }>(
 				return undefined;
 			}
 
-			if (
-				tableId !== TABLE_IDS.PROFILES &&
-				selectedProfileId &&
-				row.profileId !== selectedProfileId
-			) {
+			if (!isInSelectedProfile(tableId, row, selectedProfileId)) {
 				return undefined;
 			}
 
@@ -102,12 +110,9 @@ export function createEntityHooks<T extends { id: string }>(
 		return useMemo(
 			() =>
 				Object.entries(table)
-					.filter(([, row]) => {
-						if (tableId === TABLE_IDS.PROFILES) {
-							return true;
-						}
-						return !selectedProfileId || row.profileId === selectedProfileId;
-					})
+					.filter(([, row]) =>
+						isInSelectedProfile(tableId, row, selectedProfileId),
+					)
 					.map(([id, row]) => toEntity(id, row))
 					.filter((entity): entity is T => entity !== null),
 			[table, selectedProfileId],
@@ -121,11 +126,9 @@ export function createEntityHooks<T extends { id: string }>(
 		const table = useTable(tableId, store);
 
 		return useMemo(() => {
-			if (tableId === TABLE_IDS.PROFILES || !selectedProfileId) {
-				return allIds;
-			}
-
-			return allIds.filter((id) => table[id]?.profileId === selectedProfileId);
+			return allIds.filter((id) =>
+				isInSelectedProfile(tableId, table[id], selectedProfileId),
+			);
 		}, [allIds, selectedProfileId, table]);
 	}
 

@@ -1,11 +1,9 @@
 import type { DiaperChange } from '@/types/diaper';
 import { useMemo } from 'react';
-import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperChangeForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { diaperChangeSchema } from '@/types/diaper';
 import { createEntityHooks, createRowParser } from './create-entity-hooks';
-import { useSelectedProfileId } from './use-selected-profile-id';
 
 const toDiaperChange = createRowParser(diaperChangeSchema, 'diaper change');
 
@@ -25,27 +23,16 @@ export function useDiaperChangesTotal() {
 	return useDiaperChangeIds().length;
 }
 
-export function useLatestDiaperChangeRecord() {
-	const store = useStore()!;
-	const table = useTable(TABLE_IDS.DIAPER_CHANGES, store);
-	const [selectedProfileId] = useSelectedProfileId();
+export function useLatestDiaperChangeRecord(): DiaperChange | undefined {
+	const diaperChanges = useDiaperChangesSnapshot();
 
-	return useMemo(() => {
-		let latestChange: DiaperChange | undefined;
-
-		for (const [changeId, row] of Object.entries(table)) {
-			if (selectedProfileId && row.profileId !== selectedProfileId) {
-				continue;
-			}
-			const change = toDiaperChange(changeId, row);
-			if (!change) {
-				continue;
-			}
-			if (!latestChange || change.timestamp > latestChange.timestamp) {
-				latestChange = change;
-			}
-		}
-
-		return latestChange;
-	}, [table, selectedProfileId]);
+	return useMemo(
+		() =>
+			diaperChanges.reduce<DiaperChange | undefined>(
+				(latest, change) =>
+					!latest || change.timestamp > latest.timestamp ? change : latest,
+				undefined,
+			),
+		[diaperChanges],
+	);
 }
