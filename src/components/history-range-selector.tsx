@@ -1,8 +1,9 @@
 'use client';
 
-import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { getDefaultHistoryRange } from '@/hooks/use-history-range';
 import { cn } from '@/lib/utils';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { Button, buttonVariants } from './ui/button';
@@ -23,19 +24,19 @@ export default function HistoryRangeSelector({
 }: HistoryRangeSelectorProps) {
 	const [open, setOpen] = useState(false);
 
-	const [customRange, setCustomRange] = useState({
-		from: dateToDateInputValue(
-			from ? parseISO(from) : startOfDay(subDays(endOfDay(new Date()), 6)),
-		),
-		to: dateToDateInputValue(to ? parseISO(to) : endOfDay(new Date())),
+	const [customRange, setCustomRange] = useState(() => {
+		const defaultRange = getDefaultHistoryRange();
+		return {
+			from: dateToDateInputValue(from ? parseISO(from) : defaultRange.from),
+			to: dateToDateInputValue(to ? parseISO(to) : defaultRange.to),
+		};
 	});
 
 	useEffect(() => {
-		const defaultEnd = endOfDay(new Date());
-		const defaultStart = startOfDay(subDays(defaultEnd, 6));
+		const defaultRange = getDefaultHistoryRange();
 		setCustomRange({
-			from: dateToDateInputValue(from ? parseISO(from) : defaultStart),
-			to: dateToDateInputValue(to ? parseISO(to) : defaultEnd),
+			from: dateToDateInputValue(from ? parseISO(from) : defaultRange.from),
+			to: dateToDateInputValue(to ? parseISO(to) : defaultRange.to),
 		});
 	}, [from, to]);
 
