@@ -2,6 +2,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import { useMemo } from 'react';
+import { buildRoomInviteUrl } from '@/utils/room-invite';
 
 interface RoomQRCodeProps {
 	room: string;
@@ -12,9 +13,7 @@ export function RoomQRCode({ room }: RoomQRCodeProps) {
 		if (typeof window === 'undefined') {
 			return '';
 		}
-		const url = new URL(window.location.href);
-		url.searchParams.set('room', room);
-		return url.toString();
+		return buildRoomInviteUrl(room);
 	}, [room]);
 
 	return (

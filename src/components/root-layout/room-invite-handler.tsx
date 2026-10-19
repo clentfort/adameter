@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
+import { ROOM_INVITE_PARAM } from '@/utils/room-invite';
 import { JoinRoomDialog } from './join-room-dialog';
 import { LeaveRoomWarningDialog } from './leave-room-warning-dialog';
 
@@ -16,7 +17,7 @@ export function RoomInviteHandler() {
 	} | null>(null);
 
 	useEffect(() => {
-		const roomFromUrl = searchParams.get('room');
+		const roomFromUrl = searchParams.get(ROOM_INVITE_PARAM);
 		if (roomFromUrl && roomFromUrl !== currentRoom) {
 			setInvite({
 				room: roomFromUrl,
@@ -36,7 +37,7 @@ export function RoomInviteHandler() {
 
 		// Clear the URL param
 		const url = new URL(window.location.href);
-		url.searchParams.delete('room');
+		url.searchParams.delete(ROOM_INVITE_PARAM);
 		router.replace(url.pathname + url.search);
 	};
 

@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
+import { buildRoomInviteUrl } from '@/utils/room-invite';
 import { generateRoomName } from '@/utils/room-name';
 
 export function DataSharingContent() {
@@ -31,9 +32,8 @@ export function DataSharingContent() {
 
 	const copyInviteLink = () => {
 		if (!room) return;
-		const url = new URL(window.location.href);
-		url.searchParams.set('room', room);
-		void navigator.clipboard.writeText(url.toString());
+		const inviteUrl = buildRoomInviteUrl(room);
+		void navigator.clipboard.writeText(inviteUrl);
 		toast.success(fbt('Invite link copied to clipboard', 'Toast message'));
 	};
 

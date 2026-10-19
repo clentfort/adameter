@@ -3,6 +3,7 @@
 import { Html5Qrcode } from 'html5-qrcode';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { parseRoomFromScan } from '@/utils/room-invite';
 
 interface RoomQRScannerProps {
 	onScan: (roomId: string) => void;
@@ -27,17 +28,10 @@ export function RoomQRScanner({ onScan }: RoomQRScannerProps) {
 				{ facingMode: 'environment' },
 				config,
 				(decodedText) => {
-					try {
-						const url = new URL(decodedText);
-						const roomId = url.searchParams.get('room');
-						if (roomId) {
-							void stopScanner();
-							onScan(roomId);
-						}
-					} catch {
-						// Not a URL, maybe it's just the room ID
+					const roomId = parseRoomFromScan(decodedText);
+					if (roomId) {
 						void stopScanner();
-						onScan(decodedText);
+						onScan(roomId);
 					}
 				},
 				() => {
