@@ -22,7 +22,6 @@ function createWrapper(store: ReturnType<typeof createStore>, room?: string) {
 					leaveRoom: () => {},
 					resetJoinStrategy: () => {},
 					room,
-					setRoom: () => {},
 				}}
 			>
 				<Provider store={store}>{children}</Provider>

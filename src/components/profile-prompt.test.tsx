@@ -34,7 +34,6 @@ function renderPrompt(room?: string) {
 				leaveRoom: () => {},
 				resetJoinStrategy: () => {},
 				room,
-				setRoom: () => {},
 			}}
 		>
 			<ProfilePrompt />

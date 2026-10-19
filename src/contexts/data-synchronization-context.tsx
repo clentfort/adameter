@@ -24,7 +24,6 @@ interface DataSynchronizationContextProps {
 	leaveRoom: () => void;
 	resetJoinStrategy: () => void;
 	room: string | undefined;
-	setRoom: (room: string | undefined) => void;
 }
 
 export const DataSynchronizationContext =
@@ -35,7 +34,6 @@ export const DataSynchronizationContext =
 		leaveRoom: () => {},
 		resetJoinStrategy: () => {},
 		room: undefined,
-		setRoom: (_room: string | undefined) => {},
 	});
 
 interface DataSynchronizationProviderProps {
@@ -100,17 +98,8 @@ export function DataSynchronizationProvider({
 			leaveRoom,
 			resetJoinStrategy,
 			room,
-			setRoom,
 		}),
-		[
-			isHydrated,
-			joinRoom,
-			joinStrategy,
-			leaveRoom,
-			resetJoinStrategy,
-			room,
-			setRoom,
-		],
+		[isHydrated, joinRoom, joinStrategy, leaveRoom, resetJoinStrategy, room],
 	);
 
 	return (
