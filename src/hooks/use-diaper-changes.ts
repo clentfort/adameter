@@ -1,30 +1,13 @@
-import type { Row } from 'tinybase';
 import type { DiaperChange } from '@/types/diaper';
 import { useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperChangeForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { diaperChangeSchema } from '@/types/diaper';
-import { createEntityHooks } from './create-entity-hooks';
+import { createEntityHooks, createRowParser } from './create-entity-hooks';
 import { useSelectedProfileId } from './use-selected-profile-id';
 
-function toDiaperChange(id: string, row: Row): DiaperChange | null {
-	const result = diaperChangeSchema.safeParse({
-		...row,
-		id,
-	});
-
-	if (!result.success) {
-		// eslint-disable-next-line no-console
-		console.warn(
-			`Invalid diaper change data for id ${id}:`,
-			result.error.issues,
-		);
-		return null;
-	}
-
-	return result.data;
-}
+const toDiaperChange = createRowParser(diaperChangeSchema, 'diaper change');
 
 const diaperChangeHooks = createEntityHooks<DiaperChange>({
 	sanitize: sanitizeDiaperChangeForStore,

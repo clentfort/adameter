@@ -1,4 +1,3 @@
-import type { Row } from 'tinybase';
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
@@ -6,25 +5,9 @@ import { getFrecencySortedProductIds } from '@/app/diaper/utils/get-frecency-sor
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperProductForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { diaperProductSchema } from '@/types/diaper';
-import { createEntityHooks } from './create-entity-hooks';
+import { createEntityHooks, createRowParser } from './create-entity-hooks';
 
-function toDiaperProduct(id: string, row: Row): DiaperProduct | null {
-	const result = diaperProductSchema.safeParse({
-		...row,
-		id,
-	});
-
-	if (!result.success) {
-		// eslint-disable-next-line no-console
-		console.warn(
-			`Invalid diaper product data for id ${id}:`,
-			result.error.issues,
-		);
-		return null;
-	}
-
-	return result.data;
-}
+const toDiaperProduct = createRowParser(diaperProductSchema, 'diaper product');
 
 const diaperProductHooks = createEntityHooks<DiaperProduct>({
 	sanitize: sanitizeDiaperProductForStore,
@@ -36,7 +19,6 @@ export const useUpsertDiaperProduct = diaperProductHooks.useUpsert;
 export const useRemoveDiaperProduct = diaperProductHooks.useRemove;
 export const useDiaperProduct = diaperProductHooks.useOne;
 export const useDiaperProductsSnapshot = diaperProductHooks.useSnapshot;
-export const useDiaperProductIds = diaperProductHooks.useIds;
 
 export function useSortedDiaperProductIds() {
 	const store = useStore()!;
