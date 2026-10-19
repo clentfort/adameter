@@ -15,7 +15,6 @@ describe('DataSharingContent', () => {
 					leaveRoom: vi.fn(),
 					resetJoinStrategy: vi.fn(),
 					room: undefined,
-					setRoom: vi.fn(),
 				}}
 			>
 				<DataSharingContent />
@@ -39,7 +38,6 @@ describe('DataSharingContent', () => {
 					leaveRoom: leaveRoomMock,
 					resetJoinStrategy: vi.fn(),
 					room: 'test-room-123',
-					setRoom: vi.fn(),
 				}}
 			>
 				<DataSharingContent />

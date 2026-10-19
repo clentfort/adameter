@@ -46,7 +46,6 @@ describe('DataSynchronizationContext', () => {
 			result.current.joinRoom('r1', 'merge');
 			result.current.leaveRoom();
 			result.current.resetJoinStrategy();
-			result.current.setRoom('r1');
 		});
 	});
 
@@ -159,21 +158,5 @@ describe('DataSynchronizationContext', () => {
 			STORAGE_KEYS.ROOM_JOIN_STRATEGY,
 			'overwrite',
 		);
-	});
-
-	it('should change room when setRoom is called', () => {
-		const { result } = renderHook(
-			() => useContext(DataSynchronizationContext),
-			{
-				wrapper: DataSynchronizationProvider,
-			},
-		);
-
-		act(() => {
-			result.current.setRoom('another-room');
-		});
-
-		expect(result.current.room).toBe('another-room');
-		expect(setItem).toHaveBeenCalledWith(STORAGE_KEYS.ROOM, 'another-room');
 	});
 });

@@ -24,7 +24,6 @@ function renderConsoleDebugger({
 		leaveRoom: vi.fn(),
 		resetJoinStrategy: vi.fn(),
 		room,
-		setRoom: vi.fn(),
 	};
 
 	return {
