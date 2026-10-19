@@ -1,11 +1,9 @@
 'use client';
 
 import type { Profile, ProfileFormValues, Sex } from '@/types/profile';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { Check } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,6 +14,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { useEntityForm } from '@/hooks/use-entity-form';
 import { profileFormSchema } from '@/types/profile';
 
 interface ProfileFormProps {
@@ -72,32 +71,30 @@ export default function ProfileForm({
 		[],
 	);
 
+	const defaultValues = useMemo(
+		() => getDefaultValues(initialData, fallbackColor),
+		[fallbackColor, initialData],
+	);
+
 	const {
 		formState: { isValid },
 		handleSubmit,
 		register,
-		reset,
 		setValue,
 		watch,
-	} = useForm<ProfileFormValues>({
-		defaultValues: getDefaultValues(initialData, fallbackColor),
-		mode: 'onChange',
-		resolver: zodResolver(profileFormSchema),
-	});
+	} = useEntityForm<ProfileFormValues, undefined, ProfileFormValues>(
+		profileFormSchema,
+		defaultValues,
+	);
 
 	const color = watch('color');
 	const sex = watch('sex');
 
-	useEffect(() => {
-		reset(getDefaultValues(initialData, fallbackColor));
-	}, [fallbackColor, initialData, reset]);
-
-	const handleSave = (values: ProfileFormValues) => {
-		onSave(values);
-	};
-
 	return (
-		<form className="space-y-6 py-4" onSubmit={handleSubmit(handleSave)}>
+		<form
+			className="space-y-6 py-4"
+			onSubmit={handleSubmit((data) => onSave(data))}
+		>
 			<div className="space-y-4">
 				<div className="space-y-2">
 					<Label htmlFor="name">
