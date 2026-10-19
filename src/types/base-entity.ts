@@ -10,11 +10,4 @@ export const baseEntitySchema = z.object({
 	profileId: z.string().optional(),
 });
 
-export interface BaseEntity {
-	deviceId?: string;
-	id: string;
-	locationLatitude?: number;
-	locationLongitude?: number;
-	notes?: string;
-	profileId?: string;
-}
+export type BaseEntity = z.infer<typeof baseEntitySchema>;

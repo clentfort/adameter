@@ -25,13 +25,4 @@ export const profileSchema = baseEntitySchema.extend(profileDataSchema.shape);
 
 export type ProfileData = z.infer<typeof profileDataSchema>;
 
-export interface Profile {
-	birthday?: string; // Included for legacy/test compatibility
-	color?: string;
-	deviceId?: string;
-	dob?: string; // ISO date string
-	id: string;
-	name?: string;
-	optedOut?: boolean;
-	sex?: Sex;
-}
+export type Profile = z.infer<typeof profileSchema>;

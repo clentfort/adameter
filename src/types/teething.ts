@@ -1,4 +1,3 @@
-import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
 import { integerCell, optionalStringCell } from './schema-utils';
@@ -37,7 +36,4 @@ export function parseTeethingFormValues(
 	return teethingFormToDataSchema.parse(values);
 }
 
-export interface Tooth extends BaseEntity {
-	date?: string; // ISO date of eruption
-	toothId: number; // FDI number
-}
+export type Tooth = z.infer<typeof toothSchema>;
