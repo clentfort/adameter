@@ -1,4 +1,3 @@
-import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
 import {
@@ -69,13 +68,4 @@ export function parseEventFormValues(values: EventFormValues): EventFormData {
 	return eventFormToDataSchema.parse(values);
 }
 
-export interface Event extends BaseEntity {
-	// point = single date, period = start to end date
-	color?: string;
-	// ISO string
-	endDate?: string;
-	startDate: string;
-	title: string;
-	// ISO string, optional for ongoing events
-	type: 'point' | 'period'; // Optional color for the event
-}
+export type Event = z.infer<typeof eventSchema>;
