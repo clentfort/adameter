@@ -43,6 +43,11 @@ export default function DiaperPage() {
 		}
 	};
 
+	const handleSaveChange = (change: DiaperChange) => {
+		upsertDiaperChange(change);
+		checkAndTriggerConfetti(change, totalChanges);
+	};
+
 	const handleConfettiComplete = (
 		confettiInstance?: { reset: () => void } | null,
 	) => {
@@ -62,7 +67,7 @@ export default function DiaperPage() {
 			)}
 			<div className="w-full">
 				<div className="w-full">
-					<DiaperTracker checkAndTriggerConfetti={checkAndTriggerConfetti} />
+					<DiaperTracker onSave={handleSaveChange} />
 
 					<div className="w-full mt-8">
 						<HistoryHeader
@@ -85,8 +90,7 @@ export default function DiaperPage() {
 				<DiaperForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
 					onSave={(change) => {
-						upsertDiaperChange(change);
-						checkAndTriggerConfetti(change, totalChanges);
+						handleSaveChange(change);
 						setIsAddEntryDialogOpen(false);
 					}}
 					presetDiaperProductId={lastUsedDiaperProduct}
