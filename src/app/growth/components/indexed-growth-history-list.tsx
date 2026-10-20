@@ -3,28 +3,24 @@
 import type { GrowthMeasurement } from '@/types/growth';
 import type { Tooth } from '@/types/teething';
 import { fbt } from 'fbtee';
-import { useMemo, useState } from 'react';
-import { useStore } from 'tinybase/ui-react';
+import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
 import HistoryEntryCard from '@/components/history-entry-card';
 import Markdown from '@/components/markdown';
 import { useLanguage } from '@/contexts/i18n-context';
-import { INDEX_IDS } from '@/contexts/tinybase-indexes-context';
 import {
 	useGrowthMeasurement,
 	useRemoveGrowthMeasurement,
 	useUpsertGrowthMeasurement,
 } from '@/hooks/use-growth-measurements';
 import { useTooth, useUpsertTooth } from '@/hooks/use-teething';
-import {
-	useDateSliceRowIds,
-	useGrowthMeasurementsByDate,
-	useTeethByDate,
-} from '@/hooks/use-tinybase-indexes';
 import { useUnitSystem } from '@/hooks/use-unit-system';
-import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { formatSectionDate } from '@/utils/format-history-date';
 import { cmToInches, gramsToLbsOz } from '@/utils/unit-conversions';
+import {
+	useGrowthTimelineDateKeys,
+	useGrowthTimelineItems,
+} from '../hooks/use-growth-timeline';
 import { getToothName } from '../utils/teething';
 import MeasurementForm from './growth-form';
 import TeethingForm from './teething-form';
@@ -184,15 +180,7 @@ export default function IndexedGrowthHistoryList() {
 	const removeGrowthMeasurement = useRemoveGrowthMeasurement();
 	const upsertTooth = useUpsertTooth();
 
-	const { dateKeys: growthDateKeys } = useGrowthMeasurementsByDate();
-	const { dateKeys: teethDateKeys } = useTeethByDate();
-
-	const allDateKeys = useMemo(() => {
-		const keys = new Set([...growthDateKeys, ...teethDateKeys]);
-		return Array.from(keys)
-			.filter((k) => k !== '')
-			.sort((a, b) => b.localeCompare(a));
-	}, [growthDateKeys, teethDateKeys]);
+	const allDateKeys = useGrowthTimelineDateKeys();
 
 	const handleDeleteConfirm = () => {
 		if (measurementToDelete) {
@@ -274,32 +262,7 @@ function DateSection({
 	onToothDelete,
 	onToothEdit,
 }: DateSectionProps) {
-	const growthRowIds = useDateSliceRowIds(
-		INDEX_IDS.GROWTH_MEASUREMENTS_BY_DATE,
-		dateKey,
-	);
-	const teethRowIds = useDateSliceRowIds(INDEX_IDS.TEETH_BY_DATE, dateKey);
-	const store = useStore();
-
-	const interleaved = useMemo(() => {
-		const items = [
-			...growthRowIds.map((id) => ({
-				date: store?.getCell(
-					TABLE_IDS.GROWTH_MEASUREMENTS,
-					id,
-					'date',
-				) as string,
-				id,
-				type: 'growth' as const,
-			})),
-			...teethRowIds.map((id) => ({
-				date: store?.getCell(TABLE_IDS.TEETHING, id, 'date') as string,
-				id,
-				type: 'teething' as const,
-			})),
-		];
-		return items.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-	}, [growthRowIds, teethRowIds, store]);
+	const interleaved = useGrowthTimelineItems(dateKey);
 
 	return (
 		<div className="space-y-4">
