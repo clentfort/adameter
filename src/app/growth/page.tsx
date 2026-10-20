@@ -54,10 +54,7 @@ export default function GrowthPage() {
 			{isAddEntryDialogOpen && (
 				<MeasurementForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
-					onSave={(measurement) => {
-						upsertGrowthMeasurement(measurement);
-						setIsAddEntryDialogOpen(false);
-					}}
+					onSave={upsertGrowthMeasurement}
 					title={
 						<fbt desc="Title of the dialog to manually add a growth measurement">
 							Add Growth Entry

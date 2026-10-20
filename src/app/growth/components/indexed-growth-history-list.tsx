@@ -182,13 +182,6 @@ export default function IndexedGrowthHistoryList() {
 
 	const allDateKeys = useGrowthTimelineDateKeys();
 
-	const handleDeleteConfirm = () => {
-		if (measurementToDelete) {
-			removeGrowthMeasurement(measurementToDelete);
-			setMeasurementToDelete(null);
-		}
-	};
-
 	if (allDateKeys.length === 0) {
 		return (
 			<p className="text-muted-foreground text-center py-4">
@@ -218,7 +211,7 @@ export default function IndexedGrowthHistoryList() {
 				<DeleteEntryDialog
 					entry={measurementToDelete}
 					onClose={() => setMeasurementToDelete(null)}
-					onDelete={handleDeleteConfirm}
+					onDelete={removeGrowthMeasurement}
 				/>
 			)}
 			{measurementToEdit && (
