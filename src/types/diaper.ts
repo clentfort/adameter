@@ -1,4 +1,3 @@
-import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
 import {
@@ -141,38 +140,5 @@ export function parseDiaperFormValues(
 	return diaperFormToDataSchema.parse(values);
 }
 
-export interface DiaperProduct extends BaseEntity {
-	/** Whether the product is archived. */
-	archived?: boolean;
-	/** Optional color for the product. */
-	color?: string;
-	/** Cost per diaper in the current currency. */
-	costPerDiaper?: number;
-	/** Whether the diaper is reusable. */
-	isReusable: boolean;
-	/** Name of the diaper product. */
-	name: string;
-	/** One-time upfront cost for reusable diapers in the current currency. */
-	upfrontCost?: number;
-}
-
-export interface DiaperChange extends BaseEntity {
-	/** Whether the diaper contains stool. */
-	containsStool: boolean;
-	/** Whether the diaper contains urine. */
-	containsUrine: boolean;
-	/** Optional diaper brand (deprecated, use diaperProductId). */
-	diaperBrand?: string;
-	/** Reference to the diaper product used. */
-	diaperProductId?: string;
-	/** Optional leakage indicator. */
-	leakage?: boolean;
-	/** Whether stool went into the potty. */
-	pottyStool?: boolean;
-	/** Whether urine went into the potty. */
-	pottyUrine?: boolean;
-	/** Optional temperature in Celsius. */
-	temperature?: number;
-	/** Timestamp of the diaper change. */
-	timestamp: string;
-}
+export type DiaperProduct = z.infer<typeof diaperProductSchema>;
+export type DiaperChange = z.infer<typeof diaperChangeSchema>;
