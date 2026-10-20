@@ -19,15 +19,14 @@ function buildEventHistoryUrl(
 	basePath: '/feeding' | '/diaper',
 	event: Event,
 ): string {
-	const params = new URLSearchParams({
-		event: event.title,
-		from: event.startDate,
-		to: event.endDate || event.startDate,
-	});
+	const params = new URLSearchParams();
+	params.set('from', event.startDate);
+	params.set('to', event.endDate || event.startDate);
+	params.set('event', event.title);
 	if (event.color) {
 		params.set('color', event.color);
 	}
-	return `${basePath}?${params.toString()}`;
+	return `${basePath}?${params.toString().replaceAll('%3A', ':').replaceAll('+', '%20')}`;
 }
 
 function EventListItem({
