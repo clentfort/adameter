@@ -1,3 +1,4 @@
+import type { Event } from '@/types/event';
 import { format } from 'date-fns';
 import { ArrowRight, Baby, Calendar, Milk } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -13,6 +14,20 @@ import {
 import { useEvent, useRemoveEvent, useUpsertEvent } from '@/hooks/use-events';
 import { useEventsByDate } from '@/hooks/use-tinybase-indexes';
 import AddEventDialog from './event-form';
+
+function buildEventHistoryUrl(
+	basePath: '/feeding' | '/diaper',
+	event: Event,
+): string {
+	const params = new URLSearchParams();
+	params.set('from', event.startDate);
+	params.set('to', event.endDate || event.startDate);
+	params.set('event', event.title);
+	if (event.color) {
+		params.set('color', event.color);
+	}
+	return `${basePath}?${params.toString().replaceAll('%3A', ':').replaceAll('+', '%20')}`;
+}
 
 function EventListItem({
 	eventId,
@@ -37,15 +52,7 @@ function EventListItem({
 	const extraActions = (
 		<>
 			<DropdownMenuItem
-				onClick={() =>
-					router.push(
-						`/feeding?from=${event.startDate}&to=${
-							event.endDate || event.startDate
-						}&event=${encodeURIComponent(event.title)}${
-							event.color ? `&color=${encodeURIComponent(event.color)}` : ''
-						}`,
-					)
-				}
+				onClick={() => router.push(buildEventHistoryUrl('/feeding', event))}
 			>
 				<Milk className="mr-2 h-4 w-4" />
 				<fbt desc="Menu item to show feeding sessions during an event">
@@ -53,15 +60,7 @@ function EventListItem({
 				</fbt>
 			</DropdownMenuItem>
 			<DropdownMenuItem
-				onClick={() =>
-					router.push(
-						`/diaper?from=${event.startDate}&to=${
-							event.endDate || event.startDate
-						}&event=${encodeURIComponent(event.title)}${
-							event.color ? `&color=${encodeURIComponent(event.color)}` : ''
-						}`,
-					)
-				}
+				onClick={() => router.push(buildEventHistoryUrl('/diaper', event))}
 			>
 				<Baby className="mr-2 h-4 w-4" />
 				<fbt desc="Menu item to show diaper changes during an event">
