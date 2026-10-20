@@ -1,26 +1,18 @@
 import type { DiaperChange } from '@/types/diaper';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-	useDiaperChangesTotal,
-	useUpsertDiaperChange,
-} from '@/hooks/use-diaper-changes';
 import { useLastUsedDiaperProduct } from '../hooks/use-last-used-diaper-product';
 import DiaperForm from './diaper-form';
 
 interface DiaperTrackerProps {
-	checkAndTriggerConfetti: (change: DiaperChange, totalChanges: number) => void;
+	onSave: (change: DiaperChange) => void;
 }
 
-export default function DiaperTracker({
-	checkAndTriggerConfetti,
-}: DiaperTrackerProps) {
+export default function DiaperTracker({ onSave }: DiaperTrackerProps) {
 	const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 	const [selectedType, setSelectedType] = useState<'urine' | 'stool' | null>(
 		null,
 	);
-	const totalChanges = useDiaperChangesTotal();
-	const upsertDiaperChange = useUpsertDiaperChange();
 	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
 
 	const handleQuickChange = (type: 'urine' | 'stool') => {
@@ -55,8 +47,7 @@ export default function DiaperTracker({
 					onClose={() => setIsDetailsDialogOpen(false)}
 					onSave={(change) => {
 						setIsDetailsDialogOpen(false);
-						upsertDiaperChange(change);
-						checkAndTriggerConfetti(change, totalChanges);
+						onSave(change);
 					}}
 					presetDiaperProductId={lastUsedDiaperProduct}
 					presetType={selectedType ?? undefined}
