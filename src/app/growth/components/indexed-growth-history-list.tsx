@@ -21,7 +21,7 @@ import {
 	useGrowthTimelineDateKeys,
 	useGrowthTimelineItems,
 } from '../hooks/use-growth-timeline';
-import { getToothName } from '../utils/teething';
+import { clearToothEruption, getToothName } from '../utils/teething';
 import MeasurementForm from './growth-form';
 import TeethingForm from './teething-form';
 
@@ -208,9 +208,7 @@ export default function IndexedGrowthHistoryList() {
 						key={dateKey}
 						onMeasurementDelete={setMeasurementToDelete}
 						onMeasurementEdit={setMeasurementToEdit}
-						onToothDelete={(tooth) =>
-							upsertTooth({ ...tooth, date: undefined, notes: undefined })
-						}
+						onToothDelete={(tooth) => upsertTooth(clearToothEruption(tooth))}
 						onToothEdit={setToothToEdit}
 					/>
 				))}
@@ -240,7 +238,6 @@ export default function IndexedGrowthHistoryList() {
 					onClose={() => setToothToEdit(null)}
 					onSave={upsertTooth}
 					tooth={toothToEdit}
-					toothName={getToothName(toothToEdit.toothId)}
 				/>
 			)}
 		</>

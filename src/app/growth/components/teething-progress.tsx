@@ -2,7 +2,6 @@ import type { Tooth } from '@/types/teething';
 import { useState } from 'react';
 import { useTeethSnapshot, useUpsertTooth } from '@/hooks/use-teething';
 import { cn } from '@/lib/utils';
-import { getToothName } from '../utils/teething';
 import TeethingForm from './teething-form';
 
 const UPPER_RIGHT = [55, 54, 53, 52, 51];
@@ -27,8 +26,6 @@ export default function TeethingProgress() {
 	const handleSave = (tooth: Tooth) => {
 		upsertTooth(tooth);
 	};
-
-	const toothName = selectedToothId ? getToothName(selectedToothId) : '';
 
 	return (
 		<div className="flex flex-col items-center space-y-8 py-4">
@@ -90,7 +87,6 @@ export default function TeethingProgress() {
 					onClose={() => setSelectedToothId(null)}
 					onSave={handleSave}
 					tooth={getTooth(selectedToothId)}
-					toothName={toothName}
 				/>
 			)}
 

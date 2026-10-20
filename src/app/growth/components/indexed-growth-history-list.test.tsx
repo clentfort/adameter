@@ -12,9 +12,13 @@ import {
 import IndexedGrowthHistoryList from './indexed-growth-history-list';
 
 // Mock getToothName to avoid external dependencies
-vi.mock('../utils/teething', () => ({
-	getToothName: (id: number) => `Tooth ${id}`,
-}));
+vi.mock('../utils/teething', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('../utils/teething')>();
+	return {
+		...actual,
+		getToothName: (id: number) => `Tooth ${id}`,
+	};
+});
 
 function createTestStore() {
 	const store = createStore();
