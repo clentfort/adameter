@@ -1,4 +1,9 @@
+import type { Tooth } from '@/types/teething';
 import { fbt } from 'fbtee';
+
+export function clearToothEruption(tooth: Tooth): Tooth {
+	return { ...tooth, date: undefined, notes: undefined };
+}
 
 /**
  * Returns the human-readable name of a tooth based on its FDI number.

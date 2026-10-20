@@ -13,12 +13,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { useEntityForm } from '@/hooks/use-entity-form';
 import { teethingFormToDataSchema } from '@/types/teething';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
+import { clearToothEruption, getToothName } from '../utils/teething';
 
 interface TeethingFormProps {
 	onClose: () => void;
 	onSave: (tooth: Tooth) => void;
 	tooth: Tooth;
-	toothName: string;
 }
 
 function getDefaultValues(tooth: Tooth): TeethingFormValues {
@@ -32,8 +32,8 @@ export default function TeethingForm({
 	onClose,
 	onSave,
 	tooth,
-	toothName,
 }: TeethingFormProps) {
+	const toothName = getToothName(tooth.toothId);
 	const defaultValues = useMemo(() => getDefaultValues(tooth), [tooth]);
 
 	const form = useEntityForm<TeethingFormValues, undefined, TeethingFormData>(
@@ -53,11 +53,7 @@ export default function TeethingForm({
 	};
 
 	const handleClear = () => {
-		onSave({
-			...tooth,
-			date: undefined,
-			notes: undefined,
-		});
+		onSave(clearToothEruption(tooth));
 		onClose();
 	};
 
