@@ -1,4 +1,3 @@
-import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
 import {
@@ -79,13 +78,4 @@ export function parseGrowthFormValues(
 	return growthFormToDataSchema.parse(values);
 }
 
-export interface GrowthMeasurement extends BaseEntity {
-	// ISO string
-	date: string;
-	// in centimeters
-	headCircumference?: number;
-	// in centimeters
-	height?: number;
-	// in grams
-	weight?: number;
-}
+export type GrowthMeasurement = z.infer<typeof growthMeasurementSchema>;

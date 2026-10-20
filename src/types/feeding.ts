@@ -1,4 +1,3 @@
-import type { BaseEntity } from './base-entity';
 import { z } from 'zod';
 import { baseEntitySchema } from './base-entity';
 import {
@@ -69,9 +68,4 @@ export function parseFeedingFormValues(
 	return feedingSessionFormToDataSchema.parse(values);
 }
 
-export interface FeedingSession extends BaseEntity {
-	breast: 'left' | 'right';
-	durationInSeconds: number;
-	endTime: string;
-	startTime: string;
-}
+export type FeedingSession = z.infer<typeof feedingSessionSchema>;
