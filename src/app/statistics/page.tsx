@@ -34,6 +34,7 @@ import TimeRangePicker from './components/time-range-picker';
 import TotalDiaperChangesStats from './components/total-diaper-changes-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
+import { getDisposableChanges } from './utils/diaper-savings';
 
 export default function StatisticsPage(): JSX.Element {
 	const diaperChanges = useDiaperChangesSnapshot();
@@ -120,22 +121,7 @@ export default function StatisticsPage(): JSX.Element {
 	);
 
 	const disposableChanges = useMemo(
-		() =>
-			diaperChanges
-				.map((change) => {
-					const productId = change.diaperProductId;
-					if (!productId) return null;
-					const product = productById.get(productId);
-					if (!product || product.isReusable || !product.costPerDiaper)
-						return null;
-					return {
-						cost: product.costPerDiaper,
-						timestamp: new Date(change.timestamp),
-					};
-				})
-				.filter(
-					(item): item is { cost: number; timestamp: Date } => item !== null,
-				),
+		() => getDisposableChanges(diaperChanges, productById),
 		[diaperChanges, productById],
 	);
 

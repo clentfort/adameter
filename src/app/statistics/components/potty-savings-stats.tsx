@@ -1,9 +1,13 @@
 import type { DiaperChange } from '@/types/diaper';
-import { differenceInDays } from 'date-fns';
+import type { DisposableChange } from '../utils/diaper-savings';
 import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/i18n-context';
 import { useCurrency } from '@/hooks/use-currency';
 import { formatCurrency } from '@/utils/format-currency';
+import {
+	getDisposableAverageAround,
+	isSavedByPotty,
+} from '../utils/diaper-savings';
 import ComparisonValue from './comparison-value';
 import StatsCard from './stats-card';
 
@@ -11,44 +15,20 @@ interface PottySavingsStatsProps {
 	className?: string;
 	comparisonDiaperChanges?: DiaperChange[];
 	diaperChanges: DiaperChange[];
-	disposableChanges: Array<{ cost: number; timestamp: Date }>;
-}
-
-function getDisposableAverageAround(
-	timestamp: Date,
-	disposableChanges: Array<{ cost: number; timestamp: Date }>,
-): number | null {
-	const costs = disposableChanges
-		.filter(
-			(disposableChange) =>
-				Math.abs(differenceInDays(disposableChange.timestamp, timestamp)) <= 7,
-		)
-		.map((disposableChange) => disposableChange.cost);
-
-	if (costs.length === 0) {
-		return null;
-	}
-
-	return costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
+	disposableChanges: DisposableChange[];
 }
 
 function calculatePottySavings(
 	diaperChanges: DiaperChange[],
-	disposableChanges: Array<{ cost: number; timestamp: Date }>,
+	disposableChanges: DisposableChange[],
 ) {
-	return diaperChanges
-		.filter(
-			(change) =>
-				(change.pottyUrine && !change.containsUrine) ||
-				(change.pottyStool && !change.containsStool),
-		)
-		.reduce((total, change) => {
-			const avg = getDisposableAverageAround(
-				new Date(change.timestamp),
-				disposableChanges,
-			);
-			return total + (avg || 0);
-		}, 0);
+	return diaperChanges.filter(isSavedByPotty).reduce((total, change) => {
+		const avg = getDisposableAverageAround(
+			new Date(change.timestamp),
+			disposableChanges,
+		);
+		return total + (avg || 0);
+	}, 0);
 }
 
 export default function PottySavingsStats({
