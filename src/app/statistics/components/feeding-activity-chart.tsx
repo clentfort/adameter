@@ -8,9 +8,9 @@ import {
 	format,
 	isAfter,
 	isBefore,
-	isWithinInterval,
 } from 'date-fns';
 import { useMemo } from 'react';
+import { bucketByDay } from '@/app/statistics/utils/bucket-by-day';
 import { resolveChartStartDate } from '@/app/statistics/utils/resolve-chart-start-date';
 import BarChart from '@/components/charts/bar-chart';
 import { useProfile } from '@/hooks/use-profile';
@@ -46,36 +46,22 @@ export default function FeedingActivityChart({
 			start: effectivePrimaryFrom,
 		});
 
-		const primaryDurationByDate = sessions.reduce<
-			Record<string, { left: number; right: number }>
-		>((acc, session) => {
-			const date = new Date(session.startTime);
-			if (
-				isWithinInterval(date, {
-					end: primaryRange.to,
-					start: effectivePrimaryFrom,
-				})
-			) {
-				const key = format(date, 'yyyy-MM-dd');
-				if (!acc[key]) acc[key] = { left: 0, right: 0 };
+		const primaryBuckets = bucketByDay(
+			sessions,
+			primaryDays,
+			(s) => s.startTime,
+			() => ({ left: 0, right: 0 }),
+			(acc, session) => {
 				if (session.breast === 'left') {
-					acc[key].left += session.durationInSeconds;
+					acc.left += session.durationInSeconds;
 				} else {
-					acc[key].right += session.durationInSeconds;
+					acc.right += session.durationInSeconds;
 				}
-			}
-			return acc;
-		}, {});
+			},
+		);
 
-		const primaryLeftData = primaryDays.map((day) => {
-			const key = format(day, 'yyyy-MM-dd');
-			return (primaryDurationByDate[key]?.left || 0) / 3600;
-		});
-
-		const primaryRightData = primaryDays.map((day) => {
-			const key = format(day, 'yyyy-MM-dd');
-			return (primaryDurationByDate[key]?.right || 0) / 3600;
-		});
+		const primaryLeftData = primaryBuckets.map((b) => b.left / 3600);
+		const primaryRightData = primaryBuckets.map((b) => b.right / 3600);
 
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
 
@@ -87,36 +73,22 @@ export default function FeedingActivityChart({
 				start: secondaryRange.from,
 			});
 
-			const secondaryDurationByDate = sessions.reduce<
-				Record<string, { left: number; right: number }>
-			>((acc, session) => {
-				const date = new Date(session.startTime);
-				if (
-					isWithinInterval(date, {
-						end: secondaryRange.to,
-						start: secondaryRange.from,
-					})
-				) {
-					const key = format(date, 'yyyy-MM-dd');
-					if (!acc[key]) acc[key] = { left: 0, right: 0 };
+			const secondaryBuckets = bucketByDay(
+				sessions,
+				secondaryDays,
+				(s) => s.startTime,
+				() => ({ left: 0, right: 0 }),
+				(acc, session) => {
 					if (session.breast === 'left') {
-						acc[key].left += session.durationInSeconds;
+						acc.left += session.durationInSeconds;
 					} else {
-						acc[key].right += session.durationInSeconds;
+						acc.right += session.durationInSeconds;
 					}
-				}
-				return acc;
-			}, {});
+				},
+			);
 
-			const secondaryLeftData = secondaryDays.map((day) => {
-				const key = format(day, 'yyyy-MM-dd');
-				return -(secondaryDurationByDate[key]?.left || 0) / 3600;
-			});
-
-			const secondaryRightData = secondaryDays.map((day) => {
-				const key = format(day, 'yyyy-MM-dd');
-				return -(secondaryDurationByDate[key]?.right || 0) / 3600;
-			});
+			const secondaryLeftData = secondaryBuckets.map((b) => -b.left / 3600);
+			const secondaryRightData = secondaryBuckets.map((b) => -b.right / 3600);
 
 			datasets.push(
 				{
