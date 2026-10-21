@@ -1,7 +1,7 @@
 'use client';
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import { addDays, differenceInDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { Info } from 'lucide-react';
 import { useMemo } from 'react';
 import {
@@ -23,11 +23,7 @@ import { useLanguage } from '@/contexts/i18n-context';
 import { useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/utils/format-currency';
-import {
-	getDisposableAverageAround,
-	getDisposableChanges,
-	isSavedByPotty,
-} from '../utils/diaper-savings';
+import { calculateReusableSavingsMetrics } from '../utils/reusable-savings';
 
 interface ReusableSavingsCardProps {
 	allDiaperChanges: DiaperChange[];
@@ -35,192 +31,31 @@ interface ReusableSavingsCardProps {
 	products: DiaperProduct[];
 }
 
-interface ReusableSavingsMetrics {
-	breakEvenDate: Date | null;
-	estimatedBreakEvenDate: Date | null;
-	hypotheticalDisposableCost: number;
-	pottySavings: number;
-	reusableSavings: number;
-	totalCost: number;
-	totalSavings: number;
-	upfrontCostTotal: number;
-	usageCost: number;
+interface CostRowProps {
+	className?: string;
+	label: React.ReactNode;
+	labelClassName?: string;
+	value: string;
+	valueClassName?: string;
+}
+
+function CostRow({
+	className,
+	label,
+	labelClassName,
+	value,
+	valueClassName,
+}: CostRowProps) {
+	return (
+		<div className={cn('flex items-center justify-between', className)}>
+			<span className={labelClassName}>{label}</span>
+			<span className={cn('tabular-nums', valueClassName)}>{value}</span>
+		</div>
+	);
 }
 
 function createProductById(products: DiaperProduct[]) {
 	return new Map(products.map((product) => [product.id, product]));
-}
-
-function calculateReusableSavingsMetrics(
-	allDiaperChanges: DiaperChange[],
-	productById: Map<string, DiaperProduct>,
-): ReusableSavingsMetrics | null {
-	const reusableProducts = [...productById.values()].filter(
-		(product) => product.isReusable,
-	);
-	if (reusableProducts.length === 0) {
-		return null;
-	}
-
-	const upfrontCostTotal = reusableProducts.reduce((sum, product) => {
-		if (
-			typeof product.upfrontCost !== 'number' ||
-			!Number.isFinite(product.upfrontCost)
-		) {
-			return sum;
-		}
-
-		return sum + product.upfrontCost;
-	}, 0);
-
-	const disposableChanges = getDisposableChanges(allDiaperChanges, productById);
-
-	const reusableChanges = allDiaperChanges
-		.map((change) => {
-			const productId = change.diaperProductId;
-			if (!productId) return null;
-
-			const product = productById.get(productId);
-			if (!product || !product.isReusable) return null;
-
-			return {
-				reusableCost:
-					typeof product.costPerDiaper === 'number' &&
-					Number.isFinite(product.costPerDiaper)
-						? product.costPerDiaper
-						: 0,
-				timestamp: new Date(change.timestamp),
-			};
-		})
-		.filter(
-			(item): item is { reusableCost: number; timestamp: Date } =>
-				item !== null,
-		);
-
-	const pottyEvents = allDiaperChanges
-		.filter(isSavedByPotty)
-		.map((change) => ({ timestamp: new Date(change.timestamp) }));
-
-	let reusableSavingsWithoutUpfront = 0;
-	const savingsEvents: { contribution: number; timestamp: Date }[] = [];
-
-	for (const reusableChange of reusableChanges) {
-		const averageDisposable = getDisposableAverageAround(
-			reusableChange.timestamp,
-			disposableChanges,
-		);
-		if (averageDisposable === null) continue;
-
-		const contribution = averageDisposable - reusableChange.reusableCost;
-		reusableSavingsWithoutUpfront += contribution;
-		savingsEvents.push({ contribution, timestamp: reusableChange.timestamp });
-	}
-
-	let pottySavings = 0;
-	for (const pottyEvent of pottyEvents) {
-		const averageDisposable = getDisposableAverageAround(
-			pottyEvent.timestamp,
-			disposableChanges,
-		);
-		if (averageDisposable === null) continue;
-
-		pottySavings += averageDisposable;
-		savingsEvents.push({
-			contribution: averageDisposable,
-			timestamp: pottyEvent.timestamp,
-		});
-	}
-
-	const reusableSavings = reusableSavingsWithoutUpfront - upfrontCostTotal;
-	const totalSavings = reusableSavings + pottySavings;
-
-	let breakEvenDate: Date | null = null;
-	if (savingsEvents.length > 0) {
-		const sortedSavingsEvents = [...savingsEvents].sort(
-			(a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
-		);
-
-		let runningSavings = -upfrontCostTotal;
-		for (const event of sortedSavingsEvents) {
-			runningSavings += event.contribution;
-			if (runningSavings >= 0) {
-				breakEvenDate = event.timestamp;
-				break;
-			}
-		}
-	}
-
-	let estimatedBreakEvenDate: Date | null = null;
-	if (!breakEvenDate && totalSavings < 0 && savingsEvents.length > 0) {
-		const sortedSavingsEvents = [...savingsEvents].sort(
-			(a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
-		);
-		const firstEventDate = sortedSavingsEvents[0].timestamp;
-		const latestEventDate = sortedSavingsEvents.at(-1)!.timestamp;
-		const elapsedDays = Math.max(
-			1,
-			differenceInDays(latestEventDate, firstEventDate) + 1,
-		);
-		const positiveContributionTotal = sortedSavingsEvents.reduce(
-			(sum, event) => sum + event.contribution,
-			0,
-		);
-		const contributionPerDay = positiveContributionTotal / elapsedDays;
-
-		if (contributionPerDay > 0) {
-			estimatedBreakEvenDate = addDays(
-				latestEventDate,
-				Math.ceil(Math.abs(totalSavings) / contributionPerDay),
-			);
-		}
-	}
-
-	const usageCost = allDiaperChanges.reduce((sum, change) => {
-		const productId = change.diaperProductId;
-		if (!productId) return sum;
-
-		const product = productById.get(productId);
-		if (
-			!product ||
-			!product.isReusable ||
-			typeof product.costPerDiaper !== 'number' ||
-			!Number.isFinite(product.costPerDiaper)
-		) {
-			return sum;
-		}
-
-		return sum + product.costPerDiaper;
-	}, 0);
-
-	let hypotheticalDisposableCost = 0;
-	for (const change of allDiaperChanges) {
-		const productId = change.diaperProductId;
-		const product = productId ? productById.get(productId) : null;
-
-		const timestamp = new Date(change.timestamp);
-		const averageDisposable = getDisposableAverageAround(
-			timestamp,
-			disposableChanges,
-		);
-
-		if (averageDisposable !== null) {
-			hypotheticalDisposableCost += averageDisposable;
-		} else if (product && !product.isReusable && product.costPerDiaper) {
-			hypotheticalDisposableCost += product.costPerDiaper;
-		}
-	}
-
-	return {
-		breakEvenDate,
-		estimatedBreakEvenDate,
-		hypotheticalDisposableCost,
-		pottySavings,
-		reusableSavings,
-		totalCost: usageCost + upfrontCostTotal,
-		totalSavings,
-		upfrontCostTotal,
-		usageCost,
-	};
 }
 
 export default function ReusableSavingsCard({
@@ -318,44 +153,40 @@ export default function ReusableSavingsCard({
 					</div>
 				</div>
 				<div className="space-y-2 border-t pt-3">
-					<div className="flex items-center justify-between text-sm">
-						<span className="font-medium text-muted-foreground">
-							<fbt desc="Label for upfront cost">Upfront Cost</fbt>
-						</span>
-						<span className="tabular-nums text-muted-foreground">
-							{formatCurrency(metrics.upfrontCostTotal, currency, locale)}
-						</span>
-					</div>
-					<div className="flex items-center justify-between text-sm">
-						<span className="font-medium text-muted-foreground">
-							<fbt desc="Label for usage cost">Usage Cost</fbt>
-						</span>
-						<span className="tabular-nums text-muted-foreground">
-							{formatCurrency(metrics.usageCost, currency, locale)}
-						</span>
-					</div>
-					<div className="flex items-center justify-between text-sm border-t pt-2 mt-2">
-						<span className="font-semibold">
-							<fbt desc="Label for total cost">Total Cost</fbt>
-						</span>
-						<span className="tabular-nums font-semibold">
-							{formatCurrency(metrics.totalCost, currency, locale)}
-						</span>
-					</div>
-					<div className="flex items-center justify-between text-xs text-muted-foreground pt-1 italic border-t mt-2">
-						<span>
+					<CostRow
+						className="text-sm"
+						label={<fbt desc="Label for upfront cost">Upfront Cost</fbt>}
+						labelClassName="font-medium text-muted-foreground"
+						value={formatCurrency(metrics.upfrontCostTotal, currency, locale)}
+						valueClassName="text-muted-foreground"
+					/>
+					<CostRow
+						className="text-sm"
+						label={<fbt desc="Label for usage cost">Usage Cost</fbt>}
+						labelClassName="font-medium text-muted-foreground"
+						value={formatCurrency(metrics.usageCost, currency, locale)}
+						valueClassName="text-muted-foreground"
+					/>
+					<CostRow
+						className="text-sm border-t pt-2 mt-2"
+						label={<fbt desc="Label for total cost">Total Cost</fbt>}
+						labelClassName="font-semibold"
+						value={formatCurrency(metrics.totalCost, currency, locale)}
+						valueClassName="font-semibold"
+					/>
+					<CostRow
+						className="text-xs text-muted-foreground pt-1 italic border-t mt-2"
+						label={
 							<fbt desc="Label for hypothetical disposable cost">
 								Hypothetical Disposable Cost
 							</fbt>
-						</span>
-						<span className="tabular-nums">
-							{formatCurrency(
-								metrics.hypotheticalDisposableCost,
-								currency,
-								locale,
-							)}
-						</span>
-					</div>
+						}
+						value={formatCurrency(
+							metrics.hypotheticalDisposableCost,
+							currency,
+							locale,
+						)}
+					/>
 				</div>
 			</CardContent>
 		</Card>
