@@ -23,6 +23,11 @@ import { useLanguage } from '@/contexts/i18n-context';
 import { useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/utils/format-currency';
+import {
+	getDisposableAverageAround,
+	getDisposableChanges,
+	isSavedByPotty,
+} from '../utils/diaper-savings';
 
 interface ReusableSavingsCardProps {
 	allDiaperChanges: DiaperChange[];
@@ -44,24 +49,6 @@ interface ReusableSavingsMetrics {
 
 function createProductById(products: DiaperProduct[]) {
 	return new Map(products.map((product) => [product.id, product]));
-}
-
-function getDisposableAverageAround(
-	timestamp: Date,
-	disposableChanges: Array<{ cost: number; timestamp: Date }>,
-): number | null {
-	const costs = disposableChanges
-		.filter(
-			(disposableChange) =>
-				Math.abs(differenceInDays(disposableChange.timestamp, timestamp)) <= 7,
-		)
-		.map((disposableChange) => disposableChange.cost);
-
-	if (costs.length === 0) {
-		return null;
-	}
-
-	return costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
 }
 
 function calculateReusableSavingsMetrics(
@@ -86,27 +73,7 @@ function calculateReusableSavingsMetrics(
 		return sum + product.upfrontCost;
 	}, 0);
 
-	const disposableChanges = allDiaperChanges
-		.map((change) => {
-			const productId = change.diaperProductId;
-			if (!productId) return null;
-
-			const product = productById.get(productId);
-			if (!product || product.isReusable) return null;
-
-			if (
-				typeof product.costPerDiaper !== 'number' ||
-				!Number.isFinite(product.costPerDiaper)
-			) {
-				return null;
-			}
-
-			return {
-				cost: product.costPerDiaper,
-				timestamp: new Date(change.timestamp),
-			};
-		})
-		.filter((item): item is { cost: number; timestamp: Date } => item !== null);
+	const disposableChanges = getDisposableChanges(allDiaperChanges, productById);
 
 	const reusableChanges = allDiaperChanges
 		.map((change) => {
@@ -131,15 +98,8 @@ function calculateReusableSavingsMetrics(
 		);
 
 	const pottyEvents = allDiaperChanges
-		.map((change) => {
-			const savedByPotty =
-				(change.pottyUrine && !change.containsUrine) ||
-				(change.pottyStool && !change.containsStool);
-			if (!savedByPotty) return null;
-
-			return { timestamp: new Date(change.timestamp) };
-		})
-		.filter((item): item is { timestamp: Date } => item !== null);
+		.filter(isSavedByPotty)
+		.map((change) => ({ timestamp: new Date(change.timestamp) }));
 
 	let reusableSavingsWithoutUpfront = 0;
 	const savingsEvents: { contribution: number; timestamp: Date }[] = [];
