@@ -1,13 +1,13 @@
 'use client';
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import { differenceInDays } from 'date-fns';
 import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/i18n-context';
 import { useCurrency } from '@/hooks/use-currency';
 import { formatCurrency } from '@/utils/format-currency';
+import { getDaySpan } from '../utils/day-span';
 import ComparisonValue from './comparison-value';
-import StatsCard from './stats-card';
+import StatsCard, { StatBreakdownRow, StatHeadline } from './stats-card';
 
 interface DiaperCostStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
@@ -28,13 +28,7 @@ function calculateCostMetrics(
 
 	let avgPerDay = 0;
 	if (changes.length > 0) {
-		const oldest = new Date(
-			Math.min(...changes.map((c) => new Date(c.timestamp).getTime())),
-		);
-		const newest = new Date(
-			Math.max(...changes.map((c) => new Date(c.timestamp).getTime())),
-		);
-		const days = Math.max(1, differenceInDays(newest, oldest) + 1);
+		const days = getDaySpan(changes.map((c) => c.timestamp));
 		avgPerDay = totalCost / days;
 	}
 
@@ -73,31 +67,38 @@ export default function DiaperCostStats({
 				<fbt desc="Title for diaper cost statistics card">Diaper Costs</fbt>
 			}
 		>
-			<div className="flex items-baseline">
-				<div className="text-2xl font-bold">
-					{formatCurrency(metrics.totalCost, currency, locale)}
-				</div>
-				{prevMetrics && (
-					<ComparisonValue
-						current={metrics.totalCost}
-						inverse
-						previous={prevMetrics.totalCost}
-					/>
-				)}
-			</div>
-			<div className="text-xs text-muted-foreground mt-1">
-				<fbt desc="Label for average diaper cost per day">Avg per day</fbt>:{' '}
-				<span className="font-medium text-foreground">
-					{formatCurrency(metrics.avgPerDay, currency, locale)}
-				</span>
-				{prevMetrics && (
-					<ComparisonValue
-						current={metrics.avgPerDay}
-						inverse
-						previous={prevMetrics.avgPerDay}
-					/>
-				)}
-			</div>
+			<StatHeadline
+				comparison={
+					prevMetrics && (
+						<ComparisonValue
+							current={metrics.totalCost}
+							inverse
+							previous={prevMetrics.totalCost}
+						/>
+					)
+				}
+				value={formatCurrency(metrics.totalCost, currency, locale)}
+			/>
+			<StatBreakdownRow
+				className="mt-1"
+				label={
+					<fbt desc="Label for average diaper cost per day">Avg per day</fbt>
+				}
+				value={
+					<>
+						<span className="font-medium text-foreground">
+							{formatCurrency(metrics.avgPerDay, currency, locale)}
+						</span>
+						{prevMetrics && (
+							<ComparisonValue
+								current={metrics.avgPerDay}
+								inverse
+								previous={prevMetrics.avgPerDay}
+							/>
+						)}
+					</>
+				}
+			/>
 		</StatsCard>
 	);
 }
