@@ -1,6 +1,7 @@
 import type { DiaperChange } from '@/types/diaper';
 import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
+import { groupByDay, maxEntry } from '../utils/group-by-day';
 import { RecordCard } from './record-card';
 
 interface PottyRecordsProps {
@@ -11,15 +12,16 @@ function calculateMostPottyChanges(
 	pottyChanges: readonly DiaperChange[],
 	todayKey: string,
 ) {
-	const changesByDay = new Map<string, number>();
-	for (const change of pottyChanges) {
-		const day = format(new Date(change.timestamp), 'yyyy-MM-dd');
-		if (day === todayKey) continue;
-		changesByDay.set(day, (changesByDay.get(day) || 0) + 1);
-	}
-	const days = Array.from(changesByDay.entries());
-	if (days.length === 0) return null;
-	return days.reduce((a, b) => (a[1] >= b[1] ? a : b));
+	const changesByDay = groupByDay(
+		pottyChanges,
+		(change) => change.timestamp,
+		() => 0,
+		(count) => count + 1,
+		{ excludeDayKey: todayKey },
+	);
+
+	if (changesByDay.size === 0) return null;
+	return maxEntry(changesByDay);
 }
 
 function calculateLongestStreak(diaperChanges: readonly DiaperChange[]) {

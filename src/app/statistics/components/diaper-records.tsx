@@ -1,20 +1,8 @@
 import type { DiaperChange } from '@/types/diaper';
-import { format, isValid, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
+import { groupByDay, maxEntry, minEntry } from '../utils/group-by-day';
 import { RecordCard } from './record-card';
-
-function getDayKey(timestamp: unknown): string | undefined {
-	if (typeof timestamp !== 'string') {
-		return undefined;
-	}
-
-	const parsedTimestamp = parseISO(timestamp);
-	if (!isValid(parsedTimestamp)) {
-		return undefined;
-	}
-
-	return format(parsedTimestamp, 'yyyy-MM-dd');
-}
 
 function parseDay(dayKey: string): Date {
 	return parseISO(dayKey);
@@ -28,19 +16,19 @@ function calculateDiaperStats(
 	diaperChanges: readonly DiaperChange[],
 	todayKey: string,
 ) {
-	const changesByDay = new Map<string, number>();
-	for (const change of diaperChanges) {
-		const day = getDayKey(change.timestamp);
-		if (!day || day === todayKey) continue;
+	const changesByDay = groupByDay(
+		diaperChanges,
+		(change) => change.timestamp,
+		() => 0,
+		(count) => count + 1,
+		{ excludeDayKey: todayKey },
+	);
 
-		changesByDay.set(day, (changesByDay.get(day) || 0) + 1);
-	}
+	if (changesByDay.size === 0)
+		return { fewestChanges: null, mostChanges: null };
 
-	const days = Array.from(changesByDay.entries());
-	if (days.length === 0) return { fewestChanges: null, mostChanges: null };
-
-	const mostChanges = days.reduce((a, b) => (a[1] >= b[1] ? a : b));
-	const fewestChanges = days.reduce((a, b) => (a[1] <= b[1] ? a : b));
+	const mostChanges = maxEntry(changesByDay);
+	const fewestChanges = minEntry(changesByDay);
 
 	return { fewestChanges, mostChanges };
 }
