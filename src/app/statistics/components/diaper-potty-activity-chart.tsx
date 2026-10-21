@@ -2,9 +2,10 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import type { DateRange } from '@/utils/get-range-dates';
-import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
+import { eachDayOfInterval, format } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useMemo } from 'react';
+import { bucketByDay } from '@/app/statistics/utils/bucket-by-day';
 import { resolveChartStartDate } from '@/app/statistics/utils/resolve-chart-start-date';
 import BarChart from '@/components/charts/bar-chart';
 import { useShowComparisonCharts } from '@/hooks/use-show-comparison-charts';
@@ -41,52 +42,28 @@ export default function DiaperPottyActivityChart({
 			start: effectivePrimaryFrom,
 		});
 
-		const primaryDataByDate = diaperChanges.reduce<
-			Record<
-				string,
-				{
-					diaperStool: number;
-					diaperUrine: number;
-					pottyStool: number;
-					pottyUrine: number;
-				}
-			>
-		>((acc, change) => {
-			const date = new Date(change.timestamp);
-			if (
-				isWithinInterval(date, {
-					end: primaryRange.to,
-					start: effectivePrimaryFrom,
-				})
-			) {
-				const key = format(date, 'yyyy-MM-dd');
-				if (!acc[key])
-					acc[key] = {
-						diaperStool: 0,
-						diaperUrine: 0,
-						pottyStool: 0,
-						pottyUrine: 0,
-					};
-				if (change.containsUrine) acc[key].diaperUrine++;
-				if (change.containsStool) acc[key].diaperStool++;
-				if (change.pottyUrine) acc[key].pottyUrine++;
-				if (change.pottyStool) acc[key].pottyStool++;
-			}
-			return acc;
-		}, {});
+		const primaryBuckets = bucketByDay(
+			diaperChanges,
+			primaryDays,
+			(c) => c.timestamp,
+			() => ({
+				diaperStool: 0,
+				diaperUrine: 0,
+				pottyStool: 0,
+				pottyUrine: 0,
+			}),
+			(acc, change) => {
+				if (change.containsUrine) acc.diaperUrine++;
+				if (change.containsStool) acc.diaperStool++;
+				if (change.pottyUrine) acc.pottyUrine++;
+				if (change.pottyStool) acc.pottyStool++;
+			},
+		);
 
-		const primaryDiaperUrineData = primaryDays.map(
-			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.diaperUrine || 0,
-		);
-		const primaryDiaperStoolData = primaryDays.map(
-			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.diaperStool || 0,
-		);
-		const primaryPottyUrineData = primaryDays.map(
-			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.pottyUrine || 0,
-		);
-		const primaryPottyStoolData = primaryDays.map(
-			(day) => primaryDataByDate[format(day, 'yyyy-MM-dd')]?.pottyStool || 0,
-		);
+		const primaryDiaperUrineData = primaryBuckets.map((b) => b.diaperUrine);
+		const primaryDiaperStoolData = primaryBuckets.map((b) => b.diaperStool);
+		const primaryPottyUrineData = primaryBuckets.map((b) => b.pottyUrine);
+		const primaryPottyStoolData = primaryBuckets.map((b) => b.pottyStool);
 
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
 
@@ -103,30 +80,19 @@ export default function DiaperPottyActivityChart({
 				start: secondaryRange.from,
 			});
 
-			const secondaryDataByDate = diaperChanges.reduce<
-				Record<string, { diaper: number; potty: number }>
-			>((acc, change) => {
-				const date = new Date(change.timestamp);
-				if (
-					isWithinInterval(date, {
-						end: secondaryRange.to,
-						start: secondaryRange.from,
-					})
-				) {
-					const key = format(date, 'yyyy-MM-dd');
-					if (!acc[key]) acc[key] = { diaper: 0, potty: 0 };
-					if (change.containsUrine || change.containsStool) acc[key].diaper++;
-					if (change.pottyUrine || change.pottyStool) acc[key].potty++;
-				}
-				return acc;
-			}, {});
+			const secondaryBuckets = bucketByDay(
+				diaperChanges,
+				secondaryDays,
+				(c) => c.timestamp,
+				() => ({ diaper: 0, potty: 0 }),
+				(acc, change) => {
+					if (change.containsUrine || change.containsStool) acc.diaper++;
+					if (change.pottyUrine || change.pottyStool) acc.potty++;
+				},
+			);
 
-			const secondaryDiaperData = secondaryDays.map(
-				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.diaper || 0),
-			);
-			const secondaryPottyData = secondaryDays.map(
-				(day) => -(secondaryDataByDate[format(day, 'yyyy-MM-dd')]?.potty || 0),
-			);
+			const secondaryDiaperData = secondaryBuckets.map((b) => -b.diaper);
+			const secondaryPottyData = secondaryBuckets.map((b) => -b.potty);
 
 			datasets.push(
 				{

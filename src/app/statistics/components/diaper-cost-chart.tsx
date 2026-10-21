@@ -1,9 +1,10 @@
 'use client';
 
 import type { DiaperChange, DiaperProduct } from '@/types/diaper';
-import { eachDayOfInterval, format, isWithinInterval } from 'date-fns';
+import { eachDayOfInterval, format } from 'date-fns';
 import { fbt } from 'fbtee';
 import { useMemo } from 'react';
+import { bucketByDay } from '@/app/statistics/utils/bucket-by-day';
 import { resolveChartStartDate } from '@/app/statistics/utils/resolve-chart-start-date';
 import BarChart from '@/components/charts/bar-chart';
 import { useCurrency } from '@/hooks/use-currency';
@@ -45,36 +46,35 @@ export default function DiaperCostChart({
 		});
 
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
-		const dayKeys = primaryDays.map((day) => format(day, 'yyyy-MM-dd'));
+
+		const primaryBucketsByProduct = bucketByDay(
+			diaperChanges,
+			primaryDays,
+			(c) => c.timestamp,
+			() => new Map<string, number>(),
+			(accMap, change) => {
+				if (!change.diaperProductId) return;
+				const product = productById.get(change.diaperProductId);
+				if (!product || !product.costPerDiaper) return;
+				accMap.set(
+					product.id,
+					(accMap.get(product.id) || 0) + product.costPerDiaper,
+				);
+			},
+		);
 
 		// Map of productId -> Array of daily costs
 		const primaryDataByProduct = new Map<string, number[]>();
 
-		diaperChanges.forEach((change) => {
-			if (!change.diaperProductId) return;
-			const product = productById.get(change.diaperProductId);
-			if (!product || !product.costPerDiaper) return;
-
-			const date = new Date(change.timestamp);
-			if (
-				isWithinInterval(date, {
-					end: primaryRange.to,
-					start: effectivePrimaryFrom,
-				})
-			) {
-				const dayKey = format(date, 'yyyy-MM-dd');
-				const dayIndex = dayKeys.indexOf(dayKey);
-				if (dayIndex === -1) return;
-
-				if (!primaryDataByProduct.has(product.id)) {
-					primaryDataByProduct.set(
-						product.id,
-						new Array(primaryDays.length).fill(0),
-					);
+		primaryBucketsByProduct.forEach((dayMap, dayIndex) => {
+			dayMap.forEach((cost, productId) => {
+				let data = primaryDataByProduct.get(productId);
+				if (!data) {
+					data = new Array(primaryDays.length).fill(0);
+					primaryDataByProduct.set(productId, data);
 				}
-				const costs = primaryDataByProduct.get(product.id)!;
-				costs[dayIndex] += product.costPerDiaper;
-			}
+				data[dayIndex] = cost;
+			});
 		});
 
 		const datasets = [];
@@ -97,30 +97,20 @@ export default function DiaperCostChart({
 				start: secondaryRange.from,
 			});
 
-			const secondaryCostByDate = diaperChanges.reduce<Record<string, number>>(
+			const secondaryBuckets = bucketByDay(
+				diaperChanges,
+				secondaryDays,
+				(c) => c.timestamp,
+				() => ({ cost: 0 }),
 				(acc, change) => {
-					if (!change.diaperProductId) return acc;
+					if (!change.diaperProductId) return;
 					const product = productById.get(change.diaperProductId);
-					if (!product || !product.costPerDiaper) return acc;
-
-					const date = new Date(change.timestamp);
-					if (
-						isWithinInterval(date, {
-							end: secondaryRange.to,
-							start: secondaryRange.from,
-						})
-					) {
-						const key = format(date, 'yyyy-MM-dd');
-						acc[key] = (acc[key] || 0) + product.costPerDiaper;
-					}
-					return acc;
+					if (!product || !product.costPerDiaper) return;
+					acc.cost += product.costPerDiaper;
 				},
-				{},
 			);
 
-			const secondaryData = secondaryDays.map(
-				(day) => -(secondaryCostByDate[format(day, 'yyyy-MM-dd')] || 0),
-			);
+			const secondaryData = secondaryBuckets.map((b) => -b.cost);
 
 			datasets.push({
 				backgroundColor: '#94a3b8', // slate-400
