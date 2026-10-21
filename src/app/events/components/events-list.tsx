@@ -149,20 +149,14 @@ export default function EventsList() {
 				<DeleteEntryDialog
 					entry={eventToDelete}
 					onClose={() => setEventToDelete(null)}
-					onDelete={(id) => {
-						removeEvent(id);
-						setEventToDelete(null);
-					}}
+					onDelete={removeEvent}
 				/>
 			)}
 			{eventToEdit && (
 				<AddEventDialog
 					event={eventToEdit}
 					onClose={() => setEventToEditId(null)}
-					onSave={(event) => {
-						upsertEvent(event);
-						setEventToEditId(null);
-					}}
+					onSave={upsertEvent}
 					title={
 						<fbt desc="Title of the dialog to edit an event">
 							Edit Event Entry

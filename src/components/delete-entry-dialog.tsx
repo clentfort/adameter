@@ -15,6 +15,9 @@ interface DeleteEntryDialogProps {
 	onDelete: (id: string) => void;
 }
 
+/**
+ * Confirmation dialog for entry deletion that automatically calls onClose after onDelete.
+ */
 export default function DeleteEntryDialog({
 	entry,
 	onClose,

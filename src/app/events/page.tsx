@@ -23,10 +23,7 @@ export default function EventsPage() {
 			{isAddEntryDialogOpen && (
 				<EventForm
 					onClose={() => setIsAddEntryDialogOpen(false)}
-					onSave={(event) => {
-						upsertEvent(event);
-						setIsAddEntryDialogOpen(false);
-					}}
+					onSave={upsertEvent}
 					title={
 						<fbt desc="Title of the dialog to add an event">
 							Add Event Entry
