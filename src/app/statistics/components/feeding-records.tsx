@@ -2,6 +2,7 @@ import type { FeedingSession } from '@/types/feeding';
 import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
+import { groupByDay, maxEntry, minEntry } from '../utils/group-by-day';
 import { RecordCard } from './record-card';
 
 interface FeedingRecordsProps {
@@ -12,19 +13,18 @@ function calculateFeedingStats(
 	sessions: readonly FeedingSession[],
 	todayKey: string,
 ) {
-	const sessionsByDay = new Map<string, { count: number; duration: number }>();
-	for (const session of sessions) {
-		const day = format(new Date(session.startTime), 'yyyy-MM-dd');
-		if (day === todayKey) continue;
-
-		const current = sessionsByDay.get(day) || { count: 0, duration: 0 };
-		sessionsByDay.set(day, {
+	const sessionsByDay = groupByDay(
+		sessions,
+		(session) => session.startTime,
+		() => ({ count: 0, duration: 0 }),
+		(current, session) => ({
 			count: current.count + 1,
 			duration: current.duration + session.durationInSeconds,
-		});
-	}
-	const days = Array.from(sessionsByDay.entries());
-	if (days.length === 0)
+		}),
+		{ excludeDayKey: todayKey },
+	);
+
+	if (sessionsByDay.size === 0)
 		return {
 			fewestSessions: null,
 			longestDuration: null,
@@ -32,19 +32,12 @@ function calculateFeedingStats(
 			mostSessions: null,
 			shortestDuration: null,
 		};
-	const mostSessions = days.reduce((a, b) =>
-		a[1].count >= b[1].count ? a : b,
-	);
 
-	const fewestSessions = days.reduce((a, b) =>
-		a[1].count <= b[1].count ? a : b,
-	);
-	const longestDuration = days.reduce((a, b) =>
-		a[1].duration >= b[1].duration ? a : b,
-	);
-	const shortestDuration = days.reduce((a, b) =>
-		a[1].duration <= b[1].duration ? a : b,
-	);
+	const mostSessions = maxEntry(sessionsByDay, (val) => val.count);
+	const fewestSessions = minEntry(sessionsByDay, (val) => val.count);
+	const longestDuration = maxEntry(sessionsByDay, (val) => val.duration);
+	const shortestDuration = minEntry(sessionsByDay, (val) => val.duration);
+
 	// Calculate longest gap between two sessions
 	const sortedSessions = [...sessions].sort((a, b) =>
 		a.startTime.localeCompare(b.startTime),
@@ -90,7 +83,14 @@ export default function FeedingRecords({ sessions = [] }: FeedingRecordsProps) {
 		[sessions, todayKey],
 	);
 
-	if (sessions.length === 0 || !mostSessions) return null;
+	if (
+		sessions.length === 0 ||
+		!mostSessions ||
+		!fewestSessions ||
+		!longestDuration ||
+		!shortestDuration
+	)
+		return null;
 
 	return (
 		<>
