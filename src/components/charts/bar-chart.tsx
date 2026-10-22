@@ -5,6 +5,7 @@ import Chart from 'chart.js/auto';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'chartjs-adapter-date-fns';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
+import { getChartTheme, legendLabels } from './chart-theme';
 
 interface BarDataset {
 	backgroundColor: string | CanvasPattern;
@@ -66,13 +67,7 @@ export default function BarChart({
 		const ctx = chartRef.current.getContext('2d');
 		if (!ctx) return;
 
-		const isDark =
-			typeof window !== 'undefined' &&
-			document.documentElement.classList.contains('dark');
-		const foregroundColor = isDark ? '#f4f4f5' : '#18181b';
-		const gridColor = isDark
-			? 'rgba(255, 255, 255, 0.1)'
-			: 'rgba(0, 0, 0, 0.05)';
+		const theme = getChartTheme();
 
 		const verticalLinesPlugin = {
 			beforeDatasetsDraw: (chart: ChartJS) => {
@@ -91,7 +86,7 @@ export default function BarChart({
 					ctx.beginPath();
 					ctx.strokeStyle =
 						line.color ||
-						(isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)');
+						(theme.isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)');
 					ctx.lineWidth = 1;
 					ctx.setLineDash([5, 5]);
 					ctx.moveTo(xPos, y.top);
@@ -101,7 +96,9 @@ export default function BarChart({
 					if (line.label) {
 						ctx.fillStyle =
 							line.color ||
-							(isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)');
+							(theme.isDark
+								? 'rgba(255, 255, 255, 0.5)'
+								: 'rgba(0, 0, 0, 0.4)');
 						ctx.font = '12px sans-serif';
 						ctx.textAlign = 'center';
 						ctx.fillText(line.label, xPos, y.top + 15);
@@ -128,15 +125,11 @@ export default function BarChart({
 				plugins: {
 					legend: {
 						display: true,
-						labels: {
-							color: foregroundColor,
-							pointStyle: 'circle',
-							usePointStyle: true,
-						},
+						labels: legendLabels(theme),
 						position: 'bottom',
 					},
 					title: {
-						color: foregroundColor,
+						color: theme.foreground,
 						display: !!title,
 						text: title?.toString() || '',
 					},
@@ -170,7 +163,7 @@ export default function BarChart({
 						},
 						stacked: true,
 						title: {
-							color: foregroundColor,
+							color: theme.foreground,
 							display: !!xAxisLabel,
 							text: xAxisLabel?.toString() || '',
 						},
@@ -178,7 +171,7 @@ export default function BarChart({
 					y: {
 						beginAtZero: true,
 						grid: {
-							color: gridColor,
+							color: theme.grid,
 						},
 						max: yMax,
 						min: yMin,
@@ -192,7 +185,7 @@ export default function BarChart({
 							},
 						},
 						title: {
-							color: foregroundColor,
+							color: theme.foreground,
 							display: !!yAxisLabel,
 							text: yAxisLabel?.toString() || '',
 						},
