@@ -2,7 +2,7 @@
 
 import type { JSX } from 'react';
 import type { TimeRange } from '@/utils/get-range-dates';
-import { addDays, isWithinInterval } from 'date-fns';
+import { addDays } from 'date-fns';
 import { useMemo, useState, useTransition } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
@@ -34,6 +34,7 @@ import TimeRangePicker from './components/time-range-picker';
 import TotalDiaperChangesStats from './components/total-diaper-changes-stats';
 import TotalDurationStats from './components/total-duration-stats';
 import TotalFeedingsStats from './components/total-feedings-stats';
+import { useStatisticsRangeData } from './hooks/use-statistics-range-data';
 import { getDisposableChanges } from './utils/diaper-savings';
 
 export default function StatisticsPage(): JSX.Element {
@@ -59,61 +60,17 @@ export default function StatisticsPage(): JSX.Element {
 		[timeRange, customRange],
 	);
 
-	// Filter sessions based on selected time range
-	const filteredSessions = useMemo(
-		() =>
-			sessions.filter((session) =>
-				isWithinInterval(new Date(session.startTime), {
-					end: primary.to,
-					start: primary.from,
-				}),
-			),
-		[sessions, primary],
-	);
-
-	const comparisonSessions = useMemo(
-		() =>
-			secondary
-				? sessions.filter((session) =>
-						isWithinInterval(new Date(session.startTime), {
-							end: secondary.to,
-							start: secondary.from,
-						}),
-					)
-				: undefined,
-		[sessions, secondary],
-	);
-
-	// Filter diaper changes based on selected time range
-	const filteredDiaperChanges = useMemo(
-		() =>
-			diaperChanges.filter((change) =>
-				isWithinInterval(new Date(change.timestamp), {
-					end: primary.to,
-					start: primary.from,
-				}),
-			),
-		[diaperChanges, primary],
-	);
-
-	const comparisonDiaperChanges = useMemo(
-		() =>
-			secondary
-				? diaperChanges.filter((change) =>
-						isWithinInterval(new Date(change.timestamp), {
-							end: secondary.to,
-							start: secondary.from,
-						}),
-					)
-				: undefined,
-		[diaperChanges, secondary],
-	);
-
-	const pottyHitsCount = useMemo(
-		() =>
-			filteredDiaperChanges.filter((c) => c.pottyUrine || c.pottyStool).length,
-		[filteredDiaperChanges],
-	);
+	const {
+		comparisonDiaperChanges,
+		comparisonSessions,
+		filteredDiaperChanges,
+		filteredSessions,
+	} = useStatisticsRangeData({
+		diaperChanges,
+		primary,
+		secondary,
+		sessions,
+	});
 
 	const productById = useMemo(
 		() => new Map(diaperProducts.map((p) => [p.id, p])),
@@ -211,7 +168,7 @@ export default function StatisticsPage(): JSX.Element {
 							Diaper & Potty
 						</fbt>
 					</h3>
-					{filteredDiaperChanges.length > 0 || pottyHitsCount > 0 ? (
+					{filteredDiaperChanges.length > 0 ? (
 						<>
 							<div className="grid grid-cols-2 gap-4">
 								<TimeBetweenDiaperChangesStats
