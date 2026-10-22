@@ -5,7 +5,7 @@ import { differenceInSeconds } from 'date-fns';
 import { useMemo } from 'react';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import ComparisonValue from './comparison-value';
-import StatsCard from './stats-card';
+import StatsCard, { StatHeadline } from './stats-card';
 
 interface TimeBetweenDiaperChangesStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
@@ -51,18 +51,18 @@ export default function TimeBetweenDiaperChangesStats({
 				</fbt>
 			}
 		>
-			<div className="flex items-baseline">
-				<div className="text-2xl font-bold">
-					{formatDurationAbbreviated(avgSeconds)}
-				</div>
-				{prevAvgSeconds !== null && (
-					<ComparisonValue
-						current={avgSeconds}
-						inverse
-						previous={prevAvgSeconds}
-					/>
-				)}
-			</div>
+			<StatHeadline
+				comparison={
+					prevAvgSeconds !== null && (
+						<ComparisonValue
+							current={avgSeconds}
+							inverse
+							previous={prevAvgSeconds}
+						/>
+					)
+				}
+				value={formatDurationAbbreviated(avgSeconds)}
+			/>
 		</StatsCard>
 	);
 }

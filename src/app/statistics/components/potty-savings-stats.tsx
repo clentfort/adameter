@@ -9,7 +9,7 @@ import {
 	isSavedByPotty,
 } from '../utils/diaper-savings';
 import ComparisonValue from './comparison-value';
-import StatsCard from './stats-card';
+import StatsCard, { StatHeadline } from './stats-card';
 
 interface PottySavingsStatsProps {
 	className?: string;
@@ -60,14 +60,18 @@ export default function PottySavingsStats({
 			className={className}
 			title={<fbt desc="Title for the potty savings stat">Potty Savings</fbt>}
 		>
-			<div className="flex items-baseline">
-				<div className="text-2xl font-bold text-green-700 dark:text-green-400">
-					{formattedSavings}
-				</div>
-				{prevSavings !== undefined && (
-					<ComparisonValue current={savings} previous={prevSavings} />
-				)}
-			</div>
+			<StatHeadline
+				comparison={
+					prevSavings !== undefined && (
+						<ComparisonValue current={savings} previous={prevSavings} />
+					)
+				}
+				value={
+					<span className="text-green-700 dark:text-green-400">
+						{formattedSavings}
+					</span>
+				}
+			/>
 			<div className="text-xs text-muted-foreground mt-1">
 				<fbt desc="Description of how potty savings are calculated">
 					Estimated savings from successful potty hits.
