@@ -6,6 +6,7 @@ import { format, isDate } from 'date-fns';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'chartjs-adapter-date-fns';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
+import { getChartTheme, legendLabels } from './chart-theme';
 
 interface PointData {
 	x: Date | number;
@@ -69,17 +70,11 @@ export default function LineChart({
 
 		const datasets: import('chart.js').ChartDataset<'line', PointData[]>[] = [];
 
-		const isDark =
-			typeof window !== 'undefined' &&
-			document.documentElement.classList.contains('dark');
-		const foregroundColor = isDark ? '#f4f4f5' : '#18181b';
-		const gridColor = isDark
+		const theme = getChartTheme();
+		const rangeFillColor = theme.isDark
 			? 'rgba(255, 255, 255, 0.1)'
 			: 'rgba(0, 0, 0, 0.05)';
-		const rangeFillColor = isDark
-			? 'rgba(255, 255, 255, 0.1)'
-			: 'rgba(0, 0, 0, 0.05)';
-		const rangeBorderColor = isDark
+		const rangeBorderColor = theme.isDark
 			? 'rgba(255, 255, 255, 0.2)'
 			: 'rgba(0, 0, 0, 0.1)';
 
@@ -125,13 +120,11 @@ export default function LineChart({
 					legend: {
 						display: !!datasetLabel,
 						labels: {
-							color: foregroundColor,
+							...legendLabels(theme),
 							filter: (item) => {
 								// Hide the range min/max from legend, just show the main dataset
 								return item.text === String(datasetLabel);
 							},
-							pointStyle: 'circle',
-							usePointStyle: true,
 						},
 					},
 					tooltip: {
@@ -183,7 +176,7 @@ export default function LineChart({
 							date: {},
 						},
 						grid: {
-							color: gridColor,
+							color: theme.grid,
 							display: true,
 						},
 						max: isDate(forecastDate)
@@ -217,7 +210,7 @@ export default function LineChart({
 									}
 								: undefined,
 						title: {
-							color: foregroundColor,
+							color: theme.foreground,
 							display: true,
 							text: String(xAxisLabel),
 						},
@@ -226,7 +219,7 @@ export default function LineChart({
 					y: {
 						beginAtZero: false,
 						grid: {
-							color: gridColor,
+							color: theme.grid,
 						},
 						ticks: {
 							callback: (value) => {
@@ -237,7 +230,7 @@ export default function LineChart({
 							},
 						},
 						title: {
-							color: foregroundColor,
+							color: theme.foreground,
 							display: true,
 							text: String(yAxisLabel),
 						},

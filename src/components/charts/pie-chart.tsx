@@ -4,6 +4,7 @@ import type { Chart as ChartJS } from 'chart.js';
 import Chart from 'chart.js/auto';
 import { useEffect, useRef, useState } from 'react';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
+import { getChartTheme, legendLabels } from './chart-theme';
 
 interface PieDataset {
 	backgroundColor: (string | CanvasPattern)[];
@@ -44,10 +45,7 @@ export default function PieChart({
 		const ctx = chartRef.current.getContext('2d');
 		if (!ctx) return;
 
-		const isDark =
-			typeof window !== 'undefined' &&
-			document.documentElement.classList.contains('dark');
-		const foregroundColor = isDark ? '#f4f4f5' : '#18181b';
+		const theme = getChartTheme();
 
 		chartInstance.current = new Chart<'pie', number[]>(ctx, {
 			data: {
@@ -62,15 +60,11 @@ export default function PieChart({
 				plugins: {
 					legend: {
 						display: true,
-						labels: {
-							color: foregroundColor,
-							pointStyle: 'circle',
-							usePointStyle: true,
-						},
+						labels: legendLabels(theme),
 						position: 'right',
 					},
 					title: {
-						color: foregroundColor,
+						color: theme.foreground,
 						display: false,
 						text: '',
 					},
