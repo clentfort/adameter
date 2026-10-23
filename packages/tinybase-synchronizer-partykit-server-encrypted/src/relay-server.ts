@@ -4,9 +4,6 @@ import { Server } from 'partyserver';
 const MESSAGE_SEPARATOR = '\n';
 const SNAPSHOT_KEY = 'snapshot';
 const SNAPSHOT_REVISION_KEY = 'snapshot_revision';
-// Snapshot copied from the retired managed PartyKit deployment. Kept apart from
-// the live snapshot so clients can CRDT-merge it instead of it being overwritten.
-const LEGACY_SNAPSHOT_KEY = 'legacy_snapshot';
 
 // Cloudflare Durable Object storage value limit.
 const MAX_STORAGE_VALUE_BYTES = 131_072;
@@ -16,13 +13,6 @@ const SNAPSHOT_CHUNK_SIZE_BYTES = 120_000;
  * Configuration for the encrypted synchronizer relay server.
  */
 export interface EncryptedSyncRelayConfig {
-	/**
-	 * The HTTP endpoint path for the imported legacy snapshot. GET is public,
-	 * PUT requires `Authorization: Bearer <legacy import secret>`.
-	 * Defaults to '/legacy-store'.
-	 */
-	legacyStorePath?: string;
-
 	/**
 	 * Custom response headers, e.g. for CORS.
 	 * Defaults to permissive CORS headers.
@@ -161,46 +151,6 @@ export class EncryptedSyncRelayServer<
 		await this.ctx.storage.delete(baseKey);
 	}
 
-	/**
-	 * Secret that authorizes writes to the legacy snapshot endpoint. Override in
-	 * subclasses to enable imports; returning `undefined` disables them.
-	 */
-	protected getLegacyImportSecret(): string | undefined {
-		return undefined;
-	}
-
-	private async handleLegacyStoreRequest(
-		request: Request,
-		headers: Record<string, string>,
-	): Promise<Response> {
-		if (request.method === 'GET') {
-			const snapshot = await this.readSnapshot(LEGACY_SNAPSHOT_KEY);
-			return new Response(snapshot ?? 'null', {
-				headers: { ...headers, 'Content-Type': 'text/plain' },
-				status: 200,
-			});
-		}
-
-		if (request.method !== 'PUT') {
-			return new Response('Method not allowed', { headers, status: 405 });
-		}
-
-		const body = await request.text();
-		const secret = this.getLegacyImportSecret();
-		if (
-			!secret ||
-			request.headers.get('Authorization') !== `Bearer ${secret}`
-		) {
-			return new Response('Unauthorized', { headers, status: 401 });
-		}
-		if (!body || body === 'null') {
-			return new Response('Empty snapshot', { headers, status: 400 });
-		}
-
-		await this.writeSnapshot(body, LEGACY_SNAPSHOT_KEY);
-		return new Response('ok', { headers, status: 200 });
-	}
-
 	private async writeVersionedSnapshot(
 		snapshot: string,
 		expectedRevision: string | null,
@@ -250,18 +200,7 @@ export class EncryptedSyncRelayServer<
 		}
 
 		const storePath = this.config.storePath ?? '/store';
-		const legacyStorePath = this.config.legacyStorePath ?? '/legacy-store';
 		const url = new URL(request.url);
-		if (url.pathname.endsWith(legacyStorePath)) {
-			try {
-				return await this.handleLegacyStoreRequest(request, headers);
-			} catch (error) {
-				return new Response(JSON.stringify({ error: String(error) }), {
-					headers: { ...headers, 'Content-Type': 'application/json' },
-					status: 500,
-				});
-			}
-		}
 		if (!url.pathname.endsWith(storePath)) {
 			return new Response('Not found', { status: 404 });
 		}
