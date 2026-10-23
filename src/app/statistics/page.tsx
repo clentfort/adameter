@@ -242,7 +242,7 @@ export default function StatisticsPage(): JSX.Element {
 								</div>
 							}
 						>
-							<GrowthChart measurements={[...measurements]} />
+							<GrowthChart measurements={measurements} />
 						</DeferredSection>
 					) : (
 						<div className="text-center py-4 text-muted-foreground">

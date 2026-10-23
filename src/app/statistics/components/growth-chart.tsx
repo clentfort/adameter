@@ -27,7 +27,7 @@ import { getGrowthRange, getPercentile } from '@/utils/growth-standards';
 import { cmToInches, gramsToLbs } from '@/utils/unit-conversions';
 
 interface GrowthChartProps {
-	measurements: GrowthMeasurement[];
+	measurements?: readonly GrowthMeasurement[];
 }
 
 interface RangePoint {
@@ -35,6 +35,47 @@ interface RangePoint {
 	yMax: number;
 	yMin: number;
 }
+
+type GrowthMetricField = 'weight' | 'height' | 'headCircumference';
+type GrowthIndicator =
+	'weight-for-age' | 'length-height-for-age' | 'head-circumference-for-age';
+
+interface GrowthMetricConfig {
+	field: GrowthMetricField;
+	indicator: GrowthIndicator;
+	toImperial: (val: number) => number;
+}
+
+const GROWTH_METRICS: readonly GrowthMetricConfig[] = [
+	{
+		field: 'weight',
+		indicator: 'weight-for-age',
+		toImperial: gramsToLbs,
+	},
+	{
+		field: 'height',
+		indicator: 'length-height-for-age',
+		toImperial: cmToInches,
+	},
+	{
+		field: 'headCircumference',
+		indicator: 'head-circumference-for-age',
+		toImperial: cmToInches,
+	},
+] as const;
+
+interface MetricState {
+	percentile: number | null;
+	range: RangePoint[];
+}
+
+type MetricStates = Record<GrowthMetricField, MetricState>;
+
+const INITIAL_METRIC_STATES: MetricStates = {
+	headCircumference: { percentile: null, range: [] },
+	height: { percentile: null, range: [] },
+	weight: { percentile: null, range: [] },
+};
 
 const DAYS_PER_MONTH = 30.4375;
 
@@ -77,7 +118,9 @@ function PercentileBadge({ value }: { value: number }) {
 	);
 }
 
-function calculateSortedMeasurements(measurements: GrowthMeasurement[]) {
+function calculateSortedMeasurements(
+	measurements: readonly GrowthMeasurement[],
+) {
 	return [...measurements].sort(
 		(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
 	);
@@ -85,7 +128,7 @@ function calculateSortedMeasurements(measurements: GrowthMeasurement[]) {
 
 function calculateForecastAge(
 	dob: Date | null,
-	sortedMeasurements: GrowthMeasurement[],
+	sortedMeasurements: readonly GrowthMeasurement[],
 ) {
 	if (!dob) return undefined;
 
@@ -101,9 +144,9 @@ function calculateForecastAge(
 }
 
 function calculateGrowthData(
-	sortedMeasurements: GrowthMeasurement[],
+	sortedMeasurements: readonly GrowthMeasurement[],
 	dob: Date | null,
-	field: keyof GrowthMeasurement,
+	field: GrowthMetricField,
 ) {
 	return sortedMeasurements
 		.filter((m) => m[field] != null && (m[field] as number) > 0)
@@ -119,12 +162,10 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 	const [profile] = useProfile();
 	const [unitSystem] = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
-	const [weightRange, setWeightRange] = useState<RangePoint[]>([]);
-	const [heightRange, setHeightRange] = useState<RangePoint[]>([]);
-	const [headRange, setHeadRange] = useState<RangePoint[]>([]);
-	const [weightPercentile, setWeightPercentile] = useState<number | null>(null);
-	const [heightPercentile, setHeightPercentile] = useState<number | null>(null);
-	const [headPercentile, setHeadPercentile] = useState<number | null>(null);
+
+	const [metricStates, setMetricStates] = useState<MetricStates>(
+		INITIAL_METRIC_STATES,
+	);
 
 	const sortedMeasurements = useMemo(
 		() => calculateSortedMeasurements(measurements),
@@ -147,72 +188,52 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 		async function loadRanges() {
 			if (!dob || !profile?.sex || profile.optedOut) {
 				if (!ignore) {
-					setWeightRange([]);
-					setHeightRange([]);
-					setHeadRange([]);
-					setWeightPercentile(null);
-					setHeightPercentile(null);
-					setHeadPercentile(null);
+					setMetricStates(INITIAL_METRIC_STATES);
 				}
 				return;
 			}
 
+			const sex = profile.sex;
+
 			// Calculate percentiles for the latest measurements
-			let latestWeight = null;
-			let latestHeight = null;
-			let latestHead = null;
+			const latestByField: Partial<
+				Record<GrowthMetricField, GrowthMeasurement>
+			> = {};
 			for (let i = sortedMeasurements.length - 1; i >= 0; i--) {
 				const m = sortedMeasurements[i];
-				if (!latestWeight && m.weight != null && m.weight > 0) latestWeight = m;
-				if (!latestHeight && m.height != null && m.height > 0) latestHeight = m;
-				if (
-					!latestHead &&
-					m.headCircumference != null &&
-					m.headCircumference > 0
-				) {
-					latestHead = m;
+				for (const metric of GROWTH_METRICS) {
+					const field = metric.field;
+					const val = m[field];
+					if (!latestByField[field] && val != null && val > 0) {
+						latestByField[field] = m;
+					}
 				}
-				if (latestWeight && latestHeight && latestHead) break;
+				if (GROWTH_METRICS.every((metric) => latestByField[metric.field])) {
+					break;
+				}
 			}
 
-			if (latestWeight?.weight && latestWeight.weight > 0) {
-				getPercentile(
-					'weight-for-age',
-					profile.sex,
-					differenceInDays(new Date(latestWeight.date), dob),
-					latestWeight.weight,
-				).then((p) => {
-					if (!ignore) setWeightPercentile(p);
-				});
-			} else if (!ignore) {
-				setWeightPercentile(null);
-			}
+			const percentiles: Record<GrowthMetricField, number | null> = {
+				headCircumference: null,
+				height: null,
+				weight: null,
+			};
 
-			if (latestHeight?.height && latestHeight.height > 0) {
-				getPercentile(
-					'length-height-for-age',
-					profile.sex,
-					differenceInDays(new Date(latestHeight.date), dob),
-					latestHeight.height,
-				).then((p) => {
-					if (!ignore) setHeightPercentile(p);
-				});
-			} else if (!ignore) {
-				setHeightPercentile(null);
-			}
-
-			if (latestHead?.headCircumference && latestHead.headCircumference > 0) {
-				getPercentile(
-					'head-circumference-for-age',
-					profile.sex,
-					differenceInDays(new Date(latestHead.date), dob),
-					latestHead.headCircumference,
-				).then((p) => {
-					if (!ignore) setHeadPercentile(p);
-				});
-			} else if (!ignore) {
-				setHeadPercentile(null);
-			}
+			await Promise.all(
+				GROWTH_METRICS.map(async (metric) => {
+					const latest = latestByField[metric.field];
+					const val = latest ? latest[metric.field] : undefined;
+					if (latest && val != null && val > 0) {
+						const p = await getPercentile(
+							metric.indicator,
+							sex,
+							differenceInDays(new Date(latest.date), dob),
+							val,
+						);
+						percentiles[metric.field] = p;
+					}
+				}),
+			);
 
 			const firstMeasurement = sortedMeasurements[0];
 			const lastMeasurement = sortedMeasurements.at(-1);
@@ -240,15 +261,11 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 				points.push(endDate);
 			}
 
-			const wRange: RangePoint[] = [];
-			const hRange: RangePoint[] = [];
-			const hcRange: RangePoint[] = [];
-
-			const metrics = [
-				{ indicator: 'weight-for-age', push: wRange },
-				{ indicator: 'length-height-for-age', push: hRange },
-				{ indicator: 'head-circumference-for-age', push: hcRange },
-			] as const;
+			const ranges: Record<GrowthMetricField, RangePoint[]> = {
+				headCircumference: [],
+				height: [],
+				weight: [],
+			};
 
 			for (const date of points) {
 				const ageInDays = differenceInDays(date, dob);
@@ -256,10 +273,10 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 
 				const ageInMonths = ageInDays / DAYS_PER_MONTH;
 
-				for (const { indicator, push } of metrics) {
-					const range = await getGrowthRange(indicator, profile.sex, ageInDays);
+				for (const metric of GROWTH_METRICS) {
+					const range = await getGrowthRange(metric.indicator, sex, ageInDays);
 					if (range) {
-						push.push({
+						ranges[metric.field].push({
 							x: ageInMonths,
 							yMax: range.max,
 							yMin: range.min,
@@ -269,9 +286,20 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 			}
 
 			if (!ignore) {
-				setWeightRange(wRange);
-				setHeightRange(hRange);
-				setHeadRange(hcRange);
+				setMetricStates({
+					headCircumference: {
+						percentile: percentiles.headCircumference,
+						range: ranges.headCircumference,
+					},
+					height: {
+						percentile: percentiles.height,
+						range: ranges.height,
+					},
+					weight: {
+						percentile: percentiles.weight,
+						range: ranges.weight,
+					},
+				});
 			}
 		}
 
@@ -282,78 +310,42 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 		};
 	}, [dob, profile?.sex, profile?.optedOut, sortedMeasurements]);
 
-	const displayWeightRange = useMemo(
-		() =>
-			isImperial
-				? weightRange.map((p) => ({
-						x: p.x,
-						yMax: gramsToLbs(p.yMax),
-						yMin: gramsToLbs(p.yMin),
+	const metricData = useMemo(() => {
+		const result = {} as Record<
+			GrowthMetricField,
+			{
+				data: Array<{ x: number; y: number }>;
+				displayRange: RangePoint[];
+			}
+		>;
+
+		for (const metric of GROWTH_METRICS) {
+			const rawData = calculateGrowthData(
+				sortedMeasurements,
+				dob,
+				metric.field,
+			);
+			const data = isImperial
+				? rawData.map((point) => ({
+						...point,
+						y: metric.toImperial(point.y),
 					}))
-				: weightRange,
-		[weightRange, isImperial],
-	);
+				: rawData;
 
-	const displayHeightRange = useMemo(
-		() =>
-			isImperial
-				? heightRange.map((p) => ({
+			const rawRange = metricStates[metric.field].range;
+			const displayRange = isImperial
+				? rawRange.map((p) => ({
 						x: p.x,
-						yMax: cmToInches(p.yMax),
-						yMin: cmToInches(p.yMin),
+						yMax: metric.toImperial(p.yMax),
+						yMin: metric.toImperial(p.yMin),
 					}))
-				: heightRange,
-		[heightRange, isImperial],
-	);
+				: rawRange;
 
-	const displayHeadRange = useMemo(
-		() =>
-			isImperial
-				? headRange.map((p) => ({
-						x: p.x,
-						yMax: cmToInches(p.yMax),
-						yMin: cmToInches(p.yMin),
-					}))
-				: headRange,
-		[headRange, isImperial],
-	);
+			result[metric.field] = { data, displayRange };
+		}
 
-	const weightData = useMemo(() => {
-		const data = calculateGrowthData(sortedMeasurements, dob, 'weight');
-
-		if (!isImperial) return data;
-
-		return data.map((point) => ({
-			...point,
-			y: gramsToLbs(point.y),
-		}));
-	}, [sortedMeasurements, dob, isImperial]);
-
-	const heightData = useMemo(() => {
-		const data = calculateGrowthData(sortedMeasurements, dob, 'height');
-
-		if (!isImperial) return data;
-
-		return data.map((point) => ({
-			...point,
-			y: cmToInches(point.y),
-		}));
-	}, [sortedMeasurements, dob, isImperial]);
-
-	const headCircumferenceData = useMemo(() => {
-		const data = calculateGrowthData(
-			sortedMeasurements,
-			dob,
-			'headCircumference',
-		);
-
-		if (!isImperial) return data;
-
-		return data.map((point) => ({
-			...point,
-			y: cmToInches(point.y),
-		}));
-	}, [sortedMeasurements, dob, isImperial]);
+		return result;
+	}, [sortedMeasurements, dob, isImperial, metricStates]);
 
 	if (measurements.length === 0) {
 		return (
@@ -407,9 +399,9 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							</fbt>
 						)}
 					</CardTitle>
-					{weightPercentile !== null && (
+					{metricStates.weight.percentile !== null && (
 						<CardAction>
-							<PercentileBadge value={weightPercentile} />
+							<PercentileBadge value={metricStates.weight.percentile} />
 						</CardAction>
 					)}
 				</CardHeader>
@@ -417,7 +409,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					<LineChart
 						backgroundColor="rgba(99, 102, 241, 0.1)"
 						borderColor="#6366f1"
-						data={weightData}
+						data={metricData.weight.data}
 						datasetLabel={
 							<fbt desc="Dataset label for weight data in the chart legend">
 								Weight
@@ -425,7 +417,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						emptyStateMessage={commonEmptyState}
 						forecastDate={dob ? forecastAge : undefined}
-						rangeData={displayWeightRange}
+						rangeData={metricData.weight.displayRange}
 						rangeLabel={rangeLabel}
 						title={<fbt desc="Chart title for weight">Weight</fbt>}
 						xAxisLabel={commonXAxisLabel}
@@ -459,9 +451,9 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							</fbt>
 						)}
 					</CardTitle>
-					{heightPercentile !== null && (
+					{metricStates.height.percentile !== null && (
 						<CardAction>
-							<PercentileBadge value={heightPercentile} />
+							<PercentileBadge value={metricStates.height.percentile} />
 						</CardAction>
 					)}
 				</CardHeader>
@@ -469,7 +461,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					<LineChart
 						backgroundColor="rgba(236, 72, 153, 0.1)"
 						borderColor="#ec4899"
-						data={heightData}
+						data={metricData.height.data}
 						datasetLabel={
 							<fbt desc="Dataset label for height data in the chart legend">
 								Height
@@ -477,7 +469,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						emptyStateMessage={commonEmptyState}
 						forecastDate={dob ? forecastAge : undefined}
-						rangeData={displayHeightRange}
+						rangeData={metricData.height.displayRange}
 						rangeLabel={rangeLabel}
 						title={<fbt desc="Chart title for height">Height</fbt>}
 						xAxisLabel={commonXAxisLabel}
@@ -511,9 +503,11 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 							</fbt>
 						)}
 					</CardTitle>
-					{headPercentile !== null && (
+					{metricStates.headCircumference.percentile !== null && (
 						<CardAction>
-							<PercentileBadge value={headPercentile} />
+							<PercentileBadge
+								value={metricStates.headCircumference.percentile}
+							/>
 						</CardAction>
 					)}
 				</CardHeader>
@@ -521,7 +515,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					<LineChart
 						backgroundColor="rgba(59, 130, 246, 0.1)"
 						borderColor="#3b82f6"
-						data={headCircumferenceData}
+						data={metricData.headCircumference.data}
 						datasetLabel={
 							<fbt desc="Dataset label for head circumference data in the chart legend">
 								Head Circumference
@@ -529,7 +523,7 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 						}
 						emptyStateMessage={commonEmptyState}
 						forecastDate={dob ? forecastAge : undefined}
-						rangeData={displayHeadRange}
+						rangeData={metricData.headCircumference.displayRange}
 						rangeLabel={rangeLabel}
 						title={
 							<fbt desc="Chart title for head circumference">
