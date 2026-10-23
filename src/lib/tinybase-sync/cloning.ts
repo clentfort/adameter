@@ -1,5 +1,4 @@
-import type { Content, MergeableStore } from 'tinybase';
-import { decryptContent } from 'tinybase-persister-partykit-client-encrypted';
+import type { MergeableStore } from 'tinybase';
 import {
 	decrypt,
 	getEncryptionKey,
@@ -36,44 +35,12 @@ export async function cloneRoomData(
 		throw new Error('No content found in the source room.');
 	}
 
-	// Detect format: the old persister server returns JSON (starts with '['),
-	// while the new relay server returns a base64-encoded encrypted blob.
-	if (body.startsWith('[')) {
-		// Old persister format: JSON Content [Tables, Values] with encrypted values
-		const encryptedContent = JSON.parse(body) as Content;
-		const content = await decryptContent(encryptedContent, encryptionKey);
-		store.setContent(content);
-	} else {
-		// New synchronizer format: single encrypted MergeableContent blob
-		const decrypted = await decrypt(body, encryptionKey);
-		const mergeableContent = jsonParseWithUndefined(decrypted);
-		if (!mergeableContent) {
-			throw new Error('Failed to parse decrypted content.');
-		}
-		store.applyMergeableChanges(
-			mergeableContent as Parameters<typeof store.applyMergeableChanges>[0],
-		);
+	const decrypted = await decrypt(body, encryptionKey);
+	const mergeableContent = jsonParseWithUndefined(decrypted);
+	if (!mergeableContent) {
+		throw new Error('Failed to parse decrypted content.');
 	}
-}
-
-/**
- * Clones a room from several hosts, merging their data. Fails only if no
- * host returned data.
- */
-export async function cloneRoomDataFromHosts(
-	sourceRoomName: string,
-	sourceHosts: string[],
-	store: MergeableStore,
-) {
-	const errors: unknown[] = [];
-	for (const sourceHost of sourceHosts) {
-		try {
-			await cloneRoomData(sourceRoomName, sourceHost, store);
-		} catch (error) {
-			errors.push(error);
-		}
-	}
-	if (errors.length === sourceHosts.length) {
-		throw new AggregateError(errors, 'Failed to clone room from any host.');
-	}
+	store.applyMergeableChanges(
+		mergeableContent as Parameters<typeof store.applyMergeableChanges>[0],
+	);
 }

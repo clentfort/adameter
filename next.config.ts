@@ -1,10 +1,7 @@
 import withFbtee from '@nkzw/next-plugin-fbtee';
 import { NextConfig } from 'next';
 import fbtCommon from './common_strings.json' with { type: 'json' };
-import {
-	getPartykitHostFromEnv,
-	resolveLegacyPartykitHost,
-} from './src/lib/partykit-host';
+import { getPartykitHostFromEnv } from './src/lib/partykit-host';
 
 const getPartykitHostForBuild = () => {
 	const explicitHost = process.env.NEXT_PUBLIC_PARTYKIT_HOST;
@@ -20,14 +17,9 @@ const getPartykitHostForBuild = () => {
 };
 
 const partykitHost = getPartykitHostForBuild();
-const legacyPartykitHost = resolveLegacyPartykitHost(
-	partykitHost,
-	process.env.NEXT_PUBLIC_LEGACY_PARTYKIT_HOST,
-);
 
 const nextConfig: NextConfig = {
 	env: {
-		NEXT_PUBLIC_LEGACY_PARTYKIT_HOST: legacyPartykitHost ?? '',
 		NEXT_PUBLIC_PARTYKIT_HOST: partykitHost,
 	},
 	productionBrowserSourceMaps: true,

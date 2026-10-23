@@ -74,7 +74,7 @@ vi.mock('@/migrations/run-if-needed', () => ({
 }));
 
 vi.mock('@/lib/tinybase-sync/cloning', () => ({
-	cloneRoomDataFromHosts: mocks.cloneRoomData,
+	cloneRoomData: mocks.cloneRoomData,
 }));
 
 function RoomSyncProbe() {

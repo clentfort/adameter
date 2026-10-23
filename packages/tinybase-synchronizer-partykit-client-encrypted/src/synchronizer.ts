@@ -1,12 +1,10 @@
 import type PartySocket from 'partysocket';
 import type {
-	Content,
 	MergeableChanges,
 	MergeableContent,
 	MergeableStore,
 } from 'tinybase';
 import type { Synchronizer } from 'tinybase/synchronizers';
-import { decryptContent } from 'tinybase-persister-partykit-client-encrypted';
 import { createCustomSynchronizer } from 'tinybase/synchronizers';
 import {
 	decrypt,
@@ -87,24 +85,6 @@ function updateSnapshotVersion(storeUrl: string, response: Response) {
 	} else {
 		snapshotVersions.delete(storeUrl);
 	}
-}
-
-function mergeLegacyContent(store: MergeableStore, content: Content) {
-	const [tables, values] = content;
-	store.transaction(() => {
-		for (const [tableId, table] of Object.entries(tables)) {
-			for (const [rowId, row] of Object.entries(table)) {
-				if (!store.hasRow(tableId, rowId)) {
-					store.setRow(tableId, rowId, row);
-				}
-			}
-		}
-		for (const [valueId, value] of Object.entries(values)) {
-			if (!store.hasValue(valueId)) {
-				store.setValue(valueId, value);
-			}
-		}
-	});
 }
 
 function getStoreProtocol(host: string): 'http' | 'https' {
@@ -243,14 +223,6 @@ async function performSnapshotLoad(
 	if (!encrypted || encrypted === 'null') {
 		updateSnapshotVersion(storeUrl, response);
 		return false;
-	}
-
-	if (encrypted.startsWith('[')) {
-		const legacyContent = jsonParseWithUndefined<Content>(encrypted);
-		const decryptedContent = await decryptContent(legacyContent, encryptionKey);
-		mergeLegacyContent(store, decryptedContent);
-		updateSnapshotVersion(storeUrl, response);
-		return true;
 	}
 
 	const decrypted = await decrypt(encrypted, encryptionKey);
