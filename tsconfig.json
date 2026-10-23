@@ -19,9 +19,6 @@
 		],
 		"paths": {
 			"@/*": ["./src/*"],
-			"tinybase-persister-partykit-client-encrypted": [
-				"./packages/tinybase-persister-partykit-client-encrypted/src/index.ts"
-			],
 			"tinybase-synchronizer-partykit-client-encrypted": [
 				"./packages/tinybase-synchronizer-partykit-client-encrypted/src/index.ts"
 			],

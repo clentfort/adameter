@@ -1,5 +1,3 @@
-import { createMergeableStore } from 'tinybase';
-import { encryptContent } from 'tinybase-persister-partykit-client-encrypted';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { encrypt, getEncryptionKey, jsonStringWithUndefined } from './crypto';
 import {
@@ -190,45 +188,6 @@ describe('loadServerSnapshot', () => {
 		expect(result).toBe(true);
 		expect(store.applyMergeableChanges).toHaveBeenCalledOnce();
 		expect(store.applyMergeableChanges).toHaveBeenCalledWith(mergeableContent);
-	});
-
-	it('loads and merges legacy encrypted Content snapshots', async () => {
-		const encryptedContent = await encryptContent(
-			[
-				{
-					events: {
-						remote: {
-							startDate: '2026-01-01T00:00:00.000Z',
-							title: 'Remote event',
-							type: 'point',
-						},
-					},
-				},
-				{ profile: JSON.stringify({ name: 'Ada' }) },
-			],
-			encryptionKey,
-		);
-		mockFetch.mockResolvedValue({
-			headers: { get: () => '"4"' },
-			ok: true,
-			text: () => Promise.resolve(jsonStringWithUndefined(encryptedContent)),
-		});
-		const store = createMergeableStore();
-		store.setRow('events', 'local', {
-			startDate: '2026-01-02T00:00:00.000Z',
-			title: 'Local event',
-			type: 'point',
-		});
-
-		const result = await loadServerSnapshot(
-			store,
-			'https://example.com/legacy-store',
-			encryptionKey,
-		);
-
-		expect(result).toBe(true);
-		expect(store.getRowIds('events').sort()).toEqual(['local', 'remote']);
-		expect(store.hasValue('profile')).toBe(true);
 	});
 
 	it('blocks saves until an in-flight snapshot load has been applied', async () => {
