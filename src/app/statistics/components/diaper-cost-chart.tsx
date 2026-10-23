@@ -47,6 +47,8 @@ export default function DiaperCostChart({
 
 		const labels = primaryDays.map((day) => format(day, 'MMM d'));
 
+		const productOrder = new Set<string>();
+
 		const primaryBucketsByProduct = bucketByDay(
 			diaperChanges,
 			primaryDays,
@@ -56,6 +58,7 @@ export default function DiaperCostChart({
 				if (!change.diaperProductId) return;
 				const product = productById.get(change.diaperProductId);
 				if (!product || !product.costPerDiaper) return;
+				productOrder.add(product.id);
 				accMap.set(
 					product.id,
 					(accMap.get(product.id) || 0) + product.costPerDiaper,
@@ -65,15 +68,17 @@ export default function DiaperCostChart({
 
 		// Map of productId -> Array of daily costs
 		const primaryDataByProduct = new Map<string, number[]>();
+		for (const productId of productOrder) {
+			primaryDataByProduct.set(
+				productId,
+				new Array(primaryDays.length).fill(0),
+			);
+		}
 
 		primaryBucketsByProduct.forEach((dayMap, dayIndex) => {
 			dayMap.forEach((cost, productId) => {
-				let data = primaryDataByProduct.get(productId);
-				if (!data) {
-					data = new Array(primaryDays.length).fill(0);
-					primaryDataByProduct.set(productId, data);
-				}
-				data[dayIndex] = cost;
+				const data = primaryDataByProduct.get(productId);
+				if (data) data[dayIndex] = cost;
 			});
 		});
 
