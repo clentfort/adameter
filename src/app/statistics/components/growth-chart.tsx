@@ -1,26 +1,14 @@
 'use client';
 
+import type {
+	MetricColor,
+	RangePoint,
+} from '@/app/statistics/components/growth-metric-card';
 import type { GrowthMeasurement } from '@/types/growth';
 import { addDays, differenceInDays, isAfter, min, startOfDay } from 'date-fns';
-import { Info } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import LineChart from '@/components/charts/line-chart';
-import { Badge } from '@/components/ui/badge';
-import {
-	Card,
-	CardAction,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
-import {
-	Popover,
-	PopoverContent,
-	PopoverDescription,
-	PopoverHeader,
-	PopoverTitle,
-	PopoverTrigger,
-} from '@/components/ui/popover';
+import GrowthMetricCard from '@/app/statistics/components/growth-metric-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProfile } from '@/hooks/use-profile';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { getGrowthRange, getPercentile } from '@/utils/growth-standards';
@@ -28,12 +16,6 @@ import { cmToInches, gramsToLbs } from '@/utils/unit-conversions';
 
 interface GrowthChartProps {
 	measurements?: readonly GrowthMeasurement[];
-}
-
-interface RangePoint {
-	x: number; // Age in months
-	yMax: number;
-	yMin: number;
 }
 
 type GrowthMetricField = 'weight' | 'height' | 'headCircumference';
@@ -64,6 +46,21 @@ const GROWTH_METRICS: readonly GrowthMetricConfig[] = [
 	},
 ] as const;
 
+const METRIC_CARD_COLORS: Record<GrowthMetricField, MetricColor> = {
+	headCircumference: {
+		backgroundColor: 'rgba(59, 130, 246, 0.1)',
+		borderColor: '#3b82f6',
+	},
+	height: {
+		backgroundColor: 'rgba(236, 72, 153, 0.1)',
+		borderColor: '#ec4899',
+	},
+	weight: {
+		backgroundColor: 'rgba(99, 102, 241, 0.1)',
+		borderColor: '#6366f1',
+	},
+};
+
 interface MetricState {
 	percentile: number | null;
 	range: RangePoint[];
@@ -78,45 +75,6 @@ const INITIAL_METRIC_STATES: MetricStates = {
 };
 
 const DAYS_PER_MONTH = 30.4375;
-
-function PercentileBadge({ value }: { value: number }) {
-	return (
-		<Popover>
-			<PopoverTrigger
-				nativeButton={false}
-				render={
-					<Badge
-						className="cursor-help transition-colors hover:bg-secondary/80"
-						variant="secondary"
-					>
-						<fbt desc="Label for growth percentile">
-							P<fbt:param name="percentile">{Math.round(value)}</fbt:param>
-						</fbt>
-						<Info className="ml-1 size-3" />
-					</Badge>
-				}
-			/>
-			<PopoverContent className="w-80">
-				<PopoverHeader>
-					<PopoverTitle>
-						<fbt desc="Title for percentile explanation popover">
-							What is a percentile?
-						</fbt>
-					</PopoverTitle>
-				</PopoverHeader>
-				<PopoverDescription className="text-xs leading-normal">
-					<fbt desc="Explanation of what a growth percentile means">
-						A percentile shows how your child&apos;s measurement compares to
-						other children of the same age and sex. For example, P50 means your
-						child is in the middle: 50% of children are smaller and 50% are
-						larger. P95 means your child is larger than 95% of children the same
-						age.
-					</fbt>
-				</PopoverDescription>
-			</PopoverContent>
-		</Popover>
-	);
-}
 
 function calculateSortedMeasurements(
 	measurements: readonly GrowthMeasurement[],
@@ -386,167 +344,132 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 
 	return (
 		<div className="space-y-4">
-			<Card>
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
-						{isImperial ? (
-							<fbt desc="Title for the weight section in the growth chart in pounds">
-								Weight (lbs)
-							</fbt>
-						) : (
-							<fbt desc="Title for the weight section in the growth chart in grams">
-								Weight (g)
-							</fbt>
-						)}
-					</CardTitle>
-					{metricStates.weight.percentile !== null && (
-						<CardAction>
-							<PercentileBadge value={metricStates.weight.percentile} />
-						</CardAction>
-					)}
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
-					<LineChart
-						backgroundColor="rgba(99, 102, 241, 0.1)"
-						borderColor="#6366f1"
-						data={metricData.weight.data}
-						datasetLabel={
-							<fbt desc="Dataset label for weight data in the chart legend">
-								Weight
-							</fbt>
-						}
-						emptyStateMessage={commonEmptyState}
-						forecastDate={dob ? forecastAge : undefined}
-						rangeData={metricData.weight.displayRange}
-						rangeLabel={rangeLabel}
-						title={<fbt desc="Chart title for weight">Weight</fbt>}
-						xAxisLabel={commonXAxisLabel}
-						xAxisType={dob ? 'linear' : 'time'}
-						yAxisLabel={
-							isImperial ? (
-								<fbt desc="Label for the Y-axis showing weight in pounds">
-									Weight (lbs)
-								</fbt>
-							) : (
-								<fbt desc="Label for the Y-axis showing weight in grams">
-									Weight (g)
-								</fbt>
-							)
-						}
-						yAxisUnit={isImperial ? 'lbs' : 'g'}
-					/>
-				</CardContent>
-			</Card>
+			<GrowthMetricCard
+				chartTitle={<fbt desc="Chart title for weight">Weight</fbt>}
+				color={METRIC_CARD_COLORS.weight}
+				data={metricData.weight.data}
+				datasetLabel={
+					<fbt desc="Dataset label for weight data in the chart legend">
+						Weight
+					</fbt>
+				}
+				emptyStateMessage={commonEmptyState}
+				forecastAge={dob ? forecastAge : undefined}
+				percentile={metricStates.weight.percentile}
+				range={metricData.weight.displayRange}
+				rangeLabel={rangeLabel}
+				title={
+					isImperial ? (
+						<fbt desc="Title for the weight section in the growth chart in pounds">
+							Weight (lbs)
+						</fbt>
+					) : (
+						<fbt desc="Title for the weight section in the growth chart in grams">
+							Weight (g)
+						</fbt>
+					)
+				}
+				unit={isImperial ? 'lbs' : 'g'}
+				xAxisLabel={commonXAxisLabel}
+				xAxisType={dob ? 'linear' : 'time'}
+				yAxisLabel={
+					isImperial ? (
+						<fbt desc="Label for the Y-axis showing weight in pounds">
+							Weight (lbs)
+						</fbt>
+					) : (
+						<fbt desc="Label for the Y-axis showing weight in grams">
+							Weight (g)
+						</fbt>
+					)
+				}
+			/>
 
-			<Card>
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
-						{isImperial ? (
-							<fbt desc="Title for the height section in the growth chart in inches">
-								Height (in)
-							</fbt>
-						) : (
-							<fbt desc="Title for the height section in the growth chart in centimeters">
-								Height (cm)
-							</fbt>
-						)}
-					</CardTitle>
-					{metricStates.height.percentile !== null && (
-						<CardAction>
-							<PercentileBadge value={metricStates.height.percentile} />
-						</CardAction>
-					)}
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
-					<LineChart
-						backgroundColor="rgba(236, 72, 153, 0.1)"
-						borderColor="#ec4899"
-						data={metricData.height.data}
-						datasetLabel={
-							<fbt desc="Dataset label for height data in the chart legend">
-								Height
-							</fbt>
-						}
-						emptyStateMessage={commonEmptyState}
-						forecastDate={dob ? forecastAge : undefined}
-						rangeData={metricData.height.displayRange}
-						rangeLabel={rangeLabel}
-						title={<fbt desc="Chart title for height">Height</fbt>}
-						xAxisLabel={commonXAxisLabel}
-						xAxisType={dob ? 'linear' : 'time'}
-						yAxisLabel={
-							isImperial ? (
-								<fbt desc="Label for the Y-axis showing height in inches">
-									Height (in)
-								</fbt>
-							) : (
-								<fbt desc="Label for the Y-axis showing height in centimeters">
-									Height (cm)
-								</fbt>
-							)
-						}
-						yAxisUnit={isImperial ? 'in' : 'cm'}
-					/>
-				</CardContent>
-			</Card>
+			<GrowthMetricCard
+				chartTitle={<fbt desc="Chart title for height">Height</fbt>}
+				color={METRIC_CARD_COLORS.height}
+				data={metricData.height.data}
+				datasetLabel={
+					<fbt desc="Dataset label for height data in the chart legend">
+						Height
+					</fbt>
+				}
+				emptyStateMessage={commonEmptyState}
+				forecastAge={dob ? forecastAge : undefined}
+				percentile={metricStates.height.percentile}
+				range={metricData.height.displayRange}
+				rangeLabel={rangeLabel}
+				title={
+					isImperial ? (
+						<fbt desc="Title for the height section in the growth chart in inches">
+							Height (in)
+						</fbt>
+					) : (
+						<fbt desc="Title for the height section in the growth chart in centimeters">
+							Height (cm)
+						</fbt>
+					)
+				}
+				unit={isImperial ? 'in' : 'cm'}
+				xAxisLabel={commonXAxisLabel}
+				xAxisType={dob ? 'linear' : 'time'}
+				yAxisLabel={
+					isImperial ? (
+						<fbt desc="Label for the Y-axis showing height in inches">
+							Height (in)
+						</fbt>
+					) : (
+						<fbt desc="Label for the Y-axis showing height in centimeters">
+							Height (cm)
+						</fbt>
+					)
+				}
+			/>
 
-			<Card>
-				<CardHeader className="p-4 pb-2">
-					<CardTitle className="text-base">
-						{isImperial ? (
-							<fbt desc="Title for the head circumference section in the growth chart in inches">
-								Head Circumference (in)
-							</fbt>
-						) : (
-							<fbt desc="Title for the head circumference section in the growth chart in centimeters">
-								Head Circumference (cm)
-							</fbt>
-						)}
-					</CardTitle>
-					{metricStates.headCircumference.percentile !== null && (
-						<CardAction>
-							<PercentileBadge
-								value={metricStates.headCircumference.percentile}
-							/>
-						</CardAction>
-					)}
-				</CardHeader>
-				<CardContent className="p-4 pt-0">
-					<LineChart
-						backgroundColor="rgba(59, 130, 246, 0.1)"
-						borderColor="#3b82f6"
-						data={metricData.headCircumference.data}
-						datasetLabel={
-							<fbt desc="Dataset label for head circumference data in the chart legend">
-								Head Circumference
-							</fbt>
-						}
-						emptyStateMessage={commonEmptyState}
-						forecastDate={dob ? forecastAge : undefined}
-						rangeData={metricData.headCircumference.displayRange}
-						rangeLabel={rangeLabel}
-						title={
-							<fbt desc="Chart title for head circumference">
-								Head Circumference
-							</fbt>
-						}
-						xAxisLabel={commonXAxisLabel}
-						xAxisType={dob ? 'linear' : 'time'}
-						yAxisLabel={
-							isImperial ? (
-								<fbt desc="Label for the Y-axis showing head circumference in inches">
-									Head Circumference (in)
-								</fbt>
-							) : (
-								<fbt desc="Label for the Y-axis showing head circumference in centimeters">
-									Head Circumference (cm)
-								</fbt>
-							)
-						}
-						yAxisUnit={isImperial ? 'in' : 'cm'}
-					/>
-				</CardContent>
-			</Card>
+			<GrowthMetricCard
+				chartTitle={
+					<fbt desc="Chart title for head circumference">
+						Head Circumference
+					</fbt>
+				}
+				color={METRIC_CARD_COLORS.headCircumference}
+				data={metricData.headCircumference.data}
+				datasetLabel={
+					<fbt desc="Dataset label for head circumference data in the chart legend">
+						Head Circumference
+					</fbt>
+				}
+				emptyStateMessage={commonEmptyState}
+				forecastAge={dob ? forecastAge : undefined}
+				percentile={metricStates.headCircumference.percentile}
+				range={metricData.headCircumference.displayRange}
+				rangeLabel={rangeLabel}
+				title={
+					isImperial ? (
+						<fbt desc="Title for the head circumference section in the growth chart in inches">
+							Head Circumference (in)
+						</fbt>
+					) : (
+						<fbt desc="Title for the head circumference section in the growth chart in centimeters">
+							Head Circumference (cm)
+						</fbt>
+					)
+				}
+				unit={isImperial ? 'in' : 'cm'}
+				xAxisLabel={commonXAxisLabel}
+				xAxisType={dob ? 'linear' : 'time'}
+				yAxisLabel={
+					isImperial ? (
+						<fbt desc="Label for the Y-axis showing head circumference in inches">
+							Head Circumference (in)
+						</fbt>
+					) : (
+						<fbt desc="Label for the Y-axis showing head circumference in centimeters">
+							Head Circumference (cm)
+						</fbt>
+					)
+				}
+			/>
 		</div>
 	);
 }
