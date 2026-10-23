@@ -80,4 +80,23 @@ describe('bucketByDay', () => {
 
 		expect(buckets).toEqual([{ total: 0 }, { total: 0 }, { total: 0 }]);
 	});
+
+	it('skips items with invalid date timestamps without throwing', () => {
+		const items = [
+			{ count: 1, time: 'not-a-date' },
+			{ count: 2, time: '2025-01-02T09:00:00' },
+		];
+
+		const buckets = bucketByDay(
+			items,
+			days,
+			(item) => item.time,
+			() => ({ total: 0 }),
+			(acc, item) => {
+				acc.total += item.count;
+			},
+		);
+
+		expect(buckets).toEqual([{ total: 0 }, { total: 2 }, { total: 0 }]);
+	});
 });
