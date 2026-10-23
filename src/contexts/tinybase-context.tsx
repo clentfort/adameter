@@ -1,6 +1,7 @@
 'use client';
 
 import type { MergeableStore } from 'tinybase';
+import type { Persister } from 'tinybase/persisters';
 import type { Synchronizer } from 'tinybase/synchronizers';
 import PartySocket from 'partysocket';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
@@ -31,6 +32,8 @@ import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
 
+const SNAPSHOT_SAVE_INTERVAL_MS = 30_000;
+
 const defaultStore = createMergeableStore();
 
 export const tinybaseContext = createContext<{ store: MergeableStore }>({
@@ -54,6 +57,29 @@ function getErrorMessage(error: unknown): string {
 function isExpectedSynchronizerTimeout(error: unknown): boolean {
 	const message = getErrorMessage(error);
 	return message.startsWith('No response from');
+}
+
+async function clonePreviewDataIfEmpty(
+	store: MergeableStore,
+	persister: Persister,
+): Promise<void> {
+	if (
+		process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview' &&
+		process.env.NEXT_PUBLIC_MAIN_ROOM_NAME &&
+		isStoreDataEmpty(store)
+	) {
+		try {
+			await cloneRoomData(
+				process.env.NEXT_PUBLIC_MAIN_ROOM_NAME,
+				resolvePartykitHost({ vercelEnv: 'production' }),
+				store,
+			);
+			await persister.save();
+			logger.log('Auto-cloned data from production in preview environment');
+		} catch (error) {
+			logger.error('Failed to auto-clone data from production:', error);
+		}
+	}
 }
 
 export function TinybaseProvider({ children }: TinybaseProviderProps) {
@@ -82,23 +108,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				`[PERF] Local IndexedDB load took ${(performance.now() - startLoad).toFixed(2)}ms`,
 			);
 
-			if (
-				process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview' &&
-				process.env.NEXT_PUBLIC_MAIN_ROOM_NAME &&
-				isStoreDataEmpty(store)
-			) {
-				try {
-					await cloneRoomData(
-						process.env.NEXT_PUBLIC_MAIN_ROOM_NAME,
-						resolvePartykitHost({ vercelEnv: 'production' }),
-						store,
-					);
-					await localPersister.save();
-					logger.log('Auto-cloned data from production in preview environment');
-				} catch (error) {
-					logger.error('Failed to auto-clone data from production:', error);
-				}
-			}
+			await clonePreviewDataIfEmpty(store, localPersister);
 
 			await localPersister.startAutoSave();
 
@@ -180,17 +190,21 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			const storeUrl = getStoreUrl(connection);
 
+			const saveSnapshot = (reason: string) => {
+				if (connection?.readyState !== 1) return;
+				void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
+					(error: unknown) => logger.error(reason, error),
+				);
+			};
+
 			// Debounced snapshot save: triggered by any store change while online.
 			// Keeps the server snapshot up-to-date within ~1 second so that peers
 			// coming back online see the latest data even within the 30s interval.
 			const scheduleSave = () => {
 				if (debounceTimer) clearTimeout(debounceTimer);
 				debounceTimer = setTimeout(() => {
-					if (isDisposed || connection?.readyState !== 1) return;
-					void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-						(error: unknown) =>
-							logger.error('Failed to save debounced snapshot:', error),
-					);
+					if (isDisposed) return;
+					saveSnapshot('Failed to save debounced snapshot:');
 				}, 1000);
 			};
 
@@ -232,10 +246,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 					if (didLoad) {
 						// Push the merged state back so other clients can pick it up.
-						void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-							(error: unknown) =>
-								logger.error('Failed to save snapshot after bootstrap:', error),
-						);
+						saveSnapshot('Failed to save snapshot after bootstrap:');
 					}
 					return didLoad;
 				} catch (error) {
@@ -313,23 +324,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 
 			// Periodically save an encrypted snapshot so that future clients
 			// can bootstrap when no peers are online.
-			const SNAPSHOT_SAVE_INTERVAL_MS = 30_000;
 			snapshotSaveInterval = setInterval(() => {
-				if (connection?.readyState === 1) {
-					void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-						(error: unknown) =>
-							logger.error('Failed to save periodic server snapshot:', error),
-					);
-				}
+				saveSnapshot('Failed to save periodic server snapshot:');
 			}, SNAPSHOT_SAVE_INTERVAL_MS);
 
 			// Save immediately when this is a new room. Existing snapshots are
 			// already saved after bootstrap with the merged local state.
 			if (!didLoadInitialSnapshot) {
-				void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-					(error: unknown) =>
-						logger.error('Failed to save initial server snapshot:', error),
-				);
+				saveSnapshot('Failed to save initial server snapshot:');
 			}
 
 			if (!isDisposed) {
