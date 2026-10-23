@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 
 export function bucketByDay<T, A>(
 	items: readonly T[],
@@ -17,6 +17,7 @@ export function bucketByDay<T, A>(
 	items.forEach((item) => {
 		const rawTimestamp = getTimestamp(item);
 		const date = new Date(rawTimestamp);
+		if (!isValid(date)) return;
 		const key = format(date, 'yyyy-MM-dd');
 		const index = dayIndexMap.get(key);
 		if (index !== undefined) {
