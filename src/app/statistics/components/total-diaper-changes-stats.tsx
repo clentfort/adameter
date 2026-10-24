@@ -2,7 +2,7 @@
 
 import type { DiaperChange } from '@/types/diaper';
 import ComparisonValue from './comparison-value';
-import StatsCard, { StatBreakdownRow, StatHeadline } from './stats-card';
+import StatsCard, { StatHeadline, StatInlineRow } from './stats-card';
 
 interface TotalDiaperChangesStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
@@ -41,7 +41,7 @@ export default function TotalDiaperChangesStats({
 				value={total}
 			/>
 			<div className="mt-2 space-y-1">
-				<StatBreakdownRow
+				<StatInlineRow
 					label={
 						<span className="text-yellow-700 dark:text-yellow-500 font-medium">
 							<fbt desc="Label for urine count in total stats">
@@ -61,7 +61,7 @@ export default function TotalDiaperChangesStats({
 						</>
 					}
 				/>
-				<StatBreakdownRow
+				<StatInlineRow
 					className="border-t border-border/50 pt-1"
 					label={
 						<span className="text-amber-800 dark:text-amber-500 font-medium">

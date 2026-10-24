@@ -4,7 +4,7 @@ import type { DiaperChange } from '@/types/diaper';
 import { useMemo } from 'react';
 import { getDaySpan } from '../utils/day-span';
 import ComparisonValue from './comparison-value';
-import StatsCard, { StatBreakdownRow, StatHeadline } from './stats-card';
+import StatsCard, { StatHeadline, StatInlineRow } from './stats-card';
 
 interface AvgDiaperChangesStatsProps {
 	comparisonDiaperChanges?: DiaperChange[];
@@ -55,7 +55,7 @@ export default function AvgDiaperChangesStats({
 				value={stats.avg.toFixed(1)}
 			/>
 			<div className="mt-2 space-y-1">
-				<StatBreakdownRow
+				<StatInlineRow
 					label={
 						<span className="text-yellow-700 dark:text-yellow-500 font-medium">
 							<fbt desc="Label for urine avg in average stats">
@@ -77,7 +77,7 @@ export default function AvgDiaperChangesStats({
 						</>
 					}
 				/>
-				<StatBreakdownRow
+				<StatInlineRow
 					className="border-t border-border/50 pt-1"
 					label={
 						<span className="text-amber-800 dark:text-amber-500 font-medium">
