@@ -1,11 +1,11 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
+import { useStore } from 'tinybase/ui-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { tinybaseContext } from '@/contexts/tinybase-context';
 import { downloadBackup } from '@/lib/backup';
 import { BackupReminderState } from '@/lib/backup-reminder';
 
@@ -14,7 +14,7 @@ interface ExportDataCardProps {
 }
 
 export function ExportDataCard({ onBackupRecorded }: ExportDataCardProps) {
-	const { store } = useContext(tinybaseContext);
+	const store = useStore()!;
 	const { toast } = useToast();
 	const [isBusy, setIsBusy] = useState(false);
 
