@@ -44,8 +44,9 @@ export default function HistoryEntryCard({
 	...props
 }: HistoryEntryCardProps & ComponentPropsWithoutRef<'div'>) {
 	const [isMapExpanded, setIsMapExpanded] = useState(false);
-	const hasLocation =
-		location?.latitude !== undefined && location?.longitude !== undefined;
+	const latitude = location?.latitude;
+	const longitude = location?.longitude;
+	const hasLocation = latitude !== undefined && longitude !== undefined;
 
 	const cardStyle = accentColor
 		? {
@@ -60,11 +61,8 @@ export default function HistoryEntryCard({
 
 	const effectiveFooter =
 		footer ??
-		(isMapExpanded && hasLocation ? (
-			<LocationMap
-				latitude={location.latitude!}
-				longitude={location.longitude!}
-			/>
+		(isMapExpanded && latitude !== undefined && longitude !== undefined ? (
+			<LocationMap latitude={latitude} longitude={longitude} />
 		) : null);
 
 	return (
@@ -87,7 +85,7 @@ export default function HistoryEntryCard({
 					)}
 					{children && <div className="mt-2">{children}</div>}
 					{hasLocation && (
-						<div className="pt-1">
+						<div className={cn('pt-1', children ? 'mt-1' : 'mt-2')}>
 							<Button
 								className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
 								data-testid="toggle-map-button"
