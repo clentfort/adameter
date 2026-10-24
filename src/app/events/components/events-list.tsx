@@ -26,7 +26,7 @@ function buildEventHistoryUrl(
 	if (event.color) {
 		params.set('color', event.color);
 	}
-	return `${basePath}?${params.toString().replaceAll('%3A', ':').replaceAll('+', '%20')}`;
+	return `${basePath}?${params}`;
 }
 
 function EventListItem({
