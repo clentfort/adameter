@@ -15,7 +15,7 @@ import { getGrowthRange, getPercentile } from '@/utils/growth-standards';
 import { cmToInches, gramsToLbs } from '@/utils/unit-conversions';
 
 interface GrowthChartProps {
-	measurements?: readonly GrowthMeasurement[];
+	measurements: readonly GrowthMeasurement[];
 }
 
 type GrowthMetricField = 'weight' | 'height' | 'headCircumference';
@@ -116,7 +116,7 @@ function calculateGrowthData(
 		}));
 }
 
-export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
+export default function GrowthChart({ measurements }: GrowthChartProps) {
 	const [profile] = useProfile();
 	const [unitSystem] = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
@@ -192,6 +192,16 @@ export default function GrowthChart({ measurements = [] }: GrowthChartProps) {
 					}
 				}),
 			);
+
+			if (ignore) return;
+			setMetricStates((prev) => ({
+				headCircumference: {
+					...prev.headCircumference,
+					percentile: percentiles.headCircumference,
+				},
+				height: { ...prev.height, percentile: percentiles.height },
+				weight: { ...prev.weight, percentile: percentiles.weight },
+			}));
 
 			const firstMeasurement = sortedMeasurements[0];
 			const lastMeasurement = sortedMeasurements.at(-1);
