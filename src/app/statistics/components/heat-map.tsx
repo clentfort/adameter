@@ -26,23 +26,25 @@ const INTENSITY_CLASSES = [
 	'bg-right-breast dark:bg-right-breast-light',
 ] as const;
 
-const LEGEND_LABELS = [
-	<fbt desc="Heat map legend label for very high activity" key="very-high">
-		Very High Activity
-	</fbt>,
-	<fbt desc="Heat map legend label for high activity" key="high">
-		High Activity
-	</fbt>,
-	<fbt desc="Heat map legend label for medium activity" key="medium">
-		Medium Activity
-	</fbt>,
-	<fbt desc="Heat map legend label for low activity" key="low">
-		Low Activity
-	</fbt>,
-	<fbt desc="Heat map legend label for very low activity" key="very-low">
-		Very Low Activity
-	</fbt>,
-];
+function getLegendLabels() {
+	return [
+		<fbt desc="Heat map legend label for very high activity" key="very-high">
+			Very High Activity
+		</fbt>,
+		<fbt desc="Heat map legend label for high activity" key="high">
+			High Activity
+		</fbt>,
+		<fbt desc="Heat map legend label for medium activity" key="medium">
+			Medium Activity
+		</fbt>,
+		<fbt desc="Heat map legend label for low activity" key="low">
+			Low Activity
+		</fbt>,
+		<fbt desc="Heat map legend label for very low activity" key="very-low">
+			Very Low Activity
+		</fbt>,
+	];
+}
 
 function getIntensityLevel(count: number, max: number): number {
 	if (count === 0) return 0;
@@ -258,7 +260,7 @@ export default function HeatMap({ className, sessions = [] }: HeatMapProps) {
 					</div>
 
 					<div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
-						{LEGEND_LABELS.map((label, i) => {
+						{getLegendLabels().map((label, i) => {
 							const level = 5 - i;
 							return (
 								<div className="flex items-center gap-1" key={level}>
