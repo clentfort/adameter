@@ -4,7 +4,7 @@ import type { DiaperChange } from '@/types/diaper';
 import { useMemo } from 'react';
 import { getDaySpan } from '../utils/day-span';
 import ComparisonValue from './comparison-value';
-import StatsCard, { StatBreakdownRow, StatHeadline } from './stats-card';
+import StatsCard, { StatHeadline, StatInlineRow } from './stats-card';
 
 interface PottySuccessStatsProps {
 	className?: string;
@@ -61,7 +61,7 @@ export default function PottySuccessStats({
 				value={metrics.total}
 			/>
 			<div className="mt-2 space-y-1">
-				<StatBreakdownRow
+				<StatInlineRow
 					label={
 						<span className="text-yellow-700 dark:text-yellow-500 font-medium">
 							<fbt desc="Label for potty urine count in stats card">
@@ -83,7 +83,7 @@ export default function PottySuccessStats({
 						</>
 					}
 				/>
-				<StatBreakdownRow
+				<StatInlineRow
 					className="border-t border-border/50 pt-1"
 					label={
 						<span className="text-amber-800 dark:text-amber-500 font-medium">
@@ -106,12 +106,14 @@ export default function PottySuccessStats({
 						</>
 					}
 				/>
-				<StatBreakdownRow
+				<StatInlineRow
 					className="border-t border-border/50 pt-1"
 					label={
-						<fbt desc="Label for average potty success per day in stats card">
-							Avg per day
-						</fbt>
+						<span>
+							<fbt desc="Label for average potty success per day in stats card">
+								Avg per day
+							</fbt>
+						</span>
 					}
 					value={
 						<>

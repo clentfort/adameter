@@ -37,6 +37,26 @@ export function StatHeadline({ comparison, value }: StatHeadlineProps) {
 	);
 }
 
+interface StatInlineRowProps {
+	className?: string;
+	label: React.ReactNode;
+	value: React.ReactNode;
+}
+
+export function StatInlineRow({ className, label, value }: StatInlineRowProps) {
+	return (
+		<div
+			className={cn(
+				'flex flex-wrap items-baseline gap-x-2 text-xs text-muted-foreground',
+				className,
+			)}
+		>
+			{label}
+			{value}
+		</div>
+	);
+}
+
 interface StatBreakdownRowProps {
 	className?: string;
 	label: React.ReactNode;
