@@ -1,7 +1,6 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -9,17 +8,19 @@ import { useLanguage } from '@/contexts/i18n-context';
 import {
 	BackupReminderState,
 	isBackupReminderMode,
-	readBackupReminderState,
 	writeBackupReminderState,
 } from '@/lib/backup-reminder';
 
-export function BackupReminderCard() {
-	const { locale } = useLanguage();
-	const [backupReminder, setBackupReminder] = useState<BackupReminderState>();
+interface BackupReminderCardProps {
+	onChange: (state: BackupReminderState) => void;
+	state: BackupReminderState | undefined;
+}
 
-	useEffect(() => {
-		setBackupReminder(readBackupReminderState());
-	}, []);
+export function BackupReminderCard({
+	onChange,
+	state,
+}: BackupReminderCardProps) {
+	const { locale } = useLanguage();
 
 	return (
 		<Card>
@@ -40,10 +41,10 @@ export function BackupReminderCard() {
 				<RadioGroup
 					onValueChange={(value) => {
 						if (isBackupReminderMode(value)) {
-							setBackupReminder(writeBackupReminderState({ mode: value }));
+							onChange(writeBackupReminderState({ mode: value }));
 						}
 					}}
-					value={backupReminder?.mode ?? 'ask'}
+					value={state?.mode ?? 'ask'}
 				>
 					<div className="flex items-center gap-2">
 						<RadioGroupItem id="backup-reminder-ask" value="ask" />
@@ -69,13 +70,11 @@ export function BackupReminderCard() {
 					</div>
 				</RadioGroup>
 				<p className="text-sm text-muted-foreground">
-					{backupReminder?.lastBackupAt ? (
+					{state?.lastBackupAt ? (
 						<fbt desc="Shows when the last backup was downloaded">
 							Last backup:{' '}
 							<fbt:param name="date">
-								{new Date(backupReminder.lastBackupAt).toLocaleDateString(
-									locale,
-								)}
+								{new Date(state.lastBackupAt).toLocaleDateString(locale)}
 							</fbt:param>
 						</fbt>
 					) : (
