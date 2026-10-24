@@ -7,7 +7,6 @@ import { useMemo, useState, useTransition } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { useDiaperProductsSnapshot } from '@/hooks/use-diaper-products';
-import { useEventsSnapshot } from '@/hooks/use-events';
 import { useFeedingSessionsSnapshot } from '@/hooks/use-feeding-sessions';
 import { useGrowthMeasurementsSnapshot } from '@/hooks/use-growth-measurements';
 import { cn } from '@/lib/utils';
@@ -40,7 +39,6 @@ import { getDisposableChanges } from './utils/diaper-savings';
 export default function StatisticsPage(): JSX.Element {
 	const diaperChanges = useDiaperChangesSnapshot();
 	const diaperProducts = useDiaperProductsSnapshot();
-	useEventsSnapshot();
 	const measurements = useGrowthMeasurementsSnapshot();
 	const sessions = useFeedingSessionsSnapshot();
 
