@@ -1,15 +1,15 @@
 'use client';
 
 import { fbt } from 'fbtee';
-import { ChangeEvent, useContext, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
+import { useStore } from 'tinybase/ui-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { tinybaseContext } from '@/contexts/tinybase-context';
 import { importZipIntoStore } from '@/utils/data-transfer/import';
 
 export function ImportDataCard() {
-	const { store } = useContext(tinybaseContext);
+	const store = useStore()!;
 	const { toast } = useToast();
 	const [isBusy, setIsBusy] = useState(false);
 

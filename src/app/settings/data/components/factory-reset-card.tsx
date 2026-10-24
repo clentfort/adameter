@@ -2,6 +2,7 @@
 
 import { fbt } from 'fbtee';
 import { useContext, useState } from 'react';
+import { useStore } from 'tinybase/ui-react';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -18,12 +19,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
-import { tinybaseContext } from '@/contexts/tinybase-context';
 import { backupAndClearLocalStore } from '@/lib/tinybase-sync/factory-reset';
 import { exportStoreAsZip } from '@/utils/data-transfer/export';
 
 export function FactoryResetCard() {
-	const { store } = useContext(tinybaseContext);
+	const store = useStore()!;
 	const { leaveRoom } = useContext(DataSynchronizationContext);
 	const { toast } = useToast();
 	const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);

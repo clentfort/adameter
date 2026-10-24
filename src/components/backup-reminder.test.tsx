@@ -2,8 +2,8 @@ import type { MergeableStore } from 'tinybase';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMergeableStore } from 'tinybase';
+import { Provider } from 'tinybase/ui-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { tinybaseContext } from '@/contexts/tinybase-context';
 import {
 	readBackupReminderState,
 	writeBackupReminderState,
@@ -32,9 +32,9 @@ function createStoreWithData() {
 
 function renderReminder(store: MergeableStore = createStoreWithData()) {
 	return render(
-		<tinybaseContext.Provider value={{ store }}>
+		<Provider store={store}>
 			<BackupReminder />
-		</tinybaseContext.Provider>,
+		</Provider>,
 	);
 }
 
