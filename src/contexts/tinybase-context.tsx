@@ -2,7 +2,7 @@
 
 import type { MergeableStore } from 'tinybase';
 import type { Persister } from 'tinybase/persisters';
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { createMergeableStore } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { Provider } from 'tinybase/ui-react';
@@ -23,10 +23,6 @@ import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
 
 const defaultStore = createMergeableStore();
-
-export const tinybaseContext = createContext<{ store: MergeableStore }>({
-	store: defaultStore,
-});
 
 interface TinybaseProviderProps {
 	children: React.ReactNode;
@@ -161,9 +157,5 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		return <SplashScreen />;
 	}
 
-	return (
-		<tinybaseContext.Provider value={{ store: storeRef.current }}>
-			<Provider store={storeRef.current}>{children}</Provider>
-		</tinybaseContext.Provider>
-	);
+	return <Provider store={storeRef.current}>{children}</Provider>;
 }

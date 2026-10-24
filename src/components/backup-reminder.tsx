@@ -2,7 +2,8 @@
 
 import type { Store } from 'tinybase';
 import { fbt } from 'fbtee';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useStore } from 'tinybase/ui-react';
 import {
 	AlertDialog,
 	AlertDialogContent,
@@ -15,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { tinybaseContext } from '@/contexts/tinybase-context';
 import { downloadBackup } from '@/lib/backup';
 import {
 	isBackupDue,
@@ -39,7 +39,7 @@ function hasTrackedEntries(store: Store) {
  * when the user chose so. Can be switched off in the data settings.
  */
 export function BackupReminder() {
-	const { store } = useContext(tinybaseContext);
+	const store = useStore()!;
 	const { toast } = useToast();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isExporting, setIsExporting] = useState(false);
