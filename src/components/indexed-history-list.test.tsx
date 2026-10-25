@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { createIndexes, createStore } from 'tinybase';
 import { Provider } from 'tinybase/ui-react';
 import { describe, expect, it, vi } from 'vitest';
+import { TinybaseIndexesContext } from '@/contexts/tinybase-indexes-context';
 import { STORE_VALUE_SELECTED_PROFILE_ID } from '@/lib/tinybase-sync/constants';
 import IndexedHistoryList from './indexed-history-list';
 
@@ -60,13 +61,11 @@ describe('IndexedHistoryList', () => {
 
 		render(
 			<Provider store={store}>
-				<IndexedHistoryList
-					dateKeys={[]}
-					indexes={indexes}
-					indexId={TEST_INDEX_ID}
-				>
-					{(rowId) => <div data-testid="entry">{rowId}</div>}
-				</IndexedHistoryList>
+				<TinybaseIndexesContext.Provider value={{ indexes }}>
+					<IndexedHistoryList dateKeys={[]} indexId={TEST_INDEX_ID}>
+						{(rowId) => <div data-testid="entry">{rowId}</div>}
+					</IndexedHistoryList>
+				</TinybaseIndexesContext.Provider>
 			</Provider>,
 		);
 
@@ -85,13 +84,11 @@ describe('IndexedHistoryList', () => {
 
 		render(
 			<Provider store={store}>
-				<IndexedHistoryList
-					dateKeys={dateKeys}
-					indexes={indexes}
-					indexId={TEST_INDEX_ID}
-				>
-					{(rowId) => <div data-testid="entry">{rowId}</div>}
-				</IndexedHistoryList>
+				<TinybaseIndexesContext.Provider value={{ indexes }}>
+					<IndexedHistoryList dateKeys={dateKeys} indexId={TEST_INDEX_ID}>
+						{(rowId) => <div data-testid="entry">{rowId}</div>}
+					</IndexedHistoryList>
+				</TinybaseIndexesContext.Provider>
 			</Provider>,
 		);
 
@@ -114,13 +111,11 @@ describe('IndexedHistoryList', () => {
 
 		render(
 			<Provider store={store}>
-				<IndexedHistoryList
-					dateKeys={dateKeys}
-					indexes={indexes}
-					indexId={TEST_INDEX_ID}
-				>
-					{(rowId) => <div data-testid="entry">{rowId}</div>}
-				</IndexedHistoryList>
+				<TinybaseIndexesContext.Provider value={{ indexes }}>
+					<IndexedHistoryList dateKeys={dateKeys} indexId={TEST_INDEX_ID}>
+						{(rowId) => <div data-testid="entry">{rowId}</div>}
+					</IndexedHistoryList>
+				</TinybaseIndexesContext.Provider>
 			</Provider>,
 		);
 
@@ -144,13 +139,11 @@ describe('IndexedHistoryList', () => {
 
 		render(
 			<Provider store={store}>
-				<IndexedHistoryList
-					dateKeys={dateKeys}
-					indexes={indexes}
-					indexId={TEST_INDEX_ID}
-				>
-					{(rowId) => <div data-testid="entry">{rowId}</div>}
-				</IndexedHistoryList>
+				<TinybaseIndexesContext.Provider value={{ indexes }}>
+					<IndexedHistoryList dateKeys={dateKeys} indexId={TEST_INDEX_ID}>
+						{(rowId) => <div data-testid="entry">{rowId}</div>}
+					</IndexedHistoryList>
+				</TinybaseIndexesContext.Provider>
 			</Provider>,
 		);
 
@@ -177,13 +170,11 @@ describe('IndexedHistoryList', () => {
 
 		render(
 			<Provider store={store}>
-				<IndexedHistoryList
-					dateKeys={dateKeys}
-					indexes={indexes}
-					indexId={TEST_INDEX_ID}
-				>
-					{(rowId) => <div data-testid="entry">{rowId}</div>}
-				</IndexedHistoryList>
+				<TinybaseIndexesContext.Provider value={{ indexes }}>
+					<IndexedHistoryList dateKeys={dateKeys} indexId={TEST_INDEX_ID}>
+						{(rowId) => <div data-testid="entry">{rowId}</div>}
+					</IndexedHistoryList>
+				</TinybaseIndexesContext.Provider>
 			</Provider>,
 		);
 
@@ -214,13 +205,11 @@ describe('IndexedHistoryList', () => {
 
 		render(
 			<Provider store={store}>
-				<IndexedHistoryList
-					dateKeys={dateKeys}
-					indexes={indexes}
-					indexId={TEST_INDEX_ID}
-				>
-					{(rowId) => <div data-testid="entry">{rowId}</div>}
-				</IndexedHistoryList>
+				<TinybaseIndexesContext.Provider value={{ indexes }}>
+					<IndexedHistoryList dateKeys={dateKeys} indexId={TEST_INDEX_ID}>
+						{(rowId) => <div data-testid="entry">{rowId}</div>}
+					</IndexedHistoryList>
+				</TinybaseIndexesContext.Provider>
 			</Provider>,
 		);
 
@@ -265,20 +254,21 @@ describe('IndexedHistoryList', () => {
 
 		const { rerender } = render(
 			<Provider store={store}>
-				<IndexedHistoryList
-					dateKeys={['2024-01-15']}
-					hasMoreNewerInStore={true}
-					hasMoreOlderInStore={true}
-					indexes={indexes}
-					indexId={TEST_INDEX_ID}
-					initialVisibleCount={5}
-					newerRangeDescription="Newer stuff"
-					olderRangeDescription="Older stuff"
-					onLoadMoreNewer={onLoadMoreNewer}
-					onLoadMoreOlder={onLoadMoreOlder}
-				>
-					{(rowId) => <div data-testid="entry">{rowId}</div>}
-				</IndexedHistoryList>
+				<TinybaseIndexesContext.Provider value={{ indexes }}>
+					<IndexedHistoryList
+						dateKeys={['2024-01-15']}
+						hasMoreNewerInStore={true}
+						hasMoreOlderInStore={true}
+						indexId={TEST_INDEX_ID}
+						initialVisibleCount={5}
+						newerRangeDescription="Newer stuff"
+						olderRangeDescription="Older stuff"
+						onLoadMoreNewer={onLoadMoreNewer}
+						onLoadMoreOlder={onLoadMoreOlder}
+					>
+						{(rowId) => <div data-testid="entry">{rowId}</div>}
+					</IndexedHistoryList>
+				</TinybaseIndexesContext.Provider>
 			</Provider>,
 		);
 
@@ -300,14 +290,15 @@ describe('IndexedHistoryList', () => {
 		// Coverage for: button exists but no callback (exercises the "else if" false branch)
 		rerender(
 			<Provider store={store}>
-				<IndexedHistoryList
-					dateKeys={['2024-01-15']}
-					hasMoreOlderInStore={true}
-					indexes={indexes}
-					indexId={TEST_INDEX_ID}
-				>
-					{(rowId) => <div data-testid="entry">{rowId}</div>}
-				</IndexedHistoryList>
+				<TinybaseIndexesContext.Provider value={{ indexes }}>
+					<IndexedHistoryList
+						dateKeys={['2024-01-15']}
+						hasMoreOlderInStore={true}
+						indexId={TEST_INDEX_ID}
+					>
+						{(rowId) => <div data-testid="entry">{rowId}</div>}
+					</IndexedHistoryList>
+				</TinybaseIndexesContext.Provider>
 			</Provider>,
 		);
 		fireEvent.click(screen.getByText('Show older entries'));

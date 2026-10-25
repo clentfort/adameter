@@ -181,7 +181,7 @@ export default function DiaperHistoryList() {
 	const removeDiaperChange = useRemoveDiaperChange();
 	const upsertDiaperChange = useUpsertDiaperChange();
 	const changeToEdit = useDiaperChange(changeToEditId ?? undefined);
-	const { dateKeys, indexes, indexId } = useDiaperChangesByDate();
+	const { dateKeys, indexId } = useDiaperChangesByDate();
 
 	const { historyFilterIndicatorProps, indexedHistoryListProps } =
 		useHistoryRange({
@@ -193,11 +193,7 @@ export default function DiaperHistoryList() {
 		<>
 			<HistoryFilterIndicator {...historyFilterIndicatorProps} />
 
-			<IndexedHistoryList
-				{...indexedHistoryListProps}
-				indexes={indexes}
-				indexId={indexId}
-			>
+			<IndexedHistoryList {...indexedHistoryListProps} indexId={indexId}>
 				{(changeId) => (
 					<DiaperHistoryEntry
 						changeId={changeId}
