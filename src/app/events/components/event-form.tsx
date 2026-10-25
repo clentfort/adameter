@@ -72,7 +72,7 @@ export default function EventForm({
 		defaultValues,
 	);
 
-	const { getLocation } = useAutomaticLocation({ enabled: !event });
+	const { resolveLocation } = useAutomaticLocation({ enabled: !event });
 
 	const { register, setValue, watch } = form;
 
@@ -83,24 +83,19 @@ export default function EventForm({
 	const locationLongitude = watch('locationLongitude');
 
 	const handleSave = async (parsedValues: EventFormData) => {
-		let lat = parsedValues.locationLatitude;
-		let lon = parsedValues.locationLongitude;
-
-		if (!event && lat === undefined && lon === undefined) {
-			const autoLocation = await getLocation(parsedValues.startDate);
-			if (autoLocation) {
-				lat = autoLocation.latitude;
-				lon = autoLocation.longitude;
-			}
-		}
+		const { latitude, longitude } = await resolveLocation(
+			parsedValues.locationLatitude,
+			parsedValues.locationLongitude,
+			parsedValues.startDate,
+		);
 
 		const newEvent: Event = {
 			...event,
 			color: parsedValues.color,
 			endDate: parsedValues.endDate,
 			id: event?.id || nanoid(),
-			locationLatitude: lat,
-			locationLongitude: lon,
+			locationLatitude: latitude,
+			locationLongitude: longitude,
 			notes: parsedValues.notes,
 			startDate: parsedValues.startDate,
 			title: parsedValues.title,

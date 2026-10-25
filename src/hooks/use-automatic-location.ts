@@ -36,19 +36,36 @@ export function useAutomaticLocation({
 		}
 	}, [enabled, locationTracking, startRequest, timestamp]);
 
-	const getLocation = async (
-		overrideTimestamp?: Date | number | string,
-	): Promise<{ latitude: number; longitude: number } | null> => {
-		if (!enabled || !locationTracking) {
-			return null;
-		}
+	const getLocation = useCallback(
+		async (
+			overrideTimestamp?: Date | number | string,
+		): Promise<{ latitude: number; longitude: number } | null> => {
+			if (!enabled || !locationTracking) {
+				return null;
+			}
 
-		if (!locationPromiseRef.current) {
-			return startRequest(overrideTimestamp ?? timestamp ?? new Date());
-		}
+			if (!locationPromiseRef.current) {
+				return startRequest(overrideTimestamp ?? timestamp ?? new Date());
+			}
 
-		return locationPromiseRef.current;
-	};
+			return locationPromiseRef.current;
+		},
+		[enabled, locationTracking, startRequest, timestamp],
+	);
 
-	return { getLocation };
+	const resolveLocation = useCallback(
+		async (
+			latitude: number | undefined,
+			longitude: number | undefined,
+			overrideTimestamp?: Date | number | string,
+		): Promise<{ latitude?: number; longitude?: number }> => {
+			if (latitude !== undefined || longitude !== undefined) {
+				return { latitude, longitude };
+			}
+			return (await getLocation(overrideTimestamp)) ?? {};
+		},
+		[getLocation],
+	);
+
+	return { getLocation, resolveLocation };
 }
