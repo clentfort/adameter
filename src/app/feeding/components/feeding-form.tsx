@@ -50,7 +50,7 @@ export default function FeedingForm({
 	title,
 }: FeedingFormProps) {
 	const defaultValues = useMemo(() => getDefaultValues(feeding), [feeding]);
-	const { getLocation } = useAutomaticLocation({ enabled: !feeding });
+	const { resolveLocation } = useAutomaticLocation({ enabled: !feeding });
 
 	const form = useEntityForm<
 		FeedingFormValues,
@@ -63,16 +63,11 @@ export default function FeedingForm({
 	const breast = watch('breast');
 
 	const handleSave = async (parsedValues: FeedingSessionFormData) => {
-		let lat = parsedValues.locationLatitude ?? feeding?.locationLatitude;
-		let lon = parsedValues.locationLongitude ?? feeding?.locationLongitude;
-
-		if (!feeding && lat === undefined && lon === undefined) {
-			const autoLocation = await getLocation(parsedValues.startTime);
-			if (autoLocation) {
-				lat = autoLocation.latitude;
-				lon = autoLocation.longitude;
-			}
-		}
+		const { latitude, longitude } = await resolveLocation(
+			parsedValues.locationLatitude ?? feeding?.locationLatitude,
+			parsedValues.locationLongitude ?? feeding?.locationLongitude,
+			parsedValues.startTime,
+		);
 
 		const updatedSession: FeedingSession = {
 			...feeding,
@@ -80,8 +75,8 @@ export default function FeedingForm({
 			durationInSeconds: parsedValues.durationInSeconds,
 			endTime: parsedValues.endTime,
 			id: feeding?.id ?? nanoid(),
-			locationLatitude: lat,
-			locationLongitude: lon,
+			locationLatitude: latitude,
+			locationLongitude: longitude,
 			notes: parsedValues.notes,
 			startTime: parsedValues.startTime,
 		};

@@ -203,7 +203,7 @@ export default function DiaperForm({
 
 	const [isAddingProduct, setIsAddingProduct] = useState(false);
 	const change = 'change' in props ? props.change : undefined;
-	const { getLocation } = useAutomaticLocation({ enabled: !change });
+	const { resolveLocation } = useAutomaticLocation({ enabled: !change });
 
 	const presetDiaperProductId =
 		'presetDiaperProductId' in props ? props.presetDiaperProductId : undefined;
@@ -244,16 +244,11 @@ export default function DiaperForm({
 			temperature = Math.round(fahrenheitToCelsius(temperature) * 10) / 10;
 		}
 
-		let lat = parsedValues.locationLatitude ?? change?.locationLatitude;
-		let lon = parsedValues.locationLongitude ?? change?.locationLongitude;
-
-		if (!change && lat === undefined && lon === undefined) {
-			const autoLocation = await getLocation(parsedValues.timestamp);
-			if (autoLocation) {
-				lat = autoLocation.latitude;
-				lon = autoLocation.longitude;
-			}
-		}
+		const { latitude, longitude } = await resolveLocation(
+			parsedValues.locationLatitude ?? change?.locationLatitude,
+			parsedValues.locationLongitude ?? change?.locationLongitude,
+			parsedValues.timestamp,
+		);
 
 		const updatedChange: DiaperChange = {
 			...change,
@@ -262,8 +257,8 @@ export default function DiaperForm({
 			diaperProductId: parsedValues.diaperProductId,
 			id: change?.id || nanoid(),
 			leakage: parsedValues.leakage,
-			locationLatitude: lat,
-			locationLongitude: lon,
+			locationLatitude: latitude,
+			locationLongitude: longitude,
 			notes: parsedValues.notes,
 			pottyStool: parsedValues.pottyStool,
 			pottyUrine: parsedValues.pottyUrine,
