@@ -4,6 +4,7 @@ import type {
 	DiaperFormData,
 	DiaperFormValues,
 } from '@/types/diaper';
+import type { MatrixField } from './diaper-contents-matrix';
 import { fbt } from 'fbtee';
 import { Plus } from 'lucide-react';
 import { nanoid } from 'nanoid';
@@ -27,7 +28,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useAutomaticLocation } from '@/hooks/use-automatic-location';
 import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
@@ -38,7 +38,6 @@ import {
 } from '@/hooks/use-diaper-products';
 import { useEntityForm } from '@/hooks/use-entity-form';
 import { useUnitSystem } from '@/hooks/use-unit-system';
-import { cn } from '@/lib/utils';
 import { diaperFormToDataSchema } from '@/types/diaper';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
 import { dateToTimeInputValue } from '@/utils/date-to-time-input-value';
@@ -47,6 +46,7 @@ import {
 	fahrenheitToCelsius,
 } from '@/utils/unit-conversions';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
+import { DiaperContentsMatrix } from './diaper-contents-matrix';
 
 export interface AddDiaperProps {
 	onClose: () => void;
@@ -69,75 +69,6 @@ interface DiaperProductSelectItemProps {
 	currentProductId: string | undefined;
 	productId: string;
 	selectedProductId: string;
-}
-
-interface MatrixToggleButtonProps {
-	isSelected: boolean;
-	label: string;
-	onClick: () => void;
-	testId: string;
-}
-
-function MatrixToggleButton({
-	isSelected,
-	label,
-	onClick,
-	testId,
-}: MatrixToggleButtonProps) {
-	return (
-		<Button
-			className={cn(
-				'h-12 w-full transition-all',
-				isSelected
-					? 'ring-2 ring-primary ring-offset-1 border-primary bg-primary/10 shadow-xs'
-					: 'text-muted-foreground',
-			)}
-			data-testid={testId}
-			onClick={onClick}
-			type="button"
-			variant="outline"
-		>
-			<span className="text-xl">{label}</span>
-		</Button>
-	);
-}
-
-interface MatrixRowProps {
-	isStoolSelected: boolean;
-	isUrineSelected: boolean;
-	onStoolToggle: () => void;
-	onUrineToggle: () => void;
-	rowLabel: ReactNode;
-	stoolTestId: string;
-	urineTestId: string;
-}
-
-function MatrixRow({
-	isStoolSelected,
-	isUrineSelected,
-	onStoolToggle,
-	onUrineToggle,
-	rowLabel,
-	stoolTestId,
-	urineTestId,
-}: MatrixRowProps) {
-	return (
-		<>
-			<div className="text-sm font-medium">{rowLabel}</div>
-			<MatrixToggleButton
-				isSelected={isUrineSelected}
-				label="💧"
-				onClick={onUrineToggle}
-				testId={urineTestId}
-			/>
-			<MatrixToggleButton
-				isSelected={isStoolSelected}
-				label="💩"
-				onClick={onStoolToggle}
-				testId={stoolTestId}
-			/>
-		</>
-	);
 }
 
 function DiaperProductSelectItem({
@@ -279,76 +210,27 @@ export default function DiaperForm({
 				title={title}
 			>
 				<div className="grid gap-4 py-2">
-					<div className="space-y-3">
-						<div className="grid grid-cols-3 gap-3 items-center">
-							<div />
-							<div className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-								<fbt desc="Urine column header">Urine</fbt>
-							</div>
-							<div className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-								<fbt desc="Stool column header">Stool</fbt>
-							</div>
-
-							<MatrixRow
-								isStoolSelected={containsStool}
-								isUrineSelected={containsUrine}
-								onStoolToggle={() =>
-									setValue('containsStool', !containsStool, {
-										shouldValidate: true,
-									})
-								}
-								onUrineToggle={() =>
-									setValue('containsUrine', !containsUrine, {
-										shouldValidate: true,
-									})
-								}
-								rowLabel={
-									<fbt desc="Label for the diaper row in the contents matrix">
-										Diaper
-									</fbt>
-								}
-								stoolTestId="toggle-diaper-stool"
-								urineTestId="toggle-diaper-urine"
-							/>
-
-							<MatrixRow
-								isStoolSelected={pottyStool}
-								isUrineSelected={pottyUrine}
-								onStoolToggle={() =>
-									setValue('pottyStool', !pottyStool, {
-										shouldValidate: true,
-									})
-								}
-								onUrineToggle={() =>
-									setValue('pottyUrine', !pottyUrine, {
-										shouldValidate: true,
-									})
-								}
-								rowLabel={
-									<fbt desc="Label for the potty row in the contents matrix">
-										Potty
-									</fbt>
-								}
-								stoolTestId="toggle-potty-stool"
-								urineTestId="toggle-potty-urine"
-							/>
-						</div>
-
-						<div className="flex items-center space-x-2">
-							<Switch
-								checked={hasLeakage}
-								id="edit-leakage"
-								onCheckedChange={(checked) => {
-									setValue('leakage', checked, { shouldValidate: true });
-								}}
-							/>
-							<Label htmlFor="edit-leakage">
-								<fbt desc="Label for a switch button that indicates that a diaper has leaked">
-									Diaper leaked
-								</fbt>
-							</Label>
-						</div>
-					</div>
+					<DiaperContentsMatrix
+						containsStool={containsStool}
+						containsUrine={containsUrine}
+						leakage={hasLeakage}
+						onLeakageChange={(checked) => {
+							setValue('leakage', checked, { shouldValidate: true });
+						}}
+						onToggle={(field: MatrixField) => {
+							const currentValues = {
+								containsStool,
+								containsUrine,
+								pottyStool,
+								pottyUrine,
+							};
+							setValue(field, !currentValues[field], {
+								shouldValidate: true,
+							});
+						}}
+						pottyStool={pottyStool}
+						pottyUrine={pottyUrine}
+					/>
 
 					<DateTimeInputs
 						dateField="date"
