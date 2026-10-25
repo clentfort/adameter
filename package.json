@@ -106,7 +106,7 @@
 		"lint-staged": "17.6.0",
 		"partyserver": "0.5.10",
 		"playwright": "1.64.0",
-		"postcss": "8.5.30",
+		"postcss": "8.5.31",
 		"prettier": "3.9.10",
 		"prettier-plugin-tailwindcss": "^0.8.0",
 		"tsx": "4.23.15",
