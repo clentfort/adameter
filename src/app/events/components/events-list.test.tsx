@@ -59,6 +59,14 @@ function TestWrapper({
 describe('EventsList', () => {
 	const mockPush = vi.fn();
 
+	function lastPushedUrl() {
+		const url = new URL(
+			mockPush.mock.lastCall![0] as string,
+			'http://localhost',
+		);
+		return { params: Object.fromEntries(url.searchParams), path: url.pathname };
+	}
+
 	beforeEach(() => {
 		mockPush.mockClear();
 		mockUseRouter.mockReturnValue({
@@ -153,18 +161,30 @@ describe('EventsList', () => {
 		const feedingOption = screen.getByText('Show Feeding Sessions');
 		fireEvent.click(feedingOption);
 
-		expect(mockPush).toHaveBeenLastCalledWith(
-			'/feeding?from=2024-01-14T10:00:00Z&to=2024-01-18T10:00:00Z&event=Flu%20Event&color=%23ec4899',
-		);
+		expect(lastPushedUrl()).toEqual({
+			params: {
+				color: '#ec4899',
+				event: 'Flu Event',
+				from: '2024-01-14T10:00:00Z',
+				to: '2024-01-18T10:00:00Z',
+			},
+			path: '/feeding',
+		});
 
 		// Open menu again and click Show Diaper Changes
 		fireEvent.click(actionButtons[0]);
 		const diaperOption = screen.getByText('Show Diaper Changes');
 		fireEvent.click(diaperOption);
 
-		expect(mockPush).toHaveBeenLastCalledWith(
-			'/diaper?from=2024-01-14T10:00:00Z&to=2024-01-18T10:00:00Z&event=Flu%20Event&color=%23ec4899',
-		);
+		expect(lastPushedUrl()).toEqual({
+			params: {
+				color: '#ec4899',
+				event: 'Flu Event',
+				from: '2024-01-14T10:00:00Z',
+				to: '2024-01-18T10:00:00Z',
+			},
+			path: '/diaper',
+		});
 	});
 
 	it('should handle edit and delete dialog workflows', () => {
@@ -284,9 +304,14 @@ describe('EventsList', () => {
 		const feedingOption = screen.getByText('Show Feeding Sessions');
 		fireEvent.click(feedingOption);
 
-		expect(mockPush).toHaveBeenLastCalledWith(
-			'/feeding?from=2024-01-14T10:00:00Z&to=2024-01-14T10:00:00Z&event=Simple%20Event',
-		);
+		expect(lastPushedUrl()).toEqual({
+			params: {
+				event: 'Simple Event',
+				from: '2024-01-14T10:00:00Z',
+				to: '2024-01-14T10:00:00Z',
+			},
+			path: '/feeding',
+		});
 	});
 
 	it('should render null for non-existent event in list item', () => {
