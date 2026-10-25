@@ -4,9 +4,7 @@ import StatsCard from './stats-card';
 
 function formatDateRange(date?: Date, endDate?: Date): string | null {
 	if (!date) return null;
-	if (!isValid(date)) {
-		return !Number.isNaN(date.getTime()) ? format(date, 'yyyy-MM-dd') : null;
-	}
+	if (!isValid(date)) return null;
 
 	if (!endDate || !isValid(endDate)) {
 		return format(date, 'PP');
@@ -30,7 +28,6 @@ export function RecordCard({
 }: {
 	date?: Date;
 	endDate?: Date;
-	testId?: string;
 	title: ReactNode;
 	value: ReactNode;
 }): JSX.Element {
