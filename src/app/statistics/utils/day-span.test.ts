@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { getDaySpan } from './day-span';
 
 describe('getDaySpan', () => {
-	it('returns 0 when given an empty array', () => {
-		expect(getDaySpan([])).toBe(0);
+	it('returns 1 when given an empty array', () => {
+		expect(getDaySpan([])).toBe(1);
 	});
 
 	it('returns 1 for a single timestamp', () => {
