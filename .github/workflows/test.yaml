@@ -20,7 +20,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: 12.11.2
+          version: 12.15.0
           run_install: false
 
       - name: Install Node.js
@@ -78,7 +78,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: 12.11.2
+          version: 12.15.0
           run_install: false
 
       - name: Install Node.js
