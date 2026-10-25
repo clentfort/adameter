@@ -5,17 +5,16 @@ import type {
 	DiaperProductFormData,
 	DiaperProductFormValues,
 } from '@/types/diaper';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { fbt } from 'fbtee';
 import { nanoid } from 'nanoid';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { PRODUCT_COLORS } from '@/constants/colors';
+import { useEntityForm } from '@/hooks/use-entity-form';
 import { diaperProductFormToDataSchema } from '@/types/diaper';
 
 interface ProductFormProps {
@@ -42,24 +41,23 @@ export default function ProductForm({
 	onCancel,
 	onSave,
 }: ProductFormProps) {
+	const defaultValues = useMemo(
+		() => getDefaultValues(initialData),
+		[initialData],
+	);
+
 	const {
 		formState: { isValid },
 		handleSubmit,
 		register,
-		reset,
 		setValue,
 		watch,
-	} = useForm<DiaperProductFormValues, undefined, DiaperProductFormData>({
-		defaultValues: getDefaultValues(initialData),
-		mode: 'onChange',
-		resolver: zodResolver(diaperProductFormToDataSchema),
-	});
+	} = useEntityForm<DiaperProductFormValues, undefined, DiaperProductFormData>(
+		diaperProductFormToDataSchema,
+		defaultValues,
+	);
 
 	const isReusable = watch('isReusable');
-
-	useEffect(() => {
-		reset(getDefaultValues(initialData));
-	}, [initialData, reset]);
 
 	const handleSave = (parsedValues: DiaperProductFormData) => {
 		onSave({
