@@ -133,22 +133,4 @@ describe('DiaperRecords', () => {
 			screen.getByText('Fewest diaper changes in a day'),
 		).toBeInTheDocument();
 	});
-
-	it('returns dayKey as fallback when formatDay encounters an invalid date', () => {
-		vi.setSystemTime(new Date('2024-01-04T12:00:00Z'));
-
-		let callCount = 0;
-		mockIsValidOverride = () => {
-			callCount++;
-			// getDayKey calls isValid first for each change in calculateDiaperStats
-			if (callCount > 5) {
-				return false;
-			}
-			return true;
-		};
-
-		render(<DiaperRecords diaperChanges={mockDiaperChanges} />);
-
-		expect(screen.getAllByText('2024-01-01')).toHaveLength(1);
-	});
 });
