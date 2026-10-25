@@ -33,13 +33,20 @@ export function groupByDay<T, A>(
 			continue;
 		}
 
-		const current = result.has(dayKey) ? (result.get(dayKey) as A) : init();
+		const current = result.get(dayKey) ?? init();
 		result.set(dayKey, add(current, item));
 	}
 
 	return result;
 }
 
+export function maxEntry(
+	entries: Iterable<readonly [string, number]>,
+): [string, number] | null;
+export function maxEntry<T>(
+	entries: Iterable<readonly [string, T]>,
+	getValue: (val: T) => number,
+): [string, T] | null;
 export function maxEntry<T>(
 	entries: Iterable<readonly [string, T]>,
 	getValue?: (val: T) => number,
@@ -48,7 +55,7 @@ export function maxEntry<T>(
 	let maxVal = -Infinity;
 
 	for (const entry of entries) {
-		const val = getValue ? getValue(entry[1]) : (entry[1] as unknown as number);
+		const val = getValue ? getValue(entry[1]) : Number(entry[1]);
 		if (max === null || val > maxVal) {
 			max = [entry[0], entry[1]];
 			maxVal = val;
@@ -58,6 +65,13 @@ export function maxEntry<T>(
 	return max;
 }
 
+export function minEntry(
+	entries: Iterable<readonly [string, number]>,
+): [string, number] | null;
+export function minEntry<T>(
+	entries: Iterable<readonly [string, T]>,
+	getValue: (val: T) => number,
+): [string, T] | null;
 export function minEntry<T>(
 	entries: Iterable<readonly [string, T]>,
 	getValue?: (val: T) => number,
@@ -66,7 +80,7 @@ export function minEntry<T>(
 	let minVal = Infinity;
 
 	for (const entry of entries) {
-		const val = getValue ? getValue(entry[1]) : (entry[1] as unknown as number);
+		const val = getValue ? getValue(entry[1]) : Number(entry[1]);
 		if (min === null || val < minVal) {
 			min = [entry[0], entry[1]];
 			minVal = val;
