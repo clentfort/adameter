@@ -98,7 +98,9 @@ test.describe('History Filtering', () => {
 		await page.getByRole('menuitem', { name: 'Show Diaper Changes' }).click();
 
 		// Verify navigation and filter
-		await expect(page).toHaveURL(/\/diaper\?from=.*&to=.*&event=Test%20Event/);
+		await expect(page).toHaveURL(
+			/\/diaper\?from=.*&to=.*&event=Test(\+|%20)Event/,
+		);
 		await expect(page.getByRole('heading', { name: 'History' })).toBeVisible();
 	});
 });
