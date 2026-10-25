@@ -121,7 +121,7 @@ export default function EventsList() {
 	const [eventToEditId, setEventToEditId] = useState<string | null>(null);
 	const removeEvent = useRemoveEvent();
 	const upsertEvent = useUpsertEvent();
-	const { dateKeys, indexes, indexId } = useEventsByDate();
+	const { dateKeys, indexId } = useEventsByDate();
 	const eventToEdit = useEvent(eventToEditId ?? undefined);
 
 	const searchParams = useSearchParams();
@@ -132,7 +132,6 @@ export default function EventsList() {
 		<>
 			<IndexedHistoryList
 				dateKeys={dateKeys}
-				indexes={indexes}
 				indexId={indexId}
 				initialVisibleCount={from || to ? dateKeys.length : undefined}
 			>

@@ -104,7 +104,7 @@ export default function HistoryList({
 	const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 	const [sessionToEditId, setSessionToEditId] = useState<string | null>(null);
 	const sessionToEdit = useFeedingSession(sessionToEditId ?? undefined);
-	const { dateKeys, indexes, indexId } = useFeedingSessionsByDate();
+	const { dateKeys, indexId } = useFeedingSessionsByDate();
 
 	const { historyFilterIndicatorProps, indexedHistoryListProps } =
 		useHistoryRange({
@@ -116,11 +116,7 @@ export default function HistoryList({
 		<>
 			<HistoryFilterIndicator {...historyFilterIndicatorProps} />
 
-			<IndexedHistoryList
-				{...indexedHistoryListProps}
-				indexes={indexes}
-				indexId={indexId}
-			>
+			<IndexedHistoryList {...indexedHistoryListProps} indexId={indexId}>
 				{(sessionId) => (
 					<FeedingHistoryEntry
 						key={sessionId}
