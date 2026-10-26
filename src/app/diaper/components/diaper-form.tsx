@@ -6,36 +6,14 @@ import type {
 } from '@/types/diaper';
 import type { MatrixField } from './diaper-contents-matrix';
 import { fbt } from 'fbtee';
-import { Plus } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { DateTimeInputs } from '@/components/form/date-time-inputs';
 import { EntityFormDialog } from '@/components/form/entity-form-dialog';
-import ProductForm from '@/components/product-form';
-import { Button } from '@/components/ui/button';
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useAutomaticLocation } from '@/hooks/use-automatic-location';
-import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
-import {
-	useDiaperProduct,
-	useFrecencySortedDiaperProductIds,
-	useUpsertDiaperProduct,
-} from '@/hooks/use-diaper-products';
 import { useEntityForm } from '@/hooks/use-entity-form';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { diaperFormToDataSchema } from '@/types/diaper';
@@ -47,6 +25,7 @@ import {
 } from '@/utils/unit-conversions';
 import { isAbnormalTemperature } from '../utils/is-abnormal-temperature';
 import { DiaperContentsMatrix } from './diaper-contents-matrix';
+import { DiaperProductSelect } from './diaper-product-select';
 
 export interface AddDiaperProps {
 	onClose: () => void;
@@ -64,34 +43,6 @@ export interface EditDiaperProps {
 }
 
 type DiaperFormProps = AddDiaperProps | EditDiaperProps;
-
-interface DiaperProductSelectItemProps {
-	currentProductId: string | undefined;
-	productId: string;
-	selectedProductId: string;
-}
-
-function DiaperProductSelectItem({
-	currentProductId,
-	productId,
-	selectedProductId,
-}: DiaperProductSelectItemProps) {
-	const product = useDiaperProduct(productId);
-
-	if (!product) {
-		return null;
-	}
-
-	if (
-		product.archived &&
-		product.id !== selectedProductId &&
-		product.id !== currentProductId
-	) {
-		return null;
-	}
-
-	return <SelectItem value={product.id}>{product.name}</SelectItem>;
-}
 
 function getDefaultValues(
 	change: DiaperChange | undefined,
@@ -128,11 +79,7 @@ export default function DiaperForm({
 }: DiaperFormProps) {
 	const [unitSystem] = useUnitSystem();
 	const isImperial = unitSystem === 'imperial';
-	const upsertProduct = useUpsertDiaperProduct();
-	const changes = useDiaperChangesSnapshot();
-	const sortedProductIds = useFrecencySortedDiaperProductIds(changes);
 
-	const [isAddingProduct, setIsAddingProduct] = useState(false);
 	const change = 'change' in props ? props.change : undefined;
 	const { resolveLocation } = useAutomaticLocation({ enabled: !change });
 
@@ -164,10 +111,16 @@ export default function DiaperForm({
 	const pottyStool = watch('pottyStool');
 	const hasLeakage = watch('leakage');
 	const diaperProductId = watch('diaperProductId') ?? '';
-	const selectedProduct = useDiaperProduct(
-		diaperProductId.length > 0 ? diaperProductId : undefined,
-	);
 	const temperature = watch('temperature');
+
+	const isTemperatureAbnormal = Boolean(
+		temperature &&
+		isAbnormalTemperature(
+			isImperial
+				? fahrenheitToCelsius(Number.parseFloat(temperature))
+				: Number.parseFloat(temperature),
+		),
+	);
 
 	const handleSave = async (parsedValues: DiaperFormData) => {
 		let temperature = parsedValues.temperature;
@@ -239,55 +192,13 @@ export default function DiaperForm({
 						timeField="time"
 					/>
 
-					<div className="space-y-2">
-						<Label htmlFor="edit-diaper-product">
-							<fbt desc="Label on a select that allows the user to pick a diaper product">
-								Product
-							</fbt>
-						</Label>
-						<div className="flex gap-2">
-							<div className="flex-1 min-w-0">
-								<Select
-									onValueChange={(value) => {
-										setValue('diaperProductId', value ?? '', {
-											shouldValidate: true,
-										});
-									}}
-									value={diaperProductId}
-								>
-									<SelectTrigger className="w-full" id="edit-diaper-product">
-										<SelectValue
-											placeholder={
-												<fbt desc="Placeholder text on a select that allows the user to pick a diaper product">
-													Select Product
-												</fbt>
-											}
-										>
-											{selectedProduct?.name}
-										</SelectValue>
-									</SelectTrigger>
-									<SelectContent>
-										{sortedProductIds.map((productId) => (
-											<DiaperProductSelectItem
-												currentProductId={change?.diaperProductId}
-												key={productId}
-												productId={productId}
-												selectedProductId={diaperProductId}
-											/>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-							<Button
-								onClick={() => setIsAddingProduct(true)}
-								size="icon"
-								type="button"
-								variant="outline"
-							>
-								<Plus className="h-4 w-4" />
-							</Button>
-						</div>
-					</div>
+					<DiaperProductSelect
+						currentProductId={change?.diaperProductId}
+						onChange={(val) => {
+							setValue('diaperProductId', val, { shouldValidate: true });
+						}}
+						value={diaperProductId}
+					/>
 
 					<div className="space-y-2">
 						<Label htmlFor="edit-temperature">
@@ -302,16 +213,7 @@ export default function DiaperForm({
 							)}
 						</Label>
 						<Input
-							className={
-								temperature &&
-								isAbnormalTemperature(
-									isImperial
-										? fahrenheitToCelsius(Number.parseFloat(temperature))
-										: Number.parseFloat(temperature),
-								)
-									? 'border-red-500'
-									: ''
-							}
+							className={isTemperatureAbnormal ? 'border-red-500' : ''}
 							id="edit-temperature"
 							placeholder={
 								isImperial
@@ -328,26 +230,19 @@ export default function DiaperForm({
 							type="number"
 							{...register('temperature')}
 						/>
-						{temperature &&
-							isAbnormalTemperature(
-								isImperial
-									? fahrenheitToCelsius(Number.parseFloat(temperature))
-									: Number.parseFloat(temperature),
-							) && (
-								<p className="text-xs text-red-500 mt-1">
-									{isImperial ? (
-										<fbt desc="A warning that the temperature is outside the normal range (Fahrenheit)">
-											Warning: Temperature outside normal range (97.7°F -
-											99.5°F)
-										</fbt>
-									) : (
-										<fbt desc="A warning that the temperature is outside the normal range">
-											Warning: Temperature outside normal range (36.5°C -
-											37.5°C)
-										</fbt>
-									)}
-								</p>
-							)}
+						{isTemperatureAbnormal && (
+							<p className="text-xs text-red-500 mt-1">
+								{isImperial ? (
+									<fbt desc="A warning that the temperature is outside the normal range (Fahrenheit)">
+										Warning: Temperature outside normal range (97.7°F - 99.5°F)
+									</fbt>
+								) : (
+									<fbt desc="A warning that the temperature is outside the normal range">
+										Warning: Temperature outside normal range (36.5°C - 37.5°C)
+									</fbt>
+								)}
+							</p>
+						)}
 					</div>
 
 					<div className="space-y-2">
@@ -365,37 +260,6 @@ export default function DiaperForm({
 					</div>
 				</div>
 			</EntityFormDialog>
-
-			{isAddingProduct && (
-				<Dialog
-					onOpenChange={(open) => {
-						if (!open) {
-							setIsAddingProduct(false);
-						}
-					}}
-					open={true}
-				>
-					<DialogContent className="sm:max-w-[425px]">
-						<DialogHeader>
-							<DialogTitle>
-								<fbt desc="Title for the quick-add product dialog">
-									Add Product
-								</fbt>
-							</DialogTitle>
-						</DialogHeader>
-						<ProductForm
-							onCancel={() => setIsAddingProduct(false)}
-							onSave={(product) => {
-								upsertProduct(product);
-								setValue('diaperProductId', product.id, {
-									shouldValidate: true,
-								});
-								setIsAddingProduct(false);
-							}}
-						/>
-					</DialogContent>
-				</Dialog>
-			)}
 		</>
 	);
 }

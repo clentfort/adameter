@@ -2,6 +2,7 @@ import type { DiaperChange, DiaperProduct } from '@/types/diaper';
 import { useMemo } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { getFrecencySortedProductIds } from '@/app/diaper/utils/get-frecency-sorted-product-ids';
+import { useDiaperChangesSnapshot } from '@/hooks/use-diaper-changes';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
 import { sanitizeDiaperProductForStore } from '@/lib/tinybase-sync/entity-row-schemas';
 import { diaperProductSchema } from '@/types/diaper';
@@ -43,7 +44,11 @@ export function useSortedDiaperProductIds() {
 	);
 }
 
-export function useFrecencySortedDiaperProductIds(changes: DiaperChange[]) {
+export function useFrecencySortedDiaperProductIds(
+	changesParam?: DiaperChange[],
+) {
+	const snapshotChanges = useDiaperChangesSnapshot();
+	const changes = changesParam ?? snapshotChanges;
 	const store = useStore()!;
 	const table = useTable(TABLE_IDS.DIAPER_PRODUCTS, store);
 
