@@ -7,10 +7,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TinybaseIndexesProvider } from '@/contexts/tinybase-indexes-context';
 import { useFeedingSession } from '@/hooks/use-feeding-sessions';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
-import HistoryList from './feeding-history-list';
+import FeedingHistoryList from './feeding-history-list';
 
 vi.mock('@/hooks/use-feeding-sessions', () => ({
 	useFeedingSession: vi.fn(),
+	useRemoveFeedingSession: vi.fn(() => vi.fn()),
+	useUpsertFeedingSession: vi.fn(() => vi.fn()),
 }));
 
 vi.mock('next/navigation', () => ({
@@ -91,7 +93,7 @@ describe('FeedingHistoryList', () => {
 
 		render(
 			<TestWrapper sessions={[mockSession]}>
-				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+				<FeedingHistoryList />
 			</TestWrapper>,
 		);
 
@@ -119,7 +121,7 @@ describe('FeedingHistoryList', () => {
 
 		render(
 			<TestWrapper sessions={[mockSessionLong]}>
-				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+				<FeedingHistoryList />
 			</TestWrapper>,
 		);
 
@@ -146,7 +148,7 @@ describe('FeedingHistoryList', () => {
 
 		render(
 			<TestWrapper sessions={[mockSession]}>
-				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+				<FeedingHistoryList />
 			</TestWrapper>,
 		);
 
@@ -202,7 +204,7 @@ describe('FeedingHistoryList', () => {
 
 		render(
 			<TestWrapper sessions={[mockSession]}>
-				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+				<FeedingHistoryList />
 			</TestWrapper>,
 		);
 
@@ -229,7 +231,7 @@ describe('FeedingHistoryList', () => {
 
 		render(
 			<TestWrapper sessions={[mockSession]}>
-				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+				<FeedingHistoryList />
 			</TestWrapper>,
 		);
 
@@ -257,7 +259,7 @@ describe('FeedingHistoryList', () => {
 
 		render(
 			<TestWrapper sessions={[sessionInStore]}>
-				<HistoryList onSessionDelete={() => {}} onSessionUpdate={() => {}} />
+				<FeedingHistoryList />
 			</TestWrapper>,
 		);
 
