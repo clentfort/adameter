@@ -18,6 +18,16 @@ export function isSavedByPotty(
 	);
 }
 
+export function getDisposableCostPerDiaper(
+	product: DiaperProduct | null | undefined,
+): number | null {
+	if (!product || product.isReusable) return null;
+	const cost = product.costPerDiaper;
+	if (typeof cost !== 'number' || !Number.isFinite(cost) || cost <= 0)
+		return null;
+	return cost;
+}
+
 export function getDisposableChanges(
 	changes: DiaperChange[],
 	productById: Map<string, DiaperProduct>,
@@ -27,19 +37,11 @@ export function getDisposableChanges(
 			const productId = change.diaperProductId;
 			if (!productId) return null;
 
-			const product = productById.get(productId);
-			if (!product || product.isReusable) return null;
-
-			if (
-				typeof product.costPerDiaper !== 'number' ||
-				!Number.isFinite(product.costPerDiaper) ||
-				product.costPerDiaper <= 0
-			) {
-				return null;
-			}
+			const cost = getDisposableCostPerDiaper(productById.get(productId));
+			if (cost === null) return null;
 
 			return {
-				cost: product.costPerDiaper,
+				cost,
 				timestamp: new Date(change.timestamp),
 			};
 		})
