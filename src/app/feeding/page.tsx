@@ -3,12 +3,9 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import HistoryHeader from '@/components/history-header';
-import {
-	useRemoveFeedingSession,
-	useUpsertFeedingSession,
-} from '@/hooks/use-feeding-sessions';
+import { useUpsertFeedingSession } from '@/hooks/use-feeding-sessions';
 import FeedingForm from './components/feeding-form';
-import HistoryList from './components/feeding-history-list';
+import FeedingHistoryList from './components/feeding-history-list';
 import BreastfeedingTracker from './components/feeding-tracker';
 import { useNextBreast } from './hooks/use-next-breast';
 import { useResumableSession } from './hooks/use-resumable-session';
@@ -16,7 +13,6 @@ import { useResumableSession } from './hooks/use-resumable-session';
 export default function Feedings() {
 	const [isAddEntryDialogOpen, setIsAddEntryDialogOpen] = useState(false);
 	const upsertFeedingSession = useUpsertFeedingSession();
-	const removeFeedingSession = useRemoveFeedingSession();
 	const nextBreast = useNextBreast();
 	const resumableSession = useResumableSession();
 	const router = useRouter();
@@ -50,10 +46,7 @@ export default function Feedings() {
 						}
 						to={searchParams.get('to')}
 					/>
-					<HistoryList
-						onSessionDelete={removeFeedingSession}
-						onSessionUpdate={upsertFeedingSession}
-					/>
+					<FeedingHistoryList />
 				</div>
 			</div>
 

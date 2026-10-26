@@ -1,4 +1,3 @@
-import type { FeedingSession } from '@/types/feeding';
 import { isSameDay } from 'date-fns';
 import { useState } from 'react';
 import DeleteEntryDialog from '@/components/delete-entry-dialog';
@@ -6,18 +5,17 @@ import HistoryEntryCard from '@/components/history-entry-card';
 import HistoryFilterIndicator from '@/components/history-filter-indicator';
 import IndexedHistoryList from '@/components/indexed-history-list';
 import { BREAST_COLORS } from '@/constants/colors';
-import { useFeedingSession } from '@/hooks/use-feeding-sessions';
+import {
+	useFeedingSession,
+	useRemoveFeedingSession,
+	useUpsertFeedingSession,
+} from '@/hooks/use-feeding-sessions';
 import { useHistoryRange } from '@/hooks/use-history-range';
 import { useTimeFormat } from '@/hooks/use-time-format';
 import { useFeedingSessionsByDate } from '@/hooks/use-tinybase-indexes';
 import { formatDurationAbbreviated } from '@/utils/format-duration-abbreviated';
 import { formatEntryTime } from '@/utils/format-history-date';
 import FeedingForm from './feeding-form';
-
-interface HistoryListProps {
-	onSessionDelete: (sessionId: string) => void;
-	onSessionUpdate: (session: FeedingSession) => void;
-}
 
 function FeedingHistoryEntry({
 	onDelete,
@@ -97,12 +95,11 @@ function FeedingHistoryEntry({
 	);
 }
 
-export default function HistoryList({
-	onSessionDelete,
-	onSessionUpdate,
-}: HistoryListProps) {
+export default function FeedingHistoryList() {
 	const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 	const [sessionToEditId, setSessionToEditId] = useState<string | null>(null);
+	const removeFeedingSession = useRemoveFeedingSession();
+	const upsertFeedingSession = useUpsertFeedingSession();
 	const sessionToEdit = useFeedingSession(sessionToEditId ?? undefined);
 	const { dateKeys, indexId } = useFeedingSessionsByDate();
 
@@ -130,14 +127,14 @@ export default function HistoryList({
 				<DeleteEntryDialog
 					entry={sessionToDelete}
 					onClose={() => setSessionToDelete(null)}
-					onDelete={onSessionDelete}
+					onDelete={removeFeedingSession}
 				/>
 			)}
 			{sessionToEdit && (
 				<FeedingForm
 					feeding={sessionToEdit}
 					onClose={() => setSessionToEditId(null)}
-					onSave={onSessionUpdate}
+					onSave={upsertFeedingSession}
 					title={
 						<fbt desc="Title of a dialog that allows the user to edit a feeding session">
 							Edit Feeding Session
