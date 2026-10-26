@@ -20,11 +20,32 @@ export function getDefaultHistoryRange(): { from: Date; to: Date } {
 	return { from: start, to: end };
 }
 
-export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
+export function useHistoryRangeParams(baseUrl: string) {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const from = searchParams.get('from');
 	const to = searchParams.get('to');
+
+	const setRange = useCallback(
+		(newFrom: string, newTo: string) => {
+			const params = new URLSearchParams(searchParams.toString());
+			params.set('from', newFrom);
+			params.set('to', newTo);
+			router.replace(`${baseUrl}?${params.toString()}`, { scroll: false });
+		},
+		[baseUrl, router, searchParams],
+	);
+
+	return {
+		from,
+		setRange,
+		to,
+	};
+}
+
+export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
+	const searchParams = useSearchParams();
+	const { from, setRange, to } = useHistoryRangeParams(baseUrl);
 	const eventTitle = searchParams.get('event');
 	const eventColor = searchParams.get('color');
 
@@ -59,12 +80,9 @@ export function useHistoryRange({ baseUrl, dateKeys }: UseHistoryRangeOptions) {
 
 	const updateRange = useCallback(
 		(newFrom: Date, newTo: Date) => {
-			const params = new URLSearchParams(searchParams.toString());
-			params.set('from', newFrom.toISOString());
-			params.set('to', newTo.toISOString());
-			router.replace(`${baseUrl}?${params.toString()}`, { scroll: false });
+			setRange(newFrom.toISOString(), newTo.toISOString());
 		},
-		[baseUrl, router, searchParams],
+		[setRange],
 	);
 
 	const nextTo = useMemo(
