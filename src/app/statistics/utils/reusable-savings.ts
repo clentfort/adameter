@@ -4,6 +4,7 @@ import { addDays, differenceInDays } from 'date-fns';
 import {
 	getDisposableAverageAround,
 	getDisposableChanges,
+	getDisposableCostPerDiaper,
 	isSavedByPotty,
 } from './diaper-savings';
 
@@ -133,8 +134,9 @@ export function getHypotheticalDisposableCost(
 
 		if (averageDisposable !== null) {
 			hypotheticalDisposableCost += averageDisposable;
-		} else if (product && !product.isReusable && product.costPerDiaper) {
-			hypotheticalDisposableCost += product.costPerDiaper;
+		} else {
+			const fallbackCost = getDisposableCostPerDiaper(product);
+			if (fallbackCost !== null) hypotheticalDisposableCost += fallbackCost;
 		}
 	}
 

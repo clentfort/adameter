@@ -141,6 +141,44 @@ describe('reusable-savings utils', () => {
 			]);
 			expect(cost).toBeCloseTo(2.0, 2);
 		});
+
+		it('ignores non-reusable products with costPerDiaper of Infinity', () => {
+			const infProduct: DiaperProduct = {
+				costPerDiaper: Infinity,
+				id: 'p-inf',
+				isReusable: false,
+				name: 'Inf Product',
+			};
+			const infChange = createDiaperChanges([
+				{
+					containsStool: false,
+					containsUrine: true,
+					diaperProductId: 'p-inf',
+					timestamp: '2026-02-01T10:00:00.000Z',
+				},
+			]);
+			const map = new Map([[infProduct.id, infProduct]]);
+			expect(getHypotheticalDisposableCost(infChange, map, [])).toBe(0);
+		});
+
+		it('ignores non-reusable products with costPerDiaper of -1', () => {
+			const negProduct: DiaperProduct = {
+				costPerDiaper: -1,
+				id: 'p-neg',
+				isReusable: false,
+				name: 'Neg Product',
+			};
+			const negChange = createDiaperChanges([
+				{
+					containsStool: false,
+					containsUrine: true,
+					diaperProductId: 'p-neg',
+					timestamp: '2026-02-01T10:00:00.000Z',
+				},
+			]);
+			const map = new Map([[negProduct.id, negProduct]]);
+			expect(getHypotheticalDisposableCost(negChange, map, [])).toBe(0);
+		});
 	});
 
 	describe('calculateReusableSavingsMetrics', () => {
