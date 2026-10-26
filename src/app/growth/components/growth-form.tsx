@@ -16,12 +16,7 @@ import { useEntityForm } from '@/hooks/use-entity-form';
 import { useUnitSystem } from '@/hooks/use-unit-system';
 import { growthFormToDataSchema } from '@/types/growth';
 import { dateToDateInputValue } from '@/utils/date-to-date-input-value';
-import {
-	cmToInches,
-	gramsToLbs,
-	inchesToCm,
-	lbsToGrams,
-} from '@/utils/unit-conversions';
+import { toDisplayValues, toMetric } from '../utils/growth-units';
 
 interface EditGrowthFormProps {
 	measurement: GrowthMeasurement;
@@ -62,27 +57,7 @@ export default function MeasurementForm({
 
 	const defaultValues = useMemo(() => {
 		const values = getDefaultValues(measurement);
-		if (isImperial) {
-			if (values.weight) {
-				const grams = Number.parseFloat(values.weight);
-				if (!Number.isNaN(grams)) {
-					values.weight = gramsToLbs(grams).toFixed(1);
-				}
-			}
-			if (values.height) {
-				const cm = Number.parseFloat(values.height);
-				if (!Number.isNaN(cm)) {
-					values.height = cmToInches(cm).toFixed(1);
-				}
-			}
-			if (values.headCircumference) {
-				const cm = Number.parseFloat(values.headCircumference);
-				if (!Number.isNaN(cm)) {
-					values.headCircumference = cmToInches(cm).toFixed(1);
-				}
-			}
-		}
-		return values;
+		return toDisplayValues(values, isImperial);
 	}, [measurement, isImperial]);
 
 	const form = useEntityForm<GrowthFormValues, undefined, GrowthFormData>(
@@ -96,30 +71,16 @@ export default function MeasurementForm({
 	} = form;
 
 	const handleSave = (parsedValues: GrowthFormData) => {
-		let weight = parsedValues.weight;
-		let height = parsedValues.height;
-		let headCircumference = parsedValues.headCircumference;
-
-		if (isImperial) {
-			if (weight != null) {
-				weight = Math.round(lbsToGrams(weight));
-			}
-			if (height != null) {
-				height = Math.round(inchesToCm(height) * 10) / 10;
-			}
-			if (headCircumference != null) {
-				headCircumference = Math.round(inchesToCm(headCircumference) * 10) / 10;
-			}
-		}
+		const metricData = toMetric(parsedValues, isImperial);
 
 		const newMeasurement: GrowthMeasurement = {
 			...measurement,
-			date: parsedValues.date,
-			headCircumference,
-			height,
+			date: metricData.date,
+			headCircumference: metricData.headCircumference,
+			height: metricData.height,
 			id: measurement?.id || nanoid(),
-			notes: parsedValues.notes,
-			weight,
+			notes: metricData.notes,
+			weight: metricData.weight,
 		};
 
 		onSave(newMeasurement);
