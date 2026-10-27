@@ -45,4 +45,19 @@ describe('useCurrency', () => {
 
 		expect(result.current[0]).toBe('USD');
 	});
+
+	it('should fall back to default currency when store value is unknown', () => {
+		const store = createTestStore();
+		const { result } = renderHook(() => useCurrency(), {
+			wrapper: ({ children }) => (
+				<TinyBaseTestWrapper store={store}>{children}</TinyBaseTestWrapper>
+			),
+		});
+
+		act(() => {
+			store.setValue(STORE_VALUE_CURRENCY, 'JPY');
+		});
+
+		expect(result.current[0]).toBe('GBP');
+	});
 });
