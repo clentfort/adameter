@@ -5,7 +5,7 @@ import Chart from 'chart.js/auto';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'chartjs-adapter-date-fns';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
-import { getChartTheme, legendLabels } from './chart-theme';
+import { legendLabels, useChartTheme } from './chart-theme';
 
 interface BarDataset {
 	backgroundColor: string | CanvasPattern;
@@ -49,6 +49,7 @@ export default function BarChart({
 	yMax,
 	yMin,
 }: BarChartProps) {
+	const theme = useChartTheme();
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<ChartJS<'bar', number[]> | null>(null);
 	const [isMounted, setIsMounted] = useState(false);
@@ -67,8 +68,6 @@ export default function BarChart({
 		const ctx = chartRef.current.getContext('2d');
 		if (!ctx) return;
 
-		const theme = getChartTheme();
-
 		const verticalLinesPlugin = {
 			beforeDatasetsDraw: (chart: ChartJS) => {
 				if (verticalLines.length === 0) return;
@@ -84,9 +83,7 @@ export default function BarChart({
 					if (xPos < x.left || xPos > x.right) return;
 
 					ctx.beginPath();
-					ctx.strokeStyle =
-						line.color ||
-						(theme.isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)');
+					ctx.strokeStyle = line.color || theme.referenceLine;
 					ctx.lineWidth = 1;
 					ctx.setLineDash([5, 5]);
 					ctx.moveTo(xPos, y.top);
@@ -94,11 +91,7 @@ export default function BarChart({
 					ctx.stroke();
 
 					if (line.label) {
-						ctx.fillStyle =
-							line.color ||
-							(theme.isDark
-								? 'rgba(255, 255, 255, 0.5)'
-								: 'rgba(0, 0, 0, 0.4)');
+						ctx.fillStyle = line.color || theme.referenceLabel;
 						ctx.font = '12px sans-serif';
 						ctx.textAlign = 'center';
 						ctx.fillText(line.label, xPos, y.top + 15);
@@ -210,6 +203,7 @@ export default function BarChart({
 		verticalLines,
 		grouped,
 		isMounted,
+		theme,
 	]);
 
 	useEffect(() => {

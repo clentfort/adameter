@@ -4,7 +4,7 @@ import type { Chart as ChartJS } from 'chart.js';
 import Chart from 'chart.js/auto';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
-import { getChartTheme, legendLabels } from './chart-theme';
+import { legendLabels, useChartTheme } from './chart-theme';
 
 interface PieDataset {
 	backgroundColor: (string | CanvasPattern)[];
@@ -23,6 +23,7 @@ export default function PieChart({
 	emptyStateMessage,
 	labels,
 }: PieChartProps) {
+	const theme = useChartTheme();
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<ChartJS<'pie', number[]> | null>(null);
 	const [isMounted, setIsMounted] = useState(false);
@@ -40,8 +41,6 @@ export default function PieChart({
 
 		const ctx = chartRef.current.getContext('2d');
 		if (!ctx) return;
-
-		const theme = getChartTheme();
 
 		chartInstance.current = new Chart<'pie', number[]>(ctx, {
 			data: {
@@ -83,7 +82,7 @@ export default function PieChart({
 			},
 			type: 'pie',
 		});
-	}, [datasets, labels, isMounted]);
+	}, [datasets, labels, isMounted, theme]);
 
 	useEffect(() => {
 		if (isMounted) {
