@@ -9,11 +9,11 @@ import {
 
 const growthMeasurementSharedSchema = z
 	.object({
-		date: z.string().min(1),
-		headCircumference: optionalPositiveNumberCell,
-		height: optionalPositiveNumberCell,
+		date: z.string().min(1), // ISO string
+		headCircumference: optionalPositiveNumberCell, // in centimeters
+		height: optionalPositiveNumberCell, // in centimeters
 		notes: optionalStringCell,
-		weight: optionalPositiveNumberCell,
+		weight: optionalPositiveNumberCell, // in grams
 	})
 	.refine(
 		(values) =>
