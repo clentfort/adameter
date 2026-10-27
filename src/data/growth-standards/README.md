@@ -21,26 +21,20 @@ calculate Z-scores and percentiles using the LMS method.
 The current implementation uses the 3rd and 97th percentiles to define the
 "expected" growth range.
 
-## Updating Data
+## Provenance
 
-You can regenerate or update the JSON files using the provided script.
+The JSON files were generated once from the WHO "z-score expanded tables" (daily
+values, 0–5 years). The WHO 2006 standards are fixed, so the data is not
+expected to change.
 
-### Option 1: Download from WHO
+Source files:
 
-The script can automatically download the latest XLSX data directly from the
-official WHO servers:
+- [wfa-boys](https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/weight-for-age/expanded-tables/wfa-boys-zscore-expanded-tables.xlsx?sfvrsn=65cce121_10),
+  [wfa-girls](https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/weight-for-age/expanded-tables/wfa-girls-zscore-expanded-tables.xlsx?sfvrsn=f01bc813_10)
+- [lhfa-boys](https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/length-height-for-age/expandable-tables/lhfa-boys-zscore-expanded-tables.xlsx?sfvrsn=7b4a3428_12),
+  [lhfa-girls](https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/length-height-for-age/expandable-tables/lhfa-girls-zscore-expanded-tables.xlsx?sfvrsn=27f1e2cb_10)
+- [hcfa-boys](https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/head-circumference-for-age/expanded-tables/hcfa-boys-zscore-expanded-tables.xlsx?sfvrsn=2ab1bec8_8),
+  [hcfa-girls](https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/head-circumference-for-age/expanded-tables/hcfa-girls-zscore-expanded-tables.xlsx?sfvrsn=3a34b8b0_8)
 
-```bash
-pnpm exec tsx scripts/generate-growth-standards.ts --download
-```
-
-The original XLSX files will be stored in the `raw/` directory as a backup.
-
-### Option 2: Convert Local XLSX Files
-
-If you already have the XLSX files in the `raw/` directory, you can convert them
-to JSON:
-
-```bash
-pnpm exec tsx scripts/generate-growth-standards.ts --convert-local
-```
+Conversion: take the first sheet and map each row's `Day`, `L`, `M` and `S`
+columns to `{ age, L, M, S }` (age in days, 0–1856).
