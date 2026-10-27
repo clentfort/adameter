@@ -1,9 +1,9 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import HistoryHeader from '@/components/history-header';
 import { useUpsertFeedingSession } from '@/hooks/use-feeding-sessions';
+import { useHistoryRangeParams } from '@/hooks/use-history-range';
 import FeedingForm from './components/feeding-form';
 import FeedingHistoryList from './components/feeding-history-list';
 import BreastfeedingTracker from './components/feeding-tracker';
@@ -15,15 +15,7 @@ export default function Feedings() {
 	const upsertFeedingSession = useUpsertFeedingSession();
 	const nextBreast = useNextBreast();
 	const resumableSession = useResumableSession();
-	const router = useRouter();
-	const searchParams = useSearchParams();
-
-	const handleRangeChange = (from: string, to: string) => {
-		const params = new URLSearchParams(searchParams.toString());
-		params.set('from', from);
-		params.set('to', to);
-		router.replace(`/feeding?${params.toString()}`, { scroll: false });
-	};
+	const { from, setRange, to } = useHistoryRangeParams('/feeding');
 
 	return (
 		<>
@@ -36,15 +28,15 @@ export default function Feedings() {
 
 				<div className="w-full mt-8">
 					<HistoryHeader
-						from={searchParams.get('from')}
+						from={from}
 						onAddEntry={() => setIsAddEntryDialogOpen(true)}
-						onRangeChange={handleRangeChange}
+						onRangeChange={setRange}
 						title={
 							<fbt desc="Descedingly ordered history of events (i.e. diaper changes or feeding sessions)">
 								History
 							</fbt>
 						}
-						to={searchParams.get('to')}
+						to={to}
 					/>
 					<FeedingHistoryList />
 				</div>

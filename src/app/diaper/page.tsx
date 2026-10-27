@@ -1,7 +1,6 @@
 'use client';
 
 import type { DiaperChange } from '@/types/diaper';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import ReactConfetti from 'react-confetti';
 import HistoryHeader from '@/components/history-header';
@@ -9,6 +8,7 @@ import {
 	useDiaperChangesTotal,
 	useUpsertDiaperChange,
 } from '@/hooks/use-diaper-changes';
+import { useHistoryRangeParams } from '@/hooks/use-history-range';
 import DiaperForm from './components/diaper-form';
 import DiaperHistoryList from './components/diaper-history-list';
 import DiaperTracker from './components/diaper-tracker';
@@ -21,15 +21,7 @@ export default function DiaperPage() {
 	const totalChanges = useDiaperChangesTotal();
 	const upsertDiaperChange = useUpsertDiaperChange();
 	const lastUsedDiaperProduct = useLastUsedDiaperProduct();
-	const router = useRouter();
-	const searchParams = useSearchParams();
-
-	const handleRangeChange = (from: string, to: string) => {
-		const params = new URLSearchParams(searchParams.toString());
-		params.set('from', from);
-		params.set('to', to);
-		router.replace(`/diaper?${params.toString()}`, { scroll: false });
-	};
+	const { from, setRange, to } = useHistoryRangeParams('/diaper');
 
 	const checkAndTriggerConfetti = (
 		change: DiaperChange,
@@ -71,15 +63,15 @@ export default function DiaperPage() {
 
 					<div className="w-full mt-8">
 						<HistoryHeader
-							from={searchParams.get('from')}
+							from={from}
 							onAddEntry={() => setIsAddEntryDialogOpen(true)}
-							onRangeChange={handleRangeChange}
+							onRangeChange={setRange}
 							title={
 								<fbt desc="Descedingly ordered history of events (i.e. diaper changes or feeding sessions)">
 									History
 								</fbt>
 							}
-							to={searchParams.get('to')}
+							to={to}
 						/>
 						<DiaperHistoryList />
 					</div>

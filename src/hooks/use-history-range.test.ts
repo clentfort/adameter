@@ -2,7 +2,11 @@ import { act, renderHook } from '@testing-library/react';
 import { addDays, endOfDay, startOfDay, subDays } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getDefaultHistoryRange, useHistoryRange } from './use-history-range';
+import {
+	getDefaultHistoryRange,
+	useHistoryRange,
+	useHistoryRangeParams,
+} from './use-history-range';
 
 vi.mock('next/navigation', () => ({
 	useRouter: vi.fn(),
@@ -21,6 +25,57 @@ describe('getDefaultHistoryRange', () => {
 
 		expect(range.from).toEqual(expectedStart);
 		expect(range.to).toEqual(expectedEnd);
+	});
+});
+
+describe('useHistoryRangeParams', () => {
+	const mockReplace = vi.fn();
+	const mockRouter = { replace: mockReplace };
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	const setup = (searchParams: Record<string, string> = {}) => {
+		const params = new URLSearchParams(searchParams);
+		vi.mocked(useSearchParams).mockReturnValue(
+			params as unknown as ReturnType<typeof useSearchParams>,
+		);
+		vi.mocked(useRouter).mockReturnValue(
+			mockRouter as unknown as ReturnType<typeof useRouter>,
+		);
+
+		return renderHook(() => useHistoryRangeParams('/feeding'));
+	};
+
+	it('returns null for from and to when search params are empty', () => {
+		const { result } = setup();
+
+		expect(result.current.from).toBeNull();
+		expect(result.current.to).toBeNull();
+	});
+
+	it('returns from and to values from search params', () => {
+		const { result } = setup({
+			from: '2024-01-01T00:00:00.000Z',
+			to: '2024-01-05T23:59:59.999Z',
+		});
+
+		expect(result.current.from).toBe('2024-01-01T00:00:00.000Z');
+		expect(result.current.to).toBe('2024-01-05T23:59:59.999Z');
+	});
+
+	it('updates URL with setRange', () => {
+		const { result } = setup({ foo: 'bar' });
+
+		act(() => {
+			result.current.setRange('2024-01-01', '2024-01-05');
+		});
+
+		expect(mockReplace).toHaveBeenCalledWith(
+			'/feeding?foo=bar&from=2024-01-01&to=2024-01-05',
+			{ scroll: false },
+		);
 	});
 });
 
