@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import PieChart from './pie-chart';
 
 const mockDestroy = vi.fn();
-const mockUpdate = vi.fn();
 const mockChartInstance = {
 	data: {
 		datasets: [],
@@ -21,7 +20,6 @@ const mockChartInstance = {
 			},
 		},
 	},
-	update: mockUpdate,
 };
 const mockChart = vi.fn((...args: unknown[]) => mockChartInstance);
 
@@ -69,9 +67,9 @@ describe('PieChart', () => {
 		});
 
 		expect(screen.getByRole('graphics-document')).toBeInTheDocument();
-		expect(mockChart).toHaveBeenCalled();
+		expect(mockChart).toHaveBeenCalledTimes(1);
 
-		// 2. Update props to exercise the update useEffect
+		// 2. Update props to rebuild chart
 		const updatedDatasets = [
 			{ backgroundColor: ['green'], data: [30], label: 'Set 2' },
 		];
@@ -84,11 +82,8 @@ describe('PieChart', () => {
 			/>,
 		);
 
-		expect(mockUpdate).toHaveBeenCalled();
-		expect(mockChartInstance.data.labels).toEqual(updatedLabels);
-		expect(mockChartInstance.data.datasets[0]).toMatchObject(
-			updatedDatasets[0],
-		);
+		expect(mockDestroy).toHaveBeenCalledTimes(1);
+		expect(mockChart).toHaveBeenCalledTimes(2);
 
 		// 3. Render empty state to exercise the early return logic
 		rerender(
@@ -101,6 +96,26 @@ describe('PieChart', () => {
 
 		expect(screen.getByText('No data to display')).toBeInTheDocument();
 		expect(screen.queryByRole('graphics-document')).not.toBeInTheDocument();
+	});
+
+	it('creates chart when data goes from empty to non-empty', async () => {
+		const { rerender } = render(
+			<PieChart datasets={[]} emptyStateMessage="No data" labels={[]} />,
+		);
+
+		rerender(
+			<PieChart
+				datasets={[{ backgroundColor: ['red'], data: [10], label: 'Set 1' }]}
+				emptyStateMessage="No data"
+				labels={['A']}
+			/>,
+		);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(1);
 	});
 
 	it('exercises the default tooltip label formatter', async () => {
@@ -194,7 +209,7 @@ describe('PieChart', () => {
 		HTMLCanvasElement.prototype.getContext = originalGetContext;
 	});
 
-	it('handles early return branches when datasets become empty after canvas render or chart is already instantiated', async () => {
+	it('handles early return branches when datasets become empty after canvas render', async () => {
 		const datasets = [{ backgroundColor: ['red'], data: [10], label: 'Set 1' }];
 
 		render(
@@ -216,7 +231,7 @@ describe('PieChart', () => {
 		expect(mockChart).not.toHaveBeenCalled();
 	});
 
-	it('handles early return branches when labels are empty or chartInstance is already initialized', async () => {
+	it('handles early return branches when labels are empty or dataset updates rebuild chart', async () => {
 		const datasets = [{ backgroundColor: ['red'], data: [10], label: 'Set 1' }];
 		const labels = ['A'];
 
@@ -238,10 +253,9 @@ describe('PieChart', () => {
 
 		expect(mockChart).not.toHaveBeenCalled();
 
-		// Case 2: chartInstance.current already exists when mount effect runs
+		// Case 2: Re-render component with new datasets destroys old instance and builds new chart
 		labels.push('A');
 
-		// Re-render to trigger mount effect again with non-empty labels while chartInstance is mock initialized
 		const { rerender: rerenderChart } = render(
 			<PieChart
 				datasets={datasets}
@@ -256,7 +270,6 @@ describe('PieChart', () => {
 
 		expect(mockChart).toHaveBeenCalledTimes(1);
 
-		// Re-render component without unmounting to trigger mount effect evaluation when chartInstance.current is populated
 		rerenderChart(
 			<PieChart
 				datasets={[{ backgroundColor: ['blue'], data: [20], label: 'Set 2' }]}
@@ -265,6 +278,7 @@ describe('PieChart', () => {
 			/>,
 		);
 
-		expect(mockChart).toHaveBeenCalledTimes(1);
+		expect(mockDestroy).toHaveBeenCalledTimes(1);
+		expect(mockChart).toHaveBeenCalledTimes(2);
 	});
 });
