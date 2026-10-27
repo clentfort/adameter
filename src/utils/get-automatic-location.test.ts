@@ -28,15 +28,15 @@ describe('requestAutomaticLocation', () => {
 		expect(result).toBeNull();
 	});
 
-	it('returns null if timestamp is more than 15 minutes away', async () => {
+	it('returns null if timestamp is more than 10 minutes away', async () => {
 		const result = await requestAutomaticLocation({
 			isLocationTrackingEnabled: true,
-			timestamp: new Date('2025-01-01T11:40:00Z'), // 20 mins ago
+			timestamp: new Date('2025-01-01T11:49:00Z'), // 11 mins ago
 		});
 		expect(result).toBeNull();
 	});
 
-	it('returns coordinates if timestamp is within 15 minutes and geolocation succeeds', async () => {
+	it('returns coordinates if timestamp is within 10 minutes and geolocation succeeds', async () => {
 		const mockGetCurrentPosition = vi.fn((success) => {
 			success({
 				coords: {
