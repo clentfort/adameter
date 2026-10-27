@@ -11,14 +11,14 @@ import {
 const eventTypeSchema = z.enum(['point', 'period']);
 
 const eventSharedSchema = z.object({
-	color: optionalStringCell,
-	endDate: optionalStringCell,
+	color: optionalStringCell, // Optional color for the event
+	endDate: optionalStringCell, // ISO string, optional for ongoing events
 	locationLatitude: optionalNumberCell,
 	locationLongitude: optionalNumberCell,
 	notes: optionalStringCell,
-	startDate: z.string().min(1),
+	startDate: z.string().min(1), // ISO string
 	title: requiredNameField,
-	type: eventTypeSchema,
+	type: eventTypeSchema, // point = single date, period = start to end date
 });
 
 export const eventFormSchema = z.object({

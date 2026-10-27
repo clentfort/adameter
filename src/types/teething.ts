@@ -3,7 +3,7 @@ import { baseEntitySchema } from './base-entity';
 import { integerCell, optionalStringCell } from './schema-utils';
 
 const teethingSharedSchema = z.object({
-	date: optionalStringCell,
+	date: optionalStringCell, // ISO date of eruption
 	notes: optionalStringCell,
 });
 
@@ -22,7 +22,7 @@ export const teethingFormToDataSchema = teethingFormSchema.transform((values) =>
 );
 
 export const toothDataSchema = teethingSharedSchema.extend({
-	toothId: integerCell,
+	toothId: integerCell, // FDI number
 });
 
 export const toothSchema = baseEntitySchema.extend(toothDataSchema.shape);

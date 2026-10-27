@@ -14,25 +14,25 @@ import {
 } from './schema-utils';
 
 const diaperProductSharedSchema = z.object({
-	color: optionalStringCell,
-	costPerDiaper: optionalNumberCell,
-	isReusable: requiredBooleanField,
-	name: requiredNameField,
+	color: optionalStringCell, // Optional color for the product.
+	costPerDiaper: optionalNumberCell, // Cost per diaper in the current currency.
+	isReusable: requiredBooleanField, // Whether the diaper is reusable.
+	name: requiredNameField, // Name of the diaper product.
 	notes: optionalStringCell,
-	upfrontCost: optionalNumberCell,
+	upfrontCost: optionalNumberCell, // One-time upfront cost for reusable diapers in the current currency.
 });
 
 const diaperChangeSharedSchema = z.object({
-	containsStool: requiredBooleanField,
-	containsUrine: requiredBooleanField,
-	diaperProductId: optionalStringCell,
-	leakage: optionalBooleanCell,
+	containsStool: requiredBooleanField, // Whether the diaper contains stool.
+	containsUrine: requiredBooleanField, // Whether the diaper contains urine.
+	diaperProductId: optionalStringCell, // Reference to the diaper product used.
+	leakage: optionalBooleanCell, // Optional leakage indicator.
 	locationLatitude: optionalNumberCell,
 	locationLongitude: optionalNumberCell,
 	notes: optionalStringCell,
-	pottyStool: optionalBooleanCell,
-	pottyUrine: optionalBooleanCell,
-	temperature: optionalNumberCell,
+	pottyStool: optionalBooleanCell, // Whether stool went into the potty.
+	pottyUrine: optionalBooleanCell, // Whether urine went into the potty.
+	temperature: optionalNumberCell, // Optional temperature in Celsius.
 });
 
 export const diaperFormSchema = z.object({
@@ -105,7 +105,7 @@ export const diaperProductFormToDataSchema = diaperProductFormSchema.transform(
 );
 
 export const diaperProductDataSchema = diaperProductSharedSchema.extend({
-	archived: optionalBooleanCell,
+	archived: optionalBooleanCell, // Whether the product is archived.
 });
 
 export const diaperProductSchema = baseEntitySchema.extend(
@@ -113,8 +113,8 @@ export const diaperProductSchema = baseEntitySchema.extend(
 );
 
 export const diaperChangeDataSchema = diaperChangeSharedSchema.extend({
-	diaperBrand: optionalStringCell,
-	timestamp: z.string().min(1),
+	diaperBrand: optionalStringCell, // Optional diaper brand (deprecated, use diaperProductId).
+	timestamp: z.string().min(1), // Timestamp of the diaper change.
 });
 
 export const diaperChangeSchema = baseEntitySchema.extend(
