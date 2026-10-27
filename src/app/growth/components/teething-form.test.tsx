@@ -22,7 +22,6 @@ describe('TeethingForm', () => {
 		onClose: mockOnClose,
 		onSave: mockOnSave,
 		tooth,
-		toothName: 'Upper Left Central Incisor',
 	};
 
 	beforeEach(() => {
