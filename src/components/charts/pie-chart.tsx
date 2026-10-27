@@ -2,7 +2,7 @@
 
 import type { Chart as ChartJS } from 'chart.js';
 import Chart from 'chart.js/auto';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
 import { getChartTheme, legendLabels } from './chart-theme';
 
@@ -31,14 +31,10 @@ export default function PieChart({
 		setIsMounted(true);
 	}, []);
 
-	useEffect(() => {
+	const createChart = useCallback(() => {
 		if (!chartRef.current || !isMounted) return;
 
 		if (datasets.length === 0 || labels.length === 0) {
-			return;
-		}
-
-		if (chartInstance.current) {
 			return;
 		}
 
@@ -87,6 +83,12 @@ export default function PieChart({
 			},
 			type: 'pie',
 		});
+	}, [datasets, labels, isMounted]);
+
+	useEffect(() => {
+		if (isMounted) {
+			createChart();
+		}
 
 		return () => {
 			if (chartInstance.current) {
@@ -94,20 +96,7 @@ export default function PieChart({
 				chartInstance.current = null;
 			}
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isMounted]);
-
-	useEffect(() => {
-		if (chartInstance.current) {
-			chartInstance.current.data.labels = labels;
-			chartInstance.current.data.datasets = datasets.map((ds) => ({
-				...ds,
-				borderWidth: 1,
-			}));
-
-			chartInstance.current.update();
-		}
-	}, [datasets, labels]);
+	}, [createChart, isMounted]);
 
 	if (datasets.length === 0 || labels.length === 0) {
 		return (
