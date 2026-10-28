@@ -6,7 +6,7 @@ import { format, isDate } from 'date-fns';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import 'chartjs-adapter-date-fns';
 import { useIdleCallback } from '@/hooks/use-idle-callback';
-import { getChartTheme, legendLabels } from './chart-theme';
+import { legendLabels, useChartTheme } from './chart-theme';
 
 interface PointData {
 	x: Date | number;
@@ -50,6 +50,7 @@ export default function LineChart({
 	yAxisLabel,
 	yAxisUnit = '',
 }: LineChartProps) {
+	const theme = useChartTheme();
 	const chartRef = useRef<HTMLCanvasElement | null>(null);
 	const chartInstance = useRef<ChartJS<'line', PointData[]> | null>(null);
 	const [isMounted, setIsMounted] = useState(false);
@@ -70,13 +71,8 @@ export default function LineChart({
 
 		const datasets: import('chart.js').ChartDataset<'line', PointData[]>[] = [];
 
-		const theme = getChartTheme();
-		const rangeFillColor = theme.isDark
-			? 'rgba(255, 255, 255, 0.1)'
-			: 'rgba(0, 0, 0, 0.05)';
-		const rangeBorderColor = theme.isDark
-			? 'rgba(255, 255, 255, 0.2)'
-			: 'rgba(0, 0, 0, 0.1)';
+		const rangeFillColor = theme.rangeFill;
+		const rangeBorderColor = theme.rangeBorder;
 
 		if (rangeData.length > 0) {
 			datasets.push(
@@ -252,6 +248,7 @@ export default function LineChart({
 		yAxisLabel,
 		yAxisUnit,
 		isMounted,
+		theme,
 	]);
 
 	useEffect(() => {

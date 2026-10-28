@@ -1,4 +1,5 @@
 import { act, cleanup, render, screen } from '@testing-library/react';
+import { useTheme } from 'next-themes';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BarChart from './bar-chart';
 
@@ -34,6 +35,10 @@ vi.mock('chart.js/auto', () => ({
 }));
 
 vi.mock('chartjs-adapter-date-fns', () => ({}));
+
+vi.mock('next-themes', () => ({
+	useTheme: vi.fn(() => ({ resolvedTheme: 'light' })),
+}));
 
 describe('BarChart', () => {
 	let mockCanvasContext: CanvasRenderingContext2D;
@@ -256,6 +261,55 @@ describe('BarChart', () => {
 		});
 
 		expect(screen.getByText('No data')).toBeInTheDocument();
+	});
+
+	it('should rebuild chart with new theme colors when resolvedTheme changes', async () => {
+		const mockUseTheme = vi.mocked(useTheme);
+		mockUseTheme.mockReturnValue({
+			resolvedTheme: 'light',
+		} as ReturnType<typeof useTheme>);
+
+		const props = {
+			datasets: [{ backgroundColor: 'red', data: [10], label: 'Set 1' }],
+			emptyStateMessage: 'No data',
+			labels: ['Day 1'],
+			title: 'Test Chart',
+			xAxisLabel: 'Days',
+			yAxisLabel: 'Hours',
+		};
+
+		const { rerender } = render(<BarChart {...props} />);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(1);
+
+		mockUseTheme.mockReturnValue({
+			resolvedTheme: 'dark',
+		} as ReturnType<typeof useTheme>);
+
+		rerender(<BarChart {...props} />);
+
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockChart).toHaveBeenCalledTimes(2);
+		expect(mockChart.mock.calls[1][1]).toEqual(
+			expect.objectContaining({
+				options: expect.objectContaining({
+					plugins: expect.objectContaining({
+						legend: expect.objectContaining({
+							labels: expect.objectContaining({
+								color: '#f4f4f5',
+							}),
+						}),
+					}),
+				}),
+			}),
+		);
 	});
 
 	it('should exercise chart updates, dark mode, default tooltips, and vertical line edge cases', async () => {
