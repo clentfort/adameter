@@ -115,6 +115,6 @@
 		"vite-tsconfig-paths": "^6.0.0",
 		"vitest": "5.0.5",
 		"wrangler": "4.153.0",
-		"xlsx": "^0.18.5"
+		"@e965/xlsx": "^0.20.3"
 	}
 }
