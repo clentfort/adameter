@@ -274,6 +274,9 @@ importers:
       tw-animate-css:
         specifier: ^1.2.8
         version: 1.4.0
+      who-growth-standards:
+        specifier: 1.0.1
+        version: 1.0.1
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -6466,6 +6469,10 @@ packages:
     engines: {node: '>= 8'}
     hasBin: true
 
+  who-growth-standards@1.0.1:
+    resolution: {integrity: sha512-jVoN809kaBARnuTVC2wXbQQsthnjrUI+2r9nJ8noZrn1IEflnkLPcX17Lo7UTfo2by+EHjM6bdMw/CdnqdpSIQ==}
+    engines: {node: '>=18'}
+
   why-is-node-running@3.2.1:
     resolution: {integrity: sha512-Tb2FUhB4vUsGQlfSquQLYkApkuPAFQXGFzxWKHHumVz2dK+X1RUm/HnID4+TfIGYJ1kTcwOaCk/buYCEJr6YjQ==}
     engines: {node: '>=20.11'}
@@ -12542,6 +12549,8 @@ snapshots:
   which@2.0.2:
     dependencies:
       isexe: 2.0.0
+
+  who-growth-standards@1.0.1: {}
 
   why-is-node-running@3.2.1: {}
 

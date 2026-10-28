@@ -1,5 +1,6 @@
 'use client';
 
+import type { Indicator } from 'who-growth-standards';
 import type {
 	MetricColor,
 	RangePoint,
@@ -11,7 +12,6 @@ import GrowthMetricCard from '@/app/statistics/components/growth-metric-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProfile } from '@/hooks/use-profile';
 import { useUnitSystem } from '@/hooks/use-unit-system';
-import { getGrowthRange, getPercentile } from '@/utils/growth-standards';
 import { cmToInches, gramsToLbs } from '@/utils/unit-conversions';
 
 interface GrowthChartProps {
@@ -19,32 +19,42 @@ interface GrowthChartProps {
 }
 
 type GrowthMetricField = 'weight' | 'height' | 'headCircumference';
-type GrowthIndicator =
-	'weight-for-age' | 'length-height-for-age' | 'head-circumference-for-age';
 
 interface GrowthMetricConfig {
 	field: GrowthMetricField;
-	indicator: GrowthIndicator;
+	indicator: Indicator;
 	toImperial: (val: number) => number;
+	// Factor from the WHO unit to ours (WHO weights are in kg, ours in g)
+	whoUnitFactor: number;
 }
 
 const GROWTH_METRICS: readonly GrowthMetricConfig[] = [
 	{
 		field: 'weight',
-		indicator: 'weight-for-age',
+		indicator: 'wfa',
 		toImperial: gramsToLbs,
+		whoUnitFactor: 1000,
 	},
 	{
 		field: 'height',
-		indicator: 'length-height-for-age',
+		indicator: 'lhfa',
 		toImperial: cmToInches,
+		whoUnitFactor: 1,
 	},
 	{
 		field: 'headCircumference',
-		indicator: 'head-circumference-for-age',
+		indicator: 'hcfa',
 		toImperial: cmToInches,
+		whoUnitFactor: 1,
 	},
 ] as const;
+
+// The WHO Child Growth Standards cover 0-5 years
+const WHO_MAX_AGE_DAYS = 1856;
+
+function isWithinWhoRange(ageInDays: number) {
+	return ageInDays >= 0 && ageInDays <= WHO_MAX_AGE_DAYS;
+}
 
 const METRIC_CARD_COLORS: Record<GrowthMetricField, MetricColor> = {
 	headCircumference: {
@@ -151,7 +161,10 @@ export default function GrowthChart({ measurements }: GrowthChartProps) {
 				return;
 			}
 
-			const sex = profile.sex;
+			// Loaded lazily to keep the bundled WHO tables out of the main chunk
+			const { evaluate, valueAtPercentile } =
+				await import('who-growth-standards');
+			const sex = profile.sex === 'boy' ? 'male' : 'female';
 
 			// Calculate percentiles for the latest measurements
 			const latestByField: Partial<
@@ -177,21 +190,21 @@ export default function GrowthChart({ measurements }: GrowthChartProps) {
 				weight: null,
 			};
 
-			await Promise.all(
-				GROWTH_METRICS.map(async (metric) => {
-					const latest = latestByField[metric.field];
-					const val = latest ? latest[metric.field] : undefined;
-					if (latest && val != null && val > 0) {
-						const p = await getPercentile(
-							metric.indicator,
-							sex,
-							differenceInDays(new Date(latest.date), dob),
-							val,
-						);
-						percentiles[metric.field] = p;
-					}
-				}),
-			);
+			for (const metric of GROWTH_METRICS) {
+				const latest = latestByField[metric.field];
+				const val = latest ? latest[metric.field] : undefined;
+				if (!latest || val == null || val <= 0) continue;
+
+				const ageInDays = differenceInDays(new Date(latest.date), dob);
+				if (!isWithinWhoRange(ageInDays)) continue;
+
+				percentiles[metric.field] = evaluate(
+					metric.indicator,
+					sex,
+					val / metric.whoUnitFactor,
+					ageInDays,
+				).percentile;
+			}
 
 			if (ignore) return;
 			setMetricStates((prev) => ({
@@ -237,19 +250,17 @@ export default function GrowthChart({ measurements }: GrowthChartProps) {
 
 			for (const date of points) {
 				const ageInDays = differenceInDays(date, dob);
-				if (ageInDays < 0) continue;
-
-				const ageInMonths = ageInDays / DAYS_PER_MONTH;
+				if (!isWithinWhoRange(ageInDays)) continue;
 
 				for (const metric of GROWTH_METRICS) {
-					const range = await getGrowthRange(metric.indicator, sex, ageInDays);
-					if (range) {
-						ranges[metric.field].push({
-							x: ageInMonths,
-							yMax: range.max,
-							yMin: range.min,
-						});
-					}
+					const valueAt = (percentile: number) =>
+						valueAtPercentile(metric.indicator, sex, percentile, ageInDays) *
+						metric.whoUnitFactor;
+					ranges[metric.field].push({
+						x: ageInDays / DAYS_PER_MONTH,
+						yMax: valueAt(97),
+						yMin: valueAt(3),
+					});
 				}
 			}
 

@@ -48,11 +48,6 @@ vi.mock('@/hooks/use-unit-system', () => ({
 	useUnitSystem: () => mockUseUnitSystem(),
 }));
 
-vi.mock('@/utils/growth-standards', () => ({
-	getGrowthRange: vi.fn(async () => ({ max: 4000, min: 2000 })),
-	getPercentile: vi.fn(async () => 50),
-}));
-
 const mockMeasurements: GrowthMeasurement[] = [
 	{
 		date: new Date('2024-01-01T00:00:00Z').toISOString(),
@@ -205,9 +200,19 @@ describe('GrowthChart', () => {
 	});
 
 	it('displays percentiles when data is available', async () => {
-		render(<GrowthChart measurements={mockMeasurements} />);
+		// WHO medians for boys at birth
+		const medianMeasurements: GrowthMeasurement[] = [
+			{
+				date: new Date('2024-01-01T00:00:00Z').toISOString(),
+				headCircumference: 34.4618,
+				height: 49.8842,
+				id: '1',
+				weight: 3346.4,
+			},
+		];
+		render(<GrowthChart measurements={medianMeasurements} />);
 
-		// Wait for the async getPercentile calls to resolve and the component to re-render
+		// Wait for the WHO tables to load and the component to re-render
 		// Use findAllByText because P50 appears multiple times (Weight, Height, HC)
 		const elements = await screen.findAllByText('P50', {}, { timeout: 3000 });
 		expect(elements).toHaveLength(3);
