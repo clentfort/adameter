@@ -45,7 +45,7 @@
 		"@semantic-release/github": "12.0.10",
 		"@semantic-release/npm": "13.2.0",
 		"@semantic-release/release-notes-generator": "^14.0.3",
-		"@types/node": "^24.0.0",
+		"@types/node": "^26.0.0",
 		"partyserver": "0.5.10",
 		"semantic-release": "^25.0.0",
 		"typescript": "^6.0.0",
