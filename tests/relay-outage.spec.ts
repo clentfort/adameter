@@ -47,6 +47,12 @@ test.describe('Relay outage', () => {
 			await pageA.reload();
 			await expect(feedingEntry(pageA, 22)).toHaveCount(1);
 
+			await pageB.goto('/settings/sharing');
+			await expect(pageB.getByTestId('room-sync-status')).toContainText(
+				'Offline',
+			);
+			await pageB.goto('/feeding');
+
 			relayA.unblock();
 			relayB.unblock();
 
