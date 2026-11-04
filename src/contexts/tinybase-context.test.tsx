@@ -337,11 +337,12 @@ describe('TinybaseProvider room sync', () => {
 		'closes the connection if unmounted before synchronizer is created',
 		{ timeout: 20_000 },
 		async () => {
-			let resolveSnapshot: (value: boolean) => void;
-			const snapshotPromise = new Promise<boolean>((resolve) => {
-				resolveSnapshot = resolve;
-			});
-			mocks.loadServerSnapshot.mockReturnValue(snapshotPromise);
+			let resolveSynchronizer: (value: unknown) => void;
+			mocks.createEncryptedPartyKitSynchronizer.mockReturnValue(
+				new Promise((resolve) => {
+					resolveSynchronizer = resolve;
+				}),
+			);
 
 			mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({
 				destroy: vi.fn(async () => {}),
@@ -378,18 +379,27 @@ describe('TinybaseProvider room sync', () => {
 				expect(mocks.hashRoomId).toHaveBeenCalled();
 			});
 
-			// Unmount while loadServerSnapshot is still pending (synchronizer not created yet)
+			await waitFor(() => {
+				expect(mocks.createEncryptedPartyKitSynchronizer).toHaveBeenCalled();
+			});
+
+			// Unmount while the synchronizer is still being created
 			unmount();
 
 			expect(mocks.partySocketClose).toHaveBeenCalled();
 
-			// Cleanup the pending promise
-			resolveSnapshot!(false);
+			// A synchronizer that resolves after unmounting is destroyed
+			const destroy = vi.fn(async () => {});
+			resolveSynchronizer!({ destroy, startSync: vi.fn(async () => {}) });
+			await waitFor(() => {
+				expect(destroy).toHaveBeenCalled();
+			});
 		},
 	);
 
-	it('fails closed when the room snapshot cannot be loaded', async () => {
-		mocks.loadServerSnapshot.mockRejectedValueOnce(
+	it('keeps rendering local data when the room snapshot cannot be loaded', async () => {
+		const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+		mocks.loadServerSnapshot.mockRejectedValue(
 			new Error('Snapshot unavailable'),
 		);
 
@@ -408,17 +418,22 @@ describe('TinybaseProvider room sync', () => {
 
 		await waitFor(() => {
 			expect(mocks.loadServerSnapshot).toHaveBeenCalledOnce();
-			expect(
-				screen.queryByRole('button', { name: 'Create room' }),
-			).not.toBeInTheDocument();
+			expect(warnSpy).toHaveBeenCalledWith(
+				expect.stringContaining('[SYNC] Snapshot sync failed'),
+				expect.any(Error),
+			);
 		});
-		expect(mocks.createEncryptedPartyKitSynchronizer).not.toHaveBeenCalled();
+		expect(screen.getByTestId('event-count')).toHaveTextContent('1');
+		// Peers can still sync in real time while the snapshot is unavailable.
+		expect(mocks.createEncryptedPartyKitSynchronizer).toHaveBeenCalled();
+		// Saving without the server state could drop entries from the snapshot.
 		expect(mocks.saveServerSnapshot).not.toHaveBeenCalled();
+		warnSpy.mockRestore();
 	});
 
-	it('handles errors during room sync connection', async () => {
-		const syncError = new Error('Sync failed');
-		mocks.hashRoomId.mockRejectedValueOnce(syncError);
+	it('keeps rendering local data when room sync fails to connect', async () => {
+		const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
+		mocks.hashRoomId.mockRejectedValueOnce(new Error('Sync failed'));
 
 		render(
 			<DataSynchronizationProvider>
@@ -428,7 +443,6 @@ describe('TinybaseProvider room sync', () => {
 			</DataSynchronizationProvider>,
 		);
 
-		// Wait for initial hydration and local load to complete
 		await waitFor(() => {
 			expect(mocks.runMigrationsIfNeeded).toHaveBeenCalled();
 		});
@@ -436,16 +450,14 @@ describe('TinybaseProvider room sync', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
 
 		await waitFor(() => {
-			expect(mocks.hashRoomId).toHaveBeenCalledWith('regression-room');
+			expect(errorSpy).toHaveBeenCalledWith(
+				'[SYNC] Failed to connect room sync:',
+				expect.any(Error),
+			);
 		});
-
-		// A failed connection must not expose an empty room or start saving.
-		await waitFor(() => {
-			expect(
-				screen.queryByRole('button', { name: 'Create room' }),
-			).not.toBeInTheDocument();
-		});
+		expect(screen.getByTestId('event-count')).toHaveTextContent('1');
 		expect(mocks.saveServerSnapshot).not.toHaveBeenCalled();
+		errorSpy.mockRestore();
 	});
 
 	it('covers additional synchronization and error paths', async () => {
@@ -455,6 +467,7 @@ describe('TinybaseProvider room sync', () => {
 
 		const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const infoSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
+		const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
 
 		mocks.cloneRoomData.mockRejectedValue(new Error('Clone failed'));
 		mocks.saveServerSnapshot.mockRejectedValue(new Error('Save failed'));
@@ -508,8 +521,8 @@ describe('TinybaseProvider room sync', () => {
 			await vi.advanceTimersByTimeAsync(10);
 		}
 
-		expect(errorSpy).toHaveBeenCalledWith(
-			'Failed to save initial server snapshot:',
+		expect(warnSpy).toHaveBeenCalledWith(
+			expect.stringContaining('[SYNC] Snapshot sync failed'),
 			expect.any(Error),
 		);
 
@@ -527,17 +540,10 @@ describe('TinybaseProvider room sync', () => {
 			expect.any(Error),
 		);
 
-		// Advance timers for periodic save (30s)
-		await vi.advanceTimersByTimeAsync(30_000);
-
-		expect(errorSpy).toHaveBeenCalledWith(
-			'Failed to save periodic server snapshot:',
-			expect.any(Error),
-		);
-
 		vi.unstubAllEnvs();
 		errorSpy.mockRestore();
 		infoSpy.mockRestore();
+		warnSpy.mockRestore();
 	});
 
 	it('handles WebSocket reconnection and re-bootstrapping from server snapshot', async () => {
@@ -572,13 +578,15 @@ describe('TinybaseProvider room sync', () => {
 			expect(openListener).toBeDefined();
 		});
 
+		// The first open is the initial connection, not a reconnect
+		openListener!();
+
 		// Reset calls to focus on reconnection-triggered bootstrap
 		mocks.loadServerSnapshot.mockClear();
 		mocks.runMigrationsIfNeeded.mockClear();
 		mocks.saveServerSnapshot.mockClear();
 
 		// Trigger the captured WebSocket 'open' event listener
-		expect(openListener).toBeDefined();
 		openListener!();
 
 		// Verify that a secondary bootstrap (isInitial = false) has occurred
@@ -587,12 +595,12 @@ describe('TinybaseProvider room sync', () => {
 			expect(mocks.loadServerSnapshot).toHaveBeenCalledTimes(1);
 			// migrations are run after loading server snapshot
 			expect(mocks.runMigrationsIfNeeded).toHaveBeenCalledTimes(1);
-			// saveServerSnapshot is triggered because loadServerSnapshot resolved to true
+			// Offline changes are pushed after merging the server snapshot
 			expect(mocks.saveServerSnapshot).toHaveBeenCalled();
 		});
 	});
 
-	it('covers edge cases of getErrorMessage, expected timeout checking, and catch handlers in initialize/bootstrap/save', async () => {
+	it('covers edge cases of getErrorMessage, expected timeout checking, and the initialize catch handler', async () => {
 		const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const infoSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
 
@@ -611,13 +619,6 @@ describe('TinybaseProvider room sync', () => {
 				};
 			},
 		);
-
-		let localOpenListener: (() => void) | undefined;
-		mocks.partySocketAddEventListener.mockImplementation((type, listener) => {
-			if (type === 'open') {
-				localOpenListener = listener;
-			}
-		});
 
 		render(
 			<DataSynchronizationProvider>
@@ -666,43 +667,32 @@ describe('TinybaseProvider room sync', () => {
 			expect.any(Error),
 		);
 
-		// 3. Trigger bootstrap load failure catch block
-		mocks.loadServerSnapshot.mockRejectedValueOnce(
-			new Error('Bootstrap load failed'),
+		errorSpy.mockRestore();
+		infoSpy.mockRestore();
+	});
+
+	it('saves changes after a debounce and backs off after failures', async () => {
+		const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+
+		render(
+			<DataSynchronizationProvider>
+				<TinybaseProvider>
+					<RoomSyncProbe />
+				</TinybaseProvider>
+			</DataSynchronizationProvider>,
 		);
 
-		// Trigger reconnection to call bootstrap again
-		expect(localOpenListener).toBeDefined();
-		localOpenListener!();
-
 		await waitFor(() => {
-			expect(errorSpy).toHaveBeenCalledWith(
-				'Failed to load server snapshot:',
-				expect.any(Error),
-			);
+			expect(screen.getByRole('button', { name: 'Create room' })).toBeVisible();
+		});
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+		await waitFor(() => {
+			expect(mocks.saveServerSnapshot).toHaveBeenCalledOnce();
 		});
 
-		// 4. Trigger bootstrap save failure catch block (loadServerSnapshot succeeds but saveServerSnapshot fails)
-		mocks.loadServerSnapshot.mockResolvedValueOnce(true);
-		mocks.saveServerSnapshot.mockRejectedValueOnce(
-			new Error('Bootstrap save failed'),
-		);
-		localOpenListener!();
-
-		await waitFor(() => {
-			expect(errorSpy).toHaveBeenCalledWith(
-				'Failed to save snapshot after bootstrap:',
-				expect.any(Error),
-			);
-		});
-
-		// 5. Trigger debounced save snapshot failure catch block
 		const store = (window as unknown as { tinybaseStore: Store }).tinybaseStore;
-		expect(store).toBeDefined();
-
-		mocks.saveServerSnapshot.mockRejectedValueOnce(
-			new Error('Debounced save failed'),
-		);
+		mocks.saveServerSnapshot.mockClear();
+		mocks.saveServerSnapshot.mockRejectedValue(new Error('Save failed'));
 
 		vi.useFakeTimers();
 		store.setRow(TABLE_IDS.EVENTS, 'debounced-event', {
@@ -711,20 +701,27 @@ describe('TinybaseProvider room sync', () => {
 			title: 'Debounced event',
 			type: 'point',
 		});
-
 		await vi.advanceTimersByTimeAsync(1100);
+		expect(mocks.saveServerSnapshot).toHaveBeenCalledOnce();
 
-		expect(errorSpy).toHaveBeenCalledWith(
-			'Failed to save debounced snapshot:',
-			expect.any(Error),
-		);
+		// Changes during the backoff do not trigger extra requests
+		store.setCell(TABLE_IDS.EVENTS, 'debounced-event', 'title', 'Edited');
+		await vi.advanceTimersByTimeAsync(1100);
+		expect(mocks.saveServerSnapshot).toHaveBeenCalledOnce();
 
-		errorSpy.mockRestore();
-		infoSpy.mockRestore();
+		mocks.saveServerSnapshot.mockResolvedValue(undefined);
+		await vi.advanceTimersByTimeAsync(5000);
+		expect(mocks.saveServerSnapshot).toHaveBeenCalledTimes(2);
+
+		// Without changes, nothing is saved periodically
+		await vi.advanceTimersByTimeAsync(10 * 60_000);
+		expect(mocks.saveServerSnapshot).toHaveBeenCalledTimes(2);
+
+		warnSpy.mockRestore();
 		vi.useRealTimers();
 	});
 
-	it('handles clear join strategy, profile id syncing to localStorage, and startSync error', async () => {
+	it('applies the clear join strategy, syncs the profile id to localStorage, and logs startSync errors', async () => {
 		const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
 		mocks.createIndexedDbPersister.mockImplementationOnce((store: Store) => ({

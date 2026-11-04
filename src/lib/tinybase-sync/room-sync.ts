@@ -17,12 +17,22 @@ import { repairMissingProfileIds } from '@/migrations/2026-06-05-consolidate-dup
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 
-const SNAPSHOT_SAVE_INTERVAL_MS = 30_000;
+const SAVE_DEBOUNCE_MS = 1000;
+// Retries after a failed snapshot request back off exponentially so that an
+// unreachable or rate-limited relay is not hammered by open tabs.
+const RETRY_BASE_DELAY_MS = 5000;
+const RETRY_MAX_DELAY_MS = 10 * 60_000;
+// Reconnects shorten a pending backoff to at most this delay. A relay that
+// accepts and drops connections in a loop is still contacted rarely.
+const RECONNECT_RETRY_DELAY_MS = 10_000;
+const SOCKET_MAX_RECONNECTION_DELAY_MS = 60_000;
+
+export type RoomSyncStatus = 'offline' | 'synced' | 'syncing';
 
 export interface StartRoomSyncOptions {
 	joinStrategy: JoinStrategy;
 	onJoinStrategyApplied: () => void;
-	onReady: () => void;
+	onStatusChange?: (status: RoomSyncStatus) => void;
 	room: string;
 	store: MergeableStore;
 }
@@ -42,132 +52,216 @@ function isExpectedSynchronizerTimeout(error: unknown): boolean {
 	return message.startsWith('No response from');
 }
 
+function getRetryDelay(failures: number): number {
+	const delay = Math.min(
+		RETRY_MAX_DELAY_MS,
+		RETRY_BASE_DELAY_MS * 2 ** (failures - 1),
+	);
+	return delay * (0.5 + Math.random() / 2);
+}
+
+function isBrowserOffline(): boolean {
+	return typeof navigator !== 'undefined' && navigator.onLine === false;
+}
+
+/**
+ * Syncs the local store with a room in the background.
+ *
+ * The local store is the source of truth and stays usable at all times. The
+ * relay is used opportunistically: real-time sync with online peers over a
+ * WebSocket, and an encrypted snapshot for peers that are not online at the
+ * same time. Snapshot requests run only when the local content changed or
+ * after a reconnect, and back off while the relay is unreachable.
+ */
 export function startRoomSync({
 	joinStrategy,
 	onJoinStrategyApplied,
-	onReady,
+	onStatusChange,
 	room,
 	store,
 }: StartRoomSyncOptions): () => void {
 	let isDisposed = false;
 	let synchronizer: Synchronizer | undefined;
 	let connection: PartySocket | undefined;
-	let handleOpen: (() => void) | undefined;
-	let snapshotSaveInterval: ReturnType<typeof setInterval> | undefined;
-	let storeListenerId: string | undefined;
-	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-	let isBootstrapping = false;
+	let storeUrl: string | undefined;
+	let encryptionKey: CryptoKey | undefined;
+	let hasOpened = false;
+
+	// Whether the server snapshot must be merged before the next save. True
+	// initially and after every reconnect, as peers may have saved meanwhile.
+	let needsLoad = true;
+	// Whether local content may be missing from the server snapshot. The save
+	// itself is skipped when the content hashes already match the server.
+	let needsSave = true;
+	let failures = 0;
+	let isRunning = false;
+	let shouldRunAgain = false;
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	let timerDueAt = 0;
+	let status: RoomSyncStatus | undefined;
 
 	const deviceId = getDeviceId();
-	const initialJoinStrategy = joinStrategy;
 
-	const connectRoomSync = async () => {
+	const setStatus = (nextStatus: RoomSyncStatus) => {
+		if (isDisposed || status === nextStatus) return;
+		status = nextStatus;
+		onStatusChange?.(nextStatus);
+	};
+
+	const schedule = (delay: number) => {
 		if (isDisposed) return;
+		if (timer) clearTimeout(timer);
+		timerDueAt = Date.now() + delay;
+		timer = setTimeout(() => {
+			timer = undefined;
+			void run();
+		}, delay);
+	};
 
-		const startConnect = performance.now();
+	// Brings a pending retry forward, e.g. after the network came back.
+	const requestSoon = () => {
+		const delay = failures === 0 ? 0 : RECONNECT_RETRY_DELAY_MS;
+		if (!timer || timerDueAt - Date.now() > delay) {
+			schedule(delay);
+		}
+	};
 
-		const [hashedRoomId, encryptionKey] = await Promise.all([
-			hashRoomId(room),
-			getEncryptionKey(room),
-		]);
+	const run = async () => {
+		if (isDisposed || !storeUrl || !encryptionKey) return;
+		if (isRunning) {
+			shouldRunAgain = true;
+			return;
+		}
+		if (!needsLoad && !needsSave) return;
+		if (isBrowserOffline()) {
+			// The `online` listener resumes syncing.
+			setStatus('offline');
+			return;
+		}
 
-		connection = new PartySocket({
-			host: PARTYKIT_HOST,
-			party: TINYBASE_PARTYKIT_PARTY,
-			room: hashedRoomId,
-		});
-
-		const storeUrl = getStoreUrl(connection);
-
-		const saveSnapshot = (reason: string) => {
-			if (connection?.readyState !== 1) return;
-			void saveServerSnapshot(store, storeUrl, encryptionKey).catch(
-				(error: unknown) => logger.error(reason, error),
-			);
-		};
-
-		// Debounced snapshot save: triggered by any store change while online.
-		// Keeps the server snapshot up-to-date within ~1 second so that peers
-		// coming back online see the latest data even within the 30s interval.
-		const scheduleSave = () => {
-			if (debounceTimer) clearTimeout(debounceTimer);
-			debounceTimer = setTimeout(() => {
-				if (isDisposed) return;
-				saveSnapshot('Failed to save debounced snapshot:');
-			}, 1000);
-		};
-
-		// Fetches the server snapshot, CRDT-merges it into the local store,
-		// then saves the merged result back so peers can benefit from the
-		// combined state (important when we had local changes while offline).
-		const bootstrap = async (isInitial = false) => {
-			if (isBootstrapping) return false;
-			isBootstrapping = true;
-			try {
-				if (isInitial && initialJoinStrategy === 'clear') {
-					store.setContent([{}, {}]);
-				}
-
-				const startBootstrap = performance.now();
+		isRunning = true;
+		setStatus('syncing');
+		try {
+			if (needsLoad) {
+				const startLoad = performance.now();
 				const didLoad = await loadServerSnapshot(
 					store,
 					storeUrl,
 					encryptionKey,
 				);
 				logger.log(
-					`[PERF] Server snapshot bootstrap took ${(performance.now() - startBootstrap).toFixed(2)}ms (loaded=${didLoad})`,
+					`[PERF] Server snapshot load took ${(performance.now() - startLoad).toFixed(2)}ms (loaded=${didLoad})`,
 				);
-
+				needsLoad = false;
 				if (isDisposed) return;
-
-				if (isInitial) {
-					// After initial merge/clear, revert to overwrite for subsequent reconnects.
-					// Note: 'merge' is already handled by loadServerSnapshot because
-					// applyMergeableChanges merges the remote state into the existing
-					// local store.
-					onJoinStrategyApplied();
-				}
 
 				// Run migrations and repair rows written by pre-profile clients after
 				// merging remote data.
 				await runMigrationsIfNeeded(store, { deviceId });
 				repairMissingProfileIds(store);
+			}
 
-				if (didLoad) {
-					// Push the merged state back so other clients can pick it up.
-					saveSnapshot('Failed to save snapshot after bootstrap:');
-				}
-				return didLoad;
-			} catch (error) {
-				logger.error('Failed to load server snapshot:', error);
-				if (isInitial) {
+			if (needsSave) {
+				needsSave = false;
+				try {
+					await saveServerSnapshot(store, storeUrl, encryptionKey);
+				} catch (error) {
+					needsSave = true;
 					throw error;
 				}
-				return false;
-			} finally {
-				isBootstrapping = false;
 			}
-		};
 
-		// Initial bootstrap: load + merge the server snapshot before we start sync.
-		// This runs before we register the reconnect listener so migrations always
-		// complete before the synchronizer starts.
-		const didLoadInitialSnapshot = await bootstrap(true);
+			failures = 0;
+			setStatus('synced');
+		} catch (error) {
+			failures += 1;
+			const delay = getRetryDelay(failures);
+			logger.warn(
+				`[SYNC] Snapshot sync failed, retrying in ${Math.round(delay / 1000)}s:`,
+				error,
+			);
+			setStatus('offline');
+			schedule(delay);
+		} finally {
+			isRunning = false;
+			if (shouldRunAgain && !isDisposed) {
+				shouldRunAgain = false;
+				if (failures === 0) {
+					schedule(SAVE_DEBOUNCE_MS);
+				}
+			}
+		}
+	};
 
+	const handleStoreChange = () => {
+		needsSave = true;
+		// While backing off, the pending retry also saves the new content.
+		if (failures === 0) {
+			schedule(SAVE_DEBOUNCE_MS);
+		}
+	};
+
+	const handleOpen = () => {
+		if (hasOpened) {
+			logger.log('[SYNC] WebSocket reconnected, reloading server snapshot');
+			needsLoad = true;
+			needsSave = true;
+		}
+		hasOpened = true;
+		requestSoon();
+	};
+
+	const handleOnline = () => {
+		needsLoad = true;
+		needsSave = true;
+		requestSoon();
+	};
+
+	const handleOffline = () => {
+		setStatus('offline');
+	};
+
+	if (joinStrategy === 'clear') {
+		store.setContent([{}, {}]);
+	}
+	// Apply the strategy only once. Reapplying 'clear' on a later start would
+	// discard entries made since joining.
+	onJoinStrategyApplied();
+
+	const storeListenerId =
+		store.addDidFinishTransactionListener(handleStoreChange);
+	if (typeof window !== 'undefined') {
+		window.addEventListener('online', handleOnline);
+		window.addEventListener('offline', handleOffline);
+	}
+	setStatus(isBrowserOffline() ? 'offline' : 'syncing');
+
+	const connectRoomSync = async () => {
+		const [hashedRoomId, roomEncryptionKey] = await Promise.all([
+			hashRoomId(room),
+			getEncryptionKey(room),
+		]);
 		if (isDisposed) return;
 
-		storeListenerId = store.addDidFinishTransactionListener(() => {
-			scheduleSave();
+		connection = new PartySocket({
+			host: PARTYKIT_HOST,
+			maxReconnectionDelay: SOCKET_MAX_RECONNECTION_DELAY_MS,
+			party: TINYBASE_PARTYKIT_PARTY,
+			room: hashedRoomId,
 		});
+		connection.addEventListener('open', handleOpen);
+		storeUrl = getStoreUrl(connection);
+		encryptionKey = roomEncryptionKey;
 
-		if (isDisposed) return;
+		void run();
 
-		// Create the encrypted synchronizer for real-time sync
+		// Real-time sync with online peers. It is independent of the snapshot:
+		// peers can exchange changes even when snapshot requests fail.
 		let lastPeerWaitLogTimestamp = 0;
-		synchronizer = await createEncryptedPartyKitSynchronizer(
+		const roomSynchronizer = await createEncryptedPartyKitSynchronizer(
 			store,
 			connection,
-			encryptionKey,
+			roomEncryptionKey,
 			(error: unknown) => {
 				if (isExpectedSynchronizerTimeout(error)) {
 					const now = Date.now();
@@ -182,77 +276,36 @@ export function startRoomSync({
 		);
 
 		if (isDisposed) {
-			await synchronizer!.destroy();
+			await roomSynchronizer.destroy();
 			return;
 		}
+		synchronizer = roomSynchronizer;
 
-		// Start CRDT sync in the background. A room may have no online peers,
-		// so waiting for a peer response here would keep the splash screen up
-		// even though the persisted snapshot loaded successfully.
-		void synchronizer!.startSync().catch((error: unknown) => {
+		void synchronizer.startSync().catch((error: unknown) => {
 			logger.error('Failed to start synchronizer:', error);
 		});
-
-		logger.log(
-			`[PERF] Total connectRoomSync took ${(performance.now() - startConnect).toFixed(2)}ms`,
-		);
-
-		// Re-bootstrap whenever the WebSocket reconnects.  PartySocket
-		// auto-reconnects after network drops; on each reconnect we re-fetch
-		// the server snapshot so we pick up changes from peers that were
-		// online while we were offline.  We register this listener only
-		// after the initial setup is complete so migrations always finish
-		// before the synchronizer starts.
-		handleOpen = () => {
-			logger.log(
-				'[SYNC] WebSocket reconnected, re-bootstrapping from server snapshot...',
-			);
-			void bootstrap(false);
-		};
-		connection.addEventListener('open', handleOpen);
-
-		// Periodically save an encrypted snapshot so that future clients
-		// can bootstrap when no peers are online.
-		snapshotSaveInterval = setInterval(() => {
-			saveSnapshot('Failed to save periodic server snapshot:');
-		}, SNAPSHOT_SAVE_INTERVAL_MS);
-
-		// Save immediately when this is a new room. Existing snapshots are
-		// already saved after bootstrap with the merged local state.
-		if (!didLoadInitialSnapshot) {
-			saveSnapshot('Failed to save initial server snapshot:');
-		}
-
-		if (!isDisposed) {
-			onReady();
-		}
 	};
 
-	void connectRoomSync().catch((error) => {
+	void connectRoomSync().catch((error: unknown) => {
 		logger.error('[SYNC] Failed to connect room sync:', error);
-		// Fail closed: rendering an empty store here would show the profile
-		// prompt and could let this client overwrite an established room.
-		// Keep the splash screen visible and never start snapshot saving.
+		setStatus('offline');
 	});
 
 	return () => {
 		isDisposed = true;
-		if (snapshotSaveInterval) {
-			clearInterval(snapshotSaveInterval);
+		if (timer) {
+			clearTimeout(timer);
 		}
-		if (debounceTimer) {
-			clearTimeout(debounceTimer);
+		store.delListener(storeListenerId);
+		if (typeof window !== 'undefined') {
+			window.removeEventListener('online', handleOnline);
+			window.removeEventListener('offline', handleOffline);
 		}
-		if (connection && handleOpen) {
-			connection.removeEventListener('open', handleOpen);
-		}
-		if (storeListenerId) {
-			store.delListener(storeListenerId);
-		}
-		if (!synchronizer) {
-			if (connection) connection.close();
+		connection?.removeEventListener('open', handleOpen);
+		if (synchronizer) {
+			void synchronizer.destroy();
 			return;
 		}
-		void synchronizer.destroy();
+		connection?.close();
 	};
 }
