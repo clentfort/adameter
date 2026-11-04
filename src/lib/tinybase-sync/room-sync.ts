@@ -18,6 +18,8 @@ import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 
 const SAVE_DEBOUNCE_MS = 1000;
+// Continuous changes delay a save by at most this long.
+const SAVE_MAX_WAIT_MS = 5000;
 // Retries after a failed snapshot request back off exponentially so that an
 // unreachable or rate-limited relay is not hammered by open tabs.
 const RETRY_BASE_DELAY_MS = 5000;
@@ -98,6 +100,7 @@ export function startRoomSync({
 	let shouldRunAgain = false;
 	let timer: ReturnType<typeof setTimeout> | undefined;
 	let timerDueAt = 0;
+	let saveRequestedAt: number | undefined;
 	let status: RoomSyncStatus | undefined;
 
 	const deviceId = getDeviceId();
@@ -116,6 +119,17 @@ export function startRoomSync({
 			timer = undefined;
 			void run();
 		}, delay);
+	};
+
+	const scheduleSave = () => {
+		const now = Date.now();
+		saveRequestedAt ??= now;
+		schedule(
+			Math.max(
+				0,
+				Math.min(SAVE_DEBOUNCE_MS, saveRequestedAt + SAVE_MAX_WAIT_MS - now),
+			),
+		);
 	};
 
 	// Brings a pending retry forward, e.g. after the network came back.
@@ -140,6 +154,7 @@ export function startRoomSync({
 		}
 
 		isRunning = true;
+		saveRequestedAt = undefined;
 		setStatus('syncing');
 		try {
 			if (needsLoad) {
@@ -187,17 +202,25 @@ export function startRoomSync({
 			if (shouldRunAgain && !isDisposed) {
 				shouldRunAgain = false;
 				if (failures === 0) {
-					schedule(SAVE_DEBOUNCE_MS);
+					scheduleSave();
 				}
 			}
 		}
 	};
 
 	const handleStoreChange = () => {
+		const [changedTables, changedValues] = store.getTransactionChanges();
+		if (
+			Object.keys(changedTables).length === 0 &&
+			Object.keys(changedValues).length === 0
+		) {
+			return;
+		}
+
 		needsSave = true;
 		// While backing off, the pending retry also saves the new content.
 		if (failures === 0) {
-			schedule(SAVE_DEBOUNCE_MS);
+			scheduleSave();
 		}
 	};
 
