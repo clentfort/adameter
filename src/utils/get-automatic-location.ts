@@ -1,4 +1,4 @@
-export const LOCATION_TIME_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
+export const LOCATION_TIME_THRESHOLD_MS = 10 * 60 * 1000; // 10 minutes
 
 interface LocationCoordinates {
 	latitude: number;
@@ -13,7 +13,7 @@ interface RequestAutomaticLocationOptions {
 
 /**
  * Attempts to retrieve current location if location tracking is enabled
- * and the given timestamp is within 15 minutes of current local time.
+ * and the given timestamp is within 10 minutes of current local time.
  */
 export async function requestAutomaticLocation({
 	isLocationTrackingEnabled,
