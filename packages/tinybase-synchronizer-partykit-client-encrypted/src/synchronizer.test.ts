@@ -307,6 +307,7 @@ describe('saveServerSnapshot', () => {
 			encryptionKey,
 		);
 		await waitForMockCallCount(mockFetch, 1);
+		store.getMergeableContent.mockReturnValue([[{}, '', ''], [{}, '', ''], '']);
 		const secondSave = saveServerSnapshot(
 			store as never,
 			storeUrl,
@@ -431,6 +432,61 @@ describe('saveServerSnapshot', () => {
 		});
 	});
 
+	it('skips the upload when content is unchanged since the last save', async () => {
+		const storeUrl = 'https://example.com/unchanged-store';
+		mockFetch.mockResolvedValue({
+			headers: { get: () => '"1"' },
+			ok: true,
+			status: 200,
+		});
+		const store = createMockStore();
+
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+
+		expect(mockFetch).toHaveBeenCalledOnce();
+	});
+
+	it('uploads again once the content changes', async () => {
+		const storeUrl = 'https://example.com/changed-store';
+		mockFetch.mockResolvedValue({
+			headers: { get: () => '"1"' },
+			ok: true,
+			status: 200,
+		});
+		const store = createMockStore();
+
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+		store.getMergeableContent.mockReturnValue([[{}, '', ''], [{}, '', ''], '']);
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+	});
+
+	it('retries an unchanged snapshot after a failed save', async () => {
+		const storeUrl = 'https://example.com/failed-store';
+		mockFetch
+			.mockResolvedValueOnce({
+				ok: false,
+				status: 500,
+				statusText: 'Internal Server Error',
+				text: () => Promise.resolve(''),
+			})
+			.mockResolvedValueOnce({
+				headers: { get: () => '"1"' },
+				ok: true,
+				status: 200,
+			});
+		const store = createMockStore();
+
+		await expect(
+			saveServerSnapshot(store as never, storeUrl, encryptionKey),
+		).rejects.toThrow('Snapshot PUT failed (500)');
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+	});
+
 	it('throws when PUT snapshot fails', async () => {
 		mockFetch.mockResolvedValue({
 			ok: false,
@@ -443,7 +499,7 @@ describe('saveServerSnapshot', () => {
 		await expect(
 			saveServerSnapshot(
 				store as never,
-				'https://example.com/store',
+				'https://example.com/failing-store',
 				encryptionKey,
 			),
 		).rejects.toThrow('Snapshot PUT failed (500): {"error":"too large"}');

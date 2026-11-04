@@ -47,6 +47,9 @@ interface SnapshotSaveQueue {
 const snapshotOperationQueues = new Map<string, Promise<void>>();
 const snapshotSaveQueues = new Map<string, SnapshotSaveQueue>();
 const snapshotVersions = new Map<string, string>();
+// Serialized content of the last successful save per room. Unchanged content
+// is not uploaded again, since every write costs Durable Object storage rows.
+const lastSavedSnapshots = new Map<string, string>();
 
 function runSnapshotOperation<Result>(
 	storeUrl: string,
@@ -260,6 +263,7 @@ async function performSnapshotSave({
 	for (let attempt = 0; attempt < MAX_SNAPSHOT_SAVE_ATTEMPTS; attempt += 1) {
 		const content = store.getMergeableContent();
 		const serialized = jsonStringWithUndefined(content);
+		if (lastSavedSnapshots.get(storeUrl) === serialized) return;
 		const encrypted = await encrypt(serialized, encryptionKey);
 		const version = snapshotVersions.get(storeUrl);
 
@@ -287,6 +291,7 @@ async function performSnapshotSave({
 		}
 
 		updateSnapshotVersion(storeUrl, response);
+		lastSavedSnapshots.set(storeUrl, serialized);
 		return;
 	}
 }
