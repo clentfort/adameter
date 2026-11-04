@@ -27,7 +27,12 @@ export function getPartykitHostFromEnv(env: NodeJS.ProcessEnv = process.env) {
 	});
 }
 
-export const PARTYKIT_HOST = getPartykitHostFromEnv();
+// Next.js only inlines literal `process.env.NEXT_PUBLIC_*` reads into client
+// bundles, so the host set in next.config.ts must be read directly here.
+export const PARTYKIT_HOST = resolvePartykitHost({
+	explicitHost: process.env.NEXT_PUBLIC_PARTYKIT_HOST,
+	vercelEnv: process.env.VERCEL_ENV,
+});
 
 function normalizePartykitHost(host: string) {
 	return host.replace(/^https?:\/\//, '').replace(/\/$/, '');
