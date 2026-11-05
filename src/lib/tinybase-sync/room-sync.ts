@@ -14,6 +14,8 @@ import {
 	flattenChanges,
 	getCellKeys,
 	hashRoomId,
+	hasIncompletePull,
+	INCOMPLETE_PULL_SUFFIX,
 	isLocalValueId,
 	LOCAL_VALUE_PREFIX,
 	REJECTED_RETRY_MS,
@@ -119,6 +121,7 @@ export function startRoomSync({
 	let keys: CellKeys | undefined;
 	let storeUrl: string | undefined;
 	let legacySnapshotEtagValueId: string | undefined;
+	let legacyIncompleteValueId: string | undefined;
 	let hasOpened = false;
 
 	// Whether changes of other devices may be missing locally. True initially,
@@ -195,8 +198,13 @@ export function startRoomSync({
 			: [];
 		// Cells the server is missing are uploaded by the next push.
 		const { deferred } = applyCellsToStore(store, cells, ({ deferred }) => {
-			if (deferred.length === 0 && result.etag) {
-				store.setValue(etagValueId, result.etag);
+			// Saved with the applied cells, so migrations also skip the partial
+			// rows after a restart.
+			if (deferred.length > 0) {
+				store.setValue(legacyIncompleteValueId!, true);
+			} else {
+				store.delValue(legacyIncompleteValueId!);
+				if (result.etag) store.setValue(etagValueId, result.etag);
 			}
 		});
 		await persistStore?.();
@@ -265,7 +273,9 @@ export function startRoomSync({
 
 				// Migrations must see complete rows: on a partial row a migration
 				// could, e.g., delete the row as invalid and sync that deletion.
-				if (!pullRetry && isLegacyMerged) {
+				// Other rooms' incomplete pulls count too: their rows are in the
+				// same store.
+				if (!pullRetry && isLegacyMerged && !hasIncompletePull(store)) {
 					// Run migrations and repair rows written by pre-profile clients
 					// after merging remote data.
 					await runMigrationsIfNeeded(store, { deviceId });
@@ -398,6 +408,7 @@ export function startRoomSync({
 			getRoomSyncStateDbName(getLocalStoreId(), roomHash),
 		);
 		legacySnapshotEtagValueId = `${LOCAL_VALUE_PREFIX}sync:${roomHash}:legacySnapshotEtag`;
+		legacyIncompleteValueId = `${LOCAL_VALUE_PREFIX}sync:${roomHash}:legacy:${INCOMPLETE_PULL_SUFFIX}`;
 		const roomCellSync = createCellSync({
 			cellsUrl: getRoomUrl(roomHash, 'cells'),
 			keys: roomKeys,

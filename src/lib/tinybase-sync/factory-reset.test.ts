@@ -77,6 +77,22 @@ describe('local data reset', () => {
 		expect((await loadStore(backup!)).hasRow('events', 'e1')).toBe(true);
 	});
 
+	it('fails instead of resetting when the backup cannot be saved', async () => {
+		const store = await saveEvent(TINYBASE_LOCAL_DB_NAME);
+		const open = vi.spyOn(indexedDB, 'open').mockImplementation(() => {
+			throw new DOMException('Storage is full', 'QuotaExceededError');
+		});
+
+		try {
+			await expect(backupAndClearLocalStore(store)).rejects.toThrow(
+				'Failed to back up',
+			);
+		} finally {
+			open.mockRestore();
+		}
+		expect(getItem(STORAGE_KEYS.LOCAL_DB_NAME)).toBeNull();
+	});
+
 	it('keeps another tab that still saves the old store out of the new one', async () => {
 		const store = await saveEvent(TINYBASE_LOCAL_DB_NAME);
 		const otherTab = createIndexedDbPersister(

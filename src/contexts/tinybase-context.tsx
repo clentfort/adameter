@@ -11,6 +11,8 @@ import {
 	applyCellsToStore,
 	flattenChanges,
 	hasIncompletePull,
+	INCOMPLETE_PULL_SUFFIX,
+	LOCAL_VALUE_PREFIX,
 } from 'tinybase-synchronizer-partykit-client-encrypted';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { Provider } from 'tinybase/ui-react';
@@ -40,6 +42,10 @@ const LOCAL_LOAD_ATTEMPTS = 3;
 const LOCAL_LOAD_RETRY_DELAY_MS = 250;
 
 type LocalPersistenceProblem = 'load' | 'save';
+
+// Marks rows recovered only in part from a rejected local database, so
+// migrations skip them (see hasIncompletePull).
+const LOCAL_RECOVERY_INCOMPLETE_VALUE_ID = `${LOCAL_VALUE_PREFIX}recovery:${INCOMPLETE_PULL_SUFFIX}`;
 
 function isMissingObjectStore(error: unknown): boolean {
 	return error instanceof DOMException && error.name === 'NotFoundError';
@@ -73,9 +79,8 @@ async function clonePreviewDataIfEmpty(
 }
 
 export function TinybaseProvider({ children }: TinybaseProviderProps) {
-	const { isHydrated, joinStrategy, resetJoinStrategy, room } = useContext(
-		DataSynchronizationContext,
-	);
+	const { isHydrated, joinStrategy, leaveRoom, resetJoinStrategy, room } =
+		useContext(DataSynchronizationContext);
 	const joinStrategyRef = useRef(joinStrategy);
 	joinStrategyRef.current = joinStrategy;
 	const storeRef = useRef<MergeableStore>(defaultStore);
@@ -145,7 +150,12 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			if (probeError !== undefined) return false;
 			const persistedCells = flattenChanges(probe.getMergeableContent());
 			if (persistedCells.length === 0) return true;
-			applyCellsToStore(store, persistedCells);
+			applyCellsToStore(store, persistedCells, ({ deferred }) => {
+				// Rows may be partial; this flag is never saved, as nothing is.
+				if (deferred.length > 0) {
+					store.setValue(LOCAL_RECOVERY_INCOMPLETE_VALUE_ID, true);
+				}
+			});
 			return false;
 		};
 
@@ -243,7 +253,20 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			if (joinStrategyRef.current === 'clear') {
 				// Join with a fresh local store. Deleting the local rows instead
 				// would sync the deletions into the room.
-				await backupLocalStore(storeRef.current);
+				try {
+					await backupLocalStore(storeRef.current);
+				} catch (error) {
+					// The local data stays as it is; don't join without a backup.
+					logger.error('Failed to back up before clearing:', error);
+					toast.error(
+						fbt(
+							'The data on this device could not be backed up, so the room was not joined.',
+							'Error shown when joining a room and clearing local data fails because the backup failed',
+						),
+					);
+					leaveRoom();
+					return;
+				}
 				await persisterRef.current?.stopAutoSave();
 				resetLocalData();
 				setItem(STORAGE_KEYS.ROOM, room);
@@ -277,7 +300,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			roomSyncStoppedRef.current = started.then(() => stopRoomSync?.());
 			setSyncStatus(undefined);
 		};
-	}, [isHydrated, isLocalReady, resetJoinStrategy, room]);
+	}, [isHydrated, isLocalReady, leaveRoom, resetJoinStrategy, room]);
 
 	useEffect(() => {
 		if (!isLocalReady || !persistenceProblem) return;

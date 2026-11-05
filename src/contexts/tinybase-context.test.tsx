@@ -408,6 +408,56 @@ describe('TinybaseProvider room sync', () => {
 		expect(screen.getByTestId('event-count')).toHaveTextContent('1');
 	});
 
+	it('does not join with a fresh store if the backup fails', async () => {
+		vi.spyOn(logger, 'error').mockImplementation(() => {});
+		const toastError = vi.spyOn(toast, 'error');
+		const reload = vi.fn();
+		vi.stubGlobal('location', { ...window.location, reload });
+		const defaultMock = createPersisterMock(seedLocalEvent);
+		mocks.createIndexedDbPersister.mockImplementation(
+			(
+				store: MergeableStore,
+				name: string,
+				_interval: unknown,
+				onIgnoredError?: (error: unknown) => void,
+			) => {
+				const persister = defaultMock(store);
+				if (name.includes('-backup-')) {
+					persister.save = vi.fn(async () => {
+						onIgnoredError?.(new DOMException('Full', 'QuotaExceededError'));
+					});
+				}
+				return persister;
+			},
+		);
+		renderProvider();
+		await waitFor(() => {
+			expect(screen.getByTestId('event-count')).toHaveTextContent('1');
+		});
+
+		fireEvent.click(screen.getByRole('button', { name: 'Join and clear' }));
+
+		await waitFor(() => expect(toastError).toHaveBeenCalled());
+		expect(reload).not.toHaveBeenCalled();
+		expect(getItem(STORAGE_KEYS.LOCAL_DB_NAME)).toBeNull();
+		await waitFor(() => expect(getItem(STORAGE_KEYS.ROOM)).toBeNull());
+		expect(screen.getByTestId('event-count')).toHaveTextContent('1');
+	});
+
+	it('does not run migrations while another room is only partly pulled', async () => {
+		mocks.createIndexedDbPersister.mockImplementation(
+			createPersisterMock((store) => {
+				seedLocalEvent(store);
+				store.setValue('_local:sync:other-room:incomplete', true);
+			}),
+		);
+		renderProvider();
+
+		await joinRoomAndSync();
+
+		expect(mocks.runMigrationsIfNeeded).not.toHaveBeenCalled();
+	});
+
 	it('loads the current local store', async () => {
 		setItem(STORAGE_KEYS.LOCAL_DB_NAME, 'adameter-tinybase-store-current');
 

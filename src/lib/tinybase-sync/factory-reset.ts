@@ -15,11 +15,24 @@ import {
 
 const LOCAL_RESET_CHANNEL = 'adameter-local-data-reset';
 
+/** Rejects if the backup could not be saved, e.g. because storage is full. */
 export const backupLocalStore = async (store: Store): Promise<void> => {
 	const backupDbName = `${TINYBASE_LOCAL_DB_NAME}-backup-${Date.now()}`;
-	const backupPersister = createIndexedDbPersister(store, backupDbName);
+	// TinyBase persisters report failures here instead of rejecting.
+	let saveError: unknown;
+	const backupPersister = createIndexedDbPersister(
+		store,
+		backupDbName,
+		undefined,
+		(error: unknown) => {
+			saveError = error;
+		},
+	);
 	await backupPersister.save();
 	await backupPersister.destroy();
+	if (saveError !== undefined) {
+		throw new Error('Failed to back up the local store', { cause: saveError });
+	}
 };
 
 /**
