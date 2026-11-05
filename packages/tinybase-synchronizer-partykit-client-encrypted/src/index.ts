@@ -41,13 +41,6 @@ export {
 	fetchLegacySnapshot,
 } from './legacy-snapshot';
 export {
-	createEncryptedPartyKitSynchronizer,
-	getStoreUrl,
-	loadServerSnapshot,
-	saveServerSnapshot,
-	SnapshotRequestError,
-} from './synchronizer';
-export {
 	decrypt,
 	encrypt,
 	getEncryptionKey,
