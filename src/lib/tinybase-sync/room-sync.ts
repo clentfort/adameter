@@ -7,11 +7,14 @@ import type {
 } from 'tinybase-synchronizer-partykit-client-encrypted';
 import PartySocket from 'partysocket';
 import {
+	applyCellsToStore,
 	createCellSync,
 	createIndexedDbCellSyncStateStore,
 	fetchLegacySnapshot,
+	flattenChanges,
 	getCellKeys,
 	hashRoomId,
+	isLocalValueId,
 	LOCAL_VALUE_PREFIX,
 	REJECTED_RETRY_MS,
 } from 'tinybase-synchronizer-partykit-client-encrypted';
@@ -38,6 +41,9 @@ const RETRY_MAX_DELAY_MS = 10 * 60_000;
 const RECONNECT_RETRY_DELAY_MS = 10_000;
 const SOCKET_MAX_RECONNECTION_DELAY_MS = 60_000;
 const CELLS_PROTOCOL = 'cells';
+// Pulls that stopped early (clock far behind, a cell that could not be
+// decrypted) and failed legacy snapshot merges are retried after this.
+const PULL_RETRY_DELAY_MS = 60_000;
 
 /**
  * `error`: some local changes cannot be synced (e.g. the device clock is far
@@ -126,6 +132,8 @@ export function startRoomSync({
 	let saveRequestedAt: number | undefined;
 	let status: RoomSyncStatus | undefined;
 	let activeRun: Promise<void> | undefined;
+	// Whether a pull must be repeated later, see PULL_RETRY_DELAY_MS.
+	let pullRetryDue = false;
 
 	const deviceId = getDeviceId();
 
@@ -167,10 +175,11 @@ export function startRoomSync({
 	/**
 	 * Merges the snapshot of clients that still use the snapshot protocol. Its
 	 * ETag is a local value of the store, so it is persisted with the merged
-	 * content.
+	 * content, and it is only recorded once all of the snapshot was applied.
+	 * Returns false if the merge must be retried.
 	 */
 	const mergeLegacySnapshot = async () => {
-		if (!storeUrl || !keys || !legacySnapshotEtagValueId) return;
+		if (!storeUrl || !keys || !legacySnapshotEtagValueId) return true;
 		const etagValueId = legacySnapshotEtagValueId;
 		const etag = store.getValue(etagValueId);
 		const result = await fetchLegacySnapshot(
@@ -178,13 +187,26 @@ export function startRoomSync({
 			keys.encryptionKey,
 			typeof etag === 'string' ? etag : undefined,
 		);
-		if (isDisposed || result.status === 'unchanged') return;
-		store.transaction(() => {
-			// Cells the server is missing are uploaded by the next push.
-			if (result.content) store.applyMergeableChanges(result.content);
-			if (result.etag) store.setValue(etagValueId, result.etag);
+		if (isDisposed || result.status === 'unchanged') return true;
+		const cells = result.content
+			? flattenChanges(result.content).filter(
+					(cell) => !(cell.kind === 'v' && isLocalValueId(cell.cell)),
+				)
+			: [];
+		// Cells the server is missing are uploaded by the next push.
+		const { deferred } = applyCellsToStore(store, cells, ({ deferred }) => {
+			if (deferred.length === 0 && result.etag) {
+				store.setValue(etagValueId, result.etag);
+			}
 		});
 		await persistStore?.();
+		if (deferred.length > 0) {
+			logger.warn(
+				`[SYNC] ${deferred.length} legacy snapshot cells wait for the device clock`,
+			);
+			return false;
+		}
+		return true;
 	};
 
 	const run = async () => {
@@ -223,13 +245,23 @@ export function startRoomSync({
 					throw error;
 				}
 				if (isDisposed) return;
+				let isLegacyMerged = false;
 				try {
-					await mergeLegacySnapshot();
+					isLegacyMerged = await mergeLegacySnapshot();
 				} catch (error) {
-					// Retried with the next pull; it must not hold back uploads.
+					// It must not hold back uploads.
 					logger.warn('[SYNC] Failed to merge the legacy snapshot:', error);
 				}
 				if (isDisposed) return;
+				// Both are retried with a later pull.
+				const pullRetry = cellSync.getPullRetry();
+				if (pullRetry || !isLegacyMerged) {
+					needsPull = true;
+					pullRetryDue = true;
+				}
+				if (pullRetry === 'decrypt') {
+					logger.warn('[SYNC] A pulled cell could not be decrypted, retrying');
+				}
 
 				// Run migrations and repair rows written by pre-profile clients after
 				// merging remote data.
@@ -245,12 +277,17 @@ export function startRoomSync({
 			}
 
 			failures = 0;
-			if (cellSync.hasUnsyncableCells()) {
+			if (
+				cellSync.hasUnsyncableCells() ||
+				cellSync.getPullRetry() === 'clock'
+			) {
 				setStatus('error');
-				// Rejected cells become uploadable again after a while.
-				if (!timer) schedule(REJECTED_RETRY_MS);
 			} else {
 				setStatus('synced');
+			}
+			// Rejected cells become uploadable again after a while.
+			if (cellSync.hasUnsyncableCells() && !timer) {
+				schedule(REJECTED_RETRY_MS);
 			}
 		} catch (error) {
 			if (isDisposed) return;
@@ -267,6 +304,11 @@ export function startRoomSync({
 			if (!isDisposed && failures === 0) {
 				if (shouldRunAgain || cellSync.hasPendingUploads()) {
 					scheduleSave();
+				} else if (pullRetryDue) {
+					pullRetryDue = false;
+					if (!timer || timerDueAt - Date.now() > PULL_RETRY_DELAY_MS) {
+						schedule(PULL_RETRY_DELAY_MS);
+					}
 				}
 			}
 			shouldRunAgain = false;
@@ -295,9 +337,14 @@ export function startRoomSync({
 		void cellSync
 			.receive(event.data)
 			.then((result) => {
-				if (result !== 'gap') return;
-				needsPull = true;
-				requestSoon();
+				if (result === 'gap') {
+					needsPull = true;
+					requestSoon();
+				} else if (result === 'deferred') {
+					// The pull position stopped before cells that wait for the clock.
+					needsPull = true;
+					if (!timer) schedule(PULL_RETRY_DELAY_MS);
+				}
 			})
 			.catch((error: unknown) => {
 				logger.warn('[SYNC] Failed to apply cell broadcast, pulling:', error);
@@ -349,7 +396,6 @@ export function startRoomSync({
 		const roomCellSync = createCellSync({
 			cellsUrl: getRoomUrl(roomHash, 'cells'),
 			keys: roomKeys,
-			lastSeqValueId: `${LOCAL_VALUE_PREFIX}sync:${roomHash}:lastSeq`,
 			limits: { batchCells: getBatchCellLimit() },
 			onIgnoredError: (error) => {
 				logger.warn(
@@ -359,6 +405,7 @@ export function startRoomSync({
 			},
 			persistStore,
 			state: stateStore,
+			stateValuePrefix: `${LOCAL_VALUE_PREFIX}sync:${roomHash}:`,
 			store,
 		});
 		try {

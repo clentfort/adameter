@@ -1,21 +1,37 @@
 import 'fake-indexeddb/auto';
 import { createMergeableStore } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { clear, getItem, setItem, STORAGE_KEYS } from '@/lib/storage';
-import { getRoomSyncStateDbName, TINYBASE_LOCAL_DB_NAME } from './constants';
 import {
-	applyPendingLocalDataReset,
+	getLocalStoreDbName,
+	getRoomSyncStateDbName,
+	TINYBASE_LOCAL_DB_NAME,
+} from './constants';
+import {
 	backupAndClearLocalStore,
+	deleteObsoleteLocalDatabases,
+	onLocalDataReset,
 } from './factory-reset';
+import { getLocalDbName, getLocalStoreId } from './local-store-id';
 
 async function listDatabases() {
 	return (await indexedDB.databases()).map(({ name }) => name);
 }
 
-async function saveEvent(dbName: string) {
+async function createDatabase(name: string) {
+	await new Promise<void>((resolve) => {
+		const request = indexedDB.open(name);
+		request.addEventListener('success', () => {
+			request.result.close();
+			resolve();
+		});
+	});
+}
+
+async function saveEvent(dbName: string, title = 'Doctor') {
 	const store = createMergeableStore();
-	store.setCell('events', 'e1', 'title', 'Doctor');
+	store.setCell('events', 'e1', 'title', title);
 	const persister = createIndexedDbPersister(store, dbName);
 	await persister.save();
 	await persister.destroy();
@@ -38,50 +54,92 @@ describe('local data reset', () => {
 		}
 	});
 
-	it('does nothing unless a reset was requested', async () => {
-		await saveEvent(TINYBASE_LOCAL_DB_NAME);
-
-		expect(await applyPendingLocalDataReset()).toBe(false);
-		expect(
-			(await loadStore(TINYBASE_LOCAL_DB_NAME)).hasRow('events', 'e1'),
-		).toBe(true);
+	it('uses the original database until the first reset', () => {
+		expect(getLocalDbName()).toBe(TINYBASE_LOCAL_DB_NAME);
 	});
 
-	it('backs up the store, then clears local data and sync state on the next start', async () => {
+	it('backs up the store and switches to a new, empty store', async () => {
 		const store = await saveEvent(TINYBASE_LOCAL_DB_NAME);
-		setItem(STORAGE_KEYS.LOCAL_STORE_ID, 'old-store');
-		const syncStateDb = getRoomSyncStateDbName('old-store', 'room-hash');
-		await new Promise<void>((resolve) => {
-			const request = indexedDB.open(syncStateDb);
-			request.addEventListener('success', () => {
-				request.result.close();
-				resolve();
-			});
-		});
+		const oldStoreId = getLocalStoreId();
 
 		await backupAndClearLocalStore(store);
+
 		// Nothing is deleted from the live store, so no deletions can sync.
 		expect(store.hasRow('events', 'e1')).toBe(true);
-
-		expect(await applyPendingLocalDataReset()).toBe(true);
-		await new Promise((resolve) => setTimeout(resolve, 0));
-
-		expect(
-			(await loadStore(TINYBASE_LOCAL_DB_NAME)).hasRow('events', 'e1'),
-		).toBe(false);
-		const databases = await listDatabases();
-		const backup = databases.find((name) => name?.includes('-backup-'));
+		expect(getLocalStoreId()).not.toBe(oldStoreId);
+		expect(getLocalDbName()).toBe(getLocalStoreDbName(getLocalStoreId()));
+		expect((await loadStore(getLocalDbName())).hasRow('events', 'e1')).toBe(
+			false,
+		);
+		const backup = (await listDatabases()).find((name) =>
+			name?.includes('-backup-'),
+		);
 		expect((await loadStore(backup!)).hasRow('events', 'e1')).toBe(true);
-		expect(databases).not.toContain(syncStateDb);
-		expect(getItem(STORAGE_KEYS.LOCAL_STORE_ID)).not.toBe('old-store');
-		expect(getItem(STORAGE_KEYS.LOCAL_DATA_RESET_PENDING)).toBeNull();
 	});
 
-	it('does not create a missing local database', async () => {
-		setItem(STORAGE_KEYS.LOCAL_DATA_RESET_PENDING, '1');
+	it('keeps another tab that still saves the old store out of the new one', async () => {
+		const store = await saveEvent(TINYBASE_LOCAL_DB_NAME);
+		const otherTab = createIndexedDbPersister(
+			createMergeableStore(),
+			TINYBASE_LOCAL_DB_NAME,
+		);
+		await otherTab.load();
+		await otherTab.startAutoSave();
 
-		await applyPendingLocalDataReset();
+		await backupAndClearLocalStore(store);
+		otherTab.getStore().setCell('events', 'e2', 'title', 'Old tab');
+		await otherTab.save();
+		await otherTab.destroy();
 
-		expect(await listDatabases()).not.toContain(TINYBASE_LOCAL_DB_NAME);
+		const reloaded = await loadStore(getLocalDbName());
+		expect(reloaded.getTableIds()).toEqual([]);
+	});
+
+	it('tells other tabs about the reset', async () => {
+		const onReset = vi.fn();
+		const stopListening = onLocalDataReset(onReset);
+
+		await backupAndClearLocalStore(createMergeableStore());
+
+		await vi.waitFor(() => expect(onReset).toHaveBeenCalled());
+		stopListening();
+	});
+
+	it('deletes stores and sync state of earlier resets', async () => {
+		const oldStoreId = 'old-store';
+		setItem(STORAGE_KEYS.LOCAL_STORE_ID, oldStoreId);
+		const oldSyncDb = getRoomSyncStateDbName(oldStoreId, 'room');
+		await saveEvent(TINYBASE_LOCAL_DB_NAME);
+		await createDatabase(oldSyncDb);
+		await backupAndClearLocalStore(createMergeableStore());
+		await saveEvent(getLocalDbName());
+		const currentSyncDb = getRoomSyncStateDbName(getLocalStoreId(), 'room');
+		await createDatabase(currentSyncDb);
+
+		await deleteObsoleteLocalDatabases();
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		const databases = await listDatabases();
+		expect(databases).not.toContain(TINYBASE_LOCAL_DB_NAME);
+		expect(databases).not.toContain(oldSyncDb);
+		expect(databases).toContain(getLocalDbName());
+		expect(databases).toContain(currentSyncDb);
+		expect(databases.some((name) => name?.includes('-backup-'))).toBe(true);
+	});
+
+	it('deletes nothing before the first reset', async () => {
+		await saveEvent(TINYBASE_LOCAL_DB_NAME);
+		await createDatabase(getLocalStoreDbName('unknown'));
+
+		await deleteObsoleteLocalDatabases();
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
+		expect(getItem(STORAGE_KEYS.LOCAL_DB_NAME)).toBeNull();
+		expect(await listDatabases()).toEqual(
+			expect.arrayContaining([
+				TINYBASE_LOCAL_DB_NAME,
+				getLocalStoreDbName('unknown'),
+			]),
+		);
 	});
 });

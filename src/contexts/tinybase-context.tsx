@@ -12,15 +12,14 @@ import { logger } from '@/lib/logger';
 import { resolvePartykitHost } from '@/lib/partykit-host';
 import { getItem, setItem, STORAGE_KEYS } from '@/lib/storage';
 import { cloneRoomData } from '@/lib/tinybase-sync/cloning';
+import { STORE_VALUE_SELECTED_PROFILE_ID } from '@/lib/tinybase-sync/constants';
 import {
-	STORE_VALUE_SELECTED_PROFILE_ID,
-	TINYBASE_LOCAL_DB_NAME,
-} from '@/lib/tinybase-sync/constants';
-import {
-	applyPendingLocalDataReset,
 	backupLocalStore,
-	requestLocalDataReset,
+	deleteObsoleteLocalDatabases,
+	onLocalDataReset,
+	resetLocalData,
 } from '@/lib/tinybase-sync/factory-reset';
+import { getLocalDbName } from '@/lib/tinybase-sync/local-store-id';
 import { startRoomSync } from '@/lib/tinybase-sync/room-sync';
 import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { repairMissingProfileIds } from '@/migrations/2026-06-05-consolidate-duplicate-profiles';
@@ -77,7 +76,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		const store = storeRef.current;
 		const localPersister = createIndexedDbPersister(
 			store,
-			TINYBASE_LOCAL_DB_NAME,
+			getLocalDbName(),
 			undefined,
 			(error: unknown) => {
 				logger.error('Local store persister error:', error);
@@ -85,9 +84,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		);
 
 		const initialize = async () => {
-			if (await applyPendingLocalDataReset()) {
-				logger.log('Cleared local data before loading');
-			}
+			void deleteObsoleteLocalDatabases();
 			const startLoad = performance.now();
 			await localPersister.load();
 			logger.log(
@@ -127,9 +124,18 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 		});
 
+		// Another tab switched to a fresh local store: stop saving this tab's
+		// store and load the new one.
+		const stopListeningToResets = onLocalDataReset(() => {
+			void localPersister.stopAutoSave().finally(() => {
+				window.location.reload();
+			});
+		});
+
 		persisterRef.current = localPersister;
 		return () => {
 			isDisposed = true;
+			stopListeningToResets();
 			persisterRef.current = undefined;
 			void localPersister.stopAutoSave();
 			void localPersister.destroy();
@@ -160,7 +166,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				// would sync the deletions into the room.
 				await backupLocalStore(storeRef.current);
 				await persisterRef.current?.stopAutoSave();
-				requestLocalDataReset();
+				resetLocalData();
 				setItem(STORAGE_KEYS.ROOM, room);
 				setItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY, 'merge');
 				window.location.reload();

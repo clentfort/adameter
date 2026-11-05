@@ -1,9 +1,19 @@
 import type { Store } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { logger } from '@/lib/logger';
-import { getItem, removeItem, setItem, STORAGE_KEYS } from '@/lib/storage';
-import { isRoomSyncStateDbName, TINYBASE_LOCAL_DB_NAME } from './constants';
-import { rotateLocalStoreId } from './local-store-id';
+import { getItem, STORAGE_KEYS } from '@/lib/storage';
+import {
+	isLocalStoreDbName,
+	isRoomSyncStateDbName,
+	TINYBASE_LOCAL_DB_NAME,
+} from './constants';
+import {
+	getLocalDbName,
+	getLocalStoreId,
+	rotateLocalStore,
+} from './local-store-id';
+
+const LOCAL_RESET_CHANNEL = 'adameter-local-data-reset';
 
 export const backupLocalStore = async (store: Store): Promise<void> => {
 	const backupDbName = `${TINYBASE_LOCAL_DB_NAME}-backup-${Date.now()}`;
@@ -13,88 +23,68 @@ export const backupLocalStore = async (store: Store): Promise<void> => {
 };
 
 /**
- * Marks the local data for removal on the next app start. The caller reloads
- * the app afterwards.
+ * Starts from an empty local store on the next load and tells other tabs to
+ * reload. The caller reloads the app afterwards.
  *
  * Local data is never cleared by deleting rows: deletions get new timestamps
  * and would be synced, wiping the room on every device if this device joins
- * it again. Starting from a fresh store instead syncs nothing.
+ * it again. A fresh store syncs nothing.
  */
-export function requestLocalDataReset(): void {
-	setItem(STORAGE_KEYS.LOCAL_DATA_RESET_PENDING, '1');
+export function resetLocalData(): void {
+	rotateLocalStore();
+	if (typeof BroadcastChannel === 'undefined') return;
+	const channel = new BroadcastChannel(LOCAL_RESET_CHANNEL);
+	channel.postMessage('reset');
+	channel.close();
 }
 
 export const backupAndClearLocalStore = async (store: Store): Promise<void> => {
 	await backupLocalStore(store);
-	requestLocalDataReset();
+	resetLocalData();
 };
 
-function requestToPromise<Result>(
-	request: IDBRequest<Result>,
-): Promise<Result> {
-	return new Promise((resolve, reject) => {
-		request.addEventListener('success', () => resolve(request.result));
-		request.addEventListener('error', () => reject(request.error));
-	});
+/**
+ * Calls `onReset` when another tab resets the local data. Returns a function
+ * that stops listening.
+ */
+export function onLocalDataReset(onReset: () => void): () => void {
+	if (typeof BroadcastChannel === 'undefined') return () => {};
+	const channel = new BroadcastChannel(LOCAL_RESET_CHANNEL);
+	channel.addEventListener('message', onReset);
+	return () => channel.close();
 }
 
 /**
- * Empties every object store of a database. Unlike deleting the database, this
- * is not blocked by connections of other tabs.
+ * Deletes local stores and sync state left behind by earlier resets. Best
+ * effort: a database that another tab still has open is deleted once that tab
+ * closes it.
  */
-async function clearDatabase(name: string): Promise<void> {
-	const request = indexedDB.open(name);
-	// Don't create a database that does not exist yet.
-	request.addEventListener('upgradeneeded', () => request.transaction?.abort());
-	let database: IDBDatabase;
-	try {
-		database = await requestToPromise(request);
-	} catch {
+export async function deleteObsoleteLocalDatabases(): Promise<void> {
+	if (
+		typeof indexedDB === 'undefined' ||
+		typeof indexedDB.databases !== 'function'
+	) {
 		return;
 	}
-	try {
-		const storeNames = [...database.objectStoreNames];
-		if (storeNames.length === 0) return;
-		const transaction = database.transaction(storeNames, 'readwrite');
-		for (const storeName of storeNames) {
-			transaction.objectStore(storeName).clear();
-		}
-		await new Promise<void>((resolve, reject) => {
-			transaction.addEventListener('complete', () => resolve());
-			transaction.addEventListener('error', () => reject(transaction.error));
-			transaction.addEventListener('abort', () => reject(transaction.error));
-		});
-	} finally {
-		database.close();
-	}
-}
+	// Without a recorded database name, the current store is the original one
+	// and nothing is known to be obsolete.
+	if (!getItem(STORAGE_KEYS.LOCAL_DB_NAME)) return;
 
-async function deleteRoomSyncStateDatabases(): Promise<void> {
-	// Best effort: the new local store ID already stops their use.
-	if (typeof indexedDB.databases !== 'function') return;
-	const databases = await indexedDB.databases();
-	for (const { name } of databases) {
-		if (name && isRoomSyncStateDbName(name)) {
-			indexedDB.deleteDatabase(name);
-		}
-	}
-}
-
-/**
- * Removes the local data if a reset was requested. Must run before the local
- * store is loaded.
- */
-export async function applyPendingLocalDataReset(): Promise<boolean> {
-	if (!getItem(STORAGE_KEYS.LOCAL_DATA_RESET_PENDING)) {
-		return false;
-	}
-	rotateLocalStoreId();
-	await clearDatabase(TINYBASE_LOCAL_DB_NAME);
+	const currentDbName = getLocalDbName();
+	const currentStoreId = getLocalStoreId();
 	try {
-		await deleteRoomSyncStateDatabases();
+		for (const { name } of await indexedDB.databases()) {
+			if (!name || name === currentDbName) continue;
+			const isObsoleteStore =
+				name === TINYBASE_LOCAL_DB_NAME || isLocalStoreDbName(name);
+			const isObsoleteSyncState =
+				isRoomSyncStateDbName(name) &&
+				!name.startsWith(`${TINYBASE_LOCAL_DB_NAME}-sync-${currentStoreId}-`);
+			if (isObsoleteStore || isObsoleteSyncState) {
+				indexedDB.deleteDatabase(name);
+			}
+		}
 	} catch (error) {
-		logger.warn('Failed to delete old room sync state:', error);
+		logger.warn('Failed to delete obsolete local databases:', error);
 	}
-	removeItem(STORAGE_KEYS.LOCAL_DATA_RESET_PENDING);
-	return true;
 }

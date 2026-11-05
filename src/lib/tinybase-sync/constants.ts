@@ -2,6 +2,16 @@ export { TINYBASE_PARTYKIT_PARTY } from './partykit-parties';
 
 export const TINYBASE_LOCAL_DB_NAME = 'adameter-tinybase';
 const ROOM_SYNC_STATE_DB_PREFIX = `${TINYBASE_LOCAL_DB_NAME}-sync-`;
+const LOCAL_STORE_DB_PREFIX = `${TINYBASE_LOCAL_DB_NAME}-store-`;
+
+/** The IndexedDB database of a local store created by a reset. */
+export function getLocalStoreDbName(localStoreId: string): string {
+	return `${LOCAL_STORE_DB_PREFIX}${localStoreId}`;
+}
+
+export function isLocalStoreDbName(name: string): boolean {
+	return name.startsWith(LOCAL_STORE_DB_PREFIX);
+}
 
 /**
  * The IndexedDB database with a room's sync state for the current local store.

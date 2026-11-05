@@ -25,6 +25,7 @@ import {
 	STORE_VALUE_SELECTED_PROFILE_ID,
 	TABLE_IDS,
 } from '@/lib/tinybase-sync/constants';
+import { resetLocalData } from '@/lib/tinybase-sync/factory-reset';
 import { installFakeCellRelay } from '@/test-utils/fake-cell-relay';
 import {
 	DataSynchronizationContext,
@@ -361,7 +362,9 @@ describe('TinybaseProvider room sync', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'Join and clear' }));
 
 		await waitFor(() => expect(reload).toHaveBeenCalled());
-		expect(getItem(STORAGE_KEYS.LOCAL_DATA_RESET_PENDING)).toBe('1');
+		expect(getItem(STORAGE_KEYS.LOCAL_DB_NAME)).toMatch(
+			/^adameter-tinybase-store-/,
+		);
 		expect(getItem(STORAGE_KEYS.ROOM)).toBe(ROOM_NAME);
 		expect(getItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY)).toBe('merge');
 		// Nothing, in particular no deletion, reached the room.
@@ -369,23 +372,32 @@ describe('TinybaseProvider room sync', () => {
 		expect(screen.getByTestId('event-count')).toHaveTextContent('1');
 	});
 
-	it('applies a pending local data reset before loading', async () => {
-		setItem(STORAGE_KEYS.LOCAL_DATA_RESET_PENDING, '1');
-		setItem(STORAGE_KEYS.LOCAL_STORE_ID, 'old-store');
-		let storeIdAtLoad: string | null = null;
-		mocks.createIndexedDbPersister.mockImplementation(
-			createPersisterMock(() => {
-				storeIdAtLoad = getItem(STORAGE_KEYS.LOCAL_STORE_ID);
-			}),
-		);
+	it('loads the current local store', async () => {
+		setItem(STORAGE_KEYS.LOCAL_DB_NAME, 'adameter-tinybase-store-current');
 
 		renderProvider();
 
 		await waitFor(() => {
-			expect(screen.getByTestId('event-count')).toHaveTextContent('0');
+			expect(mocks.createIndexedDbPersister).toHaveBeenCalledWith(
+				expect.anything(),
+				'adameter-tinybase-store-current',
+				undefined,
+				expect.any(Function),
+			);
 		});
-		expect(getItem(STORAGE_KEYS.LOCAL_DATA_RESET_PENDING)).toBeNull();
-		expect(storeIdAtLoad).not.toBe('old-store');
+	});
+
+	it('reloads when another tab resets the local data', async () => {
+		const reload = vi.fn();
+		vi.stubGlobal('location', { ...window.location, reload });
+		renderProvider();
+		await waitFor(() => {
+			expect(screen.getByTestId('event-count')).toHaveTextContent('1');
+		});
+
+		resetLocalData();
+
+		await waitFor(() => expect(reload).toHaveBeenCalled());
 	});
 
 	it('stops syncing the previous room when switching rooms', async () => {

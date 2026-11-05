@@ -1,4 +1,5 @@
 import { getItem, setItem, STORAGE_KEYS } from '@/lib/storage';
+import { getLocalStoreDbName, TINYBASE_LOCAL_DB_NAME } from './constants';
 
 function createId(): string {
 	return typeof crypto !== 'undefined' &&
@@ -13,11 +14,26 @@ export function getLocalStoreId(): string {
 	if (existingId) {
 		return existingId;
 	}
-	return rotateLocalStoreId();
-}
-
-export function rotateLocalStoreId(): string {
 	const id = createId();
 	setItem(STORAGE_KEYS.LOCAL_STORE_ID, id);
 	return id;
+}
+
+/**
+ * The IndexedDB database of the current local store. Installs from before
+ * the first reset keep using the original database.
+ */
+export function getLocalDbName(): string {
+	return getItem(STORAGE_KEYS.LOCAL_DB_NAME) ?? TINYBASE_LOCAL_DB_NAME;
+}
+
+/**
+ * Switches to a new, empty local store with its own database and sync state.
+ * The old database is never loaded again, so tabs that still hold the old
+ * store cannot bring its data back by saving it.
+ */
+export function rotateLocalStore(): void {
+	const id = createId();
+	setItem(STORAGE_KEYS.LOCAL_STORE_ID, id);
+	setItem(STORAGE_KEYS.LOCAL_DB_NAME, getLocalStoreDbName(id));
 }

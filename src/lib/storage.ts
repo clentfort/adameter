@@ -1,7 +1,7 @@
 export const STORAGE_KEYS = {
 	BACKUP_REMINDER: 'backup-reminder',
 	DEVICE_ID: 'deviceId',
-	LOCAL_DATA_RESET_PENDING: 'local-data-reset-pending',
+	LOCAL_DB_NAME: 'local-db-name',
 	LOCAL_STORE_ID: 'local-store-id',
 	PREFERRED_LANGUAGE: 'preferredLanguage',
 	ROOM: 'room',
