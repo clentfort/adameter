@@ -31,7 +31,7 @@ describe('RoomSyncStatus', () => {
 		renderWithStatus('error');
 
 		expect(screen.getByRole('status')).toHaveTextContent(
-			"Check this device's date and time.",
+			"check this device's date and time.",
 		);
 	});
 

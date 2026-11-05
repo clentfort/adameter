@@ -5324,12 +5324,12 @@
         }
       ]
     },
-    "9KsxdU72M4mdeWR72LL3Xw==": {
+    "SoPNdn8DzJfM0VkZoUwicw==": {
       "tokens": [],
       "types": [],
       "translations": [
         {
-          "translation": "Some changes could not be synced and are only saved on this device. Check this device's date and time.",
+          "translation": "Some changes could not be synced yet and are retried. If this persists, check this device's date and time.",
           "variations": []
         }
       ]

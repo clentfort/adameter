@@ -13,9 +13,9 @@ export function RoomSyncStatus() {
 				role="status"
 			>
 				<CloudAlert className="h-4 w-4 shrink-0" />
-				<fbt desc="Status shown when some changes are rejected by the shared room, e.g. because the device clock is wrong">
-					Some changes could not be synced and are only saved on this device.
-					Check this device&apos;s date and time.
+				<fbt desc="Status shown when some changes cannot be synced for now and are retried, e.g. because the device clock is wrong">
+					Some changes could not be synced yet and are retried. If this
+					persists, check this device&apos;s date and time.
 				</fbt>
 			</p>
 		);

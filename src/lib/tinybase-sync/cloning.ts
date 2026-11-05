@@ -1,10 +1,13 @@
 import type { MergeableStore } from 'tinybase';
 import {
+	applyCellsToStore,
 	createCellSync,
 	createMemoryCellSyncStateStore,
 	fetchLegacySnapshot,
+	flattenChanges,
 	getCellKeys,
 	hashRoomId,
+	isLocalValueId,
 } from 'tinybase-synchronizer-partykit-client-encrypted';
 import { TINYBASE_PARTYKIT_PARTY } from './partykit-parties';
 
@@ -38,6 +41,9 @@ export async function cloneRoomData(
 	try {
 		await cellSync.init();
 		({ applied } = await cellSync.pull());
+		if (cellSync.getPullRetry()) {
+			throw new Error('Could not copy all data of the source room.');
+		}
 	} finally {
 		await cellSync.dispose();
 	}
@@ -46,13 +52,18 @@ export async function cloneRoomData(
 		`${roomUrl}/store`,
 		keys.encryptionKey,
 	);
-	const legacyContent =
-		legacySnapshot.status === 'loaded' ? legacySnapshot.content : undefined;
-	if (legacyContent) {
-		store.applyMergeableChanges(legacyContent);
+	const legacyCells =
+		legacySnapshot.status === 'loaded' && legacySnapshot.content
+			? flattenChanges(legacySnapshot.content).filter(
+					(cell) => !(cell.kind === 'v' && isLocalValueId(cell.cell)),
+				)
+			: [];
+	const { deferred, invalid } = applyCellsToStore(store, legacyCells);
+	if (deferred.length > 0 || invalid.length > 0) {
+		throw new Error('Could not copy all data of the source room.');
 	}
 
-	if (applied === 0 && !legacyContent) {
+	if (applied === 0 && legacyCells.length === 0) {
 		throw new Error('No content found in the source room.');
 	}
 }

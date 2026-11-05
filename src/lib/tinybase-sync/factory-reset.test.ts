@@ -117,11 +117,14 @@ describe('local data reset', () => {
 		await createDatabase(currentSyncDb);
 
 		await deleteObsoleteLocalDatabases();
-		await new Promise((resolve) => setTimeout(resolve, 0));
 
+		// Deletions complete asynchronously.
+		await vi.waitFor(async () => {
+			const names = await listDatabases();
+			expect(names).not.toContain(TINYBASE_LOCAL_DB_NAME);
+			expect(names).not.toContain(oldSyncDb);
+		});
 		const databases = await listDatabases();
-		expect(databases).not.toContain(TINYBASE_LOCAL_DB_NAME);
-		expect(databases).not.toContain(oldSyncDb);
 		expect(databases).toContain(getLocalDbName());
 		expect(databases).toContain(currentSyncDb);
 		expect(databases.some((name) => name?.includes('-backup-'))).toBe(true);

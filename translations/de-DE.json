@@ -5194,12 +5194,12 @@
         }
       ]
     },
-    "9KsxdU72M4mdeWR72LL3Xw==": {
+    "SoPNdn8DzJfM0VkZoUwicw==": {
       "tokens": [],
       "types": [],
       "translations": [
         {
-          "translation": "Einige Änderungen konnten nicht synchronisiert werden und sind nur auf diesem Gerät gespeichert. Bitte prüfen Sie Datum und Uhrzeit dieses Geräts.",
+          "translation": "Einige Änderungen konnten noch nicht synchronisiert werden und werden erneut versucht. Wenn das so bleibt, prüfen Sie bitte Datum und Uhrzeit dieses Geräts.",
           "variations": []
         }
       ]

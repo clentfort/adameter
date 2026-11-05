@@ -152,6 +152,10 @@ async function addRemoteEvent(rowId: string) {
 	await cellSync.dispose();
 }
 
+function countSnapshotReads() {
+	return relay.requests.filter(({ path }) => path.endsWith('/store')).length;
+}
+
 function RoomSyncProbe() {
 	const store = useStore()!;
 	const eventTable = useTable(TABLE_IDS.EVENTS, store);
@@ -261,6 +265,37 @@ describe('TinybaseProvider room sync', () => {
 
 		const remote = await getRemoteStore();
 		expect(remote.hasRow(TABLE_IDS.EVENTS, 'local-event')).toBe(true);
+	});
+
+	it('does not run migrations on a room that was only partly pulled', async () => {
+		vi.spyOn(logger, 'warn').mockImplementation(() => {});
+		await addRemoteEvent('remote-event');
+		relay.corrupt = (cell) =>
+			cell.row === 'remote-event' && cell.cell === 'title';
+		renderProvider();
+		await waitFor(() => {
+			expect(screen.getByTestId('event-count')).toHaveTextContent('1');
+		});
+		const callsBeforeJoin = mocks.runMigrationsIfNeeded.mock.calls.length;
+
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		await waitFor(() => {
+			expect(screen.getByTestId('sync-status')).toHaveTextContent('error');
+		});
+		expect(mocks.runMigrationsIfNeeded).toHaveBeenCalledTimes(callsBeforeJoin);
+	});
+
+	it('merges the legacy snapshot when the relay says it changed', async () => {
+		renderProvider();
+		const socket = await joinRoomAndSync();
+		const readsBefore = countSnapshotReads();
+
+		act(() => {
+			socket.emit('message', { data: '{"type":"store"}' });
+		});
+
+		await waitFor(() => expect(countSnapshotReads()).toBe(readsBefore + 1));
 	});
 
 	it('merges what is already in the room', async () => {

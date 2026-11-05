@@ -46,8 +46,8 @@ const CELLS_PROTOCOL = 'cells';
 const PULL_RETRY_DELAY_MS = 60_000;
 
 /**
- * `error`: some local changes cannot be synced (e.g. the device clock is far
- * ahead); they are kept on this device.
+ * `error`: some changes cannot be synced for now (e.g. the device clock is far
+ * off, or a cell could not be decrypted); they are retried.
  */
 export type RoomSyncStatus = 'error' | 'offline' | 'synced' | 'syncing';
 
@@ -263,10 +263,14 @@ export function startRoomSync({
 					logger.warn('[SYNC] A pulled cell could not be decrypted, retrying');
 				}
 
-				// Run migrations and repair rows written by pre-profile clients after
-				// merging remote data.
-				await runMigrationsIfNeeded(store, { deviceId });
-				repairMissingProfileIds(store);
+				// Migrations must see complete rows: on a partial row a migration
+				// could, e.g., delete the row as invalid and sync that deletion.
+				if (!pullRetry && isLegacyMerged) {
+					// Run migrations and repair rows written by pre-profile clients
+					// after merging remote data.
+					await runMigrationsIfNeeded(store, { deviceId });
+					repairMissingProfileIds(store);
+				}
 			}
 
 			const { oversized, rejected } = await cellSync.push();
@@ -277,10 +281,7 @@ export function startRoomSync({
 			}
 
 			failures = 0;
-			if (
-				cellSync.hasUnsyncableCells() ||
-				cellSync.getPullRetry() === 'clock'
-			) {
+			if (cellSync.hasUnsyncableCells() || cellSync.getPullRetry()) {
 				setStatus('error');
 			} else {
 				setStatus('synced');
@@ -338,6 +339,10 @@ export function startRoomSync({
 			.receive(event.data)
 			.then((result) => {
 				if (result === 'gap') {
+					needsPull = true;
+					requestSoon();
+				} else if (result === 'legacy') {
+					// A client of the snapshot protocol saved; merge its snapshot.
 					needsPull = true;
 					requestSoon();
 				} else if (result === 'deferred') {

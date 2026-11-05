@@ -26,6 +26,8 @@ export function installFakeCellRelay() {
 	const broadcasts: string[] = [];
 	const relay = {
 		broadcasts,
+		/** Replaces the ciphertext of matching cells in responses. */
+		corrupt: (_cell: EncryptedCell) => false,
 		/** Fails this many of the next cells requests with a 500. */
 		failingRequests: 0,
 		/** Makes legacy snapshot requests fail. */
@@ -65,6 +67,17 @@ export function installFakeCellRelay() {
 				}
 				return new Response('null', { headers: { ETag: '"0"' } });
 			}
+			const send = (cells: StoredCell[]) =>
+				cells.map((cell) =>
+					relay.corrupt(cell) ? { ...cell, data: btoa('garbage-data') } : cell,
+				);
+			if (method === 'GET' && url.searchParams.has('seq')) {
+				const seqs = new Set(url.searchParams.getAll('seq').map(Number));
+				return Response.json({
+					cells: send([...room.cells.values()].filter((c) => seqs.has(c.seq))),
+					head: room.head,
+				});
+			}
 			if (method === 'GET') {
 				const since = Number(url.searchParams.get('since'));
 				const limit = Number(url.searchParams.get('limit'));
@@ -72,7 +85,7 @@ export function installFakeCellRelay() {
 					.filter((cell) => cell.seq > since)
 					.sort((first, second) => first.seq - second.seq)
 					.slice(0, limit);
-				return Response.json({ cells, head: room.head });
+				return Response.json({ cells: send(cells), head: room.head });
 			}
 
 			const accepted: StoredCell[] = [];
