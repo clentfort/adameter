@@ -3,11 +3,17 @@ import type { CellSyncLimits } from './cell-sync';
 import type { EncryptedCell } from './cells';
 import { createMergeableStore } from 'tinybase';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { batchCells, CellRequestError, createCellSync } from './cell-sync';
+import {
+	batchCells,
+	CellRequestError,
+	createCellSync,
+	REJECTED_RETRY_MS,
+} from './cell-sync';
 import { createMemoryCellSyncStateStore } from './cell-sync-state';
 import { getCellKeys } from './cells';
 
 const CELLS_URL = 'https://relay.example/parties/tinybase/room/cells';
+const LAST_SEQ = '_local:lastSeq';
 
 interface FakeStoredCell extends EncryptedCell {
 	seq: number;
@@ -17,6 +23,7 @@ interface FakeStoredCell extends EncryptedCell {
 function createFakeServer() {
 	const cells = new Map<string, FakeStoredCell>();
 	let head = 0;
+	let epoch = 'epoch-1';
 	const broadcasts: string[] = [];
 	const requests: { method: string; size: number }[] = [];
 	const server = {
@@ -36,7 +43,7 @@ function createFakeServer() {
 					.sort((first, second) => first.seq - second.seq)
 					.slice(0, limit);
 				requests.push({ method, size: page.length });
-				return Response.json({ cells: page, head });
+				return Response.json({ cells: page, epoch, head });
 			}
 
 			const batch = JSON.parse(String(init.body)) as EncryptedCell[];
@@ -89,11 +96,12 @@ function createFakeServer() {
 			return Response.json(
 				accepted.length > 0
 					? {
+							epoch,
 							fromSeq: accepted[0].seq,
 							head,
 							toSeq: accepted.at(-1)!.seq,
 						}
-					: { head },
+					: { epoch, head },
 			);
 		},
 		get head() {
@@ -103,6 +111,7 @@ function createFakeServer() {
 		reset() {
 			cells.clear();
 			head = 0;
+			epoch = `epoch-${Math.random()}`;
 		},
 	};
 	return server;
@@ -128,6 +137,7 @@ async function createDevice(
 	const sync = createCellSync({
 		cellsUrl: CELLS_URL,
 		keys: await getCellKeys('room'),
+		lastSeqValueId: LAST_SEQ,
 		state,
 		store,
 		...options,
@@ -201,7 +211,7 @@ describe('createCellSync', () => {
 		await deviceA.sync.pull();
 
 		expect(server.requests).toEqual([{ method: 'GET', size: 0 }]);
-		expect((await deviceA.state.load()).lastSeq).toBe(2);
+		expect(deviceA.store.getValue(LAST_SEQ)).toBe(2);
 	});
 
 	it('pulls only what changed since the last pull', async () => {
@@ -233,7 +243,7 @@ describe('createCellSync', () => {
 		await deviceB.sync.pull();
 
 		expect(deviceB.store.getRowCount('feedingSessions')).toBe(10);
-		expect((await deviceB.state.load()).lastSeq).toBe(20);
+		expect(deviceB.store.getValue(LAST_SEQ)).toBe(20);
 	});
 
 	it('applies a deletion made while the other device was offline', async () => {
@@ -289,6 +299,20 @@ describe('createCellSync', () => {
 		expect(storeB.getRow('feedingSessions', 'f1')).toEqual(expected);
 	});
 
+	it('never uploads or applies local values', async () => {
+		const deviceA = await createDevice('a');
+		const deviceB = await createDevice('b');
+		deviceA.store.setValue('_local:other', 'a');
+		deviceA.store.setValue('currency', 'EUR');
+
+		await syncDevice(deviceA);
+		await syncDevice(deviceB);
+
+		expect(deviceB.store.getValue('_local:other')).toBeUndefined();
+		expect(deviceB.store.getValue(LAST_SEQ)).toBe(1);
+		expect(server.head).toBe(1);
+	});
+
 	it('syncs values', async () => {
 		const deviceA = await createDevice('a');
 		const deviceB = await createDevice('b');
@@ -342,10 +366,32 @@ describe('createCellSync', () => {
 		]);
 		expect(result.uploaded).toBe(1);
 		expect(server.head).toBe(1);
-		// Not retried until the cell changes.
+		expect(deviceA.sync.hasUnsyncableCells()).toBe(true);
+		// Not retried until the cell changes or some time has passed.
 		expect(deviceA.sync.hasPendingUploads()).toBe(false);
 		deviceA.store.setCell('feedingSessions', 'f1', 'side', 'right');
 		expect(deviceA.sync.hasPendingUploads()).toBe(true);
+		expect(deviceA.sync.hasUnsyncableCells()).toBe(false);
+	});
+
+	it('retries rejected cells after a while', async () => {
+		vi.useFakeTimers({ now: 1_700_000_000_000, toFake: ['Date'] });
+		try {
+			const deviceA = await createDevice('a');
+			feeding(deviceA.store, 'f1', 10);
+			server.isFuture = (cell) => cell.cell === 'side';
+			await deviceA.sync.push();
+			server.isFuture = () => false;
+
+			vi.setSystemTime(Date.now() + REJECTED_RETRY_MS + 1);
+
+			expect(deviceA.sync.hasPendingUploads()).toBe(true);
+			await deviceA.sync.push();
+			expect(server.head).toBe(2);
+			expect(deviceA.sync.hasUnsyncableCells()).toBe(false);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 
 	it('reports cells above the size limit without uploading them', async () => {
@@ -387,6 +433,28 @@ describe('createCellSync', () => {
 		expect(server.head).toBe(2);
 	});
 
+	it('notices a reset room even after another device filled it again', async () => {
+		const deviceA = await createDevice('a');
+		const deviceB = await createDevice('b');
+		feeding(deviceA.store, 'f1', 10);
+		feeding(deviceB.store, 'f2', 20);
+		await syncDevice(deviceA);
+		await syncDevice(deviceB);
+		await syncDevice(deviceA);
+		server.reset();
+
+		// A re-uploads everything, so the head is above B's last sequence number.
+		await syncDevice(deviceA);
+		await syncDevice(deviceA);
+		await syncDevice(deviceB);
+		await syncDevice(deviceA);
+
+		const expected = ['f1', 'f2'];
+		expect(deviceA.store.getRowIds('feedingSessions').sort()).toEqual(expected);
+		expect(deviceB.store.getRowIds('feedingSessions').sort()).toEqual(expected);
+		expect(server.head).toBe(4);
+	});
+
 	it('restores its state after a restart', async () => {
 		const deviceA = await createDevice('a');
 		feeding(deviceA.store, 'f1', 10);
@@ -397,6 +465,7 @@ describe('createCellSync', () => {
 		const restarted = createCellSync({
 			cellsUrl: CELLS_URL,
 			keys: await getCellKeys('room'),
+			lastSeqValueId: LAST_SEQ,
 			state: deviceA.state,
 			store: deviceA.store,
 		});
@@ -407,7 +476,7 @@ describe('createCellSync', () => {
 		expect(server.requests).toEqual([{ method: 'GET', size: 0 }]);
 	});
 
-	it('pulls everything again when the store was cleared but its state was not', async () => {
+	it('pulls everything again when the store was cleared but its sync state was not', async () => {
 		const deviceA = await createDevice('a');
 		feeding(deviceA.store, 'f1', 10);
 		await syncDevice(deviceA);
@@ -418,6 +487,7 @@ describe('createCellSync', () => {
 		const restarted = createCellSync({
 			cellsUrl: CELLS_URL,
 			keys: await getCellKeys('room'),
+			lastSeqValueId: LAST_SEQ,
 			state: deviceB.state,
 			store: cleared,
 		});
@@ -427,25 +497,29 @@ describe('createCellSync', () => {
 		expect(cleared.hasRow('feedingSessions', 'f1')).toBe(true);
 	});
 
-	it('persists the store before saving the pulled sequence number', async () => {
+	it('persists the pulled cells and sequence number before the server stamps', async () => {
 		const deviceA = await createDevice('a');
 		feeding(deviceA.store, 'f1', 10);
 		await syncDevice(deviceA);
 		const order: string[] = [];
 		const deviceB = await createDevice('b', {
 			persistStore: async () => {
-				order.push(`persist:${(await deviceB.state.load()).lastSeq}`);
+				order.push(
+					`persist:${deviceB.store.getRowCount('feedingSessions')} rows, seq ${deviceB.store.getValue(LAST_SEQ)}`,
+				);
 			},
 		});
 		const save = deviceB.state.save;
 		deviceB.state.save = async (update) => {
-			order.push(`save:${update.lastSeq}`);
+			if (update.stamps) order.push(`stamps:${[...update.stamps].length}`);
 			return save(update);
 		};
 
 		await deviceB.sync.pull();
 
-		expect(order).toEqual(['persist:0', 'save:2']);
+		// The sequence number is persisted with the cells it covers, the
+		// server stamps after them.
+		expect(order).toEqual(['persist:1 rows, seq 2', 'stamps:2']);
 	});
 
 	describe('receive', () => {
@@ -461,7 +535,7 @@ describe('createCellSync', () => {
 				duration: 10,
 				side: 'left',
 			});
-			expect((await deviceB.state.load()).lastSeq).toBe(2);
+			expect(deviceB.store.getValue(LAST_SEQ)).toBe(2);
 		});
 
 		it('reports a gap when a broadcast was missed', async () => {

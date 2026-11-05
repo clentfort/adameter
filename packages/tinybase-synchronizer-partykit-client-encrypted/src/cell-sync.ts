@@ -22,6 +22,18 @@ const BATCH_OVERHEAD_BYTES = 1024;
 // upload runs a migration itself instead of trusting a marker whose rows have
 // not arrived yet.
 const MIGRATIONS_TABLE = '_migrations';
+/**
+ * Values with IDs starting with this prefix belong to this device: they are
+ * never uploaded and never taken from the server.
+ */
+export const LOCAL_VALUE_PREFIX = '_local:';
+
+export function isLocalValueId(valueId: string): boolean {
+	return valueId.startsWith(LOCAL_VALUE_PREFIX);
+}
+
+/** Cells rejected by the server (e.g. a clock far ahead) are retried after this. */
+export const REJECTED_RETRY_MS = 5 * 60_000;
 
 /** A cells request that reached the server but was rejected. */
 export class CellRequestError extends Error {
@@ -40,6 +52,7 @@ interface StoredCell extends EncryptedCell {
 
 interface CellsPage {
 	cells: StoredCell[];
+	epoch?: string;
 	head: number;
 }
 
@@ -53,6 +66,13 @@ export interface CellSyncOptions {
 	/** `https://<host>/parties/<party>/<room>/cells` */
 	cellsUrl: string;
 	keys: CellKeys;
+	/**
+	 * A local value (see {@link LOCAL_VALUE_PREFIX}) of the store that holds
+	 * the last pulled sequence number. As part of the store, it is persisted
+	 * together with the cells it describes, whatever happens to the store's
+	 * database. Without it, the sequence number is kept in memory only.
+	 */
+	lastSeqValueId?: string;
 	limits?: CellSyncLimits;
 	onIgnoredError?: (error: unknown) => void;
 	/** Resolves once the store's own persister has saved pulled cells. */
@@ -75,6 +95,8 @@ export interface CellSync {
 	/** Stops listening to the store and waits for running work. */
 	dispose(): Promise<void>;
 	hasPendingUploads(): boolean;
+	/** Whether local cells are kept back because they cannot be uploaded. */
+	hasUnsyncableCells(): boolean;
 	/** Loads the persisted state and finds local cells the server may lack. */
 	init(): Promise<void>;
 	/** Fetches all cells changed on the server since the last pull. */
@@ -158,6 +180,7 @@ export function batchCells(
 export function createCellSync({
 	cellsUrl,
 	keys,
+	lastSeqValueId,
 	limits = {},
 	onIgnoredError,
 	persistStore,
@@ -167,14 +190,18 @@ export function createCellSync({
 	const batchCellLimit = limits.batchCells ?? MAX_BATCH_CELLS;
 	const batchByteLimit = limits.batchBytes ?? MAX_BATCH_BYTES;
 	const pageCells = limits.pageCells ?? PAGE_CELLS;
+	if (lastSeqValueId !== undefined && !isLocalValueId(lastSeqValueId)) {
+		throw new Error(`lastSeqValueId must start with ${LOCAL_VALUE_PREFIX}`);
+	}
 
 	let lastSeq = 0;
 	let stamps = new Map<string, string>();
 	// Local cells that may be missing on the server, by cell key.
 	const pending = new Map<string, PlainCell>();
-	// HLCs that cannot be uploaded per cell key (rejected by the server or too
-	// large); retried once the cell changes.
-	const rejected = new Map<string, string>();
+	// Cells that cannot be uploaded (rejected by the server or too large), by
+	// cell key. Retried once the cell changes or `retryAt` has passed.
+	const rejected = new Map<string, { hlc: string; retryAt: number }>();
+	let serverEpoch: string | undefined;
 	let isDisposed = false;
 	let queue: Promise<unknown> = Promise.resolve();
 
@@ -184,7 +211,11 @@ export function createCellSync({
 		return result;
 	};
 
+	const isLocalCell = (cell: PlainCell) =>
+		cell.kind === 'v' && isLocalValueId(cell.cell);
+
 	const trackLocalCell = (cell: PlainCell) => {
+		if (isLocalCell(cell)) return;
 		const key = getCellKey(cell);
 		if (!isNewer(cell.hlc, stamps.get(key))) return;
 		if (!isNewer(cell.hlc, pending.get(key)?.hlc)) return;
@@ -203,6 +234,19 @@ export function createCellSync({
 			trackLocalCell(cell);
 		}
 	});
+
+	const setLastSeq = (nextSeq: number) => {
+		lastSeq = nextSeq;
+		if (lastSeqValueId !== undefined) store.setValue(lastSeqValueId, nextSeq);
+	};
+
+	const readLastSeq = () => {
+		if (lastSeqValueId === undefined) return lastSeq;
+		const value = store.getValue(lastSeqValueId);
+		return typeof value === 'number' && Number.isSafeInteger(value) && value > 0
+			? value
+			: 0;
+	};
 
 	const recordServerStamp = (cell: CellAddress & { hlc: string }) => {
 		const key = getCellKey(cell);
@@ -236,21 +280,24 @@ export function createCellSync({
 		cells: readonly StoredCell[],
 		nextSeq: number,
 	) => {
-		const decrypted = await decryptAll(cells);
+		const decrypted = (await decryptAll(cells)).filter(
+			(cell) => !isLocalCell(cell),
+		);
 		if (isDisposed) return 0;
 
 		// Record the stamps first, so the store listener does not queue the
 		// applied cells for upload.
 		const updatedStamps = cells.map(recordServerStamp);
-		if (decrypted.length > 0) {
-			store.applyMergeableChanges(buildChanges(decrypted));
-		}
-		// The state must never claim cells the store has not saved yet. A crash
-		// in between only causes them to be pulled again.
+		// The cells and the sequence number that covers them change together.
+		store.transaction(() => {
+			if (decrypted.length > 0) {
+				store.applyMergeableChanges(buildChanges(decrypted));
+			}
+			setLastSeq(nextSeq);
+		});
 		await persistStore?.();
 		if (isDisposed) return 0;
-		await state.save({ lastSeq: nextSeq, stamps: updatedStamps });
-		lastSeq = nextSeq;
+		await state.save({ stamps: updatedStamps });
 		return decrypted.length;
 	};
 
@@ -282,10 +329,24 @@ export function createCellSync({
 
 	const resetServerState = async () => {
 		// Upload everything again.
-		lastSeq = 0;
+		setLastSeq(0);
 		stamps = new Map();
+		serverEpoch = undefined;
 		await state.clear();
 		scanStore();
+	};
+
+	/**
+	 * Tracks the server's epoch of the room. Returns true if it changed, i.e.
+	 * the server lost or reset the room's cells and the state was reset.
+	 */
+	const updateServerEpoch = async (epoch: string | undefined) => {
+		if (epoch === undefined || epoch === serverEpoch) return false;
+		const isReset = serverEpoch !== undefined;
+		if (isReset) await resetServerState();
+		serverEpoch = epoch;
+		await state.save({ serverEpoch: epoch });
+		return isReset;
 	};
 
 	const pull = async () => {
@@ -293,6 +354,7 @@ export function createCellSync({
 		for (;;) {
 			const page = await fetchPage(lastSeq);
 			if (isDisposed) return { applied };
+			if (await updateServerEpoch(page.epoch)) continue;
 			// Fewer cells than this device pulled or uploaded: the room's storage
 			// was lost or reset.
 			if (page.head < lastSeq || (page.head === 0 && stamps.size > 0)) {
@@ -309,6 +371,7 @@ export function createCellSync({
 	interface PostResult {
 		/** Sequence numbers of the accepted cells, if any were accepted. */
 		accepted?: { fromSeq: number; toSeq: number };
+		epoch?: string;
 		rejected: CellAddress[];
 	}
 
@@ -333,7 +396,8 @@ export function createCellSync({
 				response.status,
 			);
 		}
-		const { fromSeq, toSeq } = (await response.json()) as {
+		const { epoch, fromSeq, toSeq } = (await response.json()) as {
+			epoch?: unknown;
 			fromSeq?: unknown;
 			toSeq?: unknown;
 		};
@@ -342,15 +406,21 @@ export function createCellSync({
 				typeof fromSeq === 'number' && typeof toSeq === 'number'
 					? { fromSeq, toSeq }
 					: undefined,
+			epoch: typeof epoch === 'string' ? epoch : undefined,
 			rejected: [],
 		};
 	};
 
-	const getOutbox = () =>
+	const isKeptBack = (key: string, cell: PlainCell, now: number) => {
+		const rejection = rejected.get(key);
+		return rejection?.hlc === cell.hlc && now < rejection.retryAt;
+	};
+
+	const getOutbox = (now = Date.now()) =>
 		[...pending.entries()]
 			.filter(
 				([key, cell]) =>
-					isNewer(cell.hlc, stamps.get(key)) && rejected.get(key) !== cell.hlc,
+					isNewer(cell.hlc, stamps.get(key)) && !isKeptBack(key, cell, now),
 			)
 			.map(([, cell]) => cell)
 			// Stable sort: everything else first, migration markers last.
@@ -368,7 +438,7 @@ export function createCellSync({
 		const encrypted = await encryptCells(keys, outbox);
 		const uploadable = encrypted.filter((cell) => {
 			if (cell.data.length <= MAX_CELL_BYTES) return true;
-			rejected.set(getCellKey(cell), cell.hlc);
+			rejected.set(getCellKey(cell), { hlc: cell.hlc, retryAt: Infinity });
 			result.oversized.push(toAddress(cell));
 			return false;
 		});
@@ -380,7 +450,10 @@ export function createCellSync({
 				const rejectedKeys = new Set(posted.rejected.map(getCellKey));
 				for (const cell of batch) {
 					if (rejectedKeys.has(getCellKey(cell))) {
-						rejected.set(getCellKey(cell), cell.hlc);
+						rejected.set(getCellKey(cell), {
+							hlc: cell.hlc,
+							retryAt: Date.now() + REJECTED_RETRY_MS,
+						});
 						result.rejected.push(toAddress(cell));
 					}
 				}
@@ -392,18 +465,19 @@ export function createCellSync({
 					throw new CellRequestError('Cells POST rejected twice', 422);
 				}
 			}
+			// A reset server has accepted this batch but none of the earlier
+			// cells; they are queued again for the next push.
+			await updateServerEpoch(posted.epoch);
 			// The server now has these cells or newer ones.
 			const updatedStamps = batch.map(recordServerStamp);
 			result.uploaded += batch.length;
 			// The accepted sequence numbers hold only this device's own writes.
 			// If they directly follow the last pull, there is nothing to pull.
-			let nextSeq: number | undefined;
 			if (posted.accepted?.fromSeq === lastSeq + 1) {
-				nextSeq = posted.accepted.toSeq;
+				setLastSeq(posted.accepted.toSeq);
 				await persistStore?.();
 			}
-			await state.save({ lastSeq: nextSeq, stamps: updatedStamps });
-			if (nextSeq !== undefined) lastSeq = nextSeq;
+			await state.save({ stamps: updatedStamps });
 		}
 		return result;
 	};
@@ -443,20 +517,18 @@ export function createCellSync({
 			await queue;
 		},
 		hasPendingUploads: () => getOutbox().length > 0,
+		hasUnsyncableCells: () =>
+			[...rejected.entries()].some(
+				([key, { hlc }]) =>
+					pending.get(key)?.hlc === hlc && isNewer(hlc, stamps.get(key)),
+			),
 		init: () =>
 			exclusive(async () => {
 				const loaded = await state.load();
-				lastSeq = loaded.lastSeq;
+				lastSeq = readLastSeq();
 				stamps = loaded.stamps;
+				serverEpoch = loaded.serverEpoch;
 				scanStore();
-				// State that claims pulled cells for an empty store is stale, e.g.
-				// after the store's database was cleared. Pull everything again.
-				if (
-					loaded.lastSeq > 0 &&
-					flattenChanges(store.getMergeableContent()).length === 0
-				) {
-					await resetServerState();
-				}
 			}),
 		pull: () => exclusive(pull),
 		push: () => exclusive(push),

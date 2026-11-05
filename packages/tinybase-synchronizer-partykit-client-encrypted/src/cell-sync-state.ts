@@ -1,17 +1,20 @@
 /**
  * What a device knows about the server's copy of a room: the HLC the server
- * has for each cell (its "server stamps"), the last sequence number it has
- * pulled, and the ETag of the last legacy snapshot it merged.
+ * has for each cell (its "server stamps") and the server's epoch of the room.
+ *
+ * Both only ever claim that the server has a cell at least as new, which stays
+ * true whatever happens to the local store. Anything that describes the local
+ * store's content, like the last pulled sequence number, is kept in the store
+ * itself instead, so it is always persisted together with that content.
  */
 export interface CellSyncState {
-	lastSeq: number;
-	legacySnapshotEtag?: string;
+	/** The server's epoch for the room; it changes when its cells are reset. */
+	serverEpoch?: string;
 	stamps: Map<string, string>;
 }
 
 export interface CellSyncStateUpdate {
-	lastSeq?: number;
-	legacySnapshotEtag?: string;
+	serverEpoch?: string;
 	stamps?: Iterable<[cellKey: string, hlc: string]>;
 }
 
@@ -25,22 +28,18 @@ export interface CellSyncStateStore {
 
 const STAMPS_STORE = 'stamps';
 const META_STORE = 'meta';
-const LAST_SEQ_KEY = 'lastSeq';
-const LEGACY_SNAPSHOT_ETAG_KEY = 'legacySnapshotEtag';
+const SERVER_EPOCH_KEY = 'serverEpoch';
 
 export function createMemoryCellSyncStateStore(): CellSyncStateStore {
-	let state: CellSyncState = { lastSeq: 0, stamps: new Map() };
+	let state: CellSyncState = { stamps: new Map() };
 	return {
 		clear: async () => {
-			state = { lastSeq: 0, stamps: new Map() };
+			state = { stamps: new Map() };
 		},
 		close: () => {},
 		load: async () => ({ ...state, stamps: new Map(state.stamps) }),
-		save: async ({ lastSeq, legacySnapshotEtag, stamps }) => {
-			if (lastSeq !== undefined) state.lastSeq = lastSeq;
-			if (legacySnapshotEtag !== undefined) {
-				state.legacySnapshotEtag = legacySnapshotEtag;
-			}
+		save: async ({ serverEpoch, stamps }) => {
+			if (serverEpoch !== undefined) state.serverEpoch = serverEpoch;
 			for (const [key, hlc] of stamps ?? []) state.stamps.set(key, hlc);
 		},
 	};
@@ -105,8 +104,7 @@ export function createIndexedDbCellSyncStateStore(
 		load: async () => {
 			let keys: IDBValidKey[] = [];
 			let hlcs: string[] = [];
-			let lastSeq: unknown;
-			let legacySnapshotEtag: unknown;
+			let serverEpoch: unknown;
 			await run('readonly', (stamps, meta) => {
 				void requestToPromise(stamps.getAllKeys()).then((result) => {
 					keys = result;
@@ -114,31 +112,19 @@ export function createIndexedDbCellSyncStateStore(
 				void requestToPromise(stamps.getAll()).then((result) => {
 					hlcs = result as string[];
 				});
-				void requestToPromise(meta.get(LAST_SEQ_KEY)).then((result) => {
-					lastSeq = result;
+				void requestToPromise(meta.get(SERVER_EPOCH_KEY)).then((result) => {
+					serverEpoch = result;
 				});
-				void requestToPromise(meta.get(LEGACY_SNAPSHOT_ETAG_KEY)).then(
-					(result) => {
-						legacySnapshotEtag = result;
-					},
-				);
 			});
 			return {
-				lastSeq: typeof lastSeq === 'number' ? lastSeq : 0,
-				legacySnapshotEtag:
-					typeof legacySnapshotEtag === 'string'
-						? legacySnapshotEtag
-						: undefined,
+				serverEpoch: typeof serverEpoch === 'string' ? serverEpoch : undefined,
 				stamps: new Map(keys.map((key, index) => [String(key), hlcs[index]])),
 			};
 		},
-		save: ({ lastSeq, legacySnapshotEtag, stamps: updatedStamps }) =>
+		save: ({ serverEpoch, stamps: updatedStamps }) =>
 			run('readwrite', (stamps, meta) => {
 				for (const [key, hlc] of updatedStamps ?? []) stamps.put(hlc, key);
-				if (lastSeq !== undefined) meta.put(lastSeq, LAST_SEQ_KEY);
-				if (legacySnapshotEtag !== undefined) {
-					meta.put(legacySnapshotEtag, LEGACY_SNAPSHOT_ETAG_KEY);
-				}
+				if (serverEpoch !== undefined) meta.put(serverEpoch, SERVER_EPOCH_KEY);
 			}),
 	};
 }

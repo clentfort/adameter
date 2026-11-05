@@ -17,8 +17,7 @@ describe.each([
 		const store = createStore();
 
 		expect(await store.load()).toEqual({
-			lastSeq: 0,
-			legacySnapshotEtag: undefined,
+			serverEpoch: undefined,
 			stamps: new Map(),
 		});
 	});
@@ -26,9 +25,9 @@ describe.each([
 	it('merges saved updates', async () => {
 		const store = createStore();
 
-		await store.save({ lastSeq: 3, stamps: [['a', 'hlc-1']] });
+		await store.save({ stamps: [['a', 'hlc-1']] });
 		await store.save({
-			legacySnapshotEtag: '"7"',
+			serverEpoch: 'epoch-1',
 			stamps: [
 				['a', 'hlc-2'],
 				['b', 'hlc-3'],
@@ -36,8 +35,7 @@ describe.each([
 		});
 
 		expect(await store.load()).toEqual({
-			lastSeq: 3,
-			legacySnapshotEtag: '"7"',
+			serverEpoch: 'epoch-1',
 			stamps: new Map([
 				['a', 'hlc-2'],
 				['b', 'hlc-3'],
@@ -47,16 +45,14 @@ describe.each([
 
 	it('clears all state', async () => {
 		const store = createStore();
-		await store.save({
-			lastSeq: 3,
-			legacySnapshotEtag: '"7"',
-			stamps: [['a', 'hlc-1']],
-		});
+		await store.save({ serverEpoch: 'epoch-1', stamps: [['a', 'hlc-1']] });
 
 		await store.clear();
 
-		expect((await store.load()).stamps.size).toBe(0);
-		expect((await store.load()).lastSeq).toBe(0);
+		expect(await store.load()).toEqual({
+			serverEpoch: undefined,
+			stamps: new Map(),
+		});
 	});
 });
 
@@ -64,16 +60,16 @@ describe('IndexedDB cell sync state', () => {
 	it('survives reopening and is removed with its database', async () => {
 		const name = `sync-${Math.random()}`;
 		const first = createIndexedDbCellSyncStateStore(name);
-		await first.save({ lastSeq: 5, stamps: [['a', 'hlc-1']] });
+		await first.save({ serverEpoch: 'epoch-1', stamps: [['a', 'hlc-1']] });
 		first.close();
 
 		const reopened = createIndexedDbCellSyncStateStore(name);
-		expect((await reopened.load()).lastSeq).toBe(5);
+		expect((await reopened.load()).serverEpoch).toBe('epoch-1');
 		reopened.close();
 
 		await deleteCellSyncStateDatabase(name);
-		expect((await createIndexedDbCellSyncStateStore(name).load()).lastSeq).toBe(
-			0,
-		);
+		expect(
+			(await createIndexedDbCellSyncStateStore(name).load()).serverEpoch,
+		).toBeUndefined();
 	});
 });

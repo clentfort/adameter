@@ -23,10 +23,13 @@ export {
 	batchCells,
 	CellRequestError,
 	createCellSync,
+	isLocalValueId,
+	LOCAL_VALUE_PREFIX,
 	MAX_BATCH_BYTES,
 	MAX_BATCH_CELLS,
 	MAX_CELL_BYTES,
 	PAGE_CELLS,
+	REJECTED_RETRY_MS,
 } from './cell-sync';
 export {
 	type CellSyncState,
