@@ -324,9 +324,11 @@ test.describe('Per-cell sync', () => {
 			await pageB.getByRole('button', { name: 'Factory Reset' }).click();
 			await pageB.getByPlaceholder('Type "delete" here').fill('delete');
 			const download = pageB.waitForEvent('download');
+			// The app reloads after the reset.
+			const reloaded = pageB.waitForEvent('load');
 			await pageB.getByRole('button', { name: 'Delete everything' }).click();
 			await download;
-			await pageB.waitForURL('**/settings/data');
+			await reloaded;
 			await pageB.goto('/feeding');
 			await expect(feedingEntry(pageB, 21)).toHaveCount(0);
 
