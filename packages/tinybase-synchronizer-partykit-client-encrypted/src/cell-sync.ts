@@ -172,7 +172,8 @@ export function createCellSync({
 	let stamps = new Map<string, string>();
 	// Local cells that may be missing on the server, by cell key.
 	const pending = new Map<string, PlainCell>();
-	// HLCs the server rejected per cell key; retried once the cell changes.
+	// HLCs that cannot be uploaded per cell key (rejected by the server or too
+	// large); retried once the cell changes.
 	const rejected = new Map<string, string>();
 	let isDisposed = false;
 	let queue: Promise<unknown> = Promise.resolve();
@@ -367,6 +368,7 @@ export function createCellSync({
 		const encrypted = await encryptCells(keys, outbox);
 		const uploadable = encrypted.filter((cell) => {
 			if (cell.data.length <= MAX_CELL_BYTES) return true;
+			rejected.set(getCellKey(cell), cell.hlc);
 			result.oversized.push(toAddress(cell));
 			return false;
 		});

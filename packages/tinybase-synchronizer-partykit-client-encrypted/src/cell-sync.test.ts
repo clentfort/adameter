@@ -359,6 +359,8 @@ describe('createCellSync', () => {
 			{ cell: 'notes', kind: 't', row: 'e1', table: 'events' },
 		]);
 		expect(result.uploaded).toBe(1);
+		// Not retried until the cell changes.
+		expect(deviceA.sync.hasPendingUploads()).toBe(false);
 	});
 
 	it('throws on server errors', async () => {
