@@ -376,6 +376,33 @@ describe('createCellSync', () => {
 		]);
 	});
 
+	it('marks the store before the first partial page is persisted', async () => {
+		const deviceA = await createDevice('a');
+		feeding(deviceA.store, 'f1', 10);
+		feeding(deviceA.store, 'f2', 20);
+		await syncDevice(deviceA);
+		server.maxPageCells = 2;
+		const persistedFlags: unknown[] = [];
+		let pages = 0;
+		const deviceB = await createDevice('b', {
+			persistStore: async () => {
+				persistedFlags.push(
+					deviceB.store.getValue(`${STATE_PREFIX}incomplete`),
+				);
+			},
+		});
+		const fetchMock = vi.mocked(fetch);
+		fetchMock.mockImplementation(async (input, init) => {
+			if ((pages += 1) === 2) throw new TypeError('Failed to fetch');
+			return server.fetch(input as string | URL, init);
+		});
+
+		await expect(deviceB.sync.pull()).rejects.toThrow('Failed to fetch');
+
+		expect(persistedFlags).toEqual([true]);
+		expect(hasIncompletePull(deviceB.store)).toBe(true);
+	});
+
 	it('marks the store while a pull is incomplete', async () => {
 		const deviceA = await createDevice('a');
 		feeding(deviceA.store, 'f1', 10);

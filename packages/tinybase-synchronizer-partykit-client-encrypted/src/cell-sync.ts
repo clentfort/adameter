@@ -407,14 +407,20 @@ export function createCellSync({
 	 * the pull position the cells take it to, if they were pulled by position.
 	 * `requestedSeqs` are missing cells that were fetched again; those the
 	 * server no longer has under that number were replaced by newer cells.
-	 * Returns the number of applied cells and whether some wait for the clock.
+	 * `isPartial` tells that more pages follow. Returns the number of applied
+	 * cells and whether some wait for the clock.
 	 */
 	const applyServerCells = async (
 		cells: readonly StoredCell[],
 		{
+			isPartial = false,
 			nextSeq,
 			requestedSeqs = [],
-		}: { nextSeq?: number; requestedSeqs?: readonly number[] },
+		}: {
+			isPartial?: boolean;
+			nextSeq?: number;
+			requestedSeqs?: readonly number[];
+		},
 	) => {
 		const { decrypted: all, failedSeqs } = await decryptAll(cells);
 		const decrypted = all.filter((cell) => !isLocalCell(cell));
@@ -447,6 +453,14 @@ export function createCellSync({
 				const appliedSeq =
 					deferredSeqs.length > 0 ? Math.min(...deferredSeqs) - 1 : nextSeq;
 				if (appliedSeq > lastSeq) setLastSeq(appliedSeq);
+			}
+			// Saved with the cells: if the app stops before the pull completes,
+			// the next start knows that rows may be partial. Only a complete pull
+			// clears it.
+			const leavesPartialRows =
+				isPartial || outcome.deferred.length > 0 || missing.size > 0;
+			if (incompleteValueId && cells.length > 0 && leavesPartialRows) {
+				store.setValue(incompleteValueId, true);
 			}
 		});
 		for (const cell of result.invalid) {
@@ -532,7 +546,10 @@ export function createCellSync({
 			const isLastPage =
 				page.more === undefined ? page.cells.length < pageCells : !page.more;
 			const nextSeq = isLastPage ? page.head : page.cells.at(-1)!.seq;
-			const result = await applyServerCells(page.cells, { nextSeq });
+			const result = await applyServerCells(page.cells, {
+				isPartial: !isLastPage,
+				nextSeq,
+			});
 			applied += result.applied;
 			if (isDisposed || isLastPage || result.isDeferred) {
 				return { applied, isDeferred: result.isDeferred };
