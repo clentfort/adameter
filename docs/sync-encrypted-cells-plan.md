@@ -25,9 +25,12 @@ Implementation notes (where it differs from or adds to the plan below):
 - Cells are applied only as far as the store accepts them (checked on a scratch
   store, since TinyBase ignores a whole change set with one HLC more than 5
   minutes ahead). The pull position stops before cells that wait for a clock
-  that is behind, and before undecryptable cells (retried three times per
-  session, then skipped). A different ciphertext for the same HLC replaces a
-  stored cell on the server, so a good copy can repair a broken one.
+  that is behind. Cells that cannot be decrypted don't hold it back: their
+  sequence numbers are kept with the store and fetched again (`GET /cells?seq=`)
+  on every pull until they decrypt or a newer write replaced them. Migrations
+  only run after a complete pull.
+- Server stamps are saved for the server epoch they were learned for, so a tab
+  that has not noticed a reset cannot bring old stamps back.
 - Pages are limited to 1,000 cells and 2 MiB of ciphertext and carry a `more`
   flag. A failed send to one socket does not stop a broadcast.
 - Factory reset and "Clear & Join" switch to a new local database (and a new
@@ -37,7 +40,8 @@ Implementation notes (where it differs from or adds to the plan below):
 - Cells the server rejects (422) are kept locally, retried after 5 minutes or
   when they change, and shown as a new `error` sync status meanwhile.
 - A failing legacy `/store` read never holds back uploads and is retried after a
-  minute, as are pulls that stopped early.
+  minute, as are pulls that stopped early. A `PUT /store` of an old client
+  notifies cells connections, which then merge the snapshot.
 
 Structure: **Phase 0** checks whether TinyBase's own sync stack can be used with
 encrypted cells. If it passes, implement **Plan A** (TinyBase stock sync with an
