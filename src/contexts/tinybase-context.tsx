@@ -3,8 +3,15 @@
 import type { MergeableStore } from 'tinybase';
 import type { Persister } from 'tinybase/persisters';
 import type { RoomSyncStatus } from '@/lib/tinybase-sync/room-sync';
+import { fbt } from 'fbtee';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { createMergeableStore } from 'tinybase';
+import {
+	applyCellsToStore,
+	flattenChanges,
+	hasIncompletePull,
+} from 'tinybase-synchronizer-partykit-client-encrypted';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { Provider } from 'tinybase/ui-react';
 import { SplashScreen } from '@/components/splash-screen';
@@ -29,6 +36,14 @@ import { DataSynchronizationContext } from './data-synchronization-context';
 import { RoomSyncStatusContext } from './room-sync-status-context';
 
 const defaultStore = createMergeableStore();
+const LOCAL_LOAD_ATTEMPTS = 3;
+const LOCAL_LOAD_RETRY_DELAY_MS = 250;
+
+type LocalPersistenceProblem = 'load' | 'save';
+
+function isMissingObjectStore(error: unknown): boolean {
+	return error instanceof DOMException && error.name === 'NotFoundError';
+}
 
 interface TinybaseProviderProps {
 	children: React.ReactNode;
@@ -69,31 +84,76 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	const roomSyncStoppedRef = useRef<Promise<void>>(Promise.resolve());
 	const [isLocalReady, setIsLocalReady] = useState(false);
 	const [syncStatus, setSyncStatus] = useState<RoomSyncStatus | undefined>();
+	const [persistenceProblem, setPersistenceProblem] = useState<
+		LocalPersistenceProblem | undefined
+	>();
 
 	useEffect(() => {
 		let isDisposed = false;
 
 		const store = storeRef.current;
+		// TinyBase persisters report failures here instead of rejecting.
+		let lastPersisterError: unknown;
+		let isLoaded = false;
 		const localPersister = createIndexedDbPersister(
 			store,
 			getLocalDbName(),
 			undefined,
 			(error: unknown) => {
+				// The first load on a new device finds no object stores: nothing
+				// was saved yet, which is not a failed read.
+				if (!isLoaded && isMissingObjectStore(error)) return;
+				lastPersisterError = error;
 				logger.error('Local store persister error:', error);
+				if (isLoaded && !isDisposed) setPersistenceProblem('save');
 			},
 		);
+
+		const loadLocalStore = async () => {
+			for (let attempt = 1; ; attempt += 1) {
+				lastPersisterError = undefined;
+				await localPersister.load();
+				if (lastPersisterError === undefined) break;
+				if (attempt === LOCAL_LOAD_ATTEMPTS) return false;
+				await new Promise((resolve) =>
+					setTimeout(resolve, LOCAL_LOAD_RETRY_DELAY_MS * attempt),
+				);
+			}
+			if (flattenChanges(store.getMergeableContent()).length > 0) return true;
+			// A MergeableStore silently ignores all persisted content if one
+			// timestamp is more than 5 minutes ahead of the clock, e.g. written
+			// while the clock was ahead. Check with a store that accepts any
+			// time, and keep the database until the clock has caught up.
+			const probe = createMergeableStore(
+				'probe',
+				() => Number.MAX_SAFE_INTEGER,
+			);
+			const probePersister = createIndexedDbPersister(probe, getLocalDbName());
+			await probePersister.load();
+			await probePersister.destroy();
+			const persistedCells = flattenChanges(probe.getMergeableContent());
+			if (persistedCells.length === 0) return true;
+			applyCellsToStore(store, persistedCells);
+			return false;
+		};
 
 		const initialize = async () => {
 			void deleteObsoleteLocalDatabases();
 			const startLoad = performance.now();
-			await localPersister.load();
+			isLoaded = await loadLocalStore();
 			logger.log(
 				`[PERF] Local IndexedDB load took ${(performance.now() - startLoad).toFixed(2)}ms`,
 			);
 
-			await clonePreviewDataIfEmpty(store, localPersister);
-
-			await localPersister.startAutoSave();
+			if (isLoaded) {
+				await clonePreviewDataIfEmpty(store, localPersister);
+				await localPersister.startAutoSave();
+			} else {
+				// Saving would overwrite the data that could not be read with an
+				// empty store. Run from memory until the next start instead.
+				logger.error('Failed to load the local store; not saving locally');
+				if (!isDisposed) setPersistenceProblem('load');
+			}
 
 			const localSelectedProfileId = store.getValue(
 				STORE_VALUE_SELECTED_PROFILE_ID,
@@ -106,8 +166,14 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 
 			const startMigrations = performance.now();
-			await runMigrationsIfNeeded(store, { deviceId: getDeviceId() });
-			repairMissingProfileIds(store);
+			// Rows of a room that was only partly pulled may be incomplete, and
+			// a migration could delete them as invalid.
+			if (hasIncompletePull(store)) {
+				logger.warn('Skipping migrations until the room sync is complete');
+			} else {
+				await runMigrationsIfNeeded(store, { deviceId: getDeviceId() });
+				repairMissingProfileIds(store);
+			}
 			logger.log(
 				`[PERF] Initial local migrations took ${(performance.now() - startMigrations).toFixed(2)}ms`,
 			);
@@ -197,6 +263,21 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			setSyncStatus(undefined);
 		};
 	}, [isHydrated, isLocalReady, resetJoinStrategy, room]);
+
+	useEffect(() => {
+		if (!isLocalReady || !persistenceProblem) return;
+		toast.error(
+			persistenceProblem === 'load'
+				? fbt(
+						'Your data could not be loaded from this device. Changes are not saved on this device until the app is reopened.',
+						'Error shown when the data stored on the device cannot be read',
+					)
+				: fbt(
+						'Changes could not be saved on this device.',
+						'Error shown when changes cannot be saved in the storage of the device',
+					),
+		);
+	}, [isLocalReady, persistenceProblem]);
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') {

@@ -5324,6 +5324,26 @@
         }
       ]
     },
+    "ylpPXff+fgwvpKndG+THQw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Your data could not be loaded from this device. Changes are not saved on this device until the app is reopened.",
+          "variations": []
+        }
+      ]
+    },
+    "s4kcAAxvZvtBIMJMC4yfIg==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Changes could not be saved on this device.",
+          "variations": []
+        }
+      ]
+    },
     "SoPNdn8DzJfM0VkZoUwicw==": {
       "tokens": [],
       "types": [],

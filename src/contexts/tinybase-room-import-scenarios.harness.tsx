@@ -166,10 +166,16 @@ async function seedRemoteEvents(count: number) {
 	await cellSync.dispose();
 }
 
+// The provider's store is a module singleton; other stores (e.g. the probe
+// that re-reads a rejected database) must not consume a device's seed.
+let appStore: MergeableStore | undefined;
+
 function createPersisterMock(seed: (store: Store) => void) {
 	return (store: MergeableStore) => ({
 		destroy: vi.fn(async () => {}),
 		load: vi.fn(async () => {
+			appStore ??= store;
+			if (store !== appStore) return;
 			// Like a fresh page load. setContent would add deletions that sync.
 			store.setMergeableContent(EMPTY_MERGEABLE_CONTENT);
 			seed(store);

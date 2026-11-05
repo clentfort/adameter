@@ -9,6 +9,7 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import { useContext } from 'react';
+import { toast } from 'sonner';
 import { createMergeableStore } from 'tinybase';
 import {
 	createCellSync,
@@ -486,6 +487,107 @@ describe('TinybaseProvider room sync', () => {
 		await waitFor(() => {
 			expect(getItem(STORAGE_KEYS.SELECTED_PROFILE_ID)).toBe('profile-123');
 		});
+	});
+
+	it('does not save over local data that could not be read', async () => {
+		vi.spyOn(logger, 'error').mockImplementation(() => {});
+		const toastError = vi.spyOn(toast, 'error');
+		const startAutoSave = vi.fn(async () => {});
+		mocks.createIndexedDbPersister.mockImplementation(
+			(
+				_store: MergeableStore,
+				_name: string,
+				_interval: unknown,
+				onIgnoredError: (error: unknown) => void,
+			) => ({
+				destroy: vi.fn(async () => {}),
+				load: vi.fn(async () => {
+					onIgnoredError(new Error('Read failed'));
+				}),
+				save: vi.fn(async () => {}),
+				startAutoSave,
+				stopAutoSave: vi.fn(async () => {}),
+			}),
+		);
+
+		renderProvider();
+
+		await waitFor(() => expect(toastError).toHaveBeenCalled());
+		expect(startAutoSave).not.toHaveBeenCalled();
+	});
+
+	it('saves locally on a new device whose database has no object stores yet', async () => {
+		const startAutoSave = vi.fn(async () => {});
+		mocks.createIndexedDbPersister.mockImplementation(
+			(
+				_store: MergeableStore,
+				_name: string,
+				_interval: unknown,
+				onIgnoredError: (error: unknown) => void,
+			) => ({
+				destroy: vi.fn(async () => {}),
+				load: vi.fn(async () => {
+					onIgnoredError(new DOMException('No object store', 'NotFoundError'));
+				}),
+				save: vi.fn(async () => {}),
+				startAutoSave,
+				stopAutoSave: vi.fn(async () => {}),
+			}),
+		);
+
+		renderProvider();
+
+		await waitFor(() => expect(startAutoSave).toHaveBeenCalled());
+	});
+
+	it('keeps local data the store rejects because of timestamps ahead of the clock', async () => {
+		vi.spyOn(logger, 'error').mockImplementation(() => {});
+		const toastError = vi.spyOn(toast, 'error');
+		const startAutoSave = vi.fn(async () => {});
+		const persisted = createMergeableStore();
+		seedLocalEvent(persisted);
+		const persistedContent = persisted.getMergeableContent();
+		let persisters = 0;
+		mocks.createIndexedDbPersister.mockImplementation(
+			(store: MergeableStore) => {
+				const isProbe = (persisters += 1) > 1;
+				return {
+					destroy: vi.fn(async () => {}),
+					load: vi.fn(async () => {
+						// The real store rejected the persisted content; only the probe,
+						// which accepts any time, sees it.
+						store.setMergeableContent(
+							isProbe ? persistedContent : EMPTY_MERGEABLE_CONTENT,
+						);
+					}),
+					save: vi.fn(async () => {}),
+					startAutoSave,
+					stopAutoSave: vi.fn(async () => {}),
+				};
+			},
+		);
+
+		renderProvider();
+
+		await waitFor(() => expect(toastError).toHaveBeenCalled());
+		expect(startAutoSave).not.toHaveBeenCalled();
+		expect(screen.getByTestId('event-count')).toHaveTextContent('1');
+	});
+
+	it('skips startup migrations while a room is only partly pulled', async () => {
+		mocks.createIndexedDbPersister.mockImplementation(
+			createPersisterMock((store) => {
+				seedLocalEvent(store);
+				store.setValue('_local:sync:room:incomplete', true);
+			}),
+		);
+
+		renderProvider();
+
+		await waitFor(() => {
+			expect(screen.getByTestId('event-count')).toHaveTextContent('1');
+		});
+		expect(mocks.runMigrationsIfNeeded).not.toHaveBeenCalled();
 	});
 
 	it('renders when local initialization fails', async () => {
