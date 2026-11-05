@@ -29,7 +29,7 @@ import {
 	resetLocalData,
 } from '@/lib/tinybase-sync/factory-reset';
 import { getLocalDbName } from '@/lib/tinybase-sync/local-store-id';
-import { startRoomSync } from '@/lib/tinybase-sync/room-sync';
+import { getRowKey, startRoomSync } from '@/lib/tinybase-sync/room-sync';
 import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { repairMissingProfileIds } from '@/migrations/2026-06-05-consolidate-duplicate-profiles';
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
@@ -87,6 +87,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	const persisterRef = useRef<Persister | undefined>(undefined);
 	// False while the local database must not be written, see loadLocalStore.
 	const canSaveLocallyRef = useRef(false);
+	// Rows recovered only in part from a rejected local database; they are not
+	// uploaded, so other devices can't take them as complete.
+	const partlyRecoveredRowsRef = useRef(new Set<string>());
 	// Resolves once the previous room's sync has stopped.
 	const roomSyncStoppedRef = useRef<Promise<void>>(Promise.resolve());
 	const [isLocalReady, setIsLocalReady] = useState(false);
@@ -154,6 +157,11 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				// Rows may be partial; this flag is never saved, as nothing is.
 				if (deferred.length > 0) {
 					store.setValue(LOCAL_RECOVERY_INCOMPLETE_VALUE_ID, true);
+				}
+				for (const { kind, row, table } of deferred) {
+					if (kind === 't') {
+						partlyRecoveredRowsRef.current.add(getRowKey(table, row));
+					}
 				}
 			});
 			return false;
@@ -258,6 +266,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				} catch (error) {
 					// The local data stays as it is; don't join without a backup.
 					logger.error('Failed to back up before clearing:', error);
+					// Another room was chosen meanwhile; leave that one alone.
+					if (isCancelled) return;
 					toast.error(
 						fbt(
 							'The data on this device could not be backed up, so the room was not joined.',
@@ -279,6 +289,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			// Sync runs in the background. The app always renders from local data,
 			// so an unreachable relay never blocks it.
 			stopRoomSync = startRoomSync({
+				heldBackRows: partlyRecoveredRowsRef.current,
 				onStatusChange: setSyncStatus,
 				// The sync keeps its pull position in the store, so a failed save
 				// only causes cells to be pulled again.

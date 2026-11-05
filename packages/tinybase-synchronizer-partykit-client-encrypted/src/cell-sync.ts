@@ -88,6 +88,11 @@ export interface CellSyncLimits {
 export interface CellSyncOptions {
 	/** `https://<host>/parties/<party>/<room>/cells` */
 	cellsUrl: string;
+	/**
+	 * Local cells not to upload for now, e.g. rows only partly recovered: other
+	 * devices could take them as complete and migrate them away.
+	 */
+	holdBack?: (cell: CellAddress) => boolean;
 	keys: CellKeys;
 	limits?: CellSyncLimits;
 	onIgnoredError?: (error: unknown) => void;
@@ -264,6 +269,7 @@ export function batchCells(
  */
 export function createCellSync({
 	cellsUrl,
+	holdBack,
 	keys,
 	limits = {},
 	onIgnoredError,
@@ -634,7 +640,9 @@ export function createCellSync({
 		[...pending.entries()]
 			.filter(
 				([key, cell]) =>
-					isNewer(cell.hlc, stamps.get(key)) && !isKeptBack(key, cell, now),
+					isNewer(cell.hlc, stamps.get(key)) &&
+					!isKeptBack(key, cell, now) &&
+					!holdBack?.(cell),
 			)
 			.map(([, cell]) => cell)
 			// Stable sort: migration markers first, see MIGRATIONS_TABLE.

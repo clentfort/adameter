@@ -634,6 +634,58 @@ describe('TinybaseProvider room sync', () => {
 		for (const save of saves) expect(save).not.toHaveBeenCalled();
 	});
 
+	it('does not upload rows recovered only in part', async () => {
+		vi.spyOn(logger, 'error').mockImplementation(() => {});
+		const persisted = createMergeableStore();
+		seedLocalEvent(persisted);
+		persisted.setRow(TABLE_IDS.EVENTS, 'complete-event', {
+			startDate: '2026-03-05T00:00:00.000Z',
+			title: 'Complete',
+			type: 'point',
+		});
+		// One cell was written while the clock was an hour ahead.
+		const ahead = createMergeableStore('ahead', () => Date.now() + 3_600_000);
+		ahead.setCell(TABLE_IDS.EVENTS, 'local-event', 'notes', 'from the future');
+		// Merged without validation, like the database holds it.
+		const database = createMergeableStore('db', () => Number.MAX_SAFE_INTEGER);
+		database.applyMergeableChanges(persisted.getMergeableContent());
+		database.applyMergeableChanges(ahead.getMergeableContent());
+		const persistedContent = database.getMergeableContent();
+		let persisters = 0;
+		mocks.createIndexedDbPersister.mockImplementation(
+			(store: MergeableStore) => {
+				const isProbe = (persisters += 1) === 2;
+				return {
+					destroy: vi.fn(async () => {}),
+					load: vi.fn(async () => {
+						store.setMergeableContent(
+							isProbe ? persistedContent : EMPTY_MERGEABLE_CONTENT,
+						);
+					}),
+					save: vi.fn(async () => {}),
+					startAutoSave: vi.fn(async () => {}),
+					stopAutoSave: vi.fn(async () => {}),
+				};
+			},
+		);
+		renderProvider();
+		await waitFor(() => {
+			expect(screen.getByTestId('event-count')).toHaveTextContent('2');
+		});
+
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+
+		await waitFor(
+			async () => {
+				const remote = await getRemoteStore();
+				expect(remote.hasRow(TABLE_IDS.EVENTS, 'complete-event')).toBe(true);
+			},
+			{ timeout: 5000 },
+		);
+		const remote = await getRemoteStore();
+		expect(remote.hasRow(TABLE_IDS.EVENTS, 'local-event')).toBe(false);
+	});
+
 	it('skips startup migrations while a room is only partly pulled', async () => {
 		mocks.createIndexedDbPersister.mockImplementation(
 			createPersisterMock((store) => {

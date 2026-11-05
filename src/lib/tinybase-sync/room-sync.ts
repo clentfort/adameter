@@ -54,6 +54,8 @@ const PULL_RETRY_DELAY_MS = 60_000;
 export type RoomSyncStatus = 'error' | 'offline' | 'synced' | 'syncing';
 
 export interface StartRoomSyncOptions {
+	/** Rows (`[table, row]` keys) not to upload, see `getRowKey`. */
+	heldBackRows?: ReadonlySet<string>;
 	onStatusChange?: (status: RoomSyncStatus) => void;
 	/** Resolves once the local persister has saved the store. */
 	persistStore?: () => Promise<void>;
@@ -108,7 +110,13 @@ function describeCells(cells: readonly CellAddress[]): string {
  * Returns a function that stops syncing and resolves once running work has
  * finished. Results that arrive after that are not applied.
  */
+/** Identifies a row in `heldBackRows`. */
+export function getRowKey(table: string, row: string): string {
+	return JSON.stringify([table, row]);
+}
+
 export function startRoomSync({
+	heldBackRows,
 	onStatusChange,
 	persistStore,
 	room,
@@ -411,6 +419,10 @@ export function startRoomSync({
 		legacyIncompleteValueId = `${LOCAL_VALUE_PREFIX}sync:${roomHash}:legacy:${INCOMPLETE_PULL_SUFFIX}`;
 		const roomCellSync = createCellSync({
 			cellsUrl: getRoomUrl(roomHash, 'cells'),
+			holdBack: heldBackRows?.size
+				? ({ kind, row, table }) =>
+						kind === 't' && heldBackRows.has(getRowKey(table, row))
+				: undefined,
 			keys: roomKeys,
 			limits: { batchCells: getBatchCellLimit() },
 			onIgnoredError: (error) => {

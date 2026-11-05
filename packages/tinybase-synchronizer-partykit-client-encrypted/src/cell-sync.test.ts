@@ -376,6 +376,25 @@ describe('createCellSync', () => {
 		]);
 	});
 
+	it('holds back cells the caller asks to', async () => {
+		const store = createMergeableStore('a');
+		const sync = createCellSync({
+			cellsUrl: CELLS_URL,
+			holdBack: (cell) => cell.row === 'partial',
+			keys: await getCellKeys('room'),
+			state: createMemoryCellSyncStateStore(),
+			store,
+		});
+		await sync.init();
+		feeding(store, 'partial', 10);
+		feeding(store, 'f1', 20);
+
+		await sync.push();
+
+		expect(server.head).toBe(2);
+		expect(sync.hasPendingUploads()).toBe(false);
+	});
+
 	it('marks the store before the first partial page is persisted', async () => {
 		const deviceA = await createDevice('a');
 		feeding(deviceA.store, 'f1', 10);
