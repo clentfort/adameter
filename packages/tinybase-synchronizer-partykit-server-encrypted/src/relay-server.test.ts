@@ -466,6 +466,7 @@ describe('EncryptedSyncRelayServer', () => {
 				cells: [{ ...cell({ cell: 'endTime' }), seq: 2 }],
 				epoch,
 				head: 2,
+				more: false,
 			});
 		});
 
@@ -484,6 +485,19 @@ describe('EncryptedSyncRelayServer', () => {
 				type: 'cells',
 			});
 			expect(legacyClient.send).not.toHaveBeenCalled();
+		});
+
+		it('broadcasts to the other connections when one send fails', async () => {
+			const broken = room.addConnection('cells-1', ['cells']);
+			broken.send.mockImplementation(() => {
+				throw new Error('Socket closed');
+			});
+			const healthy = room.addConnection('cells-2', ['cells']);
+
+			const response = await postCells(server, [cell()]);
+
+			expect(response.status).toBe(200);
+			expect(healthy.send).toHaveBeenCalledTimes(1);
 		});
 
 		it('rejects cells far in the future with their keys and writes nothing', async () => {
@@ -511,6 +525,7 @@ describe('EncryptedSyncRelayServer', () => {
 				cells: [],
 				epoch: expect.any(String),
 				head: 0,
+				more: false,
 			});
 		});
 

@@ -6,6 +6,7 @@ import {
 	getHlcTime,
 	MAX_BATCH_CELLS,
 	MAX_CELL_BYTES,
+	MAX_PAGE_BYTES,
 	parseCellBatch,
 } from './cell-store';
 import { createTestSqlStorage } from './test-sql-storage';
@@ -49,7 +50,7 @@ describe('CellStore', () => {
 		const store = createStore();
 
 		expect(store.getHead()).toBe(0);
-		expect(store.list(0, 100)).toEqual({ cells: [], head: 0 });
+		expect(store.list(0, 100)).toEqual({ cells: [], head: 0, more: false });
 	});
 
 	it('keeps one epoch per room', () => {
@@ -75,13 +76,24 @@ describe('CellStore', () => {
 		const store = createStore();
 		store.put([cell({ data: 'new', hlc: hlcAt(2000) })]);
 
-		const equal = store.put([cell({ data: 'other', hlc: hlcAt(2000) })]);
+		const equal = store.put([cell({ data: 'new', hlc: hlcAt(2000) })]);
 		const older = store.put([cell({ data: 'old', hlc: hlcAt(1000) })]);
 
 		expect(equal).toEqual({ accepted: [], head: 1 });
 		expect(older).toEqual({ accepted: [], head: 1 });
 		expect(store.list(0, 100).cells).toEqual([
 			expect.objectContaining({ data: 'new', seq: 1 }),
+		]);
+	});
+
+	it('replaces a stored cell with another ciphertext of the same HLC', () => {
+		const store = createStore();
+		store.put([cell({ data: 'corrupted', hlc: hlcAt(2000) })]);
+
+		const repaired = store.put([cell({ data: 'valid', hlc: hlcAt(2000) })]);
+
+		expect(repaired.accepted).toEqual([
+			expect.objectContaining({ data: 'valid', seq: 2 }),
 		]);
 	});
 
@@ -136,6 +148,28 @@ describe('CellStore', () => {
 		}
 
 		expect(store.list(0, 5000).cells).toHaveLength(1000);
+		expect(store.list(0, 5000).more).toBe(true);
+		expect(store.list(1000, 5000)).toMatchObject({ more: false });
+	});
+
+	it('limits pages by size but returns at least one cell', () => {
+		const store = createStore();
+		const large = 'x'.repeat(MAX_CELL_BYTES);
+		for (let batch = 0; batch < 4; batch += 1) {
+			store.put(
+				Array.from({ length: 10 }, (_, index) =>
+					cell({ data: large, row: `row-${batch}-${index}` }),
+				),
+			);
+		}
+
+		const page = store.list(0, 1000);
+
+		expect(page.cells.length).toBeLessThanOrEqual(
+			MAX_PAGE_BYTES / MAX_CELL_BYTES,
+		);
+		expect(page.more).toBe(true);
+		expect(store.list(39, 1000)).toMatchObject({ more: false });
 	});
 
 	it('finds cells too far in the future', () => {

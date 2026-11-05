@@ -367,7 +367,12 @@ export class EncryptedSyncRelayServer<
 		};
 		const payload = JSON.stringify(message);
 		for (const connection of this.getConnections(CELLS_TAG)) {
-			connection.send(payload);
+			try {
+				connection.send(payload);
+			} catch {
+				// A broken connection must not keep the others from the update;
+				// its client pulls the missed cells after reconnecting.
+			}
 		}
 	}
 

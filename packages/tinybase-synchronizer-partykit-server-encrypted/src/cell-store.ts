@@ -22,13 +22,18 @@ export interface CellSqlStorage {
 	exec<Row extends Record<string, SqlStorageValue>>(
 		query: string,
 		...bindings: unknown[]
-	): { toArray(): Row[] };
+	): Iterable<Row> & { toArray(): Row[] };
 }
 
 export const MAX_BATCH_CELLS = 500;
 export const MAX_BATCH_BYTES = 512 * 1024;
 export const MAX_CELL_BYTES = 64 * 1024;
 export const MAX_PAGE_CELLS = 1000;
+/**
+ * Pages stop once their ciphertext exceeds this size, so a page of large cells
+ * stays far below the Durable Object's memory limit.
+ */
+export const MAX_PAGE_BYTES = 2 * 1024 * 1024;
 /** HLCs further ahead of the server clock are rejected. */
 export const MAX_HLC_FUTURE_OFFSET_MS = 5 * 60 * 1000;
 
@@ -182,15 +187,24 @@ export class CellStore {
 			const accepted: StoredCell[] = [];
 			for (const cell of cells) {
 				const [stored] = this.sql
-					.exec<{ hlc: string }>(
-						'SELECT hlc FROM cells WHERE kind = ? AND table_id = ? AND row_id = ? AND cell_id = ?',
+					.exec<{ data: string; hlc: string }>(
+						'SELECT hlc, data FROM cells WHERE kind = ? AND table_id = ? AND row_id = ? AND cell_id = ?',
 						cell.kind,
 						cell.table,
 						cell.row,
 						cell.cell,
 					)
 					.toArray();
-				if (stored && cell.hlc <= stored.hlc) continue;
+				// The same write always has the same ciphertext (deterministic IV).
+				// A different ciphertext for the same HLC replaces a stored cell
+				// that clients could not decrypt, e.g. because it was corrupted.
+				if (
+					stored &&
+					(cell.hlc < stored.hlc ||
+						(cell.hlc === stored.hlc && cell.data === stored.data))
+				) {
+					continue;
+				}
 
 				head += 1;
 				this.sql.exec(
@@ -219,26 +233,45 @@ export class CellStore {
 		});
 	}
 
-	/** Lists cells with a sequence number above `since`, in sequence order. */
-	list(since: number, limit: number): { cells: StoredCell[]; head: number } {
+	/**
+	 * Lists cells with a sequence number above `since`, in sequence order, up
+	 * to `limit` cells or {@link MAX_PAGE_BYTES} of ciphertext (at least one
+	 * cell). `more` tells whether further cells follow.
+	 */
+	list(
+		since: number,
+		limit: number,
+	): { cells: StoredCell[]; head: number; more: boolean } {
 		this.init();
-		const rows = this.sql
-			.exec<{
-				cell_id: string;
-				data: string;
-				hlc: string;
-				kind: string;
-				row_id: string;
-				seq: number;
-				table_id: string;
-			}>(
-				'SELECT kind, table_id, row_id, cell_id, hlc, data, seq FROM cells WHERE seq > ? ORDER BY seq LIMIT ?',
-				since,
-				Math.max(1, Math.min(limit, MAX_PAGE_CELLS)),
-			)
-			.toArray();
-		return {
-			cells: rows.map((row) => ({
+		const maxCells = Math.max(1, Math.min(limit, MAX_PAGE_CELLS));
+		const rows = this.sql.exec<{
+			cell_id: string;
+			data: string;
+			hlc: string;
+			kind: string;
+			row_id: string;
+			seq: number;
+			table_id: string;
+		}>(
+			'SELECT kind, table_id, row_id, cell_id, hlc, data, seq FROM cells WHERE seq > ? ORDER BY seq LIMIT ?',
+			since,
+			maxCells + 1,
+		);
+		const cells: StoredCell[] = [];
+		let bytes = 0;
+		let more = false;
+		// Iterate instead of materializing the rows, so large cells are read
+		// only as far as the page goes.
+		for (const row of rows) {
+			if (
+				cells.length >= maxCells ||
+				(cells.length > 0 && bytes + row.data.length > MAX_PAGE_BYTES)
+			) {
+				more = true;
+				break;
+			}
+			bytes += row.data.length;
+			cells.push({
 				cell: row.cell_id,
 				data: row.data,
 				hlc: row.hlc,
@@ -246,8 +279,8 @@ export class CellStore {
 				row: row.row_id,
 				seq: Number(row.seq),
 				table: row.table_id,
-			})),
-			head: this.getHead(),
-		};
+			});
+		}
+		return { cells, head: this.getHead(), more };
 	}
 }

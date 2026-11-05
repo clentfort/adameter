@@ -14,7 +14,7 @@ export function createTestSqlStorage() {
 			const rows = statement.all(
 				...(bindings as (string | number | null)[]),
 			) as Row[];
-			return { toArray: () => rows };
+			return Object.assign(rows, { toArray: () => rows });
 		},
 	} as CellSqlStorage;
 	const transactionSync = <Result>(closure: () => Result): Result => {
