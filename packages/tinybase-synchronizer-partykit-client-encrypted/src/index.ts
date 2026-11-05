@@ -25,6 +25,8 @@ export {
 	batchCells,
 	CellRequestError,
 	createCellSync,
+	hasIncompletePull,
+	INCOMPLETE_PULL_SUFFIX,
 	isLocalValueId,
 	LOCAL_VALUE_PREFIX,
 	MAX_BATCH_BYTES,

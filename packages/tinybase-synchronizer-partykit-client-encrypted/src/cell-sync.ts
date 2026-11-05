@@ -20,10 +20,29 @@ const REQUEST_TIMEOUT_MS = 15_000;
 const SEQS_PER_REQUEST = 100;
 // Room for the JSON array brackets and separators of a batch.
 const BATCH_OVERHEAD_BYTES = 1024;
-// Cells of this table are uploaded last, so a device that pulls a partial
-// upload runs a migration itself instead of trusting a marker whose rows have
-// not arrived yet.
+// Cells of this table are uploaded first. Rows arrive cell by cell, so a
+// device that pulls part of an upload must not run migrations on the rows it
+// has; with the markers it skips them, and the remaining rows arrive in the
+// uploader's migrated form.
 const MIGRATIONS_TABLE = '_migrations';
+/** Suffix of the local value that marks an incomplete pull, see below. */
+export const INCOMPLETE_PULL_SUFFIX = 'incomplete';
+
+/**
+ * Whether any room's last pull of this store stopped early (cells that wait
+ * for the clock or could not be decrypted), so some rows may be partial.
+ * Migrations must not run on such a store.
+ */
+export function hasIncompletePull(store: MergeableStore): boolean {
+	return store
+		.getValueIds()
+		.some(
+			(valueId) =>
+				isLocalValueId(valueId) &&
+				valueId.endsWith(INCOMPLETE_PULL_SUFFIX) &&
+				store.getValue(valueId) === true,
+		);
+}
 /**
  * Values with IDs starting with this prefix belong to this device: they are
  * never uploaded and never taken from the server.
@@ -186,23 +205,49 @@ export function batchCells(
 	maxCells: number,
 	maxBytes: number,
 ): EncryptedCell[][] {
+	// Keep the cells of a row together, in the order rows first appear, so
+	// other devices don't receive a row in parts; only a row above the limits
+	// is split.
+	const rows = new Map<string, EncryptedCell[]>();
+	for (const cell of cells) {
+		const rowKey = JSON.stringify([cell.kind, cell.table, cell.row]);
+		const row = rows.get(rowKey);
+		if (row) row.push(cell);
+		else rows.set(rowKey, [cell]);
+	}
+
 	const batches: EncryptedCell[][] = [];
 	let batch: EncryptedCell[] = [];
 	let bytes = BATCH_OVERHEAD_BYTES;
-	for (const cell of cells) {
-		const cellBytes = JSON.stringify(cell).length + 1;
+	const flush = () => {
+		if (batch.length > 0) batches.push(batch);
+		batch = [];
+		bytes = BATCH_OVERHEAD_BYTES;
+	};
+	for (const row of rows.values()) {
+		const rowBytes = row.reduce(
+			(total, cell) => total + JSON.stringify(cell).length + 1,
+			0,
+		);
 		if (
 			batch.length > 0 &&
-			(batch.length >= maxCells || bytes + cellBytes > maxBytes)
+			(batch.length + row.length > maxCells || bytes + rowBytes > maxBytes)
 		) {
-			batches.push(batch);
-			batch = [];
-			bytes = BATCH_OVERHEAD_BYTES;
+			flush();
 		}
-		batch.push(cell);
-		bytes += cellBytes;
+		for (const cell of row) {
+			const cellBytes = JSON.stringify(cell).length + 1;
+			if (
+				batch.length > 0 &&
+				(batch.length >= maxCells || bytes + cellBytes > maxBytes)
+			) {
+				flush();
+			}
+			batch.push(cell);
+			bytes += cellBytes;
+		}
 	}
-	if (batch.length > 0) batches.push(batch);
+	flush();
 	return batches;
 }
 
@@ -236,6 +281,8 @@ export function createCellSync({
 	const lastSeqValueId = stateValuePrefix && `${stateValuePrefix}lastSeq`;
 	const epochValueId = stateValuePrefix && `${stateValuePrefix}epoch`;
 	const missingValueId = stateValuePrefix && `${stateValuePrefix}missing`;
+	const incompleteValueId =
+		stateValuePrefix && `${stateValuePrefix}${INCOMPLETE_PULL_SUFFIX}`;
 
 	let lastSeq = 0;
 	let stamps = new Map<string, string>();
@@ -503,6 +550,18 @@ export function createCellSync({
 				: missingSeqs.size > 0
 					? 'decrypt'
 					: undefined;
+		// Kept with the store, so migrations at the next start see it too.
+		if (incompleteValueId && !isDisposed) {
+			const id = incompleteValueId;
+			const isIncomplete = pullRetry !== undefined;
+			if (isIncomplete !== (store.getValue(id) === true)) {
+				store.transaction(() => {
+					if (isIncomplete) store.setValue(id, true);
+					else store.delValue(id);
+				});
+				await persistStore?.();
+			}
+		}
 		return { applied };
 	};
 
@@ -561,11 +620,11 @@ export function createCellSync({
 					isNewer(cell.hlc, stamps.get(key)) && !isKeptBack(key, cell, now),
 			)
 			.map(([, cell]) => cell)
-			// Stable sort: everything else first, migration markers last.
+			// Stable sort: migration markers first, see MIGRATIONS_TABLE.
 			.sort(
 				(first, second) =>
-					Number(first.table === MIGRATIONS_TABLE) -
-					Number(second.table === MIGRATIONS_TABLE),
+					Number(second.table === MIGRATIONS_TABLE) -
+					Number(first.table === MIGRATIONS_TABLE),
 			);
 
 	const push = async (): Promise<PushResult> => {

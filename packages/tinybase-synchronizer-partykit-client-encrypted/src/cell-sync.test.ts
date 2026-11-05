@@ -7,6 +7,7 @@ import {
 	batchCells,
 	CellRequestError,
 	createCellSync,
+	hasIncompletePull,
 	REJECTED_RETRY_MS,
 } from './cell-sync';
 import { createMemoryCellSyncStateStore } from './cell-sync-state';
@@ -356,18 +357,39 @@ describe('createCellSync', () => {
 		expect(deviceB.store.getValue('currency')).toBe('EUR');
 	});
 
-	it('uploads migration markers last', async () => {
-		const deviceA = await createDevice('a', { limits: { batchCells: 2 } });
-		deviceA.store.setRow('_migrations', 'm1', { appliedAt: 1 });
+	it('uploads migration markers first and rows in one piece', async () => {
+		const deviceA = await createDevice('a', { limits: { batchCells: 3 } });
 		feeding(deviceA.store, 'f1', 10);
+		deviceA.store.setRow('_migrations', 'm1', { appliedAt: 1 });
 		feeding(deviceA.store, 'f2', 20);
 
 		await deviceA.sync.push();
 
-		const lastBatch = JSON.parse(server.broadcasts.at(-1)!) as {
-			cells: EncryptedCell[];
-		};
-		expect(lastBatch.cells.map((cell) => cell.table)).toEqual(['_migrations']);
+		const batches = server.broadcasts.map((broadcast) =>
+			(JSON.parse(broadcast) as { cells: EncryptedCell[] }).cells.map(
+				(cell) => `${cell.table}/${cell.row}`,
+			),
+		);
+		expect(batches).toEqual([
+			['_migrations/m1', 'feedingSessions/f1', 'feedingSessions/f1'],
+			['feedingSessions/f2', 'feedingSessions/f2'],
+		]);
+	});
+
+	it('marks the store while a pull is incomplete', async () => {
+		const deviceA = await createDevice('a');
+		feeding(deviceA.store, 'f1', 10);
+		await syncDevice(deviceA);
+		const deviceB = await createDevice('b', { onIgnoredError: () => {} });
+		let isCorrupt = true;
+		server.corrupt = (cell) => isCorrupt && cell.cell === 'side';
+
+		await deviceB.sync.pull();
+		expect(hasIncompletePull(deviceB.store)).toBe(true);
+
+		isCorrupt = false;
+		await deviceB.sync.pull();
+		expect(hasIncompletePull(deviceB.store)).toBe(false);
 	});
 
 	it('resumes an interrupted upload without resending acknowledged batches', async () => {
@@ -765,7 +787,27 @@ function cell(data: string): EncryptedCell {
 	};
 }
 
+function rowCells(row: string, count: number): EncryptedCell[] {
+	return Array.from({ length: count }, (_, index) => ({
+		...cell('x'),
+		cell: `c${index}`,
+		row,
+	}));
+}
+
 describe('batchCells', () => {
+	it('keeps the cells of a row together unless the row alone is too large', () => {
+		const batches = batchCells(
+			[...rowCells('a', 2), ...rowCells('b', 2), ...rowCells('c', 4)],
+			3,
+			1_000_000,
+		);
+
+		expect(
+			batches.map((batch) => batch.map(({ row }) => row).join('')),
+		).toEqual(['aa', 'bb', 'ccc', 'c']);
+	});
+
 	it('splits by count and by bytes', () => {
 		const cells = Array.from({ length: 5 }, () => cell('x'.repeat(100)));
 
