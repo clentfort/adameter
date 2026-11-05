@@ -259,6 +259,15 @@ export function startRoomSync({
 	};
 
 	const handleStoreChange = () => {
+		// Empty transactions (e.g. setting a value to its current value) must not
+		// restart the debounce.
+		const [changedTables, changedValues] = store.getTransactionChanges();
+		if (
+			Object.keys(changedTables).length === 0 &&
+			Object.keys(changedValues).length === 0
+		) {
+			return;
+		}
 		if (!cellSync?.hasPendingUploads()) return;
 		// While backing off, the pending retry also uploads the new content.
 		if (failures === 0) {
