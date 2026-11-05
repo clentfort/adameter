@@ -11,24 +11,33 @@ Implementation notes (where it differs from or adds to the plan below):
 - The server's metadata table is `cell_meta` (not `meta`). `POST /cells` returns
   the accepted sequence range, so an uploader whose range directly follows its
   last pull advances `lastSeq` and does not pull its own cells.
-- The last pulled sequence number (and the legacy snapshot ETag) is a
-  device-local value of the store (`_local:` prefix, never uploaded, never
-  exported), not part of the separate sync state. It is written in the same
-  persister save as the cells it covers, so a failed save, a cleared database or
-  another tab saving older content can only cause a re-pull, never a skipped
-  cell. The separate sync state only holds server stamps and the server's epoch,
-  which stay true whatever happens to the store.
+- The last pulled sequence number, the server epoch and the legacy snapshot ETag
+  are device-local values of the store (`_local:` prefix, never uploaded, never
+  exported), not part of the separate sync state. They are written in the same
+  persister save as the cells they cover, so a failed save, a cleared database
+  or another tab saving older content can only cause a re-pull, never a skipped
+  cell. The separate sync state only holds server stamps, which stay true
+  whatever happens to the store.
 - Every cells response carries a room epoch (random ID created with the room's
   cells). A changed epoch, a head below the client's `lastSeq`, or an empty
-  server while the client has stamps resets the client's sync state and
-  re-uploads everything.
-- Factory reset and "Clear & Join" set a flag and reload; the next start clears
-  the local database before loading, and sync state databases are named after a
-  local store ID that is rotated on reset.
+  server while the client has stamps resets the client's sync state (stamps
+  first) and re-uploads everything.
+- Cells are applied only as far as the store accepts them (checked on a scratch
+  store, since TinyBase ignores a whole change set with one HLC more than 5
+  minutes ahead). The pull position stops before cells that wait for a clock
+  that is behind, and before undecryptable cells (retried three times per
+  session, then skipped). A different ciphertext for the same HLC replaces a
+  stored cell on the server, so a good copy can repair a broken one.
+- Pages are limited to 1,000 cells and 2 MiB of ciphertext and carry a `more`
+  flag. A failed send to one socket does not stop a broadcast.
+- Factory reset and "Clear & Join" switch to a new local database (and a new
+  local store ID for the sync state) and reload, instead of clearing the shared
+  database that other tabs could write back. Other tabs reload via a
+  BroadcastChannel; databases of earlier resets are deleted at startup.
 - Cells the server rejects (422) are kept locally, retried after 5 minutes or
   when they change, and shown as a new `error` sync status meanwhile.
-- A failing legacy `/store` read is logged and retried with the next pull; it
-  never holds back uploads.
+- A failing legacy `/store` read never holds back uploads and is retried after a
+  minute, as are pulls that stopped early.
 
 Structure: **Phase 0** checks whether TinyBase's own sync stack can be used with
 encrypted cells. If it passes, implement **Plan A** (TinyBase stock sync with an
