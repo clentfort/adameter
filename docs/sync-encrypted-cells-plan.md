@@ -1,7 +1,7 @@
 # Plan: sync with per-cell encryption
 
-Status: Plan B implemented on `feat/offline-first` (PR #1526), not deployed.
-Builds on `feat/offline-first`.
+Status: Plan B implemented on `feat/sync-encrypted-cells`, stacked on
+`feat/offline-first` (PR #1526), not deployed.
 
 Implementation notes (where it differs from or adds to the plan below):
 
@@ -28,7 +28,15 @@ Implementation notes (where it differs from or adds to the plan below):
   that is behind. Cells that cannot be decrypted don't hold it back: their
   sequence numbers are kept with the store and fetched again (`GET /cells?seq=`)
   on every pull until they decrypt or a newer write replaced them. Migrations
-  only run after a complete pull.
+  only run after a complete pull, and not at startup while a room's last pull
+  was incomplete (a local flag kept with the store).
+- `_migrations` cells are uploaded first, not last as planned: with per-cell
+  sync a device can receive part of an upload, and must not run migrations on
+  partial rows. With the markers it skips them, and the remaining rows arrive in
+  migrated form. Upload batches don't split rows.
+- A local database the store rejects as a whole (a timestamp more than 5 minutes
+  ahead of the clock) or cannot read is never saved over; the app runs from
+  memory until the next start.
 - Server stamps are saved for the server epoch they were learned for, so a tab
   that has not noticed a reset cannot bring old stamps back.
 - Pages are limited to 1,000 cells and 2 MiB of ciphertext and carry a `more`
