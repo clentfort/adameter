@@ -225,6 +225,30 @@ describe('flattenChanges / buildChanges', () => {
 		expect(store.getValues()).toEqual({ currency: 'EUR' });
 	});
 
+	it('keeps IDs that are special in plain objects', () => {
+		const cells: PlainCell[] = [
+			tableCell({ cell: '__proto__', row: '__proto__', table: '__proto__' }),
+			{
+				cell: '__proto__',
+				hlc: HLC_1,
+				kind: 'v',
+				row: '',
+				table: '',
+				value: 1,
+			},
+		];
+		const store = createMergeableStore('a');
+
+		const result = applyCellsToStore(store, cells);
+
+		expect(result.applied).toHaveLength(2);
+		expect(store.getCell('__proto__', '__proto__', '__proto__')).toBe(
+			'2026-11-05T10:00:00.000Z',
+		);
+		expect(store.getValue('__proto__')).toBe(1);
+		expect(flattenChanges(store.getMergeableContent())).toHaveLength(2);
+	});
+
 	it('keeps the newer cell when merging older changes', () => {
 		const store = createMergeableStore('store-a');
 		store.applyMergeableChanges(

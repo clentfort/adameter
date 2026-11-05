@@ -16,10 +16,8 @@ export const MAX_CELL_BYTES = 64 * 1024;
 export const PAGE_CELLS = 1000;
 
 const REQUEST_TIMEOUT_MS = 15_000;
-// A cell that cannot be decrypted holds back the pull position this many
-// times per session before it is skipped, so a broken response is retried but
-// a broken cell cannot block the room.
-const MAX_DECRYPT_ATTEMPTS = 3;
+// Cells that could not be decrypted are fetched again in requests of this many.
+const SEQS_PER_REQUEST = 100;
 // Room for the JSON array brackets and separators of a batch.
 const BATCH_OVERHEAD_BYTES = 1024;
 // Cells of this table are uploaded last, so a device that pulls a partial
@@ -96,8 +94,12 @@ export interface PushResult {
 	uploaded: number;
 }
 
-/** `deferred`: some cells wait for the clock; pull again later. */
-export type ReceiveResult = 'applied' | 'deferred' | 'gap' | 'ignored';
+/**
+ * `deferred`: some cells wait for the clock or could not be decrypted; pull
+ * again later. `legacy`: the legacy snapshot changed.
+ */
+export type ReceiveResult =
+	'applied' | 'deferred' | 'gap' | 'ignored' | 'legacy';
 
 export interface CellSync {
 	/** Stops listening to the store and waits for running work. */
@@ -155,6 +157,29 @@ async function readError(response: Response): Promise<string> {
 	}
 }
 
+async function getCellsJson(url: URL): Promise<CellsPage> {
+	const response = await fetch(url, {
+		cache: 'no-store',
+		mode: 'cors',
+		signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+	});
+	if (!response.ok) {
+		throw new CellRequestError(
+			`Cells GET failed (${response.status}): ${await readError(response)}`,
+			response.status,
+		);
+	}
+	const page = (await response.json()) as Partial<CellsPage>;
+	if (
+		!Array.isArray(page.cells) ||
+		!page.cells.every(isStoredCell) ||
+		typeof page.head !== 'number'
+	) {
+		throw new CellRequestError('Invalid cells page', response.status);
+	}
+	return page as CellsPage;
+}
+
 /** Splits cells into batches below the count and byte limits. */
 export function batchCells(
 	cells: readonly EncryptedCell[],
@@ -210,6 +235,7 @@ export function createCellSync({
 	}
 	const lastSeqValueId = stateValuePrefix && `${stateValuePrefix}lastSeq`;
 	const epochValueId = stateValuePrefix && `${stateValuePrefix}epoch`;
+	const missingValueId = stateValuePrefix && `${stateValuePrefix}missing`;
 
 	let lastSeq = 0;
 	let stamps = new Map<string, string>();
@@ -220,7 +246,10 @@ export function createCellSync({
 	const rejected = new Map<string, { hlc: string; retryAt: number }>();
 	let serverEpoch: string | undefined;
 	let pullRetry: 'clock' | 'decrypt' | undefined;
-	const decryptAttempts = new Map<number, number>();
+	// Sequence numbers of pulled cells that could not be decrypted. They are
+	// fetched again by sequence number until they can be, without holding back
+	// the rest of the room.
+	let missingSeqs = new Set<number>();
 	let isDisposed = false;
 	let queue: Promise<unknown> = Promise.resolve();
 
@@ -267,13 +296,34 @@ export function createCellSync({
 		else store.setValue(epochValueId, epoch);
 	};
 
+	const setMissingSeqs = (seqs: Set<number>) => {
+		missingSeqs = seqs;
+		if (!missingValueId) return;
+		if (seqs.size === 0) store.delValue(missingValueId);
+		else store.setValue(missingValueId, JSON.stringify([...seqs]));
+	};
+
 	const readState = () => {
-		if (!lastSeqValueId || !epochValueId) return;
+		if (!lastSeqValueId || !epochValueId || !missingValueId) return;
 		const seq = store.getValue(lastSeqValueId);
 		lastSeq =
 			typeof seq === 'number' && Number.isSafeInteger(seq) && seq > 0 ? seq : 0;
 		const epoch = store.getValue(epochValueId);
 		serverEpoch = typeof epoch === 'string' ? epoch : undefined;
+		const missing = store.getValue(missingValueId);
+		try {
+			const parsed: unknown =
+				typeof missing === 'string' ? JSON.parse(missing) : [];
+			missingSeqs = new Set(
+				Array.isArray(parsed)
+					? parsed.filter((value): value is number =>
+							Number.isSafeInteger(value),
+						)
+					: [],
+			);
+		} catch {
+			missingSeqs = new Set();
+		}
 	};
 
 	const recordServerStamp = (cell: CellAddress & { hlc: string }) => {
@@ -296,8 +346,7 @@ export function createCellSync({
 				if (result.status === 'fulfilled') {
 					decrypted.push({ ...result.value, seq: chunk[index].seq });
 				} else {
-					// Never stamped: a local copy of the same write stays queued and
-					// replaces the broken one on the server.
+					// Never stamped, and fetched again later.
 					onIgnoredError?.(result.reason);
 					failedSeqs.push(chunk[index].seq);
 				}
@@ -307,85 +356,86 @@ export function createCellSync({
 	};
 
 	/**
-	 * Applies cells from the server and persists the new state. Returns the
-	 * number of applied cells and whether some must wait for the clock.
+	 * Applies cells from the server and persists the new state. `nextSeq` is
+	 * the pull position the cells take it to, if they were pulled by position.
+	 * `requestedSeqs` are missing cells that were fetched again; those the
+	 * server no longer has under that number were replaced by newer cells.
+	 * Returns the number of applied cells and whether some wait for the clock.
 	 */
 	const applyServerCells = async (
 		cells: readonly StoredCell[],
-		nextSeq: number,
+		{
+			nextSeq,
+			requestedSeqs = [],
+		}: { nextSeq?: number; requestedSeqs?: readonly number[] },
 	) => {
 		const { decrypted: all, failedSeqs } = await decryptAll(cells);
 		const decrypted = all.filter((cell) => !isLocalCell(cell));
 		if (isDisposed) return { applied: 0, isDeferred: false };
-		const retrySeqs = failedSeqs.filter((seq) => {
-			const attempts = (decryptAttempts.get(seq) ?? 0) + 1;
-			decryptAttempts.set(seq, attempts);
-			return attempts < MAX_DECRYPT_ATTEMPTS;
-		});
 
 		// Record the stamps of the cells the store accepts first, so the store
 		// listener does not queue them for upload. Cells the store can never
 		// accept are recorded too, so they don't block the room.
-		let appliedSeq = nextSeq;
 		let updatedStamps: [string, string][] = [];
 		const result = applyCellsToStore(store, decrypted, (outcome) => {
-			// The sequence number must not pass cells that wait for the clock
-			// or are retried; they are pulled again later.
-			const blockingSeqs = [
-				...outcome.deferred.map((cell) => cell.seq),
-				...retrySeqs,
-			];
-			if (blockingSeqs.length > 0) {
-				appliedSeq = Math.min(...blockingSeqs) - 1;
-			}
 			updatedStamps = [...outcome.applied, ...outcome.invalid].map(
 				recordServerStamp,
 			);
-			// The cells and the sequence number that covers them change together.
-			if (appliedSeq > lastSeq) setLastSeq(appliedSeq);
+			const missing = new Set(missingSeqs);
+			const returnedSeqs = new Set(cells.map((cell) => cell.seq));
+			for (const seq of requestedSeqs) {
+				if (!returnedSeqs.has(seq)) missing.delete(seq);
+			}
+			for (const cell of [...outcome.applied, ...outcome.invalid]) {
+				missing.delete(cell.seq);
+			}
+			for (const seq of failedSeqs) missing.add(seq);
+			if (missing.size !== missingSeqs.size || failedSeqs.length > 0) {
+				setMissingSeqs(missing);
+			}
+			// The pull position must not pass cells that wait for the clock;
+			// they are pulled again later. It changes together with the cells.
+			if (nextSeq !== undefined) {
+				const deferredSeqs = outcome.deferred.map((cell) => cell.seq);
+				const appliedSeq =
+					deferredSeqs.length > 0 ? Math.min(...deferredSeqs) - 1 : nextSeq;
+				if (appliedSeq > lastSeq) setLastSeq(appliedSeq);
+			}
 		});
 		for (const cell of result.invalid) {
 			onIgnoredError?.(
 				new Error(`Cell ${getCellKey(cell)} cannot be stored and was skipped`),
 			);
 		}
-		pullRetry =
-			result.deferred.length > 0
-				? 'clock'
-				: retrySeqs.length > 0
-					? 'decrypt'
-					: undefined;
-		const isDeferred = pullRetry !== undefined;
+		const isDeferred = result.deferred.length > 0;
 		await persistStore?.();
 		if (isDisposed) return { applied: 0, isDeferred };
-		await state.save({ stamps: updatedStamps });
+		await state.save({ epoch: serverEpoch, stamps: updatedStamps });
 		return { applied: result.applied.length, isDeferred };
 	};
 
-	const fetchPage = async (since: number): Promise<CellsPage> => {
+	/** Fetches missing cells again; see `missingSeqs`. */
+	const retryMissingCells = async () => {
+		let isDeferred = false;
+		const seqs = [...missingSeqs].sort((first, second) => first - second);
+		for (let start = 0; start < seqs.length; start += SEQS_PER_REQUEST) {
+			const requestedSeqs = seqs.slice(start, start + SEQS_PER_REQUEST);
+			const url = new URL(cellsUrl);
+			for (const seq of requestedSeqs)
+				url.searchParams.append('seq', String(seq));
+			const page = await getCellsJson(url);
+			if (isDisposed) return isDeferred;
+			const result = await applyServerCells(page.cells, { requestedSeqs });
+			isDeferred ||= result.isDeferred;
+		}
+		return isDeferred;
+	};
+
+	const fetchPage = (since: number): Promise<CellsPage> => {
 		const url = new URL(cellsUrl);
 		url.searchParams.set('since', String(since));
 		url.searchParams.set('limit', String(pageCells));
-		const response = await fetch(url, {
-			cache: 'no-store',
-			mode: 'cors',
-			signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-		});
-		if (!response.ok) {
-			throw new CellRequestError(
-				`Cells GET failed (${response.status}): ${await readError(response)}`,
-				response.status,
-			);
-		}
-		const page = (await response.json()) as Partial<CellsPage>;
-		if (
-			!Array.isArray(page.cells) ||
-			!page.cells.every(isStoredCell) ||
-			typeof page.head !== 'number'
-		) {
-			throw new CellRequestError('Invalid cells page', response.status);
-		}
-		return page as CellsPage;
+		return getCellsJson(url);
 	};
 
 	/**
@@ -396,10 +446,11 @@ export function createCellSync({
 	 */
 	const resetServerState = async (epoch: string | undefined) => {
 		stamps = new Map();
-		await state.clear();
+		await state.clear(epoch);
 		store.transaction(() => {
 			setLastSeq(0);
 			setServerEpoch(epoch);
+			setMissingSeqs(new Set());
 		});
 		await persistStore?.();
 		scanStore();
@@ -419,11 +470,11 @@ export function createCellSync({
 		return true;
 	};
 
-	const pull = async () => {
+	const pullPages = async () => {
 		let applied = 0;
 		for (;;) {
 			const page = await fetchPage(lastSeq);
-			if (isDisposed) return { applied };
+			if (isDisposed) return { applied, isDeferred: false };
 			if (await updateServerEpoch(page.epoch)) continue;
 			// Fewer cells than this device pulled or uploaded: the room's storage
 			// was lost or reset.
@@ -434,10 +485,25 @@ export function createCellSync({
 			const isLastPage =
 				page.more === undefined ? page.cells.length < pageCells : !page.more;
 			const nextSeq = isLastPage ? page.head : page.cells.at(-1)!.seq;
-			const result = await applyServerCells(page.cells, nextSeq);
+			const result = await applyServerCells(page.cells, { nextSeq });
 			applied += result.applied;
-			if (isDisposed || isLastPage || result.isDeferred) return { applied };
+			if (isDisposed || isLastPage || result.isDeferred) {
+				return { applied, isDeferred: result.isDeferred };
+			}
 		}
+	};
+
+	const pull = async () => {
+		const { applied, isDeferred } = await pullPages();
+		const isMissingDeferred =
+			missingSeqs.size > 0 && !isDisposed && (await retryMissingCells());
+		pullRetry =
+			isDeferred || isMissingDeferred
+				? 'clock'
+				: missingSeqs.size > 0
+					? 'decrypt'
+					: undefined;
+		return { applied };
 	};
 
 	interface PostResult {
@@ -550,7 +616,7 @@ export function createCellSync({
 				store.transaction(() => setLastSeq(toSeq));
 				await persistStore?.();
 			}
-			await state.save({ stamps: updatedStamps });
+			await state.save({ epoch: serverEpoch, stamps: updatedStamps });
 		}
 		return result;
 	};
@@ -566,6 +632,7 @@ export function createCellSync({
 			string,
 			unknown
 		>;
+		if (type === 'store') return 'legacy';
 		if (
 			type !== 'cells' ||
 			typeof fromSeq !== 'number' ||
@@ -578,8 +645,8 @@ export function createCellSync({
 		return exclusive(async () => {
 			if (isDisposed || toSeq <= lastSeq) return 'ignored';
 			if (fromSeq !== lastSeq + 1) return 'gap';
-			const { isDeferred } = await applyServerCells(cells, toSeq);
-			return isDeferred ? 'deferred' : 'applied';
+			const { isDeferred } = await applyServerCells(cells, { nextSeq: toSeq });
+			return isDeferred || missingSeqs.size > 0 ? 'deferred' : 'applied';
 		});
 	};
 
@@ -598,8 +665,16 @@ export function createCellSync({
 			),
 		init: () =>
 			exclusive(async () => {
-				stamps = (await state.load()).stamps;
+				const loaded = await state.load();
 				readState();
+				// Stamps of another epoch were saved by a tab that had not noticed
+				// a reset yet; they don't hold for this server.
+				if (loaded.epoch !== undefined && loaded.epoch !== serverEpoch) {
+					stamps = new Map();
+					await state.clear(serverEpoch);
+				} else {
+					stamps = loaded.stamps;
+				}
 				scanStore();
 			}),
 		pull: () => exclusive(pull),

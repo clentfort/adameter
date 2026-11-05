@@ -36,10 +36,22 @@ function createFakeServer() {
 		/** Ends pages early, like the server's byte limit. */
 		maxPageCells: Infinity,
 		/** Replaces the ciphertext of matching cells in GET responses. */
-		corrupt: (_cell: EncryptedCell) => false,
+		corrupt: (_cell: FakeStoredCell) => false,
 		async fetch(input: string | URL, init: RequestInit = {}) {
 			const url = new URL(input);
 			const method = init.method ?? 'GET';
+			if (method === 'GET' && url.searchParams.has('seq')) {
+				const seqs = new Set(url.searchParams.getAll('seq').map(Number));
+				const found = [...cells.values()]
+					.filter((cell) => seqs.has(cell.seq))
+					.map((cell) =>
+						server.corrupt(cell)
+							? { ...cell, data: btoa('garbage-data') }
+							: cell,
+					);
+				requests.push({ method: 'GET seq', size: found.length });
+				return Response.json({ cells: found, epoch, head });
+			}
 			if (method === 'GET') {
 				const since = Number(url.searchParams.get('since'));
 				const limit = Number(url.searchParams.get('limit'));
@@ -527,43 +539,82 @@ describe('createCellSync', () => {
 		}
 	});
 
-	it('retries a cell that could not be decrypted before skipping it', async () => {
+	it('fetches a cell that could not be decrypted again without holding back the room', async () => {
 		const deviceA = await createDevice('a');
 		feeding(deviceA.store, 'f1', 10);
 		feeding(deviceA.store, 'f2', 20);
 		await syncDevice(deviceA);
-		const deviceB = await createDevice('b', {
-			onIgnoredError: () => {},
-		});
+		const deviceB = await createDevice('b', { onIgnoredError: () => {} });
 		let isCorrupt = true;
 		server.corrupt = (cell) =>
 			isCorrupt && cell.row === 'f1' && cell.cell === 'duration';
 
 		await deviceB.sync.pull();
-		expect(deviceB.sync.getPullRetry()).toBe('decrypt');
-		expect(deviceB.store.getRowCount('feedingSessions')).toBe(2);
-
-		isCorrupt = false;
 		await deviceB.sync.pull();
 
+		expect(deviceB.sync.getPullRetry()).toBe('decrypt');
+		expect(deviceB.store.getValue(LAST_SEQ)).toBe(4);
+		expect(deviceB.store.getCell('feedingSessions', 'f2', 'duration')).toBe(20);
+		expect(deviceB.store.hasCell('feedingSessions', 'f1', 'duration')).toBe(
+			false,
+		);
+
+		// Still fetched again after a restart.
+		const restarted = createCellSync({
+			cellsUrl: CELLS_URL,
+			keys: await getCellKeys('room'),
+			state: deviceB.state,
+			stateValuePrefix: STATE_PREFIX,
+			store: deviceB.store,
+		});
+		await restarted.init();
+		isCorrupt = false;
+		server.requests.length = 0;
+		await restarted.pull();
+
 		expect(deviceB.store.getCell('feedingSessions', 'f1', 'duration')).toBe(10);
-		expect(deviceB.sync.getPullRetry()).toBeUndefined();
+		expect(restarted.getPullRetry()).toBeUndefined();
+		expect(server.requests).toEqual([
+			{ method: 'GET', size: 0 },
+			{ method: 'GET seq', size: 1 },
+		]);
 	});
 
-	it('skips a cell that keeps failing to decrypt', async () => {
+	it('stops fetching a missing cell once a newer write replaced it', async () => {
 		const deviceA = await createDevice('a');
 		feeding(deviceA.store, 'f1', 10);
 		await syncDevice(deviceA);
 		const deviceB = await createDevice('b', { onIgnoredError: () => {} });
-		server.corrupt = (cell) => cell.cell === 'duration';
+		server.corrupt = (cell) => cell.cell === 'duration' && cell.seq === 1;
+		await deviceB.sync.pull();
+		expect(deviceB.sync.getPullRetry()).toBe('decrypt');
 
-		for (let attempt = 0; attempt < 3; attempt += 1) {
-			await deviceB.sync.pull();
-		}
+		deviceA.store.setCell('feedingSessions', 'f1', 'duration', 11);
+		await syncDevice(deviceA);
+		await deviceB.sync.pull();
 
+		expect(deviceB.store.getCell('feedingSessions', 'f1', 'duration')).toBe(11);
 		expect(deviceB.sync.getPullRetry()).toBeUndefined();
-		expect(deviceB.store.getValue(LAST_SEQ)).toBe(2);
-		expect(deviceB.store.getCell('feedingSessions', 'f1', 'side')).toBe('left');
+	});
+
+	it('ignores stamps another tab saved for an earlier server epoch', async () => {
+		const deviceA = await createDevice('a');
+		feeding(deviceA.store, 'f1', 10);
+		await syncDevice(deviceA);
+		await deviceA.sync.pull();
+		server.reset();
+		await deviceA.sync.pull();
+		// A tab that has not noticed the reset saves an old acknowledgement.
+		await deviceA.state.save({ epoch: 'epoch-1', stamps: [['x', 'hlc']] });
+
+		expect((await deviceA.state.load()).stamps.has('x')).toBe(false);
+		expect(deviceA.sync.hasPendingUploads()).toBe(true);
+	});
+
+	it('reports that the legacy snapshot changed', async () => {
+		const deviceA = await createDevice('a');
+
+		expect(await deviceA.sync.receive('{"type":"store"}')).toBe('legacy');
 	});
 
 	it('restores its state after a restart', async () => {

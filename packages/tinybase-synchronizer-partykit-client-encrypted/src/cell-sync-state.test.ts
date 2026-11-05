@@ -16,7 +16,7 @@ describe.each([
 	it('starts empty', async () => {
 		const store = createStore();
 
-		expect(await store.load()).toEqual({ stamps: new Map() });
+		expect(await store.load()).toEqual({ epoch: undefined, stamps: new Map() });
 	});
 
 	it('merges saved updates', async () => {
@@ -31,10 +31,25 @@ describe.each([
 		});
 
 		expect(await store.load()).toEqual({
+			epoch: undefined,
 			stamps: new Map([
 				['a', 'hlc-2'],
 				['b', 'hlc-3'],
 			]),
+		});
+	});
+
+	it('drops stamps learned for another epoch', async () => {
+		const store = createStore();
+		await store.save({ epoch: 'epoch-1', stamps: [['a', 'hlc-1']] });
+		await store.clear('epoch-2');
+
+		await store.save({ epoch: 'epoch-1', stamps: [['b', 'hlc-2']] });
+		await store.save({ epoch: 'epoch-2', stamps: [['c', 'hlc-3']] });
+
+		expect(await store.load()).toEqual({
+			epoch: 'epoch-2',
+			stamps: new Map([['c', 'hlc-3']]),
 		});
 	});
 
@@ -44,7 +59,7 @@ describe.each([
 
 		await store.clear();
 
-		expect(await store.load()).toEqual({ stamps: new Map() });
+		expect(await store.load()).toEqual({ epoch: undefined, stamps: new Map() });
 	});
 });
 

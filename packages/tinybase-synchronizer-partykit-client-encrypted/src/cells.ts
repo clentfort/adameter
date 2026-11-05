@@ -228,39 +228,49 @@ function stamp<Thing>(thing: Thing, hlc: string | undefined): [Thing, string?] {
  * their children.
  */
 export function buildChanges(cells: readonly PlainCell[]): MergeableChanges {
-	type Stamped<Thing> = [Thing, string | undefined];
-	const tables: Record<
+	// Maps, since IDs like `__proto__` are valid in TinyBase. Object.fromEntries
+	// below defines them as own properties.
+	type Stamped<Thing> = { hlc?: string; thing: Thing };
+	const tables = new Map<
 		string,
-		Stamped<Record<string, Stamped<Record<string, [CellOrUndefined, string]>>>>
-	> = {};
-	const values: Record<string, [ValueOrUndefined, string]> = {};
+		Stamped<Map<string, Stamped<Map<string, [CellOrUndefined, string]>>>>
+	>();
+	const values = new Map<string, [ValueOrUndefined, string]>();
 	let tablesHlc: string | undefined;
 	let valuesHlc: string | undefined;
 
 	for (const { cell, hlc, kind, row, table, value } of cells) {
 		if (kind === 'v') {
-			values[cell] = [value, hlc];
+			values.set(cell, [value, hlc]);
 			valuesHlc = getLatestHlc(valuesHlc, hlc);
 			continue;
 		}
-		const tableStamp = (tables[table] ??= [{}, undefined]);
-		const rowStamp = (tableStamp[0][row] ??= [{}, undefined]);
-		rowStamp[0][cell] = [value as CellOrUndefined, hlc];
-		rowStamp[1] = getLatestHlc(rowStamp[1], hlc);
-		tableStamp[1] = getLatestHlc(tableStamp[1], hlc);
+		let tableStamp = tables.get(table);
+		if (!tableStamp) {
+			tableStamp = { thing: new Map() };
+			tables.set(table, tableStamp);
+		}
+		let rowStamp = tableStamp.thing.get(row);
+		if (!rowStamp) {
+			rowStamp = { thing: new Map() };
+			tableStamp.thing.set(row, rowStamp);
+		}
+		rowStamp.thing.set(cell, [value as CellOrUndefined, hlc]);
+		rowStamp.hlc = getLatestHlc(rowStamp.hlc, hlc);
+		tableStamp.hlc = getLatestHlc(tableStamp.hlc, hlc);
 		tablesHlc = getLatestHlc(tablesHlc, hlc);
 	}
 
 	return [
 		stamp(
 			Object.fromEntries(
-				Object.entries(tables).map(([tableId, [rows, tableHlc]]) => [
+				[...tables].map(([tableId, { hlc: tableHlc, thing: rows }]) => [
 					tableId,
 					stamp(
 						Object.fromEntries(
-							Object.entries(rows).map(([rowId, [rowCells, rowHlc]]) => [
+							[...rows].map(([rowId, { hlc: rowHlc, thing: rowCells }]) => [
 								rowId,
-								stamp(rowCells, rowHlc),
+								stamp(Object.fromEntries(rowCells), rowHlc),
 							]),
 						),
 						tableHlc,
@@ -269,7 +279,7 @@ export function buildChanges(cells: readonly PlainCell[]): MergeableChanges {
 			),
 			tablesHlc,
 		),
-		stamp(values, valuesHlc),
+		stamp(Object.fromEntries(values), valuesHlc),
 		1,
 	];
 }
