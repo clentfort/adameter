@@ -1,7 +1,9 @@
 // Service worker that lets the app start without a network connection.
 //
 // Pages are fetched from the network first and fall back to the cache, so an
-// online device always gets the latest deploy. Build assets under
+// online device always gets the latest deploy. Only precaching writes pages to
+// the cache, so a cached page always belongs to the build whose assets are
+// cached with it. Build assets under
 // /_next/static are immutable and served from the cache first. The worker is
 // registered as /sw.js?v=<build id>, so every deploy installs a new worker
 // that precaches the pages and build assets of that build and removes the
@@ -166,10 +168,7 @@ async function handleNavigation(request) {
 		if (cached) return cached;
 		throw error;
 	}
-	if (response.ok && response.type === 'basic') {
-		await cache.put(url.pathname, response.clone());
-		return response;
-	}
+	if (response.ok) return response;
 	// The app runs from local data, so a cached page beats a server error or
 	// rate limit page.
 	if (response.status >= 500 || response.status === 429) {

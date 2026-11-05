@@ -146,6 +146,23 @@ describe('service worker', () => {
 		expect([...worker.cacheStorage.keys()]).toEqual(['adameter-build-1']);
 	});
 
+	it('keeps the cached page of its own build when a newer one is served', async () => {
+		let html = 'build 2';
+		const worker = loadServiceWorker(
+			appRoutes({ '/feeding': () => new Response(html) }),
+		);
+		await worker.dispatch('install');
+		html = 'build 3';
+		const request = new Request(`${ORIGIN}/feeding`);
+		Object.defineProperty(request, 'mode', { value: 'navigate' });
+
+		const response = await worker.dispatch('fetch', { request });
+
+		expect(await response!.text()).toBe('build 3');
+		const cached = worker.cacheStorage.get('adameter-build-2')!.get('/feeding');
+		expect(await cached!.text()).toBe('build 2');
+	});
+
 	it('serves a cached page when the server answers with an error', async () => {
 		let status = 200;
 		const worker = loadServiceWorker(
