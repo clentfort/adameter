@@ -8,4 +8,5 @@ export {
 	type CellsBroadcast,
 	EncryptedSyncRelayServer,
 	type EncryptedSyncRelayConfig,
+	type StoreBroadcast,
 } from './relay-server';

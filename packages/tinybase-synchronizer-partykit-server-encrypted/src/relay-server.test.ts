@@ -77,6 +77,7 @@ function createRequest(
 		headers.set('If-Match', ifMatch);
 	}
 	return {
+		body: body === undefined ? null : new Response(body).body,
 		headers,
 		method,
 		text: () => Promise.resolve(body ?? ''),
@@ -553,6 +554,56 @@ describe('EncryptedSyncRelayServer', () => {
 			);
 
 			expect(response.status).toBe(400);
+		});
+	});
+
+	describe('/cells extras', () => {
+		const HLC = '0000000000000000';
+		const cell = (row: string) => ({
+			cell: 'startTime',
+			data: 'ciphertext',
+			hlc: HLC,
+			kind: 't',
+			row,
+			table: 'feedingSessions',
+		});
+
+		it('returns cells by sequence number', async () => {
+			await postCells(server, [cell('row-1'), cell('row-2'), cell('row-3')]);
+
+			const response = await server.onRequest(
+				createRequest('GET', '/parties/tinybase/room/cells?seq=1&seq=3&seq=9'),
+			);
+
+			const body = (await response.json()) as { cells: { row: string }[] };
+			expect(body.cells.map(({ row }) => row)).toEqual(['row-1', 'row-3']);
+		});
+
+		it('rejects invalid or too many sequence numbers', async () => {
+			const tooMany = Array.from({ length: 101 }, (_, i) => `seq=${i + 1}`);
+			for (const query of ['seq=0', 'seq=x', tooMany.join('&')]) {
+				const response = await server.onRequest(
+					createRequest('GET', `/parties/tinybase/room/cells?${query}`),
+				);
+				expect(response.status).toBe(400);
+			}
+		});
+
+		it('rejects a body above the limit without a Content-Length', async () => {
+			const response = await postCells(server, 'x'.repeat(600 * 1024));
+
+			expect(response.status).toBe(413);
+		});
+
+		it('tells cells connections when the legacy snapshot changed', async () => {
+			room.storage.get.mockResolvedValue(undefined);
+			const cellsClient = room.addConnection('cells-1', ['cells']);
+			const legacyClient = room.addConnection('legacy-1');
+
+			await server.onRequest(createRequest('PUT', '/store', 'snapshot'));
+
+			expect(cellsClient.send).toHaveBeenCalledWith('{"type":"store"}');
+			expect(legacyClient.send).not.toHaveBeenCalled();
 		});
 	});
 

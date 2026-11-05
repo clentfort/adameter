@@ -6,6 +6,7 @@ import {
 	CellValidationError,
 	MAX_BATCH_BYTES,
 	MAX_PAGE_CELLS,
+	MAX_SEQS_PER_REQUEST,
 	parseCellBatch,
 } from './cell-store';
 
@@ -34,6 +35,42 @@ export interface EncryptedSyncRelayConfig {
 	 * Defaults to '/store'.
 	 */
 	storePath?: string;
+}
+
+/** Sent to `cells` connections after a client wrote the legacy snapshot. */
+export interface StoreBroadcast {
+	type: 'store';
+}
+
+/**
+ * Reads a request body as text, or returns undefined once it exceeds
+ * `maxBytes`, without reading the rest.
+ */
+async function readBodyWithLimit(
+	request: Request,
+	maxBytes: number,
+): Promise<string | undefined> {
+	if (!request.body) return '';
+	const reader = request.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let bytes = 0;
+	for (;;) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		bytes += value.byteLength;
+		if (bytes > maxBytes) {
+			await reader.cancel();
+			return undefined;
+		}
+		chunks.push(value);
+	}
+	const body = new Uint8Array(bytes);
+	let offset = 0;
+	for (const chunk of chunks) {
+		body.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
+	return new TextDecoder().decode(body);
 }
 
 /** Sent to `cells` connections for every accepted upload. */
@@ -215,6 +252,9 @@ export class EncryptedSyncRelayServer<
 			await this.writeSnapshot(snapshot);
 			const nextRevision = revision + 1;
 			await this.ctx.storage.put(SNAPSHOT_REVISION_KEY, String(nextRevision));
+			// Clients of the cells protocol merge the snapshot on their next pull.
+			const message: StoreBroadcast = { type: 'store' };
+			this.sendToCellsConnections(JSON.stringify(message));
 			return new Response('ok', {
 				headers: { ...headers, ETag: `"${nextRevision}"` },
 				status: 200,
@@ -292,6 +332,22 @@ export class EncryptedSyncRelayServer<
 			});
 
 		try {
+			if (request.method === 'GET' && url.searchParams.has('seq')) {
+				const seqs = url.searchParams.getAll('seq').map(Number);
+				if (
+					seqs.length > MAX_SEQS_PER_REQUEST ||
+					!seqs.every((seq) => Number.isSafeInteger(seq) && seq > 0)
+				) {
+					return json({ error: 'Invalid seq' }, 400);
+				}
+				const cellStore = this.getCellStore();
+				return json({
+					cells: cellStore.getBySeqs(seqs),
+					epoch: cellStore.getEpoch(),
+					head: cellStore.getHead(),
+				});
+			}
+
 			if (request.method === 'GET') {
 				const since = Number(url.searchParams.get('since') ?? '0');
 				const limit = Number(url.searchParams.get('limit') ?? MAX_PAGE_CELLS);
@@ -316,8 +372,9 @@ export class EncryptedSyncRelayServer<
 					await request.body?.cancel();
 					return json({ error: 'Batch too large' }, 413);
 				}
-				const body = await request.text();
-				if (new TextEncoder().encode(body).byteLength > MAX_BATCH_BYTES) {
+				// Also bounds bodies without a Content-Length, e.g. chunked ones.
+				const body = await readBodyWithLimit(request, MAX_BATCH_BYTES);
+				if (body === undefined) {
 					return json({ error: 'Batch too large' }, 413);
 				}
 
@@ -365,7 +422,10 @@ export class EncryptedSyncRelayServer<
 			toSeq: cells.at(-1)!.seq,
 			type: 'cells',
 		};
-		const payload = JSON.stringify(message);
+		this.sendToCellsConnections(JSON.stringify(message));
+	}
+
+	private sendToCellsConnections(payload: string) {
 		for (const connection of this.getConnections(CELLS_TAG)) {
 			try {
 				connection.send(payload);

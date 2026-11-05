@@ -29,6 +29,8 @@ export const MAX_BATCH_CELLS = 500;
 export const MAX_BATCH_BYTES = 512 * 1024;
 export const MAX_CELL_BYTES = 64 * 1024;
 export const MAX_PAGE_CELLS = 1000;
+/** Cells that can be fetched by sequence number in one request. */
+export const MAX_SEQS_PER_REQUEST = 100;
 /**
  * Pages stop once their ciphertext exceeds this size, so a page of large cells
  * stays far below the Durable Object's memory limit.
@@ -43,6 +45,28 @@ const HLC_ALPHABET =
 const HEAD_SEQ_KEY = 'head_seq';
 const EPOCH_KEY = 'epoch';
 const MAX_ID_LENGTH = 256;
+
+interface CellRow extends Record<string, SqlStorageValue> {
+	cell_id: string;
+	data: string;
+	hlc: string;
+	kind: string;
+	row_id: string;
+	seq: number;
+	table_id: string;
+}
+
+function toStoredCell(row: CellRow): StoredCell {
+	return {
+		cell: row.cell_id,
+		data: row.data,
+		hlc: row.hlc,
+		kind: row.kind as CellKind,
+		row: row.row_id,
+		seq: Number(row.seq),
+		table: row.table_id,
+	};
+}
 
 /** Decodes the wall-clock milliseconds of a TinyBase HLC. */
 export function getHlcTime(hlc: string): number {
@@ -187,24 +211,15 @@ export class CellStore {
 			const accepted: StoredCell[] = [];
 			for (const cell of cells) {
 				const [stored] = this.sql
-					.exec<{ data: string; hlc: string }>(
-						'SELECT hlc, data FROM cells WHERE kind = ? AND table_id = ? AND row_id = ? AND cell_id = ?',
+					.exec<{ hlc: string }>(
+						'SELECT hlc FROM cells WHERE kind = ? AND table_id = ? AND row_id = ? AND cell_id = ?',
 						cell.kind,
 						cell.table,
 						cell.row,
 						cell.cell,
 					)
 					.toArray();
-				// The same write always has the same ciphertext (deterministic IV).
-				// A different ciphertext for the same HLC replaces a stored cell
-				// that clients could not decrypt, e.g. because it was corrupted.
-				if (
-					stored &&
-					(cell.hlc < stored.hlc ||
-						(cell.hlc === stored.hlc && cell.data === stored.data))
-				) {
-					continue;
-				}
+				if (stored && cell.hlc <= stored.hlc) continue;
 
 				head += 1;
 				this.sql.exec(
@@ -233,6 +248,19 @@ export class CellStore {
 		});
 	}
 
+	/** Returns the cells currently stored under the given sequence numbers. */
+	getBySeqs(seqs: readonly number[]): StoredCell[] {
+		this.init();
+		if (seqs.length === 0) return [];
+		return this.sql
+			.exec<CellRow>(
+				`SELECT kind, table_id, row_id, cell_id, hlc, data, seq FROM cells WHERE seq IN (${seqs.map(() => '?').join(', ')}) ORDER BY seq`,
+				...seqs,
+			)
+			.toArray()
+			.map(toStoredCell);
+	}
+
 	/**
 	 * Lists cells with a sequence number above `since`, in sequence order, up
 	 * to `limit` cells or {@link MAX_PAGE_BYTES} of ciphertext (at least one
@@ -244,15 +272,7 @@ export class CellStore {
 	): { cells: StoredCell[]; head: number; more: boolean } {
 		this.init();
 		const maxCells = Math.max(1, Math.min(limit, MAX_PAGE_CELLS));
-		const rows = this.sql.exec<{
-			cell_id: string;
-			data: string;
-			hlc: string;
-			kind: string;
-			row_id: string;
-			seq: number;
-			table_id: string;
-		}>(
+		const rows = this.sql.exec<CellRow>(
 			'SELECT kind, table_id, row_id, cell_id, hlc, data, seq FROM cells WHERE seq > ? ORDER BY seq LIMIT ?',
 			since,
 			maxCells + 1,
@@ -271,15 +291,7 @@ export class CellStore {
 				break;
 			}
 			bytes += row.data.length;
-			cells.push({
-				cell: row.cell_id,
-				data: row.data,
-				hlc: row.hlc,
-				kind: row.kind as CellKind,
-				row: row.row_id,
-				seq: Number(row.seq),
-				table: row.table_id,
-			});
+			cells.push(toStoredCell(row));
 		}
 		return { cells, head: this.getHead(), more };
 	}

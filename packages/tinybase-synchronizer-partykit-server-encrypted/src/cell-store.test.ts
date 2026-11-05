@@ -76,7 +76,7 @@ describe('CellStore', () => {
 		const store = createStore();
 		store.put([cell({ data: 'new', hlc: hlcAt(2000) })]);
 
-		const equal = store.put([cell({ data: 'new', hlc: hlcAt(2000) })]);
+		const equal = store.put([cell({ data: 'other', hlc: hlcAt(2000) })]);
 		const older = store.put([cell({ data: 'old', hlc: hlcAt(1000) })]);
 
 		expect(equal).toEqual({ accepted: [], head: 1 });
@@ -86,14 +86,17 @@ describe('CellStore', () => {
 		]);
 	});
 
-	it('replaces a stored cell with another ciphertext of the same HLC', () => {
+	it('keeps the stored cell for another ciphertext of the same HLC', () => {
 		const store = createStore();
-		store.put([cell({ data: 'corrupted', hlc: hlcAt(2000) })]);
+		store.put([cell({ data: 'first', hlc: hlcAt(2000) })]);
 
-		const repaired = store.put([cell({ data: 'valid', hlc: hlcAt(2000) })]);
+		// Without the key the server cannot tell corruption from a colliding
+		// write, so it keeps what it has, like a TinyBase store does.
+		const second = store.put([cell({ data: 'second', hlc: hlcAt(2000) })]);
 
-		expect(repaired.accepted).toEqual([
-			expect.objectContaining({ data: 'valid', seq: 2 }),
+		expect(second.accepted).toEqual([]);
+		expect(store.getBySeqs([1])).toEqual([
+			expect.objectContaining({ data: 'first' }),
 		]);
 	});
 
