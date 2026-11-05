@@ -18,13 +18,25 @@ function cacheKey(request: Request | string) {
 type Routes = Record<string, () => Response | Promise<Response>>;
 
 /** Runs public/sw.js against in-memory caches and a routed fetch. */
-function loadServiceWorker(routes: Routes) {
-	const cacheStorage = new Map<string, Map<string, Response>>();
+function loadServiceWorker(
+	routes: Routes,
+	{
+		cacheStorage = new Map<string, Map<string, Response>>(),
+		version = 'build-2',
+	} = {},
+) {
 	const handlers = new Map<string, Handler>();
 	const requested: string[] = [];
 	const caches = {
 		delete: async (name: string) => cacheStorage.delete(name),
 		keys: async () => [...cacheStorage.keys()],
+		match: async (request: Request | string) => {
+			for (const entries of cacheStorage.values()) {
+				const match = entries.get(cacheKey(request));
+				if (match) return match.clone();
+			}
+			return undefined;
+		},
 		open: async (name: string) => {
 			if (!cacheStorage.has(name)) cacheStorage.set(name, new Map());
 			const entries = cacheStorage.get(name)!;
@@ -49,7 +61,7 @@ function loadServiceWorker(routes: Routes) {
 			handlers.set(type, handler);
 		},
 		clients: { claim: async () => {} },
-		location: new URL(`${ORIGIN}/sw.js?v=build-2`),
+		location: new URL(`${ORIGIN}/sw.js?v=${version}`),
 		skipWaiting: async () => {},
 	};
 	vm.runInNewContext(SOURCE, {
@@ -129,6 +141,55 @@ describe('service worker', () => {
 		// A missing chunk is skipped and a path prefix is not fetched.
 		expect(worker.requested).toContain('/_next/static/chunks/gone.js');
 		expect(worker.requested).not.toContain('/_next/static/chunks/');
+	});
+
+	it('fails the install when an asset that a page loads is missing', async () => {
+		const worker = loadServiceWorker(
+			appRoutes({
+				'/_next/static/chunks/main.js': () =>
+					new Response('Not found', { status: 404 }),
+			}),
+		);
+
+		await expect(worker.dispatch('install')).rejects.toThrow('404');
+	});
+
+	it('keeps the previous build for tabs that still run it', async () => {
+		const cacheStorage = new Map<string, Map<string, Response>>();
+		const buildA = loadServiceWorker(
+			appRoutes({
+				'/_next/static/chunks/lazy.js': () => new Response('lazy A'),
+			}),
+			{ cacheStorage, version: 'build-a' },
+		);
+		await buildA.dispatch('install');
+		await buildA.dispatch('activate');
+		const routesB = appRoutes();
+		delete routesB['/_next/static/chunks/lazy.js'];
+		const buildB = loadServiceWorker(routesB, {
+			cacheStorage,
+			version: 'build-b',
+		});
+		await buildB.dispatch('install');
+		await buildB.dispatch('activate');
+
+		// A tab of build A loads its lazy chunk while offline.
+		const response = await buildB.dispatch('fetch', {
+			request: new Request(`${ORIGIN}/_next/static/chunks/lazy.js`),
+		});
+		expect(await response!.text()).toBe('lazy A');
+
+		const buildC = loadServiceWorker(appRoutes(), {
+			cacheStorage,
+			version: 'build-c',
+		});
+		await buildC.dispatch('install');
+		await buildC.dispatch('activate');
+		expect([...cacheStorage.keys()].toSorted()).toEqual([
+			'adameter-build-b',
+			'adameter-build-c',
+			'adameter-sw-meta',
+		]);
 	});
 
 	it('keeps the previous cache when precaching fails', async () => {

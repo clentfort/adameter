@@ -17,6 +17,9 @@
 const VERSION = new URL(self.location.href).searchParams.get('v') ?? 'dev';
 const CACHE_PREFIX = 'adameter-';
 const CACHE_NAME = `${CACHE_PREFIX}${VERSION}`;
+// Remembers which build was active before, so its cache can be kept.
+const META_CACHE_NAME = 'adameter-sw-meta';
+const ACTIVE_VERSION_KEY = '/active-version';
 const NAVIGATION_TIMEOUT_MS = 4000;
 
 // Keep in sync with the routes in src/app (checked by service-worker-registration.test.ts).
@@ -54,8 +57,9 @@ function findAssets(text) {
 
 async function fetchForCache(url, { isOptional = false } = {}) {
 	const response = await fetch(url, { cache: 'reload' });
-	// A path found in a build asset that does not exist is not worth failing
-	// the install for; anything else, e.g. a dropped connection, is.
+	// A path found inside a build asset that does not exist is not worth
+	// failing the install for; anything else, e.g. a dropped connection or an
+	// asset a page loads, is.
 	if (isOptional && response.status === 404) return undefined;
 	if (!response.ok) {
 		throw new Error(`Precaching ${url} failed (${response.status})`);
@@ -69,35 +73,44 @@ async function fetchForCache(url, { isOptional = false } = {}) {
  * Rejects if anything fails.
  */
 async function precache(cache) {
-	const assets = new Set();
-	const queue = [];
-	const enqueue = (text) => {
+	// Assets referenced by pages are required; those found inside assets are
+	// optional. A required asset listed again as optional stays required.
+	const assets = new Map();
+	const enqueue = (text, isOptional) => {
 		for (const asset of findAssets(text)) {
-			if (assets.has(asset)) continue;
+			if (assets.has(asset)) {
+				if (!isOptional) assets.get(asset).isOptional = false;
+				continue;
+			}
 			if (assets.size >= MAX_PRECACHED_ASSETS) {
 				throw new Error('Too many build assets to precache');
 			}
-			assets.add(asset);
-			queue.push(asset);
+			assets.set(asset, { isOptional, isQueued: true });
 		}
 	};
 
 	await Promise.all(
 		PAGES.map(async (page) => {
 			const response = await fetchForCache(page);
-			enqueue(await response.clone().text());
+			enqueue(await response.clone().text(), false);
 			await cache.put(page, response);
 		}),
 	);
 
-	while (queue.length > 0) {
-		const batch = queue.splice(0, 20);
+	for (;;) {
+		const batch = [...assets]
+			.filter(([, entry]) => entry.isQueued)
+			.slice(0, 20);
+		if (batch.length === 0) break;
 		await Promise.all(
-			batch.map(async (asset) => {
-				const response = await fetchForCache(asset, { isOptional: true });
+			batch.map(async ([asset, entry]) => {
+				entry.isQueued = false;
+				const response = await fetchForCache(asset, {
+					isOptional: entry.isOptional,
+				});
 				if (!response) return;
 				if (/\.(?:js|css)$/.test(new URL(asset, self.location.href).pathname)) {
-					enqueue(await response.clone().text());
+					enqueue(await response.clone().text(), true);
 				}
 				await cache.put(asset, response);
 			}),
@@ -124,11 +137,24 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
 	event.waitUntil(
 		(async () => {
+			// Tabs that are still open on the previous build may load its lazy
+			// chunks later, also offline, so its cache is kept until the next
+			// update.
+			const meta = await caches.open(META_CACHE_NAME);
+			const activeVersion = await meta.match(ACTIVE_VERSION_KEY);
+			const previousCacheName = activeVersion
+				? `${CACHE_PREFIX}${await activeVersion.text()}`
+				: undefined;
+			await meta.put(ACTIVE_VERSION_KEY, new Response(VERSION));
 			const cacheNames = await caches.keys();
 			await Promise.all(
 				cacheNames
 					.filter(
-						(name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME,
+						(name) =>
+							name.startsWith(CACHE_PREFIX) &&
+							name !== CACHE_NAME &&
+							name !== previousCacheName &&
+							name !== META_CACHE_NAME,
 					)
 					.map((name) => caches.delete(name)),
 			);
@@ -180,7 +206,9 @@ async function handleNavigation(request) {
 
 async function handleStaticAsset(request) {
 	const cache = await caches.open(CACHE_NAME);
-	const cached = await cache.match(request);
+	// Build assets are immutable, so one of the previous build (needed by a
+	// tab still running it) is as good as the current one.
+	const cached = (await cache.match(request)) ?? (await caches.match(request));
 	if (cached) return cached;
 	const response = await fetch(request);
 	if (response.ok) {
