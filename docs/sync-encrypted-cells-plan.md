@@ -1,6 +1,26 @@
 # Plan: sync with per-cell encryption
 
-Status: proposal, not started. Builds on `feat/offline-first` (PR #1526).
+Status: Plan B implemented on `feat/offline-first` (PR #1526), not deployed.
+Builds on `feat/offline-first`.
+
+Implementation notes (where it differs from or adds to the plan below):
+
+- AAD is the JSON array `[kind, table, row, cell, hlc]`, so IDs containing `|`
+  cannot collide. The IV is an HMAC over the AAD and the plaintext, so it stays
+  deterministic but two different plaintexts can never share an IV.
+- The server's metadata table is `cell_meta` (not `meta`). `POST /cells` returns
+  the accepted sequence range, so an uploader whose range directly follows its
+  last pull advances `lastSeq` and does not pull its own cells.
+- A server whose head is below the client's `lastSeq` (or empty while the client
+  has stamps) is treated as reset: the client clears its sync state and uploads
+  everything again.
+- Factory reset and "Clear & Join" set a flag and reload; the next start clears
+  the local database before loading. Sync state databases are named after a
+  local store ID that is rotated on reset, and sync state that claims pulled
+  cells for an empty store is dropped, so stale state can never hide server
+  data.
+- Cells the server rejects (422) are kept locally and shown as a new `error`
+  sync status until they change.
 
 Structure: **Phase 0** checks whether TinyBase's own sync stack can be used with
 encrypted cells. If it passes, implement **Plan A** (TinyBase stock sync with an
