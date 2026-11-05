@@ -34,6 +34,17 @@ describe('exportStoreAsZip', () => {
 		expect(downloadZip).toHaveBeenCalledWith(expect.any(Blob), exportDate);
 	});
 
+	it('does not export local sync values', async () => {
+		vi.clearAllMocks();
+		const store = createStore();
+		store.setValues({ '_local:sync:room:lastSeq': 5 });
+
+		await exportStoreAsZip(store);
+
+		const files = vi.mocked(createZip).mock.calls[0][0];
+		expect(files.find((f) => f.name === '__values.csv')).toBeUndefined();
+	});
+
 	it('should not include __values.csv if there are no values', async () => {
 		vi.clearAllMocks();
 		const store = createStore();

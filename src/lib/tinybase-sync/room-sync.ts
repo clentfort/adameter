@@ -12,6 +12,8 @@ import {
 	fetchLegacySnapshot,
 	getCellKeys,
 	hashRoomId,
+	LOCAL_VALUE_PREFIX,
+	REJECTED_RETRY_MS,
 } from 'tinybase-synchronizer-partykit-client-encrypted';
 import { logger } from '@/lib/logger';
 import { PARTYKIT_HOST } from '@/lib/partykit-host';
@@ -110,7 +112,7 @@ export function startRoomSync({
 	let stateStore: CellSyncStateStore | undefined;
 	let keys: CellKeys | undefined;
 	let storeUrl: string | undefined;
-	let legacySnapshotEtag: string | undefined;
+	let legacySnapshotEtagValueId: string | undefined;
 	let hasOpened = false;
 
 	// Whether changes of other devices may be missing locally. True initially,
@@ -123,7 +125,6 @@ export function startRoomSync({
 	let timerDueAt = 0;
 	let saveRequestedAt: number | undefined;
 	let status: RoomSyncStatus | undefined;
-	let hasUnsyncableCells = false;
 	let activeRun: Promise<void> | undefined;
 
 	const deviceId = getDeviceId();
@@ -163,23 +164,27 @@ export function startRoomSync({
 		}
 	};
 
-	/** Merges the snapshot of clients that still use the snapshot protocol. */
+	/**
+	 * Merges the snapshot of clients that still use the snapshot protocol. Its
+	 * ETag is a local value of the store, so it is persisted with the merged
+	 * content.
+	 */
 	const mergeLegacySnapshot = async () => {
-		if (!storeUrl || !keys || !stateStore) return;
+		if (!storeUrl || !keys || !legacySnapshotEtagValueId) return;
+		const etagValueId = legacySnapshotEtagValueId;
+		const etag = store.getValue(etagValueId);
 		const result = await fetchLegacySnapshot(
 			storeUrl,
 			keys.encryptionKey,
-			legacySnapshotEtag,
+			typeof etag === 'string' ? etag : undefined,
 		);
 		if (isDisposed || result.status === 'unchanged') return;
-		if (result.content) {
+		store.transaction(() => {
 			// Cells the server is missing are uploaded by the next push.
-			store.applyMergeableChanges(result.content);
-			await persistStore?.();
-		}
-		if (isDisposed || !result.etag) return;
-		legacySnapshotEtag = result.etag;
-		await stateStore.save({ legacySnapshotEtag: result.etag });
+			if (result.content) store.applyMergeableChanges(result.content);
+			if (result.etag) store.setValue(etagValueId, result.etag);
+		});
+		await persistStore?.();
 	};
 
 	const run = async () => {
@@ -213,11 +218,16 @@ export function startRoomSync({
 					logger.log(
 						`[PERF] Cell pull took ${(performance.now() - startPull).toFixed(2)}ms (applied=${applied})`,
 					);
-					if (isDisposed) return;
-					await mergeLegacySnapshot();
 				} catch (error) {
 					needsPull = true;
 					throw error;
+				}
+				if (isDisposed) return;
+				try {
+					await mergeLegacySnapshot();
+				} catch (error) {
+					// Retried with the next pull; it must not hold back uploads.
+					logger.warn('[SYNC] Failed to merge the legacy snapshot:', error);
 				}
 				if (isDisposed) return;
 
@@ -229,14 +239,19 @@ export function startRoomSync({
 
 			const { oversized, rejected } = await cellSync.push();
 			if (rejected.length > 0 || oversized.length > 0) {
-				hasUnsyncableCells = true;
 				logger.error(
 					`[SYNC] ${rejected.length} cells rejected (check the device clock), ${oversized.length} too large: ${describeCells([...rejected, ...oversized])}`,
 				);
 			}
 
 			failures = 0;
-			setStatus(hasUnsyncableCells ? 'error' : 'synced');
+			if (cellSync.hasUnsyncableCells()) {
+				setStatus('error');
+				// Rejected cells become uploadable again after a while.
+				if (!timer) schedule(REJECTED_RETRY_MS);
+			} else {
+				setStatus('synced');
+			}
 		} catch (error) {
 			if (isDisposed) return;
 			failures += 1;
@@ -330,9 +345,11 @@ export function startRoomSync({
 		stateStore = createIndexedDbCellSyncStateStore(
 			getRoomSyncStateDbName(getLocalStoreId(), roomHash),
 		);
+		legacySnapshotEtagValueId = `${LOCAL_VALUE_PREFIX}sync:${roomHash}:legacySnapshotEtag`;
 		const roomCellSync = createCellSync({
 			cellsUrl: getRoomUrl(roomHash, 'cells'),
 			keys: roomKeys,
+			lastSeqValueId: `${LOCAL_VALUE_PREFIX}sync:${roomHash}:lastSeq`,
 			limits: { batchCells: getBatchCellLimit() },
 			onIgnoredError: (error) => {
 				logger.warn(
@@ -346,7 +363,6 @@ export function startRoomSync({
 		});
 		try {
 			await roomCellSync.init();
-			legacySnapshotEtag = (await stateStore.load()).legacySnapshotEtag;
 		} catch (error) {
 			await roomCellSync.dispose();
 			throw error;
@@ -373,15 +389,33 @@ export function startRoomSync({
 		void run();
 	};
 
-	void connectRoomSync().catch((error: unknown) => {
-		logger.error('[SYNC] Failed to connect room sync:', error);
-		setStatus('offline');
-	});
+	let connectFailures = 0;
+	let connectTimer: ReturnType<typeof setTimeout> | undefined;
+	const connect = () => {
+		void connectRoomSync().catch((error: unknown) => {
+			// E.g. the sync state database could not be opened.
+			stateStore?.close();
+			stateStore = undefined;
+			if (isDisposed) return;
+			connectFailures += 1;
+			const delay = getRetryDelay(connectFailures);
+			logger.error(
+				`[SYNC] Failed to connect room sync, retrying in ${Math.round(delay / 1000)}s:`,
+				error,
+			);
+			setStatus('offline');
+			connectTimer = setTimeout(connect, delay);
+		});
+	};
+	connect();
 
 	return async () => {
 		isDisposed = true;
 		if (timer) {
 			clearTimeout(timer);
+		}
+		if (connectTimer) {
+			clearTimeout(connectTimer);
 		}
 		if (storeListenerId) store.delListener(storeListenerId);
 		if (typeof window !== 'undefined') {

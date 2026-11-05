@@ -78,6 +78,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		const localPersister = createIndexedDbPersister(
 			store,
 			TINYBASE_LOCAL_DB_NAME,
+			undefined,
+			(error: unknown) => {
+				logger.error('Local store persister error:', error);
+			},
 		);
 
 		const initialize = async () => {
@@ -168,6 +172,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			// so an unreachable relay never blocks it.
 			stopRoomSync = startRoomSync({
 				onStatusChange: setSyncStatus,
+				// The sync keeps its pull position in the store, so a failed save
+				// only causes cells to be pulled again.
 				persistStore: async () => {
 					await persisterRef.current?.save();
 				},

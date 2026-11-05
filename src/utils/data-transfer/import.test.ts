@@ -13,7 +13,7 @@ describe('importZipIntoStore', () => {
 			},
 			{
 				content:
-					'id,valueJson\nselectedProfileId,"""p1"""\n"","""invalid"""\nval2,123\nval3,true\nval4,invalidjson',
+					'id,valueJson\nselectedProfileId,"""p1"""\n"","""invalid"""\nval2,123\nval3,true\nval4,invalidjson\n_local:sync:room:lastSeq,5',
 				name: '__values.csv',
 			},
 		];
@@ -32,6 +32,7 @@ describe('importZipIntoStore', () => {
 		expect(store.getValue('val2')).toBe(123);
 		expect(store.getValue('val3')).toBe(true);
 		expect(store.getValue('val4')).toBeUndefined();
+		expect(store.getValue('_local:sync:room:lastSeq')).toBeUndefined();
 	});
 
 	it('handles unsanitized custom cells and empty IDs gracefully', async () => {

@@ -28,6 +28,8 @@ export function installFakeCellRelay() {
 		broadcasts,
 		/** Fails this many of the next cells requests with a 500. */
 		failingRequests: 0,
+		/** Makes legacy snapshot requests fail. */
+		isStoreFailing: false,
 		/** Makes every request fail, like an unreachable relay. */
 		isUnreachable: false,
 		requests: [] as { method: string; path: string }[],
@@ -58,6 +60,9 @@ export function installFakeCellRelay() {
 				return new Response('Internal error', { status: 500 });
 			}
 			if (endpoint === 'store') {
+				if (relay.isStoreFailing) {
+					return new Response('Internal error', { status: 500 });
+				}
 				return new Response('null', { headers: { ETag: '"0"' } });
 			}
 			if (method === 'GET') {

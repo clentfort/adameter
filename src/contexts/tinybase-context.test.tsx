@@ -251,6 +251,17 @@ describe('TinybaseProvider room sync', () => {
 		});
 	});
 
+	it('uploads local data even when the legacy snapshot cannot be read', async () => {
+		vi.spyOn(logger, 'warn').mockImplementation(() => {});
+		relay.isStoreFailing = true;
+		renderProvider();
+
+		await joinRoomAndSync();
+
+		const remote = await getRemoteStore();
+		expect(remote.hasRow(TABLE_IDS.EVENTS, 'local-event')).toBe(true);
+	});
+
 	it('merges what is already in the room', async () => {
 		await addRemoteEvent('remote-event');
 		renderProvider();

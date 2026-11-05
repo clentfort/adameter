@@ -1,4 +1,5 @@
 import type { Store } from 'tinybase';
+import { isLocalValueId } from 'tinybase-synchronizer-partykit-client-encrypted';
 import { toCsv } from './csv';
 import { createZip, downloadZip } from './zip';
 
@@ -18,10 +19,13 @@ export const exportStoreAsZip = async (store: Store, date?: Date) => {
 		};
 	});
 
-	const valueRows = Object.entries(values).map(([valueId, value]) => ({
-		id: valueId,
-		valueJson: JSON.stringify(value),
-	}));
+	// Local values describe this device's sync state, not user data.
+	const valueRows = Object.entries(values)
+		.filter(([valueId]) => !isLocalValueId(valueId))
+		.map(([valueId, value]) => ({
+			id: valueId,
+			valueJson: JSON.stringify(value),
+		}));
 
 	if (valueRows.length > 0) {
 		files.push({
