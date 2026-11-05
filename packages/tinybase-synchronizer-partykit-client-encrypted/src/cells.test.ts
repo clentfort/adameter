@@ -3,6 +3,7 @@ import type { PlainCell } from './cells';
 import { createMergeableStore } from 'tinybase';
 import { describe, expect, it } from 'vitest';
 import {
+	applyCellsToStore,
 	buildChanges,
 	decryptCell,
 	decryptCells,
@@ -234,5 +235,42 @@ describe('flattenChanges / buildChanges', () => {
 		);
 
 		expect(store.getCell('feedingSessions', 'row-1', 'startTime')).toBe('new');
+	});
+});
+
+describe('applyCellsToStore', () => {
+	const future = '~~~~~~~~~~~~~~~~'.replaceAll('~', 'z');
+
+	it('applies all cells when the store accepts them', () => {
+		const store = createMergeableStore('a');
+
+		const result = applyCellsToStore(store, [
+			tableCell(),
+			tableCell({ cell: 'x', value: undefined }),
+		]);
+
+		expect(result.applied).toHaveLength(2);
+		expect(store.getCell('feedingSessions', 'row-1', 'startTime')).toBe(
+			'2026-11-05T10:00:00.000Z',
+		);
+	});
+
+	it('leaves out cells the store would reject instead of dropping all', () => {
+		const store = createMergeableStore('a');
+		let recorded: unknown;
+
+		const result = applyCellsToStore(
+			store,
+			[tableCell(), tableCell({ cell: 'late', hlc: future, value: 1 })],
+			(outcome) => {
+				recorded = outcome.deferred.map((cell) => cell.cell);
+				store.setValue('_local:marker', 1);
+			},
+		);
+
+		expect(result.applied.map((cell) => cell.cell)).toEqual(['startTime']);
+		expect(recorded).toEqual(['late']);
+		expect(store.hasCell('feedingSessions', 'row-1', 'startTime')).toBe(true);
+		expect(store.getValue('_local:marker')).toBe(1);
 	});
 });

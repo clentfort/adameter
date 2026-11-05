@@ -2,8 +2,10 @@ import type {
 	CellOrUndefined,
 	MergeableChanges,
 	MergeableContent,
+	MergeableStore,
 	ValueOrUndefined,
 } from 'tinybase';
+import { createMergeableStore } from 'tinybase';
 import {
 	base64ToUint8Array,
 	getEncryptionKey,
@@ -270,4 +272,60 @@ export function buildChanges(cells: readonly PlainCell[]): MergeableChanges {
 		stamp(values, valuesHlc),
 		1,
 	];
+}
+
+export interface ApplyCellsResult<Cell extends PlainCell = PlainCell> {
+	/** Cells the store accepted (or already had newer). */
+	applied: Cell[];
+	/**
+	 * Cells the store rejects for now because their HLC is too far ahead of
+	 * this device's clock. They become applicable once the clock catches up.
+	 */
+	deferred: Cell[];
+	/** Cells the store can never accept, e.g. values of an unsupported type. */
+	invalid: Cell[];
+}
+
+function isAccepted(cells: readonly PlainCell[], getNow: () => number) {
+	// A MergeableStore silently ignores a whole change set if one stamp fails
+	// its validation, so check on a scratch store first.
+	const probe = createMergeableStore('probe', getNow);
+	probe.applyMergeableChanges(buildChanges(cells));
+	return flattenChanges(probe.getMergeableContent()).length === cells.length;
+}
+
+/**
+ * Applies cells to a store, leaving out those it would reject. `also` runs in
+ * the same transaction with the result, e.g. to record what was applied.
+ */
+export function applyCellsToStore<Cell extends PlainCell>(
+	store: MergeableStore,
+	cells: readonly Cell[],
+	also?: (result: ApplyCellsResult<Cell>) => void,
+): ApplyCellsResult<Cell> {
+	const result: ApplyCellsResult<Cell> = {
+		applied: [],
+		deferred: [],
+		invalid: [],
+	};
+	if (cells.length > 0 && isAccepted(cells, Date.now)) {
+		result.applied = [...cells];
+	} else {
+		for (const cell of cells) {
+			if (isAccepted([cell], Date.now)) {
+				result.applied.push(cell);
+			} else if (isAccepted([cell], () => Number.MAX_SAFE_INTEGER)) {
+				result.deferred.push(cell);
+			} else {
+				result.invalid.push(cell);
+			}
+		}
+	}
+	store.transaction(() => {
+		if (result.applied.length > 0) {
+			store.applyMergeableChanges(buildChanges(result.applied));
+		}
+		also?.(result);
+	});
+	return result;
 }

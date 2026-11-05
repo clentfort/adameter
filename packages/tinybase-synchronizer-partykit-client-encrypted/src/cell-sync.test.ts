@@ -13,7 +13,8 @@ import { createMemoryCellSyncStateStore } from './cell-sync-state';
 import { getCellKeys } from './cells';
 
 const CELLS_URL = 'https://relay.example/parties/tinybase/room/cells';
-const LAST_SEQ = '_local:lastSeq';
+const STATE_PREFIX = '_local:sync:';
+const LAST_SEQ = `${STATE_PREFIX}lastSeq`;
 
 interface FakeStoredCell extends EncryptedCell {
 	seq: number;
@@ -32,18 +33,33 @@ function createFakeServer() {
 		isFuture: (_cell: EncryptedCell) => false,
 		/** Throws for the nth POST (1-based), like a dropped connection. */
 		failPost: 0,
+		/** Ends pages early, like the server's byte limit. */
+		maxPageCells: Infinity,
+		/** Replaces the ciphertext of matching cells in GET responses. */
+		corrupt: (_cell: EncryptedCell) => false,
 		async fetch(input: string | URL, init: RequestInit = {}) {
 			const url = new URL(input);
 			const method = init.method ?? 'GET';
 			if (method === 'GET') {
 				const since = Number(url.searchParams.get('since'));
 				const limit = Number(url.searchParams.get('limit'));
-				const page = [...cells.values()]
+				const remaining = [...cells.values()]
 					.filter((cell) => cell.seq > since)
-					.sort((first, second) => first.seq - second.seq)
-					.slice(0, limit);
+					.sort((first, second) => first.seq - second.seq);
+				const page = remaining
+					.slice(0, Math.min(limit, server.maxPageCells))
+					.map((cell) =>
+						server.corrupt(cell)
+							? { ...cell, data: btoa('garbage-data') }
+							: cell,
+					);
 				requests.push({ method, size: page.length });
-				return Response.json({ cells: page, epoch, head });
+				return Response.json({
+					cells: page,
+					epoch,
+					head,
+					more: remaining.length > page.length,
+				});
 			}
 
 			const batch = JSON.parse(String(init.body)) as EncryptedCell[];
@@ -130,15 +146,19 @@ afterEach(() => {
 
 async function createDevice(
 	name: string,
-	options: { limits?: CellSyncLimits; persistStore?: () => Promise<void> } = {},
+	options: {
+		limits?: CellSyncLimits;
+		onIgnoredError?: (error: unknown) => void;
+		persistStore?: () => Promise<void>;
+	} = {},
 ) {
 	const store = createMergeableStore(name);
 	const state = createMemoryCellSyncStateStore();
 	const sync = createCellSync({
 		cellsUrl: CELLS_URL,
 		keys: await getCellKeys('room'),
-		lastSeqValueId: LAST_SEQ,
 		state,
+		stateValuePrefix: STATE_PREFIX,
 		store,
 		...options,
 	});
@@ -455,6 +475,97 @@ describe('createCellSync', () => {
 		expect(server.head).toBe(4);
 	});
 
+	it('keeps pulling while the server says more cells follow', async () => {
+		const deviceA = await createDevice('a');
+		const deviceB = await createDevice('b');
+		for (let index = 0; index < 5; index += 1) {
+			feeding(deviceA.store, `f${index}`, index);
+		}
+		await syncDevice(deviceA);
+		server.maxPageCells = 3;
+
+		await deviceB.sync.pull();
+
+		expect(deviceB.store.getRowCount('feedingSessions')).toBe(5);
+	});
+
+	it('keeps the server epoch with the sequence number in the store', async () => {
+		const deviceA = await createDevice('a');
+		feeding(deviceA.store, 'f1', 10);
+
+		await syncDevice(deviceA);
+
+		expect(deviceA.store.getValue(`${STATE_PREFIX}epoch`)).toBe('epoch-1');
+	});
+
+	it('waits for a clock that is far behind instead of skipping cells', async () => {
+		const now = Date.now();
+		vi.useFakeTimers({ now, toFake: ['Date'] });
+		try {
+			const deviceA = await createDevice('a');
+			feeding(deviceA.store, 'f1', 10);
+			await syncDevice(deviceA);
+			const deviceB = await createDevice('b');
+
+			vi.setSystemTime(now - 10 * 60_000);
+			await deviceB.sync.pull();
+
+			expect(deviceB.store.hasRow('feedingSessions', 'f1')).toBe(false);
+			expect(deviceB.sync.getPullRetry()).toBe('clock');
+			expect(deviceB.store.getValue(LAST_SEQ)).toBeUndefined();
+
+			vi.setSystemTime(now);
+			await deviceB.sync.pull();
+
+			expect(deviceB.store.getRow('feedingSessions', 'f1')).toEqual({
+				duration: 10,
+				side: 'left',
+			});
+			expect(deviceB.sync.getPullRetry()).toBeUndefined();
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it('retries a cell that could not be decrypted before skipping it', async () => {
+		const deviceA = await createDevice('a');
+		feeding(deviceA.store, 'f1', 10);
+		feeding(deviceA.store, 'f2', 20);
+		await syncDevice(deviceA);
+		const deviceB = await createDevice('b', {
+			onIgnoredError: () => {},
+		});
+		let isCorrupt = true;
+		server.corrupt = (cell) =>
+			isCorrupt && cell.row === 'f1' && cell.cell === 'duration';
+
+		await deviceB.sync.pull();
+		expect(deviceB.sync.getPullRetry()).toBe('decrypt');
+		expect(deviceB.store.getRowCount('feedingSessions')).toBe(2);
+
+		isCorrupt = false;
+		await deviceB.sync.pull();
+
+		expect(deviceB.store.getCell('feedingSessions', 'f1', 'duration')).toBe(10);
+		expect(deviceB.sync.getPullRetry()).toBeUndefined();
+	});
+
+	it('skips a cell that keeps failing to decrypt', async () => {
+		const deviceA = await createDevice('a');
+		feeding(deviceA.store, 'f1', 10);
+		await syncDevice(deviceA);
+		const deviceB = await createDevice('b', { onIgnoredError: () => {} });
+		server.corrupt = (cell) => cell.cell === 'duration';
+
+		for (let attempt = 0; attempt < 3; attempt += 1) {
+			await deviceB.sync.pull();
+		}
+
+		expect(deviceB.sync.getPullRetry()).toBeUndefined();
+		expect(deviceB.store.getValue(LAST_SEQ)).toBe(2);
+		expect(deviceB.store.getCell('feedingSessions', 'f1', 'side')).toBe('left');
+	});
+
 	it('restores its state after a restart', async () => {
 		const deviceA = await createDevice('a');
 		feeding(deviceA.store, 'f1', 10);
@@ -465,8 +576,8 @@ describe('createCellSync', () => {
 		const restarted = createCellSync({
 			cellsUrl: CELLS_URL,
 			keys: await getCellKeys('room'),
-			lastSeqValueId: LAST_SEQ,
 			state: deviceA.state,
+			stateValuePrefix: STATE_PREFIX,
 			store: deviceA.store,
 		});
 		await restarted.init();
@@ -487,8 +598,8 @@ describe('createCellSync', () => {
 		const restarted = createCellSync({
 			cellsUrl: CELLS_URL,
 			keys: await getCellKeys('room'),
-			lastSeqValueId: LAST_SEQ,
 			state: deviceB.state,
+			stateValuePrefix: STATE_PREFIX,
 			store: cleared,
 		});
 		await restarted.init();

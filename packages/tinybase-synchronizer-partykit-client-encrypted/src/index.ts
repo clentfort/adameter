@@ -1,4 +1,6 @@
 export {
+	type ApplyCellsResult,
+	applyCellsToStore,
 	type CellAddress,
 	type CellKeys,
 	type CellKind,

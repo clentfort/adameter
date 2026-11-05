@@ -1,20 +1,18 @@
 /**
  * What a device knows about the server's copy of a room: the HLC the server
- * has for each cell (its "server stamps") and the server's epoch of the room.
+ * has for each cell (its "server stamps").
  *
- * Both only ever claim that the server has a cell at least as new, which stays
- * true whatever happens to the local store. Anything that describes the local
- * store's content, like the last pulled sequence number, is kept in the store
- * itself instead, so it is always persisted together with that content.
+ * A stamp only ever claims that the server has a cell at least as new, which
+ * stays true whatever happens to the local store, as long as the server keeps
+ * its cells (see the epoch in `createCellSync`). Anything that describes the
+ * local store's content, like the last pulled sequence number, is kept in the
+ * store itself instead, so it is always persisted together with that content.
  */
 export interface CellSyncState {
-	/** The server's epoch for the room; it changes when its cells are reset. */
-	serverEpoch?: string;
 	stamps: Map<string, string>;
 }
 
 export interface CellSyncStateUpdate {
-	serverEpoch?: string;
 	stamps?: Iterable<[cellKey: string, hlc: string]>;
 }
 
@@ -28,7 +26,6 @@ export interface CellSyncStateStore {
 
 const STAMPS_STORE = 'stamps';
 const META_STORE = 'meta';
-const SERVER_EPOCH_KEY = 'serverEpoch';
 
 export function createMemoryCellSyncStateStore(): CellSyncStateStore {
 	let state: CellSyncState = { stamps: new Map() };
@@ -38,8 +35,7 @@ export function createMemoryCellSyncStateStore(): CellSyncStateStore {
 		},
 		close: () => {},
 		load: async () => ({ ...state, stamps: new Map(state.stamps) }),
-		save: async ({ serverEpoch, stamps }) => {
-			if (serverEpoch !== undefined) state.serverEpoch = serverEpoch;
+		save: async ({ stamps }) => {
 			for (const [key, hlc] of stamps ?? []) state.stamps.set(key, hlc);
 		},
 	};
@@ -104,27 +100,21 @@ export function createIndexedDbCellSyncStateStore(
 		load: async () => {
 			let keys: IDBValidKey[] = [];
 			let hlcs: string[] = [];
-			let serverEpoch: unknown;
-			await run('readonly', (stamps, meta) => {
+			await run('readonly', (stamps) => {
 				void requestToPromise(stamps.getAllKeys()).then((result) => {
 					keys = result;
 				});
 				void requestToPromise(stamps.getAll()).then((result) => {
 					hlcs = result as string[];
 				});
-				void requestToPromise(meta.get(SERVER_EPOCH_KEY)).then((result) => {
-					serverEpoch = result;
-				});
 			});
 			return {
-				serverEpoch: typeof serverEpoch === 'string' ? serverEpoch : undefined,
 				stamps: new Map(keys.map((key, index) => [String(key), hlcs[index]])),
 			};
 		},
-		save: ({ serverEpoch, stamps: updatedStamps }) =>
-			run('readwrite', (stamps, meta) => {
+		save: ({ stamps: updatedStamps }) =>
+			run('readwrite', (stamps) => {
 				for (const [key, hlc] of updatedStamps ?? []) stamps.put(hlc, key);
-				if (serverEpoch !== undefined) meta.put(serverEpoch, SERVER_EPOCH_KEY);
 			}),
 	};
 }

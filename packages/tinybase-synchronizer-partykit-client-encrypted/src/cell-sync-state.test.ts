@@ -16,10 +16,7 @@ describe.each([
 	it('starts empty', async () => {
 		const store = createStore();
 
-		expect(await store.load()).toEqual({
-			serverEpoch: undefined,
-			stamps: new Map(),
-		});
+		expect(await store.load()).toEqual({ stamps: new Map() });
 	});
 
 	it('merges saved updates', async () => {
@@ -27,7 +24,6 @@ describe.each([
 
 		await store.save({ stamps: [['a', 'hlc-1']] });
 		await store.save({
-			serverEpoch: 'epoch-1',
 			stamps: [
 				['a', 'hlc-2'],
 				['b', 'hlc-3'],
@@ -35,7 +31,6 @@ describe.each([
 		});
 
 		expect(await store.load()).toEqual({
-			serverEpoch: 'epoch-1',
 			stamps: new Map([
 				['a', 'hlc-2'],
 				['b', 'hlc-3'],
@@ -45,14 +40,11 @@ describe.each([
 
 	it('clears all state', async () => {
 		const store = createStore();
-		await store.save({ serverEpoch: 'epoch-1', stamps: [['a', 'hlc-1']] });
+		await store.save({ stamps: [['a', 'hlc-1']] });
 
 		await store.clear();
 
-		expect(await store.load()).toEqual({
-			serverEpoch: undefined,
-			stamps: new Map(),
-		});
+		expect(await store.load()).toEqual({ stamps: new Map() });
 	});
 });
 
@@ -60,16 +52,16 @@ describe('IndexedDB cell sync state', () => {
 	it('survives reopening and is removed with its database', async () => {
 		const name = `sync-${Math.random()}`;
 		const first = createIndexedDbCellSyncStateStore(name);
-		await first.save({ serverEpoch: 'epoch-1', stamps: [['a', 'hlc-1']] });
+		await first.save({ stamps: [['a', 'hlc-1']] });
 		first.close();
 
 		const reopened = createIndexedDbCellSyncStateStore(name);
-		expect((await reopened.load()).serverEpoch).toBe('epoch-1');
+		expect((await reopened.load()).stamps.get('a')).toBe('hlc-1');
 		reopened.close();
 
 		await deleteCellSyncStateDatabase(name);
 		expect(
-			(await createIndexedDbCellSyncStateStore(name).load()).serverEpoch,
-		).toBeUndefined();
+			(await createIndexedDbCellSyncStateStore(name).load()).stamps.size,
+		).toBe(0);
 	});
 });
