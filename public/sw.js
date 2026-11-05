@@ -4,7 +4,10 @@
 // online device always gets the latest deploy. Build assets under
 // /_next/static are immutable and served from the cache first. The worker is
 // registered as /sw.js?v=<build id>, so every deploy installs a new worker
-// that precaches the pages of that build and removes the previous cache.
+// that precaches the pages and build assets of that build and removes the
+// previous cache. If precaching fails, e.g. because the connection drops, the
+// new worker is not installed and the previous one keeps working; the browser
+// tries again on a later visit.
 //
 // Only same-origin GET requests are handled. Requests to the sync relay and
 // to other origins are never cached.
@@ -33,40 +36,83 @@ const PAGES = [
 ];
 
 const STATIC_ASSET_PATTERN = /\/_next\/static\/[^\s"')\\]+/g;
+// Build assets refer to lazily loaded chunks without the /_next/ prefix.
+const RELATIVE_ASSET_PATTERN =
+	/(?<![\w/])static\/(?:chunks|css|media)\/[\w./-]+\.(?:js|css|woff2?|ttf|otf|png|jpe?g|gif|svg|webp|avif|ico)\b/g;
+const MAX_PRECACHED_ASSETS = 2000;
 
-async function precachePage(cache, page) {
-	const response = await fetch(page, { cache: 'reload' });
+function findAssets(text) {
+	return [
+		...(text.match(STATIC_ASSET_PATTERN) ?? []),
+		...(text.match(RELATIVE_ASSET_PATTERN) ?? []).map(
+			(path) => `/_next/${path}`,
+		),
+	];
+}
+
+async function fetchForCache(url, { isOptional = false } = {}) {
+	const response = await fetch(url, { cache: 'reload' });
+	// A path found in a build asset that does not exist is not worth failing
+	// the install for; anything else, e.g. a dropped connection, is.
+	if (isOptional && response.status === 404) return undefined;
 	if (!response.ok) {
-		throw new Error(`Precaching ${page} failed (${response.status})`);
+		throw new Error(`Precaching ${url} failed (${response.status})`);
 	}
-	const html = await response.clone().text();
-	await cache.put(page, response);
+	return response;
+}
 
-	const assets = new Set(html.match(STATIC_ASSET_PATTERN) ?? []);
-	await Promise.all(
-		[...assets].map(async (asset) => {
-			if (await cache.match(asset)) return;
-			const assetResponse = await fetch(asset);
-			if (assetResponse.ok) {
-				await cache.put(asset, assetResponse);
+/**
+ * Precaches the pages and every build asset they load, including chunks that
+ * are only imported lazily, so features work offline before their first use.
+ * Rejects if anything fails.
+ */
+async function precache(cache) {
+	const assets = new Set();
+	const queue = [];
+	const enqueue = (text) => {
+		for (const asset of findAssets(text)) {
+			if (assets.has(asset)) continue;
+			if (assets.size >= MAX_PRECACHED_ASSETS) {
+				throw new Error('Too many build assets to precache');
 			}
+			assets.add(asset);
+			queue.push(asset);
+		}
+	};
+
+	await Promise.all(
+		PAGES.map(async (page) => {
+			const response = await fetchForCache(page);
+			enqueue(await response.clone().text());
+			await cache.put(page, response);
 		}),
 	);
+
+	while (queue.length > 0) {
+		const batch = queue.splice(0, 20);
+		await Promise.all(
+			batch.map(async (asset) => {
+				const response = await fetchForCache(asset, { isOptional: true });
+				if (!response) return;
+				if (/\.(?:js|css)$/.test(new URL(asset, self.location.href).pathname)) {
+					enqueue(await response.clone().text());
+				}
+				await cache.put(asset, response);
+			}),
+		);
+	}
 }
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(
 		(async () => {
 			const cache = await caches.open(CACHE_NAME);
-			const results = await Promise.allSettled(
-				PAGES.map((page) => precachePage(cache, page)),
-			);
-			for (const result of results) {
-				if (result.status === 'rejected') {
-					// The worker cannot use the app's logger.
-					// eslint-disable-next-line no-console
-					console.warn('[SW]', result.reason);
-				}
+			try {
+				await precache(cache);
+			} catch (error) {
+				// Fail the install, so the working worker and its cache stay.
+				await caches.delete(CACHE_NAME);
+				throw error;
 			}
 			await self.skipWaiting();
 		})(),
@@ -111,18 +157,26 @@ function fetchWithTimeout(request, timeout) {
 async function handleNavigation(request) {
 	const cache = await caches.open(CACHE_NAME);
 	const url = new URL(request.url);
+	// Room invite links carry the room in the query, so match by path.
+	let response;
 	try {
-		const response = await fetchWithTimeout(request, NAVIGATION_TIMEOUT_MS);
-		if (response.ok && response.type === 'basic') {
-			await cache.put(url.pathname, response.clone());
-		}
-		return response;
+		response = await fetchWithTimeout(request, NAVIGATION_TIMEOUT_MS);
 	} catch (error) {
-		// Room invite links carry the room in the query, so match by path.
 		const cached = await cache.match(url.pathname);
 		if (cached) return cached;
 		throw error;
 	}
+	if (response.ok && response.type === 'basic') {
+		await cache.put(url.pathname, response.clone());
+		return response;
+	}
+	// The app runs from local data, so a cached page beats a server error or
+	// rate limit page.
+	if (response.status >= 500 || response.status === 429) {
+		const cached = await cache.match(url.pathname);
+		if (cached) return cached;
+	}
+	return response;
 }
 
 async function handleStaticAsset(request) {
