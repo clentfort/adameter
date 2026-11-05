@@ -4,7 +4,7 @@ const UNDEFINED_MARKER = '\uFFFC';
 const TEXT_DECODER = new TextDecoder();
 const TEXT_ENCODER = new TextEncoder();
 
-function uint8ArrayToBase64(array: Uint8Array): string {
+export function uint8ArrayToBase64(array: Uint8Array): string {
 	let binary = '';
 	for (let index = 0; index < array.byteLength; index++) {
 		binary += String.fromCharCode(array[index]);
@@ -12,7 +12,7 @@ function uint8ArrayToBase64(array: Uint8Array): string {
 	return btoa(binary);
 }
 
-function base64ToUint8Array(base64: string): Uint8Array {
+export function base64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
 	const binaryString = atob(base64);
 	const bytes = new Uint8Array(binaryString.length);
 	for (let index = 0; index < binaryString.length; index++) {
