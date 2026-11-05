@@ -52,6 +52,15 @@ describe('CellStore', () => {
 		expect(store.list(0, 100)).toEqual({ cells: [], head: 0 });
 	});
 
+	it('keeps one epoch per room', () => {
+		const store = createStore();
+
+		const epoch = store.getEpoch();
+
+		expect(store.getEpoch()).toBe(epoch);
+		expect(createStore().getEpoch()).not.toBe(epoch);
+	});
+
 	it('accepts new cells with increasing sequence numbers', () => {
 		const store = createStore();
 

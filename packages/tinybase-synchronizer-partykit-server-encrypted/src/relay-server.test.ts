@@ -444,10 +444,17 @@ describe('EncryptedSyncRelayServer', () => {
 				cell({ cell: 'endTime' }),
 			]);
 			expect(postResponse.status).toBe(200);
-			expect(await postResponse.json()).toEqual({
+			const posted = (await postResponse.json()) as { epoch: string };
+			expect(posted).toEqual({
+				epoch: expect.stringMatching(/^[\da-f-]{36}$/),
 				fromSeq: 1,
 				head: 2,
 				toSeq: 2,
+			});
+			const { epoch } = posted;
+			expect(await (await postCells(server, [])).json()).toEqual({
+				epoch,
+				head: 2,
 			});
 
 			const getResponse = await server.onRequest(
@@ -457,6 +464,7 @@ describe('EncryptedSyncRelayServer', () => {
 			expect(getResponse.headers.get('Access-Control-Allow-Origin')).toBe('*');
 			expect(await getResponse.json()).toEqual({
 				cells: [{ ...cell({ cell: 'endTime' }), seq: 2 }],
+				epoch,
 				head: 2,
 			});
 		});
@@ -499,7 +507,11 @@ describe('EncryptedSyncRelayServer', () => {
 			const list = await server.onRequest(
 				createRequest('GET', '/parties/tinybase/room/cells'),
 			);
-			expect(await list.json()).toEqual({ cells: [], head: 0 });
+			expect(await list.json()).toEqual({
+				cells: [],
+				epoch: expect.any(String),
+				head: 0,
+			});
 		});
 
 		it('rejects invalid bodies', async () => {

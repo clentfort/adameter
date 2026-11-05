@@ -36,6 +36,7 @@ const HLC_PATTERN = /^[\w-]{16}$/;
 const HLC_ALPHABET =
 	'-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
 const HEAD_SEQ_KEY = 'head_seq';
+const EPOCH_KEY = 'epoch';
 const MAX_ID_LENGTH = 256;
 
 /** Decodes the wall-clock milliseconds of a TinyBase HLC. */
@@ -128,6 +129,28 @@ export class CellStore {
 			'CREATE TABLE IF NOT EXISTS cell_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)',
 		);
 		this.initialized = true;
+	}
+
+	/**
+	 * A random ID of this room's cells, created with the first read or write.
+	 * Clients that see a different epoch know the cells were lost or reset.
+	 */
+	getEpoch(): string {
+		this.init();
+		const [row] = this.sql
+			.exec<{ value: string }>(
+				'SELECT value FROM cell_meta WHERE key = ?',
+				EPOCH_KEY,
+			)
+			.toArray();
+		if (row) return row.value;
+		const epoch = crypto.randomUUID();
+		this.sql.exec(
+			'INSERT INTO cell_meta (key, value) VALUES (?, ?)',
+			EPOCH_KEY,
+			epoch,
+		);
+		return epoch;
 	}
 
 	getHead(): number {

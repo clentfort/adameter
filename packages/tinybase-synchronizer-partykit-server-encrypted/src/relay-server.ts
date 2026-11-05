@@ -303,7 +303,11 @@ export class EncryptedSyncRelayServer<
 				) {
 					return json({ error: 'Invalid since or limit' }, 400);
 				}
-				return json(this.getCellStore().list(since, limit));
+				const cellStore = this.getCellStore();
+				return json({
+					...cellStore.list(since, limit),
+					epoch: cellStore.getEpoch(),
+				});
 			}
 
 			if (request.method === 'POST') {
@@ -330,13 +334,15 @@ export class EncryptedSyncRelayServer<
 					return json({ error: 'HLC too far in the future', rejected }, 422);
 				}
 
+				const epoch = cellStore.getEpoch();
 				const { accepted, head } = cellStore.put(cells);
 				if (accepted.length === 0) {
-					return json({ head });
+					return json({ epoch, head });
 				}
 				this.broadcastCells(accepted);
 				// Lets the uploader skip its own broadcast.
 				return json({
+					epoch,
 					fromSeq: accepted[0].seq,
 					head,
 					toSeq: accepted.at(-1)!.seq,
