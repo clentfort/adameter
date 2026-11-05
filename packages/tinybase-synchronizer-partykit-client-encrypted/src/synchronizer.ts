@@ -1,9 +1,5 @@
 import type PartySocket from 'partysocket';
-import type {
-	MergeableChanges,
-	MergeableContent,
-	MergeableStore,
-} from 'tinybase';
+import type { MergeableContent, MergeableStore } from 'tinybase';
 import type { Synchronizer } from 'tinybase/synchronizers';
 import { createCustomSynchronizer } from 'tinybase/synchronizers';
 import {
@@ -31,7 +27,22 @@ type Send = (
 const MAX_SNAPSHOT_SAVE_ATTEMPTS = 6;
 const MESSAGE_SEPARATOR = '\n';
 const REQUEST_TIMEOUT_SECONDS = 1;
+const SNAPSHOT_REQUEST_TIMEOUT_MS = 15_000;
 const SNAPSHOT_RETRY_BASE_DELAY_MS = 100;
+
+/**
+ * A snapshot request that reached the server but was rejected. `status` lets
+ * callers tell rate limits and outages apart from other failures.
+ */
+export class SnapshotRequestError extends Error {
+	readonly status: number;
+
+	constructor(message: string, status: number) {
+		super(message);
+		this.name = 'SnapshotRequestError';
+		this.status = status;
+	}
+}
 
 interface SnapshotSaveArguments {
 	encryptionKey: CryptoKey;
@@ -47,9 +58,14 @@ interface SnapshotSaveQueue {
 const snapshotOperationQueues = new Map<string, Promise<void>>();
 const snapshotSaveQueues = new Map<string, SnapshotSaveQueue>();
 const snapshotVersions = new Map<string, string>();
-// Serialized content of the last successful save per room. Unchanged content
-// is not uploaded again, since every write costs Durable Object storage rows.
-const lastSavedSnapshots = new Map<string, string>();
+// Content hashes of the snapshot last seen on (or written to) the server per
+// room. Content with the same hashes is not uploaded again, since every write
+// costs Durable Object storage rows.
+const serverContentHashes = new Map<string, string>();
+
+function getContentHashKey(content: MergeableContent): string {
+	return `${content[0][2]}:${content[1][2]}`;
+}
 
 function runSnapshotOperation<Result>(
 	storeUrl: string,
@@ -214,29 +230,31 @@ async function performSnapshotLoad(
 	const response = await fetch(storeUrl, {
 		cache: 'no-store',
 		mode: 'cors',
+		signal: AbortSignal.timeout(SNAPSHOT_REQUEST_TIMEOUT_MS),
 	});
 	if (!response.ok) {
 		const errorBody = await response.text();
-		throw new Error(
+		throw new SnapshotRequestError(
 			`Snapshot GET failed (${response.status}): ${errorBody || response.statusText}`,
+			response.status,
 		);
 	}
 
 	const encrypted = await response.text();
 	if (!encrypted || encrypted === 'null') {
+		serverContentHashes.delete(storeUrl);
 		updateSnapshotVersion(storeUrl, response);
 		return false;
 	}
 
 	const decrypted = await decrypt(encrypted, encryptionKey);
-	const mergeableContent = jsonParseWithUndefined(decrypted);
+	const mergeableContent = jsonParseWithUndefined<MergeableContent>(decrypted);
 	if (!mergeableContent) return false;
 
-	store.applyMergeableChanges(
-		mergeableContent as MergeableChanges | MergeableContent,
-	);
+	store.applyMergeableChanges(mergeableContent);
 	// Publish the loaded revision only after its content has been applied. A
 	// concurrent save must not use a fresh ETag with stale local data.
+	serverContentHashes.set(storeUrl, getContentHashKey(mergeableContent));
 	updateSnapshotVersion(storeUrl, response);
 	return true;
 }
@@ -261,10 +279,19 @@ async function performSnapshotSave({
 	storeUrl,
 }: SnapshotSaveArguments): Promise<void> {
 	for (let attempt = 0; attempt < MAX_SNAPSHOT_SAVE_ATTEMPTS; attempt += 1) {
+		// Never write without a revision: the server only accepts a snapshot
+		// that already contains everything it stored before.
+		if (!snapshotVersions.has(storeUrl)) {
+			await performSnapshotLoad(store, storeUrl, encryptionKey);
+		}
+
 		const content = store.getMergeableContent();
-		const serialized = jsonStringWithUndefined(content);
-		if (lastSavedSnapshots.get(storeUrl) === serialized) return;
-		const encrypted = await encrypt(serialized, encryptionKey);
+		const contentHashKey = getContentHashKey(content);
+		if (serverContentHashes.get(storeUrl) === contentHashKey) return;
+		const encrypted = await encrypt(
+			jsonStringWithUndefined(content),
+			encryptionKey,
+		);
 		const version = snapshotVersions.get(storeUrl);
 
 		const response = await fetch(storeUrl, {
@@ -273,6 +300,7 @@ async function performSnapshotSave({
 			headers: version ? { 'If-Match': version } : undefined,
 			method: 'PUT',
 			mode: 'cors',
+			signal: AbortSignal.timeout(SNAPSHOT_REQUEST_TIMEOUT_MS),
 		});
 
 		if (response.status === 412 && attempt < MAX_SNAPSHOT_SAVE_ATTEMPTS - 1) {
@@ -285,13 +313,14 @@ async function performSnapshotSave({
 
 		if (!response.ok) {
 			const errorBody = await response.text();
-			throw new Error(
+			throw new SnapshotRequestError(
 				`Snapshot PUT failed (${response.status}): ${errorBody || response.statusText}`,
+				response.status,
 			);
 		}
 
 		updateSnapshotVersion(storeUrl, response);
-		lastSavedSnapshots.set(storeUrl, serialized);
+		serverContentHashes.set(storeUrl, contentHashKey);
 		return;
 	}
 }
