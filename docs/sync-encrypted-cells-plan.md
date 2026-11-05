@@ -11,16 +11,24 @@ Implementation notes (where it differs from or adds to the plan below):
 - The server's metadata table is `cell_meta` (not `meta`). `POST /cells` returns
   the accepted sequence range, so an uploader whose range directly follows its
   last pull advances `lastSeq` and does not pull its own cells.
-- A server whose head is below the client's `lastSeq` (or empty while the client
-  has stamps) is treated as reset: the client clears its sync state and uploads
-  everything again.
+- The last pulled sequence number (and the legacy snapshot ETag) is a
+  device-local value of the store (`_local:` prefix, never uploaded, never
+  exported), not part of the separate sync state. It is written in the same
+  persister save as the cells it covers, so a failed save, a cleared database or
+  another tab saving older content can only cause a re-pull, never a skipped
+  cell. The separate sync state only holds server stamps and the server's epoch,
+  which stay true whatever happens to the store.
+- Every cells response carries a room epoch (random ID created with the room's
+  cells). A changed epoch, a head below the client's `lastSeq`, or an empty
+  server while the client has stamps resets the client's sync state and
+  re-uploads everything.
 - Factory reset and "Clear & Join" set a flag and reload; the next start clears
-  the local database before loading. Sync state databases are named after a
-  local store ID that is rotated on reset, and sync state that claims pulled
-  cells for an empty store is dropped, so stale state can never hide server
-  data.
-- Cells the server rejects (422) are kept locally and shown as a new `error`
-  sync status until they change.
+  the local database before loading, and sync state databases are named after a
+  local store ID that is rotated on reset.
+- Cells the server rejects (422) are kept locally, retried after 5 minutes or
+  when they change, and shown as a new `error` sync status meanwhile.
+- A failing legacy `/store` read is logged and retried with the next pull; it
+  never holds back uploads.
 
 Structure: **Phase 0** checks whether TinyBase's own sync stack can be used with
 encrypted cells. If it passes, implement **Plan A** (TinyBase stock sync with an
