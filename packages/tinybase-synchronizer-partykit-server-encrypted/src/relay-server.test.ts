@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EncryptedSyncRelayServer } from './relay-server';
+import { createTestSqlStorage } from './test-sql-storage';
 
 vi.mock('partyserver', () => ({
 	Server: class MockPartyServer {
@@ -13,8 +14,8 @@ vi.mock('partyserver', () => ({
 			this.ctx.broadcast(message, exclude);
 		}
 
-		getConnections() {
-			return this.ctx.getConnections();
+		getConnections(tag?: string) {
+			return this.ctx.getConnections(tag);
 		}
 	},
 }));
@@ -26,7 +27,7 @@ function createMockSend() {
 function createMockRoom() {
 	const connections = new Map<
 		string,
-		{ id: string; send: ReturnType<typeof createMockSend> }
+		{ id: string; send: ReturnType<typeof createMockSend>; tags: string[] }
 	>();
 
 	const broadcast = vi.fn<(message: string, exclude?: string[]) => void>();
@@ -42,15 +43,26 @@ function createMockRoom() {
 	const storagePut = vi.fn<(key: string, value: string) => Promise<void>>();
 	const storageDelete = vi.fn<(key: string) => Promise<void>>();
 
+	const { sql, transactionSync } = createTestSqlStorage();
+
 	return {
-		addConnection(id: string) {
-			const conn = { id, send: createMockSend() };
+		addConnection(id: string, tags: string[] = []) {
+			const conn = { id, send: createMockSend(), tags };
 			connections.set(id, conn);
 			return conn;
 		},
 		broadcast,
-		getConnections: () => connections.values(),
-		storage: { delete: storageDelete, get: storageGet, put: storagePut },
+		getConnections: (tag?: string) =>
+			[...connections.values()].filter(
+				(conn) => tag === undefined || conn.tags.includes(tag),
+			),
+		storage: {
+			delete: storageDelete,
+			get: storageGet,
+			put: storagePut,
+			sql,
+			transactionSync,
+		},
 	};
 }
 
@@ -65,11 +77,31 @@ function createRequest(
 		headers.set('If-Match', ifMatch);
 	}
 	return {
+		body: body === undefined ? null : new Response(body).body,
 		headers,
 		method,
 		text: () => Promise.resolve(body ?? ''),
 		url: `https://example.com${path}`,
 	} as unknown as Request;
+}
+
+function postCells(server: EncryptedSyncRelayServer, body: unknown) {
+	return server.onRequest(
+		createRequest(
+			'POST',
+			'/parties/tinybase/room/cells',
+			typeof body === 'string' ? body : JSON.stringify(body),
+		),
+	);
+}
+
+function getTagsFor(server: EncryptedSyncRelayServer, url: string) {
+	return server.getConnectionTags(
+		{} as never,
+		{
+			request: { url } as Request,
+		} as never,
+	);
 }
 
 describe('EncryptedSyncRelayServer', () => {
@@ -324,10 +356,7 @@ describe('EncryptedSyncRelayServer', () => {
 
 			server.onMessage(sender as never, '\nencrypted-payload');
 
-			expect(room.broadcast).toHaveBeenCalledWith(
-				'sender-1\nencrypted-payload',
-				['sender-1'],
-			);
+			expect(sender.send).not.toHaveBeenCalled();
 			expect(clientA.send).toHaveBeenCalledWith('sender-1\nencrypted-payload');
 			expect(clientB.send).toHaveBeenCalledWith('sender-1\nencrypted-payload');
 		});
@@ -353,11 +382,11 @@ describe('EncryptedSyncRelayServer', () => {
 
 		it('ignores messages without separator', () => {
 			const sender = room.addConnection('sender-1');
-			room.addConnection('client-a');
+			const clientA = room.addConnection('client-a');
 
 			server.onMessage(sender as never, 'no-separator-here');
 
-			expect(room.broadcast).not.toHaveBeenCalled();
+			expect(clientA.send).not.toHaveBeenCalled();
 		});
 
 		it('ignores non-string messages', () => {
@@ -366,6 +395,241 @@ describe('EncryptedSyncRelayServer', () => {
 			server.onMessage(sender as never, new ArrayBuffer(10));
 
 			expect(room.broadcast).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('GET /store with If-None-Match', () => {
+		it('returns 304 without reading the snapshot when unchanged', async () => {
+			room.storage.get.mockImplementation(async (key: string) =>
+				key === 'snapshot_revision' ? '3' : 'encrypted-data-here',
+			);
+			const request = createRequest('GET', '/store');
+			request.headers.set('If-None-Match', 'W/"3"');
+
+			const response = await server.onRequest(request);
+
+			expect(response.status).toBe(304);
+			expect(response.headers.get('ETag')).toBe('"3"');
+			expect(room.storage.get).not.toHaveBeenCalledWith('snapshot');
+		});
+
+		it('returns the snapshot when the revision changed', async () => {
+			room.storage.get.mockImplementation(async (key: string) =>
+				key === 'snapshot_revision' ? '4' : 'encrypted-data-here',
+			);
+			const request = createRequest('GET', '/store');
+			request.headers.set('If-None-Match', '"3"');
+
+			const response = await server.onRequest(request);
+
+			expect(response.status).toBe(200);
+			expect(await response.text()).toBe('encrypted-data-here');
+		});
+	});
+
+	describe('/cells', () => {
+		const HLC = '0000000000000000';
+		const cell = (overrides: Record<string, unknown> = {}) => ({
+			cell: 'startTime',
+			data: 'ciphertext',
+			hlc: HLC,
+			kind: 't',
+			row: 'row-1',
+			table: 'feedingSessions',
+			...overrides,
+		});
+
+		it('stores cells and lists them since a sequence number', async () => {
+			const postResponse = await postCells(server, [
+				cell(),
+				cell({ cell: 'endTime' }),
+			]);
+			expect(postResponse.status).toBe(200);
+			const posted = (await postResponse.json()) as { epoch: string };
+			expect(posted).toEqual({
+				epoch: expect.stringMatching(/^[\da-f-]{36}$/),
+				fromSeq: 1,
+				head: 2,
+				toSeq: 2,
+			});
+			const { epoch } = posted;
+			expect(await (await postCells(server, [])).json()).toEqual({
+				epoch,
+				head: 2,
+			});
+
+			const getResponse = await server.onRequest(
+				createRequest('GET', '/parties/tinybase/room/cells?since=1&limit=10'),
+			);
+
+			expect(getResponse.headers.get('Access-Control-Allow-Origin')).toBe('*');
+			expect(await getResponse.json()).toEqual({
+				cells: [{ ...cell({ cell: 'endTime' }), seq: 2 }],
+				epoch,
+				head: 2,
+				more: false,
+			});
+		});
+
+		it('broadcasts accepted cells to cells connections only, including the uploader', async () => {
+			const cellsClient = room.addConnection('cells-1', ['cells']);
+			const legacyClient = room.addConnection('legacy-1');
+
+			await postCells(server, [cell()]);
+			await postCells(server, [cell()]);
+
+			expect(cellsClient.send).toHaveBeenCalledTimes(1);
+			expect(JSON.parse(cellsClient.send.mock.calls[0][0])).toEqual({
+				cells: [{ ...cell(), seq: 1 }],
+				fromSeq: 1,
+				toSeq: 1,
+				type: 'cells',
+			});
+			expect(legacyClient.send).not.toHaveBeenCalled();
+		});
+
+		it('broadcasts to the other connections when one send fails', async () => {
+			const broken = room.addConnection('cells-1', ['cells']);
+			broken.send.mockImplementation(() => {
+				throw new Error('Socket closed');
+			});
+			const healthy = room.addConnection('cells-2', ['cells']);
+
+			const response = await postCells(server, [cell()]);
+
+			expect(response.status).toBe(200);
+			expect(healthy.send).toHaveBeenCalledTimes(1);
+		});
+
+		it('rejects cells far in the future with their keys and writes nothing', async () => {
+			const response = await postCells(server, [
+				cell(),
+				cell({ hlc: 'zzzzzzzz00000000', row: 'row-2' }),
+			]);
+
+			expect(response.status).toBe(422);
+			expect(await response.json()).toEqual({
+				error: 'HLC too far in the future',
+				rejected: [
+					{
+						cell: 'startTime',
+						kind: 't',
+						row: 'row-2',
+						table: 'feedingSessions',
+					},
+				],
+			});
+			const list = await server.onRequest(
+				createRequest('GET', '/parties/tinybase/room/cells'),
+			);
+			expect(await list.json()).toEqual({
+				cells: [],
+				epoch: expect.any(String),
+				head: 0,
+				more: false,
+			});
+		});
+
+		it('rejects invalid bodies', async () => {
+			expect((await postCells(server, 'not json')).status).toBe(400);
+			expect((await postCells(server, [cell({ kind: 'x' })])).status).toBe(400);
+			expect((await postCells(server, {})).status).toBe(400);
+		});
+
+		it('rejects batches above the byte limit before parsing', async () => {
+			const cancel = vi.fn();
+			const request = createRequest('POST', '/parties/tinybase/room/cells');
+			request.headers.set('Content-Length', String(1024 * 1024));
+			Object.assign(request, { body: { cancel } });
+
+			const response = await server.onRequest(request);
+
+			expect(response.status).toBe(413);
+			expect(cancel).toHaveBeenCalled();
+		});
+
+		it('rejects an invalid since parameter', async () => {
+			const response = await server.onRequest(
+				createRequest('GET', '/parties/tinybase/room/cells?since=-1'),
+			);
+
+			expect(response.status).toBe(400);
+		});
+	});
+
+	describe('/cells extras', () => {
+		const HLC = '0000000000000000';
+		const cell = (row: string) => ({
+			cell: 'startTime',
+			data: 'ciphertext',
+			hlc: HLC,
+			kind: 't',
+			row,
+			table: 'feedingSessions',
+		});
+
+		it('returns cells by sequence number', async () => {
+			await postCells(server, [cell('row-1'), cell('row-2'), cell('row-3')]);
+
+			const response = await server.onRequest(
+				createRequest('GET', '/parties/tinybase/room/cells?seq=1&seq=3&seq=9'),
+			);
+
+			const body = (await response.json()) as { cells: { row: string }[] };
+			expect(body.cells.map(({ row }) => row)).toEqual(['row-1', 'row-3']);
+		});
+
+		it('rejects invalid or too many sequence numbers', async () => {
+			const tooMany = Array.from({ length: 101 }, (_, i) => `seq=${i + 1}`);
+			for (const query of ['seq=0', 'seq=x', tooMany.join('&')]) {
+				const response = await server.onRequest(
+					createRequest('GET', `/parties/tinybase/room/cells?${query}`),
+				);
+				expect(response.status).toBe(400);
+			}
+		});
+
+		it('rejects a body above the limit without a Content-Length', async () => {
+			const response = await postCells(server, 'x'.repeat(600 * 1024));
+
+			expect(response.status).toBe(413);
+		});
+
+		it('tells cells connections when the legacy snapshot changed', async () => {
+			room.storage.get.mockResolvedValue(undefined);
+			const cellsClient = room.addConnection('cells-1', ['cells']);
+			const legacyClient = room.addConnection('legacy-1');
+
+			await server.onRequest(createRequest('PUT', '/store', 'snapshot'));
+
+			expect(cellsClient.send).toHaveBeenCalledWith('{"type":"store"}');
+			expect(legacyClient.send).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('connection tags', () => {
+		it('tags connections of the cells protocol', () => {
+			expect(
+				getTagsFor(
+					server,
+					'https://example.com/parties/tinybase/room?protocol=cells',
+				),
+			).toEqual(['cells']);
+			expect(
+				getTagsFor(server, 'https://example.com/parties/tinybase/room?_pk=1'),
+			).toEqual([]);
+		});
+
+		it('does not relay snapshot protocol messages to or from cells connections', () => {
+			const legacy = room.addConnection('legacy-1');
+			const otherLegacy = room.addConnection('legacy-2');
+			const cellsClient = room.addConnection('cells-1', ['cells']);
+
+			server.onMessage(legacy as never, '\nencrypted-payload');
+			server.onMessage(cellsClient as never, '\nencrypted-payload');
+
+			expect(otherLegacy.send).toHaveBeenCalledTimes(1);
+			expect(cellsClient.send).not.toHaveBeenCalled();
 		});
 	});
 

@@ -5194,6 +5194,46 @@
         }
       ]
     },
+    "ylpPXff+fgwvpKndG+THQw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Ihre Daten konnten auf diesem Gerät nicht geladen werden. Änderungen werden auf diesem Gerät erst wieder gespeichert, wenn die App neu geöffnet wird.",
+          "variations": []
+        }
+      ]
+    },
+    "s4kcAAxvZvtBIMJMC4yfIg==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Änderungen konnten auf diesem Gerät nicht gespeichert werden.",
+          "variations": []
+        }
+      ]
+    },
+    "fyv9WCfBV+DvUVxq+zrvRw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Die Daten auf diesem Gerät konnten nicht gesichert werden, daher wurde dem Raum nicht beigetreten.",
+          "variations": []
+        }
+      ]
+    },
+    "SoPNdn8DzJfM0VkZoUwicw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Einige Änderungen konnten noch nicht synchronisiert werden und werden erneut versucht. Wenn das so bleibt, prüfen Sie bitte Datum und Uhrzeit dieses Geräts.",
+          "variations": []
+        }
+      ]
+    },
     "5F6T9hr4HxNJmdsAxPmguw==": {
       "tokens": [],
       "types": [],

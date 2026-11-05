@@ -1,10 +1,15 @@
 // Service worker that lets the app start without a network connection.
 //
 // Pages are fetched from the network first and fall back to the cache, so an
-// online device always gets the latest deploy. Build assets under
+// online device always gets the latest deploy. Only precaching writes pages to
+// the cache, so a cached page always belongs to the build whose assets are
+// cached with it. Build assets under
 // /_next/static are immutable and served from the cache first. The worker is
 // registered as /sw.js?v=<build id>, so every deploy installs a new worker
-// that precaches the pages of that build and removes the previous cache.
+// that precaches the pages and build assets of that build and removes the
+// previous cache. If precaching fails, e.g. because the connection drops, the
+// new worker is not installed and the previous one keeps working; the browser
+// tries again on a later visit.
 //
 // Only same-origin GET requests are handled. Requests to the sync relay and
 // to other origins are never cached.
@@ -12,6 +17,9 @@
 const VERSION = new URL(self.location.href).searchParams.get('v') ?? 'dev';
 const CACHE_PREFIX = 'adameter-';
 const CACHE_NAME = `${CACHE_PREFIX}${VERSION}`;
+// Remembers which build was active before, so its cache can be kept.
+const META_CACHE_NAME = 'adameter-sw-meta';
+const ACTIVE_VERSION_KEY = '/active-version';
 const NAVIGATION_TIMEOUT_MS = 4000;
 
 // Keep in sync with the routes in src/app (checked by service-worker-registration.test.ts).
@@ -33,40 +41,93 @@ const PAGES = [
 ];
 
 const STATIC_ASSET_PATTERN = /\/_next\/static\/[^\s"')\\]+/g;
+// Build assets refer to lazily loaded chunks without the /_next/ prefix.
+const RELATIVE_ASSET_PATTERN =
+	/(?<![\w/])static\/(?:chunks|css|media)\/[\w./-]+\.(?:js|css|woff2?|ttf|otf|png|jpe?g|gif|svg|webp|avif|ico)\b/g;
+const MAX_PRECACHED_ASSETS = 2000;
 
-async function precachePage(cache, page) {
-	const response = await fetch(page, { cache: 'reload' });
+function findAssets(text) {
+	return [
+		...(text.match(STATIC_ASSET_PATTERN) ?? []),
+		...(text.match(RELATIVE_ASSET_PATTERN) ?? []).map(
+			(path) => `/_next/${path}`,
+		),
+	];
+}
+
+async function fetchForCache(url, { isOptional = false } = {}) {
+	const response = await fetch(url, { cache: 'reload' });
+	// A path found inside a build asset that does not exist is not worth
+	// failing the install for; anything else, e.g. a dropped connection or an
+	// asset a page loads, is.
+	if (isOptional && response.status === 404) return undefined;
 	if (!response.ok) {
-		throw new Error(`Precaching ${page} failed (${response.status})`);
+		throw new Error(`Precaching ${url} failed (${response.status})`);
 	}
-	const html = await response.clone().text();
-	await cache.put(page, response);
+	return response;
+}
 
-	const assets = new Set(html.match(STATIC_ASSET_PATTERN) ?? []);
-	await Promise.all(
-		[...assets].map(async (asset) => {
-			if (await cache.match(asset)) return;
-			const assetResponse = await fetch(asset);
-			if (assetResponse.ok) {
-				await cache.put(asset, assetResponse);
+/**
+ * Precaches the pages and every build asset they load, including chunks that
+ * are only imported lazily, so features work offline before their first use.
+ * Rejects if anything fails.
+ */
+async function precache(cache) {
+	// Assets referenced by pages are required; those found inside assets are
+	// optional. A required asset listed again as optional stays required.
+	const assets = new Map();
+	const enqueue = (text, isOptional) => {
+		for (const asset of findAssets(text)) {
+			if (assets.has(asset)) {
+				if (!isOptional) assets.get(asset).isOptional = false;
+				continue;
 			}
+			if (assets.size >= MAX_PRECACHED_ASSETS) {
+				throw new Error('Too many build assets to precache');
+			}
+			assets.set(asset, { isOptional, isQueued: true });
+		}
+	};
+
+	await Promise.all(
+		PAGES.map(async (page) => {
+			const response = await fetchForCache(page);
+			enqueue(await response.clone().text(), false);
+			await cache.put(page, response);
 		}),
 	);
+
+	for (;;) {
+		const batch = [...assets]
+			.filter(([, entry]) => entry.isQueued)
+			.slice(0, 20);
+		if (batch.length === 0) break;
+		await Promise.all(
+			batch.map(async ([asset, entry]) => {
+				entry.isQueued = false;
+				const response = await fetchForCache(asset, {
+					isOptional: entry.isOptional,
+				});
+				if (!response) return;
+				if (/\.(?:js|css)$/.test(new URL(asset, self.location.href).pathname)) {
+					enqueue(await response.clone().text(), true);
+				}
+				await cache.put(asset, response);
+			}),
+		);
+	}
 }
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(
 		(async () => {
 			const cache = await caches.open(CACHE_NAME);
-			const results = await Promise.allSettled(
-				PAGES.map((page) => precachePage(cache, page)),
-			);
-			for (const result of results) {
-				if (result.status === 'rejected') {
-					// The worker cannot use the app's logger.
-					// eslint-disable-next-line no-console
-					console.warn('[SW]', result.reason);
-				}
+			try {
+				await precache(cache);
+			} catch (error) {
+				// Fail the install, so the working worker and its cache stay.
+				await caches.delete(CACHE_NAME);
+				throw error;
 			}
 			await self.skipWaiting();
 		})(),
@@ -76,11 +137,24 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
 	event.waitUntil(
 		(async () => {
+			// Tabs that are still open on the previous build may load its lazy
+			// chunks later, also offline, so its cache is kept until the next
+			// update.
+			const meta = await caches.open(META_CACHE_NAME);
+			const activeVersion = await meta.match(ACTIVE_VERSION_KEY);
+			const previousCacheName = activeVersion
+				? `${CACHE_PREFIX}${await activeVersion.text()}`
+				: undefined;
+			await meta.put(ACTIVE_VERSION_KEY, new Response(VERSION));
 			const cacheNames = await caches.keys();
 			await Promise.all(
 				cacheNames
 					.filter(
-						(name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME,
+						(name) =>
+							name.startsWith(CACHE_PREFIX) &&
+							name !== CACHE_NAME &&
+							name !== previousCacheName &&
+							name !== META_CACHE_NAME,
 					)
 					.map((name) => caches.delete(name)),
 			);
@@ -111,23 +185,30 @@ function fetchWithTimeout(request, timeout) {
 async function handleNavigation(request) {
 	const cache = await caches.open(CACHE_NAME);
 	const url = new URL(request.url);
+	// Room invite links carry the room in the query, so match by path.
+	let response;
 	try {
-		const response = await fetchWithTimeout(request, NAVIGATION_TIMEOUT_MS);
-		if (response.ok && response.type === 'basic') {
-			await cache.put(url.pathname, response.clone());
-		}
-		return response;
+		response = await fetchWithTimeout(request, NAVIGATION_TIMEOUT_MS);
 	} catch (error) {
-		// Room invite links carry the room in the query, so match by path.
 		const cached = await cache.match(url.pathname);
 		if (cached) return cached;
 		throw error;
 	}
+	if (response.ok) return response;
+	// The app runs from local data, so a cached page beats a server error or
+	// rate limit page.
+	if (response.status >= 500 || response.status === 429) {
+		const cached = await cache.match(url.pathname);
+		if (cached) return cached;
+	}
+	return response;
 }
 
 async function handleStaticAsset(request) {
 	const cache = await caches.open(CACHE_NAME);
-	const cached = await cache.match(request);
+	// Build assets are immutable, so one of the previous build (needed by a
+	// tab still running it) is as good as the current one.
+	const cached = (await cache.match(request)) ?? (await caches.match(request));
 	if (cached) return cached;
 	const response = await fetch(request);
 	if (response.ok) {

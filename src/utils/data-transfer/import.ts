@@ -1,4 +1,5 @@
 import type { Store } from 'tinybase';
+import { isLocalValueId } from 'tinybase-synchronizer-partykit-client-encrypted';
 import { sanitizeImportedRow } from '@/lib/tinybase-sync/entity-row-schemas';
 import { fromCsv } from './csv';
 import { VALUES_EXPORT_FILE_NAME } from './export';
@@ -43,7 +44,12 @@ export const importZipIntoStore = async (
 			if (name === VALUES_EXPORT_FILE_NAME) {
 				for (const row of data) {
 					const valueId = row.id;
-					if (typeof valueId !== 'string' || valueId.length === 0) {
+					// Local values would claim sync state of another device.
+					if (
+						typeof valueId !== 'string' ||
+						valueId.length === 0 ||
+						isLocalValueId(valueId)
+					) {
 						continue;
 					}
 

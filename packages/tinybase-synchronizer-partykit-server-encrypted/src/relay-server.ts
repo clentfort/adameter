@@ -1,6 +1,17 @@
 import type { Connection, ConnectionContext, WSMessage } from 'partyserver';
+import type { StoredCell } from './cell-store';
 import { Server } from 'partyserver';
+import {
+	CellStore,
+	CellValidationError,
+	MAX_BATCH_BYTES,
+	MAX_PAGE_CELLS,
+	MAX_SEQS_PER_REQUEST,
+	parseCellBatch,
+} from './cell-store';
 
+const CELLS_PROTOCOL = 'cells';
+const CELLS_TAG = 'cells';
 const MESSAGE_SEPARATOR = '\n';
 const SNAPSHOT_KEY = 'snapshot';
 const SNAPSHOT_REVISION_KEY = 'snapshot_revision';
@@ -26,9 +37,53 @@ export interface EncryptedSyncRelayConfig {
 	storePath?: string;
 }
 
+/** Sent to `cells` connections after a client wrote the legacy snapshot. */
+export interface StoreBroadcast {
+	type: 'store';
+}
+
+/**
+ * Reads a request body as text, or returns undefined once it exceeds
+ * `maxBytes`, without reading the rest.
+ */
+async function readBodyWithLimit(
+	request: Request,
+	maxBytes: number,
+): Promise<string | undefined> {
+	if (!request.body) return '';
+	const reader = request.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let bytes = 0;
+	for (;;) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		bytes += value.byteLength;
+		if (bytes > maxBytes) {
+			await reader.cancel();
+			return undefined;
+		}
+		chunks.push(value);
+	}
+	const body = new Uint8Array(bytes);
+	let offset = 0;
+	for (const chunk of chunks) {
+		body.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
+	return new TextDecoder().decode(body);
+}
+
+/** Sent to `cells` connections for every accepted upload. */
+export interface CellsBroadcast {
+	cells: StoredCell[];
+	fromSeq: number;
+	toSeq: number;
+	type: 'cells';
+}
+
 const DEFAULT_RESPONSE_HEADERS: Record<string, string> = {
-	'Access-Control-Allow-Headers': 'If-Match',
-	'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
+	'Access-Control-Allow-Headers': 'Content-Type, If-Match, If-None-Match',
+	'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
 	'Access-Control-Allow-Origin': '*',
 	'Access-Control-Expose-Headers': 'ETag',
 	'Cache-Control': 'no-store',
@@ -45,6 +100,11 @@ const DEFAULT_RESPONSE_HEADERS: Record<string, string> = {
  * - An HTTP GET/PUT endpoint (default `/store`) stores an encrypted
  *   MergeableContent snapshot so new clients can bootstrap when no other
  *   peers are online.
+ *
+ * - `POST /cells` and `GET /cells?since=<seq>` store and list one encrypted
+ *   value per cell, merged by HLC. Accepted cells are broadcast to WebSocket
+ *   connections opened with `?protocol=cells`, which never receive relay
+ *   messages of the snapshot protocol (and vice versa).
  *
  * The server never has access to encryption keys and cannot read any
  * application data — it is a pure relay.
@@ -76,6 +136,15 @@ export class EncryptedSyncRelayServer<
 	readonly config: EncryptedSyncRelayConfig = {};
 
 	private snapshotWriteQueue: Promise<void> = Promise.resolve();
+
+	private cellStore?: CellStore;
+
+	private getCellStore(): CellStore {
+		this.cellStore ??= new CellStore(this.ctx.storage.sql, (closure) =>
+			this.ctx.storage.transactionSync(closure),
+		);
+		return this.cellStore;
+	}
 
 	private getByteLength(value: string): number {
 		return new TextEncoder().encode(value).byteLength;
@@ -183,6 +252,9 @@ export class EncryptedSyncRelayServer<
 			await this.writeSnapshot(snapshot);
 			const nextRevision = revision + 1;
 			await this.ctx.storage.put(SNAPSHOT_REVISION_KEY, String(nextRevision));
+			// Clients of the cells protocol merge the snapshot on their next pull.
+			const message: StoreBroadcast = { type: 'store' };
+			this.sendToCellsConnections(JSON.stringify(message));
 			return new Response('ok', {
 				headers: { ...headers, ETag: `"${nextRevision}"` },
 				status: 200,
@@ -201,21 +273,31 @@ export class EncryptedSyncRelayServer<
 
 		const storePath = this.config.storePath ?? '/store';
 		const url = new URL(request.url);
+		if (url.pathname.endsWith('/cells')) {
+			return this.handleCellsRequest(request, url, headers);
+		}
 		if (!url.pathname.endsWith(storePath)) {
 			return new Response('Not found', { status: 404 });
 		}
 
 		try {
 			if (request.method === 'GET') {
-				const [snapshot, revision] = await Promise.all([
-					this.readSnapshot(),
-					this.getSnapshotRevision(),
-				]);
+				const revision = await this.getSnapshotRevision();
+				const etag = `"${revision}"`;
+				if (
+					request.headers.get('If-None-Match')?.replace(/^W\//, '') === etag
+				) {
+					return new Response(null, {
+						headers: { ...headers, ETag: etag },
+						status: 304,
+					});
+				}
+				const snapshot = await this.readSnapshot();
 				return new Response(snapshot ?? 'null', {
 					headers: {
 						...headers,
 						'Content-Type': 'text/plain',
-						'ETag': `"${revision}"`,
+						'ETag': etag,
 					},
 					status: 200,
 				});
@@ -238,12 +320,135 @@ export class EncryptedSyncRelayServer<
 		}
 	}
 
+	private async handleCellsRequest(
+		request: Request,
+		url: URL,
+		headers: Record<string, string>,
+	): Promise<Response> {
+		const json = (body: unknown, status = 200) =>
+			new Response(JSON.stringify(body), {
+				headers: { ...headers, 'Content-Type': 'application/json' },
+				status,
+			});
+
+		try {
+			if (request.method === 'GET' && url.searchParams.has('seq')) {
+				const seqs = url.searchParams.getAll('seq').map(Number);
+				if (
+					seqs.length > MAX_SEQS_PER_REQUEST ||
+					!seqs.every((seq) => Number.isSafeInteger(seq) && seq > 0)
+				) {
+					return json({ error: 'Invalid seq' }, 400);
+				}
+				const cellStore = this.getCellStore();
+				return json({
+					cells: cellStore.getBySeqs(seqs),
+					epoch: cellStore.getEpoch(),
+					head: cellStore.getHead(),
+				});
+			}
+
+			if (request.method === 'GET') {
+				const since = Number(url.searchParams.get('since') ?? '0');
+				const limit = Number(url.searchParams.get('limit') ?? MAX_PAGE_CELLS);
+				if (
+					!Number.isSafeInteger(since) ||
+					since < 0 ||
+					!Number.isSafeInteger(limit) ||
+					limit < 1
+				) {
+					return json({ error: 'Invalid since or limit' }, 400);
+				}
+				const cellStore = this.getCellStore();
+				return json({
+					...cellStore.list(since, limit),
+					epoch: cellStore.getEpoch(),
+				});
+			}
+
+			if (request.method === 'POST') {
+				const contentLength = Number(request.headers.get('Content-Length'));
+				if (contentLength > MAX_BATCH_BYTES) {
+					await request.body?.cancel();
+					return json({ error: 'Batch too large' }, 413);
+				}
+				// Also bounds bodies without a Content-Length, e.g. chunked ones.
+				const body = await readBodyWithLimit(request, MAX_BATCH_BYTES);
+				if (body === undefined) {
+					return json({ error: 'Batch too large' }, 413);
+				}
+
+				let parsed: unknown;
+				try {
+					parsed = JSON.parse(body);
+				} catch {
+					return json({ error: 'Invalid JSON' }, 400);
+				}
+				const cells = parseCellBatch(parsed);
+				const cellStore = this.getCellStore();
+				const rejected = cellStore.getFutureCells(cells, Date.now());
+				if (rejected.length > 0) {
+					return json({ error: 'HLC too far in the future', rejected }, 422);
+				}
+
+				const epoch = cellStore.getEpoch();
+				const { accepted, head } = cellStore.put(cells);
+				if (accepted.length === 0) {
+					return json({ epoch, head });
+				}
+				this.broadcastCells(accepted);
+				// Lets the uploader skip its own broadcast.
+				return json({
+					epoch,
+					fromSeq: accepted[0].seq,
+					head,
+					toSeq: accepted.at(-1)!.seq,
+				});
+			}
+
+			return json({ error: 'Method not allowed' }, 405);
+		} catch (error) {
+			if (error instanceof CellValidationError) {
+				return json({ error: error.message }, error.status);
+			}
+			return json({ error: 'Internal error' }, 500);
+		}
+	}
+
+	private broadcastCells(cells: StoredCell[]) {
+		const message: CellsBroadcast = {
+			cells,
+			fromSeq: cells[0].seq,
+			toSeq: cells.at(-1)!.seq,
+			type: 'cells',
+		};
+		this.sendToCellsConnections(JSON.stringify(message));
+	}
+
+	private sendToCellsConnections(payload: string) {
+		for (const connection of this.getConnections(CELLS_TAG)) {
+			try {
+				connection.send(payload);
+			} catch {
+				// A broken connection must not keep the others from the update;
+				// its client pulls the missed cells after reconnecting.
+			}
+		}
+	}
+
+	getConnectionTags(_connection: Connection, ctx: ConnectionContext): string[] {
+		const protocol = new URL(ctx.request.url).searchParams.get('protocol');
+		return protocol === CELLS_PROTOCOL ? [CELLS_TAG] : [];
+	}
+
 	onConnect(connection: Connection, _ctx: ConnectionContext): void {
 		void connection;
 	}
 
 	onMessage(sender: Connection, message: WSMessage): void {
 		if (typeof message !== 'string') return;
+		// Clients of the cells protocol only receive broadcasts.
+		if (sender.tags.includes(CELLS_TAG)) return;
 
 		const splitAt = message.indexOf(MESSAGE_SEPARATOR);
 		if (splitAt === -1) return;
@@ -256,16 +461,15 @@ export class EncryptedSyncRelayServer<
 		// Prepend the sender's connection ID so receivers know who sent it.
 		const forwardedPayload = sender.id + encryptedRemainder;
 
-		if (toClientId === '') {
-			// Broadcast to all except sender
-			this.broadcast(forwardedPayload, [sender.id]);
-		} else {
-			// Direct message to a specific client
-			for (const conn of this.getConnections()) {
-				if (conn.id === toClientId) {
-					conn.send(forwardedPayload);
-					break;
-				}
+		for (const conn of this.getConnections()) {
+			if (conn.tags.includes(CELLS_TAG)) continue;
+			if (toClientId === '') {
+				// Broadcast to all except sender
+				if (conn.id !== sender.id) conn.send(forwardedPayload);
+			} else if (conn.id === toClientId) {
+				// Direct message to a specific client
+				conn.send(forwardedPayload);
+				break;
 			}
 		}
 	}

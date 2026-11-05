@@ -1,4 +1,4 @@
-import type { Store } from 'tinybase';
+import type { MergeableContent, MergeableStore, Store } from 'tinybase';
 import {
 	cleanup,
 	fireEvent,
@@ -7,11 +7,19 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import { useContext } from 'react';
-import { createStore } from 'tinybase';
+import 'fake-indexeddb/auto';
+import { createMergeableStore } from 'tinybase';
+import {
+	createCellSync,
+	createMemoryCellSyncStateStore,
+	getCellKeys,
+	hashRoomId,
+} from 'tinybase-synchronizer-partykit-client-encrypted';
 import { useStore, useTable } from 'tinybase/ui-react';
 import { expect, vi } from 'vitest';
-import { clear } from '@/lib/storage';
+import { clear, removeItem, STORAGE_KEYS } from '@/lib/storage';
 import { TABLE_IDS } from '@/lib/tinybase-sync/constants';
+import { installFakeCellRelay } from '@/test-utils/fake-cell-relay';
 import {
 	DataSynchronizationContext,
 	DataSynchronizationProvider,
@@ -21,25 +29,15 @@ import { TinybaseProvider } from './tinybase-context';
 export const ROOM_JOIN_STRATEGY_STORAGE_KEY = 'room-join-strategy';
 
 const mocks = vi.hoisted(() => ({
-	createEncryptedPartyKitSynchronizer: vi.fn(),
 	createIndexedDbPersister: vi.fn(),
-	getEncryptionKey: vi.fn(),
-	getStoreUrl: vi.fn(),
-	hashRoomId: vi.fn(),
-	loadServerSnapshot: vi.fn(),
 	runMigrationsIfNeeded: vi.fn(),
-	saveServerSnapshot: vi.fn(),
 }));
 
 vi.mock('partysocket', () => ({
 	default: class MockPartySocket {
-		partySocketOptions = { host: 'localhost:1999', room: 'test-room' };
-		name = 'tinybase';
-		readyState = 1; // WebSocket.OPEN
 		addEventListener() {}
 		close() {}
 		removeEventListener() {}
-		send() {}
 	},
 }));
 
@@ -47,19 +45,16 @@ vi.mock('tinybase/persisters/persister-indexed-db', () => ({
 	createIndexedDbPersister: mocks.createIndexedDbPersister,
 }));
 
-vi.mock('tinybase-synchronizer-partykit-client-encrypted', () => ({
-	createEncryptedPartyKitSynchronizer:
-		mocks.createEncryptedPartyKitSynchronizer,
-	getEncryptionKey: mocks.getEncryptionKey,
-	getStoreUrl: mocks.getStoreUrl,
-	hashRoomId: mocks.hashRoomId,
-	loadServerSnapshot: mocks.loadServerSnapshot,
-	saveServerSnapshot: mocks.saveServerSnapshot,
-}));
-
 vi.mock('@/migrations/run-if-needed', () => ({
 	runMigrationsIfNeeded: mocks.runMigrationsIfNeeded,
 }));
+
+const ROOM_NAME = 'scenario-room';
+const EMPTY_MERGEABLE_CONTENT: MergeableContent = [
+	[{}, '', 0],
+	[{}, '', 0],
+];
+let relay: ReturnType<typeof installFakeCellRelay>;
 
 interface HarnessOptions {
 	initialLoadFailures?: number;
@@ -99,7 +94,7 @@ function RoomSyncProbe({ importCount }: { importCount: number }) {
 
 	return (
 		<div>
-			<button onClick={() => joinRoom('scenario-room', 'merge')} type="button">
+			<button onClick={() => joinRoom(ROOM_NAME, 'merge')} type="button">
 				Connect room
 			</button>
 			<button
@@ -130,26 +125,10 @@ function RoomSyncProbe({ importCount }: { importCount: number }) {
 
 export function resetRoomImportScenarioMocks() {
 	clear();
-	mocks.createEncryptedPartyKitSynchronizer.mockReset();
 	mocks.createIndexedDbPersister.mockReset();
-	mocks.getEncryptionKey.mockReset();
-	mocks.getStoreUrl.mockReset();
-	mocks.hashRoomId.mockReset();
-	mocks.loadServerSnapshot.mockReset();
 	mocks.runMigrationsIfNeeded.mockReset();
-	mocks.saveServerSnapshot.mockReset();
-
-	mocks.getEncryptionKey.mockResolvedValue({} as CryptoKey);
-	mocks.hashRoomId.mockResolvedValue('hashed-scenario-room');
-	mocks.getStoreUrl.mockReturnValue(
-		'http://localhost:1999/parties/tinybase/hashed-scenario-room/store',
-	);
 	mocks.runMigrationsIfNeeded.mockResolvedValue({ hasChanges: false });
-
-	mocks.createEncryptedPartyKitSynchronizer.mockResolvedValue({
-		destroy: vi.fn(async () => {}),
-		startSync: vi.fn(async () => {}),
-	});
+	relay = installFakeCellRelay();
 }
 
 export function expectEventCount(count: number) {
@@ -166,115 +145,78 @@ export function renderRoomSyncProbe(importCount: number) {
 	);
 }
 
-export function setupSyncHarness({
+async function getRemoteCount(): Promise<number> {
+	const store = await relay.getStore(ROOM_NAME, await hashRoomId(ROOM_NAME));
+	return store.getRowCount(TABLE_IDS.EVENTS);
+}
+
+/** Uploads events to the room, as another device would. */
+async function seedRemoteEvents(count: number) {
+	if (count === 0) return;
+	const store = createMergeableStore();
+	seedEvents(store, count, 'remote-imported');
+	const cellSync = createCellSync({
+		cellsUrl: `http://localhost:1999/parties/tinybase/${await hashRoomId(ROOM_NAME)}/cells`,
+		keys: await getCellKeys(ROOM_NAME),
+		state: createMemoryCellSyncStateStore(),
+		store,
+	});
+	await cellSync.init();
+	await cellSync.push();
+	await cellSync.dispose();
+}
+
+// The provider's store is a module singleton; other stores (e.g. the probe
+// that re-reads a rejected database) must not consume a device's seed.
+let appStore: MergeableStore | undefined;
+
+function createPersisterMock(seed: (store: Store) => void) {
+	return (store: MergeableStore) => ({
+		destroy: vi.fn(async () => {}),
+		load: vi.fn(async () => {
+			appStore ??= store;
+			if (store !== appStore) return;
+			// Like a fresh page load. setContent would add deletions that sync.
+			store.setMergeableContent(EMPTY_MERGEABLE_CONTENT);
+			seed(store);
+		}),
+		save: vi.fn(async () => {}),
+		startAutoSave: vi.fn(async () => {}),
+		stopAutoSave: vi.fn(async () => {}),
+	});
+}
+
+export async function setupSyncHarness({
 	initialLoadFailures = 0,
 	localCount,
 	remoteCount,
 }: HarnessOptions) {
-	const remoteStore = createStore();
-	remoteStore.setContent([{}, {}]);
-	seedEvents(remoteStore, remoteCount, 'remote-imported');
+	await seedRemoteEvents(remoteCount);
+	relay.failingRequests = initialLoadFailures;
 
-	mocks.createIndexedDbPersister.mockImplementation((store: Store) => ({
-		destroy: vi.fn(async () => {}),
-		load: vi.fn(async () => {
-			store.setContent([{}, {}]);
+	mocks.createIndexedDbPersister.mockImplementation(
+		createPersisterMock((store) => {
 			seedEvents(store, localCount, 'local-imported');
 		}),
-		startAutoSave: vi.fn(async () => {}),
-		stopAutoSave: vi.fn(async () => {}),
-	}));
+	);
 
-	let loadAttempts = 0;
-
-	// loadServerSnapshot merges remote data into local store (CRDT merge)
-	mocks.loadServerSnapshot.mockImplementation((store: Store) => {
-		loadAttempts += 1;
-		if (loadAttempts <= initialLoadFailures) {
-			return Promise.resolve(false);
-		}
-
-		// Simulate CRDT merge: add remote rows without replacing local ones
-		const remoteEvents = remoteStore.getTable(TABLE_IDS.EVENTS);
-		if (remoteEvents) {
-			for (const [rowId, row] of Object.entries(remoteEvents)) {
-				store.setRow(TABLE_IDS.EVENTS, rowId, row);
-			}
-		}
-		return Promise.resolve(remoteCount > 0);
-	});
-
-	// saveServerSnapshot captures current store state to remoteStore.
-	// We keep a weak reference to the store so flushSnapshot() can
-	// capture the final state before a session is torn down.
-	let lastStore: Store | undefined;
-	mocks.saveServerSnapshot.mockImplementation((store: Store) => {
-		lastStore = store;
-		remoteStore.setContent(structuredClone(store.getContent()));
-		return Promise.resolve();
-	});
-
-	return {
-		flushSnapshot: () => {
-			if (lastStore) {
-				remoteStore.setContent(structuredClone(lastStore.getContent()));
-				lastStore = undefined;
-			}
-		},
-		getRemoteCount: () => remoteStore.getRowCount(TABLE_IDS.EVENTS),
-	};
+	return { getRemoteCount };
 }
 
 export function setupMultiDeviceHarness(localSeeds: LocalSeed[]) {
-	const remoteStore = createStore();
-	remoteStore.setContent([{}, {}]);
-
 	const seedsQueue = [...localSeeds];
 
-	mocks.createIndexedDbPersister.mockImplementation((store: Store) => ({
-		destroy: vi.fn(async () => {}),
-		load: vi.fn(async () => {
-			store.setContent([{}, {}]);
+	mocks.createIndexedDbPersister.mockImplementation(
+		createPersisterMock((store) => {
 			const nextSeed = seedsQueue.shift() ?? {
 				count: 0,
 				prefix: 'empty-seed',
 			};
 			seedEvents(store, nextSeed.count, nextSeed.prefix);
 		}),
-		startAutoSave: vi.fn(async () => {}),
-		stopAutoSave: vi.fn(async () => {}),
-	}));
+	);
 
-	// loadServerSnapshot merges remote data into local store
-	mocks.loadServerSnapshot.mockImplementation((store: Store) => {
-		const remoteEvents = remoteStore.getTable(TABLE_IDS.EVENTS);
-		const hasData =
-			remoteEvents != null && Object.keys(remoteEvents).length > 0;
-		if (hasData) {
-			for (const [rowId, row] of Object.entries(remoteEvents!)) {
-				store.setRow(TABLE_IDS.EVENTS, rowId, row);
-			}
-		}
-		return Promise.resolve(hasData);
-	});
-
-	// saveServerSnapshot captures current store state.
-	let lastStore: Store | undefined;
-	mocks.saveServerSnapshot.mockImplementation((store: Store) => {
-		lastStore = store;
-		remoteStore.setContent(structuredClone(store.getContent()));
-		return Promise.resolve();
-	});
-
-	return {
-		flushSnapshot: () => {
-			if (lastStore) {
-				remoteStore.setContent(structuredClone(lastStore.getContent()));
-				lastStore = undefined;
-			}
-		},
-		getRemoteCount: () => remoteStore.getRowCount(TABLE_IDS.EVENTS),
-	};
+	return { getRemoteCount };
 }
 
 export async function runDeviceSession({
@@ -282,7 +224,7 @@ export async function runDeviceSession({
 	expectedAfterConnect,
 	expectedAfterImport,
 	expectedInitial,
-	flushSnapshot,
+	expectedRemoteCount,
 	importCount = 0,
 	shouldAddOneEntry = false,
 	shouldImportData = false,
@@ -291,11 +233,14 @@ export async function runDeviceSession({
 	expectedAfterConnect: number;
 	expectedAfterImport?: number;
 	expectedInitial?: number;
-	flushSnapshot?: () => void;
+	/** Waits until the room has this many events before the session ends. */
+	expectedRemoteCount?: number;
 	importCount?: number;
 	shouldAddOneEntry?: boolean;
 	shouldImportData?: boolean;
 }) {
+	// Every session is a separate device with its own sync state.
+	removeItem(STORAGE_KEYS.LOCAL_STORE_ID);
 	renderRoomSyncProbe(importCount);
 
 	if (expectedInitial !== undefined) {
@@ -308,9 +253,12 @@ export async function runDeviceSession({
 		fireEvent.click(screen.getByRole('button', { name: 'Connect room' }));
 	}
 
-	await waitFor(() => {
-		expectEventCount(expectedAfterConnect);
-	});
+	await waitFor(
+		() => {
+			expectEventCount(expectedAfterConnect);
+		},
+		{ timeout: 10_000 },
+	);
 
 	if (shouldImportData) {
 		fireEvent.click(screen.getByRole('button', { name: 'Import data' }));
@@ -328,8 +276,13 @@ export async function runDeviceSession({
 		});
 	}
 
-	// Flush the snapshot before cleanup so the remote store has the
-	// final state (simulates the periodic snapshot save firing).
-	flushSnapshot?.();
+	if (expectedRemoteCount !== undefined) {
+		await waitFor(
+			async () => {
+				expect(await getRemoteCount()).toBe(expectedRemoteCount);
+			},
+			{ timeout: 10_000 },
+		);
+	}
 	cleanup();
 }

@@ -1,52 +1,10 @@
-import type { MergeableContent, MergeableStore } from 'tinybase';
-import { createMergeableStore } from 'tinybase';
-import {
-	decrypt,
-	getEncryptionKey,
-	jsonParseWithUndefined,
-} from 'tinybase-synchronizer-partykit-client-encrypted';
 import { expect, test } from './fixtures/test';
 import { addManualFeedingEntry } from './helpers/feeding';
+import { waitForAnyCellUpload, waitForCellUpload } from './helpers/relay';
 import {
 	createRoomAndJoinPeer,
 	createRoomSyncSession,
 } from './helpers/room-sync';
-
-async function waitForSnapshotMatching(
-	page: Parameters<typeof addManualFeedingEntry>[0],
-	roomName: string,
-	matches: (store: MergeableStore) => boolean,
-) {
-	const encryptionKey = await getEncryptionKey(roomName);
-	return page.waitForResponse(
-		async (response) => {
-			if (
-				!response.ok() ||
-				!response.url().includes('/store') ||
-				response.request().method() !== 'PUT'
-			) {
-				return false;
-			}
-
-			const encrypted = response.request().postData();
-			if (!encrypted) {
-				return false;
-			}
-
-			try {
-				const content = jsonParseWithUndefined<MergeableContent>(
-					await decrypt(encrypted, encryptionKey),
-				);
-				const snapshotStore = createMergeableStore();
-				snapshotStore.setMergeableContent(content);
-				return matches(snapshotStore);
-			} catch {
-				return false;
-			}
-		},
-		{ timeout: 30_000 },
-	);
-}
 
 async function addManualFeedingEntryOffline(
 	page: Parameters<typeof addManualFeedingEntry>[0],
@@ -72,28 +30,28 @@ test.describe('Offline Synchronization', () => {
 		const { contextB, pageA, pageB } = session;
 
 		try {
-			// 1. Both devices share a room. Let bootstrap and initial snapshot saves
-			// settle so the response below can only belong to the new feeding.
+			// 1. Both devices share a room. Let the initial uploads settle so the
+			// response below can only belong to the new feeding.
 			const roomName = await createRoomAndJoinPeer(session);
 			await pageA.waitForTimeout(1500);
 
 			// 2. Device B goes offline
 			await contextB.setOffline(true);
 
-			// 3. Device A records a feeding and saves it to the snapshot.
-			const feedingSnapshotSave = waitForSnapshotMatching(
-				pageA,
-				roomName,
-				(snapshotStore) =>
-					Object.values(snapshotStore.getTable('feedingSessions')).some(
-						(row) => typeof row.endTime === 'string',
-					),
+			// 3. Device A records a feeding and uploads it.
+			const feedingUpload = waitForCellUpload(pageA, roomName, (cells) =>
+				cells.some(
+					(cell) =>
+						cell.table === 'feedingSessions' &&
+						cell.cell === 'endTime' &&
+						typeof cell.value === 'string',
+				),
 			);
 			await pageA.goto('/feeding');
 			await pageA.getByRole('button', { name: 'Left Breast' }).click();
 			await pageA.getByRole('button', { name: 'End Feeding' }).click();
 			await expect(pageA.getByText('Left Breast')).toHaveCount(2);
-			await feedingSnapshotSave;
+			await feedingUpload;
 
 			// 4. Device A goes offline
 			await pageA.context().setOffline(true);
@@ -155,25 +113,16 @@ test.describe('Offline Synchronization', () => {
 					.filter({ hasText: 'Right Breast' }),
 			).toHaveCount(1);
 
-			// 5. Device A comes back online and saves its snapshot
-			const saveAPromise = pageA.waitForResponse(
-				(res) =>
-					res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30_000 },
-			);
+			// 5. Device A comes back online and uploads its entry
+			const saveAPromise = waitForAnyCellUpload(pageA);
 			await contextA.setOffline(false);
 			await saveAPromise;
 
 			// 6. Device A goes offline again
 			await contextA.setOffline(true);
 
-			// 7. Device B comes back online; it should load A's snapshot and merge
-			//    its own offline writes, then save the combined state
-			const saveBPromise = pageB.waitForResponse(
-				(res) =>
-					res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30_000 },
-			);
+			// 7. Device B comes back online; it pulls A's entry and uploads its own
+			const saveBPromise = waitForAnyCellUpload(pageB);
 			await contextB.setOffline(false);
 
 			// Device B must see both feedings (CRDT merge of offline writes)
@@ -192,11 +141,10 @@ test.describe('Offline Synchronization', () => {
 				timeout: 20_000,
 			});
 
-			// Wait for B to persist the merged snapshot
+			// Wait for B's upload
 			await saveBPromise;
 
-			// 8. Device A reconnects and should see Device B's offline entry via
-			//    the merged snapshot that Device B saved
+			// 8. Device A reconnects and pulls Device B's offline entry
 			await contextA.setOffline(false);
 			await expect(
 				pageA
@@ -236,12 +184,8 @@ test.describe('Offline Synchronization', () => {
 			// 2. Device B goes offline
 			await contextB.setOffline(true);
 
-			// 3. Device A edits the entry; wait for the post-edit snapshot save.
-			const saveAPromise = pageA.waitForResponse(
-				(res) =>
-					res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30_000 },
-			);
+			// 3. Device A edits the entry; wait for the upload of the edit.
+			const saveAPromise = waitForAnyCellUpload(pageA);
 			await pageA.getByTestId('history-entry-actions').first().click();
 			await pageA.getByRole('menuitem', { name: 'Edit' }).click();
 			await pageA.getByLabel('minutes').fill('20', { force: true });
@@ -257,7 +201,7 @@ test.describe('Offline Synchronization', () => {
 			await pageA.context().setOffline(true);
 
 			// 5. Device B comes back online; PartySocket reconnects, fires `open`,
-			//    and the handleOpen listener re-bootstraps from the server snapshot.
+			//    and the sync pulls the cells changed in the meantime.
 			await contextB.setOffline(false);
 			await expect(async () => {
 				const updatedEntries = pageB
@@ -308,12 +252,8 @@ test.describe('Offline Synchronization', () => {
 			// 2. Device B goes offline
 			await contextB.setOffline(true);
 
-			// 3. Device A deletes the entry; wait for snapshot to be saved
-			const saveAPromise = pageA.waitForResponse(
-				(res) =>
-					res.url().includes('/store') && res.request().method() === 'PUT',
-				{ timeout: 30_000 },
-			);
+			// 3. Device A deletes the entry; wait for the upload of the deletion
+			const saveAPromise = waitForAnyCellUpload(pageA);
 			await pageA.getByTestId('history-entry-actions').first().click();
 			await pageA.getByRole('menuitem', { name: 'Delete' }).click();
 			await pageA
@@ -328,8 +268,7 @@ test.describe('Offline Synchronization', () => {
 			// 4. Device A goes offline
 			await pageA.context().setOffline(true);
 
-			// 5. Device B comes back online; the handleOpen reconnect listener
-			//    re-bootstraps from the server snapshot (which has the deletion).
+			// 5. Device B comes back online and pulls the deletion on reconnect.
 			//    The store updates reactively — no page reload needed.
 			await contextB.setOffline(false);
 			await expect(pageB.getByText('10 min', { exact: true })).not.toBeVisible({
@@ -374,16 +313,14 @@ test.describe('Offline Synchronization', () => {
 
 			// 3. Device A edits the 20-min entry to 30 min and deletes the 10-min
 			//    entry. Target entries by text to avoid relying on list order.
-			const finalSnapshotSave = waitForSnapshotMatching(
-				pageA,
-				roomName,
-				(snapshotStore) => {
-					const rows = snapshotStore.getTable('feedingSessions');
-					return (
-						Object.keys(rows).length === 1 &&
-						Object.values(rows)[0]?.durationInSeconds === 1800
-					);
-				},
+			// The deletion is the last change, so its upload completes the set.
+			const deletionUpload = waitForCellUpload(pageA, roomName, (cells) =>
+				cells.some(
+					(cell) =>
+						cell.table === 'feedingSessions' &&
+						cell.cell === 'durationInSeconds' &&
+						cell.value === undefined,
+				),
 			);
 			const twentyMinuteEntryA = pageA
 				.getByTestId('feeding-history-entry')
@@ -415,13 +352,13 @@ test.describe('Offline Synchronization', () => {
 					.getByTestId('feeding-history-entry')
 					.filter({ hasText: '10 min' }),
 			).toHaveCount(0);
-			await finalSnapshotSave;
+			await deletionUpload;
 
 			// 4. Device A goes offline
 			await pageA.context().setOffline(true);
 
-			// 5. Device B comes back online and does a full page navigation —
-			//    this exercises the initial bootstrap() path (not handleOpen).
+			// 5. Device B comes back online and pulls on reconnect, then reloads
+			//    to check the pulled state was persisted.
 			await contextB.setOffline(false);
 			await expect(
 				pageB
@@ -434,8 +371,8 @@ test.describe('Offline Synchronization', () => {
 					.filter({ hasText: '10 min' }),
 			).toHaveCount(0, { timeout: 20_000 });
 
-			// Reload only after reconnect bootstrap has applied the snapshot. Reloading
-			// while that request is in flight can abort the very update under test.
+			// Reload only after the pull was applied. Reloading while that request
+			// is in flight can abort the very update under test.
 			await pageB.reload();
 			await expect(
 				pageB

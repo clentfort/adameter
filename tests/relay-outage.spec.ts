@@ -87,11 +87,11 @@ test.describe('Relay outage', () => {
 
 			// Retries back off: an open tab makes only a handful of requests while
 			// the relay rejects them, instead of one per change or interval.
-			const requestsBefore = relayA.snapshotRequests;
+			const requestsBefore = relayA.syncRequests;
 			await addManualFeedingEntry(pageA, { minutes: 18 });
 			await addManualFeedingEntry(pageA, { minutes: 19 });
 			await pageA.waitForTimeout(30_000);
-			expect(relayA.snapshotRequests - requestsBefore).toBeLessThanOrEqual(5);
+			expect(relayA.syncRequests - requestsBefore).toBeLessThanOrEqual(5);
 
 			relayA.unblock();
 
@@ -106,7 +106,7 @@ test.describe('Relay outage', () => {
 		}
 	});
 
-	test('an idle tab does not upload snapshots', async ({ browser }) => {
+	test('an idle tab makes no sync requests', async ({ browser }) => {
 		test.setTimeout(120_000);
 		const session = await createRoomSyncSession(browser);
 		const { contextA, pageA } = session;
@@ -117,17 +117,10 @@ test.describe('Relay outage', () => {
 			await addManualFeedingEntry(pageA, { minutes: 14 });
 			await pageA.waitForTimeout(3000);
 
-			const uploads: string[] = [];
-			pageA.on('request', (request) => {
-				if (request.url().endsWith('/store') && request.method() === 'PUT') {
-					uploads.push(request.url());
-				}
-			});
-			const requestsBefore = relayA.snapshotRequests;
+			const requestsBefore = relayA.syncRequests;
 			await pageA.waitForTimeout(40_000);
 
-			expect(uploads).toEqual([]);
-			expect(relayA.snapshotRequests).toBe(requestsBefore);
+			expect(relayA.syncRequests).toBe(requestsBefore);
 		} finally {
 			await session.close();
 		}

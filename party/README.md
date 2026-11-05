@@ -1,9 +1,19 @@
 # Adameter PartyServer
 
 The encrypted TinyBase relay runs as a Cloudflare Worker backed by one
-PartyServer Durable Object per hashed room ID. The Durable Object only relays
-opaque ciphertext and stores encrypted snapshots; encryption keys remain in the
-clients.
+PartyServer Durable Object per hashed room ID. Encryption keys remain in the
+clients; the Durable Object only sees ciphertext.
+
+- `POST /cells` and `GET /cells?since=<seq>` store one encrypted value per cell
+  in SQLite and merge uploads by HLC. Accepted cells are broadcast to WebSocket
+  connections opened with `?protocol=cells`.
+- `GET/PUT /store` and the plain WebSocket relay serve clients of the older
+  snapshot protocol. New clients only read `/store` to merge snapshots that old
+  clients wrote.
+
+The server sees table, row, cell and value IDs, the HLC of every cell, which
+cells are set and ciphertext sizes, but no values. Don't log request or message
+bodies or cell IDs.
 
 ## Environments
 

@@ -5324,6 +5324,46 @@
         }
       ]
     },
+    "ylpPXff+fgwvpKndG+THQw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Your data could not be loaded from this device. Changes are not saved on this device until the app is reopened.",
+          "variations": []
+        }
+      ]
+    },
+    "s4kcAAxvZvtBIMJMC4yfIg==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Changes could not be saved on this device.",
+          "variations": []
+        }
+      ]
+    },
+    "fyv9WCfBV+DvUVxq+zrvRw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "The data on this device could not be backed up, so the room was not joined.",
+          "variations": []
+        }
+      ]
+    },
+    "SoPNdn8DzJfM0VkZoUwicw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Some changes could not be synced yet and are retried. If this persists, check this device's date and time.",
+          "variations": []
+        }
+      ]
+    },
     "5F6T9hr4HxNJmdsAxPmguw==": {
       "tokens": [],
       "types": [],

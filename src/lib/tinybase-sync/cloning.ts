@@ -1,46 +1,69 @@
 import type { MergeableStore } from 'tinybase';
 import {
-	decrypt,
-	getEncryptionKey,
+	applyCellsToStore,
+	createCellSync,
+	createMemoryCellSyncStateStore,
+	fetchLegacySnapshot,
+	flattenChanges,
+	getCellKeys,
 	hashRoomId,
-	jsonParseWithUndefined,
+	isLocalValueId,
 } from 'tinybase-synchronizer-partykit-client-encrypted';
+import { TINYBASE_PARTYKIT_PARTY } from './partykit-parties';
 
+/**
+ * Merges all data of another room into the store: its cells and, while
+ * clients of the snapshot protocol may still write it, its legacy snapshot.
+ */
 export async function cloneRoomData(
 	sourceRoomName: string,
 	sourceHost: string,
 	store: MergeableStore,
 ) {
-	const hashedRoomId = await hashRoomId(sourceRoomName);
-	const encryptionKey = await getEncryptionKey(sourceRoomName);
+	const [roomHash, keys] = await Promise.all([
+		hashRoomId(sourceRoomName),
+		getCellKeys(sourceRoomName),
+	]);
 
 	const protocol =
 		sourceHost.startsWith('localhost') || sourceHost.startsWith('127.0.0.1')
 			? 'http'
 			: 'https';
+	const roomUrl = `${protocol}://${sourceHost}/parties/${TINYBASE_PARTYKIT_PARTY}/${roomHash}`;
 
-	const storeUrl = `${protocol}://${sourceHost}/parties/tinybase/${hashedRoomId}/store`;
-
-	const response = await fetch(storeUrl, {
-		cache: 'no-store',
-		mode: 'cors',
+	const cellSync = createCellSync({
+		cellsUrl: `${roomUrl}/cells`,
+		keys,
+		state: createMemoryCellSyncStateStore(),
+		store,
 	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to fetch room data: ${response.statusText}`);
+	let applied: number;
+	try {
+		await cellSync.init();
+		({ applied } = await cellSync.pull());
+		if (cellSync.getPullRetry()) {
+			throw new Error('Could not copy all data of the source room.');
+		}
+	} finally {
+		await cellSync.dispose();
 	}
 
-	const body = await response.text();
-	if (!body || body === 'null') {
+	const legacySnapshot = await fetchLegacySnapshot(
+		`${roomUrl}/store`,
+		keys.encryptionKey,
+	);
+	const legacyCells =
+		legacySnapshot.status === 'loaded' && legacySnapshot.content
+			? flattenChanges(legacySnapshot.content).filter(
+					(cell) => !(cell.kind === 'v' && isLocalValueId(cell.cell)),
+				)
+			: [];
+	const { deferred, invalid } = applyCellsToStore(store, legacyCells);
+	if (deferred.length > 0 || invalid.length > 0) {
+		throw new Error('Could not copy all data of the source room.');
+	}
+
+	if (applied === 0 && legacyCells.length === 0) {
 		throw new Error('No content found in the source room.');
 	}
-
-	const decrypted = await decrypt(body, encryptionKey);
-	const mergeableContent = jsonParseWithUndefined(decrypted);
-	if (!mergeableContent) {
-		throw new Error('Failed to parse decrypted content.');
-	}
-	store.applyMergeableChanges(
-		mergeableContent as Parameters<typeof store.applyMergeableChanges>[0],
-	);
 }

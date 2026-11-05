@@ -16,7 +16,7 @@ describe('room sync scenarios for imported data', { timeout: 15_000 }, () => {
 	it.each([10, 250, 1500])(
 		'a) import data, then create room keeps %i rows',
 		async (size) => {
-			const harness = setupSyncHarness({
+			await setupSyncHarness({
 				initialLoadFailures: 1,
 				localCount: size,
 				remoteCount: 0,
@@ -45,7 +45,7 @@ describe('room sync scenarios for imported data', { timeout: 15_000 }, () => {
 	it.each([10, 250, 1500])(
 		'b) create room (empty), then import keeps %i rows',
 		async (size) => {
-			setupSyncHarness({
+			await setupSyncHarness({
 				localCount: 0,
 				remoteCount: 0,
 			});
@@ -73,7 +73,7 @@ describe('room sync scenarios for imported data', { timeout: 15_000 }, () => {
 	it.each([10, 250, 1500])(
 		'c) join room that already has imported data keeps %i rows',
 		async (size) => {
-			setupSyncHarness({
+			await setupSyncHarness({
 				localCount: 0,
 				remoteCount: size,
 			});
@@ -86,16 +86,19 @@ describe('room sync scenarios for imported data', { timeout: 15_000 }, () => {
 
 			fireEvent.click(screen.getByRole('button', { name: 'Connect room' }));
 
-			await waitFor(() => {
-				expectEventCount(size);
-			});
+			await waitFor(
+				() => {
+					expectEventCount(size);
+				},
+				{ timeout: 10_000 },
+			);
 		},
 	);
 
 	it.each([10, 250, 1500])(
 		'd) join room with imported data merges local imported data for %i rows each side',
 		async (size) => {
-			setupSyncHarness({
+			await setupSyncHarness({
 				localCount: size,
 				remoteCount: size,
 			});
@@ -108,9 +111,12 @@ describe('room sync scenarios for imported data', { timeout: 15_000 }, () => {
 
 			fireEvent.click(screen.getByRole('button', { name: 'Connect room' }));
 
-			await waitFor(() => {
-				expectEventCount(size * 2);
-			});
+			await waitFor(
+				() => {
+					expectEventCount(size * 2);
+				},
+				{ timeout: 10_000 },
+			);
 		},
 	);
 });

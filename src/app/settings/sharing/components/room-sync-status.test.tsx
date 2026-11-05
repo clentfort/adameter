@@ -27,6 +27,14 @@ describe('RoomSyncStatus', () => {
 		);
 	});
 
+	it('tells the user when changes cannot be synced', () => {
+		renderWithStatus('error');
+
+		expect(screen.getByRole('status')).toHaveTextContent(
+			"check this device's date and time.",
+		);
+	});
+
 	it('shows when all changes are synced', () => {
 		renderWithStatus('synced');
 

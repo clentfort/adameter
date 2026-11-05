@@ -1,0 +1,341 @@
+import type {
+	CellOrUndefined,
+	MergeableChanges,
+	MergeableContent,
+	MergeableStore,
+	ValueOrUndefined,
+} from 'tinybase';
+import { createMergeableStore } from 'tinybase';
+import {
+	base64ToUint8Array,
+	getEncryptionKey,
+	jsonParseWithUndefined,
+	jsonStringWithUndefined,
+	uint8ArrayToBase64,
+} from './crypto';
+
+const ALGORITHM = 'AES-GCM';
+const IV_LENGTH = 12;
+const DECRYPT_CHUNK_SIZE = 500;
+const TEXT_DECODER = new TextDecoder();
+const TEXT_ENCODER = new TextEncoder();
+
+/** `t` for table cells, `v` for values. */
+export type CellKind = 't' | 'v';
+
+/** Identifies a table cell or a value. Values use '' as table and row ID. */
+export interface CellAddress {
+	cell: string;
+	kind: CellKind;
+	row: string;
+	table: string;
+}
+
+/** A cell or value with its HLC. Deletions have an undefined value. */
+export interface PlainCell extends CellAddress {
+	hlc: string;
+	value: CellOrUndefined | ValueOrUndefined;
+}
+
+/** A cell or value as stored on and exchanged with the server. */
+export interface EncryptedCell extends CellAddress {
+	data: string;
+	hlc: string;
+}
+
+export interface CellKeys {
+	encryptionKey: CryptoKey;
+	ivKey: CryptoKey;
+}
+
+/**
+ * Derives the keys for per-cell encryption from the room name. The AES key is
+ * the same as for snapshots; the IV key is derived separately.
+ */
+export async function getCellKeys(roomName: string): Promise<CellKeys> {
+	const ivKeyMaterial = await crypto.subtle.digest(
+		'SHA-256',
+		TEXT_ENCODER.encode(`iv:${roomName}`),
+	);
+	const [encryptionKey, ivKey] = await Promise.all([
+		getEncryptionKey(roomName),
+		crypto.subtle.importKey(
+			'raw',
+			ivKeyMaterial,
+			{ hash: 'SHA-256', name: 'HMAC' },
+			false,
+			['sign'],
+		),
+	]);
+	return { encryptionKey, ivKey };
+}
+
+/** A stable string key for a cell address, e.g. for maps. */
+export function getCellKey({ cell, kind, row, table }: CellAddress): string {
+	return JSON.stringify([kind, table, row, cell]);
+}
+
+export function parseCellKey(key: string): CellAddress {
+	const [kind, table, row, cell] = JSON.parse(key) as [
+		CellKind,
+		string,
+		string,
+		string,
+	];
+	return { cell, kind, row, table };
+}
+
+function getAdditionalData(
+	address: CellAddress,
+	hlc: string,
+): Uint8Array<ArrayBuffer> {
+	return TEXT_ENCODER.encode(
+		JSON.stringify([
+			address.kind,
+			address.table,
+			address.row,
+			address.cell,
+			hlc,
+		]),
+	);
+}
+
+async function getIv(
+	ivKey: CryptoKey,
+	additionalData: Uint8Array<ArrayBuffer>,
+	plaintext: Uint8Array<ArrayBuffer>,
+): Promise<Uint8Array<ArrayBuffer>> {
+	// The IV is derived from everything that is encrypted, so the same write
+	// always produces the same ciphertext (and the same TinyBase hashes) on
+	// every device, while different plaintexts never share an IV.
+	const input = new Uint8Array(
+		additionalData.byteLength + 1 + plaintext.byteLength,
+	);
+	input.set(additionalData);
+	input.set(plaintext, additionalData.byteLength + 1);
+	const mac = await crypto.subtle.sign('HMAC', ivKey, input);
+	return new Uint8Array(mac, 0, IV_LENGTH);
+}
+
+/**
+ * Encrypts one cell. The address and HLC are authenticated, so a value cannot
+ * be moved to another cell or timestamp.
+ */
+export async function encryptCell(
+	keys: CellKeys,
+	cell: PlainCell,
+): Promise<EncryptedCell> {
+	const { hlc, value, ...address } = cell;
+	const additionalData = getAdditionalData(address, hlc);
+	const plaintext = TEXT_ENCODER.encode(jsonStringWithUndefined(value));
+	const iv = await getIv(keys.ivKey, additionalData, plaintext);
+	const ciphertext = new Uint8Array(
+		await crypto.subtle.encrypt(
+			{ additionalData, iv, name: ALGORITHM },
+			keys.encryptionKey,
+			plaintext,
+		),
+	);
+	const combined = new Uint8Array(IV_LENGTH + ciphertext.byteLength);
+	combined.set(iv);
+	combined.set(ciphertext, IV_LENGTH);
+	return { ...address, data: uint8ArrayToBase64(combined), hlc };
+}
+
+export async function decryptCell(
+	keys: CellKeys,
+	cell: EncryptedCell,
+): Promise<PlainCell> {
+	const { cell: cellId, data, hlc, kind, row, table } = cell;
+	const address = { cell: cellId, kind, row, table };
+	const combined = base64ToUint8Array(data);
+	const plaintext = await crypto.subtle.decrypt(
+		{
+			additionalData: getAdditionalData(address, hlc),
+			iv: combined.subarray(0, IV_LENGTH),
+			name: ALGORITHM,
+		},
+		keys.encryptionKey,
+		combined.subarray(IV_LENGTH),
+	);
+	const value = jsonParseWithUndefined<PlainCell['value']>(
+		TEXT_DECODER.decode(plaintext),
+	);
+	return { ...address, hlc, value };
+}
+
+async function mapInChunks<Input, Output>(
+	inputs: readonly Input[],
+	transform: (input: Input) => Promise<Output>,
+): Promise<Output[]> {
+	const outputs: Output[] = [];
+	for (let start = 0; start < inputs.length; start += DECRYPT_CHUNK_SIZE) {
+		outputs.push(
+			...(await Promise.all(
+				inputs.slice(start, start + DECRYPT_CHUNK_SIZE).map(transform),
+			)),
+		);
+	}
+	return outputs;
+}
+
+export function encryptCells(
+	keys: CellKeys,
+	cells: readonly PlainCell[],
+): Promise<EncryptedCell[]> {
+	return mapInChunks(cells, (cell) => encryptCell(keys, cell));
+}
+
+export function decryptCells(
+	keys: CellKeys,
+	cells: readonly EncryptedCell[],
+): Promise<PlainCell[]> {
+	return mapInChunks(cells, (cell) => decryptCell(keys, cell));
+}
+
+/**
+ * Lists every cell and value of MergeableChanges or MergeableContent that has
+ * an HLC, including deletions.
+ */
+export function flattenChanges(
+	changes: MergeableChanges | MergeableContent,
+): PlainCell[] {
+	const cells: PlainCell[] = [];
+	const [[tables], [values]] = changes as MergeableChanges;
+	for (const [table, [rows]] of Object.entries(tables)) {
+		for (const [row, [rowCells]] of Object.entries(rows)) {
+			for (const [cell, [value, hlc]] of Object.entries(rowCells)) {
+				if (hlc) cells.push({ cell, hlc, kind: 't', row, table, value });
+			}
+		}
+	}
+	for (const [cell, [value, hlc]] of Object.entries(values)) {
+		if (hlc) cells.push({ cell, hlc, kind: 'v', row: '', table: '', value });
+	}
+	return cells;
+}
+
+function getLatestHlc(current: string | undefined, hlc: string): string {
+	return current === undefined || hlc > current ? hlc : current;
+}
+
+function stamp<Thing>(thing: Thing, hlc: string | undefined): [Thing, string?] {
+	return hlc ? [thing, hlc] : [thing];
+}
+
+/**
+ * Builds MergeableChanges from cells. Container stamps get the latest HLC of
+ * their children.
+ */
+export function buildChanges(cells: readonly PlainCell[]): MergeableChanges {
+	// Maps, since IDs like `__proto__` are valid in TinyBase. Object.fromEntries
+	// below defines them as own properties.
+	type Stamped<Thing> = { hlc?: string; thing: Thing };
+	const tables = new Map<
+		string,
+		Stamped<Map<string, Stamped<Map<string, [CellOrUndefined, string]>>>>
+	>();
+	const values = new Map<string, [ValueOrUndefined, string]>();
+	let tablesHlc: string | undefined;
+	let valuesHlc: string | undefined;
+
+	for (const { cell, hlc, kind, row, table, value } of cells) {
+		if (kind === 'v') {
+			values.set(cell, [value, hlc]);
+			valuesHlc = getLatestHlc(valuesHlc, hlc);
+			continue;
+		}
+		let tableStamp = tables.get(table);
+		if (!tableStamp) {
+			tableStamp = { thing: new Map() };
+			tables.set(table, tableStamp);
+		}
+		let rowStamp = tableStamp.thing.get(row);
+		if (!rowStamp) {
+			rowStamp = { thing: new Map() };
+			tableStamp.thing.set(row, rowStamp);
+		}
+		rowStamp.thing.set(cell, [value as CellOrUndefined, hlc]);
+		rowStamp.hlc = getLatestHlc(rowStamp.hlc, hlc);
+		tableStamp.hlc = getLatestHlc(tableStamp.hlc, hlc);
+		tablesHlc = getLatestHlc(tablesHlc, hlc);
+	}
+
+	return [
+		stamp(
+			Object.fromEntries(
+				[...tables].map(([tableId, { hlc: tableHlc, thing: rows }]) => [
+					tableId,
+					stamp(
+						Object.fromEntries(
+							[...rows].map(([rowId, { hlc: rowHlc, thing: rowCells }]) => [
+								rowId,
+								stamp(Object.fromEntries(rowCells), rowHlc),
+							]),
+						),
+						tableHlc,
+					),
+				]),
+			),
+			tablesHlc,
+		),
+		stamp(Object.fromEntries(values), valuesHlc),
+		1,
+	];
+}
+
+export interface ApplyCellsResult<Cell extends PlainCell = PlainCell> {
+	/** Cells the store accepted (or already had newer). */
+	applied: Cell[];
+	/**
+	 * Cells the store rejects for now because their HLC is too far ahead of
+	 * this device's clock. They become applicable once the clock catches up.
+	 */
+	deferred: Cell[];
+	/** Cells the store can never accept, e.g. values of an unsupported type. */
+	invalid: Cell[];
+}
+
+function isAccepted(cells: readonly PlainCell[], getNow: () => number) {
+	// A MergeableStore silently ignores a whole change set if one stamp fails
+	// its validation, so check on a scratch store first.
+	const probe = createMergeableStore('probe', getNow);
+	probe.applyMergeableChanges(buildChanges(cells));
+	return flattenChanges(probe.getMergeableContent()).length === cells.length;
+}
+
+/**
+ * Applies cells to a store, leaving out those it would reject. `also` runs in
+ * the same transaction with the result, e.g. to record what was applied.
+ */
+export function applyCellsToStore<Cell extends PlainCell>(
+	store: MergeableStore,
+	cells: readonly Cell[],
+	also?: (result: ApplyCellsResult<Cell>) => void,
+): ApplyCellsResult<Cell> {
+	const result: ApplyCellsResult<Cell> = {
+		applied: [],
+		deferred: [],
+		invalid: [],
+	};
+	if (cells.length > 0 && isAccepted(cells, Date.now)) {
+		result.applied = [...cells];
+	} else {
+		for (const cell of cells) {
+			if (isAccepted([cell], Date.now)) {
+				result.applied.push(cell);
+			} else if (isAccepted([cell], () => Number.MAX_SAFE_INTEGER)) {
+				result.deferred.push(cell);
+			} else {
+				result.invalid.push(cell);
+			}
+		}
+	}
+	store.transaction(() => {
+		if (result.applied.length > 0) {
+			store.applyMergeableChanges(buildChanges(result.applied));
+		}
+		also?.(result);
+	});
+	return result;
+}
