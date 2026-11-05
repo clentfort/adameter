@@ -444,7 +444,11 @@ describe('EncryptedSyncRelayServer', () => {
 				cell({ cell: 'endTime' }),
 			]);
 			expect(postResponse.status).toBe(200);
-			expect(await postResponse.json()).toEqual({ head: 2 });
+			expect(await postResponse.json()).toEqual({
+				fromSeq: 1,
+				head: 2,
+				toSeq: 2,
+			});
 
 			const getResponse = await server.onRequest(
 				createRequest('GET', '/parties/tinybase/room/cells?since=1&limit=10'),

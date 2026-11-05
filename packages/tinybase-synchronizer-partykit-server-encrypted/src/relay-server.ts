@@ -331,10 +331,16 @@ export class EncryptedSyncRelayServer<
 				}
 
 				const { accepted, head } = cellStore.put(cells);
-				if (accepted.length > 0) {
-					this.broadcastCells(accepted);
+				if (accepted.length === 0) {
+					return json({ head });
 				}
-				return json({ head });
+				this.broadcastCells(accepted);
+				// Lets the uploader skip its own broadcast.
+				return json({
+					fromSeq: accepted[0].seq,
+					head,
+					toSeq: accepted.at(-1)!.seq,
+				});
 			}
 
 			return json({ error: 'Method not allowed' }, 405);

@@ -86,7 +86,15 @@ function createFakeServer() {
 					}),
 				);
 			}
-			return Response.json({ head });
+			return Response.json(
+				accepted.length > 0
+					? {
+							fromSeq: accepted[0].seq,
+							head,
+							toSeq: accepted.at(-1)!.seq,
+						}
+					: { head },
+			);
 		},
 		get head() {
 			return head;
@@ -180,6 +188,20 @@ describe('createCellSync', () => {
 		await syncDevice(deviceB);
 
 		expect(server.requests.filter((r) => r.method === 'POST')).toEqual([]);
+	});
+
+	it('does not pull or apply its own uploads', async () => {
+		const deviceA = await createDevice('a');
+		await deviceA.sync.pull();
+		feeding(deviceA.store, 'f1', 10);
+		await deviceA.sync.push();
+		server.requests.length = 0;
+
+		expect(await deviceA.sync.receive(server.broadcasts[0])).toBe('ignored');
+		await deviceA.sync.pull();
+
+		expect(server.requests).toEqual([{ method: 'GET', size: 0 }]);
+		expect((await deviceA.state.load()).lastSeq).toBe(2);
 	});
 
 	it('pulls only what changed since the last pull', async () => {
@@ -381,6 +403,26 @@ describe('createCellSync', () => {
 
 		expect(restarted.hasPendingUploads()).toBe(false);
 		expect(server.requests).toEqual([{ method: 'GET', size: 0 }]);
+	});
+
+	it('pulls everything again when the store was cleared but its state was not', async () => {
+		const deviceA = await createDevice('a');
+		feeding(deviceA.store, 'f1', 10);
+		await syncDevice(deviceA);
+		const deviceB = await createDevice('b');
+		await deviceB.sync.pull();
+
+		const cleared = createMergeableStore('b2');
+		const restarted = createCellSync({
+			cellsUrl: CELLS_URL,
+			keys: await getCellKeys('room'),
+			state: deviceB.state,
+			store: cleared,
+		});
+		await restarted.init();
+		await restarted.pull();
+
+		expect(cleared.hasRow('feedingSessions', 'f1')).toBe(true);
 	});
 
 	it('persists the store before saving the pulled sequence number', async () => {

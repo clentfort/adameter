@@ -305,9 +305,15 @@ export function createCellSync({
 		}
 	};
 
+	interface PostResult {
+		/** Sequence numbers of the accepted cells, if any were accepted. */
+		accepted?: { fromSeq: number; toSeq: number };
+		rejected: CellAddress[];
+	}
+
 	const postBatch = async (
 		batch: readonly EncryptedCell[],
-	): Promise<CellAddress[]> => {
+	): Promise<PostResult> => {
 		const response = await fetch(cellsUrl, {
 			body: JSON.stringify(batch),
 			cache: 'no-store',
@@ -318,7 +324,7 @@ export function createCellSync({
 		});
 		if (response.status === 422) {
 			const body = (await response.json()) as { rejected?: CellAddress[] };
-			return (body.rejected ?? []).map(toAddress);
+			return { rejected: (body.rejected ?? []).map(toAddress) };
 		}
 		if (!response.ok) {
 			throw new CellRequestError(
@@ -326,8 +332,17 @@ export function createCellSync({
 				response.status,
 			);
 		}
-		await response.body?.cancel();
-		return [];
+		const { fromSeq, toSeq } = (await response.json()) as {
+			fromSeq?: unknown;
+			toSeq?: unknown;
+		};
+		return {
+			accepted:
+				typeof fromSeq === 'number' && typeof toSeq === 'number'
+					? { fromSeq, toSeq }
+					: undefined,
+			rejected: [],
+		};
 	};
 
 	const getOutbox = () =>
@@ -358,9 +373,9 @@ export function createCellSync({
 
 		for (let batch of batchCells(uploadable, batchCellLimit, batchByteLimit)) {
 			if (isDisposed) return result;
-			const rejectedCells = await postBatch(batch);
-			if (rejectedCells.length > 0) {
-				const rejectedKeys = new Set(rejectedCells.map(getCellKey));
+			let posted = await postBatch(batch);
+			if (posted.rejected.length > 0) {
+				const rejectedKeys = new Set(posted.rejected.map(getCellKey));
 				for (const cell of batch) {
 					if (rejectedKeys.has(getCellKey(cell))) {
 						rejected.set(getCellKey(cell), cell.hlc);
@@ -369,14 +384,24 @@ export function createCellSync({
 				}
 				batch = batch.filter((cell) => !rejectedKeys.has(getCellKey(cell)));
 				// The server writes nothing when it rejects a batch.
-				if (batch.length > 0 && (await postBatch(batch)).length > 0) {
+				if (batch.length === 0) continue;
+				posted = await postBatch(batch);
+				if (posted.rejected.length > 0) {
 					throw new CellRequestError('Cells POST rejected twice', 422);
 				}
 			}
 			// The server now has these cells or newer ones.
 			const updatedStamps = batch.map(recordServerStamp);
 			result.uploaded += batch.length;
-			await state.save({ stamps: updatedStamps });
+			// The accepted sequence numbers hold only this device's own writes.
+			// If they directly follow the last pull, there is nothing to pull.
+			let nextSeq: number | undefined;
+			if (posted.accepted?.fromSeq === lastSeq + 1) {
+				nextSeq = posted.accepted.toSeq;
+				await persistStore?.();
+			}
+			await state.save({ lastSeq: nextSeq, stamps: updatedStamps });
+			if (nextSeq !== undefined) lastSeq = nextSeq;
 		}
 		return result;
 	};
@@ -422,6 +447,14 @@ export function createCellSync({
 				lastSeq = loaded.lastSeq;
 				stamps = loaded.stamps;
 				scanStore();
+				// State that claims pulled cells for an empty store is stale, e.g.
+				// after the store's database was cleared. Pull everything again.
+				if (
+					loaded.lastSeq > 0 &&
+					flattenChanges(store.getMergeableContent()).length === 0
+				) {
+					await resetServerState();
+				}
 			}),
 		pull: () => exclusive(pull),
 		push: () => exclusive(push),
