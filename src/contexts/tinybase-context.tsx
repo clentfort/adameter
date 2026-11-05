@@ -16,6 +16,11 @@ import {
 	STORE_VALUE_SELECTED_PROFILE_ID,
 	TINYBASE_LOCAL_DB_NAME,
 } from '@/lib/tinybase-sync/constants';
+import {
+	applyPendingLocalDataReset,
+	backupLocalStore,
+	requestLocalDataReset,
+} from '@/lib/tinybase-sync/factory-reset';
 import { startRoomSync } from '@/lib/tinybase-sync/room-sync';
 import { isStoreDataEmpty } from '@/lib/tinybase-sync/store-utils';
 import { repairMissingProfileIds } from '@/migrations/2026-06-05-consolidate-duplicate-profiles';
@@ -60,6 +65,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	const joinStrategyRef = useRef(joinStrategy);
 	joinStrategyRef.current = joinStrategy;
 	const storeRef = useRef<MergeableStore>(defaultStore);
+	const persisterRef = useRef<Persister | undefined>(undefined);
+	// Resolves once the previous room's sync has stopped.
+	const roomSyncStoppedRef = useRef<Promise<void>>(Promise.resolve());
 	const [isLocalReady, setIsLocalReady] = useState(false);
 	const [syncStatus, setSyncStatus] = useState<RoomSyncStatus | undefined>();
 
@@ -73,6 +81,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		);
 
 		const initialize = async () => {
+			if (await applyPendingLocalDataReset()) {
+				logger.log('Cleared local data before loading');
+			}
 			const startLoad = performance.now();
 			await localPersister.load();
 			logger.log(
@@ -112,8 +123,10 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 		});
 
+		persisterRef.current = localPersister;
 		return () => {
 			isDisposed = true;
+			persisterRef.current = undefined;
 			void localPersister.stopAutoSave();
 			void localPersister.destroy();
 		};
@@ -129,17 +142,46 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			return;
 		}
 
-		// Sync runs in the background. The app always renders from local data,
-		// so an unreachable relay never blocks it.
-		const stopRoomSync = startRoomSync({
-			joinStrategy: joinStrategyRef.current,
-			onJoinStrategyApplied: resetJoinStrategy,
-			onStatusChange: setSyncStatus,
-			room,
-			store: storeRef.current,
+		let isCancelled = false;
+		let stopRoomSync: (() => Promise<void>) | undefined;
+		const previousRoomSyncStopped = roomSyncStoppedRef.current;
+
+		const start = async () => {
+			// Never let two room syncs work on the store at the same time.
+			await previousRoomSyncStopped;
+			if (isCancelled) return;
+
+			if (joinStrategyRef.current === 'clear') {
+				// Join with a fresh local store. Deleting the local rows instead
+				// would sync the deletions into the room.
+				await backupLocalStore(storeRef.current);
+				await persisterRef.current?.stopAutoSave();
+				requestLocalDataReset();
+				setItem(STORAGE_KEYS.ROOM, room);
+				setItem(STORAGE_KEYS.ROOM_JOIN_STRATEGY, 'merge');
+				window.location.reload();
+				return;
+			}
+			resetJoinStrategy();
+
+			// Sync runs in the background. The app always renders from local data,
+			// so an unreachable relay never blocks it.
+			stopRoomSync = startRoomSync({
+				onStatusChange: setSyncStatus,
+				persistStore: async () => {
+					await persisterRef.current?.save();
+				},
+				room,
+				store: storeRef.current,
+			});
+		};
+
+		const started = start().catch((error: unknown) => {
+			logger.error('Failed to start room sync:', error);
 		});
 		return () => {
-			stopRoomSync();
+			isCancelled = true;
+			roomSyncStoppedRef.current = started.then(() => stopRoomSync?.());
 			setSyncStatus(undefined);
 		};
 	}, [isHydrated, isLocalReady, resetJoinStrategy, room]);

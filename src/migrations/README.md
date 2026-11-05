@@ -42,7 +42,7 @@ Each row stores:
 Migrations and repairs run:
 
 1. after the local IndexedDB load, in `TinybaseProvider`
-2. after every merge of the server snapshot, in `startRoomSync`
+2. after every pull of changed cells from the room, in `startRoomSync`
    (`src/lib/tinybase-sync/room-sync.ts`)
 
 Migration code is loaded lazily only when pending migrations are detected. If
@@ -51,8 +51,10 @@ loading the migration module.
 
 The app stays on the splash screen until the first run is complete. Syncing
 happens in the background afterwards, so merged remote data can briefly be
-visible before the second run finishes. Changes received from online peers are
-not migrated until the next snapshot merge.
+visible before the second run finishes. Changes received as WebSocket broadcasts
+are not migrated until the next pull.
 
-Migrations run on the local store only. The migrated rows are then saved to the
-server like any other local change.
+Migrations run on the local store only. The migrated cells are then uploaded
+like any other local change, with `_migrations` cells last, so a device that
+pulls a partial upload runs the migration itself rather than trusting a marker
+whose rows have not arrived yet.

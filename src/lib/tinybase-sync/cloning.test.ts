@@ -1,89 +1,93 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createMergeableStore } from 'tinybase';
+import {
+	encrypt,
+	encryptCell,
+	getCellKeys,
+	getEncryptionKey,
+	hashRoomId,
+	jsonStringWithUndefined,
+} from 'tinybase-synchronizer-partykit-client-encrypted';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cloneRoomData } from './cloning';
 
-vi.mock('tinybase-synchronizer-partykit-client-encrypted', () => ({
-	decrypt: vi.fn(),
-	getEncryptionKey: vi.fn(),
-	hashRoomId: vi.fn(),
-	jsonParseWithUndefined: vi.fn(),
-}));
+const SOURCE_ROOM = 'source-room';
 
-const { decrypt, getEncryptionKey, hashRoomId, jsonParseWithUndefined } =
-	await import('tinybase-synchronizer-partykit-client-encrypted');
+interface FakeRoom {
+	cells?: unknown[];
+	snapshot?: string;
+	status?: number;
+}
+
+async function serveRoom({
+	cells = [],
+	snapshot = 'null',
+	status = 200,
+}: FakeRoom) {
+	const roomHash = await hashRoomId(SOURCE_ROOM);
+	const fetchMock = vi.fn(async (input: string | URL) => {
+		const url = new URL(input);
+		expect(url.pathname).toContain(`/parties/tinybase/${roomHash}/`);
+		if (status !== 200) return new Response('Not found', { status });
+		if (url.pathname.endsWith('/cells')) {
+			return Response.json({ cells, head: cells.length });
+		}
+		return new Response(snapshot, { headers: { ETag: '"1"' } });
+	});
+	vi.stubGlobal('fetch', fetchMock);
+	return fetchMock;
+}
+
+afterEach(() => {
+	vi.unstubAllGlobals();
+});
 
 describe('cloneRoomData', () => {
-	const sourceRoomName = 'test-room';
+	it('merges the cells of the source room', async () => {
+		const keys = await getCellKeys(SOURCE_ROOM);
+		const encrypted = await encryptCell(keys, {
+			cell: 'title',
+			hlc: '0000000000000000',
+			kind: 't',
+			row: 'e1',
+			table: 'events',
+			value: 'Doctor',
+		});
+		const fetchMock = await serveRoom({ cells: [{ ...encrypted, seq: 1 }] });
+		const store = createMergeableStore();
 
-	beforeEach(() => {
-		vi.clearAllMocks();
-		vi.stubGlobal('fetch', vi.fn());
+		await cloneRoomData(SOURCE_ROOM, 'localhost:1999', store);
+
+		expect(store.getCell('events', 'e1', 'title')).toBe('Doctor');
+		expect(String(fetchMock.mock.calls[0][0])).toMatch(
+			/^http:\/\/localhost:1999\//,
+		);
 	});
 
-	it('handles various formats and error conditions', async () => {
-		const mockHashedRoomId = 'hashed-room';
-		const mockEncryptionKey = {} as CryptoKey;
-		vi.mocked(hashRoomId).mockResolvedValue(mockHashedRoomId);
-		vi.mocked(getEncryptionKey).mockResolvedValue(mockEncryptionKey);
-
-		// 1. Success - New synchronizer format (non-JSON body)
-		vi.mocked(fetch).mockResolvedValueOnce({
-			ok: true,
-			text: () => Promise.resolve('encrypted-blob'),
-		} as Response);
-		vi.mocked(decrypt).mockResolvedValueOnce('decrypted');
-		vi.mocked(jsonParseWithUndefined).mockReturnValueOnce([{}, {}, '0', 1]);
-
-		const mockStore = {
-			applyMergeableChanges: vi.fn(),
-			setContent: vi.fn(),
-		};
-
-		await cloneRoomData(
-			sourceRoomName,
-			'localhost:1234',
-			mockStore as unknown as Parameters<typeof cloneRoomData>[2],
-		);
-		expect(mockStore.applyMergeableChanges).toHaveBeenCalled();
-
-		// 2. Error - Not OK response
-		vi.mocked(fetch).mockResolvedValueOnce({
-			ok: false,
-			statusText: 'Not Found',
-		} as Response);
-		await expect(
-			cloneRoomData(
-				sourceRoomName,
-				'host',
-				mockStore as unknown as Parameters<typeof cloneRoomData>[2],
+	it('merges a legacy snapshot of the source room', async () => {
+		const source = createMergeableStore();
+		source.setCell('events', 'e2', 'title', 'Vaccination');
+		await serveRoom({
+			snapshot: await encrypt(
+				jsonStringWithUndefined(source.getMergeableContent()),
+				await getEncryptionKey(SOURCE_ROOM),
 			),
-		).rejects.toThrow(/Failed to fetch/);
+		});
+		const store = createMergeableStore();
 
-		// 3. Error - Empty body
-		vi.mocked(fetch).mockResolvedValueOnce({
-			ok: true,
-			text: () => Promise.resolve(''),
-		} as Response);
+		await cloneRoomData(SOURCE_ROOM, 'relay.example', store);
+
+		expect(store.getCell('events', 'e2', 'title')).toBe('Vaccination');
+	});
+
+	it('fails for an empty or unreachable source room', async () => {
+		await serveRoom({});
 		await expect(
-			cloneRoomData(
-				sourceRoomName,
-				'host',
-				mockStore as unknown as Parameters<typeof cloneRoomData>[2],
-			),
+			cloneRoomData(SOURCE_ROOM, 'relay.example', createMergeableStore()),
 		).rejects.toThrow(/No content found/);
 
-		// 4. Error - Parse failure
-		vi.mocked(fetch).mockResolvedValueOnce({
-			ok: true,
-			text: () => Promise.resolve('encrypted'),
-		} as Response);
-		vi.mocked(decrypt).mockResolvedValueOnce('decrypted');
-		vi.mocked(jsonParseWithUndefined).mockReturnValueOnce(null);
+		await serveRoom({ status: 404 });
 		await expect(
-			cloneRoomData(
-				sourceRoomName,
-				'host',
-				mockStore as unknown as Parameters<typeof cloneRoomData>[2],
-			),
-		).rejects.toThrow(/Failed to parse/);
+			cloneRoomData(SOURCE_ROOM, 'relay.example', createMergeableStore()),
+		).rejects.toThrow(/404/);
 	});
 });

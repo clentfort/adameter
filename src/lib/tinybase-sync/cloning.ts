@@ -1,46 +1,58 @@
 import type { MergeableStore } from 'tinybase';
 import {
-	decrypt,
-	getEncryptionKey,
+	createCellSync,
+	createMemoryCellSyncStateStore,
+	fetchLegacySnapshot,
+	getCellKeys,
 	hashRoomId,
-	jsonParseWithUndefined,
 } from 'tinybase-synchronizer-partykit-client-encrypted';
+import { TINYBASE_PARTYKIT_PARTY } from './partykit-parties';
 
+/**
+ * Merges all data of another room into the store: its cells and, while
+ * clients of the snapshot protocol may still write it, its legacy snapshot.
+ */
 export async function cloneRoomData(
 	sourceRoomName: string,
 	sourceHost: string,
 	store: MergeableStore,
 ) {
-	const hashedRoomId = await hashRoomId(sourceRoomName);
-	const encryptionKey = await getEncryptionKey(sourceRoomName);
+	const [roomHash, keys] = await Promise.all([
+		hashRoomId(sourceRoomName),
+		getCellKeys(sourceRoomName),
+	]);
 
 	const protocol =
 		sourceHost.startsWith('localhost') || sourceHost.startsWith('127.0.0.1')
 			? 'http'
 			: 'https';
+	const roomUrl = `${protocol}://${sourceHost}/parties/${TINYBASE_PARTYKIT_PARTY}/${roomHash}`;
 
-	const storeUrl = `${protocol}://${sourceHost}/parties/tinybase/${hashedRoomId}/store`;
-
-	const response = await fetch(storeUrl, {
-		cache: 'no-store',
-		mode: 'cors',
+	const cellSync = createCellSync({
+		cellsUrl: `${roomUrl}/cells`,
+		keys,
+		state: createMemoryCellSyncStateStore(),
+		store,
 	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to fetch room data: ${response.statusText}`);
+	let applied: number;
+	try {
+		await cellSync.init();
+		({ applied } = await cellSync.pull());
+	} finally {
+		await cellSync.dispose();
 	}
 
-	const body = await response.text();
-	if (!body || body === 'null') {
+	const legacySnapshot = await fetchLegacySnapshot(
+		`${roomUrl}/store`,
+		keys.encryptionKey,
+	);
+	const legacyContent =
+		legacySnapshot.status === 'loaded' ? legacySnapshot.content : undefined;
+	if (legacyContent) {
+		store.applyMergeableChanges(legacyContent);
+	}
+
+	if (applied === 0 && !legacyContent) {
 		throw new Error('No content found in the source room.');
 	}
-
-	const decrypted = await decrypt(body, encryptionKey);
-	const mergeableContent = jsonParseWithUndefined(decrypted);
-	if (!mergeableContent) {
-		throw new Error('Failed to parse decrypted content.');
-	}
-	store.applyMergeableChanges(
-		mergeableContent as Parameters<typeof store.applyMergeableChanges>[0],
-	);
 }
