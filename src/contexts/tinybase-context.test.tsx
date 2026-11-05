@@ -572,6 +572,16 @@ describe('TinybaseProvider room sync', () => {
 		await waitFor(() => expect(toastError).toHaveBeenCalled());
 		expect(startAutoSave).not.toHaveBeenCalled();
 		expect(screen.getByTestId('event-count')).toHaveTextContent('1');
+
+		// Neither does joining a room, whose sync saves after each pull.
+		fireEvent.click(screen.getByRole('button', { name: 'Create room' }));
+		await waitFor(() => {
+			expect(screen.getByTestId('sync-status')).toHaveTextContent('synced');
+		});
+		const saves = mocks.createIndexedDbPersister.mock.results.map(
+			({ value }) => (value as { save: ReturnType<typeof vi.fn> }).save,
+		);
+		for (const save of saves) expect(save).not.toHaveBeenCalled();
 	});
 
 	it('skips startup migrations while a room is only partly pulled', async () => {

@@ -80,6 +80,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	joinStrategyRef.current = joinStrategy;
 	const storeRef = useRef<MergeableStore>(defaultStore);
 	const persisterRef = useRef<Persister | undefined>(undefined);
+	// False while the local database must not be written, see loadLocalStore.
+	const canSaveLocallyRef = useRef(false);
 	// Resolves once the previous room's sync has stopped.
 	const roomSyncStoppedRef = useRef<Promise<void>>(Promise.resolve());
 	const [isLocalReady, setIsLocalReady] = useState(false);
@@ -128,9 +130,19 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				'probe',
 				() => Number.MAX_SAFE_INTEGER,
 			);
-			const probePersister = createIndexedDbPersister(probe, getLocalDbName());
+			let probeError: unknown;
+			const probePersister = createIndexedDbPersister(
+				probe,
+				getLocalDbName(),
+				undefined,
+				(error: unknown) => {
+					if (!isMissingObjectStore(error)) probeError = error;
+				},
+			);
 			await probePersister.load();
 			await probePersister.destroy();
+			// A failed re-read must not be mistaken for an empty database.
+			if (probeError !== undefined) return false;
 			const persistedCells = flattenChanges(probe.getMergeableContent());
 			if (persistedCells.length === 0) return true;
 			applyCellsToStore(store, persistedCells);
@@ -146,6 +158,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			);
 
 			if (isLoaded) {
+				canSaveLocallyRef.current = true;
 				await clonePreviewDataIfEmpty(store, localPersister);
 				await localPersister.startAutoSave();
 			} else {
@@ -246,7 +259,9 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 				onStatusChange: setSyncStatus,
 				// The sync keeps its pull position in the store, so a failed save
 				// only causes cells to be pulled again.
+				// Nothing is saved over a local database that could not be read.
 				persistStore: async () => {
+					if (!canSaveLocallyRef.current) return;
 					await persisterRef.current?.save();
 				},
 				room,
