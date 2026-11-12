@@ -200,8 +200,8 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3
       fbtee:
-        specifier: 5.0.0
-        version: 5.0.0(react@19.3.1)
+        specifier: 6.0.0
+        version: 6.0.0(react@19.3.1)
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
@@ -297,17 +297,17 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(@typescript-eslint/eslint-plugin@8.72.2(@typescript-eslint/parser@8.71.2(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(@typescript-eslint/utils@8.71.2(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint-import-resolver-node@0.3.10(supports-color@10.2.2))(eslint-plugin-import@2.32.0)(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
       '@nkzw/eslint-plugin-fbtee':
-        specifier: 5.0.0
-        version: 5.0.0(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
+        specifier: 6.0.0
+        version: 6.0.0(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
       '@nkzw/fbtee-compiler':
-        specifier: 5.0.0
-        version: 5.0.0
+        specifier: 6.0.0
+        version: 6.0.0
       '@nkzw/next-plugin-fbtee':
-        specifier: 5.0.0
-        version: 5.0.0(next@16.4.6(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.65.0)(@types/node@26.6.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
+        specifier: 6.0.0
+        version: 6.0.0(next@16.4.6(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.65.0)(@types/node@26.6.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
       '@nkzw/vite-plugin-fbtee':
-        specifier: 5.0.0
-        version: 5.0.0(vite@8.1.0(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
+        specifier: 6.0.0
+        version: 6.0.0(vite@8.1.0(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
       '@playwright/test':
         specifier: 1.65.0
         version: 1.65.0
@@ -1515,95 +1515,87 @@ packages:
     peerDependencies:
       eslint: '>= 9'
 
-  '@nkzw/eslint-plugin-fbtee@5.0.0':
-    resolution: {integrity: sha512-8+Gt9RZWRUTVlDl6hHDX6rDXx6qMn/ajwsqzo9QTYpmxXlBT5kpWXjVir4rtmhrMvw6A9NbXs71RZaDeCtmmVQ==}
+  '@nkzw/eslint-plugin-fbtee@6.0.0':
+    resolution: {integrity: sha512-rcetV7LWZ6N+AVAoZr6Zuq+LGFjEhXr0LEvu+JjAPo4MbqzO6SNoj+yjZL1dp/shMYjqfCHygaEBP2z0Sm7+lQ==}
 
   '@nkzw/eslint-plugin@2.0.0':
     resolution: {integrity: sha512-IoU8kOqHfnf7se2dGxMD/7RPm6WVjzjOjWSo7FulRx3lJzuZvXioSkT5Nd82l66DH3Pl2whw74lPT1di3KMwFA==}
     peerDependencies:
       eslint: '>= 9'
 
-  '@nkzw/fbtee-compiler@5.0.0':
-    resolution: {integrity: sha512-SDIucMELGJd12o1PjZ5T5D8cQLmyA6zFkf9DYZklDO1ZbXimxsfypCe4leB/RaePS/rhXP7DUVRblU+XSdu2qg==}
+  '@nkzw/fbtee-compiler@6.0.0':
+    resolution: {integrity: sha512-qE8CEQf0fmzTAlmJdGRZbKC8mWECtlb8054h/MkW45hvCgifNZPAvIZwKHAs0pzFlffOgQxDJX5FIMamX5gwaA==}
     engines: {node: '>=22.12.0'}
     hasBin: true
 
-  '@nkzw/next-plugin-fbtee@5.0.0':
-    resolution: {integrity: sha512-wB6FdDKpmGlQLkyE5GiAthyE/5iPeS9kIGkRbKY/xcO2b0k33qaKOqf/g6KdlOMu0yLfofISZ0GB8ZMw4IDfeA==}
+  '@nkzw/next-plugin-fbtee@6.0.0':
+    resolution: {integrity: sha512-p3ihri7L00UigUg7d4n5AlfwJje68WXfBRYDL/2tCtwlGpEuvGKOChDfdDTqhXgmLFF8eSGdR50dXj5xbXdqfw==}
     engines: {node: '>=22.12.0'}
     peerDependencies:
       next: '>=16.0.0'
 
-  '@nkzw/oxc-transform-fbtee-binding-darwin-arm64@5.0.0':
-    resolution: {integrity: sha512-lXxHVBAmZd7wY+600qa2DCzy1EwlM3zMfDHASFB9hodgVk5gmA/jBq22+X5cBSrO3i/Ff7dBUMuaN2t1yh1Zpg==}
+  '@nkzw/oxc-transform-fbtee-binding-darwin-arm64@6.0.0':
+    resolution: {integrity: sha512-qsR+JGJRVtZxKBfJWxOdAiv/kTcmpS4CgUvTyTM9vjGFW8Iuwu2gB2WvwQmlkbXSlX605yldMJVMyLynzGtr8g==}
     engines: {node: '>=22.12.0'}
     cpu: [arm64]
     os: [darwin]
-    deprecated: 'Replaced in fbtee 5 by @nkzw/fbtee-compiler. Install fbtee@^5 and @nkzw/fbtee-compiler@^5 (devDependency), remove the old CLI/transform packages, and update installed fbtee plugins to v5. Replace imports from @nkzw/oxc-transform-fbtee with @nkzw/fbtee-compiler. Existing fbtee commands are unchanged. Upgrade instructions: https://github.com/nkzw-tech/fbtee/blob/main/README.md#migration-from-fbtee-4'
     hasBin: true
 
-  '@nkzw/oxc-transform-fbtee-binding-darwin-x64@5.0.0':
-    resolution: {integrity: sha512-elD0jTZm7DJXRbkOFGku0DYaFVVqPQ97wWx/+XuWYoaH9PAq+hqAFkFUyG10wX8tDQ/Q3PFrmo6ZJyzXm2Ljtw==}
+  '@nkzw/oxc-transform-fbtee-binding-darwin-x64@6.0.0':
+    resolution: {integrity: sha512-jz4T5Ack2PHZ1FPAh/JAZAud6iuYhm+b6Dk8j/uva1gxhLrV99QC6bCs7bcH6YN/4QdCEV11tjsdGKvvL2ADiQ==}
     engines: {node: '>=22.12.0'}
     cpu: [x64]
     os: [darwin]
-    deprecated: 'Replaced in fbtee 5 by @nkzw/fbtee-compiler. Install fbtee@^5 and @nkzw/fbtee-compiler@^5 (devDependency), remove the old CLI/transform packages, and update installed fbtee plugins to v5. Replace imports from @nkzw/oxc-transform-fbtee with @nkzw/fbtee-compiler. Existing fbtee commands are unchanged. Upgrade instructions: https://github.com/nkzw-tech/fbtee/blob/main/README.md#migration-from-fbtee-4'
     hasBin: true
 
-  '@nkzw/oxc-transform-fbtee-binding-linux-arm64-gnu@5.0.0':
-    resolution: {integrity: sha512-VDGUesfsQfL8mN7vrFMfbZ58WgYfJpt/pzGhORbncDQIzTpq7ZFeaWzpeGkZ5T+t2DLiIsWFSsTvTWkDu3RF5A==}
+  '@nkzw/oxc-transform-fbtee-binding-linux-arm64-gnu@6.0.0':
+    resolution: {integrity: sha512-GgidmuDzRG3lmWcbL6TECfuTyt1r4t40/KxPIxX8B1FQlHXWWKovDWFnvYa14nq7av6MR8cjjSnk7kmwe1n9jA==}
     engines: {node: '>=22.12.0'}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
-    deprecated: 'Replaced in fbtee 5 by @nkzw/fbtee-compiler. Install fbtee@^5 and @nkzw/fbtee-compiler@^5 (devDependency), remove the old CLI/transform packages, and update installed fbtee plugins to v5. Replace imports from @nkzw/oxc-transform-fbtee with @nkzw/fbtee-compiler. Existing fbtee commands are unchanged. Upgrade instructions: https://github.com/nkzw-tech/fbtee/blob/main/README.md#migration-from-fbtee-4'
     hasBin: true
 
-  '@nkzw/oxc-transform-fbtee-binding-linux-arm64-musl@5.0.0':
-    resolution: {integrity: sha512-rJrA+1xMAf3zqO6QwGl4l4XYDSpXRNBoSiZh3+isZLnFJ3mlyJ+XtbJpllwlVysLjhiS4NhLb+wk7tRE42eh+w==}
+  '@nkzw/oxc-transform-fbtee-binding-linux-arm64-musl@6.0.0':
+    resolution: {integrity: sha512-W1fJ9fS7US/OkfaaTK2kkviDTJb7xcPA3J7U3/j+TJx67us6Ubr5HS9e1pCQMcpqPxpgGoeSY78PxmGlkl1t+Q==}
     engines: {node: '>=22.12.0'}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
-    deprecated: 'Replaced in fbtee 5 by @nkzw/fbtee-compiler. Install fbtee@^5 and @nkzw/fbtee-compiler@^5 (devDependency), remove the old CLI/transform packages, and update installed fbtee plugins to v5. Replace imports from @nkzw/oxc-transform-fbtee with @nkzw/fbtee-compiler. Existing fbtee commands are unchanged. Upgrade instructions: https://github.com/nkzw-tech/fbtee/blob/main/README.md#migration-from-fbtee-4'
     hasBin: true
 
-  '@nkzw/oxc-transform-fbtee-binding-linux-x64-gnu@5.0.0':
-    resolution: {integrity: sha512-4YDx0eKREYHZw8EDlXcYBecM+3n24DzceVobzgLs7gClbQbfbKhYZ5o8PLn56r8i385qx2a2jl7yFdNh/A9Iaw==}
+  '@nkzw/oxc-transform-fbtee-binding-linux-x64-gnu@6.0.0':
+    resolution: {integrity: sha512-QOrLLHkXcLR57i0wU9P/shvHtPnqwEdJz3+0n9qo6ZBDT0d2Hf2AJv4WhyY7aVu5sw1wx1FfWjl3VtkUmKts9g==}
     engines: {node: '>=22.12.0'}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
-    deprecated: 'Replaced in fbtee 5 by @nkzw/fbtee-compiler. Install fbtee@^5 and @nkzw/fbtee-compiler@^5 (devDependency), remove the old CLI/transform packages, and update installed fbtee plugins to v5. Replace imports from @nkzw/oxc-transform-fbtee with @nkzw/fbtee-compiler. Existing fbtee commands are unchanged. Upgrade instructions: https://github.com/nkzw-tech/fbtee/blob/main/README.md#migration-from-fbtee-4'
     hasBin: true
 
-  '@nkzw/oxc-transform-fbtee-binding-linux-x64-musl@5.0.0':
-    resolution: {integrity: sha512-H+QKDTJGI8XQtbDyRJPVsWzYyNGRt6ICOiIGYtig109+/pUa7nqe50+Eb4/hrff/ygGA7Jpw8ZqZKXJsDoeQ5g==}
+  '@nkzw/oxc-transform-fbtee-binding-linux-x64-musl@6.0.0':
+    resolution: {integrity: sha512-BqbYhUAQmxVqmYCfsiLOgtVEj6xMb4wVLekbc93LP8B62GM0KK0RZxwF5ZhPZ0/mPkQMBXjqdZYZDNw3Whk/xQ==}
     engines: {node: '>=22.12.0'}
     cpu: [x64]
     os: [linux]
     libc: [musl]
-    deprecated: 'Replaced in fbtee 5 by @nkzw/fbtee-compiler. Install fbtee@^5 and @nkzw/fbtee-compiler@^5 (devDependency), remove the old CLI/transform packages, and update installed fbtee plugins to v5. Replace imports from @nkzw/oxc-transform-fbtee with @nkzw/fbtee-compiler. Existing fbtee commands are unchanged. Upgrade instructions: https://github.com/nkzw-tech/fbtee/blob/main/README.md#migration-from-fbtee-4'
     hasBin: true
 
-  '@nkzw/oxc-transform-fbtee-binding-win32-arm64-msvc@5.0.0':
-    resolution: {integrity: sha512-PWcbCh9nI4Iof0R/2BaRttQxiEuBlz4EPE8+h2xS8B1fOFfGy1cYNH7EOvIdS+rHxz5QnpajGJj4O84Z0YsDkg==}
+  '@nkzw/oxc-transform-fbtee-binding-win32-arm64-msvc@6.0.0':
+    resolution: {integrity: sha512-4og8Ecybcf6C4+8NsNJgMIVoo9+bkeRUH7RV75t2N+v+z6DoROqRsc/tXEyajsbSrH76+vJCWwQqzHMF1epQXg==}
     engines: {node: '>=22.12.0'}
     cpu: [arm64]
     os: [win32]
-    deprecated: 'Replaced in fbtee 5 by @nkzw/fbtee-compiler. Install fbtee@^5 and @nkzw/fbtee-compiler@^5 (devDependency), remove the old CLI/transform packages, and update installed fbtee plugins to v5. Replace imports from @nkzw/oxc-transform-fbtee with @nkzw/fbtee-compiler. Existing fbtee commands are unchanged. Upgrade instructions: https://github.com/nkzw-tech/fbtee/blob/main/README.md#migration-from-fbtee-4'
     hasBin: true
 
-  '@nkzw/oxc-transform-fbtee-binding-win32-x64-msvc@5.0.0':
-    resolution: {integrity: sha512-S172LppYez8ZU0cXH8OlbtKn37ZZm/0GACCk9xnHLCYeDBNUKi5muSlAX4qE64aIdJ6nDJWAJ/KfCPEl2uMyOA==}
+  '@nkzw/oxc-transform-fbtee-binding-win32-x64-msvc@6.0.0':
+    resolution: {integrity: sha512-rA9ze6jCTWqAMbrTX9kCvgTFvg8w4yzTQxNXAIPktHEV8ZqS09zc8DGA5h46kU06b55hmKK1uVFLgSFZHYzYrg==}
     engines: {node: '>=22.12.0'}
     cpu: [x64]
     os: [win32]
-    deprecated: 'Replaced in fbtee 5 by @nkzw/fbtee-compiler. Install fbtee@^5 and @nkzw/fbtee-compiler@^5 (devDependency), remove the old CLI/transform packages, and update installed fbtee plugins to v5. Replace imports from @nkzw/oxc-transform-fbtee with @nkzw/fbtee-compiler. Existing fbtee commands are unchanged. Upgrade instructions: https://github.com/nkzw-tech/fbtee/blob/main/README.md#migration-from-fbtee-4'
     hasBin: true
 
-  '@nkzw/vite-plugin-fbtee@5.0.0':
-    resolution: {integrity: sha512-tU6BnqQJxbXoDk6V0fct6OebjTLJIa4USDGx/9FaAJHz7SbVc3WEiXYNBsRFcfRUF21YRm13vOL6oGdydVu8QA==}
+  '@nkzw/vite-plugin-fbtee@6.0.0':
+    resolution: {integrity: sha512-UbcwHBtQdPRD83vi2z4XP9BZWeasPnHJpyfJPza3IWoF9t7nRA1m9o0eDiyEQ0xUZfdkmPwEwBgEffd4jsrPmQ==}
     engines: {node: '>=22.12.0'}
     peerDependencies:
       vite: '>=6.3.0'
@@ -3649,8 +3641,8 @@ packages:
   fastq@1.20.1:
     resolution: {integrity: sha512-GGToxJ/w1x32s/D2EKND7kTil4n8OVk/9mycTc4VDza13lOvpUZTGX3mFSCtV9ksdGBVzvsyAVLM6mHFThxXxw==}
 
-  fbtee@5.0.0:
-    resolution: {integrity: sha512-AQV7w2r9zXWO9rJDXqpESPAqfkKP+gSy94FHF9BYlHF9N68S633mT7oQxKHB5oeWH0uZhuWtE4Eh1n12jvdfsQ==}
+  fbtee@6.0.0:
+    resolution: {integrity: sha512-bY2L8Fo+F9VPUg/6dbLAf5gti2iG6Xhqa2l8xSD5pIsFHunUI9C8f+kbD8a8HYhw3sH9O/xEdKd3oCr07UxbwQ==}
     peerDependencies:
       react: ^19.0.0
 
@@ -7315,9 +7307,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@nkzw/eslint-plugin-fbtee@5.0.0(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)':
+  '@nkzw/eslint-plugin-fbtee@6.0.0(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)':
     dependencies:
-      '@typescript-eslint/utils': 8.71.2(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.72.2(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -7327,49 +7319,49 @@ snapshots:
     dependencies:
       eslint: 10.14.0(jiti@2.7.0)(supports-color@10.2.2)
 
-  '@nkzw/fbtee-compiler@5.0.0':
+  '@nkzw/fbtee-compiler@6.0.0':
     optionalDependencies:
-      '@nkzw/oxc-transform-fbtee-binding-darwin-arm64': 5.0.0
-      '@nkzw/oxc-transform-fbtee-binding-darwin-x64': 5.0.0
-      '@nkzw/oxc-transform-fbtee-binding-linux-arm64-gnu': 5.0.0
-      '@nkzw/oxc-transform-fbtee-binding-linux-arm64-musl': 5.0.0
-      '@nkzw/oxc-transform-fbtee-binding-linux-x64-gnu': 5.0.0
-      '@nkzw/oxc-transform-fbtee-binding-linux-x64-musl': 5.0.0
-      '@nkzw/oxc-transform-fbtee-binding-win32-arm64-msvc': 5.0.0
-      '@nkzw/oxc-transform-fbtee-binding-win32-x64-msvc': 5.0.0
+      '@nkzw/oxc-transform-fbtee-binding-darwin-arm64': 6.0.0
+      '@nkzw/oxc-transform-fbtee-binding-darwin-x64': 6.0.0
+      '@nkzw/oxc-transform-fbtee-binding-linux-arm64-gnu': 6.0.0
+      '@nkzw/oxc-transform-fbtee-binding-linux-arm64-musl': 6.0.0
+      '@nkzw/oxc-transform-fbtee-binding-linux-x64-gnu': 6.0.0
+      '@nkzw/oxc-transform-fbtee-binding-linux-x64-musl': 6.0.0
+      '@nkzw/oxc-transform-fbtee-binding-win32-arm64-msvc': 6.0.0
+      '@nkzw/oxc-transform-fbtee-binding-win32-x64-msvc': 6.0.0
 
-  '@nkzw/next-plugin-fbtee@5.0.0(next@16.4.6(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.65.0)(@types/node@26.6.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))':
+  '@nkzw/next-plugin-fbtee@6.0.0(next@16.4.6(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.65.0)(@types/node@26.6.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))':
     dependencies:
-      '@nkzw/fbtee-compiler': 5.0.0
+      '@nkzw/fbtee-compiler': 6.0.0
       next: 16.4.6(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.65.0)(@types/node@26.6.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
-  '@nkzw/oxc-transform-fbtee-binding-darwin-arm64@5.0.0':
+  '@nkzw/oxc-transform-fbtee-binding-darwin-arm64@6.0.0':
     optional: true
 
-  '@nkzw/oxc-transform-fbtee-binding-darwin-x64@5.0.0':
+  '@nkzw/oxc-transform-fbtee-binding-darwin-x64@6.0.0':
     optional: true
 
-  '@nkzw/oxc-transform-fbtee-binding-linux-arm64-gnu@5.0.0':
+  '@nkzw/oxc-transform-fbtee-binding-linux-arm64-gnu@6.0.0':
     optional: true
 
-  '@nkzw/oxc-transform-fbtee-binding-linux-arm64-musl@5.0.0':
+  '@nkzw/oxc-transform-fbtee-binding-linux-arm64-musl@6.0.0':
     optional: true
 
-  '@nkzw/oxc-transform-fbtee-binding-linux-x64-gnu@5.0.0':
+  '@nkzw/oxc-transform-fbtee-binding-linux-x64-gnu@6.0.0':
     optional: true
 
-  '@nkzw/oxc-transform-fbtee-binding-linux-x64-musl@5.0.0':
+  '@nkzw/oxc-transform-fbtee-binding-linux-x64-musl@6.0.0':
     optional: true
 
-  '@nkzw/oxc-transform-fbtee-binding-win32-arm64-msvc@5.0.0':
+  '@nkzw/oxc-transform-fbtee-binding-win32-arm64-msvc@6.0.0':
     optional: true
 
-  '@nkzw/oxc-transform-fbtee-binding-win32-x64-msvc@5.0.0':
+  '@nkzw/oxc-transform-fbtee-binding-win32-x64-msvc@6.0.0':
     optional: true
 
-  '@nkzw/vite-plugin-fbtee@5.0.0(vite@8.1.0(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))':
+  '@nkzw/vite-plugin-fbtee@6.0.0(vite@8.1.0(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))':
     dependencies:
-      '@nkzw/fbtee-compiler': 5.0.0
+      '@nkzw/fbtee-compiler': 6.0.0
       vite: 8.1.0(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
 
   '@nodelib/fs.scandir@2.1.5':
@@ -9652,7 +9644,7 @@ snapshots:
     dependencies:
       reusify: 1.1.0
 
-  fbtee@5.0.0(react@19.3.1):
+  fbtee@6.0.0(react@19.3.1):
     dependencies:
       invariant: 2.2.4
       react: 19.3.1
