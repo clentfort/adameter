@@ -33,6 +33,14 @@ async function waitForMockCallCount(
 	}
 }
 
+function emptySnapshotResponse(version = '"0"') {
+	return {
+		headers: { get: () => version },
+		ok: true,
+		text: () => Promise.resolve('null'),
+	};
+}
+
 // Minimal mock store
 function createMockStore() {
 	let mergedChanges: unknown = null;
@@ -242,6 +250,7 @@ describe('loadServerSnapshot', () => {
 		expect(mockFetch).toHaveBeenCalledWith('https://example.com/store', {
 			cache: 'no-store',
 			mode: 'cors',
+			signal: expect.any(AbortSignal),
 		});
 	});
 });
@@ -259,7 +268,9 @@ describe('saveServerSnapshot', () => {
 	});
 
 	it('encrypts store content and PUTs it to the server', async () => {
-		mockFetch.mockResolvedValue({ ok: true });
+		mockFetch
+			.mockResolvedValueOnce(emptySnapshotResponse())
+			.mockResolvedValueOnce({ ok: true });
 		const store = createMockStore();
 
 		await saveServerSnapshot(
@@ -269,15 +280,74 @@ describe('saveServerSnapshot', () => {
 		);
 
 		expect(store.getMergeableContent).toHaveBeenCalledOnce();
-		expect(mockFetch).toHaveBeenCalledOnce();
+		expect(mockFetch).toHaveBeenCalledTimes(2);
 
-		const [url, options] = mockFetch.mock.calls[0];
+		const [url, options] = mockFetch.mock.calls[1];
 		expect(url).toBe('https://example.com/store');
 		expect(options.method).toBe('PUT');
 		expect(options.cache).toBe('no-store');
 		expect(options.mode).toBe('cors');
 		expect(typeof options.body).toBe('string');
 		expect(options.body.length).toBeGreaterThan(0);
+		expect(options.headers).toEqual({ 'If-Match': '"0"' });
+	});
+
+	it('loads the server snapshot before the first upload', async () => {
+		const storeUrl = 'https://example.com/unseen-store';
+		const remoteContent = [[{}, '', 'remote1'], [{}, '', 'remote2'], ''];
+		mockFetch
+			.mockResolvedValueOnce({
+				headers: { get: () => '"5"' },
+				ok: true,
+				text: async () =>
+					encrypt(jsonStringWithUndefined(remoteContent), encryptionKey),
+			})
+			.mockResolvedValueOnce({
+				headers: { get: () => '"6"' },
+				ok: true,
+				status: 200,
+			});
+		const store = createMockStore();
+
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+
+		expect(mockFetch.mock.calls[0][1].method).toBeUndefined();
+		expect(store.applyMergeableChanges).toHaveBeenCalledWith(remoteContent);
+		expect(mockFetch.mock.calls[1][1].headers).toEqual({ 'If-Match': '"5"' });
+	});
+
+	it('skips the upload when the server already has the same content', async () => {
+		const storeUrl = 'https://example.com/in-sync-store';
+		const store = createMockStore();
+		const sameContent = store.getMergeableContent();
+		mockFetch.mockResolvedValueOnce({
+			headers: { get: () => '"5"' },
+			ok: true,
+			text: async () =>
+				encrypt(jsonStringWithUndefined(sameContent), encryptionKey),
+		});
+
+		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
+
+		expect(mockFetch).toHaveBeenCalledOnce();
+	});
+
+	it('reports the HTTP status of rejected requests', async () => {
+		mockFetch.mockResolvedValueOnce({
+			ok: false,
+			status: 429,
+			statusText: 'Too Many Requests',
+			text: () => Promise.resolve(''),
+		});
+		const store = createMockStore();
+
+		await expect(
+			saveServerSnapshot(
+				store as never,
+				'https://example.com/limited-store',
+				encryptionKey,
+			),
+		).rejects.toMatchObject({ name: 'SnapshotRequestError', status: 429 });
 	});
 
 	it('serializes overlapping saves for the same room', async () => {
@@ -288,6 +358,7 @@ describe('saveServerSnapshot', () => {
 			status: number;
 		}) => void;
 		mockFetch
+			.mockResolvedValueOnce(emptySnapshotResponse())
 			.mockImplementationOnce(
 				() =>
 					new Promise((resolve) => {
@@ -306,7 +377,7 @@ describe('saveServerSnapshot', () => {
 			storeUrl,
 			encryptionKey,
 		);
-		await waitForMockCallCount(mockFetch, 1);
+		await waitForMockCallCount(mockFetch, 2);
 		store.getMergeableContent.mockReturnValue([[{}, '', ''], [{}, '', ''], '']);
 		const secondSave = saveServerSnapshot(
 			store as never,
@@ -315,7 +386,7 @@ describe('saveServerSnapshot', () => {
 		);
 		await new Promise((resolve) => setTimeout(resolve, 0));
 
-		expect(mockFetch).toHaveBeenCalledOnce();
+		expect(mockFetch).toHaveBeenCalledTimes(2);
 		resolveFirstSave({
 			headers: { get: () => '"1"' },
 			ok: true,
@@ -323,8 +394,8 @@ describe('saveServerSnapshot', () => {
 		});
 		await Promise.all([firstSave, secondSave]);
 
-		expect(mockFetch).toHaveBeenCalledTimes(2);
-		expect(mockFetch.mock.calls[1][1].headers).toEqual({
+		expect(mockFetch).toHaveBeenCalledTimes(3);
+		expect(mockFetch.mock.calls[2][1].headers).toEqual({
 			'If-Match': '"1"',
 		});
 	});
@@ -434,7 +505,7 @@ describe('saveServerSnapshot', () => {
 
 	it('skips the upload when content is unchanged since the last save', async () => {
 		const storeUrl = 'https://example.com/unchanged-store';
-		mockFetch.mockResolvedValue({
+		mockFetch.mockResolvedValueOnce(emptySnapshotResponse()).mockResolvedValue({
 			headers: { get: () => '"1"' },
 			ok: true,
 			status: 200,
@@ -444,12 +515,12 @@ describe('saveServerSnapshot', () => {
 		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
 		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
 
-		expect(mockFetch).toHaveBeenCalledOnce();
+		expect(mockFetch).toHaveBeenCalledTimes(2);
 	});
 
 	it('uploads again once the content changes', async () => {
 		const storeUrl = 'https://example.com/changed-store';
-		mockFetch.mockResolvedValue({
+		mockFetch.mockResolvedValueOnce(emptySnapshotResponse()).mockResolvedValue({
 			headers: { get: () => '"1"' },
 			ok: true,
 			status: 200,
@@ -460,12 +531,13 @@ describe('saveServerSnapshot', () => {
 		store.getMergeableContent.mockReturnValue([[{}, '', ''], [{}, '', ''], '']);
 		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
 
-		expect(mockFetch).toHaveBeenCalledTimes(2);
+		expect(mockFetch).toHaveBeenCalledTimes(3);
 	});
 
 	it('retries an unchanged snapshot after a failed save', async () => {
 		const storeUrl = 'https://example.com/failed-store';
 		mockFetch
+			.mockResolvedValueOnce(emptySnapshotResponse())
 			.mockResolvedValueOnce({
 				ok: false,
 				status: 500,
@@ -484,11 +556,11 @@ describe('saveServerSnapshot', () => {
 		).rejects.toThrow('Snapshot PUT failed (500)');
 		await saveServerSnapshot(store as never, storeUrl, encryptionKey);
 
-		expect(mockFetch).toHaveBeenCalledTimes(2);
+		expect(mockFetch).toHaveBeenCalledTimes(3);
 	});
 
 	it('throws when PUT snapshot fails', async () => {
-		mockFetch.mockResolvedValue({
+		mockFetch.mockResolvedValueOnce(emptySnapshotResponse()).mockResolvedValue({
 			ok: false,
 			status: 500,
 			statusText: 'Internal Server Error',

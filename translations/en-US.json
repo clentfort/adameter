@@ -5303,6 +5303,36 @@
         }
       ],
       "types": []
+    },
+    "Hh9WWfxxa5wnlmSSf4JzDQ==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Offline. Changes are saved on this device and sync once the connection is back.",
+          "variations": []
+        }
+      ]
+    },
+    "cnbin9j3W7ynjw/wkt64ng==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Syncing…",
+          "variations": []
+        }
+      ]
+    },
+    "5F6T9hr4HxNJmdsAxPmguw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "All changes synced",
+          "variations": []
+        }
+      ]
     }
   }
 }

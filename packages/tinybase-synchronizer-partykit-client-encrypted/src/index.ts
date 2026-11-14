@@ -3,6 +3,7 @@ export {
 	getStoreUrl,
 	loadServerSnapshot,
 	saveServerSnapshot,
+	SnapshotRequestError,
 } from './synchronizer';
 export {
 	decrypt,
