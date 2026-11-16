@@ -104,7 +104,7 @@
 		"eslint-plugin-react-hooks": "^7.0.1",
 		"husky": "^9.1.7",
 		"jsdom": "^30.1.2",
-		"lint-staged": "17.6.0",
+		"lint-staged": "17.6.1",
 		"partyserver": "0.5.10",
 		"playwright": "1.65.1",
 		"postcss": "8.5.33",
