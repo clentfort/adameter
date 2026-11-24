@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataSynchronizationContext } from '@/contexts/data-synchronization-context';
 import { buildRoomInviteUrl } from '@/utils/room-invite';
 import { generateRoomName } from '@/utils/room-name';
+import { RoomSyncStatus } from './room-sync-status';
 
 export function DataSharingContent() {
 	const { joinRoom, leaveRoom, room } = useContext(DataSynchronizationContext);
@@ -50,6 +51,7 @@ export function DataSharingContent() {
 						<p className="text-xl font-bold" data-testid="settings-room-name">
 							{room}
 						</p>
+						<RoomSyncStatus />
 					</div>
 
 					<div className="flex justify-center">

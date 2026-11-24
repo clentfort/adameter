@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { PRODUCTION_BASE_URL, PRODUCTION_PORT } from './tests/helpers/servers';
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -38,11 +39,27 @@ export default defineConfig({
 	],
 
 	/* Run your local dev server before starting the tests */
-	webServer: {
-		command: 'pnpm run dev',
-		reuseExistingServer: !process.env.CI,
-		stderr: 'pipe',
-		stdout: 'pipe',
-		url: 'http://localhost:3000',
-	},
+	webServer: [
+		{
+			command: 'pnpm run dev',
+			reuseExistingServer: !process.env.CI,
+			stderr: 'pipe',
+			stdout: 'pipe',
+			url: 'http://localhost:3000',
+		},
+		{
+			// The service worker is registered in production builds only. Wait for
+			// the dev server, whose `predev` step generates the translations.
+			command: `until curl -s -o /dev/null http://localhost:3000; do sleep 1; done && pnpm exec next build && pnpm exec next start --port ${PRODUCTION_PORT}`,
+			env: {
+				NEXT_DIST_DIR: '.next-e2e',
+				NEXT_PUBLIC_PARTYKIT_HOST: 'localhost:1999',
+			},
+			reuseExistingServer: !process.env.CI,
+			stderr: 'pipe',
+			stdout: 'pipe',
+			timeout: 300_000,
+			url: PRODUCTION_BASE_URL,
+		},
+	],
 });

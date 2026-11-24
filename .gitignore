@@ -187,3 +187,6 @@ src/translations/
 /test-results/
 
 .dev.vars
+
+# e2e production build
+/.next-e2e/

@@ -3,6 +3,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import RootLayout from '@/components/root-layout';
 import '@/i18n';
+import { ServiceWorkerRegistration } from '@/components/service-worker-registration';
 import { ThemeProvider } from '@/components/theme-provider';
 import { DataSynchronizationProvider } from '@/contexts/data-synchronization-context';
 import { I18nProvider } from '@/contexts/i18n-context';
@@ -22,6 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 				<link href="/manifest.json" rel="manifest" type="manifest" />
 			</head>
 			<body>
+				<ServiceWorkerRegistration />
 				<I18nProvider>
 					<ThemeProvider
 						attribute="class"

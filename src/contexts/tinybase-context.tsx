@@ -2,6 +2,7 @@
 
 import type { MergeableStore } from 'tinybase';
 import type { Persister } from 'tinybase/persisters';
+import type { RoomSyncStatus } from '@/lib/tinybase-sync/room-sync';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { createMergeableStore } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
@@ -21,6 +22,7 @@ import { repairMissingProfileIds } from '@/migrations/2026-06-05-consolidate-dup
 import { runMigrationsIfNeeded } from '@/migrations/run-if-needed';
 import { getDeviceId } from '@/utils/device-id';
 import { DataSynchronizationContext } from './data-synchronization-context';
+import { RoomSyncStatusContext } from './room-sync-status-context';
 
 const defaultStore = createMergeableStore();
 
@@ -59,7 +61,7 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 	joinStrategyRef.current = joinStrategy;
 	const storeRef = useRef<MergeableStore>(defaultStore);
 	const [isLocalReady, setIsLocalReady] = useState(false);
-	const [isSyncReady, setIsSyncReady] = useState(false);
+	const [syncStatus, setSyncStatus] = useState<RoomSyncStatus | undefined>();
 
 	useEffect(() => {
 		let isDisposed = false;
@@ -103,7 +105,8 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 			}
 		};
 
-		void initialize().catch(() => {
+		void initialize().catch((error: unknown) => {
+			logger.error('Failed to initialize local store:', error);
 			if (!isDisposed) {
 				setIsLocalReady(true);
 			}
@@ -122,19 +125,23 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		}
 
 		if (!room) {
-			setIsSyncReady(true);
+			setSyncStatus(undefined);
 			return;
 		}
 
-		setIsSyncReady(false);
-
-		return startRoomSync({
+		// Sync runs in the background. The app always renders from local data,
+		// so an unreachable relay never blocks it.
+		const stopRoomSync = startRoomSync({
 			joinStrategy: joinStrategyRef.current,
 			onJoinStrategyApplied: resetJoinStrategy,
-			onReady: () => setIsSyncReady(true),
+			onStatusChange: setSyncStatus,
 			room,
 			store: storeRef.current,
 		});
+		return () => {
+			stopRoomSync();
+			setSyncStatus(undefined);
+		};
 	}, [isHydrated, isLocalReady, resetJoinStrategy, room]);
 
 	useEffect(() => {
@@ -153,9 +160,15 @@ export function TinybaseProvider({ children }: TinybaseProviderProps) {
 		}
 	}, [isLocalReady]);
 
-	if (!isHydrated || !isLocalReady || !isSyncReady) {
+	if (!isHydrated || !isLocalReady) {
 		return <SplashScreen />;
 	}
 
-	return <Provider store={storeRef.current}>{children}</Provider>;
+	return (
+		<Provider store={storeRef.current}>
+			<RoomSyncStatusContext.Provider value={syncStatus}>
+				{children}
+			</RoomSyncStatusContext.Provider>
+		</Provider>
+	);
 }

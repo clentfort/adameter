@@ -18,9 +18,31 @@ const getPartykitHostForBuild = () => {
 
 const partykitHost = getPartykitHostForBuild();
 
+// Versions the service worker, so every deploy precaches its own pages.
+const buildId =
+	process.env.VERCEL_DEPLOYMENT_ID ??
+	process.env.VERCEL_GIT_COMMIT_SHA ??
+	'local';
+
 const nextConfig: NextConfig = {
+	// The e2e suite builds into its own directory next to `next dev`.
+	distDir: process.env.NEXT_DIST_DIR ?? '.next',
 	env: {
+		NEXT_PUBLIC_BUILD_ID: buildId,
 		NEXT_PUBLIC_PARTYKIT_HOST: partykitHost,
+	},
+	async headers() {
+		return [
+			{
+				headers: [
+					{
+						key: 'Cache-Control',
+						value: 'no-cache, no-store, must-revalidate',
+					},
+				],
+				source: '/sw.js',
+			},
+		];
 	},
 	productionBrowserSourceMaps: true,
 	typescript: {

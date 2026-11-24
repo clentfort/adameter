@@ -48,21 +48,6 @@ async function waitForSnapshotMatching(
 	);
 }
 
-async function waitForDebouncedSnapshotSave(
-	page: Parameters<typeof addManualFeedingEntry>[0],
-) {
-	// Let any request already in flight finish before observing the transaction's
-	// one-second debounced save.
-	await page.waitForTimeout(500);
-	await page.waitForResponse(
-		(res) =>
-			res.url().includes('/store') &&
-			res.request().method() === 'PUT' &&
-			res.ok(),
-		{ timeout: 30_000 },
-	);
-}
-
 async function addManualFeedingEntryOffline(
 	page: Parameters<typeof addManualFeedingEntry>[0],
 	breast: 'left' | 'right',
@@ -89,19 +74,26 @@ test.describe('Offline Synchronization', () => {
 		try {
 			// 1. Both devices share a room. Let bootstrap and initial snapshot saves
 			// settle so the response below can only belong to the new feeding.
-			await createRoomAndJoinPeer(session);
+			const roomName = await createRoomAndJoinPeer(session);
 			await pageA.waitForTimeout(1500);
 
 			// 2. Device B goes offline
 			await contextB.setOffline(true);
 
-			// 3. Device A records a feeding. Ignore any navigation-triggered save
-			// already in flight, then wait for the event's debounced snapshot save.
+			// 3. Device A records a feeding and saves it to the snapshot.
+			const feedingSnapshotSave = waitForSnapshotMatching(
+				pageA,
+				roomName,
+				(snapshotStore) =>
+					Object.values(snapshotStore.getTable('feedingSessions')).some(
+						(row) => typeof row.endTime === 'string',
+					),
+			);
 			await pageA.goto('/feeding');
 			await pageA.getByRole('button', { name: 'Left Breast' }).click();
 			await pageA.getByRole('button', { name: 'End Feeding' }).click();
 			await expect(pageA.getByText('Left Breast')).toHaveCount(2);
-			await waitForDebouncedSnapshotSave(pageA);
+			await feedingSnapshotSave;
 
 			// 4. Device A goes offline
 			await pageA.context().setOffline(true);
@@ -407,7 +399,6 @@ test.describe('Offline Synchronization', () => {
 					.getByTestId('feeding-history-entry')
 					.filter({ hasText: '30 min' }),
 			).toHaveCount(1);
-			await waitForDebouncedSnapshotSave(pageA);
 			const tenMinuteEntryA = pageA
 				.getByTestId('feeding-history-entry')
 				.filter({ hasText: '10 min' })

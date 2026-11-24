@@ -5173,6 +5173,36 @@
           "variations": []
         }
       ]
+    },
+    "Hh9WWfxxa5wnlmSSf4JzDQ==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Offline. Änderungen werden auf diesem Gerät gespeichert und synchronisiert, sobald die Verbindung wieder da ist.",
+          "variations": []
+        }
+      ]
+    },
+    "cnbin9j3W7ynjw/wkt64ng==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Wird synchronisiert…",
+          "variations": []
+        }
+      ]
+    },
+    "5F6T9hr4HxNJmdsAxPmguw==": {
+      "tokens": [],
+      "types": [],
+      "translations": [
+        {
+          "translation": "Alle Änderungen synchronisiert",
+          "variations": []
+        }
+      ]
     }
   }
 }
