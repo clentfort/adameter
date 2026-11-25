@@ -47,7 +47,7 @@
 		"@semantic-release/release-notes-generator": "^14.0.3",
 		"@types/node": "^26.0.0",
 		"partyserver": "0.5.10",
-		"semantic-release": "^25.0.0",
+		"semantic-release": "^26.0.0",
 		"typescript": "^6.0.0",
 		"vitest": "5.1.1"
 	}
